@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="org.szcloud.framework.unit.core.domain.PunResource">
+	<resultMap id="rm" type="org.szcloud.framework.unit.core.domain.PunResource">
+		<result property="resourceId" jdbcType="BIGINT"
+			column="RESOURCE_ID" />
+		<result property="sysId" jdbcType="BIGINT"
+			column="SYS_ID" />
+		<result property="relateResoId" jdbcType="VARCHAR"
+			column="RELATE_RESO_ID" />
+		<result property="resouType" jdbcType="VARCHAR"
+			column="RESOURCE_TYPE" />
+		<result property="resourceName" jdbcType="VARCHAR"
+			column="RESOURCE_NAME"/>
+		<result property="whichEnd" jdbcType="VARCHAR"
+			column="WHICH_END" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		RESOURCE_ID,
+		SYS_ID,
+		RELATE_RESO_ID,
+		RESOURCE_TYPE,
+		RESOURCE_NAME,
+		WHICH_END
+	</sql>
+	<sql id="Conn_Column_List">
+		t.RESOURCE_ID,
+		t.SYS_ID,
+		t.RELATE_RESO_ID,
+		t.RESOURCE_TYPE,
+		t.RESOURCE_NAME,
+		t.WHICH_END
+	</sql>
+
+   <!-- 复杂条件的查询-->
+	<sql id="Select_Example_Where_Clause">
+		<where>
+			<foreach collection="oredCriteria" item="criteria" separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" suffix=")" prefixOverrides="and">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition}
+									#{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition}
+									#{criterion.value}
+									and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach collection="criterion.value" item="listItem"
+										open="(" close=")" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+	<!-- 所有字段等于的查询条件 -->
+	<sql id="EQ_Where_Clause">
+		where 1=1
+		<trim suffixOverrides=",">
+			<if test="sysId != null and sysId != ''">
+				AND SYS_ID = #{sysId}
+			</if>
+
+			<if test="relateResoId != null and relateResoId != ''">
+				AND RELATE_RESO_ID = #{relateResoId}
+			</if>
+
+			<if test="resouType != null and resouType != ''">
+				AND RESOURCE_TYPE = #{resouType}
+			</if>
+			
+			<if test="resourceName != null and resourceName !=''">
+				AND RESOURCE_NAME = #{resourceName}
+			</if>
+			
+			<if test="whichEnd != null and whichEnd != ''">
+				AND WHICH_END = #{whichEnd}
+			</if>
+		</trim>
+	</sql>
+	<select id="get" parameterType="java.lang.Long" resultMap="rm">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM p_un_resource
+		WHERE
+		RESOURCE_ID = #{resourceId} 
+	</select>
+	<!-- 根据UserId,组ID和角色ID查询资源 -->
+	
+	<!-- 根据菜单IDS查找菜单列表 -->
+	<select id="getResourceListByIds" parameterType="Object" resultMap="rm">
+		SELECT * FROM P_UN_RESOURCE 
+		WHERE RESOURCE_ID IN (${ids})
+	</select>
+	
+	<!-- 根据菜单 RELATE_IDS查找菜单列表 -->
+	<select id="getResourceListByRelateIds" parameterType="Object" resultMap="rm">
+		SELECT * FROM P_UN_RESOURCE 
+		WHERE RESOURCE_TYPE = #{resourceType} AND RELATE_RESO_ID IN (${ids})
+	</select>
+	
+	<!-- 根据菜单 RELATE_IDS查找资源列表-->
+	<select id="getResourceIdByRelateId" parameterType="Object" resultMap="rm">
+		SELECT * FROM P_UN_RESOURCE 
+		WHERE RESOURCE_TYPE = #{resourceType} AND RELATE_RESO_ID = #{relateId}
+	</select>
+	
+	<!-- 查询所有的ID -->
+	<select id="findAllIds" resultType="java.lang.Long">
+		SELECT
+		RESOURCE_ID FROM p_un_resource
+	</select>
+
+	<!-- 按Id删除 -->
+	<delete id="remove" parameterType="java.lang.Long">
+		DELETE FROM p_un_resource
+		WHERE
+		RESOURCE_ID =
+		#{resourceId} 
+	</delete>
+	
+	<!-- 按relateResoh及type删除 -->
+	<delete id="removeByRelateResoAndType" parameterType="java.util.Map">
+		DELETE FROM p_un_resource
+		WHERE
+		RELATE_RESO_ID = #{relateResoId}
+		and RESOURCE_TYPE = #{type}  
+	</delete>
+	
+	<!-- 根据模糊条件批量删除 -->
+	<delete id="likeBatchDelete" parameterType="String">
+		DELETE FROM p_un_resource
+		WHERE
+		PID like #{pid}"%"
+	</delete>
+	
+	<!-- 插入 -->
+	<insert id="insert" useGeneratedKeys="true"
+		keyProperty="resourceId">
+		INSERT INTO p_un_resource (
+		RESOURCE_ID,
+		SYS_ID,
+		RELATE_RESO_ID,
+		RESOURCE_TYPE,
+		RESOURCE_NAME,
+		WHICH_END
+		) VALUES (
+		#{resourceId},
+		#{sysId},
+		#{relateResoId},
+		#{resouType},
+		#{resourceName},
+		#{whichEnd}
+		)
+	</insert>
+
+	<select id="countAll" resultType="java.lang.Integer">
+		SELECT
+		count(RESOURCE_ID) FROM p_un_resource
+	</select>
+
+	<select id="getAll" resultMap="rm">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM p_un_resource
+	</select>
+
+	<!-- 更新 -->
+	<update id="updateSelective" parameterType="org.szcloud.framework.unit.core.domain.PunResource">
+		UPDATE p_un_resource
+		<set>
+			<if test="sysId!=null">
+				SYS_ID = #{sysId},
+			</if>
+			<if test="relateResoId!=null">
+				RELATE_RESO_ID = #{relateResoId},
+			</if>
+			<if test="resouType!=null">
+				RESOURCE_TYPE = #{resouType},
+			</if>
+			<if test="resourceName!=null">
+				RESOURCE_NAME = #{resourceName},
+			</if>
+			<if test="whichEnd!=null">
+				WHICH_END = #{whichEnd},
+			</if>
+		</set>
+		WHERE
+		RESOURCE_ID = #{resourceId}	</update>
+
+	<update id="update" parameterType="org.szcloud.framework.unit.core.domain.PunResource">
+		UPDATE p_un_resource SET
+		SYS_ID = #{sysId},
+		RELATE_RESO_ID = #{relateResoId},
+		RESOURCE_TYPE = #{resouType},
+		RESOURCE_NAME = #{resourceName},
+		WHICH_END = #{whichEnd}
+		WHERE
+		RESOURCE_ID = #{resourceId} 	
+	</update>
+	
+	<select id="selectByExample" resultMap="rm"
+		parameterType="org.szcloud.framework.core.domain.BaseExample">
+		select
+		<if test="distinct">
+			distinct
+		</if>
+		<include refid="Base_Column_List" />
+		from p_un_resource
+		<if test="_parameter != null">
+			<include refid="Select_Example_Where_Clause" />
+		</if>
+		<if test="orderByClause != null">
+			order by ${orderByClause}
+		</if>
+		<if test="start !=0 or limit!=0">
+			limit #{start},#{limit}
+		</if>
+	</select>
+	<select id="eqQueryList" resultMap="rm" parameterType="Object">
+		select
+		<include refid="Base_Column_List" />
+		from p_un_resource
+		<include refid="EQ_Where_Clause" />
+	</select>
+	
+	<select id="eqQueryListGroup" resultMap="rm" parameterType="Object">
+		select
+		<include refid="Base_Column_List" />
+		from p_un_resource
+		<include refid="EQ_Where_Clause" />
+		and RESOURCE_TYPE NOT IN (${resoTypes})
+		order by RESOURCE_TYPE
+	</select>	
+<!-- 查找某特定角色已获授权的资源 -->
+    <select id="queryResoAuthor" resultMap="rm" parameterType="Object">
+    	select
+		<include refid="Conn_Column_List" />
+		from p_un_resource t 
+		INNER JOIN p_un_role_access a 
+		ON t.RESOURCE_ID = a.RESOURCE_ID
+		where 1=1
+		and t.SYS_ID = #{sysId}
+		and a.ROLE_ID = #{roleId}
+		and t.RESOURCE_TYPE = #{resouType}
+    </select>
+    
+<!-- 统计同一个系统的业务类型 -->
+<!--     <select id="queryResouType" resultType="java.lang.String" parameterType="Object"> -->
+<!--     		select distinct t.RESOURCE_TYPE -->
+<!-- 				from p_un_resource t -->
+<!-- 				where t.SYS_ID = #{sysId} -->
+<!--     </select> -->
+     		
+</mapper>
+

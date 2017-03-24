@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="org.szcloud.framework.unit.core.domain.PunOriganize">
+	<resultMap id="rm" type="org.szcloud.framework.unit.core.domain.PunOriganize">
+		<result property="id" jdbcType="BIGINT"
+			column="ID" />
+		<result property="name" jdbcType="VARCHAR"
+			column="NAME" />
+		<result property="described" jdbcType="VARCHAR"
+			column="DESCRIBED" />
+		<result property="createDate" jdbcType="DATE"
+			column="CREATE_DATE" />
+		<result property="updateDate" jdbcType="DATE"
+			column="UPDATE_DATE" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		ID as id,
+		NAME as name,
+		DESCRIBED as described,
+		CREATE_DATE as createDate,
+		UPDATE_DATE as updateDate
+	</sql>
+	
+
+	<!-- 所有字段等于的查询条件 -->
+	<sql id="EQ_Where_Clause">
+		<trim prefix="where" prefixOverrides="and">
+			<if test="id != null">
+				AND ID = #{id}
+			</if>
+			<if test="name != null and name != ''">
+				AND NAME LIKE CONCAT('%',#{name},'%' ) 
+			</if>
+			<if test="described != null and described != ''">
+				AND DESCRIBED = #{described}
+			</if>
+
+			<if test="createDate != null and createDate != ''">
+				AND CREATE_DATE = #{createDate}
+			</if>
+			
+			<if test="updateDate != null and updateDate != ''">
+				AND UPDATE_DATE = #{updateDate}
+			</if>
+
+		</trim>
+	</sql>
+	<select id="queryList" resultMap="rm" parameterType="Object">
+		select
+		<include refid="Base_Column_List" />
+		from p_un_origanize
+		<include refid="EQ_Where_Clause" />
+	</select>
+	<!-- 所有字段等于的查询条件 -->
+	<sql id="LIKE_Where_Clause">
+		where 1=1 
+		<trim suffixOverrides=",">
+
+			<if test="name != null and name != ''">
+				AND NAME LIKE CONCAT('%',#{name},'%' ) 
+			</if>
+
+			<if test="described != null and described != ''">
+				AND DESCRIBED LIKE '${described}%'
+			</if>
+
+
+			<if test="createDate != null and createDate != ''">
+				AND CREATE_DATE = #{createDate}
+			</if>
+			
+			<if test="updateDate != null and updateDate != ''">
+				AND UPDATE_DATE = #{updateDate}
+			</if>
+
+		</trim>
+	</sql>
+	
+	<select id="get" parameterType="java.lang.Long" resultMap="rm">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM p_un_origanize
+		WHERE
+		ID = #{id} 
+	</select>
+	
+	<!-- 按Id删除 -->
+	<delete id="remove" parameterType="java.lang.Long">
+		DELETE FROM p_un_origanize
+		WHERE
+		ID =
+		#{id} 
+	</delete>
+	
+	<!-- 插入 -->
+	<insert id="insert" useGeneratedKeys="true"
+		keyProperty="id">
+		<selectKey resultType="java.lang.Long" order="AFTER"
+			keyProperty="id">
+			SELECT LAST_INSERT_ID()
+		</selectKey>	 
+		INSERT INTO p_un_origanize (
+		ID,
+		NAME,
+		DESCRIBED,
+		CREATE_DATE,
+		UPDATE_DATE
+		) VALUES (
+		#{id},
+		#{name},
+		#{described},
+		#{createDate},
+		#{updateDate}
+		)
+	</insert>
+
+	<select id="countAll" resultType="java.lang.Long">
+		SELECT
+		count(ID) FROM p_un_origanize
+	</select>
+
+	<select id="getAll" resultMap="rm">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM p_un_origanize 
+		order by ID asc
+	</select>
+
+
+	<update id="update" parameterType="org.szcloud.framework.unit.core.domain.PunOriganize">
+		UPDATE p_un_origanize SET
+		NAME = #{name},
+		DESCRIBED = #{described},
+		UPDATE_DATE = #{updateDate}
+		WHERE
+		ID = #{id} 	
+	</update>
+	
+	<insert id="addOrgUsers" parameterType="map">
+		insert into p_un_user_org(ORG_ID,USER_ID) values
+		<foreach collection="userIds" index="index" item="item" separator=",">
+          ( #{orgId}, #{item} )
+        </foreach>
+	</insert>
+	
+	<delete id="deleteOrgUsers" parameterType="map">
+		delete from p_un_user_org where ORG_ID=#{orgId}
+	</delete>
+	
+	<select id="getOrgUsers" resultType="map" parameterType="map">
+		select a.user_id as id,b.name as name from p_un_user_org a 
+		left join p_un_user_base_info b on a.user_id=b.user_id where ORG_ID=#{orgId}
+	</select>
+	
+
+
+	
+	
+	
+	
+			
+</mapper>
+

@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="org.szcloud.framework.unit.core.domain.PunSystemDict">
+	<resultMap id="rm" type="org.szcloud.framework.unit.core.domain.PunSystemDict">
+		<result property="id" jdbcType="BIGINT"
+			column="ID" />
+		<result property="code" jdbcType="VARCHAR"
+			column="DICT_CODE" />
+		<result property="key" jdbcType="VARCHAR"
+			column="DICT_KEY" />
+		<result property="value" jdbcType="VARCHAR"
+			column="DICT_VALUE" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		DICT_CODE,
+		DICT_KEY,
+		DICT_VALUE
+	</sql>
+
+   <!-- 复杂条件的查询-->
+	<sql id="Select_Example_Where_Clause">
+		<where>
+			<foreach collection="oredCriteria" item="criteria" separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" suffix=")" prefixOverrides="and">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition}
+									#{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition}
+									#{criterion.value}
+									and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach collection="criterion.value" item="listItem"
+										open="(" close=")" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+	<!-- 所有字段等于的查询条件 -->
+	<sql id="EQ_Where_Clause">
+		where 1=1
+		<trim suffixOverrides=",">
+			<if test="code != null and code != ''">
+				AND DICT_CODE = #{code}
+			</if>
+
+			<if test="key != null and key != ''">
+				AND DICT_KEY = #{key}
+			</if>
+
+			<if test="value != null and value != ''">
+				AND DICT_VALUE = #{value}
+			</if>
+
+		</trim>
+	</sql>
+	<select id="get" parameterType="java.lang.Long" resultMap="rm">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM p_un_sysdict
+		WHERE
+		ID = #{id} 
+	</select>
+	<select id="getByCode" parameterType="java.lang.String" resultMap="rm">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM p_un_sysdict
+		WHERE
+		DICT_CODE = #{code} 
+	</select>
+
+	<!-- 按Id删除 -->
+	<delete id="remove" parameterType="java.lang.Long">
+		DELETE FROM p_un_sysdict
+		WHERE
+		ID =
+		#{id} 
+	</delete>
+	<!-- 插入 -->
+	<insert id="insert" useGeneratedKeys="true"
+		keyProperty="userId">
+		INSERT INTO p_un_sysdict (
+		ID,
+		DICT_CODE,
+		DICT_KEY,
+		DICT_VALUE
+		) VALUES (
+		#{id},
+		#{code},
+		#{key},
+		#{value}
+		)
+	</insert>
+
+	<select id="countAll" resultType="java.lang.Integer">
+		SELECT
+		count(ID) FROM p_un_sysdict
+	</select>
+
+	<select id="getAll" resultMap="rm">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM p_un_sysdict
+	</select>
+
+	<!-- 更新 -->
+	<update id="updateSelective" parameterType="org.szcloud.framework.unit.core.domain.PunSystemDict">
+		UPDATE p_un_sysdict
+		<set>
+			<if test="code != null">
+				DICT_CODE = #{userName},
+			</if>
+			<if test="key != null">
+				DICT_KEY = #{key},
+			</if>
+			<if test="value != null">
+				DICT_VALUE = #{value},
+			</if>
+		</set>
+		WHERE
+		USER_ID = #{id}	</update>
+
+	<update id="update" parameterType="org.szcloud.framework.unit.core.domain.PunSystemDict">
+		UPDATE p_un_sysdict SET
+		DICT_CODE = #{code},
+		DICT_KEY = #{key},
+		DICT_VALUE = #{value}
+		WHERE
+		USER_ID = #{id} 	</update>
+
+
+	
+	<select id="selectByExample" resultMap="rm"
+		parameterType="org.szcloud.framework.core.domain.BaseExample">
+		select
+		<if test="distinct">
+			distinct
+		</if>
+		<include refid="Base_Column_List" />
+		from p_un_sysdict
+		<if test="_parameter != null">
+			<include refid="Select_Example_Where_Clause" />
+		</if>
+		<if test="orderByClause != null">
+			order by ${orderByClause}
+		</if>
+		<if test="start !=0 or limit!=0">
+			limit #{start},#{limit}
+		</if>
+	</select>
+	<select id="eqQueryList" resultMap="rm" parameterType="Object">
+		select
+		<include refid="Base_Column_List" />
+		from p_un_sysdict
+		<include refid="EQ_Where_Clause" />
+	</select>
+</mapper>
+

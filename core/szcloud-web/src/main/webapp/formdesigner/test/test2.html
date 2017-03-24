@@ -1,0 +1,190 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 4.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>jQuery formValidator表</title>
+<meta name="Author" content="猫冬" />
+<meta name="description" content="jQuery formValidator表单验证插件" />
+<meta name="keywords" content="jQuery,formValidator,插件,表单,验证,插件,javascript,表单验证,提示层" />
+<link rel="stylesheet" href="../../base/resources/artDialog/css/ui-dialog.css" />
+
+<link rel="stylesheet" href="../../base/resources/tips/tip-green/tip-green.css" type="text/css" />
+<link rel="stylesheet" href="../../base/resources/tips/tip-yellowsimple/tip-yellowsimple.css" type="text/css" />
+
+<script src="../../base/resources/artDialog/lib/jquery-1.10.2.js" type="text/javascript"></script>
+<script src="../../base/resources/tips/jquery.poshytip.js"></script>
+<script src="../../base/resources/formValidator4.1.0/formValidator-4.1.0.a.js" type="text/javascript" charset="UTF-8"></script>
+<script src="../../base/resources/formValidator4.1.0/formValidatorRegex.js" type="text/javascript" charset="UTF-8"></script>
+<script type="text/javascript">
+	$(document).ready(function() {
+		/**/ $.formValidator.initConfig({
+			theme : "Default",
+			submitOnce : true,
+			formID : "form1",
+			autoTip : true
+		}); 
+		/*var d = dialog({
+			title: '消息',
+			content: '&lt;input id="property-returnValue-demo" value="1" /&gt;',
+			ok: function () {
+				var value = '你好';
+				this.close(value);
+				this.remove();
+			}
+		});
+		d.addEventListener('close', function () {
+			alert(this.returnValue);
+		});
+		d.show();*/
+		/**/ $("#password1").formValidator({
+			onShow : "请输入密码",
+			onFocus : "至少1个长度",
+			onCorrect : "密码合法"
+		}).inputValidator({
+			min : 1,
+			empty : {
+				leftEmpty : false,
+				rightEmpty : false,
+				emptyError : "密码两边不能有空符号"
+			},
+			onError : "密码不能为空,请确认"
+		}); 
+		//$("#password2").formValidator({onShow:"输再次输入密码",onFocus:"至少1个长度",onCorrect:"密码一致"}).inputValidator({min:1,empty:{leftEmpty:false,rightEmpty:false,emptyError:"重复密码两边不能有空符号"},onError:"重复密码不能为空,请确认"}).compareValidator({desID:"password12",operateor:"=",onError:"2次密码不一致,请确认"});
+	});
+	function showdailog(o){
+		var d = dialog({
+			title: '消息',
+			content: '&lt;input id="property-returnValue-demo" value="1" /&gt;',
+			ok: function () {
+				var value = '你好';
+				this.close(value);
+				this.remove();
+			}
+		}).show(o);
+	}
+</script>
+<style type="text/css">
+body, div {
+	font-size: 12px;
+}
+
+tr {
+	height: 32px;
+}
+</style>
+</head>
+
+<body>
+	<h3>jQuery formValidator表单验证插件示例</h3>
+	<p>
+		<strong>演示插件4.1.0提供的ajaForm对整个form进行提交</strong>
+	</p>
+	<p>
+		请访问官方网站获取更多的资料和帮助:<a href="http://www.yhuan.com/">http://www.yhuan.com/</a>
+	</p>
+	<form action="" method="post" name="form1" id="form1">
+
+
+		<input type="submit" name="button" id="button" value="提交" /> <br />
+		<table border="0px" style="font-size: 12px" width="630px">
+			<tr>
+				<td align="right">用户名:</td>
+				<td><input type="text" id="us" name="us" style="width: 120px"
+					value="maodong" /></td>
+			</tr>
+			<tr>
+				<td align="right">密码:</td>
+				<td><input type="password" id="password1" name="password1"
+					style="width: 120px" /></td>
+			</tr>
+			<tr>
+				<td align="right">重复密码:</td>
+				<td><input type="password" id="password2" name="password2"
+					style="width: 120px" /></td>
+			</tr>
+			<tr>
+				<td align="right" valign="top">你的描述:</td>
+				<td colspan="2" valign="top"><textarea id="ms" name="ms"
+						cols="50" rows="10">这里是十个中文字符哦</textarea></td>
+			</tr>
+			<tr>
+			</tr>
+		</table>
+		<table border="0px" style="font-size: 12px" width="630px">
+			<tr>
+				<td align="right">用户名:</td>
+				<td><input type="text" id="us" name="us" style="width: 120px"
+					value="maodong" /></td>
+			</tr>
+			<tr>
+				<td align="right">密码:</td>
+				<td><input type="password" id="password12" name="password12"
+					style="width: 120px" /></td>
+			</tr>
+			<tr>
+				<td align="right">重复密码:</td>
+				<td><input type="password" id="password2" name="password2"
+					style="width: 120px" /></td>
+			</tr>
+			<tr>
+				<td align="right" valign="top">你的描述:</td>
+				<td colspan="2" valign="top"><textarea id="ms" name="ms"
+						cols="50" rows="10">这里是十个中文字符哦</textarea></td>
+			</tr>
+			<tr>
+			</tr>
+		</table>
+		<table border="0px" style="font-size: 12px" width="630px">
+			<tr>
+				<td align="right">用户名:</td>
+				<td><input type="text" id="us" name="us" style="width: 120px"
+					value="maodong" /></td>
+			</tr>
+			<tr>
+				<td align="right">密码:</td>
+				<td><input type="password" id="password12" name="password12"
+					style="width: 120px" /></td>
+			</tr>
+			<tr>
+				<td align="right">重复密码:</td>
+				<td><input type="password" id="password2" name="password2"
+					style="width: 120px" /></td>
+			</tr>
+			<tr>
+				<td align="right" valign="top">你的描述:</td>
+				<td colspan="2" valign="top"><textarea id="ms" name="ms"
+						cols="50" rows="10">这里是十个中文字符哦</textarea></td>
+			</tr>
+			<tr>
+			</tr>
+		</table>
+		<table border="0px" style="font-size: 12px" width="630px">
+			<tr>
+				<td align="right">用户名:</td>
+				<td><input type="text" id="us" name="us" style="width: 120px"
+					value="maodong" /></td>
+			</tr>
+			<tr>
+				<td align="right">密码:</td>
+				<td><input type="password" id="password12" name="password12"
+					style="width: 120px" /></td>
+			</tr>
+			<tr>
+				<td align="right">重复密码:</td>
+				<td><input type="password" id="password2" name="password2"
+					style="width: 120px" /></td>
+			</tr>
+			<tr>
+				<td align="right" valign="top">你的描述:</td>
+				<td colspan="2" valign="top"><textarea id="ms" name="ms"
+						cols="50" rows="10">这里是十个中文字符哦</textarea></td>
+			</tr>
+			<tr>
+			</tr>
+		</table>
+		<input type="text" id="testdialog" onfocus="showdailog(this);" value="21111" />
+
+	</form>
+	<div id="output"></div>
+</body>
+</html>

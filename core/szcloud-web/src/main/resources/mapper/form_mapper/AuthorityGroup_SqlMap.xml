@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="org.szcloud.framework.formdesigner.core.domain.AuthorityGroup">
+     <!-- <cache type="org.mybatis.caches.memcached.LoggingMemcachedCache" /> -->
+	<resultMap id="rm" type="org.szcloud.framework.formdesigner.core.domain.AuthorityGroup">
+		<id property="id" jdbcType="VARCHAR" column="ID"/>
+		<result property="name" jdbcType="VARCHAR" column="NAME"/>
+		<result property="dynamicPageId" jdbcType="BIGINT" column="DYNAMICPAGE_ID"/>
+		<result property="systemId" jdbcType="BIGINT" column="SYSTEM_ID"/> 
+		<result property="creater" jdbcType="BIGINT" column="CREATER"/> 
+		<result property="createTime" jdbcType="TIMESTAMP" column="CREATE_TIME"/> 
+		<result property="lastupdater" jdbcType="BIGINT" column="LASTUPDATER"/> 
+		<result property="lastupdateTime" jdbcType="TIMESTAMP" column="LASTUPDATE_TIME"/> 
+		<result property="order" jdbcType="VARCHAR" column="T_ORDER"/> 
+		<result property="description" jdbcType="VARCHAR" column="DESCRIPTION"/>
+	</resultMap>
+	
+	 <!-- 插入 -->
+	<insert id="insert" keyProperty="id" flushCache="true">
+		INSERT INTO p_fm_authoritygroup (
+			ID,NAME,DYNAMICPAGE_ID,SYSTEM_ID,CREATER,CREATE_TIME,LASTUPDATER,LASTUPDATE_TIME,T_ORDER,DESCRIPTION
+		) VALUES (
+			#{id},
+			#{name},
+			#{dynamicPageId},
+			#{systemId},
+			#{creater},
+			#{createTime},
+			#{lastupdater},
+			#{lastupdateTime},
+			#{order},
+			#{description}			
+		)
+	</insert>
+	
+	<update id="update" parameterType="org.szcloud.framework.formdesigner.core.domain.AuthorityGroup">
+		UPDATE p_fm_authoritygroup SET
+			NAME = #{name},
+			<!-- DYNAMICPAGE_ID = #{dynamicPageId},
+			SYSTEM_ID = #{systemId},
+			CREATER = #{creater},
+			CREATE_TIME = #{createTime}, -->
+			LASTUPDATER = #{lastupdater},
+			LASTUPDATE_TIME = #{lastupdateTime},
+			T_ORDER = #{order},
+			DESCRIPTION = #{description}
+		WHERE 
+			ID = #{id} 
+	</update>
+	
+	<!-- 按Id删除 -->
+	<delete id="remove" parameterType="String">
+		DELETE FROM p_fm_authoritygroup
+		WHERE
+		ID = #{id} 
+	</delete>
+	
+	<select id="get" parameterType="String" resultMap="rm">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM p_fm_authoritygroup
+		WHERE
+		ID = #{id} 
+	</select>
+	
+	<sql id="Base_Column_List">
+		ID,NAME,DYNAMICPAGE_ID,SYSTEM_ID,CREATER,CREATE_TIME,LASTUPDATER,LASTUPDATE_TIME,T_ORDER,DESCRIPTION
+	</sql>
+
+	<sql id="Select_Example_Where_Clause">
+		<where>
+			<foreach collection="oredCriteria" item="criteria" separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" suffix=")" prefixOverrides="and">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition} #{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition} #{criterion.value}
+									and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach collection="criterion.value" item="listItem"
+										open="(" close=")" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+
+	<!-- 查询条件 -->
+	<sql id="EQ_Where_Clause">
+		where 1=1
+		<trim suffixOverrides=",">
+			<if test="id != null and id != ''">
+				and ID = #{id}
+			</if>
+			<if test="name != null and name != ''">
+				and NAME = #{name}
+			</if>
+			<if test="dynamicPageId != null and dynamicPageId != ''">
+				and DYNAMICPAGE_ID = #{dynamicPageId}
+			</if>
+			<if test="systemId != null and systemId != ''">
+				and SYSTEM_ID = #{systemId}
+			</if> 
+			<if test="creater != null and creater != ''">
+				and CREATER = #{creater}
+			</if> 
+			<if test="createTime != null and createTime != ''">
+				and CREATE_TIME = #{createTime}
+			</if> 
+			<if test="lastupdater != null and lastupdater != ''">
+				and LASTUPDATER = #{lastupdater}
+			</if> 
+			<if test="lastupdateTime != null and lastupdateTime != ''">
+				and LASTUPDATE_TIME = #{lastupdateTime}
+			</if> 
+			<if test="order != null and order != ''">
+				and ORDER = #{order}
+			</if>
+			<if test="description != null and description != ''">
+				and DESCRIPTION = #{description}
+			</if>
+		</trim>
+	</sql>
+	
+	<select id="eqQueryList" resultMap="rm" parameterType="Object">
+		select
+		<include refid="Base_Column_List" />
+		from p_fm_authoritygroup
+		<include refid="EQ_Where_Clause" />
+	</select>
+	
+	<select id="queryCountByExample" resultType="INTEGER" 
+		parameterType="org.szcloud.framework.core.domain.BaseExample">
+		select count(*) as C from (
+		select
+		<if test="distinct">
+			distinct
+		</if>
+		<include refid="Base_Column_List" />
+		from p_fm_authoritygroup
+		<if test="_parameter != null">
+			<include refid="Select_Example_Where_Clause" />
+		</if>
+		) tmpcount
+		
+	</select>
+	<select id="selectByExample" resultMap="rm"
+		parameterType="org.szcloud.framework.core.domain.BaseExample">
+		select
+		<if test="distinct">
+			distinct
+		</if>
+		<include refid="Base_Column_List" />
+		from p_fm_authoritygroup
+		<if test="_parameter != null">
+			<include refid="Select_Example_Where_Clause" />
+		</if>
+		<if test="orderByClause != null">
+			order by ${orderByClause}
+		</if>
+		<if test="start !=0 or limit!=0">
+			limit #{start},#{limit}
+		</if>
+		
+	</select>		
+	
+</mapper>
+

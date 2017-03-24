@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <tx:annotation-driven proxy-target-class="true"/>
+
+	<bean id="dataSourceService1" class="org.szcloud.framework.workflow.core.core.jdbc.DataSourceServiceFactoryBean">
+		<property name="properties" ref="applicationProperties"/>
+		<property name="defaultPrefix" value="db"/>
+	</bean>
+	
+	<bean id="dataSourceService2" class="org.szcloud.framework.workflow.core.core.jdbc.DataSourceServiceFactoryBean">
+		<property name="properties" ref="applicationProperties"/>
+		<property name="defaultPrefix" value="sqlserver"/>
+	</bean>
+
+	<bean id="mysqlDataSource1" factory-bean="dataSourceService1" factory-method="getDataSource"/>
+	
+	<bean id="sqlServerDataSource2" factory-bean="dataSourceService2" factory-method="getDataSource"/>
+	
+	<bean id="mysqlJdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="mysqlDataSource1" />
+	</bean>
+	
+	<bean id="sqlServerJdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="sqlServerDataSource2" />
+	</bean>
+
+	<!-- <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean> -->
+</beans>

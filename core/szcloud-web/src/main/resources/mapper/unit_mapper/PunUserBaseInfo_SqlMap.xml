@@ -1,0 +1,613 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="org.szcloud.framework.unit.core.domain.PunUserBaseInfo">
+	<resultMap id="rm" type="org.szcloud.framework.unit.core.domain.PunUserBaseInfo">
+		<result property="userId" jdbcType="BIGINT"
+			column="USER_ID" />
+		<result property="userName" jdbcType="VARCHAR"
+			column="USER_NAME" />
+		<result property="userPwd" jdbcType="VARCHAR"
+			column="USER_PWD" />
+		<result property="userIdCardNumber" jdbcType="VARCHAR"
+			column="USER_ID_CARD_NUMBER" />
+		<result property="name" jdbcType="VARCHAR"
+			column="NAME" />
+		<result property="userBirthPlace" jdbcType="VARCHAR"
+			column="USER_BIRTH_PLACE" />
+		<result property="userHouseholdRegist" jdbcType="VARCHAR"
+			column="USER_HOUSEHOLD_REGIST" />
+		<result property="userDomicile" jdbcType="VARCHAR"
+			column="USER_DOMICILE" />
+		<result property="userOfficePhone" jdbcType="VARCHAR"
+			column="USER_OFFICE_PHONE" />
+		<result property="userHousePhone" jdbcType="VARCHAR"
+			column="USER_HOUSE_PHONE" />
+		<result property="mobile" jdbcType="VARCHAR"
+			column="MOBILE" />
+		<result property="userFax" jdbcType="VARCHAR"
+			column="USER_FAX" />
+		<result property="userEmail" jdbcType="VARCHAR"
+			column="USER_EMAIL" />
+		<result property="employeeId" jdbcType="VARCHAR"
+			column="EMPLOYEE_ID" />
+		<result property="userTitle" jdbcType="VARCHAR"
+			column="USER_TITLE" />
+		<result property="userDossierNumber" jdbcType="VARCHAR"
+			column="USER_DOSSIER_NUMBER" />
+		<result property="userOfficeNum" jdbcType="VARCHAR"
+			column="USER_OFFICE_NUM" />
+		<result property="groupId" jdbcType="BIGINT"
+			column="GROUP_ID" />
+		<result property="orgCode" jdbcType="VARCHAR"
+			column="ORG_CODE" />
+		<result property="number" jdbcType="INTEGER"
+			column="NUMBER" />
+		<result property="deptId" jdbcType="VARCHAR"
+			column="DEPT_ID" />
+		<result property="deptName" jdbcType="VARCHAR"
+			column="DEPT_NAME" />
+		<result property="signatureImg" jdbcType="VARCHAR"
+			column="SIGNATURE_IMG" />
+		<result property="userHeadImg" jdbcType="VARCHAR"
+			column="USER_HEAD_IMG" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		USER_ID,
+		USER_NAME,
+		USER_PWD,
+		USER_ID_CARD_NUMBER,
+		NAME,
+		USER_BIRTH_PLACE,
+		USER_HOUSEHOLD_REGIST,
+		USER_DOMICILE,
+		USER_OFFICE_PHONE,
+		USER_HOUSE_PHONE,
+		MOBILE,
+		USER_FAX,
+		USER_EMAIL,
+		EMPLOYEE_ID,
+		USER_TITLE,
+		USER_DOSSIER_NUMBER,
+		USER_OFFICE_NUM,
+		GROUP_ID,
+		ORG_CODE,
+		NUMBER,
+		DEPT_ID,
+		DEPT_NAME,
+		SIGNATURE_IMG,
+		USER_HEAD_IMG
+	</sql>
+
+   <!-- 复杂条件的查询-->
+	<sql id="Select_Example_Where_Clause">
+		<where>
+			<foreach collection="oredCriteria" item="criteria" separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" suffix=")" prefixOverrides="and">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition}
+									#{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition}
+									#{criterion.value}
+									and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach collection="criterion.value" item="listItem"
+										open="(" close=")" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+	<!-- 所有字段等于的查询条件 -->
+	<sql id="EQ_Where_Clause">
+		where 1=1
+		<trim suffixOverrides=",">
+			<if test="userName != null and userName != ''">
+				AND USER_NAME = #{userName}
+			</if>
+
+			<if test="userPwd != null and userPwd != ''">
+				AND USER_PWD = #{userPwd}
+			</if>
+
+			<if test="userIdCardNumber != null and userIdCardNumber != ''">
+				AND USER_ID_CARD_NUMBER = #{userIdCardNumber}
+			</if>
+
+			<if test="name != null and name != ''">
+				AND NAME like concat('%',#{name},'%')
+			</if>
+
+			<if test="userBirthPlace != null and userBirthPlace != ''">
+				AND USER_BIRTH_PLACE = #{userBirthPlace}
+			</if>
+
+			<if test="userHouseholdRegist != null and userHouseholdRegist != ''">
+				AND USER_HOUSE_HOLD_REGIST = #{userHouseholdRegist}
+			</if>
+
+			<if test="userDomicile != null and userDomicile != ''">
+				AND USER_DOMICILE = #{userDomicile}
+			</if>
+
+			<if test="userOfficePhone != null and userOfficePhone != ''">
+				AND USER_OFFICE_PHONE = #{userOfficePhone}
+			</if>
+
+			<if test="userHousePhone != null and userHousePhone != ''">
+				AND USER_HOUSE_PHONE = #{userHousePhone}
+			</if>
+
+			<if test="mobile != null and mobile != ''">
+				AND MOBILE = #{mobile}
+			</if>
+
+			<if test="userFax != null and userFax != ''">
+				AND USER_FAX = #{userFax}
+			</if>
+
+			<if test="userEmail != null and userEmail != ''">
+				AND USER_EMAIL = #{userEmail}
+			</if>
+
+			<if test="employeeId != null and employeeId != ''">
+				AND EMPLOYEE_ID = #{employeeId}
+			</if>
+
+			<if test="userTitle != null and userTitle != ''">
+				AND USER_TITLE = #{userTitle}
+			</if>
+
+			<if test="userDossierNumber != null and userDossierNumber != ''">
+				AND USER_DOSSIE_NUMBER = #{userDossierNumber}
+			</if>
+
+			<if test="userOfficeNum != null and userOfficeNum != ''">
+				AND USER_OFFICE_NUM = #{userOfficeNum}
+			</if>
+			
+			<if test="groupId != null and groupId != ''">
+				AND GROUP_ID = #{groupId}
+			</if>	
+			
+			<if test="orgCode != null and orgCode != ''">
+				AND ORG_CODE = #{orgCode}
+			</if>
+			
+			<if test="number != null and number != ''">
+				AND NUMBER = #{number}
+			</if>
+			
+			<if test="deptId != null and deptId != ''">
+				AND DEPT_ID = #{deptId}
+			</if>
+			
+			<if test="deptName != null and deptName != ''">
+				AND DEPT_NAME = #{deptName}
+			</if>	
+		</trim>
+	</sql>
+	<select id="get" parameterType="java.lang.Long" resultMap="rm">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM p_un_user_base_info
+		WHERE
+		USER_ID = #{userId} 
+	</select>
+	<!-- 查询所有的ID -->
+	<select id="findAllIds" resultType="java.lang.Long">
+		SELECT
+		USER_ID FROM p_un_user_base_info
+	</select>
+
+	<!-- 按Id删除 -->
+	<delete id="remove" parameterType="java.lang.Long">
+		DELETE FROM p_un_user_base_info WHERE USER_ID =	#{userId};
+	</delete>	
+	<!-- 按UserId删除User-Role的关联关系 -->
+	<delete id="removeUserRole" parameterType="java.lang.Long">
+		DELETE FROM p_un_user_role WHERE USER_ID =	#{userId};
+	</delete>
+	<!-- 按UserId删除 -->
+	<delete id="removeUserGroup" parameterType="java.lang.Long">
+		DELETE FROM p_un_user_group WHERE USER_ID =	#{userId};
+	</delete>
+	<!-- 插入 -->
+	<insert id="insert" useGeneratedKeys="true"
+		keyProperty="userId">
+		<selectKey resultType="java.lang.Long" order="AFTER"
+			keyProperty="id">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+		INSERT INTO p_un_user_base_info (
+		USER_ID,
+		USER_NAME,
+		USER_PWD,
+		USER_ID_CARD_NUMBER,
+		NAME,
+		USER_BIRTH_PLACE,
+		USER_HOUSEHOLD_REGIST,
+		USER_DOMICILE,
+		USER_OFFICE_PHONE,
+		USER_HOUSE_PHONE,
+		MOBILE,
+		USER_FAX,
+		USER_EMAIL,
+		EMPLOYEE_ID,
+		USER_TITLE,
+		USER_DOSSIER_NUMBER,
+		USER_OFFICE_NUM,
+		GROUP_ID,
+		ORG_CODE,
+		NUMBER,
+		DEPT_ID,
+		DEPT_NAME,
+		SIGNATURE_IMG,
+		USER_HEAD_IMG
+		) VALUES (
+		#{userId},
+		#{userName},
+		#{userPwd},
+		#{userIdCardNumber},
+		#{name},
+		#{userBirthPlace},
+		#{userHouseholdRegist},
+		#{userDomicile},
+		#{userOfficePhone},
+		#{userHousePhone},
+		#{mobile},
+		#{userFax},
+		#{userEmail},
+		#{employeeId},
+		#{userTitle},
+		#{userDossierNumber},
+		#{userOfficeNum},
+		#{groupId},
+		#{orgCode},
+		#{number},
+		#{deptId},
+		#{deptName},
+		#{signatureImg},
+		#{userHeadImg}
+		)
+	</insert>
+
+	<select id="countAll" resultType="java.lang.Integer">
+		SELECT
+		count(USER_ID) FROM p_un_user_base_info
+	</select>
+
+	<select id="getAll" resultMap="rm">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM p_un_user_base_info
+	</select>
+
+	<!-- 更新 -->
+	<update id="updateSelective" parameterType="org.szcloud.framework.unit.core.domain.PunUserBaseInfo">
+		UPDATE p_un_user_base_info
+		<set>
+			<if test="userName!=null">
+				USER_NAME = #{userName},
+			</if>
+			<if test="userPwd!=null">
+				USER_PWD = #{userPwd},
+			</if>
+			<if test="userIdCardNumber!=null">
+				USER_ID_CARD_NUMBER = #{userIdCardNumber},
+			</if>
+			<if test="name!=null">
+				NAME = #{name},
+			</if>
+			<if test="userBirthPlace!=null">
+				USER_BIRTH_PLACE = #{userBirthPlace},
+			</if>
+			<if test="userHouseholdRegist!=null">
+				USER_HOUSEHOLD_REGIST = #{userHouseholdRegist},
+			</if>
+			<if test="userDomicile!=null">
+				USER_DOMICILE = #{userDomicile},
+			</if>
+			<if test="userOfficePhone!=null">
+				USER_OFFICE_PHONE = #{userOfficePhone},
+			</if>
+			<if test="userHousePhone!=null">
+				USER_HOUSE_PHONE = #{userHousePhone},
+			</if>
+			<if test="mobile!=null">
+				MOBILE = #{mobile},
+			</if>
+			<if test="userFax!=null">
+				USER_FAX = #{userFax},
+			</if>
+			<if test="userEmail!=null">
+				USER_EMAIL = #{userEmail},
+			</if>
+			<if test="employeeId!=null">
+				EMPLOYEE_ID = #{employeeId},
+			</if>
+			<if test="userTitle!=null">
+				USER_TITLE = #{userTitle},
+			</if>
+			<if test="userDossierNumber!=null">
+				USER_DOSSIER_NUMBER = #{userDossierNumber},
+			</if>
+			<if test="userOfficeNum!=null">
+				USER_OFFICE_NUM = #{userOfficeNum}
+			</if>
+			<if test="groupId!=null">
+				GROUP_ID = #{groupId}
+			</if>
+			<if test="orgCode!=null">
+				ORG_CODE = #{orgCode}
+			</if>
+			
+			<if test="number!=null">
+				NUMBER = #{number}
+			</if>
+			<if test="deptId!=null">
+				DEPT_ID = #{deptId}
+			</if>
+			<if test="deptName!=null">
+				DEPT_NAME = #{deptName}
+			</if>
+			<if test="signatureImg!=null">
+				SIGNATURE_IMG = #{signatureImg}
+			</if>
+			<if test="userHeadImg!=null">
+				USER_HEAD_IMG = #{userHeadImg}
+			</if>
+		</set>
+		WHERE
+		USER_ID = #{userId}	</update>
+
+	<update id="update" parameterType="org.szcloud.framework.unit.core.domain.PunUserBaseInfo">
+		UPDATE p_un_user_base_info SET
+		USER_NAME = #{userName},
+		USER_PWD = #{userPwd},
+		USER_ID_CARD_NUMBER = #{userIdCardNumber},
+		NAME = #{name},
+		USER_BIRTH_PLACE = #{userBirthPlace},
+		USER_HOUSEHOLD_REGIST = #{userHouseholdRegist},
+		USER_DOMICILE = #{userDomicile},
+		USER_OFFICE_PHONE = #{userOfficePhone},
+		USER_HOUSE_PHONE = #{userHousePhone},
+		MOBILE = #{mobile},
+		USER_FAX = #{userFax},
+		USER_EMAIL = #{userEmail},
+		EMPLOYEE_ID = #{employeeId},
+		USER_TITLE = #{userTitle},
+		USER_DOSSIER_NUMBER = #{userDossierNumber},
+		USER_OFFICE_NUM = #{userOfficeNum},
+		GROUP_ID = #{groupId},
+		ORG_CODE = #{orgCode},
+		NUMBER=#{number},
+		DEPT_ID=#{deptId},
+		DEPT_NAME=#{deptName},
+		SIGNATURE_IMG = #{signatureImg},
+		USER_HEAD_IMG = #{userHeadImg}
+		WHERE
+		USER_ID = #{userId} 	</update>
+
+
+<select id="queryCountByExample" resultType="INTEGER" 
+		parameterType="org.szcloud.framework.core.domain.BaseExample">
+		select count(*) as C from (
+		select
+		<if test="distinct">
+			distinct
+		</if>
+		<include refid="Base_Column_List" />
+		from p_un_user_base_info
+		<if test="_parameter != null">
+			<include refid="Select_Example_Where_Clause" />
+		</if>
+		) tmpcount
+		
+	</select>
+	
+	<select id="selectByExample" resultMap="rm"
+		parameterType="org.szcloud.framework.core.domain.BaseExample">
+		select
+		<if test="distinct">
+			distinct
+		</if>
+		<include refid="Base_Column_List" />
+		from p_un_user_base_info
+		<if test="_parameter != null">
+			<include refid="Select_Example_Where_Clause" />
+		</if>
+		<if test="orderByClause != null">
+			order by ${orderByClause}
+		</if>
+		<if test="start !=0 or limit!=0">
+			limit #{start},#{limit}
+		</if>
+	</select>
+	<select id="queryCountByExample_UserList" resultType="INTEGER" 
+    parameterType="org.szcloud.framework.core.domain.BaseExample">
+   	 	select count(*) from p_un_user_base_info 
+	    <if test="_parameter != null">
+	      <include refid="Select_Example_Where_Clause" />
+	    </if>
+  	</select>
+	
+	<select id="selectByExample_UserList_Order" resultMap="rm"
+		parameterType="org.szcloud.framework.core.domain.BaseExample">
+		select p_un_user_base_info.USER_ID, USER_NAME, p_un_user_base_info.USER_PWD, USER_ID_CARD_NUMBER, NAME, 
+		USER_BIRTH_PLACE, USER_HOUSEHOLD_REGIST, USER_DOMICILE, USER_OFFICE_PHONE, 
+		USER_HOUSE_PHONE, MOBILE, USER_FAX, USER_EMAIL, EMPLOYEE_ID, USER_TITLE, 
+		USER_DOSSIER_NUMBER, USER_OFFICE_NUM, p_un_user_base_info.LAST_EDIT_TIME, 
+		p_un_user_base_info.NUMBER,SIGNATURE_IMG,USER_HEAD_IMG,p_un_group.group_short_name as DEPT_NAME,
+		p_un_group.group_id AS DEPT_ID from p_un_user_base_info  
+		left join p_un_user_group on p_un_user_base_info.user_id=p_un_user_group.user_id 
+		left join p_un_group on p_un_user_group.group_id=p_un_group.group_id 
+		<if test="_parameter != null">
+			<include refid="Select_Example_Where_Clause" />
+		</if>
+
+		<if test="orderByClause != null">
+			order by ${orderByClause}
+		</if>
+		
+		<if test="start !=0 or limit!=0">
+			limit #{start},#{limit}
+		</if>
+	</select>
+	
+	<select id="eqQueryList" resultMap="rm" parameterType="Object">
+		select
+		<include refid="Base_Column_List" />
+		from p_un_user_base_info
+		<include refid="EQ_Where_Clause" />
+	</select>
+<!-- 	根据查询条件获取数量 -->
+	<select id="eqQueryCount" resultType="java.lang.Integer" parameterType="Object">
+		select
+		count(USER_ID)
+		from p_un_user_base_info
+		<include refid="EQ_Where_Clause" />
+	</select>
+	<select id="queryUserNotInGroup" resultMap="rm" parameterType="Object">
+		select
+		<include refid="Base_Column_List" />
+		from p_un_user_base_info u
+		where 
+		u.USER_ID not in (select m.USER_ID from p_un_membership m where m.GROUP_ID=#{groupId})
+	</select>		
+    	
+    <select id="queryUserSameGroup" resultMap="rm" parameterType="Object">
+		select
+		<include refid="Base_Column_List" />
+		from p_un_user_base_info u
+		where 
+		u.GROUP_ID=#{groupId}
+	</select>	
+    	
+    <!--     查询与角色关联的用户 -->
+    <select id="queryUserRelateRole" resultMap="rm" parameterType="Object">
+    	select
+    	u.*
+    	from p_un_user_base_info u
+    	inner join p_un_user_role r on u.user_id = r.user_id
+    	where r.role_id=#{roleId}
+    	<if test="name != null">
+    		and u.name like #{name}
+    	</if>
+    	<if test="groupId != null">
+    		and u.GROUP_ID = #{groupId}
+    	</if>
+    	<if test="userIdCardNumber != null">
+				AND u.USER_ID_CARD_NUMBER like #{userIdCardNumber}
+		</if>
+    	
+    </select>
+    
+    <!-- 查询与岗位关联的用户 -->
+    
+    <select id="queryUserRelatePosition" resultMap="rm" parameterType="Object">
+    	select
+    	u.*,
+    	r.group_id deptId
+    	from p_un_user_base_info u
+    	inner join p_un_user_group r on u.user_id = r.user_id
+    	where r.position_id=#{position_id}
+    	<if test="name != null">
+    		and u.name like #{name}
+    	</if>
+    	<if test="groupId != null">
+    		and u.GROUP_ID = #{groupId}
+    	</if>
+    	<if test="userIdCardNumber != null">
+				AND u.USER_ID_CARD_NUMBER like #{userIdCardNumber}
+		</if>
+    </select>	
+    
+    <!--     查询与角色未关联的用户 -->
+    <select id="queryRoleNotRealteUser" resultMap="rm" parameterType="Object">
+    	select u.* 
+		from p_un_user_base_info u
+    	where 1=1 
+    	<if test="name != null">
+    		and u.name like #{name}
+    	</if>
+    	<if test="userIdCardNumber != null and userIdCardNumber != ''">
+				AND u.USER_ID_CARD_NUMBER like #{userIdCardNumber}
+		</if>
+    	and u.user_id not in 
+    	(select r.user_id from p_un_user_role r where r.role_id=#{roleId})
+    	and u.GROUP_ID=#{groupId}	
+    </select>
+    
+<!--     查询未与组织关联的用户 -->
+    <select id="queryUserNotRelateGroup" resultMap="rm" parameterType="Object">
+    	select u.* 
+		from p_un_user_base_info u
+    	where 1=1 
+    	<if test="name != null">
+    		and u.name like #{name}
+    	</if>
+    	<if test="userIdCardNumber != null and userIdCardNumber != ''">
+				AND u.USER_ID_CARD_NUMBER like #{userIdCardNumber}
+		</if>
+    	and u.USER_ID not in(select ug.USER_ID from p_un_user_group ug where 1=1
+    	<if test="groupId != null">
+    		and	ug.GROUP_ID = #{groupId}
+    	</if>
+    	 )
+    	<if test="rootGroupId != null">
+    		and u.GROUP_ID = #{rootGroupId}
+    	</if>
+    </select>
+      <!--     根据搜索条件查询用户
+    <select id="queryUsersByParas" resultMap="rm" parameterType="Object">
+      select
+      p_un_user_group.GROUP_ID deptId,
+      u.*
+      from p_un_user_base_info u
+      Inn JOIN p_un_user_group ON p_un_user_group.USER_ID = u.USER_ID
+      where u.group_id=#{groupId}
+      <if test="name != null">
+        and u.name like #{name}
+      </if>
+      GROUP BY u.USER_ID
+      order by u.user_id;
+    </select>	-->
+    <!--     按条件查询用户-->
+    <select id="queryUsersByGroupId" resultMap="rm" parameterType="Object">
+      SELECT
+      p_un_user_group.GROUP_ID deptId,
+      p_un_user_base_info.*
+      FROM
+      p_un_user_base_info,
+      p_un_user_group
+      WHERE
+      p_un_user_base_info.USER_ID = p_un_user_group.USER_ID
+      and p_un_user_base_info.group_id=#{groupId}
+      <if test="deptId != null">
+        and p_un_user_group.GROUP_ID=#{deptId}
+      </if>
+      <if test="name != null">
+        and p_un_user_base_info.name like #{name}
+      </if>
+      GROUP BY p_un_user_base_info.USER_ID
+      order by p_un_user_base_info.user_id
+    </select>	
+</mapper>
+

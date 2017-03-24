@@ -1,0 +1,428 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="org.szcloud.framework.formdesigner.core.domain.Document">
+	<resultMap id="BaseResultMap"
+		type="org.szcloud.framework.formdesigner.core.domain.Document">
+		<id column="ID" property="id" jdbcType="VARCHAR" />
+		<result column="LASTMODIFIED" property="lastmodified" jdbcType="TIMESTAMP" />
+		<result column="DYNAMICPAGE_NAME" property="dynamicPageName" jdbcType="VARCHAR" />
+		<result column="DYNAMICPAGE_ID" property="dynamicPageId" jdbcType="VARCHAR" />
+		<result column="AUTHOR_ID" property="authorId" jdbcType="BIGINT" />
+		<result column="AUTHOR_DEPT_INDEX" property="author_group" jdbcType="VARCHAR" />
+		<result column="CREATED" property="created" jdbcType="TIMESTAMP" />
+		<result column="ISTMP" property="isTmp" jdbcType="TINYINT" />
+		<result column="VERSIONS" property="versions" jdbcType="VARCHAR" />
+		<result column="PARENT" property="parent" jdbcType="VARCHAR" />
+		<result column="SORTID" property="sortId" jdbcType="VARCHAR" />
+		<result column="STATELABEL" property="statelabel" jdbcType="VARCHAR" />
+		<result column="INITIATOR" property="initiator" jdbcType="VARCHAR" />
+		<result column="AUDITDATE" property="auditDate" jdbcType="TIMESTAMP" />
+		<result column="AUDITUSER" property="auditUser" jdbcType="VARCHAR" />
+		<result column="AUDITORNAMES" property="auditorNames" jdbcType="VARCHAR" />
+		<result column="STATE" property="state" jdbcType="VARCHAR" />
+		<result column="STATEINT" property="stateint" jdbcType="INTEGER" />
+		<result column="LASTMODIFIER" property="lastmodifier" jdbcType="VARCHAR" />
+		<result column="AUDITORLIST" property="auditorList" jdbcType="VARCHAR" />
+		<result column="RECORD_ID" property="recordId" jdbcType="VARCHAR" />
+		<result column="INSTANCE_ID" property="instanceId" jdbcType="VARCHAR" />
+		<result column="TABLE_NAME" property="tableName" jdbcType="VARCHAR" />
+		<result column="NODE_ID" property="nodeId" jdbcType="VARCHAR" />
+		<result column="WORKFLOW_ID" property="workflowId" jdbcType="VARCHAR" />
+		<result column="TASK_ID" property="taskId" jdbcType="VARCHAR" />
+		<result column="WORKITEM_ID" property="workItemId" jdbcType="VARCHAR" />
+		<result column="ENTRY_ID" property="entryId" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		ID,LASTMODIFIED,DYNAMICPAGE_NAME,DYNAMICPAGE_ID,AUTHOR_ID,AUTHOR_DEPT_INDEX,CREATED,ISTMP,
+		VERSIONS,PARENT,SORTID,STATELABEL,INITIATOR,AUDITDATE,AUDITUSER,AUDITORNAMES,STATE,
+		STATEINT,LASTMODIFIER,AUDITORLIST,RECORD_ID,INSTANCE_ID,TABLE_NAME,NODE_ID,WORKFLOW_ID,TASK_ID,WORKITEM_ID,ENTRY_ID
+	</sql>
+
+	<sql id="Select_Example_Where_Clause">
+		<where>
+			<foreach collection="oredCriteria" item="criteria" separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" suffix=")" prefixOverrides="and">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition} #{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition} #{criterion.value}
+									and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach collection="criterion.value" item="listItem"
+										open="(" close=")" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+
+	<!-- 查询条件 -->
+	<sql id="EQ_Where_Clause">
+		where 1=1
+		<trim suffixOverrides=",">
+			<if test="id != null and id != ''">
+				and ID = #{id}
+			</if>
+			<if test="lastmodified != null and lastmodified != ''">
+				and LASTMODIFIED = #{lastmodified}
+			</if>
+			<if test="dynamicPageName != null and dynamicPageName != ''">
+				and DYNAMICPAGE_NAME = #{dynamicPageName}
+			</if>
+			<if test="dynamicPageId != null and dynamicPageId != ''">
+				and DYNAMICPAGE_ID = #{dynamicPageId}
+			</if>
+			<if test="authorId != null and authorId != ''">
+				and AUTHOR_ID = #{authorId}
+			</if>
+			<if test="author_group != null and author_group != ''">
+				and AUTHOR_DEPT_INDEX = #{author_group}
+			</if>
+			<if test="created != null and created != ''">
+				and CREATED = #{created }
+			</if>
+			<if test="isTmp != null and isTmp != ''">
+				and ISTMP = #{isTmp}
+			</if>
+			<if test="versions != null and versions != ''">
+				and VERSIONS = #{versions}
+			</if>
+			<if test="parent != null and parent != ''">
+				and PARENT = #{parent}
+			</if>
+			<if test="sortId != null and sortId != ''">
+				and SORTID = #{sortId}
+			</if>
+			<if test="statelabel != null and statelabel != ''">
+				and STATELABEL = #{statelabel}
+			</if>
+			<if test="initiator != null and initiator != ''">
+				and INITIATOR = #{initiator}
+			</if>
+			<if test="auditDate != null and auditDate != ''">
+				and AUDITDATE = #{auditDate}
+			</if>
+			<if test="auditUser != null and auditUser != ''">
+				and AUDITUSER = #{auditUser}
+			</if>
+			<if test="auditorNames != null and auditorNames != ''">
+				and AUDITORNAMES = #{recordId}
+			</if>
+			<if test="state != null and state != ''">
+				and STATE = #{state}
+			</if>
+			<if test="stateint != null and stateint != ''">
+				and STATEINT = #{stateint}
+			</if>
+			<if test="lastmodifier != null and lastmodifier != ''">
+				and LASTMODIFIER = #{lastmodifier}
+			</if>
+			<if test="auditorList != null and auditorList != ''">
+				and AUDITORLIST = #{auditorList}
+			</if>
+			<if test="recordId != null and recordId != ''">
+				and RECORD_ID = #{recordId}
+			</if>
+			<if test="instanceId != null and instanceId != ''">
+				and INSTANCE_ID = #{instanceId}
+			</if>
+			<if test="tableName != null and tableName != ''">
+				and TABLE_NAME = #{tableName}
+			</if>
+			<if test="nodeId != null and nodeId != ''">
+				and NODE_ID = #{nodeId}
+			</if>
+			<if test="workflowId != null and workflowId != ''">
+				and WORKFLOW_ID = #{workflowId}
+			</if>
+			<if test="taskId != null and taskId != ''">
+				and TASK_ID = #{taskId}
+			</if>
+		</trim>
+	</sql>
+
+	<select id="queryList" resultMap="BaseResultMap" parameterType="Object">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM P_FM_DOCUMENT
+		<include refid="EQ_Where_Clause" />
+	</select>
+
+	<select id="getAll" resultMap="BaseResultMap">
+		SELECT <include refid="Base_Column_List" />
+		 FROM P_FM_DOCUMENT
+	</select>
+	
+	<select id="selectDocByWorkItemId" resultMap="BaseResultMap">
+		SELECT <include refid="Base_Column_List" />
+		 FROM P_FM_DOCUMENT WHERE WORKITEM_ID=#{workItemId} AND WORKFLOW_ID=#{flowTemplateId} limit 1
+		
+	</select>
+	
+	<select id="selectByExample" resultMap="BaseResultMap"
+		parameterType="org.szcloud.framework.core.domain.BaseExample">
+		SELECT
+		<if test="distinct">
+			DISTINCT
+		</if>
+		<include refid="Base_Column_List" />
+		FROM P_FM_DOCUMENT
+		<if test="_parameter != null">
+			<include refid="Select_Example_Where_Clause" />
+		</if>
+		<if test="orderByClause != null">
+			order by ${orderByClause}
+		</if>
+		<if test="start !=0 or limit!=0">
+			limit #{start},#{limit}
+		</if>
+	</select>
+	<!-- 插入记录 -->
+	<insert id="insert" keyProperty="id">
+		
+		INSERT INTO P_FM_DOCUMENT
+		(
+		ID,LASTMODIFIED,DYNAMICPAGE_NAME,DYNAMICPAGE_ID,AUTHOR_ID,AUTHOR_DEPT_INDEX,CREATED,ISTMP,
+		VERSIONS,PARENT,SORTID,STATELABEL,INITIATOR,AUDITDATE,AUDITUSER,AUDITORNAMES,STATE,
+		STATEINT,LASTMODIFIER,AUDITORLIST,RECORD_ID,INSTANCE_ID,TABLE_NAME,NODE_ID,WORKFLOW_ID,TASK_ID,WORKITEM_ID,ENTRY_ID
+		)
+		VALUES
+		(#{id},#{lastmodified},#{dynamicPageName},#{dynamicPageId},#{authorId},#{author_group},#{created},#{isTmp},
+		#{versions},#{parent},#{sortId},#{statelabel},#{initiator},#{auditDate},#{auditUser},#{auditorNames},#{state},
+		#{stateint},#{lastmodifier},#{auditorList},#{recordId},#{instanceId},#{tableName},#{nodeId},#{workflowId},#{taskId},#{workItemId},#{entryId}
+		)
+		
+	</insert>
+
+	<!-- 根据id，修改记录 -->
+	<!-- 更新 -->
+	<update id="updateSelective" parameterType="org.szcloud.framework.formdesigner.core.domain.Document">
+		UPDATE P_FM_DOCUMENT 
+			<set>
+				
+				<if test="dynamicPageName != null and dynamicPageName != ''">
+					 DYNAMICPAGE_NAME = #{dynamicPageName},
+				</if>
+				<if test="lastmodified != null and lastmodified != ''">
+					 LASTMODIFIED = #{lastmodified},
+				</if>
+				<if test="dynamicPageId != null and dynamicPageId != ''">
+					 DYNAMICPAGE_ID = #{dynamicPageId},
+				</if>
+				<if test="authorId != null and authorId != ''">
+					 AUTHOR_ID = #{authorId},
+				</if>
+				<if test="author_group != null and author_group != ''">
+					 AUTHOR_DEPT_INDEX = #{author_group},
+				</if>
+				<if test="created != null and created != ''">
+					 CREATED = #{created},
+				</if>
+				<if test="isTmp != null and isTmp != ''">
+					 ISTMP = #{isTmp},
+				</if>
+				<if test="versions != null and versions != ''">
+					 VERSIONS = #{versions},
+				</if>
+				<if test="parent != null and parent != ''">
+					 PARENT = #{parent},
+				</if>
+				<if test="sortId != null and sortId != ''">
+					 SORTID = #{sortId},
+				</if>
+				<if test="statelabel != null and statelabel != ''">
+					 STATELABEL = #{statelabel},
+				</if>
+				<if test="initiator != null and initiator != ''">
+					 INITIATOR = #{initiator},
+				</if>
+				<if test="auditDate != null and auditDate != ''">
+					 AUDITDATE = #{auditDate},
+				</if>
+				<if test="auditUser != null and auditUser != ''">
+					 AUDITUSER = #{auditUser},
+				</if>
+				<if test="auditorNames != null and auditorNames != ''">
+					 AUDITORNAMES = #{auditorNames},
+				</if>
+				<if test="state != null and state != ''">
+					 STATE = #{state},
+				</if>
+				<if test="stateint != null and stateint != ''">
+					 STATEINT = #{stateint},
+				</if>
+				<if test="lastmodifier != null and lastmodifier != ''">
+					 LASTMODIFIER = #{lastmodifier},
+				</if>
+				<if test="auditorList != null and auditorList != ''">
+					 AUDITORLIST = #{auditorList},
+				</if>
+				<if test="recordId != null and recordId != ''">
+					 RECORD_ID = #{recordId},
+				</if>
+				<if test="instanceId != null and instanceId != ''">
+					 INSTANCE_ID = #{instanceId}
+				</if>
+				<if test="tableName != null and tableName != ''">
+					 TABLE_NAME = #{tableName},
+				</if>
+				<if test="nodeId != null and nodeId != ''">
+					 NODE_ID = #{nodeId},
+				</if>
+				<if test="workflowId != null and workflowId != ''">
+					WORKFLOW_ID = #{workflowId},
+				</if>
+				<if test="taskId != null and taskId != ''">
+					TASK_ID = #{taskId}
+				</if>
+			</set>
+		WHERE 
+			ID = #{id}
+	</update>
+
+	<select id="countAll" resultType="java.lang.Integer">
+		SELECT count(ID) FROM P_FM_DOCUMENT	
+	</select>
+	
+	
+	
+	<select id="eqQueryList" resultMap="BaseResultMap" parameterType="Object">
+		select
+		<include refid="Base_Column_List" />
+		from P_FM_DOCUMENT
+		<include refid="EQ_Where_Clause" />
+	</select>
+	<select id="queryCountByExample" resultType="INTEGER" 
+		parameterType="org.szcloud.framework.core.domain.BaseExample">
+		select count(*) as C from (
+		select
+		<if test="distinct">
+			distinct
+		</if>
+		<include refid="Base_Column_List" />
+		from P_FM_DOCUMENT
+		<if test="_parameter != null">
+			<include refid="Select_Example_Where_Clause" />
+		</if>
+		) tmpcount
+		
+	</select>
+<!-- 更新 -->
+	<update id="update" parameterType="org.szcloud.framework.formdesigner.core.domain.Document">
+		UPDATE P_FM_DOCUMENT 
+			<set>
+				<if test="dynamicPageName != null and dynamicPageName != ''">
+					 DYNAMICPAGE_NAME = #{dynamicPageName},
+				</if>
+				<if test="lastmodified != null and lastmodified != ''">
+					 LASTMODIFIED = #{lastmodified},
+				</if>
+				<if test="dynamicPageId != null and dynamicPageId != ''">
+					 DYNAMICPAGE_ID = #{dynamicPageId},
+				</if>
+				<if test="authorId != null and authorId != ''">
+					 AUTHOR_ID = #{authorId},
+				</if>
+				<if test="author_group != null and author_group != ''">
+					 AUTHOR_DEPT_INDEX = #{author_group},
+				</if>
+				<if test="created != null and created != ''">
+					 CREATED = #{created},
+				</if>
+				<if test="isTmp != null and isTmp != ''">
+					 ISTMP = #{isTmp},
+				</if>
+				<if test="versions != null and versions != ''">
+					 VERSIONS = #{versions},
+				</if>
+				<if test="parent != null and parent != ''">
+					 PARENT = #{parent},
+				</if>
+				<if test="sortId != null and sortId != ''">
+					 SORTID = #{sortId},
+				</if>
+				<if test="statelabel != null and statelabel != ''">
+					 STATELABEL = #{statelabel},
+				</if>
+				<if test="initiator != null and initiator != ''">
+					 INITIATOR = #{initiator},
+				</if>
+				<if test="auditDate != null and auditDate != ''">
+					 AUDITDATE = #{auditDate},
+				</if>
+				<if test="auditUser != null and auditUser != ''">
+					 AUDITUSER = #{auditUser},
+				</if>
+				<if test="auditorNames != null and auditorNames != ''">
+					 AUDITORNAMES = #{auditorNames},
+				</if>
+				<if test="state != null and state != ''">
+					 STATE = #{state},
+				</if>
+				<if test="stateint != null and stateint != ''">
+					 STATEINT = #{stateint},
+				</if>
+				<if test="lastmodifier != null and lastmodifier != ''">
+					 LASTMODIFIER = #{lastmodifier},
+				</if>
+				<if test="auditorList != null and auditorList != ''">
+					 AUDITORLIST = #{auditorList},
+				</if>
+				<if test="recordId != null and recordId != ''">
+					 RECORD_ID = #{recordId},
+				</if>
+				<if test="instanceId != null and instanceId != ''">
+					 INSTANCE_ID = #{instanceId},
+				</if>
+				<if test="tableName != null and tableName != ''">
+					 TABLE_NAME = #{tableName},
+				</if>
+				<if test="nodeId != null and nodeId != ''">
+					 NODE_ID = #{nodeId},
+				</if>
+				<if test="workflowId != null and workflowId != ''">
+					 WORKFLOW_ID = #{workflowId},
+				</if>
+				<if test="taskId != null and taskId != ''">
+					 TASK_ID = #{taskId}
+				</if>
+			</set>
+		WHERE 
+			ID = #{id}
+	</update>
+
+	<!-- 删除记录 -->
+	<delete id="remove" parameterType="Object">
+		delete from p_fm_document
+		where id = #{id}
+	</delete>
+
+	<!-- 根据id查询元数据模型 -->
+	<select id="get" resultMap="BaseResultMap" parameterType="Object">
+		select
+		<include refid="Base_Column_List" />
+		from p_fm_document where id = #{id}
+	</select>
+
+	<update id="excuteSql" parameterType="Object">
+		${sql}
+	</update>
+	
+</mapper>

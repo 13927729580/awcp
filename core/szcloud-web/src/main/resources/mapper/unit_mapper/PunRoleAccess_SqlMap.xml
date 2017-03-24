@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="org.szcloud.framework.unit.core.domain.PunRoleAccess">
+	<resultMap id="rm" type="org.szcloud.framework.unit.core.domain.PunRoleAccess">
+		<result property="roleAccId" jdbcType="BIGINT"
+			column="ROLE_ACC_ID" />
+		<result property="roleId" jdbcType="BIGINT"
+			column="ROLE_ID" />
+		<result property="resourceId" jdbcType="BIGINT"
+			column="RESOURCE_ID" />
+		<result property="operType" jdbcType="BIGINT"
+			column="OPER_TYPE" />	
+	</resultMap>
+	<sql id="Base_Column_List">
+		ROLE_ACC_ID,
+		ROLE_ID,
+		RESOURCE_ID,
+		OPER_TYPE
+	</sql>
+
+   <!-- 复杂条件的查询-->
+	<sql id="Select_Example_Where_Clause">
+		<where>
+			<foreach collection="oredCriteria" item="criteria" separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" suffix=")" prefixOverrides="and">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition}
+									#{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition}
+									#{criterion.value}
+									and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach collection="criterion.value" item="listItem"
+										open="(" close=")" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+	<!-- 所有字段等于的查询条件 -->
+	<sql id="EQ_Where_Clause">
+		where 1=1
+		<trim suffixOverrides=",">
+			<if test="roleAccId != null and roleAccId != ''">
+				AND ROLE_ACC_ID = #{roleAccId}
+			</if>
+			<if test="roleId != null and roleId != ''">
+				AND ROLE_ID = #{roleId}
+			</if>
+			<if test="resourceId != null and resourceId != ''">
+				AND RESOURCE_ID = #{resourceId}
+			</if>
+			<if test="operType != null and operType != ''">
+				AND OPER_TYPE = #{operType}
+			</if>
+
+		</trim>
+	</sql>
+	<select id="get" parameterType="java.lang.Long" resultMap="rm">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM p_un_role_access
+		WHERE
+		ROLE_ACC_ID = #{roleAccId}
+	</select>
+	<!-- 查询所有的ID -->
+	<select id="findAllIds" resultType="java.lang.Long">
+		SELECT
+		ROLE_ACC_ID FROM p_un_role_access
+	</select>
+
+	<!-- 按Id删除 -->
+	<delete id="remove" parameterType="java.lang.Long">
+		DELETE FROM p_un_role_access
+		WHERE
+		ROLE_ACC_ID = #{roleAccId}
+	</delete>
+	<!-- 插入 -->
+	<insert id="insert" useGeneratedKeys="true"
+		keyProperty="roleId">
+		<selectKey resultType="java.lang.Long" order="AFTER"
+			keyProperty="roleAccId">
+			SELECT LAST_INSERT_ID()
+		</selectKey>	    
+		INSERT INTO p_un_role_access (
+		ROLE_ACC_ID,
+		ROLE_ID,
+		RESOURCE_ID,
+		OPER_TYPE
+		) VALUES (
+		#{roleAccId},
+		#{roleId},
+		#{resourceId},
+		#{operType}
+		)
+	</insert>
+
+	<select id="countAll" resultType="java.lang.Integer">
+		SELECT
+		count(ROLE_ACC_ID) FROM p_un_role_access
+	</select>
+
+	<select id="getAll" resultMap="rm">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM p_un_role_access
+	</select>
+
+	<!-- 更新 -->
+	<update id="updateSelective" parameterType="org.szcloud.framework.unit.core.domain.PunRoleAccess">
+		UPDATE p_un_role_access
+		<set>
+			<if test="roleId!=null">
+				ROLE_ID = #{roleId},
+			</if>
+			<if test="resourceId != null">
+				RESOURCE_ID = #{resourceId}
+			</if>
+			<if test="operType != null">
+				OPER_TYPE = #{operType}
+			</if>
+		</set>
+		ROLE_ACC_ID = #{roleAccId}
+	</update>
+
+	<update id="update" parameterType="org.szcloud.framework.unit.core.domain.PunRoleAccess">
+		UPDATE p_un_role_access SET
+			ROLE_ID = #{roleId},
+			RESOURCE_ID = #{resourceId}
+		WHERE
+		ROLE_ACC_ID = #{roleAccId}	
+		</update>
+
+
+	
+	<select id="selectByExample" resultMap="rm"
+		parameterType="org.szcloud.framework.core.domain.BaseExample">
+		select
+		<if test="distinct">
+			distinct
+		</if>
+		<include refid="Base_Column_List" />
+		from p_un_role_access
+		<if test="_parameter != null">
+			<include refid="Select_Example_Where_Clause" />
+		</if>
+		<if test="orderByClause != null">
+			order by ${orderByClause}
+		</if>
+		<if test="start !=0 or limit!=0">
+			limit #{start},#{limit}
+		</if>
+	</select>
+	<select id="eqQueryList" resultMap="rm" parameterType="Object">
+		select
+		<include refid="Base_Column_List" />
+		from p_un_role_access
+		<include refid="EQ_Where_Clause" />
+	</select>
+	
+	<!-- 	根据角色ID，资源ID获取操作类型 -->
+	<select id="queryByRoleAndRes" resultMap="rm" parameterType="Object">
+		select
+			OPER_TYPE
+		from p_un_role_access 
+		    WHERE 
+			ROLE_ID = #{roleId}	
+			AND
+			RESOURCE_ID = #{resourceId}
+	</select>		
+    
+    <!-- 角色ID和资源ID，删除 -->
+	<delete id="delByRoleIdAndResoId" parameterType="Object">
+		DELETE FROM p_un_role_access
+		WHERE
+		ROLE_ID = #{roleId}
+		and RESOURCE_ID = #{resourceId}
+	</delete>
+    		
+</mapper>
+

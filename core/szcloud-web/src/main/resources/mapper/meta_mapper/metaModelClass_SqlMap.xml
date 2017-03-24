@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="org.szcloud.framework.metadesigner.core.domain.MetaModelClass">
+	<resultMap id="rm" type="org.szcloud.framework.metadesigner.core.domain.MetaModelClass">
+		<id property="id" jdbcType="BIGINT" column="id"/>
+		<result property="className" jdbcType="VARCHAR" column="className"/>
+		<result property="classCode" jdbcType="VARCHAR" column="classCode"/>
+	</resultMap>
+	<sql id="metaModelClass_sql">
+		id,name,classCode,sysId
+	</sql>
+	
+	<select id="getAll" resultMap="rm">
+		select <include refid="metaModelClass_sql"/> from fw_mm_metamodelclass
+	</select>
+	
+	<insert id="insert" parameterType="Object">
+		<selectKey resultType="java.lang.Long" order="AFTER"
+			keyProperty="id">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+		insert into fw_mm_metamodelclass(name,classCode,sysId)
+		value(#{name},#{classCode},#{sysId})
+	</insert>
+	
+	<update id="update" parameterType="org.szcloud.framework.metadesigner.core.domain.MetaModelClass">
+		UPDATE fw_mm_metamodelclass SET
+			name=#{name},
+			classCode=#{classCode}
+		WHERE 
+			id = #{id} 
+	</update>
+	
+	<select id="get" parameterType="Object" resultMap="rm">
+		select <include refid="metaModelClass_sql"/> from fw_mm_metaModelClass where id=#{id}
+	</select>
+	
+	<select id="queryByProjectId" parameterType="Object" resultMap="rm">
+		select <include refid="metaModelClass_sql"/> from fw_mm_metaModelClass where sysId=#{sysId}
+	</select>
+	
+</mapper>
+

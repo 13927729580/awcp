@@ -1,0 +1,241 @@
+/*公共样式*/
+.noticeWrap
+{
+	color : #000;
+	font-family : Verdana, arial, sans-serif;
+	text-align : left;
+	font-size : 14px;
+	border-bottom : 0px;
+	border-left : 0px;
+	padding-bottom : 0px;
+	padding-left : 0px;
+	padding-right : 0px;
+	border-top : 0px;
+	border-right : 0px;
+	padding-top : 0px;
+	display : inline-block;
+	vertical-align : middle;
+	margin-left : 10px;
+	overflow : visible;
+	margin-top:8px;
+}
+
+/*onLoad状态提示层的样式*/
+
+ 
+/*onShow状态提示层的样式*/
+
+
+/*onCorrect状态提示层的样式*/
+.ico-succ
+{
+	color : #000;
+	font-family : Verdana, arial, sans-serif;
+	text-align : left;
+	font-size : 14px;
+	display : inline-block;
+	vertical-align : middle;
+	background-image : url("../images/global2.png"); BACKGROUND-REPEAT: no-repeat;
+	width : 24px;
+	height : 24px;
+	background-position : -180px -72px;
+	margin-right : 8px;
+	padding-left : 0px;
+	padding-right : 0px;
+
+}
+.txt-succ
+{
+	font-family : Verdana, arial, sans-serif;
+	text-align : left;
+	font-size : 14px;
+	color : #0e931c;
+}
+/*onError状态提示层的样式*/
+.ico-warning
+{
+	color : #000;
+	font-family : Verdana, arial, sans-serif;
+	text-align : left;
+	font-size : 14px;
+	display : inline-block;
+	vertical-align : middle;
+	background-image : url("../images/global2.png"); BACKGROUND-REPEAT: no-repeat;
+	width : 24px;
+	height : 24px;
+	background-position : -252px -72px;
+	margin-right : 8px;
+	padding-left : 0px;
+	padding-right : 0px;
+}
+.txt-err
+{
+	font-family : Verdana, arial, sans-serif;
+	text-align : left;
+	font-size : 14px;
+	color : #f00;
+}
+/*onFocus状态提示层的样式*/
+
+
+
+/*输入框初始状态的样式*/
+.g-ipt
+{
+	text-align:left;
+	font-family:Verdana, arial, sans-serif;
+	vertical-align:middle;
+	/*background-image:url("../images/bgx.png"); BACKGROUND-REPEAT: repeat-x;*/
+	border: 1px solid #C1C1C1;
+	
+	background-color:#fbfbfb;
+	background-position:0px -72px;
+	font-size: 14px;
+	color:#444444;
+	padding-left:4px;
+	padding-right:4px;
+	ime-mode:disabled;
+	height:48px; line-height:48px; margin-top:4px; width:300px;
+}
+
+/*输入框获得焦点的样式*/
+.g-ipt-active
+{
+    font-family: Verdana,arial,sans-serif;
+    line-height:normal;
+    margin:0px;
+    vertical-align:middle; 
+    /*background-image:url(../images/bgx.png); BACKGROUND-REPEAT: repeat-x;*/
+    background-position: 0 -108px;
+    
+    border: 1px solid #00f;
+    color: #444444;
+    font-size: 14px;
+
+    text-align: left;
+    padding-left:4px;
+    padding-right:4px;
+	height:48px; line-height:48px; margin-top:4px; width:300px;
+}
+
+/*输入框数据合法时的样式*/
+
+
+/*输入框数据不合法时的样式*/
+.g-ipt-err
+{
+	text-align:left;
+	font-family:Verdana, arial, sans-serif;
+	line-height:normal;
+	margin:0px;
+	vertical-align:middle;
+	/*background-image:url("../images/bgx.png"); BACKGROUND-REPEAT: repeat-x;*/
+	border: 1px solid #C1C1C1;
+	font-size: 14px;
+
+	border-top-color:#d28c8c;
+	border-right-color:#d28c8c;
+	border-left-color:#d28c8c;
+	border-bottom-color:#d28c8c;
+
+	color:#a63b3b;
+    height:48px; line-height:48px; margin-top:4px; width:300px;
+}
+
+
+/*鼠标移到文字上*/
+.txt-info-mouseon
+{
+
+	font-family : Verdana, arial, sans-serif;
+	text-align : left;
+	margin-top : -4px;
+	font-size : 14px;
+	color : #ffa200;
+}
+
+/*鼠标移到文字外*/
+.txt-info-mouseout
+{
+
+	font-family : Verdana, arial, sans-serif;
+	text-align : left;
+	font-size : 14px;
+	color : #999;
+}
+
+/*密码强度样式*/
+.pswState
+{
+
+	color : #000;
+	font-family : Verdana, arial, sans-serif;
+	text-align : left;
+	font-size : 14px;
+	border-bottom : 0px;
+	border-left : 0px;
+	padding-left : 0px;
+	padding-right : 0px;
+	border-top : 0px;
+	border-right : 0px;
+	vertical-align : middle;
+	margin-left : 10px;
+	overflow : visible;
+	height:26px;
+	height:40px;
+	line-height:40px;
+	margin-top:0px;
+}
+.st1
+{
+
+	font-family : Verdana, arial, sans-serif;
+	text-align : left;
+	font-size : 14px;
+	font-style : normal;
+	text-decoration : none;
+	color : #f00;
+}
+.st2
+{
+
+	font-family : Verdana, arial, sans-serif;
+	text-align : left;
+	font-size : 14px;
+	font-style : normal;
+	text-decoration : none;
+	color : #13a821;
+}
+.progressImage
+{
+
+	color : #000;
+	font-family : Verdana, arial, sans-serif;
+	text-align : left;
+	font-size : 14px;
+	display : inline-block;
+	vertical-align : middle;
+	background : url(../images/global2.png); BACKGROUND-REPEAT: no-repeat;
+	margin-right : 8px;
+	margin : 0px 8px;
+	width : 147px;
+	height : 32px;
+	padding-left : 0px;
+	padding-right : 0px;
+}
+.prog0
+{
+	background-position : 0px -30px;
+}
+.prog1
+{
+	background-position : 0px -66px;
+}
+.prog2
+{
+	background-position : 0px -102px;
+}
+.prog3
+{
+	background-position : 0px -138px;
+}

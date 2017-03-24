@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration scan="true" scanPeriod="1800 seconds" debug="false">
+
+	<property name="USER_HOME" value="E:/logs" />
+	<property scope="context" name="FILE_NAME" value="mybatis-logback" />
+
+	<timestamp key="byDay" datePattern="yyyy-MM-dd" />
+
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+		</encoder>
+	</appender>
+	
+	<!--<appender name="SIFT" class="ch.qos.logback.classic.sift.SiftingAppender">-->
+		<!--&lt;!&ndash; in the absence of the class attribute, it is assumed that the desired -->
+			<!--discriminator type is ch.qos.logback.classic.sift.MDCBasedDiscriminator &ndash;&gt;-->
+			<!--&lt;!&ndash; sessionId be setted in LogbackMDCFilter &ndash;&gt;-->
+		<!--<discriminator>-->
+			<!--<key>sessionId</key>-->
+			<!--<defaultValue>unknown</defaultValue>-->
+		<!--</discriminator>-->
+		<!--<sift>-->
+			<!--<appender name="FILE-${sessionId}" class="ch.qos.logback.core.FileAppender">-->
+				<!--<file>${catalina.base}/logs/${sessionId}.log</file>-->
+				<!--<append>false</append>-->
+				<!--<layout class="ch.qos.logback.classic.PatternLayout">-->
+					<!--<pattern>%d [%thread] %level %mdc %logger{35} - %msg%n</pattern>-->
+				<!--</layout>-->
+			<!--</appender>-->
+		<!--</sift>-->
+	<!--</appender>-->
+	<appender name="logDirfile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<Encoding>UTF-8</Encoding>
+		<Prudent>true</Prudent>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<FileNamePattern>${catalina.base}/logs/szcloud-%d{yyyy-MM-dd}.log</FileNamePattern>
+		</rollingPolicy>
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</Pattern>
+		</layout>
+	</appender>
+	<logger name="org.szcloud.framework" level="${log.level}" additivity="false">
+		<!-- <appender-ref ref="STDOUT" /> -->
+	</logger>
+	
+	<logger name="org.mybatis.caches.memcached" level="INFO" additivity="false">
+		<!-- <appender-ref ref="STDOUT" /> -->
+	</logger>
+
+	<root level="${log.level}">
+		<appender-ref ref="STDOUT" />
+		<appender-ref ref="logDirfile" />
+	</root>
+</configuration>

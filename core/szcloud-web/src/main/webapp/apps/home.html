@@ -1,0 +1,89 @@
+<ion-side-menus>
+	<ion-side-menu-content>
+		<div class="bar bar-header bar-assertive">
+			<!-- 为 button 设置了 menu-toggle="left"，使其可控制左侧菜单栏的显示状态 -->
+			<button menu-toggle="left" class="button icon ion-navicon"></button>
+
+			<h1 class="title">首页</h1>
+			<!--<button ng-click="out()" class="button">退出</button>-->
+			<!--<a href="#/list" class="button">list</a>-->
+		</div>
+		<ion-content class="has-header has-footer setting">
+			<ion-slide-box active-slide="myActiveSlide">
+				<ion-slide>
+					<img style="width: 100%;height: 200px;" src="./images/banner.png">
+				</ion-slide>
+				<ion-slide>
+					<img style="width: 100%;height: 200px;" src="./images/banner2.png">
+				</ion-slide>
+				<!--<ion-slide>
+                    <img style="width: 100%;height: 200px;" src="./images/img3.jpg">
+                </ion-slide>-->
+			</ion-slide-box>
+			<div class="row" ng-repeat="length in lengths">
+				<div class="col col25 " ng-repeat="list in homelist[length]">
+					<a ng-href="{{list.url}}" class="login-a">
+						<span id="news" ng-if="list.count">{{list.count}}</span>
+						<img style="height:2rem" ng-src="{{list.icon}}">
+						<p ng-bind="list.name"></p>
+					</a>
+				</div>
+			</div>
+		</ion-content>
+		<div class="tabs-striped tabs-color-assertive">
+			<div class="tabs tabs-icon-top">
+				<a class="tab-item" ng-repeat="tabs in hometabs" ng-href="{{tabs.url}}">
+					<i ng-class="tabs.icon"></i>
+					<span ng-bind="tabs.name"></span>
+				</a>
+				<!--<a class="tab-item" href="#/work">
+                    <i class="icon ion-star"></i>
+                    工作
+                </a>-->
+			</div>
+		</div>
+	</ion-side-menu-content>
+	<!-- 属性 side 的值决定了该菜单是左侧菜单栏还是右侧菜单栏。可接受的值有 left、right。 -->
+	<!-- 属性 width 设置了菜单栏的宽度 -->
+	<ion-side-menu side="left" width="150" class="assertive-bg">
+		<style type="text/css">
+			div.list>a.activated {
+				background-color: #c52503!important;
+			}
+		</style>
+		<div style="text-align: center;padding: 4.25rem 0 .75rem 0;position: relative;">
+			<input id="home_file" accept="image/*" style="width: 35px;height: 35px;position: absolute;opacity: 0;left: 15px;" type="file">
+			<img id="home_img" style="border-radius: 50%; float: left; margin-left: 10%;" width="35rem" height="35rem" src="./images/a1.jpg">
+			<p style="color: #fff;">
+				<div class="  username1" ng-bind="username">
+					未读取到
+				</div></p>
+		</div>
+
+		<div class="list">
+
+			<a class="item item-assertive" href="#/changepwd">
+
+				<img src="./images/home/edit.png" />
+				<div class="div">
+					修改密码
+				</div>
+
+			</a>
+			<a class="item   item-assertive" href="#">
+				<img src="./images/home/update.png" />
+				<div class="div">
+					版本检测
+				</div>
+			</a>
+			<a class="item  item-assertive" href="#" ng-click="out()">
+				<img src="./images/home/quit.png" />
+				<div class="div">
+					注销
+				</div>
+
+			</a>
+
+		</div>
+	</ion-side-menu>
+</ion-side-menus>

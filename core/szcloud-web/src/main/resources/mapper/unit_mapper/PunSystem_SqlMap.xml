@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="org.szcloud.framework.unit.core.domain.PunSystem">
+	<resultMap id="rm" type="org.szcloud.framework.unit.core.domain.PunSystem">
+		<result property="sysId" jdbcType="BIGINT"
+			column="SYS_ID" />
+		<result property="sysAddress" jdbcType="VARCHAR"
+			column="SYS_ADDRESS" />
+		<result property="sysName" jdbcType="VARCHAR"
+			column="SYS_NAME" />
+		<result property="sysShortName" jdbcType="VARCHAR"
+			column="SYS_SHORT_NAME" />
+		<result property="sysCreater" jdbcType="VARCHAR"
+			column="SYS_CREATER" />
+		<result property="sysCreateGroup" jdbcType="VARCHAR"
+			column="SYS_CREATE_GROUP" />
+		<result property="sysStatus" jdbcType="VARCHAR"
+			column="SYS_STATUS" />		
+		<result property="sysCreateTime" jdbcType="DATE"
+			column="SYS_CREATE_TIME" />
+		<result property="groupId" jdbcType="BIGINT"
+			column="GROUP_ID" />
+	</resultMap>
+	
+	
+	
+	<sql id="Base_Column_List">
+		SYS_ID,
+		SYS_ADDRESS,
+		SYS_NAME,
+		SYS_SHORT_NAME,
+		SYS_CREATER,
+		SYS_CREATE_GROUP,
+		SYS_CREATE_TIME,
+		SYS_STATUS,
+		GROUP_ID
+	</sql>
+	<select id="querysys" resultMap="rm" parameterType="java.util.HashMap">
+		select
+		<include refid="Base_Column_List" />
+		from p_un_position
+		<include refid="EQ_Where_Clause" />
+	</select>
+
+   <!-- 复杂条件的查询-->
+	<sql id="Select_Example_Where_Clause">
+		<where>
+			<foreach collection="oredCriteria" item="criteria" separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" suffix=")" prefixOverrides="and">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition}
+									#{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition}
+									#{criterion.value}
+									and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach collection="criterion.value" item="listItem"
+										open="(" close=")" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+	<!-- 所有字段等于的查询条件 -->
+	<sql id="EQ_Where_Clause">
+		where 1=1
+		<trim suffixOverrides=",">
+			<if test="sysAddress != null and sysAddress != ''">
+				AND SYS_ADDRESS = #{sysAddress}
+			</if>
+
+			<if test="sysName != null and sysName != ''">
+				AND SYS_NAME = #{sysName}
+			</if>
+
+			<if test="sysShortName != null and sysShortName != ''">
+				AND SYS_SHORT_NAME = #{sysShortName}
+			</if>
+
+			<if test="sysCreater != null and sysCreater != ''">
+				AND SYS_CREATER = #{sysCreater}
+			</if>
+			
+			<if test="sysCreateGroup != null and sysCreateGroup != ''">
+				AND SYS_CREATE_GROUP = #{sysCreateGroup}
+			</if>
+			
+			<if test="sysStatus != null and sysStatus != ''">
+				AND SYS_STATUS = #{sysStatus}
+			</if>
+
+			<if test="sysCreateTime != null and sysCreateTime != ''">
+				AND SYS_CREATE_TIME = #{sysCreateTime}
+			</if>
+
+			<if test="groupId != null and groupId != ''">
+				AND GROUP_ID = #{groupId}
+			</if>
+			
+		</trim>
+	</sql>
+	<select id="get" parameterType="java.lang.Long" resultMap="rm">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM p_un_system
+		WHERE
+		SYS_ID = #{sysId} 
+	</select>
+	<!-- 查询所有的ID -->
+	<select id="findAllIds" resultType="java.lang.Long">
+		SELECT
+		SYS_ID FROM p_un_system
+	</select>
+
+	<!-- 按Id删除 -->
+	<delete id="remove" parameterType="java.lang.Long">
+		DELETE FROM p_un_system
+		WHERE
+		SYS_ID =
+		#{sysId} 
+	</delete>
+	<!-- 按SysId删除group-sys的关联关系 -->
+	<delete id="removeGroupSys" parameterType="java.lang.Long">
+		DELETE FROM p_un_group_sys
+		WHERE
+		SYS_ID =
+		#{sysId} 
+	</delete>
+	<!-- 按SysId删除Role-Access的关联关系 -->
+	<delete id="removeRoleAccessByRole" parameterType="java.lang.Long">
+		DELETE FROM p_un_role_access 
+		WHERE ROLE_ID IN( 
+		SELECT ROLE_ID FROM p_un_role_info 
+		WHERE  
+		SYS_ID =
+		#{sysId} )
+	</delete>
+	
+	<!-- 按SysId删除Role-Access的关联关系 -->
+	<delete id="removeRoleAccessByResource" parameterType="java.lang.Long">
+		DELETE FROM p_un_role_access 
+		WHERE RESOURCE_ID IN( 
+		SELECT RESOURCE_ID FROM p_un_resource 
+		WHERE  
+		SYS_ID =
+		#{sysId} )
+	</delete>
+	
+	<!-- 按SysId删除group-sys的关联关系 -->
+	<delete id="removeRoleInfo" parameterType="java.lang.Long">
+		DELETE FROM p_un_role_info
+		WHERE
+		SYS_ID =
+		#{sysId} 
+	</delete>
+	
+	<!-- 按SysId删除资源 -->
+	<delete id="removeResource" parameterType="java.lang.Long">
+		DELETE FROM p_un_resource
+		WHERE
+		SYS_ID =
+		#{sysId} 
+	</delete>
+	
+	<!-- 插入 -->
+	<insert id="insert" useGeneratedKeys="true"
+		keyProperty="sysId">
+		<selectKey resultType="java.lang.Long" order="AFTER"
+			keyProperty="sysId">
+			SELECT LAST_INSERT_ID()
+		</selectKey>	
+		INSERT INTO p_un_system (
+		SYS_ID,
+		SYS_ADDRESS,
+		SYS_NAME,
+		SYS_SHORT_NAME,
+		SYS_CREATER,
+		SYS_CREATE_GROUP,
+		SYS_CREATE_TIME,
+		SYS_STATUS,
+		GROUP_ID
+		) VALUES (
+		#{sysId},
+		#{sysAddress},
+		#{sysName},
+		#{sysShortName},
+		#{sysCreater},
+		#{sysCreateGroup},
+		#{sysCreateTime},
+		#{sysStatus},
+		#{groupId}
+		)
+	</insert>
+
+	<select id="countAll" resultType="java.lang.Integer">
+		SELECT
+		count(SYS_ID) FROM p_un_system
+	</select>
+
+	<select id="getAll" resultMap="rm">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM p_un_system
+	</select>
+
+	<!-- 更新 -->
+	<update id="updateSelective" parameterType="org.szcloud.framework.unit.core.domain.PunSystem">
+		UPDATE p_un_system
+		<set>
+			<if test="sysAddress!=null">
+				SYS_ADDRESS = #{sysAddress},
+			</if>
+			<if test="sysName!=null">
+				SYS_NAME = #{sysName},
+			</if>
+			<if test="sysShortName!=null">
+				SYS_SHORT_NAME = #{sysShortName},
+			</if>
+			<if test="sysCreater!=null">
+				SYS_CREATER = #{sysCreater},
+			</if>
+			<if test="sysStatus!=null">
+				SYS_STATUS = #{sysStatus},
+			</if>
+			<if test="sysCreateGroup!=null">
+				SYS_CREATE_GROUP = #{sysCreateGroup},
+			</if>
+			<if test="sysCreateTime!=null">
+				SYS_CREATE_TIME = #{sysCreateTime}
+			</if>
+			<if test="groupId!=null">
+				GROUP_ID = #{groupId}
+			</if>
+		</set>
+		WHERE
+		SYS_ID = #{sysId}	</update>
+
+	<update id="update" parameterType="org.szcloud.framework.unit.core.domain.PunSystem">
+		UPDATE p_un_system SET
+		SYS_ADDRESS = #{sysAddress},
+		SYS_NAME = #{sysName},
+		SYS_SHORT_NAME = #{sysShortName},
+		SYS_CREATER = #{sysCreater},
+		SYS_CREATE_GROUP = #{sysCreateGroup},
+		SYS_CREATE_TIME = #{sysCreateTime},
+		SYS_STATUS = #{sysStatus},
+		GROUP_ID = #{groupId}
+		WHERE
+		SYS_ID = #{sysId} 	</update>
+
+
+	
+	<select id="selectByExample" resultMap="rm"
+		parameterType="org.szcloud.framework.core.domain.BaseExample">
+		select
+		<if test="distinct">
+			distinct
+		</if>
+		<include refid="Base_Column_List" />
+		from p_un_system
+		<if test="_parameter != null">
+			<include refid="Select_Example_Where_Clause" />
+		</if>
+		<if test="orderByClause != null">
+			order by ${orderByClause}
+		</if>
+		<if test="start !=0 or limit!=0">
+			limit #{start},#{limit}
+		</if>
+	</select>
+	<select id="eqQueryList" resultMap="rm" parameterType="Object">
+		select
+		<include refid="Base_Column_List" />
+		from p_un_system
+		<include refid="EQ_Where_Clause" />
+	</select>
+<!-- 	根据组织机构代码查询 -->
+	<select id="queryByGroupId" resultMap="rm" parameterType="Object">
+		select s.*
+		from p_un_system s
+		inner join p_un_group_sys g on s.SYS_ID = g.SYS_ID
+		<if test="groupId != null">
+			where g.GROUP_ID = #{groupId}
+		</if>
+	</select>
+	
+	<select id="related_sys" resultMap="rm" parameterType="Object">
+		select s.*
+		from p_un_system s
+		inner join p_un_group_sys g on s.SYS_ID = g.SYS_ID
+		where g.GROUP_ID= #{groupId} 
+		<if test="sysStatus != null">
+			and s.SYS_STATUS = #{sysStatus}
+		</if>
+		<if test="sysName != null and sysName!=''">
+			and s.SYS_NAME like #{sysName}
+		</if>
+	</select>
+<!-- 	该组织没有关联但已发布的系统 -->
+	<select id="not_related_sys" resultMap="rm" parameterType="Object">
+		select s.*
+		from p_un_system s
+		where s.SYS_ID NOT IN 
+		(select gs.SYS_ID from p_un_group_sys gs where gs.GROUP_ID = #{groupId})
+		AND s.SYS_STATUS=#{sysStatus}
+		<if test="sysName != null and sysName != ''">
+			AND s.SYS_NAME like #{sysName}
+		</if>
+	</select>
+	
+	<!-- 根据组织机构代码查询开发人员的系统集合 -->
+	<select id="queryByDevGroupId" resultMap="rm" parameterType="Object">
+		select s.*
+		from p_un_system s
+		inner join p_un_dev_group_sys g on s.SYS_ID = g.SYS_ID
+		where g.GROUP_ID= #{groupId}
+	</select>	
+
+	<!-- query the System can be used -->
+<!-- 	<select id="queryAuthorSys" resultMap="rm" parameterType="Object"> -->
+<!-- 		select -->
+<!-- 		<include refid="Base_Column_List" /> -->
+<!-- 		from p_un_system ps where ps.sysId in -->
+<!-- 		(select pr.sysId from p_un_role_info pr where pr.roleId in ( -->
+<!-- 		select  from p_un_membership pb where pb.groupId)) -->
+<!-- 	</select>		 -->
+
+	<select id="queryCountByExample" resultType="INTEGER" 
+		parameterType="org.szcloud.framework.core.domain.BaseExample">
+		select count(*) as C from (
+		select
+		<if test="distinct">
+			distinct
+		</if>
+		<include refid="Base_Column_List" />
+		from  p_un_system
+		<if test="_parameter != null">
+			<include refid="Select_Example_Where_Clause" />
+		</if>
+		) tmpcount
+		
+	</select>	
+    		
+</mapper>
+
