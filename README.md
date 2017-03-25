@@ -1,4 +1,4 @@
-﻿![logo](http://static.oschina.net/uploads/space/2015/0410/192411_CgHK_1028150.jpg)
+﻿![logo](https://static.oschina.net/uploads/space/2017/0325/120649_pqfj_13428.png)
 
 ### AWCP是什么
 
