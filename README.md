@@ -26,9 +26,9 @@ AWCP是一个通过全栈配置实现项目功能开发的云平台，在线演�
 
 # 4. License
 
-The MIT License.
+The GPL License.
 
-Copyright (c) 2016 OSChina.net
+Copyright (c) 2017 OSChina.net
 
 # 5. 我们正在用
 
@@ -47,7 +47,7 @@ Copyright (c) 2016 OSChina.net
 
 
 
-# 3. 配置参数说明
+# 7. 配置参数说明
 - application.database.type=mysql
 - driver=com.mysql.jdbc.Driver
 - url=jdbc:mysql://5704b9845a977.gz.cdb.myqcloud.com:9492/awcp_jinher?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&useOldAliasMetadataBehavior=true
