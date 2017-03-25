@@ -35,22 +35,22 @@ Copyright (c) 2016 OSChina.net
 `Team@OSC` , `Git@OSC`
 
 # 2. 使用案例
-1、深圳市人民医院OA
-2、澳大利亚欧盛协同办公系统
-3、缘梦大健康平台
-4、深圳市科协自动化办公系统
-5、安防企业接单平台
-6、内控指标评价系统
-7、内控报告管理系统
-8、智慧经服平台
-9、行政事业单位内控管理平台
+-1、深圳市人民医院OA
+-2、澳大利亚欧盛协同办公系统
+-3、缘梦大健康平台
+-4、深圳市科协自动化办公系统
+-5、安防企业接单平台
+-6、内控指标评价系统
+-7、内控报告管理系统
+-8、智慧经服平台
+-9、行政事业单位内控管理平台
 
 
 
 # 3. 配置参数说明
-application.database.type=mysql
-driver=com.mysql.jdbc.Driver
-url=jdbc:mysql://5704b9845a977.gz.cdb.myqcloud.com:9492/awcp_jinher?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&useOldAliasMetadataBehavior=true
-username=cdb_outerroot
-password=Dcba4321@#
+-application.database.type=mysql
+-driver=com.mysql.jdbc.Driver
+-url=jdbc:mysql://5704b9845a977.gz.cdb.myqcloud.com:9492/awcp_jinher?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&useOldAliasMetadataBehavior=true
+-username=cdb_outerroot
+-password=Dcba4321@#
 
