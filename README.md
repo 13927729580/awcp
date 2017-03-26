@@ -50,7 +50,7 @@ Copyright (c) 2017 OSChina.net
 # 7. 配置参数说明
 - application.database.type=mysql
 - driver=com.mysql.jdbc.Driver
-- url=jdbc:mysql://5704b9845a977.gz.cdb.myqcloud.com:9492/awcp_jinher?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&useOldAliasMetadataBehavior=true
-- username=cdb_outerroot
-- password=Dcba4321@#
+- url=jdbc:mysql://数据库服务器:端口/数据库名?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&useOldAliasMetadataBehavior=true
+- username=用户名
+- password=密码
 
