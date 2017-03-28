@@ -70,7 +70,9 @@ public class PfmTemplateController {
 			// 将模板内容存入DB
 			try {
 				String content = getStrFromInputSteam(file.getInputStream());
-				vo.setContent(content);
+				if (StringUtils.isNotBlank(content)) {
+					vo.setContent(content);
+				}
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}

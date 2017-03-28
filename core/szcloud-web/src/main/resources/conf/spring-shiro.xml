@@ -81,6 +81,11 @@
             /appLogin.do = anon
             /logout.do = anon
             /logsso.do =anon
+            /common/file/download.do =anon
+            /common/file/get.do =anon
+            /common/file/showPicture.do =anon
+            /common/file/getImage.do =anon
+            /common/file/preview.do =anon
             /**/*.do= authc
             <!-- 
             /devAdmin/login.do = anon

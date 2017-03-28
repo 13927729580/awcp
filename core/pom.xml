@@ -779,28 +779,7 @@
 		</dependencies>
 
 	</dependencyManagement>
-
-
-	<distributionManagement>
-		<repository>
-			<id>nexus-releases</id>
-			<name>Nexus  Releases Repository</name>
-			<url>http://192.168.0.51:8081/nexus/content/repositories/releases</url>
-		</repository>
-		<snapshotRepository>
-			<id>nexus-snapshots</id>
-			<name>Nexus Snapshots  Repository</name>
-			<url>http://192.168.0.51:8081/nexus/content/repositories/snapshots</url>
-		</snapshotRepository>
-	</distributionManagement>
-
-
 	<repositories>
-		<repository>
-			<id>nexus</id>
-			<name>Team Nexus Repository</name>
-			<url>http://192.168.0.51:8081/nexus/content/groups/public</url>
-		</repository>
 		<repository>
 			<id>jboss-public-repository-group</id>
 			<name>JBoss Public Maven Repository Group</name>
@@ -814,8 +793,22 @@
 				<enabled>false</enabled>
 			</snapshots>
 		</repository>
+		<repository>
+			<id>geotoolkit</id>
+			<name>geotoolkit</name>
+			<url>http://maven.geotoolkit.org/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+		
 
 	</repositories>
+
+
 	<organization>
 		<url>http://www.grandness.net.cn/</url>
 		<name>深圳市中傲科技有限公司</name>
@@ -872,25 +865,6 @@
 
 	<profiles>
 		<profile>
-			<id>online</id>
-			<!-- 默认值 -->
-			<properties>
-				<!-- 数据库 -->
-				<db.application.database.type>mysql</db.application.database.type>
-				<db.driver>com.mysql.jdbc.Driver</db.driver>
-				<db.url>jdbc:mysql://10.66.146.72:3306/awcp?useUnicode=true&amp;characterEncoding=utf8&amp;zeroDateTimeBehavior=convertToNull&amp;transformedBitIsBoolean=true&amp;useOldAliasMetadataBehavior=true</db.url>
-				<db.username>root</db.username>
-				<db.password>Abcd1234@#</db.password>
-				<AppCenterDBDatabase>awcp</AppCenterDBDatabase>
-				<!-- mongodb.url -->
-				<mongodb.url>127.0.0.1:27017</mongodb.url>
-				<!-- 日志级别 -->
-				<log.level>error</log.level>
-				<mybatis.log>NO_LOGGING</mybatis.log>
-			</properties>
-
-		</profile>
-		<profile>
 			<id>dev</id>
 			<activation>
 				<activeByDefault>true</activeByDefault>
@@ -899,9 +873,9 @@
 				<!-- 数据库 -->
 				<db.application.database.type>mysql</db.application.database.type>
 				<db.driver>com.mysql.jdbc.Driver</db.driver>
-				<db.url>jdbc:mysql://192.168.0.44:3306/awcp?useUnicode=true&amp;characterEncoding=utf8&amp;zeroDateTimeBehavior=convertToNull&amp;transformedBitIsBoolean=true&amp;useOldAliasMetadataBehavior=true</db.url>
+				<db.url>jdbc:mysql://localhost:3306/awcp?useUnicode=true&amp;characterEncoding=utf8&amp;zeroDateTimeBehavior=convertToNull&amp;transformedBitIsBoolean=true&amp;useOldAliasMetadataBehavior=true</db.url>
 				<db.username>root</db.username>
-				<db.password>123456</db.password>
+				<db.password>root</db.password>
 				<mybatis.memcached.enable>false</mybatis.memcached.enable>
 				<AppCenterDBDatabase>awcp</AppCenterDBDatabase>
 				<!-- mongodb.url -->

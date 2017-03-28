@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,7 +48,6 @@ import org.szcloud.framework.core.utils.constants.SessionContants;
 import org.szcloud.framework.core.utils.mongodb.MongoDBUtils;
 import org.szcloud.framework.formdesigner.core.domain.Attachment;
 import org.szcloud.framework.metadesigner.application.MetaModelOperateService;
-import org.szcloud.framework.unit.vo.PunGroupVO;
 import org.szcloud.framework.unit.vo.PunSystemVO;
 import org.szcloud.framework.unit.vo.PunUserBaseInfoVO;
 import org.szcloud.framework.venson.controller.base.ControllerHelper;
@@ -376,14 +374,9 @@ public class FileController {
 			try {
 				String fileName = file.getFilename();
 				fileName = fileName.substring(fileName.lastIndexOf("/") + 1);
-				response.setContentType("text/html;charset=UTF-8");
 				response.setContentType("application/x-msdownload;");
-				try {
-					response.setHeader("Content-disposition",
-							"attachment; filename=" + encodeChineseDownloadFileName(request, fileName));
-				} catch (UnsupportedEncodingException e1) {
-					e1.printStackTrace();
-				}
+				response.setHeader("Content-disposition",
+						"attachment; filename=" + ControllerHelper.processFileName(fileName));
 				OutputStream out = response.getOutputStream(); // 读取文件流
 				i = 0;
 				byte[] buffer = new byte[4096];
@@ -507,12 +500,9 @@ public class FileController {
 			response.setContentLength((int) file.length());
 
 			// 设置附加文件名
-			String filename = tmpFileName;
-			byte[] bt;
-			bt = filename.getBytes("UTF-8");
-			filename = new String(bt, "8859_1");
 			// 解决中文乱码
-			response.setHeader("Content-Disposition", "attachment;filename=" + filename);
+			response.setHeader("Content-Disposition",
+					"attachment;filename=" + ControllerHelper.processFileName(tmpFileName));
 
 			// 读出文件到i/o流
 			fis = new FileInputStream(file);
@@ -782,18 +772,11 @@ public class FileController {
 	@RequestMapping(value = "/delete")
 	public String delete(String[] ids, HttpServletRequest request, HttpServletResponse response) {
 		JSONObject rtn = new JSONObject();
-		Object obj = Tools.getObjectFromSession(SessionContants.CURRENT_USER_GROUP);
-		StringBuilder sb = new StringBuilder();
 		MongoClient client = MongoDBUtils.getMongoClient();
 		DB db = client.getDB("myFiles");
 		GridFS myFS = new GridFS(db);
 		StringBuilder msg = new StringBuilder();
 		int flag = 0;
-		PunGroupVO group = (PunGroupVO) obj;
-		Object obj2 = Tools.getObjectFromSession(SessionContants.CURRENT_SYSTEM);
-		PunSystemVO system = (PunSystemVO) obj2;
-		Object obj3 = Tools.getObjectFromSession(SessionContants.CURRENT_USER);
-		PunUserBaseInfoVO user = (PunUserBaseInfoVO) obj3;
 
 		// FIXME 控制值允许上传者才能下载 ?
 
@@ -804,7 +787,7 @@ public class FileController {
 				continue;
 			}
 			String filename = file.getFilename();
-			if (filename.indexOf(user.getUserId() + "") != -1) {
+			if (filename.indexOf(ControllerHelper.getUserId() + "") != -1) {
 				myFS.remove(query); // 删除mangoDb中的附件
 				Attachment att = new Attachment(); // 删除对应的附件表记录
 				att.setId(id);
@@ -878,33 +861,6 @@ public class FileController {
 		rtn.put("result", "1");
 		rtn.put("msg", "删除成功！");
 		return rtn.toJSONString();
-	}
-
-	/**
-	 * 对文件流输出下载的中文文件名进行编码 屏蔽各种浏览器版本的差异性
-	 * 
-	 * @throws UnsupportedEncodingException
-	 */
-	public static String encodeChineseDownloadFileName(HttpServletRequest request, String pFileName)
-			throws UnsupportedEncodingException {
-
-		String filename = null;
-		String agent = request.getHeader("USER-AGENT");
-		if (null != agent) {
-			if (-1 != agent.indexOf("Firefox")) {// Firefox
-				filename = "=?UTF-8?B?"
-						+ (new String(org.apache.commons.codec.binary.Base64.encodeBase64(pFileName.getBytes("UTF-8"))))
-						+ "?=";
-			} else if (-1 != agent.indexOf("Chrome")) {// Chrome
-				filename = new String(pFileName.getBytes(), "ISO8859-1");
-			} else {// IE7+
-				filename = java.net.URLEncoder.encode(pFileName, "UTF-8");
-				filename = StringUtils.replace(filename, "+", "%20");// 替换空格
-			}
-		} else {
-			filename = pFileName;
-		}
-		return filename;
 	}
 
 	/**
