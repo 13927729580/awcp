@@ -41,6 +41,8 @@
 			column="GROUP_ID" />
 		<result property="orgCode" jdbcType="VARCHAR"
 			column="ORG_CODE" />
+		<result property="userStatus" jdbcType="CHAR"
+			column="USER_STATUS" />
 		<result property="number" jdbcType="INTEGER"
 			column="NUMBER" />
 		<result property="deptId" jdbcType="VARCHAR"
@@ -72,6 +74,7 @@
 		USER_OFFICE_NUM,
 		GROUP_ID,
 		ORG_CODE,
+		USER_STATUS,
 		NUMBER,
 		DEPT_ID,
 		DEPT_NAME,
@@ -189,6 +192,9 @@
 			<if test="orgCode != null and orgCode != ''">
 				AND ORG_CODE = #{orgCode}
 			</if>
+			<if test="userStatus != null and userStatus != ''">
+				AND USER_STATUS = #{userStatus}
+			</if>
 			
 			<if test="number != null and number != ''">
 				AND NUMBER = #{number}
@@ -255,6 +261,7 @@
 		USER_OFFICE_NUM,
 		GROUP_ID,
 		ORG_CODE,
+		USER_STATUS,
 		NUMBER,
 		DEPT_ID,
 		DEPT_NAME,
@@ -280,6 +287,7 @@
 		#{userOfficeNum},
 		#{groupId},
 		#{orgCode},
+		#{userStatus},
 		#{number},
 		#{deptId},
 		#{deptName},
@@ -357,6 +365,9 @@
 			<if test="orgCode!=null">
 				ORG_CODE = #{orgCode}
 			</if>
+			<if test="userStatus!=null">
+				USER_STATUS = #{userStatus}
+			</if>
 			
 			<if test="number!=null">
 				NUMBER = #{number}
@@ -397,6 +408,7 @@
 		USER_OFFICE_NUM = #{userOfficeNum},
 		GROUP_ID = #{groupId},
 		ORG_CODE = #{orgCode},
+		USER_STATUS = #{userStatus},
 		NUMBER=#{number},
 		DEPT_ID=#{deptId},
 		DEPT_NAME=#{deptName},
@@ -452,7 +464,7 @@
 		parameterType="org.szcloud.framework.core.domain.BaseExample">
 		select p_un_user_base_info.USER_ID, USER_NAME, p_un_user_base_info.USER_PWD, USER_ID_CARD_NUMBER, NAME, 
 		USER_BIRTH_PLACE, USER_HOUSEHOLD_REGIST, USER_DOMICILE, USER_OFFICE_PHONE, 
-		USER_HOUSE_PHONE, MOBILE, USER_FAX, USER_EMAIL, EMPLOYEE_ID, USER_TITLE, 
+		USER_HOUSE_PHONE, MOBILE, USER_FAX, USER_EMAIL, EMPLOYEE_ID, USER_TITLE,USER_STATUS, 
 		USER_DOSSIER_NUMBER, USER_OFFICE_NUM, p_un_user_base_info.LAST_EDIT_TIME, 
 		p_un_user_base_info.NUMBER,SIGNATURE_IMG,USER_HEAD_IMG,p_un_group.group_short_name as DEPT_NAME,
 		p_un_group.group_id AS DEPT_ID from p_un_user_base_info  

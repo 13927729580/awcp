@@ -1,10 +1,6 @@
 package org.szcloud.framework.formdesigner.utils;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.text.DecimalFormat;
 import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -12,7 +8,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.servlet.http.HttpServletRequest;
@@ -23,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.szcloud.framework.core.domain.BaseExample;
 import org.szcloud.framework.core.domain.JdbcHandle;
-import org.szcloud.framework.core.domain.SzcloudJdbcTemplate;
 import org.szcloud.framework.core.utils.DateUtils;
 import org.szcloud.framework.core.utils.Security;
 import org.szcloud.framework.core.utils.SessionUtils;
@@ -46,6 +40,7 @@ import org.szcloud.framework.unit.vo.PunPositionVO;
 import org.szcloud.framework.unit.vo.PunRoleInfoVO;
 import org.szcloud.framework.unit.vo.PunUserBaseInfoVO;
 import org.szcloud.framework.unit.vo.PunUserGroupVO;
+import org.szcloud.framework.venson.util.MD5Util;
 
 import com.github.miemiedev.mybatis.paginator.domain.PageList;
 import com.github.miemiedev.mybatis.paginator.domain.Paginator;
@@ -101,106 +96,6 @@ public class DocumentUtils {
 		this.page = page;
 	}
 
-	/*******************************/
-	/**
-	 * 保存会议时同时保存会议参与企业的信息
-	 * 
-	 * @param id
-	 * @param companys
-	 */
-	public void saveMeetingCompanyInfo(String meetingID) {
-		SzcloudJdbcTemplate jdbcTemplate = Springfactory.getBean("jdbcTemplate");
-		try {
-			if (StringUtils.isNoneBlank(meetingID)) {
-				String sql = "select companys from jf_meeting where ID=?";
-				String companys = jdbcTemplate.queryForObject(sql, String.class, meetingID);
-				sql = "insert into jf_meeting_reply(ID,userId,meetingID,isLeader) values(?,?,?,'Y')";
-				for (String company : companys.split(",")) {
-					jdbcTemplate.update(sql, UUID.randomUUID().toString(), company, meetingID);
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * 政策推荐
-	 * 
-	 * @param zcID
-	 * @param userIds
-	 */
-	public void saveZcReply(String zcID, String[] userIds) {
-		SzcloudJdbcTemplate jdbcTemplate = Springfactory.getBean("jdbcTemplate");
-		try {
-			if (StringUtils.isNoneBlank(zcID)) {
-				String sql = "insert into jf_zc_reply(ID,userId,zcID,isLeader) values(?,?,?,'Y')";
-				for (String userId : userIds) {
-					jdbcTemplate.update(sql, UUID.randomUUID().toString(), userId, zcID);
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * 添加催办信息
-	 * 
-	 * @param fkID(会议ID或通知ID)
-	 */
-	public void addCbInfo(String[] idArr, String type) {
-		SzcloudJdbcTemplate jdbcTemplate = Springfactory.getBean("jdbcTemplate");
-		PunUserBaseInfoVO user = (PunUserBaseInfoVO) getUser();
-		Long userId = user.getUserId();
-
-		try {
-			jdbcTemplate.beginTranstaion();
-			String fkID = "";
-			String sql = "";
-			String ids = generateIds(idArr);
-			if ("0".equals(type)) {
-				sql = "select fk_sendID from jf_send_tz_feedback where ID=?";
-				fkID = jdbcTemplate.queryForObject(sql, String.class, idArr[0]);
-				sql = "insert into jf_cb(ID,cb_company,cb_date,cb_user,cb_type,fk_ID) select UUID(),company,now(),"
-						+ userId + ",'" + type + "','" + fkID + "' from jf_send_tz_feedback where ID in (" + ids + ")";
-				jdbcTemplate.update(sql);
-			} else if ("1".equals(type)) {
-				sql = "select meetingID from jf_meeting_reply where ID=?";
-				fkID = jdbcTemplate.queryForObject(sql, String.class, idArr[0]);
-				sql = "insert into jf_cb(ID,cb_company,cb_date,cb_user,cb_type,fk_ID) select UUID(),userId,now(),"
-						+ userId + ",'" + type + "','" + fkID + "' from jf_meeting_reply where ID in (" + ids + ")";
-				jdbcTemplate.update(sql);
-			} else if ("2".equals(type)) {
-				sql = "select questionnaire_ID from jf_wjdc_feedback where ID=?";
-				fkID = jdbcTemplate.queryForObject(sql, String.class, idArr[0]);
-				sql = "insert into jf_cb(ID,cb_company,cb_date,cb_user,cb_type,fk_ID) select UUID(),company,now(),"
-						+ userId + ",'" + type + "','" + fkID + "' from jf_wjdc_feedback where ID in (" + ids + ")";
-				jdbcTemplate.update(sql);
-			}
-			jdbcTemplate.commit();
-		} catch (Exception e) {
-			e.printStackTrace();
-			try {
-				jdbcTemplate.rollback();
-			} catch (Exception e1) {
-				e1.printStackTrace();
-			}
-		}
-
-	}
-
-	private String generateIds(String[] ids) {
-		StringBuffer sb = new StringBuffer("");
-		for (String id : ids) {
-			sb.append("'" + id + "',");
-		}
-		if (sb.length() != 0) {
-			sb.deleteCharAt(sb.length() - 1);
-		}
-		return sb.toString();
-	}
-
 	/******************************/
 
 	public static String getBasePath(HttpServletRequest request) {
@@ -246,44 +141,6 @@ public class DocumentUtils {
 	 */
 	public DocumentVO getCurrentDocument() {
 		return doc;
-	}
-
-	public static String numberFormat(String num) {
-		String result = "";
-		boolean bool = false;
-		if (num.indexOf(".") != -1) {
-			bool = true;
-		}
-		String before = "";
-		String after = "";
-		if (bool) {
-			String[] arr = num.split(".");
-			if (arr.length == 2) {
-				before = arr[0];
-				after = arr[1];
-			} else {
-				before = arr[0];
-			}
-		} else {
-			before = num;
-		}
-
-		String[] beforeArrReverse = reverse(before).split("");
-		String temp = "";
-		for (int i = 0; i < beforeArrReverse.length; i++) {
-			temp += beforeArrReverse[i] + ((i + 1) % 3 == 0 && (i + 1) != beforeArrReverse.length ? "," : "");
-		}
-		if (after != "") {
-			result = reverse(temp) + "." + after;
-		} else {
-			result = reverse(temp) + (bool ? "." : "");
-		}
-		return result;
-	}
-
-	private static String reverse(String str) {
-		StringBuffer sb = new StringBuffer(str);
-		return sb.reverse().toString();
 	}
 
 	/**
@@ -540,21 +397,6 @@ public class DocumentUtils {
 	}
 
 	/**
-	 * 
-	 * @return
-	 */
-	public static String getCode() {
-		JdbcTemplate jdbcTemplate = Springfactory.getBean("jdbcTemplate");
-		String sql = "select count(id) as counter from oa_os_project_describe";
-		Map<String, Object> result = jdbcTemplate.queryForMap(sql);
-		String counter = result.get("counter").toString();
-		int sz = Integer.valueOf(counter) + 1;
-		DecimalFormat df = new DecimalFormat("0000");
-		return df.format(sz);
-
-	}
-
-	/**
 	 * 保存某个数据源中的数据 限定该数据源必须为非自定义类型的
 	 * 
 	 * @param name
@@ -647,166 +489,14 @@ public class DocumentUtils {
 		return service.excuteQueryForList(sql);
 	}
 
-	/**
-	 * 检查项目流程是否可以关闭,如果可以关闭进行一些处理。 这个方法在项目流程,工作安排,施工任务等流程最后节点执行
-	 * 
-	 * @param projectID
-	 *            项目ID
-	 * @param flowName
-	 *            流程名
-	 * @param taskType
-	 *            任务类型
-	 */
-	public void endProjectFlow(String projectID, String flowName, String taskType, String taskID) {
-		if (flowName != null) {
-			if (flowName.equals("Land Purchase")) {
-				taskType = "2";
-			} else if (flowName.equals("Development & Planning")) {
-				taskType = "3";
-			} else if (flowName.equals("Presales")) {
-				taskType = "4";
-			} else if (flowName.equals("Construction Preparation")) {
-				taskType = "5";
-			} else if (flowName.equals("Construction Financing")) {
-				taskType = "6";
-			} else if (flowName.equals("Construction")) {
-				taskType = "7";
-			} else if (flowName.equals("Ownership Transfer")) {
-				taskType = "8";
-			}
-		}
-		if (taskType != null) {
-			if (taskType.equals("2")) {
-				flowName = "Land Purchase";
-			} else if (taskType.equals("3")) {
-				flowName = "Development & Planning";
-			} else if (taskType.equals("4")) {
-				flowName = "Presales";
-			} else if (taskType.equals("5")) {
-				flowName = "Construction Preparation";
-			} else if (taskType.equals("6")) {
-				flowName = "Construction Financing";
-			} else if (taskType.equals("7")) {
-				flowName = "Construction";
-			} else if (taskType.equals("8")) {
-				flowName = "Ownership Transfer";
-			}
-		}
-		JdbcTemplate jdbcTemplate = Springfactory.getBean("jdbcTemplate");
-		boolean bool = checkProjectFlow(jdbcTemplate, projectID, flowName, taskType, taskID);
-		if (bool) {
-			String sql = "update oa_os_project_flow set Status='Ended' where ProjectID=? and Flow=?";
-			jdbcTemplate.update(sql, projectID, flowName);
-			if (flowName == "Ownership Transfer") {
-				String date = today("yyyy-MM-dd");
-				sql = "update oa_os_project set closeDate=?,isClosed='Y' where ID=?";
-				jdbcTemplate.update(sql, date, projectID);
-			}
-		}
-	}
+	public static String createMD5(String input, String salt) throws Exception {
+		if (StringUtils.isNotBlank(salt)) {
 
-	private boolean checkProjectFlow(JdbcTemplate jdbcTemplate, String projectID, String flowName, String taskType,
-			String taskID) {
-		// 还没有完成的任务
-		String sql = "select count(*) from oa_os_mytask where projectName='" + projectID + "' and taskType='" + taskType
-				+ "' and status<>'Completed' and ID<>'" + taskID + "'";
-		int count = jdbcTemplate.queryForObject(sql, Integer.class);
-		if (count > 0) {
-			return false;
-		}
-		// 没有完成的建筑施工任务
-		if (taskType.equals("7")) {
-			sql = "select count(*) from oa_os_construction where status<>'Completed' and ProjectName='" + projectID
-					+ "' and ID<>'" + taskID + "'";
-			count = jdbcTemplate.queryForObject(sql, Integer.class);
-			if (count > 0) {
-				return false;
-			}
-		}
-		// 还没有设计的自动任务
-		sql = "select count(*) from oa_os_automatic_task where ID not in "
-				+ "(select autoTaskID from oa_os_project_auto_task where projectID ='" + projectID + "') and taskType='"
-				+ taskType + "'";
-		count = jdbcTemplate.queryForObject(sql, Integer.class);
-		if (count > 0) {
-			return false;
-		}
-		// 从项目流程流程完成情况表,结束流程才添加记录
-		if (!flowName.equals("Construction Preparation") && !flowName.equals("Construction Financing")) {
-			sql = "select count(*) from oa_os_project_flow_status where projectID='" + projectID + "' and flowName='"
-					+ flowName + "'";
-			count = jdbcTemplate.queryForObject(sql, Integer.class);
-			if (count == 0) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	/**
-	 * 获取变量的值
-	 * 
-	 * @param name
-	 * @param project
-	 * @return
-	 */
-	public String getValueFromSystem(String name, String project) {
-		JdbcTemplate jdbcTemplate = Springfactory.getBean("jdbcTemplate");
-		String sql = "select count(*) from oa_os_system_static where name='" + name + "' and projectName='" + project
-				+ "'";
-		int count = jdbcTemplate.queryForObject(sql, Integer.class);
-		if (count == 0) {
-			sql = "select value from oa_os_system_static where name='" + name + "' and projectName='Global'";
+			return MD5Util.getMD5StringWithSalt(input, salt);
 		} else {
-			sql = "select value from oa_os_system_static where name='" + name + "' and projectName='" + project + "'";
+
+			return MD5Util.getMD5String(input);
 		}
-		String value = jdbcTemplate.queryForObject(sql, String.class);
-		return value;
-	}
-
-	/**
-	 * 
-	 * @param doc
-	 * @return
-	 */
-	public boolean deleteDocument(String docId) {
-		DocumentService service = Springfactory.getBean("documentServiceImpl");
-		// service.deleteDoc(docId);
-		return true;
-	}
-
-	public static String createMD5(String input, String charset) throws Exception {
-		byte[] data;
-		if (charset != null && !"".equals(charset)) {
-			data = input.getBytes(charset);
-		} else {
-			data = input.getBytes();
-		}
-		MessageDigest messageDigest = getMD5();
-		messageDigest.update(data);
-		return byteArrayToHexString(messageDigest.digest());
-	}
-
-	private static MessageDigest getMD5() throws NoSuchAlgorithmException {
-		return MessageDigest.getInstance("MD5");
-	}
-
-	private static String byteArrayToHexString(byte[] data) {
-		// 用来将字节转换成 16 进制表示的字符
-		char hexDigits[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
-		// 每个字节用 16 进制表示的话，使用两个字符，所以表示成 16 进制需要 32 个字符
-		char arr[] = new char[16 * 2];
-		int k = 0; // 表示转换结果中对应的字符位置
-		// 从第一个字节开始，对 MD5 的每一个字节转换成 16 进制字符的转换
-		for (int i = 0; i < 16; i++) {
-			byte b = data[i]; // 取第 i 个字节
-			// 取字节中高 4 位的数字转换, >>>为逻辑右移，将符号位一起右移
-			arr[k++] = hexDigits[b >>> 4 & 0xf];
-			// 取字节中低 4 位的数字转换
-			arr[k++] = hexDigits[b & 0xf];
-		}
-		// 换后的结果转换为字符串
-		return new String(arr);
 	}
 
 	/**
@@ -819,8 +509,6 @@ public class DocumentUtils {
 	public boolean updateData(String name) {
 		DocumentService service = Springfactory.getBean("documentServiceImpl");
 		service.updateModelData(page, doc, name);
-		// doc.setLastmodified(new Date(System.currentTimeMillis()));
-		// service.save(doc);
 		return true;
 
 	}
@@ -828,8 +516,6 @@ public class DocumentUtils {
 	public boolean updateDataFlow(String name) {
 		DocumentService service = Springfactory.getBean("documentServiceImpl");
 		service.updateModelDataFlow(page, doc, name);
-		// doc.setLastmodified(new Date(System.currentTimeMillis()));
-		// service.save(doc);
 		return true;
 
 	}
@@ -1193,29 +879,6 @@ public class DocumentUtils {
 		return SessionUtils.getObjectFromSession(key);
 	}
 
-	/**
-	 * ljw 2015-1-22 生成水印号
-	 * 
-	 * @return 年+月+日+时+分+秒+毫秒
-	 */
-	public static String generateWatermark() {
-		java.util.Date date = new java.util.Date();
-		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmssSSS");
-		return format.format(date);
-	}
-
-	/**
-	 * ljw 2015-1-22 生成流水号
-	 * 
-	 * @param type
-	 *            类别代码
-	 * @return 类别代码+年+月+日+时+分+秒+毫秒
-	 */
-	public static String generateSerialNum(String type) {
-		String resultString = type + generateWatermark();
-		return resultString;
-	}
-
 	private static List<Long> getUsersManager(Long userId, boolean isParent) {
 		PunUserGroupService service = Springfactory.getBean("punUserGroupServiceImpl");
 		List<PunUserGroupVO> list = null;
@@ -1229,45 +892,6 @@ public class DocumentUtils {
 			rtnList.add(vo.getUserId());
 		}
 		return rtnList;
-	}
-
-	public static String getPhotoByUserId(Long userId) {
-		String photo = "";
-		try {
-			JdbcTemplate jdbcTemplate = Springfactory.getBean("jdbcTemplate");
-			String sql = "select headimage from oa_os_internal_users  where userId=" + userId
-					+ " union select headimage from oa_os_external_users  where userId=" + userId;
-			List<Map<String, Object>> results = jdbcTemplate.queryForList(sql);
-			Map<String, Object> result = null;
-			if (null != results && results.size() > 0) {
-				result = results.get(0);
-				if (null != result.get("headimage")) {
-					photo = String.valueOf(result.get("headimage"));
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return photo;
-	}
-
-	public static String getOASystemCode(String code) {
-		String year = new SimpleDateFormat("yyyy").format(Calendar.getInstance().getTime());
-		String month = new SimpleDateFormat("MM").format(Calendar.getInstance().getTime());
-		String day = new SimpleDateFormat("dd").format(Calendar.getInstance().getTime());
-
-		try {
-			JdbcTemplate jdbcTemplate = Springfactory.getBean("jdbcTemplate");
-			int sequence = jdbcTemplate
-					.queryForInt("SELECT sequenceValue FROM OA_SysSequence WHERE sequencecode = '" + code + "'");
-			sequence = sequence + 1;
-			jdbcTemplate.update(
-					"UPDATE OA_SysSequence SET sequenceValue = " + sequence + " WHERE sequencecode = '" + code + "';");
-			return code + year + month + String.format("%04d", sequence);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return "";
 	}
 
 	// 根据手机列表ID返回手机表单ID
@@ -1316,29 +940,6 @@ public class DocumentUtils {
 		} else {
 			return "";
 		}
-	}
-
-	/**
-	 * 根据modelCode 创建数据源
-	 * 
-	 * @param modelcode
-	 *            模型编码
-	 * @return
-	 */
-	public Map<String, String> createModel(String modelcode) {
-		Map<String, String> map = new HashMap<String, String>();
-		return map;
-	}
-
-	/**
-	 * 校验某个组件
-	 * 
-	 * @param container
-	 * @param item
-	 * @return
-	 */
-	public boolean validateItem(String componentId) {
-		return true;
 	}
 
 	/**
@@ -1428,28 +1029,6 @@ public class DocumentUtils {
 	}
 
 	/**
-	 * 校验某个文档
-	 * 
-	 * @param doc
-	 * @return
-	 */
-	public boolean validateDocument(DocumentVO doc) {
-		// FIXME
-		return true;
-	}
-
-	/**
-	 * 保存某个数据源中的数据 限定该数据源必须为非自定义类型的
-	 * 
-	 * @param name
-	 * @return
-	 */
-	public Map<String, String> createModel() {
-
-		return new HashMap<String, String>();
-	}
-
-	/**
 	 * 保存当前document文档，返回Id
 	 * 
 	 * @return ID
@@ -1471,43 +1050,4 @@ public class DocumentUtils {
 		return true;
 	}
 
-	public void updateTZIsRead(String fk_id, String userId) {
-		String sql = "update jf_send_tz_feedback set IsRead=1 where fk_sendID='" + fk_id + "' and company='" + userId
-				+ "'";
-		String sqlcount = "select count(*) from jf_cb where fk_ID='" + fk_id + "' and cb_company='" + userId + "'";
-		if (excuteQuery(sqlcount) != null) {
-			String sqlupdate = "update jf_cb set IsRead='Y' where fk_ID='" + fk_id + "' and cb_company='" + userId
-					+ "'";
-			excuteUpdate(sqlupdate);
-		}
-		excuteUpdate(sql);
-	}
-
-	public Object getDeductDays(HttpServletRequest request) {
-		String FK_Node = request.getParameter("FK_Node");
-		Map<String, Object> map = this.excuteQuery("select DeductDays from wf_node a where a.NodeID='" + FK_Node + "'");
-		if (map == null || map.isEmpty()) {
-			return 0;
-
-		} else {
-
-			return map.get("DeductDays");
-		}
-	}
-
-	/**
-	 * 根据用户id获取用户的公司信息
-	 */
-	public Map<String, Object> getUserCompanyInfo(Long userId) {
-		if (userId == null) {
-			userId = DocumentUtils.getUser().getUserId();
-		}
-		String sql = "SELECT a.id,a.qy_name,a.hy_type,a.contacts,a.contact_number,a.qy_address FROM jf_qy_user_audit a LEFT JOIN jf_user_company b ON a.id=b.company_id WHERE b.user_id='"
-				+ userId + "'";
-		return this.excuteQuery(sql);
-	}
-
-	public Map<String, Object> getUserCompanyInfo() {
-		return getUserCompanyInfo(null);
-	}
 }

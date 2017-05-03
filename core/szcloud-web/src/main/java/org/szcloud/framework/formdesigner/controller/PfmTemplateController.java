@@ -64,28 +64,30 @@ public class PfmTemplateController {
 
 		// 新增
 		if (vo.getId() == null) {
-			String logoRealPathDir = request.getSession().getServletContext().getRealPath(File.separator);
-			String localtion = saveDir + System.currentTimeMillis() + file.getOriginalFilename();
-			vo.setFileLocation(localtion);
-			// 将模板内容存入DB
-			try {
-				String content = getStrFromInputSteam(file.getInputStream());
-				if (StringUtils.isNotBlank(content)) {
-					vo.setContent(content);
+			if (file != null && !file.isEmpty()) {
+				String logoRealPathDir = request.getSession().getServletContext().getRealPath(File.separator);
+				String localtion = saveDir + System.currentTimeMillis() + file.getOriginalFilename();
+				vo.setFileLocation(localtion);
+				// 将模板内容存入DB
+				try {
+					String content = getStrFromInputSteam(file.getInputStream());
+					if (StringUtils.isNotBlank(content)) {
+						vo.setContent(content);
+					}
+				} catch (IOException e1) {
+					e1.printStackTrace();
 				}
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-			File dir = new File(logoRealPathDir + saveDir);
-			if (!dir.exists()) {
-				dir.mkdir();
-			}
-			try {
-				file.transferTo(new File(logoRealPathDir + localtion));
-			} catch (IllegalStateException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
+				File dir = new File(logoRealPathDir + saveDir);
+				if (!dir.exists()) {
+					dir.mkdir();
+				}
+				try {
+					file.transferTo(new File(logoRealPathDir + localtion));
+				} catch (IllegalStateException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 			pfmTemplateService.save(vo);
 		} else { // 修改

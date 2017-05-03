@@ -18,7 +18,7 @@ jQuery.fn.extend({
                 Img: "ImgPr", 
 				Width: 100, 
 				Height: 100, 
-				ImgType: ["gif", "jpeg", "jpg", "bmp", "png"], 
+				ImgType: ["gif", "jpeg", "jpg", "bmp", "png","mp4","flv","m4v"], 
 				Callback: function () { }
             }
             , opts || {});
@@ -39,102 +39,89 @@ jQuery.fn.extend({
         _this.change(function () {
             if (this.value) {
                 if (!RegExp("\.(" + opts.ImgType.join("|") + ")$", "i").test(this.value.toLowerCase())) {
-                    dialogAlert("请选择图片，例如:" + opts.ImgType.join("，"));
+                    dialogAlert("请选择图片或视频，例如:" + opts.ImgType.join("，"));
                     this.value = "";
                     return false;
                 }
-                if (/msie/.test(navigator.userAgent.toLowerCase())) {
-                    try {
+                var videosType=["mp4","flv","m4v"];
+                if (!RegExp("\.(" + videosType.join("|") + ")$", "i").test(this.value.toLowerCase())) {
+                	if (/msie/.test(navigator.userAgent.toLowerCase())) {
+                        try {
+                            $("#" + opts.Img).attr('src', _self.getObjectURL(this.files[0]));
+                        }
+                        catch (e) {
+                            var src = "";
+                            var obj = $("#" + opts.Img);
+                            var div = obj.parent("div")[0];
+                            _self.select();
+                            if (top != self) {
+                                window.parent.document.body.focus();
+                            }
+                            else {
+                                _self.blur();
+                            }
+                            src = document.selection.createRange().text;
+                            document.selection.empty();
+                            obj.hide();
+                            obj.parent("div").css({
+                                'filter': 'progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod=scale)', 'width': opts.Width + 'px', 'height': opts.Height + 'px'
+                            });
+                            div.filters.item("DXImageTransform.Microsoft.AlphaImageLoader").src = src;
+                        }
+                    }else {
                         $("#" + opts.Img).attr('src', _self.getObjectURL(this.files[0]));
                     }
-                    catch (e) {
-                        var src = "";
-                        var obj = $("#" + opts.Img);
-                        var div = obj.parent("div")[0];
-                        _self.select();
-                        if (top != self) {
-                            window.parent.document.body.focus();
-                        }
-                        else {
-                            _self.blur();
-                        }
-                        src = document.selection.createRange().text;
-                        document.selection.empty();
-                        obj.hide();
-                        obj.parent("div").css({
-                            'filter': 'progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod=scale)', 'width': opts.Width + 'px', 'height': opts.Height + 'px'
-                        });
-                        div.filters.item("DXImageTransform.Microsoft.AlphaImageLoader").src = src;
-                    }
+                }else{
+                	$("#" + opts.Img).attr('src',basePath+"images/video_icon.png" );
                 }
-                else {
-                    $("#" + opts.Img).attr('src', _self.getObjectURL(this.files[0]));
-                }
+                
                 opts.Callback();
+                uploadFile(this);
             }
         });
     }
 });
 var loadUploadPreview = function(img,photo,callback){//img:img标签ID;photo:input标签ID;callback:调用上传方法。
+	$("#"+img).attr("alt","选择图片或视频");
 	var _parent = $("#"+photo).parents(".uploadPreview");
 	$("#"+photo).uploadPreview({ Img: img, Width: 120, Height: 120 });
-	_parent.find(".photo-btn a.submit").click(function(){
-		var fileVal = _parent.find("#"+photo).val();
-		if(fileVal == ""||fileVal == undefined){
-			dialogAlert("请先上传图片.");
-		}else{
-			//callback(fileVal);
-				var formData = new FormData();
-				var name = $("input").val();
-				formData.append("file",$("#"+photo)[0].files[0]);
-				formData.append("fileVal",fileVal );
-				$.ajax({
-				type:'post',
-				url:basePath+ "common/file/upload.do",            //需要链接到服务器地址  
-				data:formData, 
-				// 告诉jQuery不要去处理发送的数据
-				processData : false, 
-				// 告诉jQuery不要去设置Content-Type请求头
-				contentType : false,
-				dataType :"json",
-				success:function(data,status){
-					console.log(data,status)
-					if(data.flag==1){
-						_parent.find(".photo").val(data.msg);
-						dialogAlert("上传成功.");
-					}
-
-				},error:function(err){
-					console.log(err)
-				}
-			})
-			
-			
-//			$.ajaxFileUpload({  
-//				url:basePath+ "common/file/upload.do",            //需要链接到服务器地址  
-//				secureuri:true,  
-//				fileElementId:photo,                        //文件选择框的id属性  
-//				dataType :"json",
-//				success: function(data, status){      				
-//					if(data.flag==1){
-//						_parent.find(".photo").val(data.msg);
-//						dialogAlert("Upload success.");
-//					}
-//				},error: function (data, status, e){  
-//      			//showDialogWithMsg('ideaMsg','Tips','File error！');  
-//				}  
-//			}); 
-		}
-	});	
+	_parent.find(".photo-btn a.submit").remove();
+//	_parent.find(".photo-btn a.submit").click(function(){
+//		var fileVal = _parent.find("#"+photo).val();
+//		if(fileVal == ""||fileVal == undefined){
+//			dialogAlert("请先上传图片或视频.");
+//		}else{
+//			uploadFile(_parent.find("#"+photo)[0]);
+//		}
+//	});	
+	
 	_parent.find(".photo-btn a.delete").click(function(){
 		var photoVal = _parent.find(".photo").val();
 		_parent.find(".photo").val("");
 		_parent.find(".photo-con").remove();
+		_parent.find(".msg").text("");
 		$("#"+photo).remove();
-		_parent.prepend('<div class="photo-con"><img id="'+img+'" alt="点击选择图片"/></div><input type="file" name="'+photo+'" id="'+photo+'"/>');
+		_parent.prepend('<div class="photo-con"><img id="'+img+'" alt="选择图片或视频"/></div><input type="file" name="'+photo+'" id="'+photo+'"/>');
 		$("#"+photo).uploadPreview({ Img: img, Width: 120, Height: 120 });
 	});
  	$("body").on("click","#"+img,function(){
 		$("#"+photo).click();
 	});
+}
+function uploadFile(that){
+	var $parent=$(that).parent(".uploadPreview");
+	var $msg=$parent.find(".msg");
+	$msg.text("正在上传...");
+	$.ajaxFileUpload({  
+		url:basePath+ "common/file/upload.do",            //需要链接到服务器地址  
+		secureuri:true,  
+		fileElementId:$(that).attr("id"),                        //文件选择框的id属性  
+		dataType :"json",
+		success: function(data){      				
+			if(data.flag==1){
+				$parent.find(".photo").val(data.msg);
+				$msg.text("上传成功");
+			}
+		} 
+	}); 
 }

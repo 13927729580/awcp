@@ -14,9 +14,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authc.AuthenticationException;
-import org.apache.shiro.authc.IncorrectCredentialsException;
-import org.apache.shiro.authc.UnknownAccountException;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
@@ -49,6 +46,7 @@ import org.szcloud.framework.venson.common.SC;
 import org.szcloud.framework.venson.controller.base.ControllerHelper;
 import org.szcloud.framework.venson.controller.base.ReturnResult;
 import org.szcloud.framework.venson.controller.base.StatusCode;
+import org.szcloud.framework.venson.entity.Menu;
 import org.szcloud.framework.venson.util.HttpUtils;
 
 import TL.ContextHolderUtils;
@@ -71,6 +69,7 @@ public class UnitBaseController {
 
 	@Autowired
 	private MetaModelOperateService metaModelOperateServiceImpl;
+	private String errorCookie = "errorCookie";
 
 	@ResponseBody
 	@RequestMapping(value = "/appLogin")
@@ -82,17 +81,24 @@ public class UnitBaseController {
 		Map<String, Object> m = new HashMap<String, Object>();
 
 		m.put("userIdCardNumber", vo.getUserName());
-
+		Cookie errorCount = ContextHolderUtils.getCookie(errorCookie);
+		if (errorCount != null) {
+			String value = errorCount.getValue();
+			if (Integer.parseInt(value) >= 3) {
+				respStatus.setStatus(1);
+				respStatus.setMessage("登录错误达3次，禁止登录10分钟！");
+				return respStatus;
+			}
+		}
 		PunUserBaseInfoVO pvi = null;
 		try {
 			pvi = this.userService.queryResult("eqQueryList", m).get(0);
 		} catch (Exception e) {
 			respStatus.setStatus(1);
 			respStatus.setMessage("用户不存在");
-			ContextHolderUtils.deleteCookie(SC.SECRET_KEY);
+			addErrorCount();
 			return respStatus;
 		}
-
 		Subject subject = SecurityUtils.getSubject();
 		String plainToke = pvi.getOrgCode() + "_" + vo.getUserName() + "_" + WhichEndEnum.FRONT_END.getCode();
 		if (isTokenValid && !StringUtils.isEmpty(vo.getToken())) {
@@ -103,6 +109,15 @@ public class UnitBaseController {
 		// token.setRememberMe(true);// 记住我功能
 		try {
 			subject.login(token);
+			if ("0".equals(pvi.getUserStatus())) {
+				respStatus.setStatus(1);
+				respStatus.setMessage("用户已禁用");
+				return respStatus;
+			} else if ("2".equals(pvi.getUserStatus())) {
+				respStatus.setStatus(1);
+				respStatus.setMessage("用户审核中");
+				return respStatus;
+			}
 			ControllerHelper.doLoginSuccess(pvi);
 			respStatus.setStatus(0);
 			respStatus.setMessage("登录成功");
@@ -126,26 +141,24 @@ public class UnitBaseController {
 			}
 			// 进入选择系统页面
 			return respStatus;
-		} catch (UnknownAccountException uae) {
-			respStatus.setStatus(1);
-			respStatus.setMessage("用户不存在");
-			ContextHolderUtils.deleteCookie(SC.SECRET_KEY);
-		} catch (IncorrectCredentialsException ice) {
-			respStatus.setStatus(1);
-			respStatus.setMessage("登录失败，请核实登录信息");
-			ContextHolderUtils.deleteCookie(SC.SECRET_KEY);
-		} catch (AuthenticationException e) {
-			e.printStackTrace();
-			respStatus.setStatus(1);
-			respStatus.setMessage("登录失败，请核实登录信息");
-			ContextHolderUtils.deleteCookie(SC.SECRET_KEY);
 		} catch (Exception e) {
 			e.printStackTrace();
 			respStatus.setStatus(1);
 			ContextHolderUtils.deleteCookie(SC.SECRET_KEY);
 			respStatus.setMessage("登录失败，请核实登录信息");
+			addErrorCount();
 		}
 		return respStatus;
+	}
+
+	private void addErrorCount() {
+		Cookie errorCount = ContextHolderUtils.getCookie(errorCookie);
+		if (errorCount != null) {
+			String value = errorCount.getValue();
+			ContextHolderUtils.addCookie(errorCookie, 60 * 10, Integer.parseInt(value) + 1 + "");
+		} else {
+			ContextHolderUtils.addCookie(errorCookie, 60 * 10, "1");
+		}
 	}
 
 	private boolean verifyToken(PunUserBaseInfoVO userVO) {
@@ -213,7 +226,7 @@ public class UnitBaseController {
 		// 建立根节点
 		Menu menu = new Menu(0, "root", "#", null);
 		// 添加子节点
-		addChildren(resoVOs, pids, menu);
+		menu.addChildren(resoVOs, pids, menu);
 		result.setStatus(StatusCode.SUCCESS).setData(menu);
 		return result;
 	}
@@ -244,18 +257,16 @@ public class UnitBaseController {
 		// 查找所有app底部菜单
 		List<Map<String, Object>> appBottom = metaModelOperateServiceImpl.search(
 				"SELECT menu_name AS name ,menu_icon AS icon,menu_address url,DYNAMICPAGE_ID DID FROM p_un_menu a WHERE a.TYPE=3");
-
-		replaceIconAndUrl(appTop);
-		replaceIconAndUrl(appBottom);
+		Menu.replaceIconAndUrl(appTop);
+		Menu.replaceIconAndUrl(appBottom);
 
 		// 查找所有app中间菜单
 		List<Menu> appMiddle = new ArrayList<Menu>();
 		for (PunMenuVO vo : resoVOs) {
 			if (vo.getType() == 2) {
-				Menu menu = new Menu(vo.getMenuName(), getUrl(vo.getDynamicPageId(), vo.getMenuAddress()),
-						getIcon(vo.getMenuIcon(), "apps/images/icon2.jpg"));
+				Menu menu = new Menu(vo.getMenuName(), Menu.getUrl(vo.getDynamicPageId(), vo.getMenuAddress()),
+						Menu.getIcon(vo.getMenuIcon(), "apps/images/icon2.jpg"));
 				appMiddle.add(menu);
-				// 增加红点数据
 			}
 		}
 		resoVOs.clear();
@@ -265,185 +276,6 @@ public class UnitBaseController {
 		map.put("bottom", appBottom);
 		result.setStatus(StatusCode.SUCCESS).setData(map);
 		return result;
-	}
-
-	/**
-	 * 替换url和图标
-	 */
-	private void replaceIconAndUrl(List<Map<String, Object>> list) {
-		for (Map<String, Object> map : list) {
-			Long DID = (Long) map.get("DYNAMICPAGE_ID");
-			String oriUrl = (String) map.get("url");
-			map.put("url", getUrl(DID, oriUrl));
-			String oriIcon = (String) map.get("icon");
-			map.put("icon", getIcon(oriIcon, "apps/images/icon2.jpg"));
-		}
-	}
-
-	/**
-	 * 替换url
-	 */
-	private String getUrl(Long DID, String oriUrl) {
-		String url;
-		String base = ControllerHelper.getBasePath();
-		if (DID != null) {
-			url = base + "document/view.do?dynamicPageId=" + DID;
-		} else {
-			if (StringUtils.isBlank(oriUrl) || oriUrl.trim().equals("#")) {
-				url = "#";
-			} else {
-				if (oriUrl.startsWith("http")) {
-					url = oriUrl;
-				} else {
-					url = base + oriUrl;
-
-				}
-			}
-
-		}
-		// 如果都为空则显示#
-
-		return url;
-	}
-
-	/**
-	 * 添加子节点
-	 */
-	private void addChildren(List<PunMenuVO> resoVOs, Set<Long> pids, Menu menu) {
-		for (PunMenuVO vo : resoVOs) {
-			// 判断是否为子节点
-			if (vo.getType() == 0 && vo.getParentMenuId() == menu.getId()) {
-				// 查看图标是否为空，如果为空则显示默认图标
-				Menu children = new Menu(vo.getMenuId(), vo.getMenuName(),
-						getUrl(vo.getDynamicPageId(), vo.getMenuAddress()),
-						getIcon(vo.getMenuIcon(), "images/icon/icon-blue/system.png"));
-				children.setFlag(vo.getMenuFlag());
-				children.setType(vo.getType());
-				menu.add(children);
-				// 判断子节点是否为父节点
-				if (pids.contains(vo.getMenuId())) {
-					addChildren(resoVOs, pids, children);
-				}
-			}
-		}
-	}
-
-	/**
-	 * 替换图标
-	 */
-	private String getIcon(String icon, String defaultImg) {
-		if (StringUtils.isBlank(icon)) {
-			icon = defaultImg;
-		}
-		return ControllerHelper.getBasePath() + icon;
-	}
-
-	private class Menu {
-
-		private long id;
-		private String name;
-		private String url;
-		private String target;
-		private String icon;
-		private List<Menu> children;
-		private int flag;
-		private int type;
-		private int count;
-
-		public Menu(long id, String name, String url, String icon) {
-			this.id = id;
-			this.name = name;
-			this.url = url;
-			this.icon = icon;
-			this.children = new ArrayList<UnitBaseController.Menu>();
-		}
-
-		public Menu(String name, String url, String icon) {
-			this.name = name;
-			this.url = url;
-			this.icon = icon;
-		}
-
-		public int getCount() {
-			return count;
-		}
-
-		public void setCount(int count) {
-			this.count = count;
-		}
-
-		public Menu() {
-			this.children = new ArrayList<UnitBaseController.Menu>();
-		}
-
-		public void add(Menu menu) {
-			this.children.add(menu);
-		}
-
-		public long getId() {
-			return id;
-		}
-
-		public void setId(long id) {
-			this.id = id;
-		}
-
-		public String getName() {
-			return name;
-		}
-
-		public void setName(String name) {
-			this.name = name;
-		}
-
-		public String getUrl() {
-			return url;
-		}
-
-		public void setUrl(String url) {
-			this.url = url;
-		}
-
-		public String getTarget() {
-			return target;
-		}
-
-		public void setTarget(String target) {
-			this.target = target;
-		}
-
-		public String getIcon() {
-			return icon;
-		}
-
-		public void setIcon(String icon) {
-			this.icon = icon;
-		}
-
-		public List<Menu> getChildren() {
-			return children;
-		}
-
-		public void setChildren(List<Menu> children) {
-			this.children = children;
-		}
-
-		public int getFlag() {
-			return flag;
-		}
-
-		public void setFlag(int flag) {
-			this.flag = flag;
-		}
-
-		public int getType() {
-			return type;
-		}
-
-		public void setType(int type) {
-			this.type = type;
-		}
-
 	}
 
 	/**
@@ -466,17 +298,7 @@ public class UnitBaseController {
 		Subject user = SecurityUtils.getSubject();
 		user.logout();
 		ContextHolderUtils.deleteCookie(SC.SECRET_KEY);
-		String path = request.getContextPath();
-		String basePath = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + path
-				+ "/";
-		return new ModelAndView("redirect:" + basePath);
-	}
-
-	@RequestMapping(value = "errorHandle")
-	private void errorHandle(HttpServletRequest request) {
-		StringBuffer url = request.getRequestURL();
-
-		logger.debug(url.toString());
+		return new ModelAndView("redirect:" + ControllerHelper.getBasePath());
 	}
 
 	@RequestMapping(value = "logsso")

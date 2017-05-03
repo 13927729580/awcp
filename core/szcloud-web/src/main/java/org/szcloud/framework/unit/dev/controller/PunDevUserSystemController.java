@@ -36,6 +36,7 @@ import org.szcloud.framework.unit.vo.PunGroupVO;
 import org.szcloud.framework.unit.vo.PunMenuVO;
 import org.szcloud.framework.unit.vo.PunResourceTreeNode;
 import org.szcloud.framework.unit.vo.PunResourceVO;
+import org.szcloud.framework.unit.vo.PunRoleInfoVO;
 import org.szcloud.framework.unit.vo.PunSystemVO;
 import org.szcloud.framework.unit.vo.PunUserBaseInfoVO;
 import org.szcloud.framework.unit.vo.SysDataSourceVO;
@@ -251,7 +252,16 @@ public class PunDevUserSystemController {
 	public ModelAndView punSystemList(@ModelAttribute PunSystemVO vo, Model model,
 			@RequestParam(value = "currentPage", defaultValue = "1") int currentPage,
 			@RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
-
+		List<PunRoleInfoVO> roles = (List<PunRoleInfoVO>) SessionUtils
+				.getObjectFromSession(SessionContants.CURRENT_ROLES);
+		boolean isSuperAdmin = false;
+		for (PunRoleInfoVO role : roles) {
+			if (role.getRoleName().equals("超级后台管理员"))
+				isSuperAdmin = true;
+		}
+		if (!isSuperAdmin) {
+			return new ModelAndView("errorHandle");
+		}
 		try {
 			if (currentPage <= 0)
 				currentPage = 1;

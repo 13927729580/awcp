@@ -3,7 +3,7 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%> 
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="sc" uri="szcloud" %>
-<%@page isELIgnored="false"%> 
+<%@ page isELIgnored="false"%> 
 <%
 	String path = request.getContextPath();
 	String basePath = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + path + "/";
@@ -11,20 +11,19 @@
 <!DOCTYPE html >
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="renderer" content="webkit">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>动态页面表单</title>
-<base href="<%=basePath%>">
-<%@ include file="/resources/include/common_css.jsp" %>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="renderer" content="webkit">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>动态页面表单</title>
+	<base href="<%=basePath%>">
+	<%@ include file="/resources/include/common_css.jsp" %>
 </head>
 <body id="main">
 	<div class="container-fluid">
 		<h3>父级页面</h3>	
 		<ul>
-			<c:if test="${empty parent}">该页面尚未被引用</c:if>
-			
+			<c:if test="${empty parent}">该页面尚未被引用</c:if>		
 			<c:forEach items="${parent}" var="map">
 				<li>
 					<a href="<%=basePath%>fd/edit.do?_selects=${map.value.id}" target="sysEditFrame">

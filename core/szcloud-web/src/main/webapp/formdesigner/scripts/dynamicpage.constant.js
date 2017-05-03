@@ -58,6 +58,7 @@ var pageConstant = {
             this.type.put("1035","地图");
             this.type.put("1036","搜索条件");
             this.type.put("1037","签名");
+            this.type.put("1038","grid表格");
 		}
 		return this.type;
 	}

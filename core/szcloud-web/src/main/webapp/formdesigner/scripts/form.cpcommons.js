@@ -1142,6 +1142,12 @@ function loadCommonComponentData(storeObject){
 			$("#textLabel").val(componentObject.textLabel);
 			$("#textName").val(componentObject.textName);
 		}
+		//gridTable
+		if(componentObject.thHead){
+			$("#dataSource").val(componentObject.dataSource);
+			$("#thHead").val(componentObject.thHead);
+			$("#field").val(componentObject.field);
+		}
 		
 	}
 }

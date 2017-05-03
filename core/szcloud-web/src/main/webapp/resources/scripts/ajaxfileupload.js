@@ -1,7 +1,17 @@
 
 jQuery.extend({
 	
+handleError: function( s, xhr, status, e ) 		{
+// If a local callback was specified, fire it
+		if ( s.error ) {
+			s.error.call( s.context || s, xhr, status, e );
+		}
 
+		// Fire the global callback
+		if ( s.global ) {
+			(s.context ? jQuery(s.context) : jQuery.event).trigger( "ajaxError", [xhr, s, e] );
+		}
+	},
     createUploadIframe: function(id, uri)
 	{
 			//create frame
@@ -28,7 +38,7 @@ jQuery.extend({
 		//create form	
 		var formId = 'jUploadForm' + id;
 		var fileId = 'jUploadFile' + id;
-		var form = jQuery('<form  action="" method="POST" name="' + formId + '" id="' + formId + '" enctype="multipart/form-data"></form>');	
+		var form = jQuery('<form  action="" method="POST" name="' + formId + '" id="' + formId + '" enctype="multipart/form-data"></form>');
 		if(data)
 		{
 			for(var i in data)
@@ -57,7 +67,7 @@ jQuery.extend({
     ajaxFileUpload: function(s) {
         // TODO introduce global settings, allowing the client to modify them for all requests, not only timeout		
         s = jQuery.extend({}, jQuery.ajaxSettings, s);
-        var id = new Date().getTime()        
+        var id = new Date().getTime();
 		var form = jQuery.createUploadForm(id, s.fileElementId, (typeof(s.data)=='undefined'?false:s.data));
 		var io = jQuery.createUploadIframe(id, s.secureuri);
 		var frameId = 'jUploadFrame' + id;
@@ -199,8 +209,17 @@ jQuery.extend({
         if ( type == "script" )
             jQuery.globalEval( data );
         // Get the JavaScript object, if JSON is used.
-        if ( type == "json" )
-            eval( "data = " + data );
+        if ( type == "json" ) {
+             data = r.responseText;  
+             var start = data.indexOf(">");  
+             if(start != -1) {  
+               var end = data.indexOf("<", start + 1);  
+               if(end != -1) {  
+                 data = data.substring(start + 1, end);  
+                }  
+             }   
+              eval( "data = " + data);  
+        } 
         // evaluate scripts within html
         if ( type == "html" )
             jQuery("<div>").html(data).evalScripts();
@@ -208,4 +227,31 @@ jQuery.extend({
         return data;
     }
 })
-
+(function ($) {
+            jQuery.extend({
+                handleError: function (s, xhr, status, e) {
+                    if (s.error) {
+                        s.error.call(s.context || s, xhr, status, e);
+                    }
+                    if (s.global) {
+                        (s.context ? jQuery(s.context) : jQuery.event).trigger("ajaxError", [xhr, s, e]);
+                    }
+                },
+                httpData: function (xhr, type, s) {
+                    var ct = xhr.getResponseHeader("content-type"),
+            xml = type == "xml" || !type && ct && ct.indexOf("xml") >= 0,
+            data = xml ? xhr.responseXML : xhr.responseText;
+                    if (xml && data.documentElement.tagName == "parsererror")
+                        throw "parsererror";
+                    if (s && s.dataFilter)
+                        data = s.dataFilter(data, type);
+                    if (typeof data === "string") {
+                        if (type == "script")
+                            jQuery.globalEval(data);
+                        if (type == "json")
+                            data = window["eval"]("(" + data + ")");
+                    }
+                    return data;
+                }
+            });
+})

@@ -53,7 +53,7 @@
 	</sql>
 	<!-- 所有字段等于的查询条件 -->
 	<sql id="EQ_Where_Clause">
-		where 1=1
+		where ROLE_NAME != '超级后台管理员'
 		<trim suffixOverrides=",">
 			<if test="sysId != null and sysId != ''">
 				AND SYS_ID = #{sysId}
@@ -68,7 +68,6 @@
 			<if test="dictRemark != null and dictRemark != ''">
 				AND DICT_REMARK = #{dictRemark}
 			</if>
-
 
 		</trim>
 	</sql>

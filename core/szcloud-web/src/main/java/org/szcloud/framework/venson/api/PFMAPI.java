@@ -21,9 +21,13 @@ public class PFMAPI {
 	// API语句
 	private String APISQL;
 	// API状态
-	private String APIState;
+	private Integer APIState;
 	// API类型
-	private int APIType;
+	private Integer APIType;
+	// 是否登录
+	private Integer APIIsLogin;
+	// 请求方式
+	private String APIMethod;
 	// API对应的表
 	private String APITable;
 	// API描述
@@ -53,12 +57,28 @@ public class PFMAPI {
 		APISQL = aPISQL;
 	}
 
-	public String getAPIState() {
+	public int getAPIState() {
 		return APIState;
 	}
 
-	public void setAPIState(String aPIState) {
+	public void setAPIState(int aPIState) {
 		APIState = aPIState;
+	}
+
+	public int getAPIIsLogin() {
+		return APIIsLogin;
+	}
+
+	public void setAPIIsLogin(int aPIIsLogin) {
+		APIIsLogin = aPIIsLogin;
+	}
+
+	public String getAPIMethod() {
+		return APIMethod;
+	}
+
+	public void setAPIMethod(String aPIMethod) {
+		APIMethod = aPIMethod;
 	}
 
 	public int getAPIType() {
@@ -90,17 +110,14 @@ public class PFMAPI {
 	 */
 	public static PFMAPI get(String id) {
 		SzcloudJdbcTemplate jdbcTemplate = Springfactory.getBean("jdbcTemplate");
+		String sql = "select API_ID as APIID,API_Name as APIName,API_SQL as APISQL,API_DESC as APIDesc,"
+				+ "API_State as APIState,API_Type as APIType,API_Table as APITable,API_IS_LOGIN as APIIsLogin,API_Method as APIMethod from p_fm_api where ";
 		if (StringUtils.isNumeric(id)) {
-			return jdbcTemplate.queryForObject(
-					"select API_ID as APIID,API_Name as APIName,API_SQL as APISQL,"
-							+ "API_State as APIState,API_Type as APIType,API_Table as APITable from p_fm_api where API_ID=?",
-					new BeanPropertyRowMapper<PFMAPI>(PFMAPI.class), id);
+			sql += " API_ID=?";
 		} else {
-			return jdbcTemplate.queryForObject(
-					"select API_ID as APIID,API_Name as APIName,API_SQL as APISQL,"
-							+ "API_State as APIState,API_Type as APIType,API_Table as APITable from p_fm_api where API_Name=?",
-					new BeanPropertyRowMapper<PFMAPI>(PFMAPI.class), id);
+			sql += " API_Name=?";
 		}
+		return jdbcTemplate.queryForObject(sql, new BeanPropertyRowMapper<PFMAPI>(PFMAPI.class), id);
 	}
 
 	/**

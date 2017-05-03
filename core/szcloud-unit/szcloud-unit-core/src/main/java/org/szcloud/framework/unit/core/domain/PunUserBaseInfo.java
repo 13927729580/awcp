@@ -30,6 +30,7 @@ public class PunUserBaseInfo extends BaseEntity {
 	private String userEmail;
 	private String employeeId;
 	private String userTitle;
+	private String userStatus;
 	private String userDossierNumber;
 	private String userOfficeNum;
 	private Long groupId;
@@ -213,6 +214,14 @@ public class PunUserBaseInfo extends BaseEntity {
 				.append("UserDossierNumber", getUserDossierNumber()).append("UserOfficeNum", getUserOfficeNum())
 				.append("GroupId", getGroupId()).append("deptId", getDeptId()).append("deptName", getDeptName())
 				.toString();
+	}
+
+	public String getUserStatus() {
+		return userStatus;
+	}
+
+	public void setUserStatus(String userStatus) {
+		this.userStatus = userStatus;
 	}
 
 	public int hashCode() {

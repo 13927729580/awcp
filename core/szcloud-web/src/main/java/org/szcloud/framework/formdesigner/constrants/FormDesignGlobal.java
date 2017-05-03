@@ -51,6 +51,7 @@ public class FormDesignGlobal {
 		COMPOENT_TYPE_NAME.put("1035", "地图");// 计算值、隐藏、禁用
 		COMPOENT_TYPE_NAME.put("1036", "搜索条件");// 计算值、隐藏、禁用
 		COMPOENT_TYPE_NAME.put("1037", "签名");// 计算值、隐藏、禁用
+		COMPOENT_TYPE_NAME.put("1038", "grid表格");// 计算值、隐藏、禁用
 
 		COMPOENT_TYPE_URL.put("1001", "formdesigner/page/component/input/input.jsp");
 		COMPOENT_TYPE_URL.put("1009", "formdesigner/page/component/label/label.jsp");
@@ -90,6 +91,7 @@ public class FormDesignGlobal {
 		COMPOENT_TYPE_URL.put("1035", "formdesigner/page/component/aMap/amap.jsp");
 		COMPOENT_TYPE_URL.put("1036", "formdesigner/page/component/searchComponent/addSearch.jsp");
 		COMPOENT_TYPE_URL.put("1037", "formdesigner/page/component/image/image.jsp");
+		COMPOENT_TYPE_URL.put("1038", "formdesigner/page/component/gridTable/table.jsp");
 		LAYOUT_TYPE_SHOW.put("1", "列");
 		LAYOUT_TYPE_SHOW.put("2", "行");
 	}

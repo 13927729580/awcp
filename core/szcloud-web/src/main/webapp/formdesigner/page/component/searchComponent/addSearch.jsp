@@ -33,12 +33,12 @@
 		<form id="componentForm" action="">
 			<div class="row" id="tab">
 				<ul class="nav nav-tabs">
-					<li class=""><a href="#tab1" data-toggle="tab">基本</a></li>
-					<li class="active"><a href="#tab3" data-toggle="tab">状态</a></li>
+					<li class="active"><a href="#tab1" data-toggle="tab">基本</a></li>
+					<li class=""><a href="#tab3" data-toggle="tab">状态</a></li>
 				</ul>
 			</div>
 			<div class="row tab-content">
-				<div class="tab-pane " id="tab1">
+				<div class="tab-pane active" id="tab1">
 					<input type="hidden" name="dynamicPageId" id="dynamicPageId"/>
 					<input type="hidden" name="pageId" id="pageId"/>
 					<input type="hidden" name="componentType" id="componentType">
@@ -118,7 +118,7 @@ SELECT a.code  as id,a.name as text FROM test_province a@
 					
 
 				</div>
-				<div class="tab-pane active" id="tab3"><%@ include file="/formdesigner/page/component/common/hidden-disabled-readonly-defaultvalue.jsp" %></div>
+				<div class="tab-pane" id="tab3"><%@ include file="/formdesigner/page/component/common/hidden-disabled-readonly-defaultvalue.jsp" %></div>
 			</div>
 		</form>
 	</div>

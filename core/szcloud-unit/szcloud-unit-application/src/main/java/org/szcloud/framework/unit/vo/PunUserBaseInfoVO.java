@@ -26,6 +26,7 @@ public class PunUserBaseInfoVO implements Serializable {
 	private String userDossierNumber;
 	private String userOfficeNum;
 	private String orgCode;
+	private String userStatus;
 	private Long groupId;
 	private List<PunPosition> positionList;
 	private String verifyCode;
@@ -354,6 +355,14 @@ public class PunUserBaseInfoVO implements Serializable {
 
 	public void setUserHeadImg(String userHeadImg) {
 		this.userHeadImg = userHeadImg;
+	}
+
+	public String getUserStatus() {
+		return userStatus;
+	}
+
+	public void setUserStatus(String userStatus) {
+		this.userStatus = userStatus;
 	}
 
 }

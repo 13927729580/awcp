@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.awcp</groupId>
     <artifactId>szcloud-framework</artifactId>
-    <version>1.0.0.RELEASE</version>
+    <version>1.1.1.RELEASE</version>
   </parent>
   <artifactId>szcloud-unit</artifactId>
   <packaging>pom</packaging>

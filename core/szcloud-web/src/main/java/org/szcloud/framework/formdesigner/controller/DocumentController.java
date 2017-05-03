@@ -365,6 +365,16 @@ public class DocumentController extends BaseController {
 							// o.put("optionText", optionsText);
 							others.put(component.getString("name"), optionsText);
 							break;
+						case 1034:
+							o.put("hidden", String.valueOf(computeStatus(component.getString("hiddenScript"), engine)));
+							o.put("readonly",
+									String.valueOf(computeStatus(component.getString("readonlyScript"), engine)));
+							o.put("disabled",
+									String.valueOf(computeStatus(component.getString("disabledScript"), engine)));
+							script = component.getString("tab_url");
+							Object val = (String) engine.eval(script);
+							others.put(component.getString("name"), val + "");
+							break;
 						// 下面几种，只需执行同一段代码，所以没有break;计算值、隐藏、只读、禁用
 						case 1001:
 						case 1002:
@@ -664,306 +674,301 @@ public class DocumentController extends BaseController {
 		} else {
 			// 校验文档
 			DocumentUtils utils = new DocumentUtils(docVo, pageVO);
-			if (utils.validateDocument(docVo)) {
-				Integer actType = act.getActType();
-				// 根据actType 执行其默认操作
-				switch (actType) {
-				case 2000:
-					break;
-				case 2001:// 保存--不带流程，
-					if (user.getUserId() != null) {
-						docVo.setLastmodifier(String.valueOf(user.getUserId()));
-						docVo.setAuditUser(String.valueOf(user.getUserId()));
-					}
-					// 设置doc 记录为草稿状态
-					docVo.setState("草稿");
-					if (docVo.isUpdate()) {
-						// 更新数据
-						for (Iterator<String> it = docVo.getListParams().keySet().iterator(); it.hasNext();) {
-							String o = it.next();
-							utils.updateData(o);
-						}
-						// 更新document 记录
-						// 最后修改时间
-						docVo.setLastmodified(new Date(System.currentTimeMillis()));
-						utils.saveDocument();
-
-					} else {
-						docVo.setCreated(new Date(System.currentTimeMillis())); // 创建时间
-						docVo.setAuthorId(user.getUserId());// 作者
-						docVo.setLastmodified(docVo.getCreated()); // 最后修改时间
-						// 保存数据 向document插入数据
-						for (Iterator<String> it = docVo.getListParams().keySet().iterator(); it.hasNext();) {
-							docVo.setId("");
-							String o = it.next();
-							utils.saveData(o);
-							utils.saveDocument();
-						}
-						utils.saveDocument();
-					}
-					break;
-				case 2002:
-					// TODO 返回按钮实现
-					Long backId = null;
-					Object obt = DocumentUtils.getThingFromSession("backId");
-					if (obt != null) {
-						backId = (Long) obt;
-					} else {
-						backId = Long.parseLong(act.getExtbute().get("target"));
-					}
-					mv.setViewName("redirect:/document/view.do?dynamicPageId=" + backId);
-					return mv;
-				case 2003:
-					// TODO 删除动作实现
-					if (_selects != null && _selects.length >= 1) {
-						for (String select : _selects) {
-							utils.deleteData(pageVO, select);
-							BaseExample base = new BaseExample();
-							base.createCriteria().andEqualTo("RECORD_ID", select);
-							documentServiceImpl.deleteByExample(base);
-						}
-						String viewName = "redirect:/document/view.do?dynamicPageId=" + pageId;
-						mv.setViewName(viewName);
-						return mv;
-					} else {
-						// TODO 返回并提示没有选择记录
-					}
-					break;
-				case 2008:// 保存带流程
-					break;
-				case 2009:// 新增
-					mv.addObject("dynamicPageId", act.getExtbute().get("target"));
-					mv.setViewName("redirect:/document/view.do");
-					return mv;
-				case 2010:// 打开或审批
-					if (_selects != null && _selects.length == 1) {
-						BaseExample baseExample = new BaseExample();
-						baseExample.createCriteria().andEqualTo("RECORD_ID", _selects[0]);
-						List<DocumentVO> documents = documentServiceImpl.findPageByExample(baseExample, 1,
-								Integer.MAX_VALUE, null);
-						List<DocumentVO> workflowDoc = new ArrayList<DocumentVO>();
-						List<DocumentVO> noneProcessDoc = new ArrayList<DocumentVO>();
-						if (documents != null && documents.size() > 0) {
-							for (DocumentVO document : documents) {
-								if (StringUtils.isNotBlank(document.getInstanceId())) {
-									workflowDoc.add(document);
-								} else {
-									noneProcessDoc.add(document);
-								}
-							}
-						}
-
-						if (workflowDoc.size() > 0) {// 流程相关
-
-						} else if (noneProcessDoc.size() > 0) {// 流程无关
-							// 判断用户权限 有权限直接打开
-							mv.setViewName("redirect:/document/view.do?recordId=" + _selects[0] + "&dynamicPageId="
-									+ act.getExtbute().get("target"));
-							return mv;
-						}
-					} else {
-
-					}
-					break;
-				case 2011:// 流程流转
-					break;
-				case 2012:// 打开
-					if (_selects != null && _selects.length == 1) {
-						BaseExample baseExample = new BaseExample();
-						baseExample.createCriteria().andEqualTo("RECORD_ID", _selects[0]);
-						List<DocumentVO> documents = documentServiceImpl.findPageByExample(baseExample, 1,
-								Integer.MAX_VALUE, null);
-						if (documents != null && documents.size() > 0) {
-							// 只读方式打开
-							mv.setViewName("redirect:/document/view.do?id=" + documents.get(0).getRecordId()
-									+ "&dynamicPageId=" + documents.get(0).getDynamicPageId());
-							return mv;
-						} else {
-
-						}
-					}
-					break;
-				case 2013:// 审批
-					if (_selects != null && _selects.length == 1) {
-						BaseExample baseExample = new BaseExample();
-						baseExample.createCriteria().andEqualTo("RECORD_ID", _selects[0]);
-						List<DocumentVO> documents = documentServiceImpl.findPageByExample(baseExample, 1,
-								Integer.MAX_VALUE, null);
-						List<DocumentVO> workflowDoc = new ArrayList<DocumentVO>();
-						List<DocumentVO> noneProcessDoc = new ArrayList<DocumentVO>();
-						if (documents != null && documents.size() > 0) {
-							for (DocumentVO document : documents) {
-								if (StringUtils.isNotBlank(document.getWorkflowId())) {
-									workflowDoc.add(document);
-								} else {
-									noneProcessDoc.add(document);
-								}
-							}
-						}
-						if (workflowDoc.size() > 0) {// 流程相关
-
-						} else if (noneProcessDoc.size() > 0) {// 流程无关
-							// 判断用户权限 有权限直接打开
-							mv.setViewName("redirect:/document/view.do?recordId=" + _selects[0] + "&dynamicPageId="
-									+ noneProcessDoc.get(0).getDynamicPageId());
-							return mv;
-						}
-					} else {
-						// 返回并提示选择只能选择一条记录
-					}
-
-					break;
-				case 2014:// pdf打印
-					// 1、准备参数
-					String script = act.getExtbute().get("script");
-					Map<String, String> params = new HashMap<String, String>();
-					if (StringUtils.isNotBlank(script)) {
-						try {
-							params = (Map<String, String>) engine.eval(StringEscapeUtils.unescapeHtml4(script));
-						} catch (ScriptException e2) {
-							e2.printStackTrace();
-						}
-					}
-					List listPages = formdesignerServiceImpl.getChildListPages(pageVO.getId());
-					StringBuilder sb = new StringBuilder();
-					if (listPages != null && listPages.size() > 0) {
-						for (int k = 0; k < listPages.size(); k++) {
-							sb.append(listPages.get(k) + ",");
-						}
-					}
-
-					Map totalMap = new HashMap();
-					totalMap.put("pageVOId", pageVO.getId().toString());
-					totalMap.put("listPages", sb.toString());
-					totalMap.putAll(map);
-					totalMap.putAll(params);
-
-					VirtualRequest virtualRequest = new VirtualRequest(totalMap); // request的getParament无法重置，所有自己模拟一个virtualRequest用于存跳转参数
-					try {
-						print(virtualRequest, request, response);
-					} catch (ScriptException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					return null;
-
-				case 2015:// 保存--不带流程，
+			Integer actType = act.getActType();
+			// 根据actType 执行其默认操作
+			switch (actType) {
+			case 2000:
+				break;
+			case 2001:// 保存--不带流程，
+				if (user.getUserId() != null) {
 					docVo.setLastmodifier(String.valueOf(user.getUserId()));
 					docVo.setAuditUser(String.valueOf(user.getUserId()));
-					// 设置doc 记录为草稿状态
-					docVo.setState("草稿");
-					if (docVo.isUpdate()) {
-						// 更新数据
-						for (Iterator<String> it = docVo.getListParams().keySet().iterator(); it.hasNext();) {
-							String o = it.next();
-							utils.updateData(o);
-						}
-						// 更新document 记录
-						// 最后修改时间
-						docVo.setLastmodified(new Date(System.currentTimeMillis()));
-						utils.saveDocument();
-					} else {
-						// 创建时间
-						docVo.setCreated(new Date(System.currentTimeMillis()));
-						docVo.setAuthorId(user.getUserId());
-						// 最后修改时间
-						docVo.setLastmodified(docVo.getCreated());
-						// 保存数据
-						// 向document插入数据
-						for (Iterator<String> it = docVo.getListParams().keySet().iterator(); it.hasNext();) {
-							docVo.setId("");
-							String o = it.next();
-							utils.saveData(o);
-							utils.saveDocument();
-						}
-						utils.saveDocument();
-					}
-					break;
-				case 2016:// Excel导出
-					// 1、准备参数
-					String excelScript = act.getExtbute().get("script");
-					Map<String, String> excelParams = new HashMap<String, String>();
-					if (StringUtils.isNotBlank(excelScript)) {
-						try {
-							excelParams = (Map<String, String>) engine
-									.eval(StringEscapeUtils.unescapeHtml4(excelScript));
-						} catch (ScriptException e2) {
-							e2.printStackTrace();
-						}
-					}
-					// excel模板的Id
-					String templateFileId = act.getExtbute().get("templateFileId");
-					// 导出数据的sql
-					String sqlScript = act.getExtbute().get("sqlScript");
-					String actSql = new String();
-					if (StringUtils.isNotBlank(sqlScript)) {
-						try {
-							actSql = (String) engine.eval(StringEscapeUtils.unescapeHtml4(sqlScript));
-						} catch (ScriptException e2) {
-							e2.printStackTrace();
-						}
-					}
-
-					// 此处改为直接调用函数，参考打印pdf同样的调用方式
-					Map paramMap = new HashMap();
-					paramMap.put("actSql", actSql);
-					paramMap.put("templateFileId", templateFileId);
-					paramMap.put("excelParams", excelParams);
-					paramMap.putAll(map);
-					VirtualRequest vRequest = new VirtualRequest(paramMap); // request的getParament无法重置，所有自己模拟一个virtualRequest用于存跳转参数
-					try {
-						excelListPage(vRequest, request, response);
-					} catch (ScriptException e) {
-						e.printStackTrace();
-					}
-					return null;
-				case 2017:// 保存并返回
-					if (user.getUserId() != null) {
-						docVo.setLastmodifier(String.valueOf(user.getUserId()));
-						docVo.setAuditUser(String.valueOf(user.getUserId()));
-					}
-					if (docVo.isUpdate()) {
-						// 更新数据
-						for (Iterator<String> it = docVo.getListParams().keySet().iterator(); it.hasNext();) {
-							String o = it.next();
-							utils.updateData(o);
-						}
-						// 更新document 记录
-						// 最后修改时间
-						docVo.setLastmodified(new Date(System.currentTimeMillis()));
-						utils.saveDocument();
-
-					} else {
-						// 创建时间
-						docVo.setCreated(new Date(System.currentTimeMillis()));
-						docVo.setAuthorId(user.getUserId());
-						// 最后修改时间
-						docVo.setLastmodified(docVo.getCreated());
-						// 保存数据
-						// 向document插入数据
-						for (Iterator<String> it = docVo.getListParams().keySet().iterator(); it.hasNext();) {
-							docVo.setId("");
-							String o = it.next();
-							utils.saveData(o);
-							utils.saveDocument();
-						}
-						utils.saveDocument();
-					}
-					backId = null;
-					obt = DocumentUtils.getThingFromSession("backId");
-					if (obt != null) {
-						backId = (Long) obt;
-					} else {
-						backId = Long.parseLong(act.getExtbute().get("target"));
-					}
-					mv.setViewName("redirect:/document/view.do?dynamicPageId=" + backId);
-					return mv;
-
-				default:
-					break;
 				}
-				// 调用流程接口
+				// 设置doc 记录为草稿状态
+				docVo.setState("草稿");
+				if (docVo.isUpdate()) {
+					// 更新数据
+					for (Iterator<String> it = docVo.getListParams().keySet().iterator(); it.hasNext();) {
+						String o = it.next();
+						utils.updateData(o);
+					}
+					// 更新document 记录
+					// 最后修改时间
+					docVo.setLastmodified(new Date(System.currentTimeMillis()));
+					utils.saveDocument();
+
+				} else {
+					docVo.setCreated(new Date(System.currentTimeMillis())); // 创建时间
+					docVo.setAuthorId(user.getUserId());// 作者
+					docVo.setLastmodified(docVo.getCreated()); // 最后修改时间
+					// 保存数据 向document插入数据
+					for (Iterator<String> it = docVo.getListParams().keySet().iterator(); it.hasNext();) {
+						docVo.setId("");
+						String o = it.next();
+						utils.saveData(o);
+						utils.saveDocument();
+					}
+					utils.saveDocument();
+				}
+				break;
+			case 2002:
+				// TODO 返回按钮实现
+				Long backId = null;
+				Object obt = DocumentUtils.getThingFromSession("backId");
+				if (obt != null) {
+					backId = (Long) obt;
+				} else {
+					backId = Long.parseLong(act.getExtbute().get("target"));
+				}
+				mv.setViewName("redirect:/document/view.do?dynamicPageId=" + backId);
+				return mv;
+			case 2003:
+				// TODO 删除动作实现
+				if (_selects != null && _selects.length >= 1) {
+					for (String select : _selects) {
+						utils.deleteData(pageVO, select);
+						BaseExample base = new BaseExample();
+						base.createCriteria().andEqualTo("RECORD_ID", select);
+						documentServiceImpl.deleteByExample(base);
+					}
+					String viewName = "redirect:/document/view.do?dynamicPageId=" + pageId;
+					mv.setViewName(viewName);
+					return mv;
+				} else {
+					// TODO 返回并提示没有选择记录
+				}
+				break;
+			case 2008:// 保存带流程
+				break;
+			case 2009:// 新增
+				mv.addObject("dynamicPageId", act.getExtbute().get("target"));
+				mv.setViewName("redirect:/document/view.do");
+				return mv;
+			case 2010:// 打开或审批
+				if (_selects != null && _selects.length == 1) {
+					BaseExample baseExample = new BaseExample();
+					baseExample.createCriteria().andEqualTo("RECORD_ID", _selects[0]);
+					List<DocumentVO> documents = documentServiceImpl.findPageByExample(baseExample, 1,
+							Integer.MAX_VALUE, null);
+					List<DocumentVO> workflowDoc = new ArrayList<DocumentVO>();
+					List<DocumentVO> noneProcessDoc = new ArrayList<DocumentVO>();
+					if (documents != null && documents.size() > 0) {
+						for (DocumentVO document : documents) {
+							if (StringUtils.isNotBlank(document.getInstanceId())) {
+								workflowDoc.add(document);
+							} else {
+								noneProcessDoc.add(document);
+							}
+						}
+					}
+
+					if (workflowDoc.size() > 0) {// 流程相关
+
+					} else if (noneProcessDoc.size() > 0) {// 流程无关
+						// 判断用户权限 有权限直接打开
+						mv.setViewName("redirect:/document/view.do?recordId=" + _selects[0] + "&dynamicPageId="
+								+ act.getExtbute().get("target"));
+						return mv;
+					}
+				}
+				break;
+			case 2011:// 流程流转
+				break;
+			case 2012:// 打开
+				if (_selects != null && _selects.length == 1) {
+					BaseExample baseExample = new BaseExample();
+					baseExample.createCriteria().andEqualTo("RECORD_ID", _selects[0]);
+					List<DocumentVO> documents = documentServiceImpl.findPageByExample(baseExample, 1,
+							Integer.MAX_VALUE, null);
+					if (documents != null && documents.size() > 0) {
+						// 只读方式打开
+						mv.setViewName("redirect:/document/view.do?id=" + documents.get(0).getRecordId()
+								+ "&dynamicPageId=" + documents.get(0).getDynamicPageId());
+						return mv;
+					} else {
+
+					}
+				}
+				break;
+			case 2013:// 审批
+				if (_selects != null && _selects.length == 1) {
+					BaseExample baseExample = new BaseExample();
+					baseExample.createCriteria().andEqualTo("RECORD_ID", _selects[0]);
+					List<DocumentVO> documents = documentServiceImpl.findPageByExample(baseExample, 1,
+							Integer.MAX_VALUE, null);
+					List<DocumentVO> workflowDoc = new ArrayList<DocumentVO>();
+					List<DocumentVO> noneProcessDoc = new ArrayList<DocumentVO>();
+					if (documents != null && documents.size() > 0) {
+						for (DocumentVO document : documents) {
+							if (StringUtils.isNotBlank(document.getWorkflowId())) {
+								workflowDoc.add(document);
+							} else {
+								noneProcessDoc.add(document);
+							}
+						}
+					}
+					if (workflowDoc.size() > 0) {// 流程相关
+
+					} else if (noneProcessDoc.size() > 0) {// 流程无关
+						// 判断用户权限 有权限直接打开
+						mv.setViewName("redirect:/document/view.do?recordId=" + _selects[0] + "&dynamicPageId="
+								+ noneProcessDoc.get(0).getDynamicPageId());
+						return mv;
+					}
+				} else {
+					// 返回并提示选择只能选择一条记录
+				}
+
+				break;
+			case 2014:// pdf打印
+				// 1、准备参数
+				String script = act.getExtbute().get("script");
+				Map<String, String> params = new HashMap<String, String>();
+				if (StringUtils.isNotBlank(script)) {
+					try {
+						params = (Map<String, String>) engine.eval(StringEscapeUtils.unescapeHtml4(script));
+					} catch (ScriptException e2) {
+						e2.printStackTrace();
+					}
+				}
+				List listPages = formdesignerServiceImpl.getChildListPages(pageVO.getId());
+				StringBuilder sb = new StringBuilder();
+				if (listPages != null && listPages.size() > 0) {
+					for (int k = 0; k < listPages.size(); k++) {
+						sb.append(listPages.get(k) + ",");
+					}
+				}
+
+				Map totalMap = new HashMap();
+				totalMap.put("pageVOId", pageVO.getId().toString());
+				totalMap.put("listPages", sb.toString());
+				totalMap.putAll(map);
+				totalMap.putAll(params);
+
+				VirtualRequest virtualRequest = new VirtualRequest(totalMap); // request的getParament无法重置，所有自己模拟一个virtualRequest用于存跳转参数
+				try {
+					print(virtualRequest, request, response);
+				} catch (ScriptException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				return null;
+
+			case 2015:// 保存--不带流程，
+				docVo.setLastmodifier(String.valueOf(user.getUserId()));
+				docVo.setAuditUser(String.valueOf(user.getUserId()));
+				// 设置doc 记录为草稿状态
+				docVo.setState("草稿");
+				if (docVo.isUpdate()) {
+					// 更新数据
+					for (Iterator<String> it = docVo.getListParams().keySet().iterator(); it.hasNext();) {
+						String o = it.next();
+						utils.updateData(o);
+					}
+					// 更新document 记录
+					// 最后修改时间
+					docVo.setLastmodified(new Date(System.currentTimeMillis()));
+					utils.saveDocument();
+				} else {
+					// 创建时间
+					docVo.setCreated(new Date(System.currentTimeMillis()));
+					docVo.setAuthorId(user.getUserId());
+					// 最后修改时间
+					docVo.setLastmodified(docVo.getCreated());
+					// 保存数据
+					// 向document插入数据
+					for (Iterator<String> it = docVo.getListParams().keySet().iterator(); it.hasNext();) {
+						docVo.setId("");
+						String o = it.next();
+						utils.saveData(o);
+						utils.saveDocument();
+					}
+					utils.saveDocument();
+				}
+				break;
+			case 2016:// Excel导出
+				// 1、准备参数
+				String excelScript = act.getExtbute().get("script");
+				Map<String, String> excelParams = new HashMap<String, String>();
+				if (StringUtils.isNotBlank(excelScript)) {
+					try {
+						excelParams = (Map<String, String>) engine.eval(StringEscapeUtils.unescapeHtml4(excelScript));
+					} catch (ScriptException e2) {
+						e2.printStackTrace();
+					}
+				}
+				// excel模板的Id
+				String templateFileId = act.getExtbute().get("templateFileId");
+				// 导出数据的sql
+				String sqlScript = act.getExtbute().get("sqlScript");
+				String actSql = new String();
+				if (StringUtils.isNotBlank(sqlScript)) {
+					try {
+						actSql = (String) engine.eval(StringEscapeUtils.unescapeHtml4(sqlScript));
+					} catch (ScriptException e2) {
+						e2.printStackTrace();
+					}
+				}
+
+				// 此处改为直接调用函数，参考打印pdf同样的调用方式
+				Map paramMap = new HashMap();
+				paramMap.put("actSql", actSql);
+				paramMap.put("templateFileId", templateFileId);
+				paramMap.put("excelParams", excelParams);
+				paramMap.putAll(map);
+				VirtualRequest vRequest = new VirtualRequest(paramMap); // request的getParament无法重置，所有自己模拟一个virtualRequest用于存跳转参数
+				try {
+					excelListPage(vRequest, request, response);
+				} catch (ScriptException e) {
+					e.printStackTrace();
+				}
+				return null;
+			case 2017:// 保存并返回
+				if (user.getUserId() != null) {
+					docVo.setLastmodifier(String.valueOf(user.getUserId()));
+					docVo.setAuditUser(String.valueOf(user.getUserId()));
+				}
+				if (docVo.isUpdate()) {
+					// 更新数据
+					for (Iterator<String> it = docVo.getListParams().keySet().iterator(); it.hasNext();) {
+						String o = it.next();
+						utils.updateData(o);
+					}
+					// 更新document 记录
+					// 最后修改时间
+					docVo.setLastmodified(new Date(System.currentTimeMillis()));
+					utils.saveDocument();
+
+				} else {
+					// 创建时间
+					docVo.setCreated(new Date(System.currentTimeMillis()));
+					docVo.setAuthorId(user.getUserId());
+					// 最后修改时间
+					docVo.setLastmodified(docVo.getCreated());
+					// 保存数据
+					// 向document插入数据
+					for (Iterator<String> it = docVo.getListParams().keySet().iterator(); it.hasNext();) {
+						docVo.setId("");
+						String o = it.next();
+						utils.saveData(o);
+						utils.saveDocument();
+					}
+					utils.saveDocument();
+				}
+				backId = null;
+				obt = DocumentUtils.getThingFromSession("backId");
+				if (obt != null) {
+					backId = (Long) obt;
+				} else {
+					backId = Long.parseLong(act.getExtbute().get("target"));
+				}
+				mv.setViewName("redirect:/document/view.do?dynamicPageId=" + backId);
+				return mv;
+
+			default:
+				break;
 			}
+			// 调用流程接口
 
 		}
 
@@ -1195,73 +1200,71 @@ public class DocumentController extends BaseController {
 		} else {
 			// 校验文档
 			DocumentUtils utils = new DocumentUtils(docVo, pageVO);
-			if (utils.validateDocument(docVo)) {
-				Integer actType = act.getActType();
-				// 根据actType 执行其默认操作
-				switch (actType) {
-				case 2001:// 保存--不带流程，
-					if (user.getUserId() != null) {
-						docVo.setLastmodifier(String.valueOf(user.getUserId()));
-						docVo.setAuditUser(String.valueOf(user.getUserId()));
-					}
-					// 设置doc 记录为草稿状态
-					docVo.setState("草稿");
-					if (docVo.isUpdate()) {
-						// 更新数据
-						for (Iterator<String> it = docVo.getListParams().keySet().iterator(); it.hasNext();) {
-							String o = it.next();
-							utils.updateData(o);
-						}
-						// 更新document 记录
-						// 最后修改时间
-						docVo.setLastmodified(new Date(System.currentTimeMillis()));
-						utils.saveDocument();
-
-					} else {
-						// 创建时间
-						docVo.setCreated(new Date(System.currentTimeMillis()));
-						docVo.setAuthorId(user.getUserId());
-						// 最后修改时间
-						docVo.setLastmodified(docVo.getCreated());
-						// 保存数据
-						// 向document插入数据
-						for (Iterator<String> it = docVo.getListParams().keySet().iterator(); it.hasNext();) {
-							docVo.setId("");
-							String o = it.next();
-							utils.saveData(o);
-							utils.saveDocument();
-						}
-						utils.saveDocument();
-					}
-					break;
-
-				case 2003:
-					// TODO 删除动作实现
-					if (_selects != null && _selects.length >= 1) {
-						for (String select : _selects) {
-							utils.deleteData(pageVO, select);
-							BaseExample base = new BaseExample();
-							base.createCriteria().andEqualTo("RECORD_ID", select);
-							documentServiceImpl.deleteByExample(base);
-						}
-						mv.setViewName("redirect:/document/view.do?dynamicPageId=" + pageId);
-						return "1";
-					} else {
-						// TODO 返回并提示没有选择记录
-					}
-					break;
-
-				case 2009:
-					mv.addObject("dynamicPageId", act.getExtbute().get("target"));
-					mv.setViewName("redirect:/document/view.do");
-					response.setContentType("text/html;");
-					response.getWriter().write(result);
-					return null;
-				default:
-					break;
+			Integer actType = act.getActType();
+			// 根据actType 执行其默认操作
+			switch (actType) {
+			case 2001:// 保存--不带流程，
+				if (user.getUserId() != null) {
+					docVo.setLastmodifier(String.valueOf(user.getUserId()));
+					docVo.setAuditUser(String.valueOf(user.getUserId()));
 				}
-				// 调用流程接口
+				// 设置doc 记录为草稿状态
+				docVo.setState("草稿");
+				if (docVo.isUpdate()) {
+					// 更新数据
+					for (Iterator<String> it = docVo.getListParams().keySet().iterator(); it.hasNext();) {
+						String o = it.next();
+						utils.updateData(o);
+					}
+					// 更新document 记录
+					// 最后修改时间
+					docVo.setLastmodified(new Date(System.currentTimeMillis()));
+					utils.saveDocument();
+
+				} else {
+					// 创建时间
+					docVo.setCreated(new Date(System.currentTimeMillis()));
+					docVo.setAuthorId(user.getUserId());
+					// 最后修改时间
+					docVo.setLastmodified(docVo.getCreated());
+					// 保存数据
+					// 向document插入数据
+					for (Iterator<String> it = docVo.getListParams().keySet().iterator(); it.hasNext();) {
+						docVo.setId("");
+						String o = it.next();
+						utils.saveData(o);
+						utils.saveDocument();
+					}
+					utils.saveDocument();
+				}
+				break;
+
+			case 2003:
+				// TODO 删除动作实现
+				if (_selects != null && _selects.length >= 1) {
+					for (String select : _selects) {
+						utils.deleteData(pageVO, select);
+						BaseExample base = new BaseExample();
+						base.createCriteria().andEqualTo("RECORD_ID", select);
+						documentServiceImpl.deleteByExample(base);
+					}
+					mv.setViewName("redirect:/document/view.do?dynamicPageId=" + pageId);
+					return "1";
+				} else {
+					// TODO 返回并提示没有选择记录
+				}
+				break;
+
+			case 2009:
+				mv.addObject("dynamicPageId", act.getExtbute().get("target"));
+				mv.setViewName("redirect:/document/view.do");
+				response.setContentType("text/html;");
+				response.getWriter().write(result);
+				return null;
+			default:
+				break;
 			}
+			// 调用流程接口
 
 		}
 
@@ -1273,10 +1276,6 @@ public class DocumentController extends BaseController {
 		response.setContentType("text/html;");
 		response.getWriter().write(result);
 		return null;
-	}
-
-	private void excuteActByType() {
-
 	}
 
 	public String appendURLParam(String key, Object value, String url) {
@@ -2053,38 +2052,6 @@ public class DocumentController extends BaseController {
 		} catch (Exception e) {
 			return "0";
 		}
-	}
-
-	/**
-	 * 用于执行 与docVO 和dynamicPageVO 无关的脚本
-	 * 
-	 * @param response
-	 * @param request
-	 * @return
-	 */
-	@ResponseBody
-	@RequestMapping("/excuteScript")
-	public Object excuteScript(HttpServletResponse response, HttpServletRequest request) {
-		Map<String, String> map = new HashMap<String, String>();
-		Enumeration enumeration = request.getParameterNames();
-		for (; enumeration.hasMoreElements();) {
-			Object o = enumeration.nextElement();
-			String name = o.toString();
-			String[] values = request.getParameterValues(name);
-			map.put(o.toString(), StringUtils.join(values, ";"));
-		}
-		ScriptEngine engine = ScriptEngineUtils.getScriptEngine(new DocumentVO(), new DynamicPageVO());
-		engine.put("request", request);
-		engine.put("session", request.getSession());
-		String script = StringEscapeUtils.unescapeHtml4(map.get("script"));
-		try {
-			Object status = engine.eval(script);
-			return status;
-		} catch (ScriptException e) {
-			e.printStackTrace();
-		}
-
-		return null;
 	}
 
 	@ResponseBody

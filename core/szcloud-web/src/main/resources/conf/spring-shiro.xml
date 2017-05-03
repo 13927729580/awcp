@@ -86,6 +86,7 @@
             /common/file/showPicture.do =anon
             /common/file/getImage.do =anon
             /common/file/preview.do =anon
+            /api/executeAPI.do =anon
             /**/*.do= authc
             <!-- 
             /devAdmin/login.do = anon

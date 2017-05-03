@@ -38,28 +38,32 @@ public class ActEngine {
 	private String[] _selects = null;
 	private ScriptEngine engine = null;
 	private DocumentService documentServiceImpl = null;
-//	private WorkflowProcessService workflowProcessService = null;
+	// private WorkflowProcessService workflowProcessService = null;
 
-	private ActEngine(){}
-	
-//	public ActEngine(DocumentVO docVo, DynamicPageVO pageVO, String[] _selects, ScriptEngine engine, DocumentService documentServiceImpl, WorkflowProcessService workflowProcessService) {
-//		this.docVo = docVo;
-//		this.pageVO = pageVO;
-//		this._selects = _selects;
-//		this.engine = engine;
-//		this.documentServiceImpl = documentServiceImpl;
-//		this.workflowProcessService = workflowProcessService;
-//	}
-	
-	public ActEngine(DocumentVO docVo, DynamicPageVO pageVO, String[] _selects, ScriptEngine engine, DocumentService documentServiceImpl) {
+	private ActEngine() {
+	}
+
+	// public ActEngine(DocumentVO docVo, DynamicPageVO pageVO, String[]
+	// _selects, ScriptEngine engine, DocumentService documentServiceImpl,
+	// WorkflowProcessService workflowProcessService) {
+	// this.docVo = docVo;
+	// this.pageVO = pageVO;
+	// this._selects = _selects;
+	// this.engine = engine;
+	// this.documentServiceImpl = documentServiceImpl;
+	// this.workflowProcessService = workflowProcessService;
+	// }
+
+	public ActEngine(DocumentVO docVo, DynamicPageVO pageVO, String[] _selects, ScriptEngine engine,
+			DocumentService documentServiceImpl) {
 		this.docVo = docVo;
 		this.pageVO = pageVO;
 		this._selects = _selects;
 		this.engine = engine;
 		this.documentServiceImpl = documentServiceImpl;
-//		this.workflowProcessService = workflowProcessService;
+		// this.workflowProcessService = workflowProcessService;
 	}
-	
+
 	public void execute(PageActVO vo) {
 		int type = vo.getActType();
 		switch (type) {
@@ -70,60 +74,51 @@ public class ActEngine {
 		case 2003:
 			delete();
 		case 2004:
-//			return executeSaveWithWorkflow();
-		case 2008 :
-			
+			// return executeSaveWithWorkflow();
+		case 2008:
+
 		case 2009:
-//			return executeNew(vo);
+			// return executeNew(vo);
 		case 2010:
-//			return executeUpdate(vo, _selects);
+			// return executeUpdate(vo, _selects);
 		default:
-//			return executeDefault();
+			// return executeDefault();
 		}
 	}
 
 	/**
-	 * @Title: executeSave
-	 * @Description: 执行保存动作的默认操作
-	 * @return String 执行结果
-	 * @throws
+	 * @Title: executeSave @Description: 执行保存动作的默认操作 @return String 执行结果 @throws
 	 */
 	private void saveWithValidatNoFlow() {
 		PunUserBaseInfoVO user = (PunUserBaseInfoVO) Tools.getObjectFromSession(SessionContants.CURRENT_USER);
 		DocumentUtils utils = (DocumentUtils) engine.get("DocumentUtils");
-		if (utils.validateDocument(docVo)) {
-			docVo.setLastmodifier(String.valueOf(user.getUserId()));
-			docVo.setAuditUser(String.valueOf(user.getUserId()));
-			docVo.setState("草稿");
-			if (docVo.isUpdate()) {
-				// 更新数据
-				for (Iterator<String> it = docVo.getListParams().keySet().iterator(); it.hasNext();) {
-					String o = it.next();
-					utils.updateData(o);
-				}
-				docVo.setLastmodified(new Date(System.currentTimeMillis()));
+		docVo.setLastmodifier(String.valueOf(user.getUserId()));
+		docVo.setAuditUser(String.valueOf(user.getUserId()));
+		docVo.setState("草稿");
+		if (docVo.isUpdate()) {
+			// 更新数据
+			for (Iterator<String> it = docVo.getListParams().keySet().iterator(); it.hasNext();) {
+				String o = it.next();
+				utils.updateData(o);
+			}
+			docVo.setLastmodified(new Date(System.currentTimeMillis()));
+			utils.saveDocument();
+		} else {
+			docVo.setCreated(new Date(System.currentTimeMillis()));
+			docVo.setAuthorId(user.getUserId());
+			docVo.setLastmodified(docVo.getCreated());
+			for (Iterator<String> it = docVo.getListParams().keySet().iterator(); it.hasNext();) {
+				docVo.setId("");
+				String o = it.next();
+				utils.saveData(o);
 				utils.saveDocument();
-			} else {
-				docVo.setCreated(new Date(System.currentTimeMillis()));
-				docVo.setAuthorId(user.getUserId());
-				docVo.setLastmodified(docVo.getCreated());
-				for (Iterator<String> it = docVo.getListParams().keySet().iterator(); it.hasNext();) {
-					docVo.setId("");
-					String o = it.next();
-					utils.saveData(o);
-					utils.saveDocument();
-				}
 				utils.saveDocument();
 			}
-		} else {
-			//TODO 校验未通过
 		}
 	}
+
 	/**
-	 * @Title: executeSave
-	 * @Description: 执行保存动作的默认操作
-	 * @return String 执行结果
-	 * @throws
+	 * @Title: executeSave @Description: 执行保存动作的默认操作 @return String 执行结果 @throws
 	 */
 	private void saveWithValidatAndFlow() {
 		// 保存带流程
@@ -148,19 +143,21 @@ public class ActEngine {
 			utils.saveDocument();
 
 		} else {
-			//无流程实例，根据按钮获取流程ID，根据流程ID，在表单中查找第一个节点的参数，并给参数赋值
+			// 无流程实例，根据按钮获取流程ID，根据流程ID，在表单中查找第一个节点的参数，并给参数赋值
 			// 启动流程
 			String workflowInfo = pageVO.getWorkflowNodeInfo();
 			if (StringUtils.isNotBlank(workflowInfo)) {
 				JSONObject nodes = JSON.parseObject(workflowInfo);
-				String processDefinationId = null;//TODO act.getExtbute().get("workflowId");
-				//根据流程找到第一个节点的id
+				String processDefinationId = null;// TODO
+													// act.getExtbute().get("workflowId");
+				// 根据流程找到第一个节点的id
 				Collection<Object> objects = nodes.values();
-				for(Object o : objects){
+				for (Object o : objects) {
 					JSONObject node = (JSONObject) o;
-					if(node.getString("workflowId").equalsIgnoreCase(processDefinationId) 
-							&& node.getIntValue("priority") == 1){
-						List<WorkflowVariableVO> variables = JSON.parseArray(node.getString("variables"), WorkflowVariableVO.class);
+					if (node.getString("workflowId").equalsIgnoreCase(processDefinationId)
+							&& node.getIntValue("priority") == 1) {
+						List<WorkflowVariableVO> variables = JSON.parseArray(node.getString("variables"),
+								WorkflowVariableVO.class);
 						Map<String, Object> workflowParams = new HashMap<String, Object>();
 						if (variables != null && variables.size() > 0) {
 							for (WorkflowVariableVO variable : variables) {
@@ -172,29 +169,29 @@ public class ActEngine {
 							}
 						}
 						String processInstanceId = null;
-						/*ResultVO resultVO = null;
-						try {
-							resultVO = workflowProcessService.startProcessInstancebyUser(user.getUserId().toString(), processDefinationId, workflowParams);
-							if(resultVO.isSuccess){
-								processInstanceId = resultVO.errorDescription;
-								docVo.setInstanceId(processInstanceId);
-								docVo.setLastmodifier(String.valueOf(user.getUserId()));
-								docVo.setAuditUser(String.valueOf(user.getUserId()));
-								List<Task> task = workflowProcessService.findTasksByInstanceId(processInstanceId);
-								if (task != null && task.size() > 0) {
-									// 设置nodeId
-									docVo.setNodeId(task.get(0).getTaskDefinitionKey());
-									docVo.setTaskId(task.get(0).getId());
-									docVo.setWorkflowId(task.get(0).getProcessDefinitionId());
-								}
-								// 设置doc 记录为草稿状态
-								docVo.setState("草稿");
-								// 最后修改时间
-								docVo.setLastmodified(new Date(System.currentTimeMillis()));
-							}
-						} catch (Exception e) {
-							e.printStackTrace();
-						}*/
+						/*
+						 * ResultVO resultVO = null; try { resultVO =
+						 * workflowProcessService.startProcessInstancebyUser(
+						 * user.getUserId().toString(), processDefinationId,
+						 * workflowParams); if(resultVO.isSuccess){
+						 * processInstanceId = resultVO.errorDescription;
+						 * docVo.setInstanceId(processInstanceId);
+						 * docVo.setLastmodifier(String.valueOf(user.getUserId()
+						 * ));
+						 * docVo.setAuditUser(String.valueOf(user.getUserId()));
+						 * List<Task> task =
+						 * workflowProcessService.findTasksByInstanceId(
+						 * processInstanceId); if (task != null && task.size() >
+						 * 0) { // 设置nodeId
+						 * docVo.setNodeId(task.get(0).getTaskDefinitionKey());
+						 * docVo.setTaskId(task.get(0).getId());
+						 * docVo.setWorkflowId(task.get(0).
+						 * getProcessDefinitionId()); } // 设置doc 记录为草稿状态
+						 * docVo.setState("草稿"); // 最后修改时间
+						 * docVo.setLastmodified(new
+						 * Date(System.currentTimeMillis())); } } catch
+						 * (Exception e) { e.printStackTrace(); }
+						 */
 					}
 				}
 			}
@@ -209,10 +206,7 @@ public class ActEngine {
 	}
 
 	/**
-	 * @Title: executeBack
-	 * @Description: 执行后退操作
-	 * @return String 执行结果
-	 * @throws
+	 * @Title: executeBack @Description: 执行后退操作 @return String 执行结果 @throws
 	 */
 	public String back() {
 
@@ -221,10 +215,8 @@ public class ActEngine {
 
 	/**
 	 * 
-	 * @Title: executeDelete
-	 * @Description: 执行删除动作的默认操作
-	 * @return String 执行结果
-	 * @throws
+	 * @Title: executeDelete @Description: 执行删除动作的默认操作 @return String
+	 *         执行结果 @throws
 	 */
 	public void delete() {
 		PunUserBaseInfoVO user = (PunUserBaseInfoVO) Tools.getObjectFromSession(SessionContants.CURRENT_USER);
@@ -236,8 +228,9 @@ public class ActEngine {
 				base.createCriteria().andEqualTo("RECORD_ID", select);
 				documentServiceImpl.deleteByExample(base);
 			}
-//			mv.setViewName("redirect:/document/view.do?dynamicPageId=" + pageId);
-//			return mv;
+			// mv.setViewName("redirect:/document/view.do?dynamicPageId=" +
+			// pageId);
+			// return mv;
 		} else {
 			// TODO 返回并提示没有选择记录
 		}
@@ -247,16 +240,13 @@ public class ActEngine {
 		if (_selects.length < 1) {
 			return "error";
 		}
-		return "redirect:/document/view.do?recordId=" + _selects[0]
-				+ "&dynamicPageId=" + act.getExtbute().get("target");
+		return "redirect:/document/view.do?recordId=" + _selects[0] + "&dynamicPageId="
+				+ act.getExtbute().get("target");
 	}
 
 	/**
 	 * 
-	 * @Title: execute
-	 * @Description: 默认无类型的动作执行操作
-	 * @return String 执行结果
-	 * @throws
+	 * @Title: execute @Description: 默认无类型的动作执行操作 @return String 执行结果 @throws
 	 */
 	public String executeDefault() {
 		return null;
@@ -264,14 +254,11 @@ public class ActEngine {
 
 	/**
 	 * 
-	 * @Title: executeSaveWithWorkflow
-	 * @Description: 保存带流程的默认操作
-	 * @return String
-	 * @throws
+	 * @Title: executeSaveWithWorkflow @Description: 保存带流程的默认操作 @return
+	 *         String @throws
 	 */
 	public String executeSaveWithWorkflow() {
 		DocumentUtils docUtil = new DocumentUtils(docVo, pageVO);
-		docUtil.validateDocument(docVo);
 		/*
 		 * for(Iterator<String> it = doc.getParams().keySet().iterator();
 		 * it.hasNext();){ docUtil.saveData(it.next()); }
@@ -283,7 +270,6 @@ public class ActEngine {
 	}
 
 	public String executeNew(PageAct act) {
-		return "redirect:/document/view.do?dynamicPageId="
-				+ act.getExtbute().get("target");
+		return "redirect:/document/view.do?dynamicPageId=" + act.getExtbute().get("target");
 	}
 }

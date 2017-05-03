@@ -272,7 +272,6 @@ public class PunSystemController {
 	public ModelAndView punSystemList(@ModelAttribute PunSystemVO vo, Model model,
 			@RequestParam(value = "currentPage", defaultValue = "1") int currentPage,
 			@RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
-
 		try {
 			if (currentPage <= 0)
 				currentPage = 1;

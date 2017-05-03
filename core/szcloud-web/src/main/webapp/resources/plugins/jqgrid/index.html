@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="cn">
+
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<title>jqGrid</title>
+		<link rel="stylesheet" href="css/ui.jqgrid.css" />
+		<link rel="stylesheet" href="css/css/redmond/jquery-ui-1.8.16.custom.css" />
+		<script type="text/javascript" src="js/jquery-1.7.1.js"></script>
+		<script type="text/javascript" src="js/jquery.jqGrid.src.js"></script>
+		<script type="text/javascript" src="js/i18n/grid.locale-cn.js"></script>
+		<script type="text/javascript" src="js/index.js"></script>
+	</head>
+	<body>
+		<div id="pager2"></div>
+		<table id="jqgrid"></table>
+	</body>
+	<script type="text/javascript">
+		$(function() {
+			var jqgridID = 'jqgrid'; //表格ID
+			var URL = { //进入展示数据地址 和 编辑提交地址
+				getDataURL: "../data/data1.json",
+				editURL: ''
+			}
+			var listName = ['name', 'invdate', '列名3', '列名3', '列名4', '列名5', '列名6']; //列名
+			var colModel = [ //jqGrid每一列的配置信息。包括名字，索引，宽度,对齐方式,editable是否可以编辑.....
+				{ name: 'name', index: 'id', editable: true },
+				{ name: 'invdate', index: 'invdate', editable: true },
+				{ name: 'name', index: 'name asc, invdate', editable: true },
+				{ name: 'amount', index: 'amount', align: "right", editable: true },
+				{ name: 'tax', index: 'tax', align: "right", editable: true },
+				{ name: 'total', index: 'total', align: "right", editable: true },
+				{ name: 'note', index: 'note', sortable: false, editable: true }
+			]
+			//树
+			//	var listName = ['name', 'invdate']; //列名
+			//	var colModel = [ //jqGrid每一列的配置信息。包括名字，索引，宽度,对齐方式,editable是否可以编辑.....
+			//		{ name: 'name', index: 'id', editable: true, key: true },
+			//		{ name: 'invdate', index: 'invdate', editable: true },
+			//	]
+			var multiselect = false; //多选
+			var jsonReader = { //后台返回数据格式 
+				root: "rows",
+				page: "page",
+				total: "total",
+				records: "records",
+				repeatitems: true,
+				cell: "cell",
+				id: "id",
+				userdata: "userdata",
+				subgrid: {
+					root: "rows",
+					repeatitems: true,
+					cell: "cell"
+				}
+			}
+			var subGrid = { //子树
+				subGrid: false, //是否有子数据
+				subGridUrl: 'data/JSONData.json', //子数据地址
+				subGridModel: [{
+					name: ['No', 'Item', 'Qty', 'Unit', 'Line Total'],
+					width: [55, 200, 80, 80, 80],
+					params: ['invdate']
+				}]
+			}
+			jqGridFN = pageInit(jqgridID, URL, listName, colModel, multiselect, jsonReader, subGrid); //构造页面和返回操作方法
+			
+			//事件
+		});	
+	</script>
+</html>

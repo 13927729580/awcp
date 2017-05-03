@@ -3,7 +3,7 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%> 
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="sc" uri="szcloud" %>
-<%@page isELIgnored="false"%> 
+<%@ page isELIgnored="false"%> 
 <%
 	String path = request.getContextPath();
 	String basePath = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + path + "/";
@@ -11,13 +11,13 @@
 <!DOCTYPE html >
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="renderer" content="webkit">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>动态页面表单</title>
-<base href="<%=basePath%>">
-<%@ include file="/resources/include/common_css.jsp" %>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="renderer" content="webkit">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>动态页面表单</title>
+	<base href="<%=basePath%>">
+	<%@ include file="/resources/include/common_css.jsp" %>
 </head>
 <body id="main">
 	<div class="container-fluid">
@@ -42,18 +42,15 @@
 
 	<%@ include file="/resources/include/common_js.jsp" %>
 	<script type="text/javascript">
-	$(document).ready(function(){
-    	try {
-		  	var dialog = top.dialog.get(window);
-		}catch (e) {
-		}
-		if(dialog){
-		  	//dialog.height($(document).height());
-			//dialog.width($(document).width());
-			dialog.reset();
-		}  
-	
-    });
+		$(document).ready(function(){
+	    	try {
+			  	var dialog = top.dialog.get(window);
+			}catch (e) {
+			}
+			if(dialog){
+				dialog.reset();
+			}  	
+	    });
 	</script>
 </body>
 </html>

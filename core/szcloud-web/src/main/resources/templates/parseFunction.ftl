@@ -173,6 +173,9 @@
 		<#case 1031>
 			<@convertSqlUserSelect c/>
 			<#break>
+		<#case 1032>
+			<@convertNumberInputText c/>
+			<#break>
 		<#case 1033>
 			<@convertMultilevelLinkage c/>
 			<#break>
@@ -188,9 +191,50 @@
 		<#case 1037>
 			<@convertSignature c/>
 			<#break>
+		<#case 1038>
+			<@convertGridTable c/>
+			<#break>
 		<#default>
 	</#switch>
 </#macro>
+
+<#-------------------------------------------数字输入框组件begin---------------------------------------->
+<#macro convertNumberInputText c >
+	<input type='text' class='isNumber 
+	<#if c['css']?? && c['css']?length gt 0>
+		${c['css']}
+	<#else>
+		${"form-control"}
+	</#if>
+	<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['hidden'])?? && status['</#noparse>${c['name']}<#noparse>']['hidden'] == 'true'>hidden</#if></#noparse>
+	'
+	<#if c['style']?? >
+		style='${c['style']}'
+	</#if>
+
+	<#if c['name']?? >
+		name='${c['name']}'
+	</#if>
+	<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['disabled'])?? && status['</#noparse>${c['name']}<#noparse>']['disabled'] == 'true'>disabled="disabled"</#if></#noparse>
+	<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['readonly'])?? && status['</#noparse>${c['name']}<#noparse>']['readonly'] == 'true'>readonly="readonly"</#if></#noparse>
+	<#if c['dataItemCode']?? && c['dataItemCode']?length gt 0 >
+
+			value="<#noparse>${(</#noparse>${c['dataItemCode']}<#noparse>)!''}</#noparse>"
+
+	</#if>
+	<#if c['others']??>
+		<#if c['others']['placeHolder']?? >
+			placeHolder='${c['others']['placeHolder']}'
+		</#if>
+	</#if>
+	id='${(c['pageId'])!""}'
+
+	<#if c['description']?? >
+		title='${c['description']}'
+	</#if>
+	/>
+</#macro>
+<#-------------------------------------------数字输入框组件end---------------------------------------->
 
 <#-------------------------------------------Map Begin---------------------------------------->
 <#macro convertMap c>
@@ -241,15 +285,85 @@
     <div class="wrap">
         <div class="tabs" lang="${c['tab_name']}">
         </div>
-        <div class="swiper-container" lang="${c['tab_url']}">
+       <div class="swiper-container" lang='<#noparse><#if others??> ${others['</#noparse>${c['name']}<#noparse>']!''}</#if></#noparse>'>
             <div class="swiper-wrapper">
             </div>
         </div>
     </div>
 </#macro>
-<#macro converttabScript c >	<#------ tab脚本 ----->
+<#macro convertGridTableScript c >	<#------ tab脚本 ----->
     new tabs();
+    setTimeout(function(){
+    		var width = $(".swiper-slide").length * 896;
+			$(".swiper-wrapper").attr("style","").css("width",width + "px")
+			$(".swiper-slide").attr("style","").css("width","896px")
+		},500)
 </#macro>
+<#-------------------------------------------gridTable---------------------------------------->
+<#macro convertGridTable c >
+    <div id="gridTable">
+       <input type='hidden' name='dataSource' id='dataSource' value='${c['dataSource']}'>
+       <input type='hidden' name='thHead' id='thHead' value='${c['thHead']}'>
+       <input type='hidden' name='field' id='field' value='${c['field']}'>
+       <div id="pager2"></div>
+	   <table id="jqgrid"></table>
+    </div>
+</#macro>
+<#macro converttabScript c >	<#------ gridTable脚本 ----->
+   (function(){
+   		console.log($("#dataSource").val(),$("#thHead").val());
+   		var jqgridID = 'jqgrid'; //表格ID
+			var URL = { //进入展示数据地址 和 编辑提交地址
+				getDataURL: basePath+"api/executeAPI.do?APIId="+$("#dataSource").val(),
+				editURL: 'basePath'
+			}
+			var listName = $("#thHead").val().split("@"); //列名
+			var tdName = $("#field").val().split("@"); //字段名
+			var colModel = [] //jqGrid每一列的配置信息。包括名字，索引，宽度,对齐方式,editable是否可以编辑.....
+			var len = tdName.length;
+			for(var i=0;i<len;i++) {
+				var td = tdName[i].split(",");
+				colModel.push(
+					{'name':td[0],editable:td[1]=='true'?true:false,edittype:td[2],sortable:false}
+				)
+			}
+			console.log(colModel)
+			//树
+			//	var listName = ['name', 'invdate']; //列名
+			//	var colModel = [ //jqGrid每一列的配置信息。包括名字，索引，宽度,对齐方式,editable是否可以编辑.....
+			//		{ name: 'name', index: 'id', editable: true, key: true },
+			//		{ name: 'invdate', index: 'invdate', editable: true },
+			//	]
+			var multiselect = false; //多选
+			var jsonReader = { //后台返回数据格式 
+				root: "data",
+				page: "page",
+				total: "total",
+				records: "records",
+				repeatitems: true,
+				id: "id",
+				userdata: "userdata",
+				subgrid: {
+					root: "rows",
+					repeatitems: true,
+					cell: "cell"
+				}
+			}
+			var subGrid = { //子树
+				subGrid: false, //是否有子数据
+				subGridUrl: 'data/JSONData.json', //子数据地址
+				subGridModel: [{
+					name: ['No', 'Item', 'Qty', 'Unit', 'Line Total'],
+					width: [55, 200, 80, 80, 80],
+					params: ['invdate']
+				}]
+			}
+			jqGridFN = pageInit(jqgridID, URL, listName, colModel, multiselect, jsonReader, subGrid); //构造页面和返回操作方法
+			
+			//事件
+   })()
+</#macro>
+
 <#-------------------------------------------搜索条件begin---------------------------------------->
 <#macro convertAddSearch c >
 	<div class="search_main_warp row" >
@@ -293,6 +407,10 @@
 		${"form-control"}
 	</#if>
 	'
+	<#if c['style']??&&c['style']=='hasNum' >
+		onkeyup='this.value=this.value.replace(/[^\-?\d.]/g,"")'
+	</#if>
+	
 	style='
 	<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['hidden'])?? && status['</#noparse>${c['name']}<#noparse>']['hidden'] == 'true'>display:none;</#if></#noparse>
 	<#if c['style']?? >
@@ -1005,8 +1123,8 @@
 </#macro>
 
 <#macro convertKindEditorScript c >
-	var ${c['name']}_editor = K.create('textarea[name="${c['name']}"]',options);
-	<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['readonly'])?? && status['</#noparse>${c['name']}<#noparse>']['readonly'] == 'true'></#noparse>${c['name']}<#noparse>_editor.readonly("false");</#if></#noparse>
+	var editor_${c['name']} = K.create('textarea[name="${c['name']}"]',options);
+	<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['readonly'])?? && status['</#noparse>${c['name']}<#noparse>']['readonly'] == 'true'></#noparse>editor_${c['name']}<#noparse>.readonly("false");</#if></#noparse>
 </#macro>
 
 <#macro convertTips c >
@@ -1027,7 +1145,7 @@
 	      	<#noparse></#if></#noparse>
 	      		alt="点击选择图片"/></div>
 	      	<input type="file" id="${c['pageId']}" name="${c['pageId']}"/>
-	      	<div class="photo-btn"><a class="btn submit" href="javascript:;">上传</a><a class="btn delete" href="javascript:;">删除</a></div>
+	      	<div class="photo-btn"><a class="btn delete" href="javascript:;">删除</a><span class="msg text-danger"></span></div>
 	</div>
 </#macro>
 

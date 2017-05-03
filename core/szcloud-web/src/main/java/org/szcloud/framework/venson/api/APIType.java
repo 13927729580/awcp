@@ -37,7 +37,11 @@ public enum APIType {
 	/**
 	 * 分页
 	 */
-	PAGE(7);
+	PAGE(7),
+	/**
+	 * 执行脚本
+	 */
+	EXECUTE_SCRIPT(8);
 	private int type;
 
 	private APIType() {

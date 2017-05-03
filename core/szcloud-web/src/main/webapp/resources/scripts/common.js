@@ -23,7 +23,7 @@ function alertMessage(message){
 function dialogAlert(data){
 		var d = top.dialog({
 			id:'Info' + $.uuid(),
-			title: 'Operation tips',
+			title: '操作提示',
 			width:'630',
 			height:'auto',
 			content: data,
@@ -44,7 +44,7 @@ function dialogAlert(data){
 function dialogConfirm(msg,fn){
 	var d = top.dialog({
 		id:'Confirm' + $.uuid(),
-		title: 'Confirm tips',
+		title: '确认提示框',
 		width:'630',
 		height:'auto',
 		content: msg,
@@ -81,7 +81,6 @@ function dialogConfirm(msg,fn){
 	});				
 }
 
-
 //当失去焦点时，去除输入框前后空格
 function clearBlank(){
 	$("input[type='text']").blur(function(){
@@ -94,12 +93,6 @@ $(function(){
 	clearBlank();	
 });
 
-//将时间格式dd/MM/yyyy 改为 yyyy-MM-dd
-function customDateFormat(date){
-	var arr = date.split("/");
-	return arr[2]+"-"+arr[1]+"-"+arr[0];
-}
-
 //给文件框添加校验
 function addFileValidator(ids){
 	for(var i=0;i<ids.length;i++){
@@ -110,7 +103,7 @@ function addFileValidator(ids){
 		}).inputValidator({
 			min:1,
 			empty:{leftEmpty:true,rightEmpty:true,emptyError:""},
-			onError:"Please confirm the attachment has been uploaded"
+			onError:"请上传文件"
 		});
 	}	
 }
@@ -124,16 +117,9 @@ function addInputValidator(ids){
 		}).inputValidator({
 			min:1,
 			empty:{leftEmpty:true,rightEmpty:true,emptyError:""},
-			onError:"Please input the content"
+			onError:"请输入内容"
 		});
 	}	
-}
-
-function updateFormTitle(id,oldTitle){
-	$(id).parent().parent().hide();
-	var projectName = $(id).children("option:checked").text();
-	var newTitle = oldTitle + " Of " + projectName;
-	$("#newTitle").children("label").html(newTitle);
 }
 
 //buttons可以随滚动条滚动
@@ -147,7 +133,7 @@ $(window).scroll(function(){
 	}
 	if(offsetTop>0){
 		var scrollTop = $(window).scrollTop();
-		var top = ($(".datatable-head").height() == null)?40:($(".datatable-head").height()+10);
+		var top = ($(".datatable-head").height() == null)?40:($(".datatable-head").height());
 		if(scrollTop>offsetTop){
 			$(".row#buttons").addClass("navbar-fixed-top").css({
 				top:top,
@@ -196,10 +182,14 @@ function checkIsNumber(obj){
 	value = value.replace(/,/g,'');
 	if(value && !$.isNumeric(value)){
 		$(obj).focus();
-		dialogAlert("Please input a number.");		
+		dialogAlert("请输入一个数字.");		
 		return false;
 	}
 	else{
 		return true;
 	}
 }	
+
+//定义弹窗的高度和宽度
+var dialogHeight = $(top).height()-93;
+var dialogWidth = 1024;

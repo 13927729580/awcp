@@ -134,9 +134,13 @@
 								      	    <img id="signatureImage_Img" style="width: 30px; height: 30px; margin-left: auto; margin-right: auto;" src="<%=basePath%>common/file/showPicture.do?id=${vo.signatureImg}" alt="点击选择图片"/>
 								      	</div>
 								      	<input type="file" id="file_signatureImage" name="file_signatureImage"/>
-								<div class="photo-btn"><a class="btn submit" href="javascript:;">上传</a><a class="btn delete" href="javascript:;">删除</a></div>
+								<div class="photo-btn"><a class="btn delete" href="javascript:;">删除</a><span class="msg text-danger"></span></div>
 							</div>
 			            </div>
+			             <label class="col-md-2 control-label">(0禁用，1正常，2审核)用户状态：</label>
+			            <div class="col-md-4">
+			                <input name="userStatus" class="form-control" id="userStatus" type="text" placeholder="1" value="${vo.userStatus}">
+			            </div> 
 					 </div>
 					 <div class="form-group">
 						 <label class="col-md-12">系统角色：</label>

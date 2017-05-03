@@ -17,7 +17,8 @@
 <title>组信息编辑</title>
 
 <%@ include file="/resources/include/common_form_css.jsp"%><!-- 注意加载路径 -->
-
+ <link rel="stylesheet" href="<%=basePath%>resources/plugins/highlight/styles/monokai.css">  
+ <script src="<%=basePath%>resources/plugins/highlight/highlight.pack.js"></script> 
 </head>
 <body id="main">
 
@@ -66,11 +67,19 @@
 							<input name="file"	id="file" type="file" />(已上传：${vo.fileLocation })
 						</div>
 					</div>
-					
+					<div class="form-group">
+						<label class="col-md-1 control-label required">查看方式：</label>
+						<div class="col-md-9">
+							<a class="btn btn-success view">查看</a>
+							<a class="btn btn-warning  edit">编辑</a>
+						</div>
+					</div>
 					<div class="form-group">
 						<label class="col-md-1 control-label required">模版内容：</label>
 						<div class="col-md-9">
-							<textarea name='content'  rows='16' class='form-control'>${vo.content}</textarea>
+							<textarea style="display: none;" name='content' class='form-control' onpropertychange= "this.style.posHeight=this.scrollHeight ">${vo.content }</textarea>
+							<pre><code></code></pre>
+							<!-- <textarea name='content' class='form-control'></textarea> -->
 						</div>
 					</div>
 				</div>
@@ -88,12 +97,37 @@
 
 		<%@ include file="/resources//include/common_form_js.jsp" %>
 		<script type="text/javascript">
-		$(function(){
-	   			$.formValidator.initConfig({formID:"groupForm",debug:false,onSuccess:function(){
-				   	$("#groupForm").submit();
-	    		},onError:function(){alert("错误，请看提示")}});
-			$("#fileName").formValidator({onFocus:"请输入模板名称",onCorrect:"符合要求"}).inputValidator({min:1,max:30,empty:{leftEmpty:false,rightEmpty:false,emptyError:"不能有空符号"},onError:"必填"});
-		})
+			setHighLight();
+			$(".edit").click(function(){
+				if($("textarea").is(":hidden")){
+					$("pre").hide();
+					$("textarea").show();
+					setHeight($("textarea"));
+				}
+			})
+			$(".view").click(function(){
+				if($("code").is(":hidden")){
+					$("pre").show();
+					$("textarea").hide();
+					setHighLight();
+				}
+			})
+			function setHeight($element) {
+			  $element.css({'height':'auto','overflow-y':'hidden'}).height($element.get(0).scrollHeight);
+			}
+			function setHighLight(){
+				var value=hljs.highlight("html",$("textarea").val(),true,false).value;
+				$("code").html(value);
+				$("pre code").each(function(i,e){
+					hljs.highlightBlock(e);
+				})
+			}
+			$(function(){
+		   			$.formValidator.initConfig({formID:"groupForm",debug:false,onSuccess:function(){
+					   	$("#groupForm").submit();
+		    		},onError:function(){alert("错误，请看提示")}});
+				$("#fileName").formValidator({onFocus:"请输入模板名称",onCorrect:"符合要求"}).inputValidator({min:1,max:30,empty:{leftEmpty:false,rightEmpty:false,emptyError:"不能有空符号"},onError:"必填"});
+			})
 	</script>
 
 

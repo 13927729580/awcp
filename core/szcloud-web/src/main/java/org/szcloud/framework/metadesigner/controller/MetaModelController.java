@@ -14,6 +14,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +39,6 @@ import org.szcloud.framework.metadesigner.application.MetaModelItemService;
 import org.szcloud.framework.metadesigner.application.MetaModelOperateService;
 import org.szcloud.framework.metadesigner.application.MetaModelService;
 import org.szcloud.framework.metadesigner.application.ModelRelationService;
-import org.szcloud.framework.metadesigner.core.domain.MetaModel;
 import org.szcloud.framework.metadesigner.util.ICreateTables;
 import org.szcloud.framework.metadesigner.util.UpdateColumn;
 import org.szcloud.framework.metadesigner.vo.DataSourceManageVO;
@@ -94,6 +94,8 @@ public class MetaModelController extends BaseController {
 	@Autowired
 	@Qualifier("sysSourceRelationServiceImpl")
 	SysSourceRelationService sysSourceRelationService;
+	@Autowired
+	private SqlSessionFactory sqlSessionFactory;
 
 	@ResponseBody
 	@RequestMapping(value = "/addByDb")
@@ -282,41 +284,28 @@ public class MetaModelController extends BaseController {
 
 		return rtn.toJSONString();
 	}
-	
+
 	@RequestMapping(value = "/synchronizedMeta")
-	public  String synchronizedMeta(@RequestParam(value = "id") Long[] id) {
+	public String synchronizedMeta(@RequestParam(value = "id") Long[] id) {
 		JSONObject rtn = new JSONObject();
 
-		Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
-		PunSystemVO system = null;
-		if (obj instanceof PunSystemVO) {
-			system = (PunSystemVO) obj;
-		}
-		
-		long sysId = system.getSysId();
-
-		
-		// 获取数据库信息和用户选择的需要转换的table
-		DataSourceManageVO vo = this.dataSourceService.queryDataSourceByNameAndSystemId("mysql", sysId);
-		Connection conn = null;
 		Map<String, JSONObject> tmp = new HashMap<String, JSONObject>();
 		try {
-			Class.forName(vo.getSourceDriver());
-			conn = DriverManager.getConnection(vo.getSourceUrl(), vo.getUserName(), vo.getUserPwd());
-			DatabaseMetaData metaData = conn.getMetaData();
+			DatabaseMetaData metaData = sqlSessionFactory.getConfiguration().getEnvironment().getDataSource()
+					.getConnection().getMetaData();
 			for (int i = 0; i < id.length; i++) {
 				JSONObject modelObject = new JSONObject();
-				
+
 				this.metaModelItemsServiceImpl.removeByFk(id[i]);
-				
+
 				MetaModelVO mmv = this.metaModelServiceImpl.get(id[i]);
-				
+
 				Map<String, MetaModelItemsVO> itemMap = new HashMap<String, MetaModelItemsVO>();
 
 				Map<String, JSONObject> fkMap = new HashMap<String, JSONObject>();
 				Map<String, String> uniqueMap = new HashMap<String, String>();
 				// 表的列数据
-				ResultSet colRet = metaData.getColumns(null, "%", mmv.getTableName() , "%");
+				ResultSet colRet = metaData.getColumns(null, "%", mmv.getTableName(), "%");
 				while (colRet.next()) {
 					// COLUMN_NAME就是字段的名字，
 					// TYPE_NAME就是数据类型，比如"int","int unsigned"等等，
@@ -342,10 +331,10 @@ public class MetaModelController extends BaseController {
 				/*
 				 * primaryKeyResultSet 结果集
 				 * 
-				 * TABLE_CAT String => 表类别（可为 null） TABLE_SCHEM String =>
-				 * 表模式（可为 null） TABLE_NAME String => 表名称 COLUMN_NAME String
-				 * => 列名称 KEY_SEQ short => 主键中的序列号（值 1 表示主键中的第一列，值 2
-				 * 表示主键中的第二列）。 PK_NAME String => 主键的名称（可为 null）
+				 * TABLE_CAT String => 表类别（可为 null） TABLE_SCHEM String => 表模式（可为
+				 * null） TABLE_NAME String => 表名称 COLUMN_NAME String => 列名称
+				 * KEY_SEQ short => 主键中的序列号（值 1 表示主键中的第一列，值 2 表示主键中的第二列）。
+				 * PK_NAME String => 主键的名称（可为 null）
 				 * 
 				 * 
 				 */
@@ -373,16 +362,15 @@ public class MetaModelController extends BaseController {
 				/*
 				 * foreignKeyResultSet 结果集
 				 * 
-				 * PKTABLE_CAT String => 被导入的主键表类别（可为 null） PKTABLE_SCHEM
-				 * String => 被导入的主键表模式（可为 null） PKTABLE_NAME String =>
-				 * 被导入的主键表名称 PKCOLUMN_NAME String => 被导入的主键列名称 FKTABLE_CAT
-				 * String => 外键表类别（可为 null） FKTABLE_SCHEM String => 外键表模式（可为
-				 * null） FKTABLE_NAME String => 外键表名称 FKCOLUMN_NAME String
-				 * => 外键列名称 KEY_SEQ short => 外键中的序列号（值 1 表示外键中的第一列，值 2
-				 * 表示外键中的第二列） UPDATE_RULE short => 更新主键时外键发生的变化 DELETE_RULE
-				 * short => 删除主键时外键发生的变化 PK_NAME String => 主键的名称（可为 null）
-				 * FK_NAME String => 外键的名称（可为 null） DEFERRABILITY short =>
-				 * 是否可以将对外键约束的评估延迟到提交时间
+				 * PKTABLE_CAT String => 被导入的主键表类别（可为 null） PKTABLE_SCHEM String
+				 * => 被导入的主键表模式（可为 null） PKTABLE_NAME String => 被导入的主键表名称
+				 * PKCOLUMN_NAME String => 被导入的主键列名称 FKTABLE_CAT String =>
+				 * 外键表类别（可为 null） FKTABLE_SCHEM String => 外键表模式（可为 null）
+				 * FKTABLE_NAME String => 外键表名称 FKCOLUMN_NAME String => 外键列名称
+				 * KEY_SEQ short => 外键中的序列号（值 1 表示外键中的第一列，值 2 表示外键中的第二列）
+				 * UPDATE_RULE short => 更新主键时外键发生的变化 DELETE_RULE short =>
+				 * 删除主键时外键发生的变化 PK_NAME String => 主键的名称（可为 null） FK_NAME String
+				 * => 外键的名称（可为 null） DEFERRABILITY short => 是否可以将对外键约束的评估延迟到提交时间
 				 * 
 				 * 
 				 */
@@ -405,14 +393,6 @@ public class MetaModelController extends BaseController {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-		} finally {
-			if (conn != null) {
-				try {
-					conn.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
 		}
 
 		// 不带关联关系的导入
@@ -423,23 +403,21 @@ public class MetaModelController extends BaseController {
 			// 通过外键和index判断是 一对多还是 一对一关系
 			// 通过外键和外键关联的表判断外键是否需要加入进来
 			MetaModelVO metaModelVO = this.metaModelServiceImpl.queryByModelCode(tableName);
-			
+
 			JSONObject items = JSON.parseObject(o.getString("items"));
-			
 
 			for (Iterator<String> it2 = items.keySet().iterator(); it2.hasNext();) {
 				String columName = it2.next();
 				MetaModelItemsVO itemsVO = items.getObject(columName, MetaModelItemsVO.class);
 				itemsVO.setModelId(metaModelVO.getId());
 				metaModelItemsServiceImpl.save(itemsVO);
-			
+
 			}
 		}
 
 		rtn.put("result", "1");
 
-
-		return "metadesigner/metaModel/findAll";
+		return "redirect:queryResult.do";
 	}
 
 	/**

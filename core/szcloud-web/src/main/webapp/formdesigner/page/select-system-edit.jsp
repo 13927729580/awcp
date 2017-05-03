@@ -2,14 +2,15 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %> 
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%> 
 <%@ taglib prefix="sc" uri="szcloud" %>
-<%@page isELIgnored="false"%> 
+<%@ page isELIgnored="false"%> 
 <%
 	String path = request.getContextPath();
 	String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
 %>
 <!DOCTYPE html>
 <html>
-	<head><base href="<%=basePath%>">
+	<head>
+		<base href="<%=basePath%>">
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -24,7 +25,7 @@
 		<div class="container-fluid">
 			<div class="row" id="buttons">
 				<button class="btn btn-success" id="savePage" ><i class="icon-save"></i>保存</button>
-				<button class="btn btn-warning" id="ret"><i class="icon-backward"></i>返回</button>
+				<button class="btn btn-default" id="closeBtn"><i class="icon-backward"></i>关闭</button>
 			</div>
 			<c:if test="${result!=null&&''!=result}">
 				<span style="color: red">(${result})</span>
@@ -37,14 +38,14 @@
 							<span class="input-group-addon required">选择目标系统</span>
 							<select name="systemId" class="form-control" id="systemId">
 								<c:forEach items="${list}" var="vo">
-								<c:choose>
-				        	 		<c:when test="${vo.sysId == system.sysId }">
-										<option value="${vo.sysId }" selected="selected">${vo.sysShortName }(当前系统)</option>
-				        	 		</c:when>
-				        	 		<c:otherwise>
-										<option value="${vo.sysId }">${vo.sysShortName }</option>
-				        	 		</c:otherwise>
-				        	 	</c:choose>
+									<c:choose>
+					        	 		<c:when test="${vo.sysId == system.sysId }">
+											<option value="${vo.sysId }" selected="selected">${vo.sysShortName }(当前系统)</option>
+					        	 		</c:when>
+					        	 		<c:otherwise>
+											<option value="${vo.sysId }">${vo.sysShortName }</option>
+					        	 		</c:otherwise>
+					        	 	</c:choose>
 				        	 	</c:forEach>
 							</select>
 						</div>
@@ -71,9 +72,14 @@
 					if(data != null && data.pageId){
 						$("#_selects").val(data.pageId);
 					}
-					//dialog.height($(document).height); 
-					//dialog.reset();     // 重置对话框位置
 				}	
+				
+				$("#closeBtn").bind("click",function(){
+					if(dialog != null ){
+						dialog.close();
+						dialog.remove();
+					}
+				});
 				
 				$("#savePage").click(function(){
 					$.ajax({
@@ -98,6 +104,6 @@
 					});
 				});	
 			});
-         </script>
+		</script>
 	</body>
 </html>

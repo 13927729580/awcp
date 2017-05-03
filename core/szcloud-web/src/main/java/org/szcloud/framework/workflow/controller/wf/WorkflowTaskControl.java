@@ -480,87 +480,85 @@ public class WorkflowTaskControl extends BaseController {
 			utils = (DocumentUtils) engine.get("DocumentUtils");
 			if (StringUtils.isNotEmpty(docVo.getRecordId()))
 				utils.setDataItem(masterDataSource, "ID", docVo.getRecordId());
-			if (utils.validateDocument(docVo)) {
-				actType = act.getActType();
-				// 根据actType 执行其默认操作
-				String acte = request.getParameter("actType");
-				actType = StringUtils.isNumeric(acte) ? Integer.parseInt(acte) : act.getActType();
-				switch (actType) {
-				case 2000:
-					break;
-				case 2002:
-				case 2006:
-					// 流程回撤
-					JFlowAdapter.Node_SaveWork(masterDataSource, utils, user, resultMap, docVo, flowTempleteId, entryId,
-							workItemId);
-					break;
+			actType = act.getActType();
+			// 根据actType 执行其默认操作
+			String acte = request.getParameter("actType");
+			actType = StringUtils.isNumeric(acte) ? Integer.parseInt(acte) : act.getActType();
+			switch (actType) {
+			case 2000:
+				break;
+			case 2002:
+			case 2006:
+				// 流程回撤
+				JFlowAdapter.Node_SaveWork(masterDataSource, utils, user, resultMap, docVo, flowTempleteId, entryId,
+						workItemId);
+				break;
 
-				case 2008:
-					// 根据选中的人员ID，组装信息
-					JFlowAdapter.Node_SaveWork(masterDataSource, utils, user, resultMap, docVo, flowTempleteId, entryId,
-							workItemId);
+			case 2008:
+				// 根据选中的人员ID，组装信息
+				JFlowAdapter.Node_SaveWork(masterDataSource, utils, user, resultMap, docVo, flowTempleteId, entryId,
+						workItemId);
 
-					break;
-				case 2011:// 流程流转(发送)
-					// 根据选中的人员ID，组装信息
-					if (paras != null && !paras.equals("")) {
-
-						JFlowAdapter.Node_SendWork(masterDataSource, utils, user, resultMap, docVo, flowTempleteId,
-								workItemId, entryId, getToUsers(request, paras));
-					}
-					break;
-				case 2018:// 流程转发
-					// 根据选中的人员ID，组装信息
+				break;
+			case 2011:// 流程流转(发送)
+				// 根据选中的人员ID，组装信息
+				if (paras != null && !paras.equals("")) {
 
 					JFlowAdapter.Node_SendWork(masterDataSource, utils, user, resultMap, docVo, flowTempleteId,
 							workItemId, entryId, getToUsers(request, paras));
-
-					break;
-				case 2019:// 流程传阅
-					JFlowAdapter.Node_SendWork(masterDataSource, utils, user, resultMap, docVo, flowTempleteId,
-							workItemId, entryId);
-					break;
-				case 2020:// 流程图
-
-					break;
-				case 2021:// 流程归档
-					break;
-				case 2022:// 流程办结
-					JFlowAdapter.Flow_DoFlowOverByCoercion(resultMap, flowTempleteId, Integer.valueOf(entryId),
-							Long.valueOf(workItemId), Long.valueOf(fid), "");
-					break;
-				case 2023:// 流程退回
-					JFlowAdapter.Flow_returnWork(resultMap, flowTempleteId, Integer.valueOf(entryId),
-							Long.valueOf(workItemId), Long.valueOf(fid), "", user.getUserIdCardNumber(), toNode,
-							masterDataSource, utils, docVo);
-					break;
-				case 2024:// 加签
-					// 根据选中的人员ID，组装信息
-					if (paras != null && !paras.equals("")) {
-						String users = getToUsers(request, paras);
-						if (users.contains(",")) {
-							resultMap.put("message", "只能转发一个对象!");
-						} else {
-							JFlowAdapter.Node_AskFor(masterDataSource, utils, user, resultMap, docVo, flowTempleteId,
-									workItemId, entryId, users);
-						}
-					}
-					break;
-				case 2025:// 已阅
-					Dev2Interface.Node_DoCCCheckNote(workflowId, Integer.parseInt(entryId), Long.parseLong(workItemId),
-							Long.parseLong(fid), "已阅");
-					boolean flag = JFlowAdapter.saveExecuteData(utils, docVo, masterDataSource);
-					if (flag) {
-						resultMap.put("success", true);
-						resultMap.put("message", "已阅。");
-					} else {
-						resultMap.put("success", false);
-						resultMap.put("message", "表单数据保存失败");
-					}
-					break;
 				}
+				break;
+			case 2018:// 流程转发
+				// 根据选中的人员ID，组装信息
 
+				JFlowAdapter.Node_SendWork(masterDataSource, utils, user, resultMap, docVo, flowTempleteId, workItemId,
+						entryId, getToUsers(request, paras));
+
+				break;
+			case 2019:// 流程传阅
+				JFlowAdapter.Node_SendWork(masterDataSource, utils, user, resultMap, docVo, flowTempleteId, workItemId,
+						entryId);
+				break;
+			case 2020:// 流程图
+
+				break;
+			case 2021:// 流程归档
+				break;
+			case 2022:// 流程办结
+				JFlowAdapter.Flow_DoFlowOverByCoercion(resultMap, flowTempleteId, Integer.valueOf(entryId),
+						Long.valueOf(workItemId), Long.valueOf(fid), "");
+				break;
+			case 2023:// 流程退回
+				JFlowAdapter.Flow_returnWork(resultMap, flowTempleteId, Integer.valueOf(entryId),
+						Long.valueOf(workItemId), Long.valueOf(fid), "", user.getUserIdCardNumber(), toNode,
+						masterDataSource, utils, docVo);
+				break;
+			case 2024:// 加签
+				// 根据选中的人员ID，组装信息
+				if (paras != null && !paras.equals("")) {
+					String users = getToUsers(request, paras);
+					if (users.contains(",")) {
+						resultMap.put("message", "只能转发一个对象!");
+					} else {
+						JFlowAdapter.Node_AskFor(masterDataSource, utils, user, resultMap, docVo, flowTempleteId,
+								workItemId, entryId, users);
+					}
+				}
+				break;
+			case 2025:// 已阅
+				Dev2Interface.Node_DoCCCheckNote(workflowId, Integer.parseInt(entryId), Long.parseLong(workItemId),
+						Long.parseLong(fid), "已阅");
+				boolean flag = JFlowAdapter.saveExecuteData(utils, docVo, masterDataSource);
+				if (flag) {
+					resultMap.put("success", true);
+					resultMap.put("message", "已阅。");
+				} else {
+					resultMap.put("success", false);
+					resultMap.put("message", "表单数据保存失败");
+				}
+				break;
 			}
+
 			resultMap.put("docId", docVo.getId());
 			resultMap.put("WorkItemID", docVo.getWorkItemId());
 			resultMap.put("EntryID", docVo.getEntryId());
