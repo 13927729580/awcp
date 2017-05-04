@@ -77,7 +77,7 @@
 				{ id:75, pId:7, name:"打印管理",url:"<%=basePath%>formdesigner/page/print/printList.jsp",target:"sysEditFrame"},
 				{ id:75, pId:7, name:"函数库管理",url:"<%=basePath%>func/list.do",target:"sysEditFrame"},
 				{ id:91, pId:7, name:"页面绑定管理",url:"<%=basePath%>/common/user/list-bind.do",target:"sysEditFrame"},
-				{ id:92, pId:7, name:"页面接口管理",url:"<%=basePath%>/document/view.do?dynamicPageId=2004",target:"sysEditFrame"},
+				{ id:92, pId:7, name:"页面接口管理",url:"<%=basePath%>/document/view.do?dynamicPageId=1",target:"sysEditFrame"},
 				{ id:8, pId:0, name:"流程管理",url:null,target:"sysEditFrame",open:true},
 				{ id:81, pId:8, name:"流程设计器",url:"<%=basePath%>WF/Admin/xap/Designer.jsp",target:"_blank",open:true},
 				//{ id:81, pId:8, name:"流程分类",url:"<%=basePath%>workflow/bpm/bpm-category-list.do",target:"sysEditFrame"},
