@@ -162,19 +162,7 @@ function downloadFile(actId,formName) {
 	}else{
 		formJson=$("#"+formName).serialize();
 	}
-	if(confirm('是否包含流程信息？')){
-		//window.top.Comm.openTab('#',"表单打印");
-		//Comm.postByForm('npc/flowDetailsPDF.do',{workId:$("#WorkID").val()},"表单打印");
-		window.top.Comm.openTab('#',"表单打印");
-		Comm.postByForm('document/excute.do',formJson+'&isMerge=true',"表单打印");
-	}else{
-		window.top.Comm.openTab('#',"表单打印");
-		Comm.postByForm('document/excute.do',formJson,"表单打印");
-	}
-	
-	
-	
-	//$.download(basePath + "document/excute.do",formJson,'post');
+	$.download(basePath + "document/excute.do",formJson,'post');
 }
 
 //Ajax 文件下载 

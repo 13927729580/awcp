@@ -65,7 +65,6 @@ import org.szcloud.framework.formdesigner.utils.DocUtils;
 import org.szcloud.framework.formdesigner.utils.DocumentUtils;
 import org.szcloud.framework.formdesigner.utils.ScriptEngineUtils;
 import org.szcloud.framework.metadesigner.application.MetaModelOperateService;
-import org.szcloud.framework.metadesigner.application.MetaModelService;
 import org.szcloud.framework.unit.vo.PunUserBaseInfoVO;
 import org.szcloud.framework.venson.controller.base.ControllerHelper;
 import org.szcloud.framework.venson.service.QueryService;
@@ -117,8 +116,6 @@ public class DocumentController extends BaseController {
 
 	// @Autowired
 	// private WorkflowProcessService workflowProcessService;
-	@Autowired
-	private MetaModelService metaModelServiceImpl;
 	@Resource(name = "queryServiceImpl")
 	private QueryService query;
 	@Resource(name = "metaModelOperateServiceImpl")
@@ -266,7 +263,6 @@ public class DocumentController extends BaseController {
 			Map<String, String> others = new HashMap<String, String>();
 			Map<String, JSONObject> status = new HashMap<String, JSONObject>();
 			logger.debug("start find components ");
-			String componentIds = documentServiceImpl.getStoreString(pageVO);
 
 			JSONObject jcon = new JSONObject();
 			jcon.put("relatePageId", pageVO.getId());
@@ -392,6 +388,7 @@ public class DocumentController extends BaseController {
 						case 1032:
 						case 1033:
 						case 1035:
+						case 1036:
 						case 1037:
 							o.put("hidden", String.valueOf(computeStatus(component.getString("hiddenScript"), engine)));
 							o.put("readonly",
@@ -412,7 +409,6 @@ public class DocumentController extends BaseController {
 			}
 			logger.debug("end init components status");
 			logger.debug("start init pageacts status");
-			Map<String, Object> actAttr = new HashMap<String, Object>();
 			BaseExample actExample = new BaseExample();
 			actExample.createCriteria().andEqualTo("dynamicPage_id", pageVO.getId()).andLike("code",
 					StoreService.PAGEACT_CODE + "%");
@@ -457,8 +453,11 @@ public class DocumentController extends BaseController {
 			if (StringUtils.isNotBlank(dataJson)) {
 				for (Iterator<String> it = dataMap.keySet().iterator(); it.hasNext();) {
 					String key = it.next();
-					Paginator page = ((PageList) dataMap.get(key)).getPaginator();
-					root.put(key + "_paginator", page);
+					Object values = dataMap.get(key);
+					if (values != null) {
+						Paginator page = (((PageList) values).getPaginator());
+						root.put(key + "_paginator", page);
+					}
 				}
 			}
 			DocumentUtils docUtils = (DocumentUtils) engine.get("DocumentUtils");
@@ -502,32 +501,6 @@ public class DocumentController extends BaseController {
 			response.getWriter().write(s);
 		}
 		return null;
-	}
-
-	private void initDocAndPage(DocumentVO docVo, DynamicPageVO pageVO, String id, String docId, String dynamicPageId) {
-		// 初始化数据容器
-		if (StringUtils.isBlank(docId)) {
-			pageVO = formdesignerServiceImpl.findById(Long.parseLong(dynamicPageId));
-			docVo = new DocumentVO();
-			docVo.setUpdate(false);
-			docVo.setDynamicPageId(pageVO.getId().toString());
-			if (StringUtils.isNotBlank(id)) {
-				docVo.setUpdate(true);
-				docVo.setRecordId(id);
-			}
-			docVo.setDynamicPageName(pageVO.getName());
-			// TODO 设置当前用户
-		} else {
-			docVo = documentServiceImpl.findById(docId);
-			docVo.setUpdate(true);
-			if (StringUtils.isNotBlank(dynamicPageId)) {
-				pageVO = formdesignerServiceImpl.findById(Long.parseLong(dynamicPageId));
-			} else {
-				pageVO = formdesignerServiceImpl.findById(Long.parseLong(docVo.getDynamicPageId()));
-			}
-			docVo.setDynamicPageId(pageVO.getId().toString());
-			docVo.setDynamicPageName(pageVO.getName());
-		}
 	}
 
 	/**
@@ -1316,7 +1289,6 @@ public class DocumentController extends BaseController {
 
 		// 根据pageId，获取组件，然后进行request遍历，组装成Map（documentVo.requestParams），key为组件name
 
-		ModelAndView mv = new ModelAndView();
 		DocumentVO docVo = new DocumentVO();
 
 		DynamicPageVO pageVO = null;
@@ -1364,16 +1336,6 @@ public class DocumentController extends BaseController {
 		jcon.put("relatePageId", pageVO.getId());
 		jcon.put("componentType", "");
 		List<JSONObject> components = formdesignerServiceImpl.getComponentByContainerWithColumn(jcon);
-		if (components != null && components.size() > 0) {
-			for (int i = 0; i < components.size(); i++) {
-				JSONObject component = components.get(i);
-				logger.debug("component : {}", JSON.toJSONString(component));
-				if (component != null) {
-					JSONObject o = new JSONObject();
-					String value = DocUtils.getComponentValue(component, dataMap, engine);
-				}
-			}
-		}
 
 		// 对表格组件进行处理，将真实值转换为显示值；比如一些 日期格式化、code转对应value等；
 		if (dataMap != null && !dataMap.isEmpty()) {
@@ -1505,14 +1467,6 @@ public class DocumentController extends BaseController {
 		engine.put("request", paramRequest);
 		engine.put("session", request.getSession());
 		// 分页
-		Integer currentPage = 1;
-		Integer pageSize = 50;
-		if (StringUtils.isNotBlank(paramRequest.getParameter("currentPage"))) {
-			currentPage = Integer.parseInt(paramRequest.getParameter("currentPage"));
-		}
-		if (StringUtils.isNotBlank(paramRequest.getParameter("pageSize"))) {
-			pageSize = Integer.parseInt(paramRequest.getParameter("pageSize"));
-		}
 		String orderBy = docVo.getRequestParams().get("orderBy");
 		String allowOrderBy = docVo.getRequestParams().get("allowOrderBy");
 		docVo.setAllowOrderBy(allowOrderBy);
@@ -2042,19 +1996,6 @@ public class DocumentController extends BaseController {
 	}
 
 	@ResponseBody
-	@RequestMapping("/sendNote")
-	public String sendMobileNotification(String content, String phones) {
-		try {
-			String[] phoneNumbers = phones.split("\\;");
-			content = "" + content;
-			// Mobile.getInstance().sendNote(phoneNumbers, content);
-			return "1";
-		} catch (Exception e) {
-			return "0";
-		}
-	}
-
-	@ResponseBody
 	@RequestMapping(value = "/batchPrint")
 	public void batchPrint(HttpServletRequest request, HttpServletResponse response) throws ScriptException {
 		String dynamicPages = request.getParameter("dynamicPageIds");
@@ -2235,9 +2176,7 @@ public class DocumentController extends BaseController {
 				JSONObject component = components.get(i);
 				logger.debug("component : {}", JSON.toJSONString(component));
 				if (component != null) {
-					JSONObject o = new JSONObject();
 					int type = component.getIntValue("componentType");
-					String optionsText = null;
 
 					switch (type) {
 					case 1006:
@@ -2245,7 +2184,6 @@ public class DocumentController extends BaseController {
 					case 1004:
 						String script = component.getString("optionScript");
 						String ret = "";
-						String markerText = "";
 						if (StringUtils.isNotBlank(script)) {
 							try {
 								ret = (String) engine.eval(script);
@@ -2366,7 +2304,6 @@ public class DocumentController extends BaseController {
 			logger.debug("end init request parameters ");
 			docVo.setRequestParams(map);
 
-			Map<String, Object> root = new HashMap<String, Object>();
 			logger.debug("start init engine ");
 			// 拿脚本执行引擎
 			ScriptEngine engine = ScriptEngineUtils.getScriptEngine(docVo, pageVO);
@@ -2543,7 +2480,6 @@ public class DocumentController extends BaseController {
 			logger.debug("start init dataMap ");
 			Map<String, List<Map<String, String>>> dataMap = documentServiceImpl.initDocumentData(currentPage, pageSize,
 					docVo, engine, pageVO);
-			Set<String> key = dataMap.keySet();
 			String path = request.getContextPath();
 			String basePath = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()
 					+ path + "/";
@@ -2650,7 +2586,6 @@ public class DocumentController extends BaseController {
 			logger.debug("end init request parameters ");
 			docVo.setRequestParams(map);
 
-			Map<String, Object> root = new HashMap<String, Object>();
 			logger.debug("start init engine ");
 			// 拿脚本执行引擎
 			ScriptEngine engine = ScriptEngineUtils.getScriptEngine(docVo, pageVO);

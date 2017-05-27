@@ -675,6 +675,7 @@ public class WorkflowTaskControl extends BaseController {
 			sql = "SELECT a.id FROM p_fm_dynamicpage a LEFT JOIN p_un_page_binding b ON a.id=b.PAGEID_PC "
 					+ " WHERE b.PAGEID_PC IS NOT NULL AND WORKFLOW_NODE_INFO LIKE CONCAT('%workflowId\":\"',?,'%') AND WORKFLOW_NODE_INFO LIKE CONCAT('%id\":\"',?,'%') "
 					+ " ORDER BY created DESC ";
+			vo = meta.search(sql, flowTempleteId, entryId);
 			if (!vo.isEmpty()) {
 				return String.valueOf(vo.get(0).get("id"));
 			}
@@ -999,8 +1000,11 @@ public class WorkflowTaskControl extends BaseController {
 			if (StringUtils.isNotBlank(dataJson)) {
 				for (Iterator<String> it = dataMap.keySet().iterator(); it.hasNext();) {
 					String key = it.next();
-					Paginator page = ((PageList) dataMap.get(key)).getPaginator();
-					root.put(key + "_paginator", page);
+					Object values = dataMap.get(key);
+					if (values != null) {
+						Paginator page = (((PageList) values).getPaginator());
+						root.put(key + "_paginator", page);
+					}
 				}
 			}
 
@@ -1255,11 +1259,15 @@ public class WorkflowTaskControl extends BaseController {
 			throws Exception {
 
 		String WorkID = request.getParameter("WorkID");
-		int FlowNo = Integer.parseInt(request.getParameter("FlowNo").toString());
-		int FID = Integer.parseInt(request.getParameter("FID").toString());
+		String FlowNo = request.getParameter("FlowNo");
+		String FID = request.getParameter("FID");
+		if (!StringUtils.isNumeric(WorkID) || !StringUtils.isNumeric(FlowNo) || !StringUtils.isNumeric(FID)) {
+			return null;
+		}
+		int flow = Integer.parseInt(FlowNo);
 
 		String sqlOfWhere1 = "";
-		if (FID == 0) {
+		if (Integer.parseInt(FID) == 0) {
 			sqlOfWhere1 = " WHERE (FID=" + WorkID + " OR WorkID=" + WorkID + ")";
 		} else {
 			sqlOfWhere1 = " WHERE (FID=" + FID + " OR WorkID=" + FID + ")";
@@ -1268,7 +1276,7 @@ public class WorkflowTaskControl extends BaseController {
 		String dialog = request.getParameter("dialog");
 
 		String sql = "SELECT MyPK,ActionType,ActionTypeText,FID,WorkID,NDFrom,NDFromT,NDTo,NDToT,EmpFrom,EmpFromT,EmpTo,EmpToT,RDT,WorkTimeSpan,Msg,NodeData,Exer,Tag FROM ND"
-				+ FlowNo + "Track " + sqlOfWhere1 + " ORDER BY RDT asc";
+				+ flow + "Track " + sqlOfWhere1 + " ORDER BY RDT asc";
 
 		List<Map<String, Object>> ls = this.jdbcTemplate.queryForList(sql);
 

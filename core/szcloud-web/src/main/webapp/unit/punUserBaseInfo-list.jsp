@@ -98,52 +98,41 @@
 				<button type="button" class="btn btn-info" id="deleteBtn"><i class="icon-trash"></i>删除</button>
 				<button type="button" class="btn btn-warning" id="updateBtn"><i class="icon-edit"></i>修改</button> 
 				<button type="button" class="btn btn-warning" id="importBtn"><i class="icon-edit"></i>导入用户签名</button> 
-				<button type="button" class="btn btn-info" id="searchBtn" data-toggle="collapse" data-target="#collapseButton"><i class="icon-search"></i></button>
 			</div>
 			<div class="row" id="searchform">
-				<div id="collapseButton" class="collapse">
-					<form method="post" action="<%=basePath%>unit/punUserBaseInfoList.do"
-						id="createForm">
-						<input type="hidden" name="currentPage" value="0" />						
-						<div class="col-md-2">
-							<div class="input-group">
-								<span class="input-group-addon">部门</span>
-								<input name="deptName" class="form-control" id="deptName" type="text" value="${vo.deptName}"/>
-							</div>
-						</div>			
+				<form method="post" action="<%=basePath%>unit/punUserBaseInfoList.do"
+					id="createForm">
+					<input type="hidden" name="currentPage" value="0" />						
+					<div class="col-md-2">
+						<div class="input-group">
+							<span class="input-group-addon">姓名</span>
+							<input name="name" class="form-control" id="name" type="text" value="${vo.name}"/>
+						</div>
+					</div>
+					<div class="col-md-2">
+						<div class="input-group">
+							<span class="input-group-addon">部门</span>
+							<input name="deptName" class="form-control" id="deptName" type="text" value="${vo.deptName}"/>
+						</div>
+					</div>
+					<div class="col-md-2">
+						<div class="input-group">
+							<span class="input-group-addon">职务</span>
+							<input name="userTitle" class="form-control" id="userTitle" type="text" value="${vo.userTitle}"/>
+						</div>
+					</div>
+					<div class="col-md-2">
+						<div class="input-group">
+							<span class="input-group-addon">手机号</span>
+							<input name="mobile" class="form-control" id="mobile" type="text" value="${vo.mobile}"/>
+						</div>
+					</div>
+					<div class="col-md-2 btn-group pull-right">
+						<button class="btn btn-primary" type="submit">提交</button>
 						
-						<div class="col-md-2">
-							<div class="input-group">
-								<span class="input-group-addon">姓名</span>
-								<input name="name" class="form-control" id="name" type="text" value="${vo.name}"/>
-							</div>
-						</div>
-						<div class="col-md-2">
-							<div class="input-group">
-								<span class="input-group-addon">工号</span>
-								<input name="employeeId" class="form-control" id="employeeId" type="text" value="${vo.employeeId}"/>
-							</div>
-						</div>
-											
-						<div class="col-md-2">
-							<div class="input-group">
-								<span class="input-group-addon">用户名</span>
-								<input name="userName" class="form-control" id="userName" type="text" value="${vo.userName}"/>
-							</div>
-						</div>
-						<div class="col-md-2">
-							<div class="input-group">
-								<span class="input-group-addon">职称</span>
-								<input name="userTitle" class="form-control" id="userTitle" type="text" value="${vo.userTitle}"/>
-							</div>
-						</div>
-						<div class="col-md-2 btn-group pull-right">
-							<button class="btn btn-primary" type="submit">提交</button>
-							
-							<button class="btn" data-toggle="collapse" data-target="#collapseButton" type="reset">取消</button>
-						</div>
-					</form>
-				</div>
+						<button class="btn" data-toggle="collapse" data-target="#collapseButton" type="reset">取消</button>
+					</div>
+				</form>
 			</div>
 			
 			<div class="row" id="datatable">
@@ -155,10 +144,9 @@
 							<th data-width="50px">序号</th>
 							<th data-width="100px">姓名</th>
 							<th >部门</th>
-							<th data-width="80px">工号</th>
 							<th>用户名</th>
-							<th>办公电话</th>
-							<th>职称</th>
+							<th>手机号</th>
+							<th>职务</th>
 						</tr>
 					</thead>
 					<tbody>	            		
@@ -170,9 +158,8 @@
 			            <td>${status.index +1}</td>
 			            <td><a href="javascript:void(0)" onclick="update('${vo.userId}')">${vo.name}</a></td>
 			            <td>${vo.deptName}</td>
-			            <td>${vo.employeeId}</td>
 			            <td>${vo.userName}</td>
-			            <td>${vo.userOfficePhone}</td>
+			            <td>${vo.mobile}</td>
 			            <td>${vo.userTitle}</td>
 			          </tr>
 			          </c:forEach>

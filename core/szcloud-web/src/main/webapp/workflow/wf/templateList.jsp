@@ -32,37 +32,6 @@
 				</button>
 			</div>
 			
-			<div class="row" id="searchform">
-				<div id="collapseButton">
-					<form action="<%=basePath%>workflow/wf/templateList.do" id="createForm" class="clearfix">
-						<input type="hidden" name="currentPage" value="1" />
-						<div class="col-md-3">
-							<div class="input-group">
-								<span class="input-group-addon">公文模板类型</span>
-								<!--<input class="form-control" id="templateType" type="text"/>-->
-								<select name="templateTypeId" class="form-control">
-									<option value="" >请选择</option>
-						     	 	<c:forEach items="${templateTypes}" var="item">
-							  	 	   <option value="${item.TypeId}" <c:if test="${item.TypeId==templateTypeId}">selected="selected"</c:if> >${item.TypeName}</option>
-							  		</c:forEach>
-							  </select>
-							</div>
-						</div>
-						<div class="col-md-3">
-							<div class="input-group">
-								<span class="input-group-addon">名称</span>
-								<input class="form-control" name="templateName" value="${templateName}" type="text"/>
-							</div>
-						</div>
-						<div class="col-md-3 btn-group">
-							<button class="btn btn-primary" type="submit">提交</button>
-							<!--<a class="btn" data-toggle="collapse" data-target="#collapseButton">取消</a> -->
-						</div>
-					</form>
-				</div>
-			</div>	
-			
-			<div class="row" id="datatable">
 				<form  action="<%=basePath%>/workflow/wf/templateList.do"  method="post" id="menuList">	
 	            <input type="hidden" name="currentPage" value="${currentPage}">	
 				<table id="treeTable1" class="table table-bordered">

@@ -42,7 +42,7 @@
 			<div class="settingBtn btn-group center-block">
 			   <a class="btn btn-sm btn-primary" href="javascript:void(0);" id="allinfo">个人信息</a>
 			   <a class="btn btn-sm btn-success" href="javascript:void(0);" id="allchecker">修改密码</a>
-			   <a class="btn btn-sm btn-warning" href="<%=basePath%>logout.do" style="width: 38px;text-align: left;">退出</a>
+			   <a class="btn btn-sm btn-warning" href="javascript:void(0)" id="logOut" style="width: 38px;text-align: left;">退出</a>
 			</div>
 		</div>		
 	</nav> 
@@ -238,6 +238,12 @@ $(document).ready(function(){
 		return false;
 	});
 });
+//退出
+$("#logOut").click(function(){
+	$.get("<%=basePath%>logout.do",function(){
+		location.href="<%=basePath%>login.html";
+	});
+})  
 	</script>	
 
 

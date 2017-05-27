@@ -154,10 +154,11 @@
     <script type="text/javascript" src="./resources/JqEdition/jquery-1.10.2.js"></script>
 	<script type="text/javascript" src="./resources/scripts/jquery.cookies.js"></script>
 	<script src="./venson/js/common.js"></script>
+	<script src="./venson/js/base64.js"></script>
 	<script type="text/javascript">
 	/**
 	 if($.cookie("secretKey")&&$.cookie("userAccount")){
-		  location.href=baseUrl+"atools/index.html";
+		  location.href=baseUrl+"manage/index.html";
 	  }
 	*/
 	</script>
@@ -178,7 +179,7 @@
 			</div>
 			<div class="login_content_bottom">
 				<form id="saveForm" class="left div2">
-					<input type="hidden" name="targetUrl" value="atools/index.html" />
+					<input type="hidden" name="targetUrl" value="manage/index.html" />
 					<input type="hidden" name="sysId" id="sysId" value="110" />
 					<!-- 
 			<input type="hidden" name="ATL" id="ATL" value="true"/>
@@ -249,6 +250,7 @@
 			if(!Comm.checkError()){
 				var params=Comm.getParameters();
 				var targetUrl=baseUrl+params.targetUrl;
+				params.userPwd="isAuth"+Base64.encode(params.userPwd);
 				$.ajax({
 	     		   type: "POST",
 	     		   url: baseUrl+"appLogin.do",

@@ -228,9 +228,13 @@ public class JFlowAdapter {
 					"@您好：" + WebUser.getNo() + "," + WebUser.getName() + "：<br> 当前工作已经被其它人处理，您不能再执行保存或者发送动作!!!");
 			return;
 		}
-
-		SendReturnObjs result = Dev2Interface.Node_SendWork(fk_flow, Long.valueOf(workID),
-				convertHashtable(masterDataSource, utils), null, 0, toUsers);
+		Hashtable table = convertHashtable(masterDataSource, utils);
+		String title = null;
+		if (table.get("title") != null) {
+			title = (String) table.get("title");
+		}
+		SendReturnObjs result = Dev2Interface.Node_SendWork(fk_flow, Long.parseLong(workID), table, null, 0, toUsers,
+				WebUser.getNo(), WebUser.getName(), WebUser.getFK_Dept(), WebUser.getFK_DeptName(), title);
 		// exceptionThrow();
 		boolean flag = saveExecuteData(utils, docVo, masterDataSource);
 		if (flag) {

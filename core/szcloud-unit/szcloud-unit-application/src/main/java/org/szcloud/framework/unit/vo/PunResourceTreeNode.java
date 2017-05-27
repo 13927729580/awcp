@@ -11,21 +11,23 @@ public class PunResourceTreeNode {
 	private String url;
 	private String target;
 	private boolean open;
-	private boolean isParent;	
+	private boolean isParent;
 	private boolean checked;
 	private String groupType;
 	private String iconSkin;
 	private String click;
+	private String number;
+
 	/**
 	 * 构造函数
-	 * @param nodeId 节点ID
+	 * 
+	 * @param nodeId
+	 *            节点ID
 	 */
 	public PunResourceTreeNode(Long nodeId) {
 		this.id = nodeId;
 	}
-	
-	
-	
+
 	public Long getId() {
 		return id;
 	}
@@ -82,53 +84,44 @@ public class PunResourceTreeNode {
 		this.isParent = isParent;
 	}
 
-
-
 	public boolean isChecked() {
 		return checked;
 	}
-
-
 
 	public void setChecked(boolean checked) {
 		this.checked = checked;
 	}
 
-
-
 	public String getGroupType() {
 		return groupType;
 	}
-
-
 
 	public void setGroupType(String groupType) {
 		this.groupType = groupType;
 	}
 
-
-
 	public String getIconSkin() {
 		return iconSkin;
 	}
-
-
 
 	public void setIconSkin(String iconSkin) {
 		this.iconSkin = iconSkin;
 	}
 
-
-
 	public String getClick() {
 		return click;
 	}
-
-
 
 	public void setClick(String click) {
 		this.click = click;
 	}
 
-	
+	public String getNumber() {
+		return number;
+	}
+
+	public void setNumber(String number) {
+		this.number = number;
+	}
+
 }

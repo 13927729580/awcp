@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -33,7 +34,10 @@ import org.szcloud.framework.core.utils.BeanUtils;
 import org.szcloud.framework.core.utils.SessionUtils;
 import org.szcloud.framework.core.utils.constants.SessionContants;
 import org.szcloud.framework.core.utils.mongodb.MongoDBUtils;
+import org.szcloud.framework.metadesigner.application.MetaModelOperateService;
 import org.szcloud.framework.unit.core.domain.PunUserBaseInfo;
+import org.szcloud.framework.unit.service.PunGroupService;
+import org.szcloud.framework.unit.service.PunPositionService;
 import org.szcloud.framework.unit.service.PunRoleInfoService;
 import org.szcloud.framework.unit.service.PunUserBaseInfoService;
 import org.szcloud.framework.unit.service.PunUserGroupService;
@@ -43,6 +47,7 @@ import org.szcloud.framework.unit.utils.HttpUtil;
 import org.szcloud.framework.unit.utils.Security;
 import org.szcloud.framework.unit.vo.PunAJAXStatusVO;
 import org.szcloud.framework.unit.vo.PunGroupVO;
+import org.szcloud.framework.unit.vo.PunPositionVO;
 import org.szcloud.framework.unit.vo.PunRoleInfoVO;
 import org.szcloud.framework.unit.vo.PunSystemVO;
 import org.szcloud.framework.unit.vo.PunUserBaseInfoVO;
@@ -80,6 +85,13 @@ public class PunUserBaseInfoController extends BaseController {
 	@Qualifier("punUserGroupServiceImpl")
 	PunUserGroupService userGroupService;// 用户组关联Service
 
+	@Resource(name = "punPositionServiceImpl")
+	private PunPositionService punPositionService;
+	@Resource(name = "punGroupServiceImpl")
+	private PunGroupService punGroupService;
+	@Autowired
+	private MetaModelOperateService metaModelOperateServiceImpl;
+
 	private StringBuffer valMessage = null;// 校验信息
 
 	/**
@@ -108,7 +120,11 @@ public class PunUserBaseInfoController extends BaseController {
 		// 2、获取当前系统的角色
 		try {
 			List<PunRoleInfoVO> roleVos = queryRoles();
-			return new ModelAndView("/unit/punUserBaseInfo-edit", "roleVos", roleVos);
+			List<PunPositionVO> posiVos = punPositionService.findAll();
+			Map<String, Object> params = new HashMap<String, Object>();
+			params.put("roleVos", roleVos);
+			params.put("posiVos", posiVos);
+			return new ModelAndView("/unit/punUserBaseInfo-edit", params);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return new ModelAndView("redirect:/logout.do");
@@ -141,8 +157,28 @@ public class PunUserBaseInfoController extends BaseController {
 					PunUserBaseInfoVO existVO = userService.findById(vo.getUserId());
 					vo.setUserPwd(existVO.getUserPwd());
 				}
+				boolean isNew = vo.getUserId() == null ? true : false;
+				Long userId = userService.addOrUpdateUser(vo);// 新增用户
+				// 新增用户时，增加部门和岗位
+				if (vo.getPositionGroupId() != null && vo.getPositionId() != null) {
+					String insertSql = "insert into p_un_user_group(USER_ID,GROUP_ID,POSITION_ID) values(?,?,?)";
+					if (isNew) {
+						metaModelOperateServiceImpl.updateBySql(insertSql, userId, vo.getPositionGroupId(),
+								vo.getPositionId());
+					} else {
+						String sql = "SELECT USER_GRUOP_ID id FROM p_un_user_group WHERE user_id=?";
+						List<Map<String, Object>> data = metaModelOperateServiceImpl.search(sql, userId);
+						if (data.isEmpty()) {
+							metaModelOperateServiceImpl.updateBySql(insertSql, userId, vo.getPositionGroupId(),
+									vo.getPositionId());
+						} else {
+							sql = "update p_un_user_group set GROUP_ID=?,POSITION_ID=? where USER_GRUOP_ID=?";
+							metaModelOperateServiceImpl.updateBySql(sql, vo.getPositionGroupId(), vo.getPositionId(),
+									data.get(0).get("id"));
+						}
+					}
+				}
 
-				userService.addOrUpdateUser(vo);// 新增用户
 				ra.addFlashAttribute("result", "用户名为" + vo.getUserName() + "的用户新增/更新成功！");
 				return new ModelAndView("redirect:/unit/punUserBaseInfoList.do");
 			} else {
@@ -172,10 +208,23 @@ public class PunUserBaseInfoController extends BaseController {
 			List<PunRoleInfoVO> roleVos = queryRoles();// 获取当前系统角色
 			// 根据userId获取用户角色
 			List<String> selectedRole = roleService.queryByUser(vo.getUserId());
+			String sql = "SELECT group_id groupId,position_id positionId FROM p_un_user_group WHERE user_id=?";
+			List<Map<String, Object>> data = metaModelOperateServiceImpl.search(sql, boxs[0]);
+			Object groupId = "";
+			Object positionId = "";
+			if (!data.isEmpty()) {
+				Map<String, Object> map = data.get(0);
+				groupId = map.get("groupId");
+				positionId = map.get("positionId");
+			}
+			List<PunPositionVO> posiVos = punPositionService.findAll();
 			vo.setUserPwd(Security.decryptPassword(vo.getUserPwd()));
 			mv.addObject("vo", vo);
-			mv.addObject("roleVos", roleVos);
 			mv.addObject("selectedRole", selectedRole);
+			mv.addObject("selectedGroup", groupId);
+			mv.addObject("selectedPosition", positionId);
+			mv.addObject("roleVos", roleVos);
+			mv.addObject("posiVos", posiVos);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -205,21 +254,21 @@ public class PunUserBaseInfoController extends BaseController {
 			Criteria criteria = example.createCriteria();
 			String query_deptName = vo.getDeptName();// 部门名称
 			String query_name = vo.getName();// 姓名
-			String query_EmployeeId = vo.getEmployeeId();// 工号
 
 			String query_username = vo.getUserName();// 用户名
+			String query_mobile = vo.getMobile();// 手机号
+
 			String query_userIdCardNumber = vo.getUserIdCardNumber();// 身份证号
 			String query_userTitle = vo.getUserTitle();// 职称
 			PunGroupVO groupVO = (PunGroupVO) SessionUtils.getObjectFromSession(SessionContants.CURRENT_USER_GROUP);
-
 			if (StringUtils.isNotBlank(query_deptName)) {
-				criteria.andLike("p_un_user_base_info.deptName", "%" + query_deptName + "%");
+				criteria.andLike("p_un_group.GROUP_CH_NAME", "%" + query_deptName + "%");
 			}
 			if (StringUtils.isNotBlank(query_name)) {
 				criteria.andLike("p_un_user_base_info.NAME", "%" + query_name + "%");
 			}
-			if (StringUtils.isNotBlank(query_EmployeeId)) {
-				criteria.andLike("p_un_user_base_info.EMPLOYEE_ID", "%" + query_EmployeeId + "%");
+			if (StringUtils.isNotBlank(query_mobile)) {
+				criteria.andLike("p_un_user_base_info.MOBILE", "%" + query_mobile + "%");
 			}
 			if (StringUtils.isNotBlank(query_username)) {
 				criteria.andLike("p_un_user_base_info.USER_NAME", "%" + query_username + "%");
@@ -228,13 +277,13 @@ public class PunUserBaseInfoController extends BaseController {
 				criteria.andLike("p_un_user_base_info.USER_ID_CARD_NUMBER", "%" + query_userIdCardNumber + "%");
 			}
 			if (StringUtils.isNotBlank(query_userTitle)) {
-				criteria.andLike("p_un_user_base_info.USER_TITLE", "%" + query_userTitle + "%");
+				criteria.andLike("d.NAME", "%" + query_userTitle + "%");
 			}
 			if (null != groupVO.getGroupId()) {
 				criteria.andEqualTo("p_un_user_base_info.GROUP_ID", groupVO.getGroupId());
 			}
 			PageList<PunUserBaseInfoVO> vos = userService.selectByExample_UserList(example, currentPage, pageSize,
-					null);
+					"p_un_user_base_info.number");
 			model.addAttribute("currentPage", currentPage);
 			model.addAttribute("vos", vos);
 			model.addAttribute("vo", vo);

@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.szcloud.framework.common.security.VerifyCodeGenerator;
+import org.szcloud.framework.core.utils.SessionUtils;
 import org.szcloud.framework.core.utils.constants.SessionContants;
 
 /**
@@ -48,21 +49,14 @@ public class VerifyCodeServlet extends HttpServlet {
 		response.setHeader("Cache-Control", "no-cache");
 		response.setDateHeader("Expires", 2000);
 		request.getSession().setAttribute(SessionContants.VERIFY_CODE, verifyCode);
+		SessionUtils.addObjectToSession(SessionContants.VERIFY_CODE, verifyCode);
 		try {
 			ServletOutputStream outStream = response.getOutputStream();
 			ImageOutputStream imOut = ImageIO.createImageOutputStream(outStream);
 			ImageIO.write(bi, "jpg", imOut);
-			// 创建可用来将图像数据编码为JPEG数据流的编码器
-			// JPEGImageEncoder encoder =
-			// JPEGCodec.createJPEGEncoder(outStream);
-			// 将图像数据进行编码
-			// encoder.encode(bi);
-			// 强行将缓冲区的内容输入到页面
 			outStream.flush();
 			// 关闭输出流
 			outStream.close();
-			// out.clear();
-			// out = pageContext.pushBody();
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}

@@ -19,10 +19,12 @@
          memoryStoreEvictionPolicy="LFU"> 
   </cache>
   <cache name="document" 
-         maxElementsInMemory="1" 
-         eternal="false" 
-         timeToIdleSeconds="1" 
-         timeToLiveSeconds="0" 
-         memoryStoreEvictionPolicy="LFU"> 
+         maxElementsInMemory="5000" 
+         eternal="false"
+         timeToIdleSeconds="120000"
+         timeToLiveSeconds="120000"
+         overflowToDisk="true"
+         diskPersistent="false"
+         memoryStoreEvictionPolicy="LFU">
   </cache>
 </ehcache>

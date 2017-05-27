@@ -16,6 +16,7 @@ import org.szcloud.framework.core.utils.constants.SessionContants;
 
 /**
  * VerifyCodeGenerator
+ * 
  * @author wsh
  *
  */
@@ -30,8 +31,7 @@ public class VerifyCodeGenerator {
 	// 字符串长度
 	private final int CODE_LENGTH = 5;
 	// 随机字符串范围
-	private final String RAND_RANGE = "abcdefghijkmnpqrstuvwxyz"
-			+ "ABCDEFGHJKLMNPQRSTUVWXYZ" + "23456789" + "@#quot";
+	private final String RAND_RANGE = "abcdefghijkmnpqrstuvwxyz23456789";
 
 	private final char[] CHARS = RAND_RANGE.toCharArray();
 
@@ -80,8 +80,10 @@ public class VerifyCodeGenerator {
 		int r = random.nextInt(ul - ll) + ll;
 		int g = random.nextInt(ul - ll) + ll;
 		int b = random.nextInt(ul - ll) + ll;
-		//rgb固定值
-		r=73;g=237;b=147;
+		// rgb固定值
+		r = 73;
+		g = 237;
+		b = 147;
 		Color color = new Color(r, g, b);
 		return color;
 	}
@@ -92,11 +94,10 @@ public class VerifyCodeGenerator {
 	 * @param verifyCode
 	 *            即将被打印的随机字符串
 	 * @return 生成的图像数据
-	 * */
+	 */
 	private BufferedImage getImage(String verifyCode) {
 
-		BufferedImage image = new BufferedImage(WIDTH * (CODE_LENGTH + 1), HEIGHT,
-				BufferedImage.TYPE_INT_RGB);
+		BufferedImage image = new BufferedImage(WIDTH * (CODE_LENGTH + 1), HEIGHT, BufferedImage.TYPE_INT_RGB);
 
 		// 获取图形上下文
 		Graphics graphics = image.getGraphics();
@@ -119,7 +120,7 @@ public class VerifyCodeGenerator {
 	 *            用户的请求对象
 	 * @param response
 	 *            用户的响应对象
-	 * */
+	 */
 	public Map<String, BufferedImage> printImage() {
 		// 获得随机验证码
 		String verifyCode = this.getRandString();
@@ -136,11 +137,10 @@ public class VerifyCodeGenerator {
 	 * @param request
 	 *            用户的请求对象
 	 * @return 验证结果
-	 * */
+	 */
 	public boolean check(HttpServletRequest request) {
 		if (((String) request.getParameter(ATTRIBUTE_NAME))
-				.equalsIgnoreCase((String) request.getSession().getAttribute(
-						ATTRIBUTE_NAME))) {
+				.equalsIgnoreCase((String) request.getSession().getAttribute(ATTRIBUTE_NAME))) {
 			request.getSession().removeAttribute(ATTRIBUTE_NAME);
 			return true;
 		}
@@ -148,10 +148,9 @@ public class VerifyCodeGenerator {
 	}
 
 	public boolean check(String verifyCode, HttpSession session) {
-		if(StringUtils.isEmpty(verifyCode))
+		if (StringUtils.isEmpty(verifyCode))
 			return false;
-		if (verifyCode.equalsIgnoreCase((String) session
-				.getAttribute(ATTRIBUTE_NAME))) {
+		if (verifyCode.equalsIgnoreCase((String) session.getAttribute(ATTRIBUTE_NAME))) {
 			session.removeAttribute(ATTRIBUTE_NAME);
 			return true;
 		}
@@ -176,17 +175,13 @@ public class VerifyCodeGenerator {
 
 	private void drawCharacter(Graphics g, String verifyCode) {
 
-		String[] fontTypes = { "\u5b8b\u4f53", "\u65b0\u5b8b\u4f53",
-				"\u9ed1\u4f53", "\u6977\u4f53", "\u96b6\u4e66" };
+		String[] fontTypes = { "\u5b8b\u4f53", "\u65b0\u5b8b\u4f53", "\u9ed1\u4f53", "\u6977\u4f53", "\u96b6\u4e66" };
 
 		char verifyCodes[] = verifyCode.toCharArray();
 		for (int i = 0; i < verifyCodes.length; i++) {
-			g.setColor(new Color(50 + random.nextInt(100), 50 + random
-					.nextInt(100), 50 + random.nextInt(100)));
-			g.setFont(new Font(fontTypes[random.nextInt(fontTypes.length)],
-					Font.BOLD, 26));
-			g.drawString(verifyCodes[i] + "", 15 * i + 5,
-					23 + random.nextInt(8));
+			g.setColor(new Color(50 + random.nextInt(100), 50 + random.nextInt(100), 50 + random.nextInt(100)));
+			g.setFont(new Font(fontTypes[random.nextInt(fontTypes.length)], Font.BOLD, 26));
+			g.drawString(verifyCodes[i] + "", 15 * i + 5, 23 + random.nextInt(8));
 			// g.drawString(r, i*w/4, h-5);
 		}
 	}

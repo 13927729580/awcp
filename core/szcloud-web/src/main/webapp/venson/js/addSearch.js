@@ -18,7 +18,7 @@
 		textName:$("#textName").val(), //文本Name值
 		textPrefix:'search_text',  //样式前缀
 		selectPrefix:'search_select',  //样式前缀
-		url:'fd/plugin/excuteSql.do',  //后端接口
+		url:'api/executeAPI.do',  //后端接口
 		container:'.search_main'	//容器
 	}
 	addSearch.prototype={
@@ -62,8 +62,8 @@
 					var html='<div class="col-md-3"><div class="input-group"><span class="input-group-addon">'+e+'</span><select name="'+name+'" class="'+selectPrefix+' form-control"></select></div></div>';
 					var data;
 					//查找是否是动态语句查找
-					if(option.toUpperCase().indexOf("SELECT")!=-1){
-						data=Comm.getData(that.option.url,{sql:option});
+					if(option.indexOf("=")==-1){
+						data=Comm.getData(that.option.url,{APIId:option},true);
 					}else{
 						var options=option.split(";");
 						data=[];

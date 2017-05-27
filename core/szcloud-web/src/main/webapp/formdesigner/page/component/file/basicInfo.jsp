@@ -35,25 +35,22 @@
 	</div>
 </div>
 
+
 <div class="form-group">
-	<label class="col-md-2 control-label required">样式库样式</label>
+	<label class="col-md-2 control-label ">上传位置</label>
 	<div class="col-md-4">
-		<select name="css" class="form-control" id="css">
-			<option value="">请选择</option>
-			<c:forEach items="${styles}" var="style">
-				<option value="${style.id }">${style.name }</option>
-			</c:forEach>
+		<select name="uploadType" class="form-control" id="uploadType">
+			<option value="1">mongdb</option>
+			<option value="2">文件夹</option>
 		</select>
 	</div>
-</div>	
-
-<div class="form-group">
-	<label class="col-md-2 control-label ">自定义样式</label>
+</div>
+<div id="filePathDiv" class="form-group" style="display: none;">
+	<label class="col-md-2 control-label required">上传文件路径</label>
 	<div class="col-md-4">
-		<input name="style" class="form-control" id="style" type="text" value="">
+		<input name="filePath" class="form-control" id="filePath" type="text" value="">
 	</div>
 </div>
-
 <div class="form-group">
 	<label class="col-md-2 control-label required">显示方式</label>
 	<div class="col-md-4">

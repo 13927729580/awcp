@@ -217,7 +217,7 @@ function addHoverDom(treeId, treeNode) {
 					   data: "parentGroupId="+treeNode.id+"&groupSeq="+(treeNode.children?treeNode.children.length:0)+"&groupChName="+$groupName.val()+"&groupType="+$groupType.val()+"&orgCode=45575544-2&number="+$number.val(),
 					   success: function(data){
 						    if(data.status==0){
-						    	zTree.addNodes(treeNode, {id:data.data.groupId, pId:treeNode.id, name:$groupName.val()});
+						    	zTree.addNodes(treeNode, {id:data.data.groupId, pId:treeNode.id, name:$groupName.val(), number:$number.val()});
 						    	alertMessage("添加成功");
 						    }else{
 						    	alertMessage(data.message);

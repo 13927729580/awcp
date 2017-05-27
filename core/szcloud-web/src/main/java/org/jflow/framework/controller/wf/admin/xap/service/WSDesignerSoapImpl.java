@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+
 //import antlr.collections.List;
 import BP.DA.AtPara;
 import BP.DA.DBAccess;
@@ -97,6 +99,10 @@ public class WSDesignerSoapImpl implements WSDesignerSoap {
 	// / <param name="workid">工作编号</param>
 	// / <returns></returns>
 	public String GetFlowTrackJsonData(String fk_flow, String workid) {
+		// TODO modify by venson 2017/05/22 防止SQL注入
+		if (!StringUtils.isNumeric(fk_flow)) {
+			return null;
+		}
 		DataSet ds = new DataSet();
 		DataTable dt = null;
 		String json = null;
@@ -126,7 +132,7 @@ public class WSDesignerSoapImpl implements WSDesignerSoap {
 			dt.TableName = "WF_DIRECTION";
 			ds.Tables.add(dt);
 
-			if (!StringHelper.isNullOrEmpty(workid)) {
+			if (StringUtils.isNumeric(workid)) {
 				// 获取工作轨迹信息
 				String trackTable = "ND" + Integer.parseInt(fk_flow) + "Track";
 				sql = "SELECT NDFrom, NDTo,ActionType,ActionTypeText,Msg,RDT,EmpFrom,EmpFromT,EmpToT FROM " + trackTable

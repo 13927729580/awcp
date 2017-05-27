@@ -17,7 +17,21 @@
 
 <%@ include file="/resources/include/common_form_css.jsp"%><!-- 注意加载路径 -->
 <link rel="stylesheet" href="${basePath}resources/styles/content/uploader.css">
-
+<link rel="stylesheet" href="<%=basePath%>resources/plugins/zTree_v3/css/zTreeStyle/zTreeStyle.css">
+<style type="text/css">
+	.radio-inline, .checkbox-inline {
+	    display: inline-block;
+	    min-width: 23%;
+	    padding-left: 20px;
+	    margin-bottom: 0;
+	    font-weight: 400;
+	    vertical-align: middle;
+	    cursor: pointer;
+	}
+	.radiodiv .checkbox-inline:FIRST-CHILD{
+		margin-left: 10px;
+	}
+</style>
 </head>
 <body id="main">
 
@@ -143,22 +157,59 @@
 			            </div> 
 					 </div>
 					 <div class="form-group">
-						 <label class="col-md-12">系统角色：</label>
-					 	<c:forEach items="${roleVos}" var="vo">
-							<c:choose>
-								<c:when test="${fn:contains(selectedRole,vo.roleId)}">
-									<label class="checkbox-inline"> <input name="roleList"
-										type="checkbox" value="${vo.roleId}" checked="checked">
-										${vo.roleName}
-									</label>
-								</c:when>
-								<c:otherwise>
-									<label class="checkbox-inline"> <input name="roleList"
-										type="radio" value="${vo.roleId}"> ${vo.roleName}
-									</label>
-								</c:otherwise>
-							</c:choose>
-					 	</c:forEach>
+						 <label class="col-md-1 col-sm-1 control-label required">系统角色：</label>
+						 <div class="col-md-11 col-sm-11"></div>
+						 <div class="col-md-1 col-sm-1"></div>
+						 <div class="col-md-11 col-sm-11 radiodiv">
+						 	<c:forEach items="${roleVos}" var="vo">
+								<c:choose>
+									<c:when test="${fn:contains(selectedRole,vo.roleId)}">
+										<label class="checkbox-inline"> <input name="roleList"
+											type="radio" value="${vo.roleId}" checked="checked">
+											${vo.roleName}
+										</label>
+									</c:when>
+									<c:otherwise>
+										<label class="checkbox-inline"> <input name="roleList"
+											type="radio" value="${vo.roleId}"> ${vo.roleName}
+										</label>
+									</c:otherwise>
+								</c:choose>
+					 		</c:forEach>
+						 </div>
+					 </div>
+					  <div class="form-group">
+						 <label class="col-md-1  col-sm-1 control-label required">用户组织：</label>
+						 <div class="col-md-11 col-sm-11"></div>
+						 <div class="col-md-1 col-sm-1"></div>
+						 <div class="col-md-11 col-sm-11 radiodiv">
+						 	<input type="hidden" value="${selectedGroup}" id="positionGroupId" name="positionGroupId"/>
+						 	<div id="groups" class="ztree">
+						 		
+						 	</div>
+						 </div>
+					 </div>
+					  <div class="form-group">
+						 <label class="col-md-1 col-sm-1 control-label required">用户职务：</label>
+						 <div class="col-md-11 col-sm-11"></div>
+						 <div class="col-md-1 col-sm-1"></div>
+						 <div class="col-md-11 col-sm-11 radiodiv">
+						 	<c:forEach items="${posiVos}" var="vo">
+								<c:choose>
+									<c:when test="${selectedPosition==vo.positionId}">
+										<label class="checkbox-inline"> <input name="positionId"
+											type="radio" value="${vo.positionId}" checked="checked">
+											${vo.name}
+										</label>
+									</c:when>
+									<c:otherwise>
+										<label class="checkbox-inline"> <input name="positionId"
+											type="radio" value="${vo.positionId}"> ${vo.name}
+										</label>
+									</c:otherwise>
+								</c:choose>
+						 	</c:forEach>
+					 	</div>
 					 </div>
 				<div class="form-group"><!-- 表单提交按钮区域 -->
 		            <div class="col-md-offset-2 col-md-10">
@@ -176,8 +227,74 @@
 		<script src="<%=basePath%>resources/scripts/ajaxfileupload.js"></script>
 		<script src="<%=basePath%>resources/scripts/uploadPreview.js"></script>
 		<script src="<%=basePath%>resources/scripts/uploader.js"></script>
+		<script src="<%=basePath%>venson/js/tree.js"></script>
+		<script type="text/javascript" src="<%=basePath%>resources/plugins/zTree_v3/js/jquery.ztree.all-3.5.js"></script>
+		<%-- <script type="text/javascript" src="<%=basePath%>resources/plugins/zTree_v3/js/jquery.ztree.excheck-3.5.js"></script> --%>
 		<script type="text/javascript">
 			var basePath = '<%=basePath%>';
+			//var key={"pid":"parentGroupId","id":"groupId","name":"groupChName"};
+			//var root=new Tree(529614);
+			var zTreeObj;
+			var groups=$.get(basePath+"unit/listGroup.do",function(data){
+				var setting = {
+						view: {
+							selectedMulti: false,
+							showIcon: false
+						},
+						check: {
+							enable: true,
+							chkStyle: "radio",
+							chkboxType: { "Y": "", "N": "" },
+							radioType: "all"
+						},
+						data: {
+							key: {
+								name: "groupChName"
+							},
+							simpleData: {
+								enable: true,
+								idKey: "groupId",
+								pIdKey: "parentGroupId",
+								rootPId: 0
+							}
+						},
+						callback:{
+							onCheck: zTreeOnCheck,
+						}
+					}
+			
+				zTreeObj = $.fn.zTree.init($("#groups"), setting, data);
+				var groupId = $("#positionGroupId").val();
+				var node = zTreeObj.getNodeByParam("groupId", groupId, null);
+				//选中节点并展开
+				if(node){
+					zTreeObj.checkNode(node,true,true);
+					if(!zTreeObj.expandNode(node)){
+						zTreeObj.expandAll(true);
+					}
+				}
+				//root.findChild(data,key);
+				//root.eachChild(0,function(l,c){
+				//	var html='<div>'
+				//	if(l!=0){
+				//		for(var i=0;i<l;i++){
+				//			html+="　"
+				//		}
+				//	}
+					
+				//	html+='<input name="positionGroupId" type="radio" value="'+c.id+'"> '+c.name+' </div>';
+				//	$("#groups").append(html);
+					
+					
+				//});
+				$(":radio[value='${selectedGroup}']").prop("checked",true);
+			},"json");
+			
+		function zTreeOnCheck(event, treeId, treeNode) {
+			$("#positionGroupId").val(treeNode.checked?treeNode.groupId:"1")
+		}
+
+	
 		$(function(){
 			loadUploadPreview("signatureImage_Img","file_signatureImage",20,20);
    			$.formValidator.initConfig({formID:"userForm",debug:false,onSuccess:function(){
@@ -198,6 +315,7 @@
 				$("#userTitle").formValidator({empty:true,onShow:"请输入头衔"}).inputValidator({max:30,onError:"最长30位"});
 				$("#userDossierNumber").formValidator({empty:true,onShow:"请输入档案账号"}).inputValidator({max:50,onError:"最长50位"});
 				$("#userOfficeNum").formValidator({empty:true,onShow:"请输入办公室门牌号"}).inputValidator({max:20,onError:"最长20位"});
+				$(":radio[name='roleList'],:radio[name='positionGroupId'],:radio[name='positionId']").formValidator({onCorrect:"符合要求"}).inputValidator({min:1,max:1,onError:"请选择一个"});
 				
 		});
 		$("input[type='password']").attr("readonly", "readonly");	

@@ -1288,6 +1288,12 @@ public class DataType {
 	 */
 	public static java.util.Date ParseSysDateTime2DateTime(String sysDateformat) {
 		try {
+			/*
+			 * modifier venson 如果没有秒位，则自动补齐
+			 */
+			if (sysDateformat.length() == 16) {
+				sysDateformat += ":00";
+			}
 			DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			Date date = fmt.parse(sysDateformat);
 			return date;

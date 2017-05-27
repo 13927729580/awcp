@@ -3,6 +3,7 @@ package org.szcloud.framework.formdesigner.utils;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -40,6 +41,7 @@ import org.szcloud.framework.unit.vo.PunPositionVO;
 import org.szcloud.framework.unit.vo.PunRoleInfoVO;
 import org.szcloud.framework.unit.vo.PunUserBaseInfoVO;
 import org.szcloud.framework.unit.vo.PunUserGroupVO;
+import org.szcloud.framework.venson.util.HttpUtils;
 import org.szcloud.framework.venson.util.MD5Util;
 
 import com.github.miemiedev.mybatis.paginator.domain.PageList;
@@ -1048,6 +1050,29 @@ public class DocumentUtils {
 		DocumentService service = Springfactory.getBean("documentServiceImpl");
 		service.deleteModelData(page, recordId);
 		return true;
+	}
+
+	/***
+	 * 执行Http请求
+	 * 
+	 * @param method
+	 *            请求方式: post/get
+	 * @param url
+	 *            请求路径
+	 * @param params
+	 *            参数
+	 * @return
+	 */
+	public String executeHttpRequest(String method, String url, Map<String, String> params) {
+		if (params == null) {
+			params = Collections.EMPTY_MAP;
+		}
+		// post 请求
+		if (method.toLowerCase().equals("post")) {
+			return HttpUtils.sendPost(url, params);
+		} else {
+			return HttpUtils.sendGet(url, params);
+		}
 	}
 
 }

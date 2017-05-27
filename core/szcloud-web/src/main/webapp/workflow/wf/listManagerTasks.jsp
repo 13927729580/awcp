@@ -55,7 +55,7 @@
 			
 			<div class="row" id="searchform">
 				<div id="collapseButton" class="collapse">
-					<form action="<%=basePath%>workflow/wf/listPersonalTasks.do" id="createForm" class="clearfix">
+					<form  method="post" action="<%=basePath%>workflow/wf/listPersonalTasks.do" id="createForm" class="clearfix">
 						<input type="hidden" name="currentPage" value="1" />
 						<div class="col-md-3">
 							<div class="input-group">

@@ -1,6 +1,8 @@
 package org.szcloud.framework.formdesigner.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -8,8 +10,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 
+import javax.annotation.Resource;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -19,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.szcloud.framework.core.domain.BaseExample;
 import org.szcloud.framework.core.domain.QueryChannelService;
@@ -54,6 +59,8 @@ import net.sf.ehcache.Element;
 public class DocumentServiceImpl implements DocumentService {
 	private static final Logger logger = LoggerFactory.getLogger(DocumentServiceImpl.class);
 
+	public static final String CACHE_KEY_PREFIX = "cache_key_pre_";
+
 	@Autowired
 	private CacheManager cacheManager;
 
@@ -80,6 +87,12 @@ public class DocumentServiceImpl implements DocumentService {
 	@Autowired
 	@Qualifier("jdbcTemplate")
 	private JdbcTemplate jdbcTemplate;
+
+	@Resource(name = "namedParameterJdbcTemplate")
+	private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
+	@Autowired
+	HttpServletRequest request; // 这里可以获取到request
 
 	public String save(DocumentVO vo) {
 		// 仅保存文档数据
@@ -137,19 +150,20 @@ public class DocumentServiceImpl implements DocumentService {
 			DocumentVO docVo, ScriptEngine engine, DynamicPageVO pageVo) {
 		logger.debug("start initDocumentData ");
 		Map<String, List<Map<String, String>>> listParams = null;
-		if (docVo != null && StringUtils.isNotBlank(docVo.getId()) && pageVo != null && pageVo.getId() != null) {
-			String cacheKey = docVo.getId() + pageVo.getId();
-			Cache documentCache = cacheManager.getCache("document");
-			if (documentCache != null) {
-				Element tmp = documentCache.get(cacheKey);
-				// if(tmp != null) {
-				// listParams = (Map<String, List<Map<String, String>>>)
-				// tmp.getValue();
-				// logger.debug("end initDocumentData with cache");
-				// return listParams;
-				// }
-			}
-		}
+		// TODO 缓存机制 待完善
+		// if (pageVo != null && pageVo.getId() != null) {
+		// String cacheKey = CACHE_KEY_PREFIX + pageVo.getId();
+		// Cache documentCache = cacheManager.getCache("document");
+		// if (documentCache != null) {
+		// Element tmp = documentCache.get(cacheKey);
+		// if (tmp != null) {
+		// listParams = (Map<String, List<Map<String, String>>>)
+		// tmp.getObjectValue();
+		// logger.debug("end initDocumentData with cache");
+		// return listParams;
+		// }
+		// }
+		// }
 		listParams = new HashMap<String, List<Map<String, String>>>();
 		Map<String, DataDefine> map = PageDataBeanWorker
 				.convertConfToDataDefines(StringEscapeUtils.unescapeHtml4(pageVo.getDataJson()));
@@ -160,24 +174,12 @@ public class DocumentServiceImpl implements DocumentService {
 		logger.debug("start find data in datajson");
 		for (DataDefine dd : datas) {
 			try {
-				StringBuilder orderBy = new StringBuilder();
-				String alias = dd.getName();
-				String keyAlias = alias + ".";
 				if (!StringUtils.isNumeric(allowOrderBy) || Integer.parseInt(allowOrderBy) != 1) {
 					orderByList = "";
 				}
 
-				// 系统默认数据源
-				Object obj = Tools.getObjectFromSession(SessionContants.CURRENT_SYSTEM);
-				PunSystemVO system = null;
-				if (obj instanceof PunSystemVO) {
-					system = (PunSystemVO) obj;
-				}
-				Long systemId = pageVo.getSystemId();
-				if (system != null)
-					systemId = system.getSysId();
 				PageList<Map<String, String>> pageList = getDataListByDataDefine(dd, engine, currentPage, pageSize,
-						orderByList, systemId);
+						orderByList);
 				if (pageList != null) {
 					listParams.put(dd.getName() + "_list", pageList);
 				}
@@ -187,14 +189,14 @@ public class DocumentServiceImpl implements DocumentService {
 		}
 		logger.debug("end find data in datajson");
 		// put data in cache
-		if (docVo != null && StringUtils.isNotBlank(docVo.getId()) && pageVo != null && pageVo.getId() != null) {
-			String cacheKey = docVo.getId() + pageVo.getId();
-			Cache documentCache = cacheManager.getCache("document");
-			if (documentCache != null) {
-				Element element = new Element(cacheKey, listParams);
-				documentCache.put(element);
-			}
-		}
+		// if (pageVo != null && pageVo.getId() != null) {
+		// String cacheKey = CACHE_KEY_PREFIX + pageVo.getId();
+		// Cache documentCache = cacheManager.getCache("document");
+		// if (documentCache != null) {
+		// Element element = new Element(cacheKey, listParams);
+		// documentCache.put(element);
+		// }
+		// }
 		logger.debug("end initDocumentData with no cache");
 		return listParams;
 	}
@@ -204,6 +206,20 @@ public class DocumentServiceImpl implements DocumentService {
 			DocumentVO docVo, ScriptEngine engine, DynamicPageVO pageVo) {
 		logger.debug("start initDocumentData ");
 		Map<String, List<Map<String, String>>> listParams = null;
+		// TODO 缓存机制
+		// if (pageVo != null && pageVo.getId() != null) {
+		// String cacheKey = CACHE_KEY_PREFIX + pageVo.getId();
+		// Cache documentCache = cacheManager.getCache("document");
+		// if (documentCache != null) {
+		// Element tmp = documentCache.get(cacheKey);
+		// if (tmp != null) {
+		// listParams = (Map<String, List<Map<String, String>>>)
+		// tmp.getObjectValue();
+		// logger.debug("end initDocumentDataFlow with cache");
+		// return listParams;
+		// }
+		// }
+		// }
 		listParams = new HashMap<String, List<Map<String, String>>>();
 		Map<String, DataDefine> map = PageDataBeanWorker
 				.convertConfToDataDefines(StringEscapeUtils.unescapeHtml4(pageVo.getDataJson()));
@@ -253,14 +269,14 @@ public class DocumentServiceImpl implements DocumentService {
 		}
 		logger.debug("end find data in datajson");
 		// put data in cache
-		if (docVo != null && StringUtils.isNotBlank(docVo.getId()) && pageVo != null && pageVo.getId() != null) {
-			String cacheKey = docVo.getId() + pageVo.getId();
-			Cache documentCache = cacheManager.getCache("document");
-			if (documentCache != null) {
-				Element element = new Element(cacheKey, listParams);
-				documentCache.put(element);
-			}
-		}
+		// if (pageVo != null && pageVo.getId() != null) {
+		// String cacheKey = CACHE_KEY_PREFIX + pageVo.getId();
+		// Cache documentCache = cacheManager.getCache("document");
+		// if (documentCache != null) {
+		// Element element = new Element(cacheKey, listParams);
+		// documentCache.put(element);
+		// }
+		// }
 		logger.debug("end initDocumentData with no cache");
 		return listParams;
 	}
@@ -282,7 +298,7 @@ public class DocumentServiceImpl implements DocumentService {
 	public PageList<Map<String, String>> getDataListByDataDefine(DataDefine dd, ScriptEngine engine,
 			Integer currentPage, Integer pageSize, String orderBy) throws ScriptException {
 
-		// Long dataSourceId = getDataSourceIdByModelCode(dd);
+		// Long dataSourceId = getDataSourceIdByModelCode(dd,systemId);
 		// EntityRepositoryJDBC jdbcRepository =
 		// DataSourceFactory.getEntityRepositoryJDBCById(dataSourceId);
 
@@ -299,6 +315,7 @@ public class DocumentServiceImpl implements DocumentService {
 			if (sql.endsWith(";")) {
 				sql = sql.substring(0, sql.length() - 1);
 			}
+
 			// 执行查询时，首先去掉order by 因为会很慢
 			String sql2 = sql.toUpperCase();
 			Integer totalCount = 1;// 默认为查询单条数据
@@ -313,18 +330,25 @@ public class DocumentServiceImpl implements DocumentService {
 				}
 				sql = sql.substring(0, index);
 			}
+			// 增加
+			sql = addSQLParam(sql, request);
+			Map<String, Object> param = wrapMap(request.getParameterMap());
 			Paginator paginator = null;
 			if (dd.getIsSingle() == 0) {
 				logger.debug("datasource[{}] : sql is single ", dd.getName());
 				// 如果是单行数据，则无需查询数据条数
 				paginator = new Paginator(currentPage, 1, totalCount);
 			} else {
+				//
 				// 如果是多行数据，需分页，则需查询数据条数
 				if (dd.getIsPage() > 0) {
 					logger.debug("datasource[{}] : sql is mutiple and should be paged ", dd.getName());
 					StringBuilder countSql = new StringBuilder();
 					countSql.append("select count(*) from (").append(sql).append(") temp");
-					totalCount = jdbcTemplate.queryForInt(countSql.toString());
+					// TODO 修改成具名参数
+					// totalCount
+					// =jdbcTemplate.queryForInt(countSql.toString());
+					totalCount = namedParameterJdbcTemplate.queryForObject(countSql.toString(), param, Integer.class);
 					logger.debug("datasource[{}] : countSql is {} data count {}", dd.getName(), countSql, totalCount);
 					paginator = new Paginator(currentPage, pageSize, totalCount);
 				} else {
@@ -346,8 +370,10 @@ public class DocumentServiceImpl implements DocumentService {
 			}
 			sql += " limit " + paginator.getOffset() + "," + paginator.getLimit();
 			logger.debug("datasource[{}] : actualSql is {} ", dd.getName(), sql);
-			// Map<String, String> params = new HashMap<String, String>();
-			List<Map<String, Object>> retList = jdbcTemplate.queryForList(sql);
+			// TODO 修改成具名参数
+			// List<Map<String, Object>> retList =
+			// jdbcTemplate.queryForList(sql, new Object[] {});
+			List<Map<String, Object>> retList = namedParameterJdbcTemplate.queryForList(sql, param);
 			logger.debug("datasource[{}] : start convert data. ", dd.getName());
 			for (Map<String, Object> retMap : retList) {
 				Map<String, String> temp = new HashMap<String, String>();
@@ -370,109 +396,40 @@ public class DocumentServiceImpl implements DocumentService {
 		return null;
 	}
 
-	/**
-	 * 根据数据源和脚本engine获取数据列表
-	 * 
-	 * @param dd
-	 *            数据源
-	 * @param engine
-	 *            脚本engine
-	 * @param currentPage
-	 *            当前页
-	 * @param pageSize
-	 *            页条数
-	 * @return
-	 * @throws ScriptException
-	 */
-	public PageList<Map<String, String>> getDataListByDataDefine(DataDefine dd, ScriptEngine engine,
-			Integer currentPage, Integer pageSize, String orderBy, Long systemId) throws ScriptException {
-
-		// Long dataSourceId = getDataSourceIdByModelCode(dd,systemId);
-		// EntityRepositoryJDBC jdbcRepository =
-		// DataSourceFactory.getEntityRepositoryJDBCById(dataSourceId);
-
-		logger.debug("start find {} ", dd.getName());
-		List<Map<String, String>> list = new ArrayList<Map<String, String>>();
-		String script = dd.getSqlScript();
-		String sql = null;
-		if (StringUtils.isNotBlank(script)) {
-			sql = (String) engine.eval(script);
+	private Map<String, Object> wrapMap(Map<String, String[]> map, String... filters) {
+		Map<String, Object> param = new HashMap<String, Object>();
+		for (Entry<String, String[]> entry : map.entrySet()) {
+			String key = entry.getKey();
+			List<String> filtersList = new ArrayList<String>();
+			Collections.addAll(filtersList, "currentPage", "pageSize", "offset", "limit", "privilegesID");
+			if (filters != null) {
+				Collections.addAll(filtersList, filters);
+			}
+			if (!filtersList.contains(key)) {
+				// 添加参数，取第一个value值
+				param.put(entry.getKey(), StringUtils.join(entry.getValue(), ";"));
+			}
 		}
-		logger.debug("datasource[{}] compute sql is {} ", dd.getName(), sql);
-		if (StringUtils.isNotBlank(sql)) {
-			// 去掉最后的";"，这样就可以对sql进行外包或者增加limit了
-			if (sql.endsWith(";")) {
-				sql = sql.substring(0, sql.length() - 1);
-			}
-			// 执行查询时，首先去掉order by 因为会很慢
-			String sql2 = sql.toUpperCase();
-			Integer totalCount = 1;// 默认为查询单条数据
-			int index = sql2.lastIndexOf("ORDER BY");
-			if (index != -1) {
-				// 如果没有有排序条件，则将排序条件置为sql语句中的排序条件，也有可能sql语句中也没有排序条件，那么orderBy为空
-				if (StringUtils.isBlank(orderBy)) {
-					orderBy = sql.substring(index + 8);
-					logger.debug("datasource[{}] : sql has order by \"{}\" ", dd.getName(), orderBy);
+		return param;
+	}
+
+	private String addSQLParam(String sql, HttpServletRequest request) {
+		StringBuilder builder = new StringBuilder(sql);
+		StringBuilder where = new StringBuilder();
+		int index = builder.indexOf("1=1") + 3;
+		Enumeration<String> param = request.getParameterNames();
+		for (; param.hasMoreElements();) {
+			String key = param.nextElement();
+			if (key.contains(".") && StringUtils.isNotBlank(request.getParameter(key))) {
+				if (key.toLowerCase().contains("name") || key.toLowerCase().contains("title")) {
+					where.append(" and " + key + " like concat ('%',:" + key + ",'%') ");
 				} else {
-					logger.debug("datasource[{}] : sql use param \"{}\" ", dd.getName(), orderBy);
-				}
-				sql = sql.substring(0, index);
-			}
-			Paginator paginator = null;
-			if (dd.getIsSingle() == 0) {
-				logger.debug("datasource[{}] : sql is single ", dd.getName());
-				// 如果是单行数据，则无需查询数据条数
-				paginator = new Paginator(currentPage, 1, totalCount);
-			} else {
-				// 如果是多行数据，需分页，则需查询数据条数
-				if (dd.getIsPage() > 0) {
-					logger.debug("datasource[{}] : sql is mutiple and should be paged ", dd.getName());
-					StringBuilder countSql = new StringBuilder();
-					countSql.append("select count(*) from (").append(sql).append(") temp");
-					totalCount = jdbcTemplate.queryForInt(countSql.toString());
-					logger.debug("datasource[{}] : countSql is {} data count {}", dd.getName(), countSql, totalCount);
-					paginator = new Paginator(currentPage, pageSize, totalCount);
-				} else {
-					if (dd.getLimitCount() <= 0) {
-						// 多行数据，且不分页,且无固定记录数
-						if (pageSize > 0) {
-							dd.setLimitCount(pageSize);
-						} else {
-							dd.setLimitCount(10);
-						}
-					}
-					logger.debug("datasource[{}] : sql data is mutiple and has no pager the total count is {}",
-							dd.getName(), dd.getLimitCount());
-					paginator = new Paginator(1, dd.getLimitCount(), dd.getLimitCount());
+					where.append(" and " + key + "=:" + key + " ");
 				}
 			}
-			if (StringUtils.isNotBlank(orderBy)) {
-				sql += " ORDER BY " + orderBy;
-			}
-			sql += " limit " + paginator.getOffset() + "," + paginator.getLimit();
-			logger.debug("datasource[{}] : actualSql is {} ", dd.getName(), sql);
-			// Map<String, Object> params = new HashMap<String, Object>();
-			List<Map<String, Object>> retList = jdbcTemplate.queryForList(sql, new Object[] {});
-			logger.debug("datasource[{}] : start convert data. ", dd.getName());
-			for (Map<String, Object> retMap : retList) {
-				Map<String, String> temp = new HashMap<String, String>();
-				for (Map.Entry<String, Object> entrySet : retMap.entrySet()) {
-					String key = entrySet.getKey();
-					Object obj = entrySet.getValue();
-					String value = null;
-					if (obj != null) {
-						value = String.valueOf(obj);
-					}
-					temp.put(key, value);
-				}
-				list.add(temp);
-			}
-			PageList<Map<String, String>> pageList = new PageList<Map<String, String>>(list, paginator);
-			logger.debug("datasource[{}] : end convert data. ", dd.getName());
-			return pageList;
 		}
-		logger.debug("datasource[{}] : sql is blank. ", dd.getName());
-		return null;
+		builder.insert(index, where);
+		return builder.toString();
 	}
 
 	@Override
@@ -641,7 +598,6 @@ public class DocumentServiceImpl implements DocumentService {
 
 	@Override
 	public boolean updateModelDataFlow(DynamicPageVO pageVO, DocumentVO vo, String datadefineName) {
-		Map<String, List<Map<String, String>>> listParams = vo.getListParams();
 		DynamicPage page = BeanUtils.getNewInstance(pageVO, DynamicPage.class);
 		DataDefine dd = PageDataBeanWorker.convertConfToDataDefines(StringEscapeUtils.unescapeHtml4(page.getDataJson()))
 				.get(datadefineName);
@@ -681,8 +637,8 @@ public class DocumentServiceImpl implements DocumentService {
 				logger.debug("start compare data in {} [{}]", pageVO.getId(), pageVO.getName());
 				// 比对数据
 				// put data in cache
-				if (vo != null && StringUtils.isNotBlank(vo.getId()) && pageVO != null && pageVO.getId() != null) {
-					String cacheKey = vo.getId() + pageVO.getId();
+				if (pageVO != null && pageVO.getId() != null) {
+					String cacheKey = CACHE_KEY_PREFIX + pageVO.getId();
 					Cache documentCache = cacheManager.getCache("document");
 					if (documentCache != null) {
 						Element tmp = documentCache.get(cacheKey);
@@ -795,11 +751,24 @@ public class DocumentServiceImpl implements DocumentService {
 				}
 			}
 
-			Map<String, String> map = metaModelOperateServiceImpl.get(id, md.getModelCode());
-			if (map != null && map.size() > 0)
-				resultMap = metaModelOperateServiceImpl.updateReturnMap(data, md.getModelCode());
-			else
-				resultMap = metaModelOperateServiceImpl.saveReturnMap(data, md.getModelCode());
+			Map<String, Object> map = metaModelOperateServiceImpl.get(id, md.getModelCode());
+			resultMap = new HashMap();
+			if (map != null && map.size() > 0) {
+				if (metaModelOperateServiceImpl.update(data, md.getModelCode())) {
+					resultMap.put("success", "true");
+				} else {
+					resultMap.put("success", "false");
+					resultMap.put("message", "更新失败");
+				}
+			} else {
+
+				if (metaModelOperateServiceImpl.save(data, md.getModelCode())) {
+					resultMap.put("success", "true");
+				} else {
+					resultMap.put("success", "false");
+					resultMap.put("message", "保存失败");
+				}
+			}
 			vo.setTableName(metaModelServiceImpl.queryByModelCode(md.getModelCode()).getTableName());
 			resultMap.put("id", id);
 		}
@@ -840,26 +809,11 @@ public class DocumentServiceImpl implements DocumentService {
 	@Override
 	public void excuteUpdate(String sql, String dsName) {
 
-		Object obj = Tools.getObjectFromSession(SessionContants.CURRENT_SYSTEM);
-		PunSystemVO system = null;
-		if (obj instanceof PunSystemVO) {
-			system = (PunSystemVO) obj;
-		}
-		// JdbcTemplate jdbcTemplate =
-		// DataSourceFactory.getJdbcTemplateById(dsName,system.getSysId());
 		jdbcTemplate.execute(sql);
 	}
 
 	@Override
 	public Map excuteQuery(String sql, String dsName) {
-
-		Object obj = Tools.getObjectFromSession(SessionContants.CURRENT_SYSTEM);
-		PunSystemVO system = null;
-		if (obj instanceof PunSystemVO) {
-			system = (PunSystemVO) obj;
-		}
-		// JdbcTemplate jdbcTemplate =
-		// DataSourceFactory.getJdbcTemplateById(dsName,system.getSysId());
 		Map<String, Object> resultMap = new HashMap<String, Object>();
 		try {
 			resultMap = jdbcTemplate.queryForMap(sql);
@@ -872,13 +826,6 @@ public class DocumentServiceImpl implements DocumentService {
 	@Override
 	public List<Map<String, Object>> excuteQueryForList(String sql, String dsName) {
 
-		Object obj = Tools.getObjectFromSession(SessionContants.CURRENT_SYSTEM);
-		PunSystemVO system = null;
-		if (obj instanceof PunSystemVO) {
-			system = (PunSystemVO) obj;
-		}
-		// JdbcTemplate jdbcTemplate =
-		// DataSourceFactory.getJdbcTemplateById(dsName,system.getSysId());
 		return jdbcTemplate.queryForList(sql);
 	}
 

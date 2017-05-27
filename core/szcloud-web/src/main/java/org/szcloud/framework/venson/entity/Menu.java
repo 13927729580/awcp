@@ -164,7 +164,7 @@ public class Menu {
 				// 查看图标是否为空，如果为空则显示默认图标
 				Menu children = new Menu(vo.getMenuId(), vo.getMenuName(),
 						getUrl(vo.getDynamicPageId(), vo.getMenuAddress()),
-						getIcon(vo.getMenuIcon(), "images/icon/icon-blue/system.png"));
+						getIcon(vo.getMenuIcon(), "images/icon/icon-lucency/system.png"));
 				children.setFlag(vo.getMenuFlag());
 				children.setType(vo.getType());
 				menu.add(children);

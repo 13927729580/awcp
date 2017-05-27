@@ -2,9 +2,7 @@
  * 三级联动插件 1.0
  * 
  * 使用方法：
- *  var sql='SELECT a.code as id,a.name as text FROM test_province a;'+
-		    'SELECT a.code as id,a.name as text FROM test_city a WHERE a.provinceId=:provinceId;'+
-		    'SELECT a.code as id,a.name as text FROM test_area a WHERE  a.cityId=:cityId ';
+ *  var sql='province;city;area';
 	var label='省：;市：;县：';
 	var name='provinceId;cityId;id'
 	var option={name:name,sql:sql,label:label};
@@ -26,7 +24,7 @@ var multilevelLinkage=function(option){
 		label:$("#select_select2_label").val(),   //label标签值
 		sql:$("#select_select2_sql").val(),     //sql语句数据来源
 		idPrefix:'select_select2',  //id前缀
-		url:'fd/plugin/excuteSql.do',  //后端接口
+		url:'api/executeAPI.do',  //后端接口
 		container:'.select_select2_main'
 	}
 	multilevelLinkage.prototype={
@@ -44,7 +42,7 @@ var multilevelLinkage=function(option){
 					var $select2=$warp.find("."+that.option.idPrefix)
 					//判断是否为第一节点，如果是则预加载数据
 					if(i==0){
-						that.setData('#'+that.option.idPrefix+'0',Comm.getData(that.option.url,{sql:e}));
+						that.setData('#'+that.option.idPrefix+'0',Comm.getData(that.option.url,{APIId:e},true));
 					}else{
 						$select2.parent().hide();
 					}
@@ -60,8 +58,12 @@ var multilevelLinkage=function(option){
 								return;
 							}else{
 								var sql=that.option.sqls[i+1];
+								var paramName=$(this).attr("name");
 								if(sql){
-									that.setData('#'+that.option.idPrefix+(i+1),Comm.getData(that.option.url,that.getParams(sql)));
+									var param={};
+									param.APIId=$.trim(sql);
+									param[$(this).attr("name")]=$(this).val();
+									that.setData('#'+that.option.idPrefix+(i+1),Comm.getData(that.option.url,that.getParams(sql),true));
 								}
 							}
 						}
@@ -71,18 +73,13 @@ var multilevelLinkage=function(option){
 			getParams:function(sql){
 				var that=this;
 				var param={};
-				param.sql=sql;
-				//sql=sql.toLowerCase();
-				sql=sql.split(new RegExp('where' , 'gi'))[1];
-				if(sql){
-					var sqls=sql.split(new RegExp('and' , 'gi'));
-					$.each(sqls,function(i,e){
-						var o=$.trim(e.split(":")[1]);
-						if(o){
-							param[o]=$("."+that.option.idPrefix+'[name='+o+']').val();
-						}
-					})
-				}
+				param.APIId=$.trim(sql);
+				$.each(that.option.names,function(i,e){
+					var val=$("."+that.option.idPrefix+'[name='+e+']').val();
+					if(val){
+						param[e]=val;
+					}
+				})
 				return param;
 			},
 			clearData:function(tag){
@@ -120,3 +117,4 @@ var multilevelLinkage=function(option){
 			
 			
 	}
+	new multilevelLinkage();

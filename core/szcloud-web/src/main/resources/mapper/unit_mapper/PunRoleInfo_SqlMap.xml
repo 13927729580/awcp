@@ -53,7 +53,7 @@
 	</sql>
 	<!-- 所有字段等于的查询条件 -->
 	<sql id="EQ_Where_Clause">
-		where ROLE_NAME != '超级后台管理员'
+		where 1=1
 		<trim suffixOverrides=",">
 			<if test="sysId != null and sysId != ''">
 				AND SYS_ID = #{sysId}

@@ -2,7 +2,7 @@ package org.szcloud.framework.venson.common;
 
 public class SC {
 	public static final String DATA = "data";
-	public static final String TOTAL = "total";
+	public static final String TOTAL = "count";
 	public static final String QUERY_LIST = "queryList";
 	public static final String COUNT_ALL = "countAll";
 	public static final String USER_ID = "userId";
@@ -21,6 +21,6 @@ public class SC {
 	public static final String ORG_CODE = "45575544-2";
 	public static final String SALT = "sfdsfkxdhfsdfhsfsdfjhwsfdfhs";
 	public static final String FLOW_013 = "013";
-	public static final String[] TARGET_URL = new String[] { "atools/index.html", "devAdmin/list.jsp" };
+	public static final String[] TARGET_URL = new String[] { "manage/index.html", "devAdmin/list.jsp" };
 
 }

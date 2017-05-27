@@ -828,7 +828,7 @@ function popFlowInfoDialog(data,type)
 			title: '操作提示',
 			width:'630',
 			height:'auto',
-			content: data.message,
+			content: "操作成功",
 			cancelValue: '关闭',
 			cancel: function () {
 				//location.href = basePath +"workflow/wf/listPersonalTasks.do";		
@@ -891,7 +891,8 @@ function AJAX(type){
 			top.dialog({
 				id : 'edit-dialog' + Math.ceil(Math.random() * 10000),
 				title : '提示框',
-				content: dataJson.message,//
+//				content: dataJson.message,//
+				content: "操作成功",//
 				width : 350,
 				height : 50,
 				cancel: false,

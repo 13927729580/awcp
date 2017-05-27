@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en" style="height:100%">
+<head>
+    <meta charset="UTF-8">
+    <title>...::坪山智慧经服平台::...</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="css/reset2.css"/>
+    <link rel="stylesheet" href="../base/resources/artDialog/css/ui-dialog.css"/>
+    <link type="text/css" rel="stylesheet" href="css/index.css"/>
+</head>
+<body class="full-height-layout  mini-navbar   gray-bg  pace-done " style="height:100%">
+ <!-- =========================================头部部分开始==================================================== -->
+       <div class="header">
+                <div class="header-left">
+                    <div class="logo">
+                       <img src="images/img/logo.png">
+                       <div class="logoname">
+                       	<p>全栈配置云开发平台</p>
+                       	<p>AWCP</p>                     	
+                       </div>
+                    </div>
+                
+                </div>
+                <div class="header-right">
+                    <ul>
+                       
+                        <li>
+                            <a href="#">
+                                <img src="images/img/home.png">
+                               <span class="index">首页</span>
+                            </a>
+                        </li>
+                         <li>
+                            <a id="message" href="#">
+                                <img style="width: 20px;" src="images/img/news.png">
+                                <span>消息</span>
+                                <span class="msgNum">12</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#">
+                                <img src="images/img/phone.png">
+                                <span> 手机端</span>
+                            </a>
+                        </li>
+                           <li class="dropdown" style="padding:6px;margin-top:19px;" >
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <img src="images/img/me.png">
+                                <span id="userName"><b class="caret"></b></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li style="margin-top:0px;font-size:15px;"><a href="javascript:void(0)" id="allinfo">个人信息</a></li>
+                                <li style="margin-top:0px;font-size:15px;"><a href="javascript:void(0)" id="allchecker">修改密码</a></li>
+                                <!--<li style="margin-top:0px;font-size:15px;"><a href="#">内控制度平台</a></li>-->
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="javascript:void(0)" id="logOut">
+                                <img src="images/img/quit.png">
+                                <span> 退出</span>
+                            </a>
+                        </li>
+
+                     
+
+                    </ul>
+                </div>
+        </div>
+ <!-- =========================================头部部分结束==================================================== -->
+    <div id="wrapper">
+
+    <!-- =========================================左侧菜单栏开始================================================= -->
+            <nav class="navbar  navbar-static-side " role="navigation" style="width: 270px; height:100%;margin-bottom:0px ;background: #4a494e;    overflow: hidden; ">
+                <div class="sidebar-collapse">
+                    <ul class="nav"></ul>
+                </div>
+            </nav>
+    <!-- =========================================左侧菜单栏结束================================================== -->
+    <!--==========================================右侧主体部分开始================================================-->
+            <div id="page-wrapper" class="gray-bg dashbard-1" style="height:95%;">
+             
+               
+               <div id="content-main" class="row J_mainContent">
+                   <iframe  id="ifrm0" name="main"  width="100%" height="100%" frameborder="0" data-id="#" seamless></iframe>
+               </div>
+            </div>
+    <!--==========================================右侧主题部分结束================================================ -->
+        <div class="footer">CopyRight深圳市中傲科技有限公司</div>
+    </div>
+
+    <!--==========================================点击的弹出框模块开始============================================ -->
+       
+        <!-- 左侧小三角模块 -->
+    <!--==========================================点击的弹出框模块结束============================================ -->
+    <script src="../resources/JqEdition/jquery-1.10.2.js" type="text/javascript"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="../venson/js/common.js"></script>
+    <script src="../base/resources/artDialog/dist/dialog-plus-min.js"></script>
+	<!--消息提醒-->
+	<script src="../resources/plugins/artDialog4/artDialog.js?skin=silver"></script>
+    <script src="../resources/plugins/artDialog4/plugins/iframeTools.source.js"></script>
+    <script type="text/javascript">
+    /*coding by venson*/
+    var info=Comm.getData("getUserInfo.do");
+    $("#userName").text(info.name);
+    Comm.set("userName",info.userName);
+    Comm.set("name",info.name);
+    Comm.set("userId",info.userId);
+	//获取用户菜单
+	var data=Comm.getData("getUserMenu.do");
+	//快捷菜单
+	var shortcutMenu=[];
+	var level;
+	//初始化菜单
+	initMenu(data);
+		
+	$("#ifrm0").attr("src",baseUrl+"workflow/wf/listPersonalTasks.do")
+	
+	function initMenu(data){
+//		console.log(data)
+		
+		//初始化左边菜单栏
+	   $.each(data.children,function(i,menu){
+			 level=1;
+			var menu_li = getMenu(menu);
+			$(".nav").append(menu_li);
+		});
+	}
+	function getMenu(menu){
+		//如果flag为1则为拥有的快捷菜单
+	
+		if(menu.flag==1){
+			shortcutMenu.push(menu);
+		}
+		var menu_li=[];
+		var url=menu.url;
+		if(menu.children.length>0){
+			level++;
+			//判断层级是否大于2，如果是则执行如下dom结构
+			if(level>2){
+				menu_li.push(' <li class="title-two"><span class="navlable" >'+menu.name+'</span><img src="images/xiala3.png" class="xiala"></li>');
+				menu_li.push(' <ul class="ul3" style="display:none"> ');
+				$.each(menu.children,function(j,cmenu){	
+					menu_li.push(getMenu(cmenu));
+				});
+				menu_li.push(" </ul> ");
+
+			}else{
+				menu_li.push('<li id="'+menu.id+'" class="addul"><a href="'+url+'" class="title-one">');
+				menu_li.push('<i><img src='+menu.icon+'></i>');
+				menu_li.push('<span class="navlable">'+menu.name+'</span>');
+				menu_li.push('</a>');
+				menu_li.push('<ul class="ul2" style="display:none"> ');
+				$.each(menu.children,function(j,cmenu){
+					menu_li.push(getMenu(cmenu));
+					level=2
+						 
+				});
+				menu_li.push(" </ul></li> ");
+				
+			}
+		}else{
+			//判断层级是否大于2，如果是则执行如下dom结构
+			if(level>2){		
+				menu_li.push('<li id="'+menu.id+'">');
+				menu_li.push('<span class="navlable navlang" lang="'+url+'">'+menu.name+'</span>');
+				menu_li.push('</li>');
+				
+			}else{
+				menu_li.push('<li id="'+menu.id+'" class="title-two">');
+				menu_li.push('<span class="navlable navlang" lang="'+url+'">'+menu.name+'</span>');
+				menu_li.push('</li>');
+			
+			}
+		}
+		return menu_li.join('');
+		
+	};
+	$('.navlable').click(function(){
+		if($(this).attr('lang')=="#"){
+			$(this).attr('lang',"::javascript");
+		}
+	})
+//	退出
+	$("#logOut").click(function(){
+		$.get(baseUrl+"logout.do",function(){
+			location.href=baseUrl+"login.html";
+		});
+	}) 
+	
+    /*
+     
+     * 消息查询
+     * */
+    	$('#allchecker').bind("click",function() {
+						var content = '<div class="form-horizontal">'
+								+ '<div class="form-group">'
+								+ '<label class="col-md-3 control-label required">原密码</label>'
+								+ '<div class="col-md-9"><input id="oldPwd" name="oldPwd" type="password" class="form-control"  placeholder="原密码"></div>'
+								+ '</div><div class="form-group">'
+								+ '<label class="col-md-3 control-label required">新密码</label>'
+								+ '<div class="col-md-9"><input id="newPwd" name="newPwd" type="password" class="form-control"  placeholder="新密码"></div>'
+								+ '</div><div class="form-group">'
+								+ '<label class="col-md-3 control-label required">重复密码</label>'
+								+ '<div class="col-md-9"><input id="newPwd2" name="newPwd2" type="password" class="form-control"  placeholder="重复新密码"></div>'
+								+ '</div></div>';
+						var d = dialog({
+							title : '修改密码',
+							content : content,
+							okValue : '确定',
+							ok : function() {
+								var oldPwd = $("#oldPwd").val();
+								var newPwd = $("#newPwd").val();
+								var newPwd2 = $("#newPwd2").val();
+								if (oldPwd == "") {
+									alert("原密码必填");
+									return false;
+								}
+								if (newPwd == "") {
+									alert("新密码必填");
+									return false;
+								}
+								if (newPwd2 == "") {
+									alert("重复密码必填");
+									return false;
+								}
+								if (newPwd == oldPwd) {
+									alert("新密码不能和原密码一样");
+									return false;
+								}
+								if (newPwd != newPwd2) {
+									alert("新密码和重复密码输入不一致");
+									return false;
+								}
+								if (!window.confirm("确定修改")) {
+									return false;
+								}
+								//修改密码
+								$.ajax({
+									type : "POST",
+									url : baseUrl+"unit/updatePwd.do",
+									data : "oldPwd=" + oldPwd
+											+ "&newPwd=" + newPwd,
+									success : function(data) {
+										if (data.status == 0) {
+											alert(data.message);
+											//alertMessage("修改成功");
+										} else {
+											alert(data.message);
+											//alertMessage(data.message);
+										}
+									}
+								})
+
+								return true;
+
+							},
+							cancelValue : '取消',
+							cancel : function() {
+							}
+						});
+						d.width(450).showModal();
+						return false;
+		});
+		//修改个人信息
+		$("#allinfo").click(function() {
+			top.dialog({
+				id : 'act-dialog' + Math.ceil(Math.random() * 10000),
+				title : '更新个人信息',
+				url : baseUrl+"unit/getSelfInfo.do",
+				height : 500,
+				width : 1200,
+				onclose : function() {
+				}
+			}).showModal();
+			return false;
+		});
+		$(".index").click(function(){
+			top.location.href=baseUrl+"manage/index.html";
+		})
+    </script>
+	<script src="js/index.js"></script>
+
+
+</body>
+</html>

@@ -158,6 +158,23 @@ public final class ControllerHelper {
 		SessionUtils.addObjectToSession(SessionContants.CURRENT_ROLES, roles);
 	}
 
+	public static PunSystemVO getSystem() {
+		Object system = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+		if (system instanceof PunSystemVO) {
+			return (PunSystemVO) system;
+		}
+		return null;
+	}
+
+	public static long getSystemId() {
+		PunSystemVO system = getSystem();
+		if (system != null) {
+			return system.getSysId();
+		} else {
+			return SC.SYSTEM_ID;
+		}
+	}
+
 	/**
 	 * 获取域名
 	 * 

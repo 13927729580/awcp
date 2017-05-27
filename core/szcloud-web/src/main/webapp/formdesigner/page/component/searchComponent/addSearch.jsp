@@ -76,8 +76,7 @@
 							<label class="col-md-2 control-label">option：</label>
 							<div class="col-md-4">
 								<textarea name='selectOption' id='selectOption' rows='4' class='form-control'>
-SELECT a.code  as id,a.name as text FROM test_province a@
-1=深圳市;2=坪山区
+province@1=深圳市;2=坪山区
 								</textarea>
 							</div>
 						</div>
@@ -94,28 +93,18 @@ SELECT a.code  as id,a.name as text FROM test_province a@
 							</div>
 						</div>
 						<div class="form-group">
-							<label class="col-md-2 control-label">文本name值：</label>
+							<label class="col-md-2 control-label">文本标签值：</label>
 							<div class="col-md-4">
 								<input type="text" name='textLabel' id='textLabel'  class='form-control' value="角色@组织"/>
 							</div>
 						</div>
 						<div class="form-group">
-							<label class="col-md-2 control-label">文本标签值：</label>
+							<label class="col-md-2 control-label">文本name值：</label>
 							<div class="col-md-4">
 								<input type="text" name='textName' id='textName'  class='form-control' value="role@group"/>
+								<input type="hidden" name='searchLocation' id='searchLocation' value="1"/>
 							</div>
 						</div>	
-					
-					<div class="form-group">
-						<label class="col-md-2 control-label required">搜索框放置位置</label>
-						<div class="col-md-4">
-							<select name="searchLocation" class="form-control" id="searchLocation" type="text" value="">
-								<option value="1">页面上方</option>
-								<option value="2">页面下方</option>
-							</select>
-						</div>
-					</div>	
-					
 
 				</div>
 				<div class="tab-pane" id="tab3"><%@ include file="/formdesigner/page/component/common/hidden-disabled-readonly-defaultvalue.jsp" %></div>

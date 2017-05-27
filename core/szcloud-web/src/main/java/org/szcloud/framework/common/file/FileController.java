@@ -41,12 +41,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
-import org.springframework.web.servlet.ModelAndView;
 import org.szcloud.framework.core.utils.SessionUtils;
 import org.szcloud.framework.core.utils.Tools;
 import org.szcloud.framework.core.utils.constants.SessionContants;
 import org.szcloud.framework.core.utils.mongodb.MongoDBUtils;
 import org.szcloud.framework.formdesigner.core.domain.Attachment;
+import org.szcloud.framework.formdesigner.core.domain.Store;
 import org.szcloud.framework.metadesigner.application.MetaModelOperateService;
 import org.szcloud.framework.unit.vo.PunSystemVO;
 import org.szcloud.framework.unit.vo.PunUserBaseInfoVO;
@@ -55,6 +55,7 @@ import org.szcloud.framework.venson.controller.base.ReturnResult;
 import org.szcloud.framework.venson.controller.base.StatusCode;
 import org.szcloud.framework.venson.util.DocumentToHtml;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -129,6 +130,7 @@ public class FileController {
 								att.setSize(file.getSize());
 								att.setUserId(user.getUserId());
 								att.setUserName(user.getName());
+								att.setSystemId(ControllerHelper.getSystemId());
 								att.save();
 								rtn.put("flag", 1);
 								rtn.put("msg", uuid);
@@ -154,6 +156,100 @@ public class FileController {
 						rtn.put("flag", 3);
 						rtn.put("msg", "文件不存在");
 					}
+				}
+			}
+		}
+		response.getWriter().println(rtn.toJSONString());
+		return null;
+	}
+
+	private static final String upload_file = "uploadfile";
+
+	/**
+	 * 新增上传文件到指定目录下的文件夹
+	 * 
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws IOException
+	 */
+	@RequestMapping(value = "/uploadToFolder")
+	public String uploadToFolder(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		JSONObject rtn = new JSONObject();
+		// 创建一个通用的多部分解析器
+		CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver(
+				request.getSession().getServletContext());
+		// 判断 request 是否有文件上传,即多部分请求
+		if (multipartResolver.isMultipart(request)) {
+			// 转换成多部分request
+			MultipartHttpServletRequest multiRequest = (MultipartHttpServletRequest) request;
+			// 取得request中的所有文件名
+			Iterator<String> iter = multiRequest.getFileNames();
+			while (iter.hasNext()) {
+				// 取得上传文件
+				MultipartFile file = multiRequest.getFile(iter.next());
+				if (file != null) {
+					PunUserBaseInfoVO user = ControllerHelper.getUser();
+					// 取得当前上传文件的文件名称
+					String myFileName = file.getOriginalFilename();
+					// 如果名称不为"",说明该文件存在，否则说明该文件不存在
+					if (myFileName.trim() != "") {
+
+						try {
+							// 存到文件夹
+							String suffix = file.getOriginalFilename()
+									.substring(file.getOriginalFilename().lastIndexOf("."));
+							String uuid = UUID.randomUUID().toString();
+							String fileName = uuid + suffix;
+							String uploadFolder = request.getParameter("uploadFolder");
+							String uploadPath = null;
+							Store store = Store.get(uploadFolder);
+							if (store != null && store.getContent() != null) {
+								JSONObject content = JSON.parseObject(store.getContent());
+								uploadPath = content.getString("filePath");
+							}
+							if (uploadPath == null) {
+								rtn.put("flag", 2);
+								rtn.put("msg", "上传路径未定义");
+								response.getWriter().println(rtn.toJSONString());
+								return null;
+							}
+							File filePath = new File(uploadPath, fileName);
+							if (!filePath.exists()) {
+								filePath.mkdirs();
+							}
+							file.transferTo(filePath);
+
+							// 存入本地附件表
+							Attachment att = new Attachment();
+							att.setId(uuid);
+							att.setStorageId(filePath.getAbsolutePath());
+							att.setFileName(file.getOriginalFilename());
+							att.setContentType(file.getContentType());
+							att.setSize(file.getSize());
+							att.setUserId(user.getUserId());
+							att.setUserName(user.getName());
+							att.setSystemId(ControllerHelper.getSystemId());
+							att.save();
+							rtn.put("flag", 1);
+							rtn.put("msg", uuid);
+
+						} catch (IllegalStateException e) {
+							rtn.put("flag", 2);
+							rtn.put("msg", "上传失败");
+							e.printStackTrace();
+						} catch (IOException e) {
+							rtn.put("flag", 2);
+							rtn.put("msg", "上传失败");
+							e.printStackTrace();
+						}
+					} else {
+						rtn.put("flag", 3);
+						rtn.put("msg", "文件不存在");
+					}
+				} else {
+					rtn.put("flag", 3);
+					rtn.put("msg", "文件不存在");
 				}
 			}
 		}
@@ -361,18 +457,27 @@ public class FileController {
 	@ResponseBody
 	@RequestMapping(value = "/download")
 	public String download(HttpServletRequest request, HttpServletResponse response, String fileId) throws IOException {
-		MongoClient client = MongoDBUtils.getMongoClient();
-		DB db = client.getDB("myFiles");
-		GridFS myFS = new GridFS(db);
+		Attachment att = Attachment.get(fileId);
+		InputStream is = null;
+		String fileName = null;
+		if (att != null && !att.getStorageId().equals(fileId)) {
+			String filePath = att.getStorageId();
+			is = new FileInputStream(filePath);
+			fileName = att.getFileName();
+		} else {
+			MongoClient client = MongoDBUtils.getMongoClient();
+			DB db = client.getDB("myFiles");
+			GridFS myFS = new GridFS(db);
 
-		DBObject query = new BasicDBObject("id", fileId);
-		GridFSDBFile file = myFS.findOne(query);
+			DBObject query = new BasicDBObject("id", fileId);
+			GridFSDBFile file = myFS.findOne(query);
+			is = file.getInputStream();
+			fileName = file.getFilename();
+		}
 
-		if (file != null) {
-			InputStream is = file.getInputStream();
+		if (is != null) {
 			int i;
 			try {
-				String fileName = file.getFilename();
 				fileName = fileName.substring(fileName.lastIndexOf("/") + 1);
 				response.setContentType("application/x-msdownload;");
 				response.setHeader("Content-disposition",
@@ -389,10 +494,6 @@ public class FileController {
 			} catch (IOException e) {
 
 				e.printStackTrace();
-			} finally {
-				if (client != null) {
-					client.close();
-				}
 			}
 
 		} else {
@@ -648,58 +749,33 @@ public class FileController {
 	@ResponseBody
 	@RequestMapping(value = "/get")
 	public String get(String id) {
+		Attachment att = Attachment.get(id);
 		JSONObject rtn = new JSONObject();
-		// Object obj =
-		// Tools.getObjectFromSession(SessionContants.CURRENT_USER_GROUP);
-		// PunGroupVO group = (PunGroupVO) obj;
-		// Object obj2 =
-		// Tools.getObjectFromSession(SessionContants.CURRENT_SYSTEM);
-		// PunSystemVO system = (PunSystemVO) obj2;
-		// Object obj3 =
-		// Tools.getObjectFromSession(SessionContants.CURRENT_USER);
-		// PunUserBaseInfoVO user = (PunUserBaseInfoVO) obj3;
-		// StringBuilder sb = new StringBuilder();
-		// //FIXME 控制值允许上传者才能下载 ?
-		// sb.append(group.getOrgCode()).append("/").append(system.getSysId()).append("/").append(user.getUserId());
-		// MongoClient client = MongoDBUtils.getMongoClient();
-		// DB db = client.getDB( "myFiles" );
-		// GridFS myFS = new GridFS(db);
-		// DBObject query = new BasicDBObject("id" , id);
-		// GridFSDBFile file = myFS.findOne(query);
-		MongoClient client = MongoDBUtils.getMongoClient();
-		DB db = client.getDB("myFiles");
-		GridFS myFS = new GridFS(db);
-		DBObject query = new BasicDBObject("id", id);
-		GridFSDBFile file = myFS.findOne(query);
-		if (file != null) {
-			// if(filename.indexOf(sb.toString()) != -1) {
-			// JSONObject o = new JSONObject();
-			// for(Iterator<String> it = file.keySet().iterator();
-			// it.hasNext();){
-			// String key = it.next();
-			// Object value = file.get(key);
-			// if(key.equalsIgnoreCase("filename")){
-			// String tmp = (String)value;
-			// tmp = tmp.substring(tmp.lastIndexOf("/") + 1);
-			// o.put(key, tmp);
-			// } else {
-			// o.put(key, value);
-			// }
-			// }
-			JSONObject o = transAttToJSON(Attachment.get(id));
+		if (att != null && !att.getStorageId().equals(id)) {
+			JSONObject o = transAttToJSON(att);
 			rtn.put("result", "1");
 			rtn.put("msg", o.toJSONString());
 			rtn.put("status", 0);
 			rtn.put("data", o.toJSONString());
-			// } else {
-			// rtn.put("result", "2");
-			// rtn.put("msg", "您没有权限");
-			// }
 		} else {
-			rtn.put("result", "3");
-			rtn.put("status", 0);
-			rtn.put("msg", "文件不存在");
+			MongoClient client = MongoDBUtils.getMongoClient();
+			DB db = client.getDB("myFiles");
+			GridFS myFS = new GridFS(db);
+			DBObject query = new BasicDBObject("id", id);
+			GridFSDBFile file = myFS.findOne(query);
+			if (file != null) {
+				JSONObject o = transAttToJSON(att);
+				rtn.put("result", "1");
+				rtn.put("msg", o.toJSONString());
+				rtn.put("status", 0);
+				rtn.put("data", o.toJSONString());
+			} else {
+				rtn.put("result", "3");
+				rtn.put("status", 0);
+				rtn.put("msg", "文件不存在");
+			}
 		}
+
 		return rtn.toJSONString();
 	}
 
@@ -756,17 +832,6 @@ public class FileController {
 	}
 
 	/**
-	 * 查询文件列表，分页显示
-	 * 
-	 * @return
-	 */
-	@RequestMapping(value = "/list")
-	public ModelAndView queryList() {
-		// TODO
-		return null;
-	}
-
-	/**
 	 * @param ids
 	 *            需要删除的文件id
 	 * @param request
@@ -776,32 +841,46 @@ public class FileController {
 	@ResponseBody
 	@RequestMapping(value = "/delete")
 	public String delete(String[] ids, HttpServletRequest request, HttpServletResponse response) {
+
 		JSONObject rtn = new JSONObject();
 		MongoClient client = MongoDBUtils.getMongoClient();
 		DB db = client.getDB("myFiles");
 		GridFS myFS = new GridFS(db);
 		StringBuilder msg = new StringBuilder();
 		int flag = 0;
-
+		long userId = ControllerHelper.getUserId();
 		// FIXME 控制值允许上传者才能下载 ?
 
 		for (String id : ids) {
-			DBObject query = new BasicDBObject("id", id);
-			GridFSDBFile file = myFS.findOne(query);
-			if (file == null) {
-				continue;
-			}
-			String filename = file.getFilename();
-			if (filename.indexOf(ControllerHelper.getUserId() + "") != -1) {
-				myFS.remove(query); // 删除mangoDb中的附件
-				Attachment att = new Attachment(); // 删除对应的附件表记录
-				att.setId(id);
-				att.remove();
-				msg.append("文件[").append(filename.substring(filename.lastIndexOf("/") + 1)).append("]删除成功！|");
-				flag++;
+			Attachment att = Attachment.get(id);
+			if (att != null && !att.getStorageId().equals(id)) {
+				if (userId == att.getUserId()) {
+					String filePath = att.getStorageId();
+					new File(filePath).delete();
+					att.remove();
+					msg.append("文件[").append(att.getFileName()).append("]删除成功！|");
+					flag++;
+				} else {
+					msg.append("您没有权限删除文件[").append(att.getFileName()).append("]！|");
+				}
+
 			} else {
-				msg.append("您没有权限删除文件[").append(filename.substring(filename.lastIndexOf("/") + 1)).append("]！|");
+				DBObject query = new BasicDBObject("id", id);
+				GridFSDBFile file = myFS.findOne(query);
+				if (file == null) {
+					continue;
+				}
+				String filename = file.getFilename();
+				if (filename.contains(userId + "")) {
+					myFS.remove(query); // 删除mangoDb中的附件
+					att.remove();
+					msg.append("文件[").append(filename.substring(filename.lastIndexOf("/") + 1)).append("]删除成功！|");
+					flag++;
+				} else {
+					msg.append("您没有权限删除文件[").append(filename.substring(filename.lastIndexOf("/") + 1)).append("]！|");
+				}
 			}
+
 		}
 		if (flag == 0) {
 			rtn.put("result", "3");
@@ -1066,15 +1145,25 @@ public class FileController {
 
 	@RequestMapping("/preview")
 	public String preView(HttpServletResponse response, String fileId) throws Exception {
-		MongoClient client = MongoDBUtils.getMongoClient();
-		DB db = client.getDB("myFiles");
-		GridFS myFS = new GridFS(db);
-		DBObject query = new BasicDBObject("id", fileId);
-		GridFSDBFile file = myFS.findOne(query);
+		Attachment att = Attachment.get(fileId);
+		InputStream is = null;
+		String fileName = null;
+		if (att != null && !att.getStorageId().equals(fileId)) {
+			String filePath = att.getStorageId();
+			is = new FileInputStream(filePath);
+			fileName = att.getFileName();
+		} else {
+			MongoClient client = MongoDBUtils.getMongoClient();
+			DB db = client.getDB("myFiles");
+			GridFS myFS = new GridFS(db);
+
+			DBObject query = new BasicDBObject("id", fileId);
+			GridFSDBFile file = myFS.findOne(query);
+			is = file.getInputStream();
+		}
 		String msg = "";
-		if (file != null) {
+		if (is != null) {
 			// 读取文件信息，判断格式，如果是文本，直接显示，如果是word，先进行转化，然后返回html地址，
-			String fileName = file.getFilename();
 			String fileType = Tools.getTypePart(fileName);
 			String ext = fileType.toLowerCase();
 			if (StringUtils.isBlank(fileType)) {
@@ -1087,8 +1176,7 @@ public class FileController {
 					String htmlName = fileId + ".html";
 					String position = htmlPath + htmlName;
 					if (!new File(position).exists()) {
-						DocumentToHtml.getInstance().toHtml(file.getInputStream(), fileName, htmlPath,
-								fileId + ".html");
+						DocumentToHtml.getInstance().toHtml(is, fileName, htmlPath, fileId + ".html");
 					}
 					return "redirect:" + rootPath + "/" + htmlName;
 				} else if (ext.equals("tif") || ext.equals("tiff")) {
@@ -1096,7 +1184,7 @@ public class FileController {
 					response.setContentType("image/jpg;charset=UTF-8");
 					response.setHeader("Content-disposition", "inline; filename=preview.jpg");
 					ServletOutputStream out = response.getOutputStream();
-					TIFToJPG(file.getInputStream(), out);
+					TIFToJPG(is, out);
 					out.flush();
 					out.close();
 					return null;
@@ -1108,7 +1196,7 @@ public class FileController {
 					response.setContentType("application/pdf;charset=UTF-8");
 					response.setHeader("Content-disposition", "inline; filename=" + fileName);
 					ServletOutputStream out = response.getOutputStream();
-					out.write(IOUtils.toByteArray(file.getInputStream()));
+					out.write(IOUtils.toByteArray(is));
 					out.flush();
 					out.close();
 					return null;
@@ -1117,7 +1205,7 @@ public class FileController {
 					response.setContentType("text/html;charset=UTF-8");
 					response.setHeader("Content-disposition", "inline; filename=" + fileName);
 					ServletOutputStream out = response.getOutputStream();
-					out.write(IOUtils.toByteArray(file.getInputStream()));
+					out.write(IOUtils.toByteArray(is));
 					out.flush();
 					out.close();
 					return null;

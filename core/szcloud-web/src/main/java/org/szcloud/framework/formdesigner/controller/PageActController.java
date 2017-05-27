@@ -177,7 +177,7 @@ public class PageActController extends BaseController {
 	/**
 	 * 
 	 * @Title: getWorkflowByPageId @Description:查找动态页面相关联的流程 @param id
-	 * dynamicPageId @return String 流程信息(json字符串) [{}] @throws
+	 *         dynamicPageId @return String 流程信息(json字符串) [{}] @throws
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/getWorkflowByPageId")
@@ -323,6 +323,12 @@ public class PageActController extends BaseController {
 		} else {
 			PunResourceVO resource = punResourceService.getResourceByRelateId(vo.getPageId(),
 					ResourceTypeEnum.RESO_BUTTON.getkey());
+			if (resource == null) {
+				resource = new PunResourceVO();
+				resource.setSysId(vo.getSystemId());
+				resource.setRelateResoId(vo.getPageId());
+				resource.setResouType(ResourceTypeEnum.RESO_BUTTON.getkey());
+			}
 			resource.setResourceName(vo.getName());
 			punResourceService.addOrUpdate(resource);
 		}
@@ -333,7 +339,7 @@ public class PageActController extends BaseController {
 
 	/**
 	 * @Title: getByAjaxAndPageId @Description: 根据pageId查找act 数据 @param
-	 * id @return List<PageActVO> json字符串 @throws
+	 *         id @return List<PageActVO> json字符串 @throws
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/getByPageId")

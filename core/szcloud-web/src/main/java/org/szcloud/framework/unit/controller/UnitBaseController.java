@@ -1,5 +1,6 @@
 package org.szcloud.framework.unit.controller;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -35,9 +36,9 @@ import org.szcloud.framework.core.utils.constants.SessionContants;
 import org.szcloud.framework.metadesigner.application.MetaModelOperateService;
 import org.szcloud.framework.unit.service.PunMenuService;
 import org.szcloud.framework.unit.service.PunUserBaseInfoService;
+import org.szcloud.framework.unit.utils.EncryptUtils;
 import org.szcloud.framework.unit.utils.HMACSHA1;
 import org.szcloud.framework.unit.utils.WhichEndEnum;
-import org.szcloud.framework.unit.vo.PunAJAXStatusVO;
 import org.szcloud.framework.unit.vo.PunMenuVO;
 import org.szcloud.framework.unit.vo.PunRoleInfoVO;
 import org.szcloud.framework.unit.vo.PunSystemVO;
@@ -47,7 +48,9 @@ import org.szcloud.framework.venson.controller.base.ControllerHelper;
 import org.szcloud.framework.venson.controller.base.ReturnResult;
 import org.szcloud.framework.venson.controller.base.StatusCode;
 import org.szcloud.framework.venson.entity.Menu;
+import org.szcloud.framework.venson.util.CheckUtils;
 import org.szcloud.framework.venson.util.HttpUtils;
+import org.szcloud.framework.venson.util.SMSUtil;
 
 import TL.ContextHolderUtils;
 
@@ -72,11 +75,17 @@ public class UnitBaseController {
 	private String errorCookie = "errorCookie";
 
 	@ResponseBody
-	@RequestMapping(value = "/appLogin")
-	public PunAJAXStatusVO appLogin(@ModelAttribute("vo") PunUserBaseInfoVO vo, String valid, Model model,
+	@RequestMapping(value = "/appLogin", method = RequestMethod.POST)
+	public ReturnResult appLogin(@ModelAttribute("vo") PunUserBaseInfoVO vo, String valid, Model model,
 			HttpServletRequest request) {
-		PunAJAXStatusVO respStatus = new PunAJAXStatusVO();
-
+		ReturnResult result = ReturnResult.get();
+		// 判断是否密码是经过base64加密
+		String base64Password = vo.getUserPwd();
+		if (base64Password.contains("isAuth")) {
+			base64Password = base64Password.substring("isAuth".length());
+			base64Password = Security.decodeBASE64(base64Password);
+			vo.setUserPwd(base64Password.substring("BasicAuth:".length()));
+		}
 		boolean isTokenValid = verifyToken(vo);
 		Map<String, Object> m = new HashMap<String, Object>();
 
@@ -85,19 +94,15 @@ public class UnitBaseController {
 		if (errorCount != null) {
 			String value = errorCount.getValue();
 			if (Integer.parseInt(value) >= 3) {
-				respStatus.setStatus(1);
-				respStatus.setMessage("登录错误达3次，禁止登录10分钟！");
-				return respStatus;
+				return result.setStatus(StatusCode.FAIL.setMessage("登录错误达3次，禁止登录10分钟！"));
 			}
 		}
 		PunUserBaseInfoVO pvi = null;
 		try {
 			pvi = this.userService.queryResult("eqQueryList", m).get(0);
 		} catch (Exception e) {
-			respStatus.setStatus(1);
-			respStatus.setMessage("用户不存在");
 			addErrorCount();
-			return respStatus;
+			return result.setStatus(StatusCode.FAIL.setMessage("登录失败，请核实登录信息"));
 		}
 		Subject subject = SecurityUtils.getSubject();
 		String plainToke = pvi.getOrgCode() + "_" + vo.getUserName() + "_" + WhichEndEnum.FRONT_END.getCode();
@@ -110,17 +115,11 @@ public class UnitBaseController {
 		try {
 			subject.login(token);
 			if ("0".equals(pvi.getUserStatus())) {
-				respStatus.setStatus(1);
-				respStatus.setMessage("用户已禁用");
-				return respStatus;
+				return result.setStatus(StatusCode.FAIL.setMessage("用户已禁用"));
 			} else if ("2".equals(pvi.getUserStatus())) {
-				respStatus.setStatus(1);
-				respStatus.setMessage("用户审核中");
-				return respStatus;
+				return result.setStatus(StatusCode.FAIL.setMessage("用户审核中"));
 			}
 			ControllerHelper.doLoginSuccess(pvi);
-			respStatus.setStatus(0);
-			respStatus.setMessage("登录成功");
 			List<PunRoleInfoVO> roles = (List<PunRoleInfoVO>) SessionUtils
 					.getObjectFromSession(SessionContants.CURRENT_ROLES);
 			String targetUrl = SC.TARGET_URL[0];
@@ -128,7 +127,7 @@ public class UnitBaseController {
 				if (role.getRoleName().equals("超级后台管理员"))
 					targetUrl = SC.TARGET_URL[1];
 			}
-			respStatus.setData(targetUrl);
+			result.setStatus(StatusCode.SUCCESS).setData(targetUrl);
 			if (StringUtils.isNotBlank(request.getParameter("ATL"))) {
 				Cookie secretKey = ContextHolderUtils.getCookie(SC.SECRET_KEY);
 				if (secretKey == null) {
@@ -140,15 +139,12 @@ public class UnitBaseController {
 
 			}
 			// 进入选择系统页面
-			return respStatus;
+			return result;
 		} catch (Exception e) {
 			e.printStackTrace();
-			respStatus.setStatus(1);
-			ContextHolderUtils.deleteCookie(SC.SECRET_KEY);
-			respStatus.setMessage("登录失败，请核实登录信息");
 			addErrorCount();
+			return result.setStatus(StatusCode.FAIL.setMessage("登录失败，请核实登录信息"));
 		}
-		return respStatus;
 	}
 
 	private void addErrorCount() {
@@ -306,7 +302,7 @@ public class UnitBaseController {
 			@RequestParam(value = "url", required = false) String url) {
 		String base = ControllerHelper.getBasePath();
 		ModelAndView mv = new ModelAndView("redirect:" + base + "login.html");
-		url = base + (StringUtils.isBlank(url) ? "atools/index.html" : url);
+		url = base + (StringUtils.isBlank(url) ? "manage/index.html" : url);
 		// 判断是否已经存在登录用户
 		PunUserBaseInfoVO current_user = (PunUserBaseInfoVO) SessionUtils
 				.getObjectFromSession(SessionContants.CURRENT_USER);
@@ -347,6 +343,107 @@ public class UnitBaseController {
 		} else {
 			return mv;
 		}
+	}
+
+	/**
+	 * 发送短信验证码
+	 * 
+	 * @param verifyCode
+	 *            验证码
+	 * @param mobile
+	 *            手机号
+	 * @return
+	 * @throws UnsupportedEncodingException
+	 */
+	@ResponseBody
+	@RequestMapping(value = "anon/getSMSVerifyCode")
+	public ReturnResult getSMSVerifyCode(@RequestParam("verifyCode") String verifyCode,
+			@RequestParam("mobile") String mobile) throws UnsupportedEncodingException {
+		ReturnResult result = ReturnResult.get();
+		if (!CheckUtils.isChinaPhoneLegal(mobile)) {
+			return result.setStatus(StatusCode.SUCCESS.setMessage("手机号有误")).setData(1);
+		}
+		if (!verifyCode.equalsIgnoreCase((String) SessionUtils.getObjectFromSession(SessionContants.VERIFY_CODE))) {
+			return result.setStatus(StatusCode.SUCCESS.setMessage("验证码错误")).setData(1);
+		}
+		String code = SMSUtil.send(mobile);
+		SessionUtils.addObjectToSession(SessionContants.SMS_VERIFY_CODE + mobile, code);
+		result.setStatus(StatusCode.SUCCESS).setData(0);
+		return result;
+	}
+
+	/**
+	 * 校验短信验证码
+	 * 
+	 * @param SMSCode
+	 *            短信验证码
+	 * @param mobile
+	 *            手机号
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping("anon/checkSMSCode")
+	public ReturnResult checkSMSCode(@RequestParam("SMSCode") String SMSCode, @RequestParam("mobile") String mobile) {
+		ReturnResult result = ReturnResult.get();
+		if (SMSCode.equals(SessionUtils.getObjectFromSession(SessionContants.SMS_VERIFY_CODE + mobile))) {
+			result.setData(0);
+		} else {
+			// 验证码错误
+			result.setData(1).setStatus(StatusCode.SUCCESS.setMessage("短信验证码错误"));
+		}
+		return result;
+	}
+
+	/**
+	 * 检查手机否是否已经被注册
+	 * 
+	 * @param mobile
+	 *            手机号
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping("anon/checkNumber")
+	public ReturnResult checkNumber(String mobile) {
+		ReturnResult result = ReturnResult.get();
+		// 注册的校正
+		int count = metaModelOperateServiceImpl.queryOne("select count(*) from p_un_user_base_info where mobile=?",
+				mobile);
+		if (count == 0) {
+			// 该号码可以使用
+			result.setData(0);
+		} else {
+			// 该号码已被注册
+			result.setData(1).setStatus(StatusCode.SUCCESS.setMessage("该号码已被注册"));
+		}
+		return result;
+	}
+
+	/**
+	 * 修改密码
+	 * 
+	 * @param SMSCode
+	 *            短信验证码
+	 * @param mobile
+	 *            手机号
+	 * @param password
+	 *            密码
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping("anon/modifyPassword")
+	public ReturnResult modifyPassword(@RequestParam("SMSCode") String SMSCode, @RequestParam("mobile") String mobile,
+			@RequestParam("password") String password) {
+		ReturnResult result = ReturnResult.get();
+		if (SMSCode.equals(SessionUtils.getObjectFromSession(SessionContants.SMS_VERIFY_CODE + mobile))) {
+			// 更新用户密码
+			metaModelOperateServiceImpl.updateBySql("update p_un_user_base_info set USER_PWD=? where MOBILE=?",
+					EncryptUtils.encrypt(password), mobile);
+			result.setData(0);
+		} else {
+			// 验证码错误
+			result.setData(1).setStatus(StatusCode.SUCCESS.setMessage("验证码错误"));
+		}
+		return result;
 	}
 
 }

@@ -352,6 +352,7 @@ public class PunGroupController {
 			Map<String, Object> params = new HashMap<String, Object>();
 			params.put("orgCode", vo.getOrgCode());
 			params.put("groupChName", vo.getGroupChName());
+			params.put("parentGroupId", vo.getParentGroupId());
 			List<PunGroupVO> gVOs = null;
 			if (null == vo.getGroupId()) {// 若新增
 				gVOs = groupService.queryResult("eqQueryList", params);

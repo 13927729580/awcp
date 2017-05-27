@@ -56,8 +56,19 @@
 		<script type="text/javascript">	
 		var basePath = "<%=basePath%>";
 		$('document').ready(function(){
+			$("#uploadType").on("change",function(){
+				if(this.value==2){
+					$("#filePathDiv").show();
+				}else{
+					$("#filePathDiv").hide();
+				}
+			})
 			initializeDocument("${componentType}","${_ComponentTypeName[componentType]}");
-			
+			if($("#uploadType").val()==2){
+				$("#filePathDiv").show();
+			}else{
+				$("#filePathDiv").hide();
+			}
 			//var url = "<%=basePath%>component/validateComponentNameInPage.do?dynamicPageId="+$("#dynamicPageId").val()+"&componentName="+$("#name").val()+"&componentId="+$("#pageId").val();
 			//alert(url);
 			

@@ -393,7 +393,7 @@
 	</div>
 </#macro>
 <#macro convertMultilevelLinkageScript c >	<#------ 级联下拉框脚本 ----->
-	new multilevelLinkage();
+<script src="<#noparse>${basePath}</#noparse>venson/js/multilevelLinkage.js" type="text/javascript"></script>
 </#macro>
 <#-------------------------------------------级联下拉框end---------------------------------------->
 
@@ -1123,8 +1123,55 @@
 </#macro>
 
 <#macro convertKindEditorScript c >
-	var editor_${c['name']} = K.create('textarea[name="${c['name']}"]',options);
+	KindEditor.ready(function(K){
+		  			var options ={
+			            allowFileManager : true,
+			            allowUpload : true,
+			            uploadJson : basePath+'common/file/uploadImg.do',
+			            height:"500px",
+			            //readonlyMode:true,
+			            bodyClass : 'article-content',
+			            afterBlur: function(){this.sync();$(this.container[0]).removeClass('focus');
+			            },
+			            afterFocus: function(){$(this.container[0]).addClass('focus');},
+			            afterCreate : function(){
+			                var doc = this.edit.doc; 
+			                var cmd = this.edit.cmd; 
+			                if(K.WEBKIT){
+			                    $(doc.body).bind('paste', function(ev){
+			                        var $this = $(this);
+			                        var original =  ev.originalEvent;
+			                        var file =  original.clipboardData.items[0].getAsFile();
+			                        var reader = new FileReader();
+			                        reader.onload = function (evt){
+			                            var result = evt.target.result;
+			                            var arr = result.split(",");
+			                            var data = arr[1]; // raw base64
+			                            var contentType = arr[0].split(";")[0].split(":")[1];
+			                            //html = '<img src="' + result + '" alt="" />';
+			                            //cmd.inserthtml(html);
+			                            //post本地图片到服务器并返回服务器存放地址
+										$.ajax({
+			                            	type:"post",
+			                            	url: basePath+"common/file/generateImageByBase64Str.do",
+			                            	dataType:"html",
+			                            	data:{imgStr:result},
+			                            	success:function(data){
+			                            	var html = '<img src="'+basePath+'/attached/image/' +data + '" alt="" />';
+			                            	cmd.inserthtml(html)
+			                            	}
+			                            });
+
+			                        };
+			                        reader.readAsDataURL(file);
+			                    });
+			                }
+			
+			            }
+			        };
+			        var editor_${c['name']} = K.create('textarea[name="${c['name']}"]',options);
 	<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['readonly'])?? && status['</#noparse>${c['name']}<#noparse>']['readonly'] == 'true'></#noparse>editor_${c['name']}<#noparse>.readonly("false");</#if></#noparse>
+				});
 </#macro>
 
 <#macro convertTips c >
@@ -1428,15 +1475,14 @@
 
 <#-------------------------------------------文件上传框组件begin---------------------------------------->
 <#macro convertFile c >
+	<input type="hidden" id="uploadType" value="${c['uploadType']!''}"/>
 	<#if c['showType']?? && c['showType']=='2' >
-
 		<div id='${(c['pageId'])!""}' class="uploader" >
 						<input type="hidden" class="orgfile" name="${c['name']}" value="<#noparse>${(</#noparse>${c['dataItemCode']}<#noparse>)!''}</#noparse>" />
 					    <div class="btns mb10">
 					        <div class="picker"><i class="icon-upload-alt"></i> 上传附件</div>
 					        <div class="btn btn-primary" style="background:rgb(0, 183, 238); border-radius: 3px; border: medium none; padding: 6px 12px;margin-right:12px;float:left;" id="MoreDownload"><i class="icon-download-alt"></i> 下载附件</div>
 					        <div class="btn btn-primary" style="background:rgb(0, 183, 238); border-radius: 3px; border: medium none; padding: 6px 12px;float:left;" id="FileRemove"><i class="icon-trash"></i> 删除附件</div>
-					<#-----        <a href="javascript:;" class="btn btn-mini btn-default ">打包下载</a>  ---->
 					    </div>
 					    <div class="table table-bordered uploader-list oldlist">
 					    	<table class="table datatable table-bordered table-hover" id="uploadListTable">

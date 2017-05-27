@@ -41,6 +41,7 @@ import com.github.miemiedev.mybatis.paginator.domain.PageList;
 
 /**
  * 表单设计Controller
+ * 
  * @author Administrator
  *
  */
@@ -50,30 +51,31 @@ public class FormdesignerController extends BaseController {
 
 	@Autowired
 	private FormdesignerService formdesignerServiceImpl;
-	
+
 	@Autowired
 	@Qualifier("storeServiceImpl")
 	private StoreService storeService;
-	
+
 	@Autowired
 	@Qualifier("punResourceServiceImpl")
 	private PunResourceService punResourceService;
 
 	@Autowired
 	private PunSystemService punSystemServiceImpl;
-	
+
 	@Resource(name = "metaModelOperateServiceImpl")
 	private MetaModelOperateService meta;
 
 	/**
 	 * 根据name查询动态页面，分页显示
+	 * 
 	 * @param name
 	 * @param currentPage
 	 * @param pageSize
 	 * @return
 	 */
 	@RequestMapping(value = "/list")
-	public ModelAndView list(String name,String pageType,String templateId,String menuId,String tips,
+	public ModelAndView list(String name, String pageType, String templateId, String menuId, String tips,
 			@RequestParam(required = false, defaultValue = "1") int currentPage,
 			@RequestParam(required = false, defaultValue = "10") int pageSize) {
 		ModelAndView mv = new ModelAndView();
@@ -103,7 +105,8 @@ public class FormdesignerController extends BaseController {
 			if (StringUtils.isNotBlank(menuId)) {
 				criteria.andEqualTo("id", menuId);
 			}
-			PageList<DynamicPageVO> vos = formdesignerServiceImpl.selectPagedByExample(example, currentPage, pageSize,"ID desc");
+			PageList<DynamicPageVO> vos = formdesignerServiceImpl.selectPagedByExample(example, currentPage, pageSize,
+					"ID desc");
 			mv.addObject("vos", vos);
 		}
 		mv.addObject("pageType", pageType);
@@ -112,15 +115,17 @@ public class FormdesignerController extends BaseController {
 		mv.addObject("currentPage", currentPage);
 		mv.addObject("templateId", templateId);
 		mv.addObject("menuId", menuId);
-		mv.addObject("templates", meta.search("select id ,file_name text from p_fm_template"));
-		mv.addObject("menus", 
-				meta.search("SELECT dynamicpage_id id,menu_name text FROM p_un_menu a WHERE LENGTH(a.dynamicpage_id)>0"));
+		mv.addObject("templates", meta.search(
+				"SELECT  DISTINCT b.id,b.file_name as text FROM p_fm_dynamicpage a LEFT JOIN p_fm_template b ON a.template_id=b.id"));
+		mv.addObject("menus", meta
+				.search("SELECT dynamicpage_id id,menu_name text FROM p_un_menu a WHERE LENGTH(a.dynamicpage_id)>0"));
 		mv.setViewName("formdesigner/page/dynamicPage-list");
 		return mv;
 	}
 
 	/**
 	 * 查询动态页面，并跳转到编辑页面
+	 * 
 	 * @param id
 	 * @return
 	 */
@@ -135,7 +140,7 @@ public class FormdesignerController extends BaseController {
 		if (errorMsg != null && !"".equals(errorMsg)) {
 			mv.addObject("tips", errorMsg);
 		}
-		if(!validatorPage(mv, id)){
+		if (!validatorPage(mv, id)) {
 			mv.setViewName("redirect:/fd/list.do");
 			return mv;
 		}
@@ -143,7 +148,8 @@ public class FormdesignerController extends BaseController {
 			DynamicPageVO vo = formdesignerServiceImpl.findById(id);
 			if (vo != null) {
 				BaseExample actExample = new BaseExample();
-				actExample.createCriteria().andEqualTo("DYNAMICPAGE_ID", id).andLike("CODE",StoreService.PAGEACT_CODE + "%");
+				actExample.createCriteria().andEqualTo("DYNAMICPAGE_ID", id).andLike("CODE",
+						StoreService.PAGEACT_CODE + "%");
 				PageList<StoreVO> actStore = storeService.selectPagedByExample(actExample, 1, Integer.MAX_VALUE,
 						"BTN_GROUP ASC,T_ORDER ASC");
 				List<PageActVO> acts = new ArrayList<PageActVO>();
@@ -159,14 +165,16 @@ public class FormdesignerController extends BaseController {
 		mv.addObject("_COMPOENT_TYPE_NAME", FormDesignGlobal.COMPOENT_TYPE_NAME);
 		return mv;
 	}
-	
+
 	/**
 	 * 保存动态页面信息 校验不通过，返回到编辑页面
+	 * 
 	 * @param vo
 	 * @return
 	 */
 	@RequestMapping(value = "/save")
-	public ModelAndView savePage(DynamicPageVO vo,@RequestParam(required = false, defaultValue = "1") int currentPage) {
+	public ModelAndView savePage(DynamicPageVO vo,
+			@RequestParam(required = false, defaultValue = "1") int currentPage) {
 		ModelAndView mv = new ModelAndView();
 		mv.addObject("currentPage", currentPage);
 		Object o = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
@@ -182,16 +190,17 @@ public class FormdesignerController extends BaseController {
 			}
 			formdesignerServiceImpl.saveOrUpdate(vo);
 			mv.addObject("_selects", vo.getId());
-			mv.setViewName("redirect:/fd/edit.do");	//保存后重定向编辑页面
+			mv.setViewName("redirect:/fd/edit.do"); // 保存后重定向编辑页面
 		} else {
 			mv.addObject("_selects", vo.getId());
 			mv.setViewName("redirect:/fd/edit.do");
 		}
 		return mv;
 	}
-	
+
 	/**
 	 * 复制页面
+	 * 
 	 * @param ids
 	 * @param currentPage
 	 * @return
@@ -207,9 +216,10 @@ public class FormdesignerController extends BaseController {
 		mv.setViewName("redirect:/fd/list.do");
 		return mv;
 	}
-	
+
 	/**
 	 * 点击复制到按钮弹窗页面
+	 * 
 	 * @return
 	 */
 	@RequestMapping(value = "/listSystem")
@@ -225,9 +235,10 @@ public class FormdesignerController extends BaseController {
 		mv.setViewName("formdesigner/page/select-system-edit");
 		return mv;
 	}
-	
+
 	/**
 	 * 复制到系统
+	 * 
 	 * @param ids
 	 * @param currentPage
 	 * @param systemId
@@ -250,9 +261,10 @@ public class FormdesignerController extends BaseController {
 		}
 		return o.toJSONString();
 	}
-	
+
 	/**
 	 * 删除选择的动态页面数据
+	 * 
 	 * @param ids
 	 * @return
 	 */
@@ -288,9 +300,10 @@ public class FormdesignerController extends BaseController {
 		}
 		return mv;
 	}
-	
+
 	/**
 	 * 批量发布页面
+	 * 
 	 * @param ids
 	 * @param currentPage
 	 * @return
@@ -309,6 +322,7 @@ public class FormdesignerController extends BaseController {
 
 	/**
 	 * 发布当前页面
+	 * 
 	 * @param id
 	 * @return
 	 */
@@ -329,24 +343,26 @@ public class FormdesignerController extends BaseController {
 		mv.setViewName("redirect:/fd/edit.do");
 		return mv;
 	}
-	
+
 	/**
 	 * 签出页面
+	 * 
 	 * @param id
 	 * @return
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/checkOutPage")
-	public Map<String,Object> checkOutPage(Long id) {
-		Map<String,Object> map = new HashMap<String,Object>();
+	public Map<String, Object> checkOutPage(Long id) {
+		Map<String, Object> map = new HashMap<String, Object>();
 		formdesignerServiceImpl.checkOut(id);
-		map.put("msg","签出成功" );
+		map.put("msg", "签出成功");
 		map.put("userName", ControllerHelper.getUser().getName());
 		return map;
 	}
 
 	/**
 	 * 签入页面
+	 * 
 	 * @param id
 	 * @return
 	 */
@@ -366,6 +382,7 @@ public class FormdesignerController extends BaseController {
 
 	/**
 	 * 查看发布后的内容
+	 * 
 	 * @param id
 	 * @return
 	 */
@@ -386,9 +403,10 @@ public class FormdesignerController extends BaseController {
 		}
 		return mv;
 	}
-	
+
 	/**
 	 * 展示当前页面的直接父级和子级页面
+	 * 
 	 * @param ids
 	 * @return
 	 */
@@ -418,7 +436,7 @@ public class FormdesignerController extends BaseController {
 		}
 		return mv;
 	}
-	
+
 	/**
 	 * 根据name查询动态页面，分页显示
 	 * 
@@ -449,7 +467,8 @@ public class FormdesignerController extends BaseController {
 					example.createCriteria().andLike("name", "%" + name + "%");
 				}
 			}
-			PageList<DynamicPageVO> vos = formdesignerServiceImpl.selectPagedByExample(example, currentPage, pageSize,"ID desc");
+			PageList<DynamicPageVO> vos = formdesignerServiceImpl.selectPagedByExample(example, currentPage, pageSize,
+					"ID desc");
 			mv.addObject("vos", vos);
 		}
 
@@ -488,7 +507,8 @@ public class FormdesignerController extends BaseController {
 			if (StringUtils.isNotBlank(name)) {
 				example.createCriteria().andLike("name", "%" + name + "%");
 			}
-			PageList<DynamicPageVO> vos = formdesignerServiceImpl.selectPagedByExample(example, currentPage, pageSize,"ID desc");
+			PageList<DynamicPageVO> vos = formdesignerServiceImpl.selectPagedByExample(example, currentPage, pageSize,
+					"ID desc");
 			mv.addObject("vos", vos);
 		}
 		mv.addObject("name", name);
@@ -572,7 +592,7 @@ public class FormdesignerController extends BaseController {
 		if (id == null) {
 			return true;
 		}
-		//只有页面迁出者才可以修改
+		// 只有页面迁出者才可以修改
 		DynamicPageVO vo = formdesignerServiceImpl.findById(id);
 		if (vo.getIsCheckOut() == null || vo.getIsCheckOut() == 0) {
 			mv.addObject("tips", vo.getName() + "页面还未签出，编辑修改前请先签出页面");
@@ -588,7 +608,7 @@ public class FormdesignerController extends BaseController {
 		}
 		return true;
 	}
-	
+
 	@ResponseBody
 	@RequestMapping(value = "/validateCheckOut")
 	public Map<String, Object> validateCheckOut(Long id) {

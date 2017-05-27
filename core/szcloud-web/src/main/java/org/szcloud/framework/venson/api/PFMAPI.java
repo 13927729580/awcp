@@ -109,6 +109,11 @@ public class PFMAPI {
 	 * 根据Id获取API记录
 	 */
 	public static PFMAPI get(String id) {
+		if (StringUtils.isBlank(id)) {
+			return null;
+		} else {
+			id = id.trim();
+		}
 		SzcloudJdbcTemplate jdbcTemplate = Springfactory.getBean("jdbcTemplate");
 		String sql = "select API_ID as APIID,API_Name as APIName,API_SQL as APISQL,API_DESC as APIDesc,"
 				+ "API_State as APIState,API_Type as APIType,API_Table as APITable,API_IS_LOGIN as APIIsLogin,API_Method as APIMethod from p_fm_api where ";

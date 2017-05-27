@@ -880,8 +880,12 @@ function loadCommonComponentData(storeObject){
 		if(componentObject.maxSize) 	$("#maxSize").val(componentObject.maxSize);
 		if(componentObject.maxCount) 	$("#maxCount").val(componentObject.maxCount);
 		if(componentObject.fileKind) 	$("#fileKind").val(componentObject.fileKind);
+		if(componentObject.filePath) 	$("#filePath").val(componentObject.filePath);
 		if(componentObject.showType) { 
 			$("#showType").val(componentObject.showType).trigger("change");
+		}
+		if(componentObject.uploadType) { 
+			$("#uploadType").val(componentObject.uploadType).trigger("change");
 		}
 		//image
 		if(componentObject.imageHeight) 	$("#imageHeight").val(componentObject.imageHeight);

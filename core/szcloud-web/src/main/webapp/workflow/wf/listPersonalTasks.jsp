@@ -62,7 +62,7 @@
 			
 			<div class="row" id="searchform">
 				<div id="collapseButton">
-					<form action="<%=basePath%>workflow/wf/listPersonalTasks.do" id="createForm" class="clearfix">
+					<form  method="post" action="<%=basePath%>workflow/wf/listPersonalTasks.do" id="createForm" class="clearfix">
 						<input type="hidden" name="currentPage" value="1" />
 						<!-- 
 						<div class="col-md-3" style="width: 210px; height: auto;">
@@ -99,9 +99,7 @@
 							<TH>标题</TH>
 							<TH>发起人</TH>
 							<TH>发起时间</TH>
-							<!-- 
 							<TH>流程</TH>
-							 -->
 							<TH>停留节点</TH>
 							<!-- 
 							<TH>状态</TH>
@@ -126,9 +124,7 @@
 								</td>
 								<td nowrap="nowrap">${item.StarterName}</td>
 								<td nowrap="nowrap">${item.RDT}</td>
-								<!-- 
 								<td>${item.FlowName}</td>
-								 -->
 								<td>${item.NodeName}</td>
 								<!-- 
 								<td align="left">

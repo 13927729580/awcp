@@ -80,6 +80,7 @@
             <value>
             /appLogin.do = anon
             /logout.do = anon
+            /anon/*.do =anon
             /logsso.do =anon
             /common/file/download.do =anon
             /common/file/get.do =anon

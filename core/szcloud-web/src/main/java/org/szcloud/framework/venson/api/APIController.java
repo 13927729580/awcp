@@ -239,7 +239,7 @@ public class APIController extends BaseController {
 		// 获取主键
 		String id = request.getParameter("id");
 		// 根据获取记录
-		Map<String, String> data = meta.get(id, api.getAPITable());
+		Map<String, Object> data = meta.get(id, api.getAPITable());
 		return result.setData(data);
 	}
 
@@ -284,7 +284,6 @@ public class APIController extends BaseController {
 			}
 		}
 		// 保存
-		Long id = meta.save(params, api.getAPITable());
-		result.setData(id);
+		meta.save(params, api.getAPITable());
 	}
 }

@@ -92,13 +92,9 @@
 						</div>
 						
 						<div class="form-group">
-							<label class="col-md-2 control-label">sql语句：</label>
+							<label class="col-md-2 control-label">api接口名称：</label>
 							<div class="col-md-4">
-								<textarea name='select_select2_sql' id='select_select2_sql' rows='4' class='form-control'>
-SELECT a.code  as id,a.name as text FROM test_province a;
-SELECT a.code  as id,a.name as text FROM test_city a WHERE a.provinceId=:provinceId;
-SELECT a.code  as id,a.name as text FROM test_area a WHERE  a.cityId=:cityId 
-								</textarea>
+								<input type="text" name='select_select2_sql' id='select_select2_sql' value='province;city;area' class='form-control'/>
 							</div>
 						</div>
 						<div class="form-group">

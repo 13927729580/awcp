@@ -454,7 +454,11 @@
 	</select>
 	<select id="queryCountByExample_UserList" resultType="INTEGER" 
     parameterType="org.szcloud.framework.core.domain.BaseExample">
-   	 	select count(*) from p_un_user_base_info 
+   	 	select count(1) from p_un_user_base_info 
+   	 	left join p_un_user_group on p_un_user_base_info.user_id=p_un_user_group.user_id 
+		left join p_un_group on p_un_user_group.group_id=p_un_group.group_id 
+		left join p_un_position d on d.POSITION_ID=p_un_user_group.POSITION_ID
+		left join p_un_user_role e on e.user_id=p_un_user_base_info.user_id
 	    <if test="_parameter != null">
 	      <include refid="Select_Example_Where_Clause" />
 	    </if>
@@ -462,18 +466,19 @@
 	
 	<select id="selectByExample_UserList_Order" resultMap="rm"
 		parameterType="org.szcloud.framework.core.domain.BaseExample">
-		select p_un_user_base_info.USER_ID, USER_NAME, p_un_user_base_info.USER_PWD, USER_ID_CARD_NUMBER, NAME, 
+		select p_un_user_base_info.USER_ID, USER_NAME, p_un_user_base_info.USER_PWD, USER_ID_CARD_NUMBER, p_un_user_base_info.NAME, 
 		USER_BIRTH_PLACE, USER_HOUSEHOLD_REGIST, USER_DOMICILE, USER_OFFICE_PHONE, 
-		USER_HOUSE_PHONE, MOBILE, USER_FAX, USER_EMAIL, EMPLOYEE_ID, USER_TITLE,USER_STATUS, 
+		USER_HOUSE_PHONE, MOBILE, USER_FAX, USER_EMAIL, EMPLOYEE_ID,USER_STATUS, 
 		USER_DOSSIER_NUMBER, USER_OFFICE_NUM, p_un_user_base_info.LAST_EDIT_TIME, 
-		p_un_user_base_info.NUMBER,SIGNATURE_IMG,USER_HEAD_IMG,p_un_group.group_short_name as DEPT_NAME,
-		p_un_group.group_id AS DEPT_ID from p_un_user_base_info  
+		p_un_user_base_info.NUMBER,SIGNATURE_IMG,USER_HEAD_IMG,GROUP_CONCAT(p_un_group.GROUP_CH_NAME) as DEPT_NAME,
+		p_un_group.group_id AS DEPT_ID,GROUP_CONCAT(d.NAME) as USER_TITLE from p_un_user_base_info  
 		left join p_un_user_group on p_un_user_base_info.user_id=p_un_user_group.user_id 
 		left join p_un_group on p_un_user_group.group_id=p_un_group.group_id 
+		left join p_un_position d on d.POSITION_ID=p_un_user_group.POSITION_ID
 		<if test="_parameter != null">
 			<include refid="Select_Example_Where_Clause" />
 		</if>
-
+		GROUP BY p_un_user_base_info.USER_ID
 		<if test="orderByClause != null">
 			order by ${orderByClause}
 		</if>
@@ -481,6 +486,7 @@
 		<if test="start !=0 or limit!=0">
 			limit #{start},#{limit}
 		</if>
+		
 	</select>
 	
 	<select id="eqQueryList" resultMap="rm" parameterType="Object">

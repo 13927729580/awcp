@@ -23,14 +23,15 @@
 	var toMb = function(n) {
 		return(n / (1024 * 1024)).toFixed(2)
 	};
-
+	var uploadType=$("#uploadType").val();
+	var uploadServer=uploadType==2?"uploadToFolder.do":"upload.do";
 	var keyOption = {};
 	var initUploader = function(option, uploader) {
 		var itemOption = {
 			auto: option.auto, //自动上传           
-			compress: false, // 不压缩image           
+			compress: false, // 不压缩image
 			swf: basePath + BASE_URL + '/Uploader.swf', // swf文件路径          
-			server: basePath + 'common/file/upload.do', // 文件接收服务端。          
+			server: basePath + 'common/file/'+uploadServer, // 文件接收服务端。          
 			pick: option.$pick, // 选择文件的按钮。可选。内部根据当前运行是创建，可能是input元素，也可能是flash.           
 			fileNumLimit: option.fileNumLimit - option.fileNum, //验证文件总数量            
 			fileSizeLimit: option.fileSizeLimit - option.fileSize, //验证文件总大小是否超出限制, 超出则不允许加入队列     
@@ -48,11 +49,16 @@
 
 		uploader.on('beforeFileQueued', function(file) {
 			if(itemOption.fileNumLimit == 0 || file.size > itemOption.fileSizeLimit) {
-				dialogAlert("File exceeded upload limit.");
+				dialogAlert("文件大小超出限制.");
 				return false;
 			}
 		});
-
+		if(uploadType==2){
+			//上传前增加额外参数
+			uploader.on('uploadBeforeSend', function(object,data,headers) {
+				data.uploadFolder=option.$uploader.attr("id");
+			});
+		}
 		// 当有文件添加进来的时候
 		uploader.on('fileQueued', function(file) {
 			if(!option.auto) {
@@ -62,23 +68,22 @@
 			} else {
 				return true;
 			}
-
 		});
 
 		uploader.on('error', function(handler) {
 			if(handler == 'F_DUPLICATE') {
-				dialogAlert('The file already exists.');
+				dialogAlert('文件已经存在.');
 			} else if(handler == 'F_EXCEED_SIZE') {
-				dialogAlert('Single file size can not exceed 2MB.');
+				dialogAlert('单个文件大小不能超过 2MB.');
 			} else if(handler == 'Q_EXCEED_NUM_LIMIT') {
-				dialogAlert("The number of files exceeded limits , can only upload " + (option.fileNum) + " files.");
+				dialogAlert("文件上传数不能超过  " + (option.fileNumLimit) + " 个.");
 			} else if(handler == 'Q_EXCEED_SIZE_LIMIT') {
-				dialogAlert('File size limit exceeded.');
+				dialogAlert('文件总大小不能超出 '+toMb(fileSizeLimit)+" MB");
 			} else if(handler == 'Q_TYPE_DENIED') {
 				if(itemOption.accept.extensions != '') {
-					dialogAlert('Please upload ' + itemOption.accept.extensions + ' type of file.');
+					dialogAlert('请上传 ' + itemOption.accept.extensions + ' 等格式文件.');
 				} else {
-					dialogAlert("Please upload a file.");
+					dialogAlert("请上传文件.");
 				}
 			}
 		});
@@ -143,7 +148,7 @@
 		$("#iframeModal").modal({ backdrop: 'static' });
 
 		uploader.on('uploadError', function(file) {
-			$('#' + file.id).find('p.state').css('color', 'red').text('Upload failed');
+			$('#' + file.id).find('p.state').css('color', 'red').text('上传失败');
 		});
 
 		uploader.on('uploadComplete', function(file) {
@@ -231,9 +236,15 @@
 	};
 	//删除已上传文件;n为文件id
 	var deleteFile = function(id) {
-		fileAjax("delete", { "ids": id }, function(result) {
-			return true;
-		});
+		if(id){
+			fileAjax("delete", { "ids": id }, function(result) {
+				if(result.status==0){
+					return true;
+				}else{
+					return false;
+				}
+			});
+		}
 	};
 
 	var init = function(option, uploader) { //option:uploader参数；uploader:uploader标识符
@@ -246,7 +257,7 @@
 		}
 		getList(option);
 		initUploader(option, uploader);
-		option.$uploader.find(".tips").html("Additional information: <label class='filenumber'>" + option.fileNum + "</label>/" + option.fileNumLimit + " uploaded, the size of <label class='filesize'>" + toMb(option.fileSize) + "</label>/" + toMb(option.fileSizeLimit) + "Mb。");
+		option.$uploader.find(".tips").html("提示: <label class='filenumber'>" + option.fileNum + "</label>/" + option.fileNumLimit + " 已上传, 文件大小 <label class='filesize'>" + toMb(option.fileSize) + "</label>/" + toMb(option.fileSizeLimit) + "Mb。");
 		return option;
 	};
 
@@ -328,10 +339,6 @@
 		var _option = $(this).parents(".uploader");
 		var _optionId = _option.attr("id");
 		var _thisOption = keyOption[_optionId];
-		//		if($(this).find('.active').length ==0){
-		//			dialogAlert("至少选择一项");
-		//		}
-
 		$(event.target).parent().parent().find("table.table-datatable tbody tr").each(function() {
 			if($(this).hasClass("active")) {
 				var _this = this;
@@ -350,39 +357,13 @@
 						option.$oldlist.html("");
 				};
 				deleteFile(_itemId);
-//				reloadUploader(_thisOption);
+				reloadUploader(_thisOption);
 				$(_this).remove();
-
 			}
-//			getList(_thisOption)
-//							init(_thisOption, _optionId);	
 		});
+		_thisOption.item.destroy();
+		init(_thisOption, _optionId);
 
-		//		var _option = $(this).parents(".uploader");
-		//		var _optionId = _option.attr("id");
-		//		var _thisOption = keyOption[_optionId];
-		//		$(event.target).parent().parent().find("table.table-datatable tbody tr").each(function(){
-		//			if($(this).hasClass("active")){
-		//				var _itemId = $(this).children('td').eq(1).children('input').eq(0).val();//$(this).attr("id");//获取当前文件ID				
-		//				var reloadUploader = function (option) {
-		//					var msgIndex = $(this).index();//option.orgFile.split(";").length;
-		//					var msgId = (msgIndex == 0) ? (option.orgFile.split(";").length == 1 ? _itemId : (_itemId + ";")) : (";" + _itemId);//截取附件ids
-		//					option.orgFile = option.orgFile.replace(msgId, "");
-		//					option.$uploader.find(".orgfile").val(option.orgFile);
-		//					option.fileSize = 0;
-		//					option.fileNum = 0;
-		//					option.$list.html("");
-		//					if(option.auto)
-		//						option.$oldlist.find("table tbody").html("");
-		//					else
-		//						option.$oldlist.html("");
-		//				};				
-		//				deleteFile(_itemId);
-		//				reloadUploader(_thisOption);
-		//				_thisOption.item.destroy();									
-		//			}
-		//		});
-		//		init(_thisOption, _optionId);	
 	});
 
 })(jQuery)

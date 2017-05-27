@@ -193,3 +193,8 @@ function checkIsNumber(obj){
 //定义弹窗的高度和宽度
 var dialogHeight = $(top).height()-93;
 var dialogWidth = 1024;
+
+//如果页面链接参数存在readonly==true则禁用所有表单组件
+if($.trim($("#readonly").val())=="true"){
+	$(":input").not(":button[value='返回']").prop("disabled",true);
+}
