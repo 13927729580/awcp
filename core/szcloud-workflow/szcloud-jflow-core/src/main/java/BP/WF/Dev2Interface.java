@@ -6467,7 +6467,7 @@ public class Dev2Interface {
 		// 设置成工作未读。
 		BP.WF.Dev2Interface.Node_SetWorkUnRead(gwf.getFK_Node(), workid, operateEmp);
 
-		String msg = operateEmpName + "'s work has been submitted to(" + askForEmp + " " + emp.getName() + ") review.";
+		String msg = "您的工作已经提交给(" + askForEmp + " " + emp.getName() + ") 加签了。";
 
 		// 加签后事件
 		Node hisNode = new Node(gwf.getFK_Node());
@@ -6480,7 +6480,7 @@ public class Dev2Interface {
 	}
 
 	/**
-	 * 执行加签
+	 * 执行加签(手动插入待办)
 	 * 
 	 * @param workid
 	 *            工作ID
@@ -6493,8 +6493,6 @@ public class Dev2Interface {
 	 * @return
 	 */
 	public static String Node_Askfor(long workid, AskforHelpSta askforSta, String askForEmp, String askForNote) {
-
-		Emp emp = new Emp(askForEmp);
 
 		GenerWorkFlow gwf = new GenerWorkFlow(workid);
 		// throw new Exception("@该工作属于抢办工作，您不能执行加签。");
@@ -6513,20 +6511,40 @@ public class Dev2Interface {
 		if (gwls.Contains(GenerWorkerListAttr.FK_Emp, askForEmp, GenerWorkerListAttr.IsEnable, 0) == true) {
 			throw new RuntimeException("加签失败，您选择的加签人可以处理当前的工作。");
 		}
+		StringBuilder mesg = new StringBuilder();
 		if (GenerWorkerLists.convertGenerWorkerLists(gwls) != null
 				&& GenerWorkerLists.convertGenerWorkerLists(gwls).size() > 0) {
 
 			try {
 				GenerWorkerList generWorkerList = GenerWorkerLists.convertGenerWorkerLists(gwls).get(0);
-				generWorkerList.setFK_Emp(askForEmp);
-				generWorkerList.setFK_Dept(emp.getFK_Dept());
-				generWorkerList.setFK_EmpText(emp.getName());
-				generWorkerList.Insert();
+				// 如果加签后由我直接发送
+				if (askforSta == AskforHelpSta.AfterDealSend) {
+					generWorkerList.setIsPassInt(1);
+					generWorkerList.Update();
+					generWorkerList.setIsPassInt(0);
+				}
+				String[] users;
+				if (askForEmp.contains(",")) {
+					users = askForEmp.split(",");
+				} else {
+					users = new String[] { askForEmp };
+				}
+
+				for (String user : users) {
+					Emp emp = new Emp(user);
+					generWorkerList.setSender(WebUser.getNo() + "," + WebUser.getName());
+					generWorkerList.setFK_Emp(emp.getNo());
+					generWorkerList.setFK_Dept(emp.getFK_Dept());
+					generWorkerList.setFK_EmpText(emp.getName());
+					generWorkerList.Insert();
+					mesg.append(emp.getNo() + " " + emp.getName() + ",");
+				}
+
 			} catch (Exception e) {
 				msg = "您加签的成员已经存在！！！！";
 			}
 		}
-		msg = "您的工作已经提交给(" + askForEmp + " " + emp.getName() + ")加签了。";
+		msg = "您的工作已经提交给(" + mesg.delete(mesg.length() - 1, mesg.length()) + ")加签了。";
 
 		return msg;
 	}

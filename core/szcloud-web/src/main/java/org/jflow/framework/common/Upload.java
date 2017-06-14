@@ -15,12 +15,18 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  *
  * @author administrator
  */
 public class Upload extends HttpServlet {
+	/**
+	 * 日志对象
+	 */
+	private static Log logger = LogFactory.getLog(Upload.class);
 
 	/** */
 	private static final long serialVersionUID = 1L;
@@ -78,7 +84,7 @@ public class Upload extends HttpServlet {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			error = "上传文件出现错误：" + e.getMessage();
 		}
 		if (!"".equals(error)) {

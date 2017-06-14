@@ -21,8 +21,8 @@ import javax.servlet.ServletContext;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -80,7 +80,10 @@ import com.mongodb.gridfs.GridFSDBFile;
 
 @Service
 public class PrintServiceImpl implements PrintService, ServletContextAware {
-	private static final Logger logger = LoggerFactory.getLogger(PrintServiceImpl.class);
+	/**
+	 * 日志对象
+	 */
+	protected final Log logger = LogFactory.getLog(PrintServiceImpl.class);
 
 	@Autowired
 	@Qualifier("storeServiceImpl")
@@ -208,7 +211,7 @@ public class PrintServiceImpl implements PrintService, ServletContextAware {
 						isPageHidden = (Boolean) engine.eval(StringEscapeUtils.unescapeHtml4(page.getHiddenScript()));
 					} catch (ScriptException e) {
 						// TODO Auto-generated catch block
-						e.printStackTrace();
+						logger.info("ERROR", e);
 					}
 				}
 
@@ -232,8 +235,8 @@ public class PrintServiceImpl implements PrintService, ServletContextAware {
 
 				mainTable.setTotalWidth(PageSize.A4.getWidth() - document.leftMargin() - document.rightMargin());
 				float height = mainTable.calculateHeights();
-				logger.debug("mainTable.getTotalHeight() is {} and mainTable height is : {}",
-						mainTable.getTotalHeight(), height);
+				logger.debug("mainTable.getTotalHeight() is " + mainTable.getTotalHeight()
+						+ " and mainTable height is :" + height);
 
 				// 划多一个空白框填满整页
 				if (PageSize.A4.getHeight() - document.bottomMargin() - document.topMargin()
@@ -276,7 +279,7 @@ public class PrintServiceImpl implements PrintService, ServletContextAware {
 			writer = PdfWriter.getInstance(document, os);
 		} catch (DocumentException e1) {
 			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			logger.info("ERROR", e1);
 		}
 
 		document.open();
@@ -290,7 +293,7 @@ public class PrintServiceImpl implements PrintService, ServletContextAware {
 			reader = new PdfReader(baos.toByteArray());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 		int pageOfCurrentReaderPDF = 0;
 
@@ -321,10 +324,10 @@ public class PrintServiceImpl implements PrintService, ServletContextAware {
 					addPageTable.calculateHeights();
 				} catch (DocumentException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.info("ERROR", e);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.info("ERROR", e);
 				}
 				addPageTable.writeSelectedRows(0, -1, locationX, locationY, writer.getDirectContent());
 			}
@@ -417,7 +420,7 @@ public class PrintServiceImpl implements PrintService, ServletContextAware {
 			writer = PdfWriter.getInstance(document, os);
 		} catch (DocumentException e1) {
 			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			logger.info("ERROR", e1);
 		}
 
 		document.open();
@@ -438,7 +441,7 @@ public class PrintServiceImpl implements PrintService, ServletContextAware {
 					reader = new PdfReader(baos.toByteArray());
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.info("ERROR", e);
 				}
 				int pageOfCurrentReaderPDF = 0;
 
@@ -459,10 +462,10 @@ public class PrintServiceImpl implements PrintService, ServletContextAware {
 					// BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
 					// } catch (DocumentException e) {
 					// // TODO Auto-generated catch block
-					// e.printStackTrace();
+					// logger.info("ERROR", e);
 					// } catch (IOException e) {
 					// // TODO Auto-generated catch block
-					// e.printStackTrace();
+					// logger.info("ERROR", e);
 					// }
 					//
 					// cb.setFontAndSize(bf, 9);
@@ -486,10 +489,10 @@ public class PrintServiceImpl implements PrintService, ServletContextAware {
 							addPageTable.calculateHeights();
 						} catch (DocumentException e) {
 							// TODO Auto-generated catch block
-							e.printStackTrace();
+							logger.info("ERROR", e);
 						} catch (IOException e) {
 							// TODO Auto-generated catch block
-							e.printStackTrace();
+							logger.info("ERROR", e);
 						}
 						addPageTable.writeSelectedRows(0, -1, locationX, locationY, writer.getDirectContent());
 					}
@@ -522,7 +525,7 @@ public class PrintServiceImpl implements PrintService, ServletContextAware {
 										.eval(StringEscapeUtils.unescapeHtml4(page.getHiddenScript()));
 							} catch (ScriptException e) {
 								// TODO Auto-generated catch block
-								e.printStackTrace();
+								logger.info("ERROR", e);
 							}
 						}
 
@@ -563,7 +566,7 @@ public class PrintServiceImpl implements PrintService, ServletContextAware {
 									cb.addImage(image);
 								} catch (DocumentException e2) {
 									// TODO Auto-generated catch block
-									e2.printStackTrace();
+									logger.info("ERROR", e2);
 								}
 							}
 
@@ -583,8 +586,8 @@ public class PrintServiceImpl implements PrintService, ServletContextAware {
 						mainTable
 								.setTotalWidth(PageSize.A4.getWidth() - document.leftMargin() - document.rightMargin());
 						float height = mainTable.calculateHeights();
-						logger.debug("mainTable.getTotalHeight() is {} and mainTable height is : {}",
-								mainTable.getTotalHeight(), height);
+						logger.debug("mainTable.getTotalHeight() is " + mainTable.getTotalHeight()
+								+ " and mainTable height is : " + height);
 
 						// 划多一个空白框填满整页
 						if (PageSize.A4.getHeight() - document.bottomMargin() - document.topMargin()
@@ -659,7 +662,7 @@ public class PrintServiceImpl implements PrintService, ServletContextAware {
 
 						float height = 0;
 						if (rowJson.getFloat("height") != null) {
-							logger.debug(" height is : {}", rowJson.getFloat("height"));
+							logger.debug(" height is : " + rowJson.getFloat("height"));
 							height = (float) (rowJson.getFloat("height") * 28.35);
 						}
 						int heightType = 1; // 高度类型 1：固定高度； 2：最小高度
@@ -1226,7 +1229,7 @@ public class PrintServiceImpl implements PrintService, ServletContextAware {
 			for (int i = 0; i < compList.size(); i++) {
 
 				JSONObject component = (JSONObject) compList.get(i);
-				logger.debug("component name is {}", component.getString("name"));
+				logger.debug("component name is " + component.getString("name"));
 
 				if (StringUtils.isNotEmpty(component.getString("textindent"))) { // 如果有设置缩进
 
@@ -1876,7 +1879,7 @@ public class PrintServiceImpl implements PrintService, ServletContextAware {
 					ret = (String) engine.eval(script);
 				} catch (ScriptException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.info("ERROR", e);
 				}
 				Map<String, String> map = new HashMap<String, String>();
 				String[] optionStr = ret.split("\\;");
@@ -1922,7 +1925,7 @@ public class PrintServiceImpl implements PrintService, ServletContextAware {
 				is.close();
 				bos.close();
 			} catch (IOException e) {
-				e.printStackTrace();
+				logger.info("ERROR", e);
 			} finally {
 				if (client != null) {
 					client.close();

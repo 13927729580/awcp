@@ -4,8 +4,8 @@ import java.beans.PropertyEditorSupport;
 import java.util.Date;
 
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
@@ -25,7 +25,7 @@ public abstract class BaseController {
 	/**
 	 * 日志对象
 	 */
-	protected Logger logger = LoggerFactory.getLogger(getClass());
+	protected Log logger = LogFactory.getLog(getClass());
 
 	// protected Validator getValidator(){
 	// return null;

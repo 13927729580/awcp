@@ -13,8 +13,8 @@ import org.jflow.framework.system.ui.core.ListItem;
 import org.jflow.framework.system.ui.core.NamesOfBtn;
 import org.jflow.framework.system.ui.core.TextBox;
 import org.jflow.framework.system.ui.core.ToolBar;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import BP.DA.DataType;
 import BP.En.Attr;
@@ -32,7 +32,7 @@ public class DtlModel {
 	/**
 	 * 日志对象
 	 */
-	private static final Logger logger = LoggerFactory.getLogger(DtlModel.class);
+	private static final Log logger = LogFactory.getLog(DtlModel.class);
 	private String basePath;
 	private HttpServletRequest _request = null;
 	private HttpServletResponse _response = null;

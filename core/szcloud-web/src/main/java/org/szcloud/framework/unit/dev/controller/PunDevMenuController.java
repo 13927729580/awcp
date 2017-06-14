@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
@@ -36,7 +36,7 @@ public class PunDevMenuController {
 	/**
 	 * 日志对象
 	 */
-	protected Logger logger = LoggerFactory.getLogger(getClass());
+	protected Log logger = LogFactory.getLog(getClass());
 
 	@Autowired
 	@Qualifier("punMenuServiceImpl")
@@ -80,7 +80,7 @@ public class PunDevMenuController {
 			}
 			mv.addObject("vo", vo);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			mv.addObject("result", "异常");
 		}
 		return mv;
@@ -117,7 +117,7 @@ public class PunDevMenuController {
 			}
 			return vos;
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			return null;
 		}
 	}
@@ -174,7 +174,7 @@ public class PunDevMenuController {
 				respStatus.setMessage("校验失败" + valMessage.toString());
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			logger.error("系统异常");
 			respStatus.setStatus(2);
 			respStatus.setMessage("系统异常:" + e.getMessage());
@@ -195,7 +195,7 @@ public class PunDevMenuController {
 			menuService.delete(vo.getMenuId());
 			respStatus.setData(vo);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			respStatus.setStatus(1);
 			respStatus.setMessage("系统异常:" + e.getMessage());
 		}
@@ -226,7 +226,7 @@ public class PunDevMenuController {
 	 * return mv; } else { model.addAttribute("result", "校验失败" +
 	 * valMessage.toString() + "。"); } }catch(PermissionException ea){
 	 * model.addAttribute("result", ea.getMessage()); } catch (Exception e) {
-	 * e.printStackTrace(); model.addAttribute("result", "系统异常"); } return new
+	 * logger.info("ERROR", e); model.addAttribute("result", "系统异常"); } return new
 	 * ModelAndView("/unit/dev/punDevMenu-edit"); }
 	 */
 
@@ -254,7 +254,7 @@ public class PunDevMenuController {
 	 * + ","); //","用来根据PID查询某结点的子孙资源 } } } menuService.addOrUpdate(vo);
 	 * respStatus.setData(vo); } else { respStatus.setStatus(1);
 	 * respStatus.setMessage("校验失败:" + valMessage.toString()); } } catch
-	 * (Exception e) { e.printStackTrace(); logger.error("系统异常");
+	 * (Exception e) { logger.info("ERROR", e); logger.error("系统异常");
 	 * respStatus.setStatus(2); respStatus.setMessage("系统异常:" + e.getMessage());
 	 * } HttpUtil.writeDataToResponse(response, respStatus); }
 	 */
@@ -270,7 +270,7 @@ public class PunDevMenuController {
 	 * ModelAndView punDevMenuGet(Long[] boxs){ ModelAndView mv = new
 	 * ModelAndView(); mv.setViewName("/unit/dev/punDevMenu-edit"); try {
 	 * PunDevMenuVO vo = menuService.findById(boxs[0]); mv.addObject("vo", vo);
-	 * } catch (Exception e) { e.printStackTrace(); mv.addObject("result",
+	 * } catch (Exception e) { logger.info("ERROR", e); mv.addObject("result",
 	 * "异常"); } return mv; }
 	 */
 
@@ -314,7 +314,7 @@ public class PunDevMenuController {
 	 * model.addAttribute("vos", vos); model.addAttribute("currentPage",
 	 * currentPage); //返回查询条件 model.addAttribute("vo",vo);
 	 * }catch(PermissionException ea){ model.addAttribute("result",
-	 * ea.getMessage()); }catch (Exception e) { e.printStackTrace();
+	 * ea.getMessage()); }catch (Exception e) { logger.info("ERROR", e);
 	 * model.addAttribute("result", "系统异常"); } return new
 	 * ModelAndView("/unit/dev/punDevMenu-list");
 	 * 
@@ -335,7 +335,7 @@ public class PunDevMenuController {
 	 * PermissionException("您无权限进行该操作！"); }
 	 * ra.addFlashAttribute("result","删除成功！"); }catch(PermissionException ea){
 	 * mv.addObject("result", ea.getMessage()); } catch (Exception e) {
-	 * e.printStackTrace(); mv.addObject("result", "系统异常"); } return mv; }
+	 * logger.info("ERROR", e); mv.addObject("result", "系统异常"); } return mv; }
 	 */
 
 	/**
@@ -348,7 +348,7 @@ public class PunDevMenuController {
 	 * punDevMenuAJAXDelete(@ModelAttribute("vo") PunDevMenuVO vo,
 	 * HttpServletResponse response){ PunAJAXStatusVO respStatus = new
 	 * PunAJAXStatusVO(); try { menuService.delete(vo.getMenuId());
-	 * respStatus.setData(vo); } catch (Exception e) { e.printStackTrace();
+	 * respStatus.setData(vo); } catch (Exception e) { logger.info("ERROR", e);
 	 * respStatus.setStatus(1); respStatus.setMessage("系统异常:" + e.getMessage());
 	 * } HttpUtil.writeDataToResponse(response, respStatus); }
 	 */

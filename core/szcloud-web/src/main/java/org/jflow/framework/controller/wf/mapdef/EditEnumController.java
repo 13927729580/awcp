@@ -6,6 +6,8 @@ import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jflow.framework.common.model.BaseModel;
 import org.jflow.framework.common.model.TempObject;
 import org.jflow.framework.controller.wf.workopt.BaseController;
@@ -24,11 +26,14 @@ import BP.Tools.StringHelper;
 @Controller
 @RequestMapping("/WF/MapDef")
 public class EditEnumController extends BaseController {
+	/**
+	 * 日志对象
+	 */
+	protected final Log logger = LogFactory.getLog(getClass());
+
 	@RequestMapping(value = "/btn_Save_Click4", method = RequestMethod.POST)
-	public void btn_Save_Click(TempObject object, HttpServletRequest request,
-			HttpServletResponse response) {
-		HashMap<String, BaseWebControl> controls = HtmlUtils.httpParser(
-				object.getFormHtml(), request);
+	public void btn_Save_Click(TempObject object, HttpServletRequest request, HttpServletResponse response) {
+		HashMap<String, BaseWebControl> controls = HtmlUtils.httpParser(object.getFormHtml(), request);
 		try {
 			// C# TO JAVA CONVERTER NOTE: The following 'switch' operated on a
 			// string member and was converted to Java 'if-else' logic:
@@ -44,7 +49,7 @@ public class EditEnumController extends BaseController {
 					// this.getMyPK() + "&RefNo=" + this.getRefNo());
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.info("ERROR", e);
 				}
 				return;
 
@@ -56,22 +61,19 @@ public class EditEnumController extends BaseController {
 			if (this.getRefNo() != null) {
 				attr.Retrieve();
 			}
-			attr = (MapAttr) BaseModel.Copy(request, attr, null,
-					attr.getEnMap(), controls);
+			attr = (MapAttr) BaseModel.Copy(request, attr, null, attr.getEnMap(), controls);
 			attr.setFK_MapData(this.getMyPK());
 			attr.setDefVal(request.getParameter("DDL"));
 			attr.setGroupID(Integer.valueOf(request.getParameter("DDL_GroupID")));
 			attr.setColSpan(Integer.valueOf(request.getParameter("DDL_ColSpan")));
-			if (request.getParameter("Ctrl") != null
-					&& request.getParameter("Ctrl").equals("RB_Ctrl_0")) {
+			if (request.getParameter("Ctrl") != null && request.getParameter("Ctrl").equals("RB_Ctrl_0")) {
 				attr.setUIContralType(UIContralType.DDL);
 			} else {
 				attr.setUIContralType(UIContralType.RadioBtn);
 			}
 
 			if (StringHelper.isNullOrEmpty(this.getRefNo())) {
-				attr.setMyPK(this.getMyPK() + "_"
-						+ request.getParameter("TB_KeyOfEn"));
+				attr.setMyPK(this.getMyPK() + "_" + request.getParameter("TB_KeyOfEn"));
 				String idx = request.getParameter("IDX");
 				if (StringHelper.isNullOrEmpty(idx)) {
 				} else {
@@ -99,40 +101,37 @@ public class EditEnumController extends BaseController {
 					this.winClose(response);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.info("ERROR", e);
 				}
 				return;
 			}
 			// ORIGINAL LINE: case "Btn_SaveAndNew":
 			else if (object.getBtnName().equals("Btn_SaveAndNew")) {
 				try {
-					response.sendRedirect("Do.jsp?DoType=AddF&MyPK="
-							+ this.getMyPK() + "&IDX=" + attr.getIDX()
+					response.sendRedirect("Do.jsp?DoType=AddF&MyPK=" + this.getMyPK() + "&IDX=" + attr.getIDX()
 							+ "&GroupField=" + object.getGroupField());
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.info("ERROR", e);
 				}
 				return;
 			} else {
 			}
 			if (this.getRefNo() == null) {
 				try {
-					response.sendRedirect("EditEnum.jsp?DoType=Edit&MyPK="
-							+ this.getMyPK() + "&RefNo=" + attr.getMyPK()
+					response.sendRedirect("EditEnum.jsp?DoType=Edit&MyPK=" + this.getMyPK() + "&RefNo=" + attr.getMyPK()
 							+ "&GroupField=" + object.getGroupField());
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.info("ERROR", e);
 				}
 			} else {
 				try {
-					response.sendRedirect("EditEnum.jsp?DoType=Edit&MyPK="
-							+ this.getMyPK() + "&RefNo=" + this.getRefNo()
-							+ "&GroupField=" + object.getGroupField());
+					response.sendRedirect("EditEnum.jsp?DoType=Edit&MyPK=" + this.getMyPK() + "&RefNo="
+							+ this.getRefNo() + "&GroupField=" + object.getGroupField());
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.info("ERROR", e);
 				}
 			}
 		} catch (RuntimeException ex) {
@@ -140,7 +139,7 @@ public class EditEnumController extends BaseController {
 				this.printAlert(response, ex.getMessage());
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.info("ERROR", e);
 			}
 		}
 

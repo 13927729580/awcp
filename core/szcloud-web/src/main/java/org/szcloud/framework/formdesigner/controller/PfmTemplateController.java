@@ -11,6 +11,8 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,7 +30,10 @@ import com.github.miemiedev.mybatis.paginator.domain.PageList;
 @Controller
 @RequestMapping("/pfmTemplateController")
 public class PfmTemplateController {
-
+	/**
+	 * 日志对象
+	 */
+	protected final Log logger = LogFactory.getLog(getClass());
 	@Resource(name = "pfmTemplateServiceImpl")
 	private PfmTemplateService pfmTemplateService;
 
@@ -75,7 +80,7 @@ public class PfmTemplateController {
 						vo.setContent(content);
 					}
 				} catch (IOException e1) {
-					e1.printStackTrace();
+					logger.info("ERROR", e1);
 				}
 				File dir = new File(logoRealPathDir + saveDir);
 				if (!dir.exists()) {
@@ -84,9 +89,9 @@ public class PfmTemplateController {
 				try {
 					file.transferTo(new File(logoRealPathDir + localtion));
 				} catch (IllegalStateException e) {
-					e.printStackTrace();
+					logger.info("ERROR", e);
 				} catch (IOException e) {
-					e.printStackTrace();
+					logger.info("ERROR", e);
 				}
 			}
 			pfmTemplateService.save(vo);
@@ -107,7 +112,7 @@ public class PfmTemplateController {
 					String content = getStrFromInputSteam(file.getInputStream());
 					vo.setContent(content);
 				} catch (IOException e1) {
-					e1.printStackTrace();
+					logger.info("ERROR", e1);
 				}
 				File dir = new File(logoRealPathDir + saveDir);
 				if (!dir.exists()) {
@@ -116,9 +121,9 @@ public class PfmTemplateController {
 				try {
 					file.transferTo(new File(logoRealPathDir + localtion));
 				} catch (IllegalStateException e) {
-					e.printStackTrace();
+					logger.info("ERROR", e);
 				} catch (IOException e) {
-					e.printStackTrace();
+					logger.info("ERROR", e);
 				}
 			}
 			pfmTemplateService.update(vo, "update");
@@ -156,7 +161,7 @@ public class PfmTemplateController {
 			}
 			mv.addObject("result", "删除成功！");
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			mv.addObject("result", "操作失败：系统异常");
 		}
 		return mv;
@@ -177,7 +182,7 @@ public class PfmTemplateController {
 				PfmTemplateVO vo = pfmTemplateService.get(boxs[0]);
 				mv.addObject("vo", vo);
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.info("ERROR", e);
 				mv.addObject("result", "异常");
 			}
 		}

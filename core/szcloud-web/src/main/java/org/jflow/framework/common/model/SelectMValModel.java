@@ -7,8 +7,8 @@ import org.jflow.framework.system.ui.UiFatory;
 import org.jflow.framework.system.ui.core.Button;
 import org.jflow.framework.system.ui.core.CheckBox;
 import org.jflow.framework.system.ui.core.NamesOfBtn;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import BP.DA.AtPara;
 import BP.DA.DBAccess;
@@ -29,7 +29,7 @@ public class SelectMValModel {
 	/**
 	 * 日志对象
 	 */
-	private static final Logger logger = LoggerFactory.getLogger(SelectMValModel.class);
+	private static final Log logger = LogFactory.getLog(SelectMValModel.class);
 	// private String basePath;
 	private HttpServletRequest _request = null;
 	// private HttpServletResponse _response = null;

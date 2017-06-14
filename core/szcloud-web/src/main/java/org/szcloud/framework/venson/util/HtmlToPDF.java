@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
@@ -15,7 +18,10 @@ import com.itextpdf.tool.xml.XMLWorkerFontProvider;
 import com.itextpdf.tool.xml.XMLWorkerHelper;
 
 public class HtmlToPDF {
-
+	/**
+	 * 日志对象
+	 */
+	protected static final Log logger = LogFactory.getLog(HtmlToPDF.class);
 	private static final HtmlToPDF instance = new HtmlToPDF();
 
 	private HtmlToPDF() {
@@ -58,7 +64,7 @@ public class HtmlToPDF {
 			try {
 				bf = BaseFont.createFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED);
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.info("ERROR", e);
 			}
 			Font font = new Font(bf, size, style, color);
 			font.setColor(color);

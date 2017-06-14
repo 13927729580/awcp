@@ -4,8 +4,8 @@ import java.io.IOException;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class HttpUtil {
 	
@@ -13,7 +13,7 @@ public class HttpUtil {
 	/**
 	 * 日志对象
 	 */
-	protected static Logger logger = LoggerFactory.getLogger(HttpUtil.class);
+	protected static Log logger = LogFactory.getLog(HttpUtil.class);
 	
 	protected static JsonFactory jsonFactory = new JsonFactory();
 	

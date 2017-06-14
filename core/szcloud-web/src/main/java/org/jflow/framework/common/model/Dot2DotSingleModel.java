@@ -1,11 +1,10 @@
 package org.jflow.framework.common.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jflow.framework.system.ui.UiFatory;
 import org.jflow.framework.system.ui.core.CheckBox;
 import org.jflow.framework.system.ui.core.DDL;
@@ -13,18 +12,30 @@ import org.jflow.framework.system.ui.core.LinkButton;
 import org.jflow.framework.system.ui.core.ListItem;
 import org.jflow.framework.system.ui.core.ToolBar;
 
-import BP.En.*;
+import BP.En.Attr;
+import BP.En.AttrOfOneVSM;
+import BP.En.ClassFactory;
+import BP.En.EnType;
+import BP.En.Entities;
+import BP.En.Entity;
+import BP.En.FieldType;
+import BP.En.Map;
+import BP.En.QueryObject;
+import BP.En.UAC;
 import BP.Sys.SysEnum;
 import BP.Sys.SysEnums;
 
 public class Dot2DotSingleModel {
+	/**
+	 * 日志对象
+	 */
+	private static Log logger = LogFactory.getLog(Dot2DotSingleModel.class);
 	private HttpServletRequest req = null;
 	private HttpServletResponse res = null;
 	public UiFatory UCSys1 = null;
 	public ToolBar ToolBar1 = null;
 
-	public Dot2DotSingleModel(HttpServletRequest request,
-			HttpServletResponse response) {
+	public Dot2DotSingleModel(HttpServletRequest request, HttpServletResponse response) {
 		this.req = request;
 		this.res = response;
 	}
@@ -298,7 +309,7 @@ public class Dot2DotSingleModel {
 	private String ShowWay;
 
 	public String getShowWay() {
-		String str = req.getParameter("ShowWay")==null?"":req.getParameter("ShowWay");// this.Request.QueryString["ShowWay"];
+		String str = req.getParameter("ShowWay") == null ? "" : req.getParameter("ShowWay");// this.Request.QueryString["ShowWay"];
 		if (str == null)
 			str = this.getSelectedValue();
 		return str;
@@ -405,26 +416,26 @@ public class Dot2DotSingleModel {
 	//
 	// #region Page_Load
 	private String SelectedValue;
+
 	public String getSelectedValue() {
-		if(SelectedValue.equals("1"))
-		{
+		if (SelectedValue.equals("1")) {
 			return "StaGrade";
 		}
-		if(SelectedValue.equals("2"))
-		{
+		if (SelectedValue.equals("2")) {
 			return "None";
 		}
-		if(SelectedValue.equals("3"))
-		{
+		if (SelectedValue.equals("3")) {
 			return "FK_Dept";
 		}
 		return SelectedValue;
 	}
+
 	public void setSelectedValue(String selectedValue) {
 		SelectedValue = selectedValue;
 	}
+
 	public void Page_Load() throws Exception {
-		String no=req.getParameter("num");
+		String no = req.getParameter("num");
 		this.setSelectedValue(no);
 		UCSys1 = new UiFatory();
 		ui = new UiFatory();
@@ -442,13 +453,13 @@ public class Dot2DotSingleModel {
 					enP.Retrieve(); // 查询。
 					enP.Update(); // 执行更新，处理写在 父实体 的业务逻辑。
 				} catch (Exception e) {
-					e.printStackTrace();
+					logger.info("ERROR", e);
 				}
 			}
 			MainEn = enP;
 			// #endregion
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			logger.info("ERROR", ex);
 			return;
 		}
 
@@ -477,8 +488,7 @@ public class Dot2DotSingleModel {
 			/* map */
 			if (attr.getIsFKorEnum() == false)
 				continue;
-			this.getDDL_Group().Items.add(new ListItem(attr.getDesc(), attr
-					.getKey()));
+			this.getDDL_Group().Items.add(new ListItem(attr.getDesc(), attr.getKey()));
 		}
 
 		this.getDDL_Group().Items.add(new ListItem("无", "None"));
@@ -508,14 +518,13 @@ public class Dot2DotSingleModel {
 			// this.Btn_Save.UseSubmitBehavior = false;
 			// this.Btn_Save.OnClientClick = "this.disabled=true;";
 			try {
-				this.ToolBar1.GetLinkBtnByID("Btn_Save").addAttr("onclick",
-						"return BPToolBar1_ButtonClick()");
+				this.ToolBar1.GetLinkBtnByID("Btn_Save").addAttr("onclick", "return BPToolBar1_ButtonClick()");
 				// .Click += new EventHandler(
 				// BPToolBar1_ButtonClick);
 				// this.ToolBar1.GetLinkBtnByID("Btn_SaveAndClose").Click += new
 				// EventHandler(BPToolBar1_ButtonClick);
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.info("ERROR", e);
 			}
 		}
 		// #endregion 处理保存权限.
@@ -541,24 +550,19 @@ public class Dot2DotSingleModel {
 
 			if (this.getSelectedValue() == "None") {
 				if (this.isIsLine())
-					this.UIEn1ToM_OneLine(ensOfM, attrOM.getAttrOfMValue(),
-							attrOM.getAttrOfMText(), ensOfMM,
+					this.UIEn1ToM_OneLine(ensOfM, attrOM.getAttrOfMValue(), attrOM.getAttrOfMText(), ensOfMM,
 							attrOM.getAttrOfMInMM());
 				else
-					this.UIEn1ToM(ensOfM, attrOM.getAttrOfMValue(),
-							attrOM.getAttrOfMText(), ensOfMM,
+					this.UIEn1ToM(ensOfM, attrOM.getAttrOfMValue(), attrOM.getAttrOfMText(), ensOfMM,
 							attrOM.getAttrOfMInMM());
-				return ;
+				return;
 			}
 			if (this.isIsLine())
-				this.UIEn1ToMGroupKey_Line(ensOfM, attrOM.getAttrOfMValue(),
-						attrOM.getAttrOfMText(), ensOfMM, attrOM
-								.getAttrOfMInMM(), this
-								.getSelectedValue());
+				this.UIEn1ToMGroupKey_Line(ensOfM, attrOM.getAttrOfMValue(), attrOM.getAttrOfMText(), ensOfMM,
+						attrOM.getAttrOfMInMM(), this.getSelectedValue());
 			else
-				this.UIEn1ToMGroupKey(ensOfM, attrOM.getAttrOfMValue(), attrOM
-						.getAttrOfMText(), ensOfMM, attrOM.getAttrOfMInMM(),
-						this.getSelectedValue());
+				this.UIEn1ToMGroupKey(ensOfM, attrOM.getAttrOfMValue(), attrOM.getAttrOfMText(), ensOfMM,
+						attrOM.getAttrOfMInMM(), this.getSelectedValue());
 		} catch (Exception ex) {
 			try {
 				ensOfM.getGetNewEntity().CheckPhysicsTable();
@@ -569,8 +573,8 @@ public class Dot2DotSingleModel {
 			// this.UCSys1.ClearViewState();
 			ErrMyNum++;
 			if (ErrMyNum > 3) {
-//				this.UCSys1.append(BaseModel.AddMsgOfWarning("error",
-//						ex.getMessage()));
+				// this.UCSys1.append(BaseModel.AddMsgOfWarning("error",
+				// ex.getMessage()));
 				return;
 			}
 			this.SetDataV2();
@@ -596,39 +600,36 @@ public class Dot2DotSingleModel {
 
 	}
 
-	public void UIEn1ToM_OneLine(Entities ens, String showVal, String showText,
-			Entities selectedEns, String selecteVal) {
-		//this.Controls.Clear();
-        UCSys1.append("<table border=0 width='500px'>");
-        boolean is1 = false;
-        for (Entity en : Entities.convertEntities(ens))
-        {
-            UCSys1.append(BaseModel.AddTR(is1)); //("<TR>");
-            is1 = !is1;
-            CheckBox cb = ui.creatCheckBox("CB_" + en.GetValStrByKey(showVal));// new CheckBox();
-//            cb.ID = "CB_" + en.GetValStrByKey(showVal);
-            cb.setText(en.GetValStringByKey(showText));
-            UCSys1.append("<td>");
-            UCSys1.append(cb);
-            UCSys1.append("</td>");
-            UCSys1.append(BaseModel.AddTREnd());
-        }
-        UCSys1.append(BaseModel.AddTableEnd());
+	public void UIEn1ToM_OneLine(Entities ens, String showVal, String showText, Entities selectedEns,
+			String selecteVal) {
+		// this.Controls.Clear();
+		UCSys1.append("<table border=0 width='500px'>");
+		boolean is1 = false;
+		for (Entity en : Entities.convertEntities(ens)) {
+			UCSys1.append(BaseModel.AddTR(is1)); // ("<TR>");
+			is1 = !is1;
+			CheckBox cb = ui.creatCheckBox("CB_" + en.GetValStrByKey(showVal));// new
+																				// CheckBox();
+			// cb.ID = "CB_" + en.GetValStrByKey(showVal);
+			cb.setText(en.GetValStringByKey(showText));
+			UCSys1.append("<td>");
+			UCSys1.append(cb);
+			UCSys1.append("</td>");
+			UCSys1.append(BaseModel.AddTREnd());
+		}
+		UCSys1.append(BaseModel.AddTableEnd());
 
-        // 设置选择的 ens .
-        for (Entity en :Entities.convertEntities(selectedEns))
-        {
-            String key = en.GetValStrByKey(selecteVal);
-            CheckBox bp = (CheckBox)this.ui.GetUIByID("CB_" + key);
-            bp.setChecked(true);
-        }
+		// 设置选择的 ens .
+		for (Entity en : Entities.convertEntities(selectedEns)) {
+			String key = en.GetValStrByKey(selecteVal);
+			CheckBox bp = (CheckBox) this.ui.GetUIByID("CB_" + key);
+			bp.setChecked(true);
+		}
 	}
 
-	public void UIEn1ToM(Entities ens, String showVal, String showText,
-			Entities selectedEns, String selecteVal) {
-		this.UCSys1
-				.append(BaseModel
-						.AddTable1("class='Table' cellSpacing='1' cellPadding='1'  border='1' style='width:100%'"));
+	public void UIEn1ToM(Entities ens, String showVal, String showText, Entities selectedEns, String selecteVal) {
+		this.UCSys1.append(
+				BaseModel.AddTable1("class='Table' cellSpacing='1' cellPadding='1'  border='1' style='width:100%'"));
 		int i = 0;
 		boolean is1 = false;
 		for (Entity en : Entities.convertEntities(ens)) {
@@ -641,8 +642,7 @@ public class Dot2DotSingleModel {
 				is1 = !is1;
 			}
 
-			CheckBox cb = this.ui.creatCheckBox("CB_"
-					+ en.GetValStringByKey(showVal));
+			CheckBox cb = this.ui.creatCheckBox("CB_" + en.GetValStringByKey(showVal));
 			cb.setText(en.GetValStringByKey(showText));
 
 			this.UCSys1.append("\n<TD nowrap = 'nowrap'>");
@@ -678,24 +678,21 @@ public class Dot2DotSingleModel {
 		}
 	}
 
-	public void UIEn1ToMGroupKey_Line(Entities ens, String showVal,
-			String showText, Entities selectedEns, String selecteVal,
-			String groupKey) {
+	public void UIEn1ToMGroupKey_Line(Entities ens, String showVal, String showText, Entities selectedEns,
+			String selecteVal, String groupKey) {
 		this.UCSys1
-				.append(BaseModel
-						.AddTable1("class='Table' cellSpacing='1' cellPadding='1'  border='1' width='100%'"));
+				.append(BaseModel.AddTable1("class='Table' cellSpacing='1' cellPadding='1'  border='1' width='100%'"));
 
 		Attr attr = ens.getGetNewEntity().getEnMap().GetAttrByKey(groupKey);
 		String val = null;
 		Entity seEn = null;
-		if (attr.getMyFieldType() == FieldType.Enum
-				|| attr.getMyFieldType() == FieldType.PKEnum) { // 检查是否是 enum
-																// 类型。
+		if (attr.getMyFieldType() == FieldType.Enum || attr.getMyFieldType() == FieldType.PKEnum) { // 检查是否是
+																									// enum
+																									// 类型。
 			SysEnums eens = new SysEnums(attr.getKey());
 			for (SysEnum se : SysEnums.convertSysEnums(eens)) {
 				this.UCSys1.append(BaseModel.AddTR());
-				this.UCSys1.append("<TD class='GroupTitle' >" + se.getLab()
-						+ "</TD>");
+				this.UCSys1.append("<TD class='GroupTitle' >" + se.getLab() + "</TD>");
 				this.UCSys1.append(BaseModel.AddTREnd());
 				for (Entity en : Entities.convertEntities(ens)) {
 					if (en.GetValIntByKey(attr.getKey()) != se.getIntKey())
@@ -703,8 +700,9 @@ public class Dot2DotSingleModel {
 
 					this.UCSys1.append(BaseModel.AddTR());
 					val = en.GetValStrByKey(showVal);
-					CheckBox cb = this.ui.creatCheckBox("CB_" + val + "_"
-							+ se.getIntKey());// edited by liuxc,2015.1.6
+					CheckBox cb = this.ui.creatCheckBox("CB_" + val + "_" + se.getIntKey());// edited
+																							// by
+																							// liuxc,2015.1.6
 
 					seEn = selectedEns.GetEntityByKey(selecteVal, val);
 					if (seEn != null)
@@ -725,9 +723,8 @@ public class Dot2DotSingleModel {
 			for (Entity group : Entities.convertEntities(groupEns)) {
 				gVal = group.GetValStringByKey(attr.getUIRefKeyValue());
 				this.UCSys1.append("<TR>");
-				this.UCSys1.append("<TD class='GroupTitle' >"
-						+ group.GetValStringByKey(attr.getUIRefKeyText())
-						+ "</TD>");
+				this.UCSys1
+						.append("<TD class='GroupTitle' >" + group.GetValStringByKey(attr.getUIRefKeyText()) + "</TD>");
 				this.UCSys1.append(BaseModel.AddTREnd());
 
 				for (Entity en : Entities.convertEntities(ens)) {
@@ -736,8 +733,9 @@ public class Dot2DotSingleModel {
 
 					this.UCSys1.append("<TR>");
 					val = en.GetValStringByKey(showVal);
-					CheckBox cb = this.ui.creatCheckBox("CB_" + val + "_"
-							+ gVal); // edited by liuxc,2015.1.6
+					CheckBox cb = this.ui.creatCheckBox("CB_" + val + "_" + gVal); // edited
+																					// by
+																					// liuxc,2015.1.6
 					cb.setText(en.GetValStringByKey(showText));
 
 					seEn = selectedEns.GetEntityByKey(selecteVal, val);
@@ -756,16 +754,17 @@ public class Dot2DotSingleModel {
 
 	public UiFatory ui = null;
 
-	public void UIEn1ToMGroupKey(Entities ens, String showVal, String showText,
-			Entities selectedEns, String selecteVal, String groupKey) {
-		this.UCSys1
-				.append(BaseModel.AddTable1("class='Table' cellSpacing='1' cellPadding='1'  border='1' style='width:100%;'"));
+	public void UIEn1ToMGroupKey(Entities ens, String showVal, String showText, Entities selectedEns, String selecteVal,
+			String groupKey) {
+		this.UCSys1.append(
+				BaseModel.AddTable1("class='Table' cellSpacing='1' cellPadding='1'  border='1' style='width:100%;'"));
 
 		String val = null;
 		Entity seEn = null;
 		Attr attr = ens.getGetNewEntity().getEnMap().GetAttrByKey(groupKey);
-		if (attr.getMyFieldType() == FieldType.Enum
-				|| attr.getMyFieldType() == FieldType.PKEnum) { // 检查是否是 enum 类型
+		if (attr.getMyFieldType() == FieldType.Enum || attr.getMyFieldType() == FieldType.PKEnum) { // 检查是否是
+																									// enum
+																									// 类型
 
 			SysEnums eens = new SysEnums(attr.getKey());
 			for (SysEnum se : SysEnums.convertSysEnums(eens)) {
@@ -794,8 +793,7 @@ public class Dot2DotSingleModel {
 					}
 
 					val = en.GetValStringByKey(showVal);
-					CheckBox cb = this.ui.creatCheckBox("CB_" + val + "_"
-							+ se.getIntKey());
+					CheckBox cb = this.ui.creatCheckBox("CB_" + val + "_" + se.getIntKey());
 					ctlIDs += cb.getId() + ",";
 
 					seEn = selectedEns.GetEntityByKey(selecteVal, val);
@@ -836,8 +834,7 @@ public class Dot2DotSingleModel {
 				this.UCSys1.append("<TR>");
 				this.UCSys1.append("<TD class='GroupTitle' colspan=3>");
 
-				CheckBox cb1 = this.ui.creatCheckBox("CB_EN_"
-						+ group.GetValStrByKey(attr.getUIRefKeyValue()));
+				CheckBox cb1 = this.ui.creatCheckBox("CB_EN_" + group.GetValStrByKey(attr.getUIRefKeyValue()));
 				cb1.setText(group.GetValStrByKey(attr.getUIRefKeyText()));
 				// cb1.Attributes["onclick"] = "SetSelected(this,'" +
 				// group.GetValStringByKey(attr.UIRefKeyValue) + "')";
@@ -858,8 +855,9 @@ public class Dot2DotSingleModel {
 						this.UCSys1.append("<TR>");
 
 					val = en.GetValStringByKey(showVal);
-					CheckBox cb = this.ui.creatCheckBox("CB_" + val + "_"
-							+ gVal);// edited by liuxc,2015.1.6
+					CheckBox cb = this.ui.creatCheckBox("CB_" + val + "_" + gVal);// edited
+																					// by
+																					// liuxc,2015.1.6
 
 					seEn = selectedEns.GetEntityByKey(selecteVal, val);
 					if (seEn != null)

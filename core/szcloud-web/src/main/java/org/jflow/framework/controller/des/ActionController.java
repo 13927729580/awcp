@@ -12,6 +12,8 @@ import org.jflow.framework.common.model.BaseModel;
 import org.jflow.framework.common.model.TempObject;
 import org.jflow.framework.system.ui.core.BaseWebControl;
 import org.jflow.framework.system.ui.core.HtmlUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -21,46 +23,50 @@ import BP.Sys.Frm.EventDoType;
 import BP.Sys.Frm.FrmEvent;
 import BP.Tools.StringHelper;
 
-
 @Controller
 @RequestMapping("/DES")
-public class ActionController{
-	
+public class ActionController {
+	/**
+	 * 日志对象
+	 */
+	private static Log logger = LogFactory.getLog(ActionController.class);
+
 	@RequestMapping(value = "/ActionEvent", method = RequestMethod.POST)
-	public ModelAndView actionEvent(TempObject object, HttpServletRequest request,
-			HttpServletResponse response) {
-		
+	public ModelAndView actionEvent(TempObject object, HttpServletRequest request, HttpServletResponse response) {
+
 		ModelAndView mv = new ModelAndView();
-		try{
+		try {
 			String url = request.getQueryString();
 			HashMap<String, String> map = this.getParamsMap(url, "utf-8");
-			
-			HashMap<String,BaseWebControl> controls = HtmlUtils.httpParser(object.getFormHtml(), request);
-			
+
+			HashMap<String, BaseWebControl> controls = HtmlUtils.httpParser(object.getFormHtml(), request);
+
 			FrmEvent fe = new FrmEvent();
-	        fe.setMyPK(this.getFK_MapData(map)+"_"+map.get("Event"));
-	        fe.RetrieveFromDBSources();
-	        
-	        BaseModel.Copy(request, fe, null, fe.getEnMap(), controls);
-	        fe.setMyPK(this.getFK_MapData(map)+"_"+map.get("Event"));
-	        fe.setDoDoc(request.getParameter("TB_Doc")==null?"":request.getParameter("TB_Doc"));
-	        fe.setFK_Event(map.get("Event"));
-	        fe.setFK_MapData(this.getFK_MapData(map));
-	        String eventDoType = request.getParameter("DDL_EventDoType")==null?"0":request.getParameter("DDL_EventDoType");
-	        fe.setHisDoType(EventDoType.forValue(Integer.valueOf(eventDoType)));
-	        fe.setMsgOKString(request.getParameter("TB_MsgOK")==null?"":request.getParameter("TB_MsgOK"));
-	        fe.setMsgErrorString(request.getParameter("TB_MsgErr")==null?"":request.getParameter("TB_MsgErr"));
-	        
-	        fe.Save();
-			
-            mv.setViewName("redirect:" + "/WF/Admin/ActionEvent.jsp?NodeID=" + map.get("NodeID") + "&MyPK=" + fe.getMyPK() + "&Event=" + map.get("Event") + "&tk=" + new Random().nextDouble());
-            
-		}catch(Exception e){
-			e.printStackTrace();
+			fe.setMyPK(this.getFK_MapData(map) + "_" + map.get("Event"));
+			fe.RetrieveFromDBSources();
+
+			BaseModel.Copy(request, fe, null, fe.getEnMap(), controls);
+			fe.setMyPK(this.getFK_MapData(map) + "_" + map.get("Event"));
+			fe.setDoDoc(request.getParameter("TB_Doc") == null ? "" : request.getParameter("TB_Doc"));
+			fe.setFK_Event(map.get("Event"));
+			fe.setFK_MapData(this.getFK_MapData(map));
+			String eventDoType = request.getParameter("DDL_EventDoType") == null ? "0"
+					: request.getParameter("DDL_EventDoType");
+			fe.setHisDoType(EventDoType.forValue(Integer.valueOf(eventDoType)));
+			fe.setMsgOKString(request.getParameter("TB_MsgOK") == null ? "" : request.getParameter("TB_MsgOK"));
+			fe.setMsgErrorString(request.getParameter("TB_MsgErr") == null ? "" : request.getParameter("TB_MsgErr"));
+
+			fe.Save();
+
+			mv.setViewName("redirect:" + "/WF/Admin/ActionEvent.jsp?NodeID=" + map.get("NodeID") + "&MyPK="
+					+ fe.getMyPK() + "&Event=" + map.get("Event") + "&tk=" + new Random().nextDouble());
+
+		} catch (Exception e) {
+			logger.info("ERROR", e);
 		}
 		return mv;
 	}
-	
+
 	private String getFK_MapData(HashMap<String, String> map) {
 		String fk_mapdata = map.get("FK_MapData");
 		if (StringHelper.isNullOrEmpty(fk_mapdata)) {
@@ -68,7 +74,7 @@ public class ActionController{
 		}
 		return fk_mapdata;
 	}
-	
+
 	private HashMap<String, String> getParamsMap(String queryString, String enc) {
 		HashMap<String, String> paramsMap = new HashMap<String, String>();
 		if (queryString != null && queryString.length() > 0) {
@@ -78,8 +84,7 @@ public class ActionController{
 			do {
 				ampersandIndex = queryString.indexOf('&', lastAmpersandIndex) + 1;
 				if (ampersandIndex > 0) {
-					subStr = queryString.substring(lastAmpersandIndex,
-							ampersandIndex - 1);
+					subStr = queryString.substring(lastAmpersandIndex, ampersandIndex - 1);
 					lastAmpersandIndex = ampersandIndex;
 				} else {
 					subStr = queryString.substring(lastAmpersandIndex);

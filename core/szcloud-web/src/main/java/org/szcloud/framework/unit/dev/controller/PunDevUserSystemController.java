@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
@@ -46,7 +48,10 @@ import com.github.miemiedev.mybatis.paginator.domain.PageList;
 @Controller
 @RequestMapping("/dev")
 public class PunDevUserSystemController {
-
+	/**
+	 * 日志对象
+	 */
+	protected final Log logger = LogFactory.getLog(getClass());
 	public static final String SYS_STATUS_OFFLINE = "0";
 	public static final String SYS_STATUS_ONLINE = "1";
 	@Autowired
@@ -91,7 +96,7 @@ public class PunDevUserSystemController {
 			mv.addObject("vo", vo);
 			mv.addObject("sysId", vo.getSysId());
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			mv.addObject("result", "异常");
 		}
 		return mv;
@@ -162,7 +167,7 @@ public class PunDevUserSystemController {
 		} catch (PermissionException ea) {
 			model.addAttribute("result", ea.getMessage());
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			model.addAttribute("result", "系统异常");
 		}
 		mv.setViewName("unit/dev/punDevSystem-edit");
@@ -196,7 +201,7 @@ public class PunDevUserSystemController {
 			}
 			mv.addObject("vo", vo);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			mv.addObject("result", "异常");
 		}
 		return mv;
@@ -228,7 +233,7 @@ public class PunDevUserSystemController {
 			mv.addObject("menuJson", factory.encode2Json(resultMap));
 			mv.addObject("sysVO", sysVO);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			mv.addObject("result", "异常");
 		}
 		return mv;
@@ -284,7 +289,7 @@ public class PunDevUserSystemController {
 		} catch (PermissionException ea) {
 			model.addAttribute("result", ea.getMessage());
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			model.addAttribute("result", "系统异常");
 		}
 		return new ModelAndView("unit/dev/punSystem-list");
@@ -311,7 +316,7 @@ public class PunDevUserSystemController {
 		} catch (PermissionException ea) {
 			mv.addObject("result", ea.getMessage());
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			mv.addObject("result", "操作失败：系统异常");
 		}
 		return mv;
@@ -355,7 +360,7 @@ public class PunDevUserSystemController {
 			ra.addFlashAttribute("result", "系统'" + vo.getSysName() + "'发布成功");
 			// return punSystemSave(vo, model, ra);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			mv.addObject("result", "异常");
 		}
 		return mv;
@@ -381,7 +386,7 @@ public class PunDevUserSystemController {
 			sysService.addOrUpdate(vo);
 			ra.addFlashAttribute("result", "系统‘" + vo.getSysName() + "’下线操作成功");
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			mv.addObject("result", "异常");
 		}
 		return mv;

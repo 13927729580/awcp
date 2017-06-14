@@ -10,6 +10,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jflow.framework.system.ui.UiFatory;
 import org.jflow.framework.system.ui.core.Button;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,6 +30,11 @@ import BP.WF.Template.Node;
 import BP.WF.Template.PubLib.WFState;
 
 public class AttachOfficeModel {
+	/**
+	 * 日志对象
+	 */
+	private static Log logger = LogFactory.getLog(AttachOfficeModel.class);
+
 	public AttachOfficeModel() {
 
 	}
@@ -85,8 +92,7 @@ public class AttachOfficeModel {
 	public String getNodeInfo() {
 		Node nodeInfo = new Node();
 		SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd HH:mm:ss");
-		return nodeInfo.getName() + ": " + WebUser.getName() + "    时间:"
-				+ sdf.format(new Date());
+		return nodeInfo.getName() + ": " + WebUser.getName() + "    时间:" + sdf.format(new Date());
 	}
 
 	public void setNodeInfo(String nodeInfo) {
@@ -146,13 +152,10 @@ public class AttachOfficeModel {
 		this.fileType = fileType;
 	}
 
-	public AttachOfficeModel(String PKVal, String DelPKVal,
-			String FK_FrmAttachment, String DoType, String FK_Node,
-			String NoOfObj, String FK_MapData, String UserName,
-			boolean ReadOnly, String FileSavePath, String RealFileName,
-			String FileFullName, String NodeInfo, boolean IsCheck,
-			boolean IsSavePDF, boolean IsMarks, boolean IsPostBack,
-			HttpServletRequest req, HttpServletResponse res) {
+	public AttachOfficeModel(String PKVal, String DelPKVal, String FK_FrmAttachment, String DoType, String FK_Node,
+			String NoOfObj, String FK_MapData, String UserName, boolean ReadOnly, String FileSavePath,
+			String RealFileName, String FileFullName, String NodeInfo, boolean IsCheck, boolean IsSavePDF,
+			boolean IsMarks, boolean IsPostBack, HttpServletRequest req, HttpServletResponse res) {
 		this.PKVal = PKVal;
 		this.DelPKVal = DelPKVal;
 		this.FK_FrmAttachment = FK_FrmAttachment;
@@ -186,7 +189,7 @@ public class AttachOfficeModel {
 		}
 
 		if (!IsPostBack) {
-			String type = this.request.getParameter("action")==null?"":this.request.getParameter("action");
+			String type = this.request.getParameter("action") == null ? "" : this.request.getParameter("action");
 			if (type == null && type.equals("")) {
 				InitOffice(true);
 			} else {
@@ -200,7 +203,7 @@ public class AttachOfficeModel {
 						throw new Exception("传入的参数不正确!");
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
-						e.printStackTrace();
+						logger.info("ERROR", e);
 					}
 			}
 		}
@@ -211,8 +214,7 @@ public class AttachOfficeModel {
 		Node node = new Node(FK_Node);
 		try {
 
-			WorkFlow workFlow = new WorkFlow(node.getFK_Flow(),
-					Integer.parseInt(PKVal));
+			WorkFlow workFlow = new WorkFlow(node.getFK_Flow(), Integer.parseInt(PKVal));
 			isCompleate = workFlow.getIsComplete();
 		} catch (Exception e) {
 			try {
@@ -232,8 +234,7 @@ public class AttachOfficeModel {
 		}
 		if (!isCompleate) {
 			try {
-				isCompleate = !BP.WF.Dev2Interface.Flow_IsCanDoCurrentWork(
-						node.getFK_Flow(), node.getNodeID(),
+				isCompleate = !BP.WF.Dev2Interface.Flow_IsCanDoCurrentWork(node.getFK_Flow(), node.getNodeID(),
 						Integer.parseInt(PKVal), WebUser.getNo());
 				// WorkFlow workFlow = new WorkFlow(node.FK_Flow,
 				// Int64.Parse(PKVal));
@@ -280,7 +281,8 @@ public class AttachOfficeModel {
 		if (isMenu && !isCompleate) {
 			// #region 初始化按钮
 			if (attachment.getIsWoEnableViewKeepMark()) {
-				divMenu.append("<select id='marks' onchange='ShowUserName()'  style='width: 100px'><option value='1'>全部</option><select>");
+				divMenu.append(
+						"<select id='marks' onchange='ShowUserName()'  style='width: 100px'><option value='1'>全部</option><select>");
 			}
 
 			if (attachment.getIsWoEnableTemplete()) {
@@ -331,42 +333,41 @@ public class AttachOfficeModel {
 
 	public void LoadFile() {
 		try {
-			String loadType = this.request.getParameter("LoadType")==null?"":this.request.getParameter("LoadType");
+			String loadType = this.request.getParameter("LoadType") == null ? ""
+					: this.request.getParameter("LoadType");
 			String type = fileType;
-			String name = this.request.getParameter("fileName")==null?"":this.request.getParameter("fileName");
+			String name = this.request.getParameter("fileName") == null ? "" : this.request.getParameter("fileName");
 			String path = null;
 			if (loadType.equals("1")) {
 				try {
-					path = request.getSession().getServletContext()
-							.getRealPath(FileFullName);
+					path = request.getSession().getServletContext().getRealPath(FileFullName);
 
 				} catch (Exception ex) {
 					path = FileFullName;
 				}
 			} else {
-				path = request.getSession().getServletContext()
-						.getRealPath("/DataUser/OfficeTemplate/" + name);
+				path = request.getSession().getServletContext().getRealPath("/DataUser/OfficeTemplate/" + name);
 			}
 
 			String result = FileAccess.readFileByBytes(path);
-             
-             this.response.getOutputStream().write(result.getBytes());
-//			File file = new File(path);
-//			FileReader fileread = new FileReader(file);
-//			BufferedReader br = new BufferedReader(fileread);
-//			String read = "";
-//			String readStr = "";
-//			while ((read = br.readLine()) != null) {
-//				readStr = readStr + read;
-//			}
-//
-//			response.flushBuffer();
-//
-//			response.getWriter().write(readStr);
+
+			this.response.getOutputStream().write(result.getBytes());
+			// File file = new File(path);
+			// FileReader fileread = new FileReader(file);
+			// BufferedReader br = new BufferedReader(fileread);
+			// String read = "";
+			// String readStr = "";
+			// while ((read = br.readLine()) != null) {
+			// readStr = readStr + read;
+			// }
+			//
+			// response.flushBuffer();
+			//
+			// response.getWriter().write(readStr);
 			// response.End();
 		} catch (Exception e) {
 
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 	}
 
@@ -386,8 +387,7 @@ public class AttachOfficeModel {
 				MultipartFile postedFile = file;
 				String path = "";
 				try {
-					path = request.getSession().getServletContext()
-							.getRealPath(FileFullName);
+					path = request.getSession().getServletContext().getRealPath(FileFullName);
 				} catch (Exception ex) {
 					path = FileFullName;
 
@@ -418,7 +418,7 @@ public class AttachOfficeModel {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 	}
 

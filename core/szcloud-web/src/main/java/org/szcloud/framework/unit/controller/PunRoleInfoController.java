@@ -10,6 +10,8 @@ import java.util.Set;
 import javax.annotation.Resource;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
@@ -47,7 +49,10 @@ import com.github.miemiedev.mybatis.paginator.domain.PageList;
 @Controller
 @RequestMapping("/unit")
 public class PunRoleInfoController {
-
+	/**
+	 * 日志对象
+	 */
+	protected final Log logger = LogFactory.getLog(getClass());
 	@Autowired
 	@Qualifier("punRoleInfoServiceImpl")
 	PunRoleInfoService roleService;
@@ -188,7 +193,7 @@ public class PunRoleInfoController {
 			}
 			return mv;
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			return null;
 		}
 	}
@@ -211,7 +216,7 @@ public class PunRoleInfoController {
 				model.addAttribute("result", "Failed" + valMessage.toString() + "。");
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			model.addAttribute("result", "System error.");
 			ra.addFlashAttribute("result", "hello");
 		}
@@ -232,7 +237,7 @@ public class PunRoleInfoController {
 			PunRoleInfoVO vo = roleService.findById(boxs[0]);
 			mv.addObject("vo", vo);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			mv.addObject("result", "System error.");
 		}
 		return mv;
@@ -280,7 +285,7 @@ public class PunRoleInfoController {
 		} catch (PermissionException ea) {
 			mv.addObject("result", "System error.");
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			mv.addObject("result", "System error.");
 		}
 		return mv;
@@ -321,7 +326,7 @@ public class PunRoleInfoController {
 			mv.addObject("vos", vos);
 			mv.addObject("sysId", boxs[0]);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			mv.addObject("result", "System error.");
 			return null;
 		}
@@ -350,7 +355,7 @@ public class PunRoleInfoController {
 		} catch (PermissionException ea) {
 			mv.addObject("result", ea.getMessage());
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			mv.addObject("result", "System error.");
 		}
 		return mv;
@@ -437,7 +442,7 @@ public class PunRoleInfoController {
 			mv.addObject("resoAuthor", resoAuthor);
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			mv.addObject("result", "System error.");
 		}
 		return mv;

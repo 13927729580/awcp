@@ -1,10 +1,10 @@
 package org.jflow.framework.designer.model;
 
-import java.io.IOException;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jflow.framework.common.model.BaseModel;
 import org.jflow.framework.system.ui.core.CheckBox;
 import org.jflow.framework.system.ui.core.LinkButton;
@@ -19,13 +19,16 @@ import BP.WF.Template.Node;
 import BP.WF.Template.Nodes;
 
 public class ListenModel extends BaseModel {
+	/**
+	 * 日志对象
+	 */
+	protected final Log logger = LogFactory.getLog(getClass());
 	HttpServletRequest request;
 
 	HttpServletResponse response;
 	public StringBuilder Pub1 = new StringBuilder();
 
-	public ListenModel(HttpServletRequest request,
-			HttpServletResponse response) {
+	public ListenModel(HttpServletRequest request, HttpServletResponse response) {
 		super(request, response);
 		Pub1 = new StringBuilder();
 	}
@@ -35,11 +38,11 @@ public class ListenModel extends BaseModel {
 		// string member and was converted to Java 'if-else' logic:
 		// switch (this.DoType)
 		// ORIGINAL LINE: case "New":
-			if (this.getDoType()!=null&&this.getDoType().equals("New")) {
-				return this.BindNew();
-			} else {
-				return this.BindList();
-			}
+		if (this.getDoType() != null && this.getDoType().equals("New")) {
+			return this.BindNew();
+		} else {
+			return this.BindList();
+		}
 	}
 
 	public String BindNew() {
@@ -51,12 +54,10 @@ public class ListenModel extends BaseModel {
 
 		Node nd = new Node(this.getFK_Node());
 
-		this.Pub1
-				.append(AddTable("class='Table' cellSpacing='1' cellPadding='1' border='1' style='width:100%'"));
+		this.Pub1.append(AddTable("class='Table' cellSpacing='1' cellPadding='1' border='1' style='width:100%'"));
 		this.Pub1.append(AddTR());
-		this.Pub1.append(AddTD("class='GroupTitle'", "设置收听：" + nd.getName()
-				+ " - <a href='Listen.jsp?FK_Node=" + this.getFK_Node()
-				+ "' >收听列表</a>"));
+		this.Pub1.append(AddTD("class='GroupTitle'",
+				"设置收听：" + nd.getName() + " - <a href='Listen.jsp?FK_Node=" + this.getFK_Node() + "' >收听列表</a>"));
 		this.Pub1.append(AddTR());
 		this.Pub1.append(AddTD("class='GroupTitle'", "选择您要收听的节点（可以选择多个）"));
 		this.Pub1.append(AddTREnd());
@@ -84,8 +85,7 @@ public class ListenModel extends BaseModel {
 		this.Pub1.append(AddTREnd());
 
 		this.Pub1.append(AddTR());
-		this.Pub1.append(AddTD("class='GroupTitle'",
-				"设置标题(最大长度不超过250个字符，可以包含字段变量变量以@开头)"));
+		this.Pub1.append(AddTD("class='GroupTitle'", "设置标题(最大长度不超过250个字符，可以包含字段变量变量以@开头)"));
 		this.Pub1.append(AddTREnd());
 
 		this.Pub1.append(AddTR());
@@ -105,8 +105,7 @@ public class ListenModel extends BaseModel {
 		this.Pub1.append(AddTREnd());
 
 		this.Pub1.append(AddTR());
-		this.Pub1.append(AddTD("class='GroupTitle'",
-				"内容信息(长度不限制，可以包含字段变量变量以@开头)"));
+		this.Pub1.append(AddTD("class='GroupTitle'", "内容信息(长度不限制，可以包含字段变量变量以@开头)"));
 		this.Pub1.append(AddTREnd());
 
 		this.Pub1.append(AddTR());
@@ -163,8 +162,7 @@ public class ListenModel extends BaseModel {
 		this.Pub1.append(AddBR());
 		this.Pub1.append(AddBR());
 
-		this.Pub1.append(AddEasyUiPanelInfo("特别说明",
-				"消息以什么样的渠道(短信，邮件)发送出去，是以用户设置的 “信息提示”来确定的。"));
+		this.Pub1.append(AddEasyUiPanelInfo("特别说明", "消息以什么样的渠道(短信，邮件)发送出去，是以用户设置的 “信息提示”来确定的。"));
 		return Pub1.toString();
 	}
 
@@ -175,23 +173,22 @@ public class ListenModel extends BaseModel {
 		ens.Retrieve(ListenAttr.FK_Node, this.getFK_Node());
 
 		if (ens.size() == 0) {
-			String str=null;
+			String str = null;
 			try {
-				str=BindNew();
-				//response.sendRedirect("Listen.jsp?FK_Node=" + this.getFK_Node()+ "&DoType=New");
+				str = BindNew();
+				// response.sendRedirect("Listen.jsp?FK_Node=" +
+				// this.getFK_Node()+ "&DoType=New");
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.info("ERROR", e);
 			}
 			return str;
 		}
 
-		this.Pub1
-				.append(AddTable("class='Table' cellSpacing='1' cellPadding='1' border='1' style='width:100%'"));
+		this.Pub1.append(AddTable("class='Table' cellSpacing='1' cellPadding='1' border='1' style='width:100%'"));
 		this.Pub1.append(AddTR());
-		this.Pub1.append(AddTD("class='GroupTitle' colspan='3'",
-				"设置收听：" + nd.getName() + " - <a href='Listen.jsp?FK_Node="
-						+ this.getFK_Node() + "&DoType=New' >新建</a>"));
+		this.Pub1.append(AddTD("class='GroupTitle' colspan='3'", "设置收听：" + nd.getName()
+				+ " - <a href='Listen.jsp?FK_Node=" + this.getFK_Node() + "&DoType=New' >新建</a>"));
 		this.Pub1.append(AddTREnd());
 
 		this.Pub1.append(AddTR());
@@ -204,12 +201,8 @@ public class ListenModel extends BaseModel {
 			this.Pub1.append(AddTR());
 			this.Pub1.append(AddTD(nd.getName()));
 			this.Pub1.append(AddTD(en.getNodes()));
-			this.Pub1
-					.append(AddTD("<a href='Listen.jsp?FK_Node="
-							+ this.getFK_Node()
-							+ "&DoType=New&RefOID="
-							+ en.getOID()
-							+ "' class='easyui-linkbutton' data-options=\"iconCls:'icon-edit'\">编辑</a>"));
+			this.Pub1.append(AddTD("<a href='Listen.jsp?FK_Node=" + this.getFK_Node() + "&DoType=New&RefOID="
+					+ en.getOID() + "' class='easyui-linkbutton' data-options=\"iconCls:'icon-edit'\">编辑</a>"));
 			this.Pub1.append(AddTREnd());
 		}
 

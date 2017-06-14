@@ -5,10 +5,17 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * 数据库连接操作类
  */
 public class DBUtil {
+	/**
+	 * 日志对象
+	 */
+	protected static final Log logger = LogFactory.getLog(DBUtil.class);
 	private static ThreadLocal<Connection> connLocal = new ThreadLocal<Connection>();
 	private static final String user = "root";
 	private static final String password = "123456";
@@ -22,8 +29,8 @@ public class DBUtil {
 	static {
 		try {
 			Class.forName(driverClass);
-		} catch (Exception ex) {
-			ex.printStackTrace();
+		} catch (Exception e) {
+			logger.info("ERROR", e);
 		}
 	}
 
@@ -48,7 +55,7 @@ public class DBUtil {
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.info("ERROR", e);
 			} // 放回连接池
 		}
 	}
@@ -90,7 +97,7 @@ public class DBUtil {
 
 		} catch (Exception e) {
 			DBUtil.rollback();
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		} finally {
 			DBUtil.closeConnection();
 		}

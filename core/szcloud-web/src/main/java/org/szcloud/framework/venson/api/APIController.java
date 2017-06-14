@@ -10,6 +10,8 @@ import javax.script.ScriptException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,6 +32,10 @@ import org.szcloud.framework.venson.controller.base.StatusCode;
 @Controller
 @RequestMapping("api")
 public class APIController extends BaseController {
+	/**
+	 * 日志对象
+	 */
+	protected final Log logger = LogFactory.getLog(getClass());
 	@Resource(name = "namedParameterJdbcTemplate")
 	private NamedParameterJdbcTemplate jdbcTemplate;
 
@@ -116,12 +122,12 @@ public class APIController extends BaseController {
 				return result.setData(ret);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.info("ERROR", e);
 				try {
 					jdbcTemplate1.rollback();
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block
-					e1.printStackTrace();
+					logger.info("ERROR", e1);
 				}
 			}
 		}

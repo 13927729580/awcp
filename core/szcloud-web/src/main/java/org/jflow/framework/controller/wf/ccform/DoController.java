@@ -3,9 +3,9 @@ package org.jflow.framework.controller.wf.ccform;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jflow.framework.controller.wf.workopt.BaseController;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,7 +31,7 @@ public class DoController extends BaseController {
 	/**
 	 * 日志对象
 	 */
-	private static final Logger logger = LoggerFactory.getLogger(DoController.class);
+	protected final Log logger = LogFactory.getLog(getClass());
 
 	@RequestMapping(value = "/Do", method = RequestMethod.POST)
 	private void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -117,7 +117,7 @@ public class DoController extends BaseController {
 						}
 					}
 				} catch (RuntimeException ex) {
-					ex.printStackTrace();
+					logger.info("ERROR", ex);
 					this.winCloseWithMsg(response, ex.getMessage());
 
 					return;
@@ -281,7 +281,7 @@ public class DoController extends BaseController {
 			// ModelAndView mv = new ModelAndView("/WF/ShowMessage");
 			// mv.addObject("showMessage", rInfo);
 			// return mv;
-			ex.printStackTrace();
+			logger.info("ERROR", ex);
 		}
 	}
 

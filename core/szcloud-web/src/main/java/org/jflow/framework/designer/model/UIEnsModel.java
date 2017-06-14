@@ -6,6 +6,8 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jflow.framework.common.model.BaseModel;
 import org.jflow.framework.system.ui.UiFatory;
 import org.jflow.framework.system.ui.core.NamesOfBtn;
@@ -30,7 +32,10 @@ import BP.Sys.SysFileManagers;
 import BP.Tools.StringHelper;
 
 public class UIEnsModel extends BaseModel {
-
+	/**
+	 * 日志对象
+	 */
+	protected final Log logger = LogFactory.getLog(getClass());
 	public Entities GetEns = null;
 
 	private boolean isReadOnly;
@@ -274,7 +279,7 @@ public class UIEnsModel extends BaseModel {
 
 		catch (Exception ex) {
 			// response.write(ex.getMessage());
-			ex.printStackTrace();
+			logger.info("ERROR", ex);
 			Entity en = ClassFactory.GetEns(getEnsName()).getGetNewEntity();
 			en.CheckPhysicsTable();
 			return;
@@ -502,7 +507,7 @@ public class UIEnsModel extends BaseModel {
 			en.Copy();
 			this.UCEn1.Bind(en, en.toString(), this.isReadOnly, true);
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			logger.info("ERROR", ex);
 			;
 		}
 	}
@@ -577,7 +582,7 @@ public class UIEnsModel extends BaseModel {
 				}
 			}
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			logger.info("ERROR", ex);
 		}
 
 		// #region 保存 属性 附件
@@ -607,7 +612,7 @@ public class UIEnsModel extends BaseModel {
 				enN.Update();
 			}
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			logger.info("ERROR", ex);
 		}
 	}
 

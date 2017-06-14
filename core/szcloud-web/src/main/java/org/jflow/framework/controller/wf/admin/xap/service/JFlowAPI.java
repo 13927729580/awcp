@@ -6,6 +6,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.apache.commons.logging.LogFactory;
+
 import BP.DA.DBAccess;
 import BP.DA.DataColumn;
 import BP.DA.DataRow;
@@ -54,6 +56,11 @@ import TL.ConvertTools;
 import TL.FileUtils;
 
 public class JFlowAPI implements JFlowSoap {
+	/**
+	 * 日志对象
+	 */
+	private static org.apache.commons.logging.Log logger = LogFactory.getLog(JFlowAPI.class);
+
 	// /#region 流程api
 	/**
 	 * 催办
@@ -2086,7 +2093,7 @@ public class JFlowAPI implements JFlowSoap {
 			myds.WriteXml("c:" + File.separator + "GenerWorkNode_FlowDataOnly.xml");
 			return myds;
 		} catch (RuntimeException ex) {
-			ex.printStackTrace();
+			logger.info("ERROR", ex);
 			throw new RuntimeException(ex.getMessage());
 			// return "@生成工作FK_Flow=" + fk_flow + ",FK_Node=" + fk_node +
 			// ",WorkID=" + workID + ",FID=" + fid + "错误,错误信息:" + ex.Message;
@@ -2439,9 +2446,9 @@ public class JFlowAPI implements JFlowSoap {
 				fileOutputStream.flush();
 				fileOutputStream.close();
 			} catch (FileNotFoundException e) {
-				e.printStackTrace();
+				logger.info("ERROR", e);
 			} catch (IOException e) {
-				e.printStackTrace();
+				logger.info("ERROR", e);
 			}
 			return true;
 		}

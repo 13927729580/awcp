@@ -9,12 +9,17 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * MD5工具类
  */
 public class MD5Util {
-
+	/**
+	 * 日志对象
+	 */
+	protected static final Log logger = LogFactory.getLog(MD5Util.class);
 	protected static char hexDigits[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e',
 			'f' };
 
@@ -27,8 +32,7 @@ public class MD5Util {
 		try {
 			messagedigest = MessageDigest.getInstance("MD5");
 		} catch (NoSuchAlgorithmException nsaex) {
-			System.err.println(MD5Util.class.getName() + "初始化失败，MessageDigest不支持MD5Util。");
-			nsaex.printStackTrace();
+			logger.info("ERROR", nsaex);
 		}
 	}
 

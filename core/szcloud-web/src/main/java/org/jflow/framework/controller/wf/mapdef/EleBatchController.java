@@ -6,7 +6,8 @@ import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.jflow.framework.common.model.EleBatchModel;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jflow.framework.common.model.TempObject;
 import org.jflow.framework.controller.wf.workopt.BaseController;
 import org.jflow.framework.system.ui.core.BaseWebControl;
@@ -25,38 +26,37 @@ import BP.Sys.Frm.MapDatas;
 
 @Controller
 @RequestMapping("/WF/MapDef")
-public class EleBatchController extends BaseController{
+public class EleBatchController extends BaseController {
+	/**
+	 * 日志对象
+	 */
+	protected final Log logger = LogFactory.getLog(getClass());
+
 	@RequestMapping(value = "/btn_Click4", method = RequestMethod.POST)
-	public void btn_Click(TempObject object, HttpServletRequest request,
-			HttpServletResponse response) {
+	public void btn_Click(TempObject object, HttpServletRequest request, HttpServletResponse response) {
 		MapDatas mds = this.getGetMDs();
-		HashMap<String,BaseWebControl> controls = HtmlUtils.httpParser(object.getFormHtml(), true);
+		HashMap<String, BaseWebControl> controls = HtmlUtils.httpParser(object.getFormHtml(), true);
 		MapAttr mattrOld = new MapAttr(object.getFK_MapData(), object.getKeyOfEn());
 		MapAttr mattr = new MapAttr(object.getFK_MapData(), object.getKeyOfEn());
-		for (MapData md : MapDatas.convertMapDatas(mds))
-		{
+		for (MapData md : MapDatas.convertMapDatas(mds)) {
 			CheckBox cb = (CheckBox) controls.get("CB_" + md.getNo());
-			if (cb==null)
-			{
+			if (cb == null) {
 				continue;
 			}
 
-			if (cb.getChecked() == false)
-			{
+			if (cb.getChecked() == false) {
 				continue;
 			}
 
-			if (this.getDoType().equals("Copy"))
-			{
-				//执行批量Copy
+			if (this.getDoType().equals("Copy")) {
+				// 执行批量Copy
 				mattr.setFK_MapData(md.getNo());
 				mattr.Insert();
 				mattr.setIDX(mattrOld.getIDX());
 			}
 
-			if (this.getDoType().equals("Update"))
-			{
-				//执行批量Update
+			if (this.getDoType().equals("Update")) {
+				// 执行批量Update
 				MapAttr mattrUpdate = new MapAttr(md.getNo(), object.getKeyOfEn());
 				int gID = mattrUpdate.getGroupID();
 				mattrUpdate.Copy(mattrOld);
@@ -65,36 +65,34 @@ public class EleBatchController extends BaseController{
 				mattrUpdate.Update();
 			}
 
-			if (this.getDoType().equals("Delete"))
-			{
-				//执行批量 Delete 
+			if (this.getDoType().equals("Delete")) {
+				// 执行批量 Delete
 				MapAttr mattrDelete = new MapAttr(md.getNo(), object.getKeyOfEn());
 				mattrDelete.Delete();
 			}
 
 		}
 		// 转向.
-//		this.Response.Redirect(this.Request.RawUrl, true);
+		// this.Response.Redirect(this.Request.RawUrl, true);
 		try {
-			response.sendRedirect("EleBatch.jsp?EleType="+object.getEleType()+"&FK_MapData="+object.getFK_MapData()+"&KeyOfEn="+object.getKeyOfEn()+"&DoType="+object.getDoType());
+			response.sendRedirect("EleBatch.jsp?EleType=" + object.getEleType() + "&FK_MapData="
+					+ object.getFK_MapData() + "&KeyOfEn=" + object.getKeyOfEn() + "&DoType=" + object.getDoType());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 
-		
 	}
+
 	public MapDatas getGetMDs() {
-		String sql = "SELECT NodeID FROM WF_Node WHERE FK_Flow='"
-				+ this.getFK_Flow() + "'";
+		String sql = "SELECT NodeID FROM WF_Node WHERE FK_Flow='" + this.getFK_Flow() + "'";
 		DataTable dt = DBAccess.RunSQLReturnTable(sql);
 
 		String nds = "";
 		for (DataRow dr : dt.Rows) {
 			nds += ",'ND" + dr.getValue(0).toString() + "'";
 		}
-		sql = "SELECT No FROM Sys_MapData WHERE No IN (" + nds.substring(1)
-				+ ")";
+		sql = "SELECT No FROM Sys_MapData WHERE No IN (" + nds.substring(1) + ")";
 		dt = DBAccess.RunSQLReturnTable(sql);
 		MapDatas mds = new MapDatas();
 		mds.RetrieveInSQL(sql);

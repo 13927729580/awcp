@@ -5,6 +5,8 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jflow.framework.common.model.BaseModel;
 import org.jflow.framework.system.ui.UiFatory;
 import org.jflow.framework.system.ui.core.DDL;
@@ -29,13 +31,16 @@ import BP.WF.Template.WorkBase.StartWorkAttr;
 import BP.WF.Template.WorkBase.WorkAttr;
 
 public class CondModel {
+	/**
+	 * 日志对象
+	 */
+	protected final Log logger = LogFactory.getLog(getClass());
 	public HttpServletRequest request;
 	public HttpServletResponse response;
 	public UiFatory ui = null;
 	public String basePath = "";
 
-	public CondModel(HttpServletRequest req, HttpServletResponse res,
-			String basePath) {
+	public CondModel(HttpServletRequest req, HttpServletResponse res, String basePath) {
 		this.request = req;
 		this.response = res;
 		this.basePath = basePath;
@@ -71,7 +76,7 @@ public class CondModel {
 	private String FK_Attr;
 
 	public String getFK_Attr() {
-		String s = request.getParameter("FK_Attr")==null?"":request.getParameter("FK_Attr");
+		String s = request.getParameter("FK_Attr") == null ? "" : request.getParameter("FK_Attr");
 		if (s == null || s == "") {
 			try {
 				s = this.getDDL_Attr().getSelectedItemStringVal();
@@ -108,8 +113,7 @@ public class CondModel {
 	private int FK_MainNode;
 
 	public int getFK_MainNode() {
-		return request.getParameter("FK_MainNode") == null ? 0 : Integer
-				.parseInt(request.getParameter("FK_MainNode"));
+		return request.getParameter("FK_MainNode") == null ? 0 : Integer.parseInt(request.getParameter("FK_MainNode"));
 	}
 
 	public void setFK_MainNode(int fK_MainNode) {
@@ -120,8 +124,7 @@ public class CondModel {
 
 	public int getToNodeID() {
 		try {
-			return request.getParameter("ToNodeID") == null ? 0 : Integer
-					.parseInt(request.getParameter("ToNodeID"));
+			return request.getParameter("ToNodeID") == null ? 0 : Integer.parseInt(request.getParameter("ToNodeID"));
 		} catch (Exception e) {
 			// TODO: handle exception
 			return 0;
@@ -138,8 +141,7 @@ public class CondModel {
 	private int HisCondType;
 
 	public int getHisCondType() {
-		return request.getParameter("CondType") == null ? 0 : Integer
-				.parseInt(request.getParameter("CondType").trim());
+		return request.getParameter("CondType") == null ? 0 : Integer.parseInt(request.getParameter("CondType").trim());
 	}
 
 	public void setHisCondType(int hisCondType) {
@@ -193,19 +195,17 @@ public class CondModel {
 
 	public void Page_Load() {
 		ui = new UiFatory();
-		String DoType = request.getParameter("DoType") == null ? "" : request
-				.getParameter("DoType");
+		String DoType = request.getParameter("DoType") == null ? "" : request.getParameter("DoType");
 		if (DoType.equals("Del")) {
 			Cond nd = new Cond(this.getMyPK());
 			nd.Delete();
 			try {
-				response.sendRedirect("Cond.jsp?CondType=" + getHisCondType()
-						+ "&FK_Flow=" + this.getFK_Flow() + "&FK_MainNode="
-						+ nd.getNodeID() + "&FK_Node=" + this.getFK_MainNode()
-						+ "&ToNodeID=" + nd.getToNodeID());
+				response.sendRedirect("Cond.jsp?CondType=" + getHisCondType() + "&FK_Flow=" + this.getFK_Flow()
+						+ "&FK_MainNode=" + nd.getNodeID() + "&FK_Node=" + this.getFK_MainNode() + "&ToNodeID="
+						+ nd.getToNodeID());
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.info("ERROR", e);
 			}
 			// this.Response.Redirect("Cond.aspx?CondType=" +
 			// (int)this.HisCondType + "&FK_Flow=" + this.FK_Flow +
@@ -239,13 +239,10 @@ public class CondModel {
 				cond.setFK_Flow(this.getFK_Flow());
 		}
 		// this.AddTable("border=0 widht='500px'");
-		ui.append(BaseModel
-				.AddTable("class='Table' cellpadding='2' cellspacing='2' style='width:100%;'"));
+		ui.append(BaseModel.AddTable("class='Table' cellpadding='2' cellspacing='2' style='width:100%;'"));
 		ui.append(BaseModel.AddTR());
-		ui.append(BaseModel
-				.AddTD("class='GroupTitle' style='width:80px'", "项目"));
-		ui.append(BaseModel.AddTD("class='GroupTitle' style='width:200px'",
-				"采集"));
+		ui.append(BaseModel.AddTD("class='GroupTitle' style='width:80px'", "项目"));
+		ui.append(BaseModel.AddTD("class='GroupTitle' style='width:200px'", "采集"));
 		ui.append(BaseModel.AddTD("class='GroupTitle'", "描述"));
 		ui.append(BaseModel.AddTREnd());
 
@@ -255,7 +252,7 @@ public class CondModel {
 		Nodes ndsN = new Nodes();
 		for (int i = 0; i < nds.size(); i++) {
 			Node mynd = (Node) nds.get(i);
-			 ndsN.AddEntity(mynd);
+			ndsN.AddEntity(mynd);
 		}
 		// for (Node mynd : nds)
 		// {
@@ -275,8 +272,7 @@ public class CondModel {
 
 		// 属性/字段
 		MapAttrs attrs = new MapAttrs();
-		attrs.Retrieve(MapAttrAttr.FK_MapData,
-				"ND" + ddl.getSelectedItemStringVal());
+		attrs.Retrieve(MapAttrAttr.FK_MapData, "ND" + ddl.getSelectedItemStringVal());
 
 		MapAttrs attrNs = new MapAttrs();
 		for (int i = 0; i < attrs.size(); i++) {
@@ -363,8 +359,7 @@ public class CondModel {
 		ui.append(BaseModel.AddTD(""));
 		ui.append(BaseModel.AddTREnd());
 
-		MapAttr attrS = new MapAttr(this.getDDL_Attr()
-				.getSelectedItemStringVal());
+		MapAttr attrS = new MapAttr(this.getDDL_Attr().getSelectedItemStringVal());
 		ui.append(BaseModel.AddTR());
 		ui.append(BaseModel.AddTD("操作符"));
 		ddl = ui.creatDDL("DDL_Oper");
@@ -519,23 +514,22 @@ public class CondModel {
 			return;
 
 		// #region 条件
-		ui.append(BaseModel
-				.AddTable("class='Table' cellpadding='2' cellspacing='2' style='width:100%;'"));
+		ui.append(BaseModel.AddTable("class='Table' cellpadding='2' cellspacing='2' style='width:100%;'"));
 		ui.append(BaseModel.AddTR());
-		ui.append(BaseModel.AddTD("class='GroupTitle'","序"));
-		ui.append(BaseModel.AddTD("class='GroupTitle'","节点"));
-		ui.append(BaseModel.AddTD("class='GroupTitle'","字段的英文名"));
-		ui.append(BaseModel.AddTD("class='GroupTitle'","字段的中文名"));
-		ui.append(BaseModel.AddTD("class='GroupTitle'","操作符"));
-		ui.append(BaseModel.AddTD("class='GroupTitle'","值"));
-		ui.append(BaseModel.AddTD("class='GroupTitle'","运算关系"));
-		ui.append(BaseModel.AddTD("class='GroupTitle'","操作"));
+		ui.append(BaseModel.AddTD("class='GroupTitle'", "序"));
+		ui.append(BaseModel.AddTD("class='GroupTitle'", "节点"));
+		ui.append(BaseModel.AddTD("class='GroupTitle'", "字段的英文名"));
+		ui.append(BaseModel.AddTD("class='GroupTitle'", "字段的中文名"));
+		ui.append(BaseModel.AddTD("class='GroupTitle'", "操作符"));
+		ui.append(BaseModel.AddTD("class='GroupTitle'", "值"));
+		ui.append(BaseModel.AddTD("class='GroupTitle'", "运算关系"));
+		ui.append(BaseModel.AddTD("class='GroupTitle'", "操作"));
 		ui.append(BaseModel.AddTREnd());
 
 		int i = 0;
 		for (int j = 0; j < conds.size(); j++) {
 			Cond mync = (Cond) conds.get(i);
-			//mync.setOperatorValueT(request.getParameter("tb"));
+			// mync.setOperatorValueT(request.getParameter("tb"));
 			if (mync.getHisDataFrom() != ConnDataFrom.Form)
 				continue;
 
@@ -556,35 +550,36 @@ public class CondModel {
 
 			// if (num > 1)
 			// this.AddTD(mync.HisConnJudgeWayT);
-			ui.append(BaseModel.AddTD("<a href='"+basePath+"WF/Admin/Cond.jsp?MyPK="
-					 + mync.getMyPK() + "&CondType=" + getHisCondType() + "&FK_Flow=" +
-					 this.getFK_Flow() + "&FK_Attr=" + mync.getFK_Attr() + "&FK_MainNode=" +
-					 mync.getNodeID() + "&OperatorValue=" + mync.getOperatorValueStr() +
-					 "&FK_Node=" + mync.getFK_Node() + "&DoType=Del&ToNodeID=" +
-					 mync.getToNodeID() +
-					 "' class='easyui-linkbutton' data-options=\"iconCls:'icon-remove'\" onclick=\"return confirm('确定删除此条件吗?')\">删除</a>"));
-//			ui.append(BaseModel.AddTD("<a href='Cond.jsp?MyPK="
-//					+ mync.getMyPK()
-//					+ "&CondType="
-//					+ this.getHisCondType()
-//					+ "&FK_Flow="
-//					+ this.getFK_Flow()
-//					+ "&FK_Attr="
-//					+ mync.getFK_Attr()
-//					+ "&FK_MainNode="
-//					+ mync.getNodeID()
-//					+ "&OperatorValue="
-//					+ mync.getOperatorValueStr()
-//					+ "&FK_Node="
-//					+ mync.getFK_Node()
-//					+ "&DoType=Del&ToNodeID="
-//					+ mync.getToNodeID()
-//					+ "' class='easyui-linkbutton' data-options=\"iconCls:'icon-remove'\" onclick=\"return confirm('确定删除此条件吗?')\">删除</a>"));
+			ui.append(BaseModel.AddTD("<a href='" + basePath + "WF/Admin/Cond.jsp?MyPK=" + mync.getMyPK() + "&CondType="
+					+ getHisCondType() + "&FK_Flow=" + this.getFK_Flow() + "&FK_Attr=" + mync.getFK_Attr()
+					+ "&FK_MainNode=" + mync.getNodeID() + "&OperatorValue=" + mync.getOperatorValueStr() + "&FK_Node="
+					+ mync.getFK_Node() + "&DoType=Del&ToNodeID=" + mync.getToNodeID()
+					+ "' class='easyui-linkbutton' data-options=\"iconCls:'icon-remove'\" onclick=\"return confirm('确定删除此条件吗?')\">删除</a>"));
+			// ui.append(BaseModel.AddTD("<a href='Cond.jsp?MyPK="
+			// + mync.getMyPK()
+			// + "&CondType="
+			// + this.getHisCondType()
+			// + "&FK_Flow="
+			// + this.getFK_Flow()
+			// + "&FK_Attr="
+			// + mync.getFK_Attr()
+			// + "&FK_MainNode="
+			// + mync.getNodeID()
+			// + "&OperatorValue="
+			// + mync.getOperatorValueStr()
+			// + "&FK_Node="
+			// + mync.getFK_Node()
+			// + "&DoType=Del&ToNodeID="
+			// + mync.getToNodeID()
+			// + "' class='easyui-linkbutton'
+			// data-options=\"iconCls:'icon-remove'\" onclick=\"return
+			// confirm('确定删除此条件吗?')\">删除</a>"));
 			ui.append(BaseModel.AddTREnd());
 		}
 		ui.append(BaseModel.AddTableEnd());
 		ui.append(BaseModel.AddBR());
-		ui.append("<div class=\"panel\" style=\"display: block; width: 1150px;\"><div class=\"panel-header\" style=\"width: 1138px;\"><div class=\"panel-title panel-with-icon\">说明</div><div class=\"panel-icon icon-tip\"></div><div class=\"panel-tool\"></div></div><div class=\"easyui-panel panel-body\" style=\"height: 14px; padding: 10px; width: 1128px;\" data-options=\"iconCls:'icon-tip',fit:true\" title=\"\"> 在上面的条件集合中ccflow仅仅支持要么是And,要么是OR的两种情形,高级的开发就需要事件来支持条件转向,或者采用其他的方式。</div></div></div>");
+		ui.append(
+				"<div class=\"panel\" style=\"display: block; width: 1150px;\"><div class=\"panel-header\" style=\"width: 1138px;\"><div class=\"panel-title panel-with-icon\">说明</div><div class=\"panel-icon icon-tip\"></div><div class=\"panel-tool\"></div></div><div class=\"easyui-panel panel-body\" style=\"height: 14px; padding: 10px; width: 1128px;\" data-options=\"iconCls:'icon-tip',fit:true\" title=\"\"> 在上面的条件集合中ccflow仅仅支持要么是And,要么是OR的两种情形,高级的开发就需要事件来支持条件转向,或者采用其他的方式。</div></div></div>");
 	}
 
 	private DDL DDL_Node;
@@ -919,7 +914,8 @@ public class CondModel {
 	// cond.setFK_Flow(this.getFK_Flow());
 	// }
 	// //this.AddTable("border=0 widht='500px'");
-	// str.append(BaseModel.AddTable("class='Table' cellpadding='2' cellspacing='2' style='width:100%;'"));
+	// str.append(BaseModel.AddTable("class='Table' cellpadding='2'
+	// cellspacing='2' style='width:100%;'"));
 	// str.append(BaseModel.AddTR());
 	// str.append(BaseModel.AddTD("class='GroupTitle' style='width:80px'",
 	// "项目"));
@@ -1114,7 +1110,7 @@ public class CondModel {
 	// }
 	// catch(Exception e)
 	// {
-	// e.printStackTrace();
+	// logger.info("ERROR", e);
 	// }
 	// }
 	// str.append(BaseModel.AddTD(ddl));
@@ -1251,7 +1247,8 @@ public class CondModel {
 	// return;
 	//
 	// //#region 条件
-	// str.append(BaseModel.AddTable("class='Table' cellpadding='2' cellspacing='2' style='width:100%;'"));
+	// str.append(BaseModel.AddTable("class='Table' cellpadding='2'
+	// cellspacing='2' style='width:100%;'"));
 	// str.append(BaseModel.AddTR());
 	// str.append(BaseModel.AddTDTitleGroup("序"));
 	// str.append(BaseModel.AddTDTitleGroup("节点"));
@@ -1295,7 +1292,8 @@ public class CondModel {
 	// mync.getNodeID() + "&OperatorValue=" + mync.getOperatorValueStr() +
 	// "&FK_Node=" + mync.getFK_Node() + "&DoType=Del&ToNodeID=" +
 	// mync.getToNodeID() +
-	// "' class='easyui-linkbutton' data-options=\"iconCls:'icon-remove'\" onclick=\"return confirm('确定删除此条件吗?')\">删除</a>"));
+	// "' class='easyui-linkbutton' data-options=\"iconCls:'icon-remove'\"
+	// onclick=\"return confirm('确定删除此条件吗?')\">删除</a>"));
 	// str.append(BaseModel.AddTREnd());
 	// }
 	// str.append(BaseModel.AddTableEnd());

@@ -9,6 +9,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.jflow.framework.system.ui.core.Button;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import BP.DA.DataType;
 import BP.En.Entities;
@@ -24,7 +26,10 @@ import BP.WF.Template.WorkBase.Work;
 import BP.WF.Template.WorkBase.Works;
 
 public class PrintDocModel extends BaseModel {
-
+	/**
+	 * 日志对象
+	 */
+	private static Log logger = LogFactory.getLog(PrintDocModel.class);
 	public StringBuilder Pub1 = new StringBuilder();
 
 	public final String getFK_Bill() {
@@ -339,7 +344,7 @@ public class PrintDocModel extends BaseModel {
 			try {
 				get_response().sendRedirect(url);
 			} catch (IOException e) {
-				e.printStackTrace();
+				logger.info("ERROR", e);
 			}
 			// BP.Sys.PubClass.OpenWordDocV2( path+file, en.Name);
 		} catch (RuntimeException ex) {

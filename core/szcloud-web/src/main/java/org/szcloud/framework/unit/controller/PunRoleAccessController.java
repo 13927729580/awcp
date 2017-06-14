@@ -8,8 +8,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
@@ -46,7 +46,7 @@ public class PunRoleAccessController {
 	/**
 	 * 日志对象
 	 */
-	private static final Logger logger = LoggerFactory.getLogger(PunRoleAccessController.class);
+	private static final Log logger = LogFactory.getLog(PunRoleAccessController.class);
 	@Autowired
 	@Qualifier("punRoleAccessServiceImpl")
 	PunRoleAccessService roleAccService;
@@ -216,7 +216,7 @@ public class PunRoleAccessController {
 		} catch (PermissionException ea) {
 			model.addAttribute("result", ea.getMessage());
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			model.addAttribute("result", "System error.");
 		}
 		return new ModelAndView("/unit/punRoleAccess-edit");
@@ -236,7 +236,7 @@ public class PunRoleAccessController {
 			PunRoleAccessVO vo = roleAccService.findById(boxs[0]);
 			mv.addObject("vo", vo);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			mv.addObject("result", "异常");
 		}
 		return mv;
@@ -273,7 +273,7 @@ public class PunRoleAccessController {
 			JsonFactory factory = new JsonFactory();
 			mv.addObject("menuJson", factory.encode2Json(resultMap));
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			mv.addObject("result", "System error.");
 		}
 		return mv;
@@ -331,7 +331,7 @@ public class PunRoleAccessController {
 		} catch (PermissionException ea) {
 			model.addAttribute("result", ea.getMessage());
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			model.addAttribute("result", "System error.");
 		}
 		return new ModelAndView("/unit/punRoleAccess-list");
@@ -353,7 +353,7 @@ public class PunRoleAccessController {
 			}
 			ra.addFlashAttribute("result", "Delete successfully");
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			ra.addFlashAttribute("result", "System error.");
 		}
 		return mv;
@@ -384,7 +384,7 @@ public class PunRoleAccessController {
 			}
 			return new ModelAndView("/unit/punRoleAccess-edit");
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			ra.addFlashAttribute("result", "System error.");
 			return new ModelAndView("redirect:/unit/punRoleAccessList.do?currentPage=" + currentPage);
 		}

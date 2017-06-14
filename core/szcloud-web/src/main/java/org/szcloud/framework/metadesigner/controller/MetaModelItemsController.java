@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -32,7 +34,10 @@ import com.github.miemiedev.mybatis.paginator.domain.PageList;
 @Controller("metaModelItemsController")
 @RequestMapping(value = "/metaModelItems")
 public class MetaModelItemsController {
-
+	/**
+	 * 日志对象
+	 */
+	protected final Log logger = LogFactory.getLog(getClass());
 	@Autowired
 	private MetaModelService metaModelServiceImpl;
 
@@ -98,7 +103,7 @@ public class MetaModelItemsController {
 			}
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			return "error";
 		}
 	}
@@ -156,7 +161,7 @@ public class MetaModelItemsController {
 			}
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			map.put("id", 0);
 			return map;// "error";
 		}

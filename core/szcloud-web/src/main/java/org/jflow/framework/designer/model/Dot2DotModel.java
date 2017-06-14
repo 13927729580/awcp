@@ -10,8 +10,8 @@ import org.jflow.framework.system.ui.core.DDL;
 import org.jflow.framework.system.ui.core.LinkButton;
 import org.jflow.framework.system.ui.core.ListItem;
 import org.jflow.framework.system.ui.core.ToolBar;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import BP.En.Attr;
 import BP.En.AttrOfOneVSM;
@@ -31,7 +31,7 @@ public class Dot2DotModel {
 	/**
 	 * 日志对象
 	 */
-	private static final Logger logger = LoggerFactory.getLogger(Dot2DotModel.class);
+	private static final Log logger = LogFactory.getLog(Dot2DotModel.class);
 	// private String basePath;
 	private HttpServletRequest _request = null;
 	private HttpServletResponse _response = null;
@@ -198,7 +198,7 @@ public class Dot2DotModel {
 
 			this.SetDataV2();
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			this.UCSys.append(BaseModel.AddMsgOfWarning("错误", e.getMessage()));
 		}
 	}

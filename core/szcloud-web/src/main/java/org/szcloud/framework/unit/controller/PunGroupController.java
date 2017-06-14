@@ -8,6 +8,8 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
@@ -39,7 +41,10 @@ import org.szcloud.framework.unit.vo.PunUserBaseInfoVO;
 @Controller
 @RequestMapping("/unit")
 public class PunGroupController {
-
+	/**
+	 * 日志对象
+	 */
+	protected final Log logger = LogFactory.getLog(getClass());
 	@Autowired
 	@Qualifier("punGroupServiceImpl")
 	PunGroupService groupService;
@@ -110,7 +115,7 @@ public class PunGroupController {
 				model.addAttribute("result", "Fail:" + valMessage.toString() + "。");
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			model.addAttribute("result", "System error.");
 		}
 		return new ModelAndView("/unit/punGroup-edit");
@@ -154,7 +159,7 @@ public class PunGroupController {
 				respStatus.setMessage("Failed:" + valMessage.toString());
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			respStatus.setStatus(1);
 			respStatus.setMessage("System error.");
 		}
@@ -194,7 +199,7 @@ public class PunGroupController {
 			mv.addObject("groupJson", factory.encode2Json(resultMap));
 			mv.addObject("vo", vo);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			mv.addObject("result", "System error.");
 		}
 		return mv;
@@ -232,7 +237,7 @@ public class PunGroupController {
 			JsonFactory factory = new JsonFactory();
 			return factory.encode2Json(resultMap);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 		// return mv;
 		return null;
@@ -253,7 +258,7 @@ public class PunGroupController {
 			SessionUtils.addObjectToSession(SessionContants.CURRENT_USER_GROUP, vo1);
 			mv.addObject("vo", vo1);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			mv.addObject("result", "System error.");
 		}
 		return mv;
@@ -279,7 +284,7 @@ public class PunGroupController {
 				respStatus.setMessage("Parent group not exsit.");
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			respStatus.setStatus(1);
 			respStatus.setMessage("System error.");
 		}
@@ -306,7 +311,7 @@ public class PunGroupController {
 			mv.addObject("relateOrNot", '0');
 			mv.addObject("result", "Add successfully.");
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			mv.addObject("result", "System error.");
 		}
 		return mv;
@@ -329,7 +334,7 @@ public class PunGroupController {
 			mv.addObject("relateOrNot", '1');
 			mv.addObject("resutl", "Cancel relate successful");
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 		return mv;
 	}

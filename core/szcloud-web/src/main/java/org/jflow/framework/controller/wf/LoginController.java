@@ -9,6 +9,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.IncorrectCredentialsException;
@@ -39,7 +41,10 @@ import BP.Port.WebUser;
 @Controller
 @RequestMapping("/WF")
 public class LoginController {
-
+	/**
+	 * 日志对象
+	 */
+	protected final Log logger = LogFactory.getLog(getClass());
 	@Autowired
 	@Qualifier("punUserBaseInfoServiceImpl")
 	private PunUserBaseInfoService userService;// 用户Service
@@ -103,11 +108,11 @@ public class LoginController {
 				j.setSuccess(false);
 				j.setMsg("账户名或者密码错误！");
 			} catch (AuthenticationException e) {
-				e.printStackTrace();
+				logger.info("ERROR", e);
 				j.setSuccess(false);
 				j.setMsg("账户名或者密码错误！");
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.info("ERROR", e);
 				j.setSuccess(false);
 				j.setMsg("账户名或者密码错误！");
 			}
@@ -130,7 +135,7 @@ public class LoginController {
 			// mv.setViewName("/WF/Login");
 			mv.setViewName("redirect:" + "/WF/Login.jsp");
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 		return mv;
 	}

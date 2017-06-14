@@ -6,6 +6,8 @@ import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jflow.framework.common.model.BaseModel;
 import org.jflow.framework.system.ui.core.BaseWebControl;
 import org.jflow.framework.system.ui.core.HtmlUtils;
@@ -24,13 +26,16 @@ import TL.ContextHolderUtils;
 @Controller
 @RequestMapping("/WF/Comm")
 public class EnsController {
+	/**
+	 * 日志对象
+	 */
+	protected final Log logger = LogFactory.getLog(getClass());
 
 	private String getEnsName() {
 		return ContextHolderUtils.getRequest().getParameter("EnsName");
 	}
 
-	private HashMap<String, BaseWebControl> getContrlsMap(
-			HttpServletRequest request) {
+	private HashMap<String, BaseWebControl> getContrlsMap(HttpServletRequest request) {
 		return HtmlUtils.httpParser(request.getParameter("HtmlBody"), request);
 	}
 
@@ -39,13 +44,10 @@ public class EnsController {
 	}
 
 	@RequestMapping(value = "/DelEns", method = RequestMethod.POST)
-	public final void DelEns(HttpServletRequest request,
-			HttpServletResponse response) {
+	public final void DelEns(HttpServletRequest request, HttpServletResponse response) {
 		BP.En.Entities dtls = this.getHisEns();
 		QueryObject qo = new QueryObject(dtls);
-		qo.DoQuery(dtls.getGetNewEntity().getPK(),
-				BP.Sys.SystemConfig.getPageSize(), BaseModel.getPageIdx(),
-				false);
+		qo.DoQuery(dtls.getGetNewEntity().getPK(), BP.Sys.SystemConfig.getPageSize(), BaseModel.getPageIdx(), false);
 		String msg1 = "";
 		for (BP.En.Entity dtl : Entities.convertEntities(dtls)) {
 			Object cb = request.getParameter("IDX_" + dtl.getPKVal());
@@ -63,37 +65,32 @@ public class EnsController {
 		if (!msg1.equals("")) {
 			BaseModel.Alert(msg1);
 		}
-		
+
 		try {
-			response.sendRedirect(Glo.getCCFlowAppPath()
-					+ "WF/Comm/Ens.jsp?EnsName=" + this.getEnsName()
-					+ "&PageIdx=" + BaseModel.getPageIdx());
+			response.sendRedirect(Glo.getCCFlowAppPath() + "WF/Comm/Ens.jsp?EnsName=" + this.getEnsName() + "&PageIdx="
+					+ BaseModel.getPageIdx());
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 	}
 
 	@RequestMapping(value = "/SaveCloseEns", method = RequestMethod.POST)
-	public final void SaveCloseEns(HttpServletRequest request,
-			HttpServletResponse response) {
+	public final void SaveCloseEns(HttpServletRequest request, HttpServletResponse response) {
 		SaveEns(request, response);
 		BaseModel.WinClose();
 	}
 
 	@RequestMapping(value = "/SaveEns", method = RequestMethod.POST)
-	public final void SaveEns(HttpServletRequest request,
-			HttpServletResponse response) {
+	public final void SaveEns(HttpServletRequest request, HttpServletResponse response) {
 
 		String msg = null;
 		Entities dtls = BP.En.ClassFactory.GetEns(getEnsName());
 		Entity en = dtls.getGetNewEntity();
 		QueryObject qo = new QueryObject(dtls);
-		qo.DoQuery(en.getPK(), SystemConfig.getPageSize(),
-				BaseModel.getPageIdx(), false);
+		qo.DoQuery(en.getPK(), SystemConfig.getPageSize(), BaseModel.getPageIdx(), false);
 		Map map = dtls.getGetNewEntity().getEnMap();
 		for (Entity dtl : Entities.convertEntities(dtls)) {
-			dtl = BaseModel.Copy(request, dtl, dtl.getPKVal().toString(),
-					dtl.getEnMap(), getContrlsMap(request));
+			dtl = BaseModel.Copy(request, dtl, dtl.getPKVal().toString(), dtl.getEnMap(), getContrlsMap(request));
 			try {
 				dtl.Update();
 			} catch (RuntimeException ex) {
@@ -102,15 +99,14 @@ public class EnsController {
 		}
 
 		// BP.Sys.MapDtl
-		en = BaseModel.Copy(request, en, "0", en.getEnMap(),
-				getContrlsMap(request));
+		en = BaseModel.Copy(request, en, "0", en.getEnMap(), getContrlsMap(request));
 		if (en.getIsBlank() == false) {
 			if (en.getIsNoEntity()) {
 				if (en.getEnMap().getIsAutoGenerNo()) {
 					try {
 						en.SetValByKey("No", en.GenerNewNoByKey("No"));
 					} catch (Exception e) {
-						e.printStackTrace();
+						logger.info("ERROR", e);
 					}
 				}
 			}
@@ -128,16 +124,14 @@ public class EnsController {
 		try {
 			if (msg != null) {
 				request.getSession().setAttribute("info1", msg);
-				response.sendRedirect(Glo.getCCFlowAppPath()
-						+ "WF/Comm/Ens.jsp?EnsName=" + this.getEnsName()
+				response.sendRedirect(Glo.getCCFlowAppPath() + "WF/Comm/Ens.jsp?EnsName=" + this.getEnsName()
 						+ "&PageIdx=" + BaseModel.getPageIdx());
 			} else {
-				response.sendRedirect(Glo.getCCFlowAppPath()
-						+ "WF/Comm/Ens.jsp?EnsName=" + this.getEnsName()
+				response.sendRedirect(Glo.getCCFlowAppPath() + "WF/Comm/Ens.jsp?EnsName=" + this.getEnsName()
 						+ "&PageIdx=" + BaseModel.getPageIdx());
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 	}
 

@@ -7,6 +7,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.jflow.framework.common.model.TempObject;
 import org.jflow.framework.controller.wf.workopt.BaseController;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -22,20 +24,23 @@ import BP.WF.Template.WorkBase.WorkAttr;
 @Controller
 @RequestMapping("/WF/MapDef")
 public class SlnController extends BaseController {
+	/**
+	 * 日志对象
+	 */
+	private static Log logger = LogFactory.getLog(SlnController.class);
+
 	@RequestMapping(value = "/btn_Field_Click", method = RequestMethod.POST)
-	public void btn_Field_Click(TempObject object, HttpServletRequest request,
-			HttpServletResponse response, String btnName) {
+	public void btn_Field_Click(TempObject object, HttpServletRequest request, HttpServletResponse response,
+			String btnName) {
 		if (btnName.equals("Btn_Del")) {
 			FrmFields fss1 = new FrmFields();
-			fss1.Delete(FrmFieldAttr.FK_MapData, object.getFK_MapData(),
-					FrmFieldAttr.FK_Node, object.getFK_Node());
+			fss1.Delete(FrmFieldAttr.FK_MapData, object.getFK_MapData(), FrmFieldAttr.FK_Node, object.getFK_Node());
 			try {
-				response.sendRedirect("Sln.jsp?FK_Flow=" + object.getFK_Flow()
-						+ "&FK_Node=" + object.getFK_Node() + "&FK_MapData="
-						+ object.getFK_MapData() + "&IsOk=1");
+				response.sendRedirect("Sln.jsp?FK_Flow=" + object.getFK_Flow() + "&FK_Node=" + object.getFK_Node()
+						+ "&FK_MapData=" + object.getFK_MapData() + "&IsOk=1");
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.info("ERROR", e);
 			}
 			return;
 		}
@@ -43,8 +48,7 @@ public class SlnController extends BaseController {
 		MapAttrs attrs = new MapAttrs(object.getFK_MapData());
 		// 查询出来解决方案.
 		FrmFields fss = new FrmFields();
-		fss.Delete(FrmFieldAttr.FK_MapData, object.getFK_MapData(),
-				FrmFieldAttr.FK_Node, object.getFK_Node());
+		fss.Delete(FrmFieldAttr.FK_MapData, object.getFK_MapData(), FrmFieldAttr.FK_Node, object.getFK_Node());
 
 		for (MapAttr attr : MapAttrs.convertMapAttrs(attrs)) {
 			if (attr.getKeyOfEn().equals(WorkAttr.RDT)) {
@@ -81,8 +85,7 @@ public class SlnController extends BaseController {
 			// }
 
 			boolean isChange = false;
-			String Visible = request.getParameter("CB_" + attr.getKeyOfEn()
-					+ "_UIVisible");
+			String Visible = request.getParameter("CB_" + attr.getKeyOfEn() + "_UIVisible");
 			boolean UIVisible = true;
 			if (Visible != null && Visible.equals("on")) {
 				UIVisible = true;
@@ -94,8 +97,7 @@ public class SlnController extends BaseController {
 			if (attr.getUIVisible() != UIVisible) {
 				isChange = true;
 			}
-			String IsEnable = request.getParameter("CB_" + attr.getKeyOfEn()
-					+ "_UIIsEnable");
+			String IsEnable = request.getParameter("CB_" + attr.getKeyOfEn() + "_UIIsEnable");
 			boolean UIIsEnable = true;
 			if (IsEnable != null && IsEnable.equals("on")) {
 				UIIsEnable = true;
@@ -108,8 +110,7 @@ public class SlnController extends BaseController {
 				isChange = true;
 			}
 
-			String Sigan = request.getParameter("CB_" + attr.getKeyOfEn()
-					+ "_IsSigan");
+			String Sigan = request.getParameter("CB_" + attr.getKeyOfEn() + "_IsSigan");
 			boolean IsSigan = true;
 			if (Sigan != null && Sigan.equals("on")) {
 				IsSigan = true;
@@ -122,16 +123,14 @@ public class SlnController extends BaseController {
 				isChange = true;
 			}
 
-			String defVal = request.getParameter("TB_" + attr.getKeyOfEn()
-					+ "_DefVal");
+			String defVal = request.getParameter("TB_" + attr.getKeyOfEn() + "_DefVal");
 			// String defVal = this.Pub2.GetTextBoxByID(
 			// "TB_" + attr.KeyOfEn + "_DefVal").getText();
 			if (!defVal.equals(attr.getDefValReal())) {
 				isChange = true;
 			}
 
-			String NotNull = request.getParameter("CB_" + attr.getKeyOfEn()
-					+ "_IsNotNull");
+			String NotNull = request.getParameter("CB_" + attr.getKeyOfEn() + "_IsNotNull");
 			boolean IsNotNull = true;
 			if (NotNull != null && NotNull.equals("on")) {
 				IsNotNull = true;
@@ -145,8 +144,7 @@ public class SlnController extends BaseController {
 			}
 
 			String WriteToFlowTable = request
-					.getParameter("CB_" + attr.getKeyOfEn() + "_"
-							+ FrmFieldAttr.IsWriteToFlowTable);
+					.getParameter("CB_" + attr.getKeyOfEn() + "_" + FrmFieldAttr.IsWriteToFlowTable);
 			boolean IsWriteToFlowTable = true;
 			if (WriteToFlowTable != null && WriteToFlowTable.equals("on")) {
 				IsWriteToFlowTable = true;
@@ -159,8 +157,7 @@ public class SlnController extends BaseController {
 				isChange = true;
 			}
 
-			String exp = request.getParameter("TB_" + attr.getKeyOfEn()
-					+ "_RegularExp");
+			String exp = request.getParameter("TB_" + attr.getKeyOfEn() + "_RegularExp");
 			// String exp = this.Pub2.GetTextBoxByID(
 			// "TB_" + attr.KeyOfEn + "_RegularExp").getText();
 			if (StringHelper.isNullOrEmpty(exp)) {
@@ -187,17 +184,16 @@ public class SlnController extends BaseController {
 			sln.setKeyOfEn(attr.getKeyOfEn());
 			sln.setName(attr.getName());
 
-			sln.setMyPK(object.getFK_MapData() + "_" + object.getFK_Flow()
-					+ "_" + object.getFK_Node() + "_" + attr.getKeyOfEn());
+			sln.setMyPK(object.getFK_MapData() + "_" + object.getFK_Flow() + "_" + object.getFK_Node() + "_"
+					+ attr.getKeyOfEn());
 			sln.Insert();
 		}
 		try {
-			response.sendRedirect("Sln.jsp?FK_Flow=" + object.getFK_Flow()
-					+ "&FK_Node=" + object.getFK_Node() + "&FK_MapData="
-					+ object.getFK_MapData() + "&IsOk=1");
+			response.sendRedirect("Sln.jsp?FK_Flow=" + object.getFK_Flow() + "&FK_Node=" + object.getFK_Node()
+					+ "&FK_MapData=" + object.getFK_MapData() + "&IsOk=1");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 	}
 

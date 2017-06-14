@@ -20,8 +20,7 @@ public abstract class LogbackConfigurer {
 	/** Extension that indicates a logback XML config file: ".xml" */
 	public static final String XML_FILE_EXTENSION = ".xml";
 
-	private static LoggerContext lc = (LoggerContext) LoggerFactory
-			.getILoggerFactory();
+	private static LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
 	private static JoranConfigurator configurator = new JoranConfigurator();
 
 	/**
@@ -32,16 +31,14 @@ public abstract class LogbackConfigurer {
 	 * @param location
 	 *            the location of the config file: either a "classpath:"
 	 *            location (e.g. "classpath:mylogback.properties"), an absolute
-	 *            file URL (e.g.
-	 *            "file:C:/logback.properties), or a plain absolute path in the file system (e.g. "
+	 *            file URL (e.g. "file:C:/logback.properties), or a plain
+	 *            absolute path in the file system (e.g. "
 	 *            C:/logback.properties")
 	 * @throws FileNotFoundException
 	 *             if the location specifies an invalid file path
 	 */
-	public static void initLogging(String location)
-			throws FileNotFoundException {
-		String resolvedLocation = SystemPropertyUtils
-				.resolvePlaceholders(location);
+	public static void initLogging(String location) throws FileNotFoundException {
+		String resolvedLocation = SystemPropertyUtils.resolvePlaceholders(location);
 		URL url = ResourceUtils.getURL(resolvedLocation);
 		if (resolvedLocation.toLowerCase().endsWith(XML_FILE_EXTENSION)) {
 			// DOMConfigurator.configure(url);

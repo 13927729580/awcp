@@ -4,12 +4,19 @@ package org.szcloud.framework.unit.utils;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import sun.misc.BASE64Decoder;
 
 /**
  * The security
  */
 public class Security {
+	/**
+	 * 日志对象
+	 */
+	protected static final Log logger = LogFactory.getLog(Security.class);
 	// public final static String ENCRYPTION_BASE64 = "base64";
 
 	private final static String KEY_STRING = "szcloud_1.0";
@@ -133,7 +140,7 @@ public class Security {
 			 */
 			cipher = new Blowfish(KEY_STRING);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 		return cipher;
 	}
@@ -148,7 +155,7 @@ public class Security {
 
 			// String pw = encodeToMD5("123");
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 
 	}

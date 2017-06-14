@@ -126,7 +126,7 @@ public class PunUserBaseInfoController extends BaseController {
 			params.put("posiVos", posiVos);
 			return new ModelAndView("/unit/punUserBaseInfo-edit", params);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			return new ModelAndView("redirect:/logout.do");
 		}
 	}
@@ -185,7 +185,7 @@ public class PunUserBaseInfoController extends BaseController {
 				model.addAttribute("result", "校验失败" + valMessage.toString() + "。");
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			model.addAttribute("result", "系统异常");
 		}
 		List<PunRoleInfoVO> roleVos = queryRoles();
@@ -227,7 +227,7 @@ public class PunUserBaseInfoController extends BaseController {
 			mv.addObject("posiVos", posiVos);
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			mv.addObject("result", "异常");
 		}
 		return mv;
@@ -289,7 +289,7 @@ public class PunUserBaseInfoController extends BaseController {
 			model.addAttribute("vo", vo);
 			return new ModelAndView("/unit/punUserBaseInfo-list");
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			model.addAttribute("result", "系统异常");
 			return new ModelAndView("/unit/punUserBaseInfo-list");
 		}
@@ -329,7 +329,7 @@ public class PunUserBaseInfoController extends BaseController {
 			model.addAttribute("vos", vos);
 			return new ModelAndView("/unit/punUserGroup-list");
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			model.addAttribute("result", "系统异常");
 			return new ModelAndView("/unit/punUserGroup-list");
 		}
@@ -386,7 +386,7 @@ public class PunUserBaseInfoController extends BaseController {
 			}
 			ra.addFlashAttribute("result", "成功删除" + boxs.length + "个用户");
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			ra.addFlashAttribute("result", "操作失败：系统异常！");
 		}
 		return mv;
@@ -413,7 +413,7 @@ public class PunUserBaseInfoController extends BaseController {
 			}
 			map.put("success", 1);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			map.put("success", 0);
 		}
 		return map;
@@ -483,7 +483,7 @@ public class PunUserBaseInfoController extends BaseController {
 			mv.addObject("vos", userVOs);
 			mv.addObject("currentPage", currentPage);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			mv.addObject("result", "系统异常");
 		}
 		return mv;
@@ -533,7 +533,7 @@ public class PunUserBaseInfoController extends BaseController {
 			mv.addObject("vos", userVOs);
 			mv.addObject("currentPage", currentPage);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			mv.addObject("result", "系统异常");
 		}
 		return mv;
@@ -562,7 +562,7 @@ public class PunUserBaseInfoController extends BaseController {
 			}
 			vo.setMessage("完成" + boxs.length + "个用户的关联操作");
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			vo.setMessage("关联操作失败");
 		}
 		return vo;
@@ -582,7 +582,7 @@ public class PunUserBaseInfoController extends BaseController {
 			userRoleService.deleteByRoleIdAndUserId(roleId, boxs);
 			mv.addObject("result", "删除成功");
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			mv.addObject("result", "删除失败");
 		}
 		return mv;
@@ -663,7 +663,7 @@ public class PunUserBaseInfoController extends BaseController {
 				respStatus.setMessage("修改成功");
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			respStatus.setMessage("修改失败，请重试或联系管理员");
 			respStatus.setStatus(1);
 		}
@@ -689,7 +689,7 @@ public class PunUserBaseInfoController extends BaseController {
 			respStatus.setStatus(0);// 更新成功
 			respStatus.setMessage("更新成功");
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 		HttpUtil.writeDataToResponse(response, respStatus);
 	}
@@ -709,7 +709,7 @@ public class PunUserBaseInfoController extends BaseController {
 					.getObjectFromSession(SessionContants.CURRENT_USER);
 			mv.addObject("vo", user);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			mv.addObject("result", "系统异常");
 		}
 		return mv;
@@ -809,7 +809,7 @@ public class PunUserBaseInfoController extends BaseController {
 			vo.setSignatureImg(uuid);
 			userService.updateUser(vo);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 	}
 }

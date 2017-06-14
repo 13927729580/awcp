@@ -80,12 +80,13 @@
 				{ id:92, pId:7, name:"页面接口管理",url:"<%=basePath%>/document/view.do?dynamicPageId=1",target:"sysEditFrame"},
 				{ id:8, pId:0, name:"流程管理",url:null,target:"sysEditFrame",open:true},
 				{ id:81, pId:8, name:"流程设计器",url:"<%=basePath%>WF/Admin/xap/Designer.jsp",target:"_blank",open:true},
+				{ id:9, pId:0, name:"调试日志",url:"<%=basePath%>debug/view.do",target:"sysEditFrame"}
 				//{ id:81, pId:8, name:"流程分类",url:"<%=basePath%>workflow/bpm/bpm-category-list.do",target:"sysEditFrame"},
 				//{ id:82, pId:8, name:"自动委托",url:"<%=basePath%>workflow/bpm/delegate-listMyDelegateInfo.do",target:"sysEditFrame"},
 			//  { id:85, pId:8, name:"流程管理旧",url:"<%=basePath%>workflow/bpm/console-listProcessDefinitions-old.do",target:"sysEditFrame"},
 			//{ id:73, pId:7, name:"流程管理",url:"<%=basePath%>workflow/bpm/bpm-process-list.do",target:"sysEditFrame"},
 				//{ id:84, pId:8, name:"运行管理",url:"<%=basePath%>workflow/bpm/console-listProcessInstances.do",target:"sysEditFrame"},
-				//{ id:89, pId:0, name:"调试日志",url:"<%=basePath%>debug/view.do",target:"_blank"}
+				//
     	];
         var myLayout;
         $(function(){

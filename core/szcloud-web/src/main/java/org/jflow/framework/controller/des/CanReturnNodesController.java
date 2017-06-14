@@ -9,6 +9,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.jflow.framework.common.model.TempObject;
 import org.jflow.framework.controller.wf.workopt.BaseController;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -23,40 +25,46 @@ import BP.WF.Template.PubLib.NodeAttr;
 @Controller
 @RequestMapping("/DES")
 public class CanReturnNodesController extends BaseController {
+	/**
+	 * 日志对象
+	 */
+	private static Log logger = LogFactory.getLog(CanReturnNodesController.class);
 
 	@RequestMapping(value = "/CanReturnNodesSave", method = RequestMethod.POST)
-	public void canReturnNodesSave(TempObject object, HttpServletRequest request,
-			HttpServletResponse response) {
+	public void canReturnNodesSave(TempObject object, HttpServletRequest request, HttpServletResponse response) {
 
-		try{
+		try {
 			String url = request.getQueryString();
 			HashMap<String, String> map = this.getParamsMap(url, "utf-8");
-			
-			//HashMap<String,BaseWebControl> controls = HtmlUtils.httpParser(object.getFormHtml(), request);
-			
+
+			// HashMap<String,BaseWebControl> controls =
+			// HtmlUtils.httpParser(object.getFormHtml(), request);
+
 			NodeReturns rnds = new NodeReturns();
-            rnds.Delete(NodeReturnAttr.FK_Node, map.get("FK_Node"));
-            
-            Nodes nds = new Nodes();
-            nds.Retrieve(NodeAttr.FK_Flow, map.get("FK_Flow"));
-            for (Node nd : Nodes.convertNodes(nds)){
-        	   Object cb = request.getParameter("CB_" + nd.getNodeID());// 选种了为on 不选中为null
-			   if (null == cb)continue;
-			   
-			   NodeReturn nr = new NodeReturn();
-               nr.setFK_Node(Integer.parseInt(map.get("FK_Node")));
-               nr.setReturnTo(nd.getNodeID());
-               nr.Insert();
-            }
-            
-            this.winCloseWithMsg(response, "设置成功");
-           
-		}catch(Exception e){
-			e.printStackTrace();
+			rnds.Delete(NodeReturnAttr.FK_Node, map.get("FK_Node"));
+
+			Nodes nds = new Nodes();
+			nds.Retrieve(NodeAttr.FK_Flow, map.get("FK_Flow"));
+			for (Node nd : Nodes.convertNodes(nds)) {
+				Object cb = request.getParameter("CB_" + nd.getNodeID());// 选种了为on
+																			// 不选中为null
+				if (null == cb)
+					continue;
+
+				NodeReturn nr = new NodeReturn();
+				nr.setFK_Node(Integer.parseInt(map.get("FK_Node")));
+				nr.setReturnTo(nd.getNodeID());
+				nr.Insert();
+			}
+
+			this.winCloseWithMsg(response, "设置成功");
+
+		} catch (Exception e) {
+			logger.info("ERROR", e);
 		}
-		
+
 	}
-	
+
 	private HashMap<String, String> getParamsMap(String queryString, String enc) {
 		HashMap<String, String> paramsMap = new HashMap<String, String>();
 		if (queryString != null && queryString.length() > 0) {
@@ -66,8 +74,7 @@ public class CanReturnNodesController extends BaseController {
 			do {
 				ampersandIndex = queryString.indexOf('&', lastAmpersandIndex) + 1;
 				if (ampersandIndex > 0) {
-					subStr = queryString.substring(lastAmpersandIndex,
-							ampersandIndex - 1);
+					subStr = queryString.substring(lastAmpersandIndex, ampersandIndex - 1);
 					lastAmpersandIndex = ampersandIndex;
 				} else {
 					subStr = queryString.substring(lastAmpersandIndex);

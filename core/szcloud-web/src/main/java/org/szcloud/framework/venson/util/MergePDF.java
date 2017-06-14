@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.itextpdf.text.Document;
 import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfContentByte;
@@ -17,6 +20,10 @@ import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfWriter;
 
 public class MergePDF {
+	/**
+	 * 日志对象
+	 */
+	protected static final Log logger = LogFactory.getLog(MergePDF.class);
 
 	public static void main(String[] args) {
 		try {
@@ -26,7 +33,7 @@ public class MergePDF {
 			OutputStream output = new FileOutputStream("f:\\merge.pdf");
 			MergePDF.concatPDF(pdfs, output, true);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 	}
 
@@ -86,7 +93,7 @@ public class MergePDF {
 			document.close();
 			outputStream.close();
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		} finally {
 			if (document.isOpen())
 				document.close();
@@ -94,7 +101,7 @@ public class MergePDF {
 				if (outputStream != null)
 					outputStream.close();
 			} catch (IOException ioe) {
-				ioe.printStackTrace();
+				logger.info("ERROR", ioe);
 			}
 		}
 	}

@@ -14,11 +14,11 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
@@ -61,7 +61,7 @@ public class UnitBaseController {
 	/**
 	 * 日志对象
 	 */
-	protected Logger logger = LoggerFactory.getLogger(getClass());
+	protected final Log logger = LogFactory.getLog(getClass());
 
 	@Autowired
 	@Qualifier("punUserBaseInfoServiceImpl")
@@ -141,8 +141,7 @@ public class UnitBaseController {
 			// 进入选择系统页面
 			return result;
 		} catch (Exception e) {
-			e.printStackTrace();
-			addErrorCount();
+			logger.info("ERROR", e);
 			return result.setStatus(StatusCode.FAIL.setMessage("登录失败，请核实登录信息"));
 		}
 	}
@@ -167,7 +166,7 @@ public class UnitBaseController {
 			valid = token.equals(userVO.getToken());
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 		return valid;
 	}

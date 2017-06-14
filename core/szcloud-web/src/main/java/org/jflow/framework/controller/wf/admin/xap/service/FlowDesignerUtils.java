@@ -9,6 +9,9 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import BP.DA.AtPara;
 import BP.DA.DBAccess;
 import BP.DA.DataColumn;
@@ -38,6 +41,10 @@ import BP.WF.Template.PubLib.ImpFlowTempleteModel;
 import BP.WF.Template.PubLib.RunModel;
 
 public class FlowDesignerUtils {
+	/**
+	 * 日志对象
+	 */
+	private static Log logger = LogFactory.getLog(FlowDesignerUtils.class);
 
 	public static DataSet RunSQLReturnDataSet(String sqls) {
 		String[] strs = sqls.split("[@]", -1);
@@ -91,7 +98,7 @@ public class FlowDesignerUtils {
 			try {
 				rows = tabel.Select(filterMap);
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.info("ERROR", e);
 			}
 			if (rows.size() > 0) {
 				for (int i = 0; i < rows.size(); i++) {
@@ -115,7 +122,7 @@ public class FlowDesignerUtils {
 					try {
 						rowChild = tabel.Select(filterMap);
 					} catch (Exception e) {
-						e.printStackTrace();
+						logger.info("ERROR", e);
 					}
 					String tmp = "{\"id\":\"" + jNo + "\",\"text\":\"" + jText;
 
@@ -906,7 +913,7 @@ public class FlowDesignerUtils {
 			return BP.DA.DBAccess.RunSQLReturnValFloat(sql);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 		return -1;
 	}

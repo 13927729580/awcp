@@ -3,8 +3,8 @@ package org.jflow.framework.common.model;
 import java.io.File;
 import java.io.IOException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import BP.DA.DBAccess;
 import BP.DA.DataTable;
@@ -34,7 +34,7 @@ public class AttachmentUploadModel {
 	/**
 	 * 日志对象
 	 */
-	private static final Logger logger = LoggerFactory.getLogger(AttachmentUploadModel.class);
+	private static final Log logger = LogFactory.getLog(AttachmentUploadModel.class);
 	public StringBuilder Pub1 = new StringBuilder();
 
 	/**
@@ -181,7 +181,7 @@ public class AttachmentUploadModel {
 				PubClass.DownloadFile(downDB.getFileFullName(), downDB.getFileName());
 			} catch (IOException e) {
 
-				e.printStackTrace();
+				logger.info("ERROR", e);
 			}
 			// this.WinClose();
 			return;
@@ -199,7 +199,7 @@ public class AttachmentUploadModel {
 				ContextHolderUtils.getResponse().getWriter().flush();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.info("ERROR", e);
 			}
 			return;
 		}
@@ -363,7 +363,7 @@ public class AttachmentUploadModel {
 					file.createNewFile();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.info("ERROR", e);
 				}
 			}
 
@@ -380,7 +380,7 @@ public class AttachmentUploadModel {
 					saveToFile.createNewFile();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.info("ERROR", e);
 				}
 			}
 

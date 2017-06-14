@@ -13,8 +13,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,7 +38,7 @@ public class FileUploadController {
 	/**
 	 * 日志对象
 	 */
-	private static final Logger logger = LoggerFactory.getLogger(FileUploadController.class);
+	private static final Log logger = LogFactory.getLog(FileUploadController.class);
 
 	@RequestMapping(value = "/upload", method = RequestMethod.POST)
 	public ModelAndView onSubmit(HttpServletRequest request, HttpServletResponse response, BindException errors)
@@ -101,9 +101,9 @@ public class FileUploadController {
 		try {
 			image.transferTo(file); // 保存上传的文件
 		} catch (IllegalStateException e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 		request.setAttribute("files", loadFiles(request));
 		return "success";
@@ -182,7 +182,7 @@ public class FileUploadController {
 				bos.write(buff, 0, bytesRead);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		} finally {
 			if (bis != null)
 				bis.close();

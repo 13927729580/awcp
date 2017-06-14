@@ -26,14 +26,14 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class AutoPlement extends JFrame {
 	/**
 	 * 日志对象
 	 */
-	private static final Logger logger = LoggerFactory.getLogger(AutoPlement.class);
+	protected final Log logger = LogFactory.getLog(AutoPlement.class);
 
 	public AutoPlement() {
 		this.setTitle("代码生成器");
@@ -239,7 +239,7 @@ public class AutoPlement extends JFrame {
 						list.add(rs.getString("table_name"));// 将表名添加到list中去
 					}
 				} catch (Exception e1) {
-					e1.printStackTrace();
+					logger.info("ERROR", e1);
 					JOptionPane.showMessageDialog(rootPane, "用户名或密码错误！");
 					return;
 				}

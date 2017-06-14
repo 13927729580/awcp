@@ -30,8 +30,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -101,7 +101,7 @@ public class DocumentController extends BaseController {
 	/**
 	 * 日志对象
 	 */
-	private static final Logger logger = LoggerFactory.getLogger(DocumentController.class);
+	protected static final Log logger = LogFactory.getLog(DocumentController.class);
 	private static final int MAX_EXCEL_PAGE_SIZE = 64000;
 	@Autowired
 	private FormdesignerService formdesignerServiceImpl;
@@ -268,13 +268,13 @@ public class DocumentController extends BaseController {
 			jcon.put("relatePageId", pageVO.getId());
 			jcon.put("componentType", "");
 			List<JSONObject> components = formdesignerServiceImpl.getComponentByContainerWithColumn(jcon);
-			logger.debug("end find components the size is {}", components.size());
+			logger.debug("end find components the size is " + components.size());
 			logger.debug("start init components status");
-			logger.debug("components : {}", JSON.toJSONString(components, true));
+			logger.debug("components : " + JSON.toJSONString(components, true));
 			if (components != null && components.size() > 0) {
 				for (int i = 0; i < components.size(); i++) {
 					JSONObject component = components.get(i);
-					logger.debug("component : {}", JSON.toJSONString(component));
+					logger.debug("component :  " + JSON.toJSONString(component));
 					if (component != null) {
 
 						JSONObject o = new JSONObject();
@@ -400,9 +400,8 @@ public class DocumentController extends BaseController {
 						}
 
 						status.put(component.getString("name"), o);
-						logger.debug(" status {}\n others {}",
-								JSON.toJSONString(status.get(component.getString("name"))),
-								others.get(component.getString("name")));
+						logger.debug(" status " + JSON.toJSONString(status.get(component.getString("name")))
+								+ "\n others " + others.get(component.getString("name")));
 
 					}
 				}
@@ -517,7 +516,7 @@ public class DocumentController extends BaseController {
 			try {
 				status = (Boolean) engine.eval(script);
 			} catch (ScriptException e) {
-				e.printStackTrace();
+				logger.info("ERROR", e);
 			}
 			if (status != null)
 				return status;
@@ -637,11 +636,11 @@ public class DocumentController extends BaseController {
 					return mv;
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.info("ERROR", e);
 				try {
 					jdbcTemplate1.rollback();
 				} catch (Exception e1) {
-					e1.printStackTrace();
+					logger.info("ERROR", e);
 				}
 			}
 		} else {
@@ -801,7 +800,7 @@ public class DocumentController extends BaseController {
 					try {
 						params = (Map<String, String>) engine.eval(StringEscapeUtils.unescapeHtml4(script));
 					} catch (ScriptException e2) {
-						e2.printStackTrace();
+						logger.info("ERROR", e2);
 					}
 				}
 				List listPages = formdesignerServiceImpl.getChildListPages(pageVO.getId());
@@ -823,7 +822,7 @@ public class DocumentController extends BaseController {
 					print(virtualRequest, request, response);
 				} catch (ScriptException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.info("ERROR", e);
 				}
 				return null;
 
@@ -867,7 +866,7 @@ public class DocumentController extends BaseController {
 					try {
 						excelParams = (Map<String, String>) engine.eval(StringEscapeUtils.unescapeHtml4(excelScript));
 					} catch (ScriptException e2) {
-						e2.printStackTrace();
+						logger.info("ERROR", e2);
 					}
 				}
 				// excel模板的Id
@@ -879,7 +878,7 @@ public class DocumentController extends BaseController {
 					try {
 						actSql = (String) engine.eval(StringEscapeUtils.unescapeHtml4(sqlScript));
 					} catch (ScriptException e2) {
-						e2.printStackTrace();
+						logger.info("ERROR", e2);
 					}
 				}
 
@@ -893,7 +892,7 @@ public class DocumentController extends BaseController {
 				try {
 					excelListPage(vRequest, request, response);
 				} catch (ScriptException e) {
-					e.printStackTrace();
+					logger.info("ERROR", e);
 				}
 				return null;
 			case 2017:// 保存并返回
@@ -979,7 +978,7 @@ public class DocumentController extends BaseController {
 					try {
 						ret = (String) engine.eval(script);
 					} catch (ScriptException e) {
-						e.printStackTrace();
+						logger.info("ERROR", e);
 					}
 					StringBuilder sb = new StringBuilder();
 					if (StringUtils.isNotBlank(ret)) {
@@ -1168,7 +1167,7 @@ public class DocumentController extends BaseController {
 					}
 				}
 			} catch (ScriptException e) {
-				e.printStackTrace();
+				logger.info("ERROR", e);
 			}
 		} else {
 			// 校验文档
@@ -1412,7 +1411,7 @@ public class DocumentController extends BaseController {
 					"inline; filename=" + encodeChineseDownloadFileName(request, fileName));
 		} catch (UnsupportedEncodingException e1) {
 			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			logger.info("ERROR", e1);
 		}
 
 		OutputStream out = null;
@@ -1434,7 +1433,7 @@ public class DocumentController extends BaseController {
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 		// }
 	}
@@ -1533,14 +1532,14 @@ public class DocumentController extends BaseController {
 					"attachment; filename=" + encodeChineseDownloadFileName(request, pageVO.getName() + "-列表.xls"));
 		} catch (UnsupportedEncodingException e1) {
 			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			logger.info("ERROR", e1);
 		}
 		try {
 			// 此处多传了模板ID和页面两个参数pageVO，pageVO是为了获取序号的模式和序号是降序还是升序
 			printExcel(columns, dataMap, response.getOutputStream(), templateFileId, pageVO);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 		// }
 	}
@@ -1764,7 +1763,7 @@ public class DocumentController extends BaseController {
 				return returnMap;
 			} catch (ScriptException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.info("ERROR", e);
 			}
 		}
 		return null;
@@ -1809,9 +1808,9 @@ public class DocumentController extends BaseController {
 			try {
 				template = Workbook.getWorkbook(file.getInputStream());// 初始化模板
 			} catch (BiffException e) {
-				e.printStackTrace();
+				logger.info("ERROR", e);
 			} catch (IOException e) {
-				e.printStackTrace();
+				logger.info("ERROR", e);
 			}
 		}
 
@@ -1980,7 +1979,7 @@ public class DocumentController extends BaseController {
 			workbook.write();
 			workbook.close();
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 
 	}
@@ -2019,7 +2018,7 @@ public class DocumentController extends BaseController {
 		// zipOut = new ZipOutputStream(response.getOutputStream());
 		// } catch (IOException e3) {
 		// // TODO Auto-generated catch block
-		// e3.printStackTrace();
+		// e3.logger.info("ERROR", e)();
 		// }
 		// zip的名称为
 		// zipOut.setComment("评审表.rar");
@@ -2030,7 +2029,7 @@ public class DocumentController extends BaseController {
 					"attachment; filename=" + encodeChineseDownloadFileName(request, fileName + ".pdf"));
 		} catch (UnsupportedEncodingException e1) {
 			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			logger.info("ERROR", e1);
 		}
 
 		List<StoreVO> printManageVOs = new ArrayList<StoreVO>();
@@ -2072,7 +2071,7 @@ public class DocumentController extends BaseController {
 			if (components != null && components.size() > 0) {
 				for (int k = 0; k < components.size(); k++) {
 					JSONObject component = components.get(k);
-					logger.debug("component : {}", JSON.toJSONString(component));
+					logger.debug("component : " + JSON.toJSONString(component));
 					if (component != null) {
 						JSONObject o = new JSONObject();
 						String value = DocUtils.getComponentValue(component, dataMap, engine);
@@ -2159,7 +2158,7 @@ public class DocumentController extends BaseController {
 			printServiceImpl.batchPrintPDF(printManageVOs, dataMaps, componentsList, response.getOutputStream());
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			logger.info("ERROR", e1);
 		}
 
 	}
@@ -2174,7 +2173,7 @@ public class DocumentController extends BaseController {
 		if (components != null && components.size() > 0) {
 			for (int i = 0; i < components.size(); i++) {
 				JSONObject component = components.get(i);
-				logger.debug("component : {}", JSON.toJSONString(component));
+				logger.debug("component : " + JSON.toJSONString(component));
 				if (component != null) {
 					int type = component.getIntValue("componentType");
 
@@ -2193,7 +2192,7 @@ public class DocumentController extends BaseController {
 
 							} catch (ScriptException e) {
 
-								e.printStackTrace();
+								logger.info("ERROR", e);
 							}
 						}
 						break;
@@ -2639,7 +2638,7 @@ public class DocumentController extends BaseController {
 					return delMap;
 				} catch (Exception e) {
 					// TODO: handle exception
-					e.printStackTrace();
+					logger.info("ERROR", e);
 					delMap.put("message", "0");
 					return delMap;
 

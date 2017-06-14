@@ -9,8 +9,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,7 +31,7 @@ public class ToolsWapController extends HttpServlet {
 	/**
 	 * 日志对象
 	 */
-	private static final Logger logger = LoggerFactory.getLogger(ToolsWapController.class);
+	private static final Log logger = LogFactory.getLog(ToolsWapController.class);
 
 	@RequestMapping(value = "/ToolsWap", method = RequestMethod.POST)
 	public ModelAndView btn_Profile_Click(String tel, String mail, int way, HttpServletRequest request,
@@ -44,7 +44,7 @@ public class ToolsWapController extends HttpServlet {
 		try {
 			emp.Update();
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 		mv.setViewName("redirect:" + "/WF/ToolsWap.jsp?RefNo=Profile");
 		return mv;

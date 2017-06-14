@@ -7,6 +7,8 @@ import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jflow.framework.common.model.BaseModel;
 import org.jflow.framework.controller.wf.workopt.BaseController;
 import org.jflow.framework.system.ui.core.BaseWebControl;
@@ -28,39 +30,38 @@ import BP.Sys.Frm.FrmEvent;
 import BP.Sys.Frm.FrmEventAttr;
 import BP.Sys.Frm.FrmEvents;
 import BP.Sys.Frm.MapDtl;
-import BP.Tools.StringHelper;
 import BP.WF.XML.EventListDtlList;
 import TL.ContextHolderUtils;
 
 @Controller
 @RequestMapping("/WF/CCForm")
 @Scope("request")
-public class DtlController extends BaseController{
-	
+public class DtlController extends BaseController {
+	/**
+	 * 日志对象
+	 */
+	protected final Log logger = LogFactory.getLog(getClass());
 	private boolean isAddDDLSelectIdxChange = false;
+
 	public final int getDtlRowCount() {
-		if(ContextHolderUtils.getRequest().getParameter("DtlRowCount")==null)
+		if (ContextHolderUtils.getRequest().getParameter("DtlRowCount") == null)
 			return 0;
-		else
-		{
+		else {
 			int count = 0;
-			try
-			{
+			try {
 				count = Integer.parseInt(ContextHolderUtils.getRequest().getParameter("DtlRowCount"));
-			}catch(Exception e)
-			{
+			} catch (Exception e) {
 				count = 0;
 			}
-			
+
 			return count;
 		}
 	}
-	
+
 	@RequestMapping(value = "/DtlSave", method = RequestMethod.POST)
-	private void execute(HttpServletRequest request,
-			HttpServletResponse response)
-	{
-		HashMap<String,BaseWebControl> controls = HtmlUtils.httpParser(ContextHolderUtils.getRequest().getParameter("pData").toString(), true);
+	private void execute(HttpServletRequest request, HttpServletResponse response) {
+		HashMap<String, BaseWebControl> controls = HtmlUtils
+				.httpParser(ContextHolderUtils.getRequest().getParameter("pData").toString(), true);
 		MapDtl mdtl = new MapDtl(this.getEnsName());
 		GEDtls dtls = new GEDtls(this.getEnsName());
 		FrmEvents fes = new FrmEvents(this.getEnsName()); // 获得事件.
@@ -70,8 +71,7 @@ public class DtlController extends BaseController{
 		// /#region 从表保存前处理事件.
 		if (fes.size() > 0) {
 			try {
-				String msg = fes.DoEventNode(EventListDtlList.DtlSaveEnd,
-						mainEn);
+				String msg = fes.DoEventNode(EventListDtlList.DtlSaveEnd, mainEn);
 				if (msg != null) {
 					// this.Alert(msg);
 				}
@@ -98,8 +98,7 @@ public class DtlController extends BaseController{
 			break;
 		}
 
-		int num = qo.DoQuery("OID", mdtl.getRowsOfList(), this.getPageIdx(),
-				false);
+		int num = qo.DoQuery("OID", mdtl.getRowsOfList(), this.getPageIdx(), false);
 		int dtlCount = dtls.size();
 		if (getallRowCount() == 0) {
 			mdtl.setRowsOfList(mdtl.getRowsOfList() + this.getaddRowNum());
@@ -129,20 +128,16 @@ public class DtlController extends BaseController{
 		// 判断是否有事件.
 		boolean isHaveBefore = false;
 		boolean isHaveEnd = false;
-		Object tempVar = fes.GetEntityByKey(FrmEventAttr.FK_Event,
-				EventListDtlList.DtlItemSaveBefore);
-		FrmEvent fe_Before = (FrmEvent) ((tempVar instanceof FrmEvent) ? tempVar
-				: null);
+		Object tempVar = fes.GetEntityByKey(FrmEventAttr.FK_Event, EventListDtlList.DtlItemSaveBefore);
+		FrmEvent fe_Before = (FrmEvent) ((tempVar instanceof FrmEvent) ? tempVar : null);
 		if (fe_Before == null) {
 			isHaveBefore = false;
 		} else {
 			isHaveBefore = true;
 		}
 
-		Object tempVar2 = fes.GetEntityByKey(FrmEventAttr.FK_Event,
-				EventListDtlList.DtlItemSaveAfter);
-		FrmEvent fe_End = (FrmEvent) ((tempVar2 instanceof FrmEvent) ? tempVar2
-				: null);
+		Object tempVar2 = fes.GetEntityByKey(FrmEventAttr.FK_Event, EventListDtlList.DtlItemSaveAfter);
+		FrmEvent fe_End = (FrmEvent) ((tempVar2 instanceof FrmEvent) ? tempVar2 : null);
 		if (fe_End == null) {
 			isHaveEnd = false;
 		} else {
@@ -154,7 +149,7 @@ public class DtlController extends BaseController{
 		for (GEDtl dtl : GEDtls.convertGEDtls(dtls)) {
 			idx++;
 			try {
-				BaseModel.Copy(request,dtl, String.valueOf(dtl.getOID()), map,controls);
+				BaseModel.Copy(request, dtl, String.valueOf(dtl.getOID()), map, controls);
 
 				// 如果是行锁定,就不执行.
 				if (isRowLock && dtl.getIsRowLock()) {
@@ -180,8 +175,7 @@ public class DtlController extends BaseController{
 
 					if (isHaveBefore) {
 						try {
-							String r = fes.DoEventNode(
-									EventListDtlList.DtlItemSaveBefore, dtl);
+							String r = fes.DoEventNode(EventListDtlList.DtlItemSaveBefore, dtl);
 							if (r.equals("false") || r.equals("0")) {
 								continue;
 							}
@@ -195,16 +189,15 @@ public class DtlController extends BaseController{
 						dtl.InsertAsOID(DBAccess.GenerOID("Dtl"));
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
-						e.printStackTrace();
+						logger.info("ERROR", e);
 					}
 				} else {
 					if (this.getFID() != 0) {
-						dtl.setFID( this.getFID());
+						dtl.setFID(this.getFID());
 					}
 					if (isHaveBefore) {
 						try {
-							err += fes.DoEventNode(
-									EventListDtlList.DtlItemSaveBefore, dtl);
+							err += fes.DoEventNode(EventListDtlList.DtlItemSaveBefore, dtl);
 						} catch (RuntimeException ex) {
 							err += ex.getMessage();
 							continue;
@@ -222,15 +215,15 @@ public class DtlController extends BaseController{
 					}
 				}
 			} catch (RuntimeException ex) {
-				//dtl.CheckPhysicsTable();
-				//err += "Row: " + idx + " Error \r\n" + ex.getMessage();
-				ex.printStackTrace();
+				// dtl.CheckPhysicsTable();
+				// err += "Row: " + idx + " Error \r\n" + ex.getMessage();
+				logger.info("ERROR", ex);
 			}
 		}
 
 		if (!err.equals("")) {
 			BP.DA.Log.DefaultLogWriteLineInfo(err);
-			//this.Alert(err);
+			// this.Alert(err);
 			return;
 		}
 
@@ -242,13 +235,12 @@ public class DtlController extends BaseController{
 		// /#region 从表保存后处理事件。
 		if (fes.size() > 0) {
 			try {
-				String msg = fes.DoEventNode(EventListDtlList.DtlSaveEnd,
-						mainEn);
+				String msg = fes.DoEventNode(EventListDtlList.DtlSaveEnd, mainEn);
 				if (msg != null) {
-					//this.Alert(msg);
+					// this.Alert(msg);
 				}
 			} catch (RuntimeException ex) {
-				//this.Alert(ex.getMessage());
+				// this.Alert(ex.getMessage());
 				return;
 			}
 		}
@@ -258,9 +250,8 @@ public class DtlController extends BaseController{
 		if (isTurnPage) {
 			int pageNum = 0;
 			int count = dtlCount + 1;
-			java.math.BigDecimal pageCountD = java.math.BigDecimal
-					.valueOf(count/mdtl.getRowsOfList()); // 页面个数。
-			
+			java.math.BigDecimal pageCountD = java.math.BigDecimal.valueOf(count / mdtl.getRowsOfList()); // 页面个数。
+
 			DecimalFormat mformat = new DecimalFormat("0.0000");
 			String[] strs = mformat.format(pageCountD).split("[.]", -1);
 			if (Integer.parseInt(strs[1]) > 0) {
@@ -269,60 +260,59 @@ public class DtlController extends BaseController{
 				pageNum = Integer.parseInt(strs[0]);
 			}
 			try {
-				response.sendRedirect(
-						"Dtl2.jsp?EnsName=" + this.getEnsName() + "&RefPKVal="
-								+ this.getRefPKVal() + "&PageIdx=" + pageNum
-								+ "&IsWap=" + this.getIsWap() + "&FK_Node="
-								+ this.getFK_Node() + "&FID=" + this.getFID()
-								+ "&Key=" + this.getKey());
+				response.sendRedirect("Dtl2.jsp?EnsName=" + this.getEnsName() + "&RefPKVal=" + this.getRefPKVal()
+						+ "&PageIdx=" + pageNum + "&IsWap=" + this.getIsWap() + "&FK_Node=" + this.getFK_Node()
+						+ "&FID=" + this.getFID() + "&Key=" + this.getKey());
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.info("ERROR", e);
 			}
 		} else {
 			try {
-				response.sendRedirect(
-						"Dtl2.jsp?EnsName=" + this.getEnsName() + "&RefPKVal="
-								+ this.getRefPKVal() + "&PageIdx=" + this.getPageIdx()
-								+ "&IsWap=" + this.getIsWap() + "&FK_Node="
-								+ this.getFK_Node() + "&FID=" + this.getFID()
-								+ "&Key=" + this.getKey());
+				response.sendRedirect("Dtl2.jsp?EnsName=" + this.getEnsName() + "&RefPKVal=" + this.getRefPKVal()
+						+ "&PageIdx=" + this.getPageIdx() + "&IsWap=" + this.getIsWap() + "&FK_Node="
+						+ this.getFK_Node() + "&FID=" + this.getFID() + "&Key=" + this.getKey());
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.info("ERROR", e);
 			}
 		}
 	}
+
 	@RequestMapping(value = "/DtlRow", method = RequestMethod.POST)
-	private void myAdd_SelectedIndexChanged(HttpServletRequest request,
-			HttpServletResponse response)
-    {
-//        DDL ddl = sender as DDL;
-//        string val = ddl.SelectedItemStringVal;
-//        string url = "";
-//        isAddDDLSelectIdxChange = true;
-//        this.Save();
-//        try
-//        {
-//            int addRow = getDtlRowCount();
-//            _allRowCount += addRow;
-//        }
-//        catch
-//        {
-//
-//        }
+	private void myAdd_SelectedIndexChanged(HttpServletRequest request, HttpServletResponse response) {
+		// DDL ddl = sender as DDL;
+		// string val = ddl.SelectedItemStringVal;
+		// string url = "";
+		// isAddDDLSelectIdxChange = true;
+		// this.Save();
+		// try
+		// {
+		// int addRow = getDtlRowCount();
+		// _allRowCount += addRow;
+		// }
+		// catch
+		// {
+		//
+		// }
 
-//        if (val.Contains("+"))
-//            url = "Dtl2.jsp?EnsName=" + this.getEnsName() + "&RefPKVal=" + this.getRefPKVal() + "&PageIdx=" + this.getPageIdx() + "&rowCount=" + _allRowCount + "&AddRowNum=" + ddl.SelectedItemStringVal.Replace("+", "").Replace("-", "") + "&IsCut=0&IsWap=" + this.IsWap + "&FK_Node=" + this.getFK_Node() + "&Key=" + this.Request.QueryString["Key"];
-//        else
-            String url = "Dtl2.jsp?EnsName=" + this.getEnsName() + "&RefPKVal=" + this.getRefPKVal() + "&PageIdx=" + this.getPageIdx() + "&rowCount=13" +"&AddRowNum=3"+ "&IsWap=" + this.getIsWap() + "&FK_Node=" + this.getFK_Node() + "&Key=" ;
+		// if (val.Contains("+"))
+		// url = "Dtl2.jsp?EnsName=" + this.getEnsName() + "&RefPKVal=" +
+		// this.getRefPKVal() + "&PageIdx=" + this.getPageIdx() + "&rowCount=" +
+		// _allRowCount + "&AddRowNum=" + ddl.SelectedItemStringVal.Replace("+",
+		// "").Replace("-", "") + "&IsCut=0&IsWap=" + this.IsWap + "&FK_Node=" +
+		// this.getFK_Node() + "&Key=" + this.Request.QueryString["Key"];
+		// else
+		String url = "Dtl2.jsp?EnsName=" + this.getEnsName() + "&RefPKVal=" + this.getRefPKVal() + "&PageIdx="
+				+ this.getPageIdx() + "&rowCount=13" + "&AddRowNum=3" + "&IsWap=" + this.getIsWap() + "&FK_Node="
+				+ this.getFK_Node() + "&Key=";
 
-        try {
+		try {
 			response.sendRedirect(url);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
-    }
+	}
 
 }

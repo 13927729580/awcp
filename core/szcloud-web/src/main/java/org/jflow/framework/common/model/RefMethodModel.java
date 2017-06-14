@@ -4,6 +4,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.jflow.framework.designer.model.UCEnModel;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import BP.En.Entities;
 import BP.En.Entity;
@@ -12,43 +14,42 @@ import BP.En.RefMethodType;
 import BP.Tools.StringHelper;
 import BP.WF.Glo;
 
-public class RefMethodModel extends UCEnModel{
-	
+public class RefMethodModel extends UCEnModel {
+	/**
+	 * 日志对象
+	 */
+	private static Log logger = LogFactory.getLog(RefMethodModel.class);
 	public String Label1;
-	
-	public String uc_en="";
-	
-	public RefMethodModel(HttpServletRequest request,
-			HttpServletResponse response) {
+
+	public String uc_en = "";
+
+	public RefMethodModel(HttpServletRequest request, HttpServletResponse response) {
 		super(request, response);
 	}
-	
-	public String getRefEnKey(){
+
+	public String getRefEnKey() {
 		String str = getParameter("No");
-        if (str == null)
-            str = getParameter("OID");
+		if (str == null)
+			str = getParameter("OID");
 
-        if (str == null)
-            str = getParameter("MyPK");
+		if (str == null)
+			str = getParameter("MyPK");
 
-        if (str == null)
-            str = getParameter("PK");
+		if (str == null)
+			str = getParameter("PK");
 		return str;
 	}
-	
-	public void loadPage()
-	{
+
+	public void loadPage() {
 		String ensName = getParameter("EnsName");
 		int index = Integer.parseInt(getParameter("Index"));
 		Entities ens = BP.En.ClassFactory.GetEns(ensName);
 		Entity en = ens.getGetNewEntity();
 		RefMethod rm = en.getEnMap().getHisRefMethods().get(index);
 
-		if (rm.getHisAttrs() == null || rm.getHisAttrs().size() == 0)
-		{
+		if (rm.getHisAttrs() == null || rm.getHisAttrs().size() == 0) {
 			String pk = this.getRefEnKey();
-			if (pk == null)
-			{
+			if (pk == null) {
 				pk = getParameter(en.getPK());
 			}
 
@@ -57,20 +58,18 @@ public class RefMethodModel extends UCEnModel{
 			rm.HisEn = en;
 
 			// 如果是link.
-			if (rm.refMethodType == RefMethodType.LinkModel)
-			{
+			if (rm.refMethodType == RefMethodType.LinkModel) {
 				Object tempVar = null;
 				try {
 					tempVar = rm.Do(null);
 				} catch (Exception e) {
-					e.printStackTrace();
+					logger.info("ERROR", e);
 				}
-				String url = (String)((tempVar instanceof String) ? tempVar : null);
-				if (StringHelper.isNullOrEmpty(url))
-				{
+				String url = (String) ((tempVar instanceof String) ? tempVar : null);
+				if (StringHelper.isNullOrEmpty(url)) {
 					ToErrorPage("@应该返回的url.");
 					return;
-					//throw new RuntimeException("@应该返回的url.");
+					// throw new RuntimeException("@应该返回的url.");
 				}
 				sendRedirect(url);
 				return;
@@ -80,25 +79,21 @@ public class RefMethodModel extends UCEnModel{
 			try {
 				obj = rm.Do(null);
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.info("ERROR", e);
 			}
-			if (obj == null)
-			{
-				 WinClose();
+			if (obj == null) {
+				WinClose();
 				return;
 			}
 
 			String info = obj.toString();
 			info = info.replace("@", "<br>@");
-			if (info.contains("<"))
-			{
+			if (info.contains("<")) {
 				ToMsgPage(info);
-			}
-			else
-			{
-				if(info.contains("http:")){
+			} else {
+				if (info.contains("http:")) {
 					BaseModel.sendRedirect(info);
-				}else{
+				} else {
 					winCloseWithMsg(info);
 				}
 			}
@@ -107,16 +102,15 @@ public class RefMethodModel extends UCEnModel{
 		this.Bind(rm);
 		Label1 = GenerCaption(en.getEnMap().getEnDesc() + "=>" + rm.GetIcon(Glo.getCCFlowAppPath()) + rm.Title);
 	}
-	public final void Bind(RefMethod rm)
-	{
+
+	public final void Bind(RefMethod rm) {
 		try {
 			BindAttrs(rm.getHisAttrs());
 			uc_en = pub.toString();
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
-		//检查是否有选择项目。
+		// 检查是否有选择项目。
 	}
-
 
 }

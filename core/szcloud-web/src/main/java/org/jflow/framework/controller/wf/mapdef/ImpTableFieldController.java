@@ -7,6 +7,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jflow.framework.common.model.TempObject;
 import org.jflow.framework.system.ui.core.BaseWebControl;
 import org.jflow.framework.system.ui.core.CheckBox;
@@ -28,19 +30,21 @@ import BP.WF.Glo;
 @Controller
 @RequestMapping("/WF/MapDef")
 public class ImpTableFieldController {
+	/**
+	 * 日志对象
+	 */
+	protected final Log logger = LogFactory.getLog(getClass());
 
 	@RequestMapping(value = "/ImpTableFieldSave", method = RequestMethod.POST)
-	public void ImpTableFieldSave(TempObject object,
-			HttpServletRequest request, HttpServletResponse response) {
-		HashMap<String, BaseWebControl> ctrlMap = HtmlUtils.httpParser(
-				object.getFormHtml(), request);
+	public void ImpTableFieldSave(TempObject object, HttpServletRequest request, HttpServletResponse response) {
+		HashMap<String, BaseWebControl> ctrlMap = HtmlUtils.httpParser(object.getFormHtml(), request);
 		String fkMapData = object.getFK_MapData();
 
 		String colname = "";
 
 		MapData md = new MapData();
 		md.setNo(fkMapData);
-		
+
 		md.RetrieveFromDBSources();
 
 		String msg = "导入字段信息:";
@@ -48,25 +52,21 @@ public class ImpTableFieldController {
 		float maxEnd = md.getMaxEnd(); // 底部.
 		for (Map.Entry<String, BaseWebControl> ctrl : ctrlMap.entrySet()) {
 
-			if (StringHelper.isNullOrEmpty(ctrl.getKey())
-					|| !ctrl.getKey().startsWith("HID_Idx_")) {
+			if (StringHelper.isNullOrEmpty(ctrl.getKey()) || !ctrl.getKey().startsWith("HID_Idx_")) {
 				continue;
 			}
 
 			// hid = (HiddenField)((ctrl instanceof HiddenField) ? ctrl : null);
 
-			colname = ctrl.getKey()
-					.substring((new String("HID_Idx_")).length());
+			colname = ctrl.getKey().substring((new String("HID_Idx_")).length());
 
 			MapAttr ma = new MapAttr();
 			ma.setKeyOfEn(colname);
 
 			ma.setName(request.getParameter("TB_Desc_" + colname));
 			ma.setFK_MapData(fkMapData);
-			ma.setMyDataType(Integer.parseInt(request
-					.getParameter("DDL_DBType_" + colname)));
-			ma.setMaxLen(Integer.parseInt(request.getParameter("TB_Len_"
-					+ colname)));
+			ma.setMyDataType(Integer.parseInt(request.getParameter("DDL_DBType_" + colname)));
+			ma.setMaxLen(Integer.parseInt(request.getParameter("TB_Len_" + colname)));
 			// ma.LGType =
 			// request.getParameter("DDL_LogicType_" + colname);
 
@@ -140,11 +140,9 @@ public class ImpTableFieldController {
 	}
 
 	@RequestMapping(value = "/ImpTableFieldNext", method = RequestMethod.POST)
-	public void ImpTableFieldNext(TempObject object,
-			HttpServletRequest request, HttpServletResponse response) {
+	public void ImpTableFieldNext(TempObject object, HttpServletRequest request, HttpServletResponse response) {
 
-		HashMap<String, BaseWebControl> ctrlMap = HtmlUtils.httpParser(
-				object.getFormHtml(), request);
+		HashMap<String, BaseWebControl> ctrlMap = HtmlUtils.httpParser(object.getFormHtml(), request);
 		String selectedColumns = "";
 		for (Map.Entry<String, BaseWebControl> ctrl : ctrlMap.entrySet()) {
 			if (!ctrl.getKey().contains("CB_")) {
@@ -156,21 +154,16 @@ public class ImpTableFieldController {
 				continue;
 			}
 
-			selectedColumns += ctrl.getKey().substring(
-					(new String("CB_Col_")).length())
-					+ ",";
+			selectedColumns += ctrl.getKey().substring((new String("CB_Col_")).length()) + ",";
 		}
 
 		String tempVar = request.getParameter("STable");
 		try {
-			response.sendRedirect(String
-					.format("%1$s?Step=3&FK_MapData=%2$s&FK_SFDBSrc=%3$s&STable=%4$s&SColumns=%5$s",
-							Glo.getCCFlowAppPath()+"WF/MapDef/ImpTableField.jsp", object.getFK_MapData(),
-							request.getParameter("FK_SFDBSrc"),
-							(tempVar != null) ? tempVar : "LB_Table",
-							selectedColumns));
+			response.sendRedirect(String.format("%1$s?Step=3&FK_MapData=%2$s&FK_SFDBSrc=%3$s&STable=%4$s&SColumns=%5$s",
+					Glo.getCCFlowAppPath() + "WF/MapDef/ImpTableField.jsp", object.getFK_MapData(),
+					request.getParameter("FK_SFDBSrc"), (tempVar != null) ? tempVar : "LB_Table", selectedColumns));
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 	}
 }

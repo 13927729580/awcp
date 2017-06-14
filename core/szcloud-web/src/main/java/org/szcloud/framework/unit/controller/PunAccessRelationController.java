@@ -11,6 +11,8 @@ import java.util.TreeMap;
 import javax.annotation.Resource;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
@@ -56,6 +58,10 @@ import org.szcloud.framework.unit.vo.PunUserGroupVO;
 @Controller
 @RequestMapping("/punAccessRelationController")
 public class PunAccessRelationController {
+	/**
+	 * 日志对象
+	 */
+	protected final Log logger = LogFactory.getLog(getClass());
 
 	@Autowired
 	@Qualifier("punUserBaseInfoServiceImpl")
@@ -102,7 +108,7 @@ public class PunAccessRelationController {
 			PunGroupVO vo = (PunGroupVO) SessionUtils.getObjectFromSession(SessionContants.CURRENT_USER_GROUP);
 			mv.addObject("groupId", vo.getGroupId());
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			mv.addObject("result", "System error.");
 		}
 		return mv;
@@ -196,7 +202,7 @@ public class PunAccessRelationController {
 			mv.addObject("resoAuthor", resoAuthor);
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			mv.addObject("result", "System error.");
 		}
 		return mv;
@@ -311,7 +317,7 @@ public class PunAccessRelationController {
 					try {
 						punUserGroupService.save(userGroupVO);
 					} catch (Exception e) {
-						e.printStackTrace();
+						logger.info("ERROR", e);
 					}
 
 				}

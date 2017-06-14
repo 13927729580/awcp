@@ -15,8 +15,8 @@ import java.util.Map;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
@@ -61,7 +61,7 @@ public class MetaModelController extends BaseController {
 	/**
 	 * 日志对象
 	 */
-	private Logger logger = LoggerFactory.getLogger(getClass());
+	private Log logger = LogFactory.getLog(getClass());
 	@Autowired
 	private EntityRepositoryJDBC jdbcRepository;
 
@@ -231,13 +231,13 @@ public class MetaModelController extends BaseController {
 					tmp.put(tableNames[i], modelObject);
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.info("ERROR", e);
 			} finally {
 				if (conn != null) {
 					try {
 						conn.close();
 					} catch (SQLException e) {
-						e.printStackTrace();
+						logger.info("ERROR", e);
 					}
 				}
 			}
@@ -392,7 +392,7 @@ public class MetaModelController extends BaseController {
 				tmp.put(mmv.getTableName(), modelObject);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 
 		// 不带关联关系的导入
@@ -533,7 +533,7 @@ public class MetaModelController extends BaseController {
 		} catch (Exception e) {
 			Long id = 0L;
 			str = "{id:" + id + "}";
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			return null;
 		}
 		model.addAttribute("model", vo);
@@ -571,7 +571,7 @@ public class MetaModelController extends BaseController {
 				map.put("id", 0);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			map.put("id", 0);
 			return map;
 		}
@@ -612,7 +612,7 @@ public class MetaModelController extends BaseController {
 			}
 			return "redirect:queryResult.do";
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			int i = 1;
 			String str = "{id:" + i + "}";
 			return str;
@@ -651,7 +651,7 @@ public class MetaModelController extends BaseController {
 			}
 			return "redirect:queryResult.do";
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			int i = 1;
 			String str = "{id:" + i + "}";
 			return str;
@@ -743,7 +743,7 @@ public class MetaModelController extends BaseController {
 				}
 				model.addAttribute("msg", 1);
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.info("ERROR", e);
 				model.addAttribute("msg", 0);
 			}
 
@@ -810,7 +810,7 @@ public class MetaModelController extends BaseController {
 			}
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 		return "metadesigner/metaModel/metaModel_add";
 	}
@@ -840,7 +840,7 @@ public class MetaModelController extends BaseController {
 			model.addAttribute("list", result);
 			return "metadesigner/metaModel/findAll";
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 		return null;
 	}
@@ -889,7 +889,7 @@ public class MetaModelController extends BaseController {
 			}
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			return null;
 		}
 		return "metadesigner/metaModel/metaModel_edit";
@@ -933,7 +933,7 @@ public class MetaModelController extends BaseController {
 			}
 			model.addAttribute("_selects", _selects);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			return null;
 		}
 		return "metadesigner/metaModel/batchModifyDS";
@@ -976,7 +976,7 @@ public class MetaModelController extends BaseController {
 			model.addAttribute("list", pl);
 			model.addAttribute("currentPage", currentPage);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			return null;
 		}
 		return "metadesigner/metaModel/findAll";
@@ -1183,7 +1183,7 @@ public class MetaModelController extends BaseController {
 			// GeneratorMain.StartGenerator(map);
 			mv.addObject("result", "生成成功");
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			mv.addObject("result", "生成失败");
 		}
 		return mv;

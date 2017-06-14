@@ -6,8 +6,8 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
@@ -24,7 +24,7 @@ public class WorkflowManagerControl {
 	/**
 	 * 日志对象
 	 */
-	private static final Logger logger = LoggerFactory.getLogger(WorkflowManagerControl.class);
+	private static final Log logger = LogFactory.getLog(WorkflowManagerControl.class);
 	@Resource
 	private JdbcTemplate jdbcTemplate;
 

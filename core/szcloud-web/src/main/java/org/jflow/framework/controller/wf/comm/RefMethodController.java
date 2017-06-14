@@ -3,6 +3,8 @@ package org.jflow.framework.controller.wf.comm;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jflow.framework.common.model.BaseModel;
 import org.jflow.framework.controller.wf.workopt.BaseController;
 import org.springframework.context.annotation.Scope;
@@ -21,18 +23,20 @@ import BP.Tools.StringHelper;
 @RequestMapping("/WF/Comm")
 @Scope("request")
 public class RefMethodController extends BaseController {
-	
+	/**
+	 * 日志对象
+	 */
+	protected final Log logger = LogFactory.getLog(getClass());
 
-	@RequestMapping(value = "/doRefClick", method = {RequestMethod.POST} )
-	public ModelAndView doRefClick(HttpServletRequest request,
-			HttpServletResponse response) {
+	@RequestMapping(value = "/doRefClick", method = { RequestMethod.POST })
+	public ModelAndView doRefClick(HttpServletRequest request, HttpServletResponse response) {
 
 		String ensName = request.getParameter("EnsName");
 		String indexStr = request.getParameter("Index");
-		if(StringHelper.isNullOrEmpty(indexStr)){
+		if (StringHelper.isNullOrEmpty(indexStr)) {
 			indexStr = "0";
 		}
-		
+
 		int index = Integer.parseInt(indexStr);
 		Entities ens = BP.En.ClassFactory.GetEns(ensName);
 		Entity en = ens.getGetNewEntity();
@@ -52,7 +56,7 @@ public class RefMethodController extends BaseController {
 		Object[] objs = new Object[mynum];
 
 		int idx = 0;
-		
+
 		for (Attr attr : rm.getHisAttrs()) {
 			if (attr.getMyFieldType() == FieldType.RefText) {
 				continue;
@@ -64,14 +68,14 @@ public class RefMethodController extends BaseController {
 				case BP.DA.DataType.AppString:
 				case BP.DA.DataType.AppDate:
 				case BP.DA.DataType.AppDateTime:
-					if(StringHelper.isNullOrEmpty(tb_value)){
+					if (StringHelper.isNullOrEmpty(tb_value)) {
 						tb_value = "无";
 					}
 					objs[idx] = tb_value;
 					// attr.DefaultVal=str1;
 					break;
 				case BP.DA.DataType.AppInt:
-					if(StringHelper.isNullOrEmpty(tb_value)){
+					if (StringHelper.isNullOrEmpty(tb_value)) {
 						tb_value = "0";
 					}
 					int myInt = Integer.parseInt(tb_value);
@@ -79,7 +83,7 @@ public class RefMethodController extends BaseController {
 					// attr.DefaultVal=myInt;
 					break;
 				case BP.DA.DataType.AppFloat:
-					if(StringHelper.isNullOrEmpty(tb_value)){
+					if (StringHelper.isNullOrEmpty(tb_value)) {
 						tb_value = "0f";
 					}
 					float myFloat = Float.parseFloat(tb_value);
@@ -89,7 +93,7 @@ public class RefMethodController extends BaseController {
 				case BP.DA.DataType.AppDouble:
 				case BP.DA.DataType.AppMoney:
 				case BP.DA.DataType.AppRate:
-					if(StringHelper.isNullOrEmpty(tb_value)){
+					if (StringHelper.isNullOrEmpty(tb_value)) {
 						tb_value = "0.0";
 					}
 					java.math.BigDecimal myDoub = java.math.BigDecimal.valueOf(Long.parseLong(tb_value));
@@ -97,7 +101,7 @@ public class RefMethodController extends BaseController {
 					// attr.DefaultVal=myDoub;
 					break;
 				case BP.DA.DataType.AppBoolean:
-					if(StringHelper.isNullOrEmpty(tb_value)){
+					if (StringHelper.isNullOrEmpty(tb_value)) {
 						tb_value = "0";
 					}
 					int myBool = Integer.parseInt(tb_value);
@@ -154,11 +158,11 @@ public class RefMethodController extends BaseController {
 			}
 			StringBuilder error = new StringBuilder();
 			error.append("<font color=red>").append("@执行[").append(ensName).append("]期间出现错误：").append(ex.getMessage())
-			.append(" InnerException= ").append(ex.getCause()).append("[参数为：]").append(msg).append("</font>");
+					.append(" InnerException= ").append(ex.getCause()).append("[参数为：]").append(msg).append("</font>");
 			BaseModel.ToErrorPage(error.toString());
 		} catch (Exception e) {
 			BaseModel.ToErrorPage(e.getMessage());
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 		return null;
 	}

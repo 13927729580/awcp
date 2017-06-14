@@ -6,27 +6,37 @@ import java.io.UnsupportedEncodingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import BP.DA.*;
+
+import BP.DA.DBAccess;
+import BP.DA.DataRow;
+import BP.DA.DataRowCollection;
+import BP.DA.DataTable;
 import BP.Port.WebUser;
-import BP.Sys.*;
+import BP.Sys.DefVal;
+import BP.Sys.DefValAttr;
 import BP.Tools.StringHelper;
 
 @Controller
 @RequestMapping("/WF/Comm")
 public class HelperOfTBEUIController {
+	/**
+	 * 日志对象
+	 */
+	private static Log logger = LogFactory.getLog(HelperOfTBEUIController.class);
 	private HttpServletRequest _request = null;
 	private HttpServletResponse _response = null;
 
 	public String getUTF8ToString(String param) {
 		try {
-			return java.net.URLDecoder.decode(_request.getParameter(param),
-					"utf-8");
+			return java.net.URLDecoder.decode(_request.getParameter(param), "utf-8");
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			return null;
 		}
 	}
@@ -40,8 +50,7 @@ public class HelperOfTBEUIController {
 	}
 
 	@RequestMapping(value = "/HelperOfTBEUI", method = RequestMethod.GET)
-	public void executeHelper(HttpServletRequest request,
-			HttpServletResponse response) {
+	public void executeHelper(HttpServletRequest request, HttpServletResponse response) {
 		_request = request;
 		_response = response;
 		treeResult.setLength(0);
@@ -76,10 +85,10 @@ public class HelperOfTBEUIController {
 			response.getOutputStream().write(s_responsetext.replace("][", "],[").getBytes("UTF-8"));
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 
 	}
@@ -94,10 +103,8 @@ public class HelperOfTBEUIController {
 		}
 		String selectId = getUTF8ToString("selectId");
 		String setText = getUTF8ToString("setText");
-		String sql = String.format(
-				"select ParentNo from Sys_DefVal where No='%s'", selectId);
-		String isParentNo = DBAccess.RunSQLReturnTable(sql)
-				.getValue(0, "ParentNo").toString();
+		String sql = String.format("select ParentNo from Sys_DefVal where No='%s'", selectId);
+		String isParentNo = DBAccess.RunSQLReturnTable(sql).getValue(0, "ParentNo").toString();
 		if (Integer.parseInt(isParentNo) == 0) // 说明当前选中节点是父节点(根节点)
 		{
 			DefVal Dv = new DefVal();
@@ -133,10 +140,8 @@ public class HelperOfTBEUIController {
 		}
 		String selectId = getUTF8ToString("selectId");
 		String setText = getUTF8ToString("setText");
-		String sql = String.format(
-				"select ParentNo from Sys_DefVal where No='%s'", selectId);
-		String isParentNo = DBAccess.RunSQLReturnTable(sql)
-				.getValue(0, "ParentNo").toString();
+		String sql = String.format("select ParentNo from Sys_DefVal where No='%s'", selectId);
+		String isParentNo = DBAccess.RunSQLReturnTable(sql).getValue(0, "ParentNo").toString();
 		// if (isParentNo == 0)//说明当前选中节点是父节点(根节点)
 		// {
 		DefVal Dv = new DefVal();
@@ -179,11 +184,9 @@ public class HelperOfTBEUIController {
 	 */
 	private String delNodeMet() {
 		String selectId = getUTF8ToString("selectId");
-		//String setText = getUTF8ToString("setText");
-		String sql = String.format(
-				"select ParentNo from Sys_DefVal where No='%s'", selectId);
-		String isParentNo = DBAccess.RunSQLReturnTable(sql)
-				.getValue(0, "ParentNo").toString();
+		// String setText = getUTF8ToString("setText");
+		String sql = String.format("select ParentNo from Sys_DefVal where No='%s'", selectId);
+		String isParentNo = DBAccess.RunSQLReturnTable(sql).getValue(0, "ParentNo").toString();
 		if (Integer.parseInt(isParentNo) == 0) // 父节点
 		{
 			String canNotDelSql = "select No from Sys_DefVal where ParentNo='0'";
@@ -195,24 +198,16 @@ public class HelperOfTBEUIController {
 			Dv.Delete(DefValAttr.No, selectId);
 		} else // 子节点删除不做限制
 		{
-			String upParent = String.format(
-					"select ParentNo from Sys_DefVal where No='%s'", selectId);
-			String getParentNo = DBAccess.RunSQLReturnTable(upParent)
-					.getValue(0, "ParentNo").toString();
-			String isFirstParent = String.format(
-					"select ParentNo from Sys_DefVal where No='%s'",
-					getParentNo);
+			String upParent = String.format("select ParentNo from Sys_DefVal where No='%s'", selectId);
+			String getParentNo = DBAccess.RunSQLReturnTable(upParent).getValue(0, "ParentNo").toString();
+			String isFirstParent = String.format("select ParentNo from Sys_DefVal where No='%s'", getParentNo);
 
 			DefVal Dv = new DefVal();
 			Dv.Delete(DefValAttr.No, selectId);
 
-			String hasSonOrNot = String.format(
-					"select No from Sys_DefVal where ParentNo='%s'",
-					getParentNo);
-			if (DBAccess.RunSQLReturnCOUNT(hasSonOrNot) == 0
-					&& Integer.parseInt(DBAccess
-							.RunSQLReturnTable(isFirstParent)
-							.getValue(0, "ParentNo").toString()) != 0) {
+			String hasSonOrNot = String.format("select No from Sys_DefVal where ParentNo='%s'", getParentNo);
+			if (DBAccess.RunSQLReturnCOUNT(hasSonOrNot) == 0 && Integer
+					.parseInt(DBAccess.RunSQLReturnTable(isFirstParent).getValue(0, "ParentNo").toString()) != 0) {
 				DefVal DvUp = new DefVal();
 				DvUp.Retrieve(DefValAttr.No, getParentNo);
 				DvUp.setIsParent("0");
@@ -227,8 +222,7 @@ public class HelperOfTBEUIController {
 		DefVal dv = new DefVal();
 		dv.CheckPhysicsTable();
 		// 初始化数据库---如果为空,添加默认数据
-		String MyhasNoDataSql = String.format(
-				"SELECT * FROM Sys_DefVal where FK_Emp='%s' AND ParentNo=0",
+		String MyhasNoDataSql = String.format("SELECT * FROM Sys_DefVal where FK_Emp='%s' AND ParentNo=0",
 				WebUser.getNo());
 		String PubhasNoDataSql = "SELECT * FROM Sys_DefVal where FK_Emp='' AND ParentNo=0";
 
@@ -257,28 +251,25 @@ public class HelperOfTBEUIController {
 		if (getgetTaps() == 1) // 我的词汇FK_Emp为当前登录人账号
 		{
 			setFk_Emp = WebUser.getNo();
-			getMyDataSql = String
-					.format("select NO,Val,ParentNo,IsParent from Sys_DefVal where FK_Emp='%s' and 1=1 ",
-							setFk_Emp);
+			getMyDataSql = String.format("select NO,Val,ParentNo,IsParent from Sys_DefVal where FK_Emp='%s' and 1=1 ",
+					setFk_Emp);
 		} else {
 			setFk_Emp = "";
-			getMyDataSql = String
-					.format("select NO,Val,ParentNo,IsParent from Sys_DefVal where FK_Emp='%s' and 1=1 ",
-							setFk_Emp);
+			getMyDataSql = String.format("select NO,Val,ParentNo,IsParent from Sys_DefVal where FK_Emp='%s' and 1=1 ",
+					setFk_Emp);
 		}
-		DataTable dt_dept = DBAccess.RunSQLReturnTable(getMyDataSql+ " ORDER BY No");
+		DataTable dt_dept = DBAccess.RunSQLReturnTable(getMyDataSql + " ORDER BY No");
 		String s_responsetext = "";
 		String s_checkded = "";
 
-		s_responsetext = GetTreeJsonByTable(getMyDataSql, dt_dept, "NO", "Val",
-				"ParentNo", "0", "IsParent", s_checkded);
+		s_responsetext = GetTreeJsonByTable(getMyDataSql, dt_dept, "NO", "Val", "ParentNo", "0", "IsParent",
+				s_checkded);
 
 		return s_responsetext;
 	}
-	
-	private String boolToValue(boolean bool)
-	{
-		if(bool)
+
+	private String boolToValue(boolean bool) {
+		if (bool)
 			return "1";
 		else
 			return "0";
@@ -290,66 +281,66 @@ public class HelperOfTBEUIController {
 	private StringBuilder treeResult = new StringBuilder();
 	private StringBuilder treesb = new StringBuilder();
 
-	public final String GetTreeJsonByTable(String sql,DataTable tabel, String idCol, String txtCol, String rela, Object pId, String IsParent, String CheckedString)
-	{
+	public final String GetTreeJsonByTable(String sql, DataTable tabel, String idCol, String txtCol, String rela,
+			Object pId, String IsParent, String CheckedString) {
 		String treeJson = "";
 		treeResult.append(treesb.toString());
 		DataTable tmpTable = null;
 		// rows = null;
 		treesb.setLength(0);
-		if (tabel.Rows.size() > 0)
-		{
+		if (tabel.Rows.size() > 0) {
 			treesb.append("[");
 			String filer = "";
-			if (pId.toString().equals(""))
-			{
+			if (pId.toString().equals("")) {
 				filer = String.format("%s is null", rela);
-			}
-			else
-			{
+			} else {
 				filer = String.format("%s='%s'", rela, pId);
 			}
-			//DataRow[] rows = tabel.Select(filer);
-			tmpTable = DBAccess.RunSQLReturnTable(sql+" and "+filer+ " ORDER BY No");
+			// DataRow[] rows = tabel.Select(filer);
+			tmpTable = DBAccess.RunSQLReturnTable(sql + " and " + filer + " ORDER BY No");
 			DataRowCollection rows = tmpTable.Rows;
-			if (rows.size() > 0)
-			{
-				for (DataRow row : rows)
-				{
+			if (rows.size() > 0) {
+				for (DataRow row : rows) {
 					String deptNo = row.getValue(idCol).toString();
 
-					if (treeResult.length() == 0)
-					{
-						 treesb.append("{\"id\":\"" + row.getValue(idCol)
-	                                + "\",\"text\":\"" + row.getValue(txtCol)
-	                                  + "\",\"attributes\":{\"IsParent\":\"" + row.getValue(IsParent) + "\"}"
-	                                   + ",\"checked\":" + boolToValue(CheckedString.contains("," + row.getValue(idCol) + ",")) + ",\"state\":\"open\"");	
-					}
-					else {
+					if (treeResult.length() == 0) {
+						treesb.append("{\"id\":\"" + row.getValue(idCol) + "\",\"text\":\"" + row.getValue(txtCol)
+								+ "\",\"attributes\":{\"IsParent\":\"" + row.getValue(IsParent) + "\"}"
+								+ ",\"checked\":" + boolToValue(CheckedString.contains("," + row.getValue(idCol) + ","))
+								+ ",\"state\":\"open\"");
+					} else {
 						String fi = String.format("%s='%s'", rela, row.getValue(idCol));
-						DataTable tmpTable2 = DBAccess.RunSQLReturnTable(sql+" and "+fi+ " ORDER BY No");
+						DataTable tmpTable2 = DBAccess.RunSQLReturnTable(sql + " and " + fi + " ORDER BY No");
 						DataRowCollection rows2 = tmpTable2.Rows;
-						if (rows2.size() > 0)
-						{
-								//+ "\",\"IsParent\":\"" + row.getValue(IsParent]
-							treesb.append("{\"id\":\"" + row.getValue(idCol) + "\",\"text\":\"" + row.getValue(txtCol) + "\",\"attributes\":{\"IsParent\":\"" + row.getValue(IsParent) + "\"}" + ",\"checked\":" + boolToValue(CheckedString.contains("," + row.getValue(idCol) + ",")) + ",\"state\":\"open\"");
-							//+ "\",\"checked\":" + CheckedString.Contains("," + row.getValue(idCol] + ",").ToString().ToLower() + ",\"state\":\"open\"");
-						}
-						else
-						{
-								//+ "\",\"IsParent\":\"" +row.getValue(IsParent]
-							treesb.append("{\"id\":\"" + row.getValue(idCol) + "\",\"text\":\"" + row.getValue(txtCol) + "\",\"attributes\":{\"IsParent\":\"" + row.getValue(IsParent) + "\"}" + ",\"checked\":" + boolToValue(CheckedString.contains("," + row.getValue(idCol) + ",")));
-							//+ "\",\"checked\":" + CheckedString.Contains("," + row.getValue(idCol] + ",").ToString().ToLower());
+						if (rows2.size() > 0) {
+							// + "\",\"IsParent\":\"" + row.getValue(IsParent]
+							treesb.append("{\"id\":\"" + row.getValue(idCol) + "\",\"text\":\"" + row.getValue(txtCol)
+									+ "\",\"attributes\":{\"IsParent\":\"" + row.getValue(IsParent) + "\"}"
+									+ ",\"checked\":"
+									+ boolToValue(CheckedString.contains("," + row.getValue(idCol) + ","))
+									+ ",\"state\":\"open\"");
+							// + "\",\"checked\":" + CheckedString.Contains(","
+							// + row.getValue(idCol] + ",").ToString().ToLower()
+							// + ",\"state\":\"open\"");
+						} else {
+							// + "\",\"IsParent\":\"" +row.getValue(IsParent]
+							treesb.append("{\"id\":\"" + row.getValue(idCol) + "\",\"text\":\"" + row.getValue(txtCol)
+									+ "\",\"attributes\":{\"IsParent\":\"" + row.getValue(IsParent) + "\"}"
+									+ ",\"checked\":"
+									+ boolToValue(CheckedString.contains("," + row.getValue(idCol) + ",")));
+							// + "\",\"checked\":" + CheckedString.Contains(","
+							// + row.getValue(idCol] +
+							// ",").ToString().ToLower());
 						}
 					}
 
 					String fi = String.format("%s='%s'", rela, row.getValue(idCol));
-					DataTable tmpTable3 = DBAccess.RunSQLReturnTable(sql+" and "+fi+ " ORDER BY No");
+					DataTable tmpTable3 = DBAccess.RunSQLReturnTable(sql + " and " + fi + " ORDER BY No");
 					DataRowCollection rows3 = tmpTable3.Rows;
-					if (rows3.size() > 0)
-					{
+					if (rows3.size() > 0) {
 						treesb.append(",\"children\":");
-						GetTreeJsonByTable(sql,tabel, idCol, txtCol, rela, row.getValue(idCol), IsParent, CheckedString);
+						GetTreeJsonByTable(sql, tabel, idCol, txtCol, rela, row.getValue(idCol), IsParent,
+								CheckedString);
 						treeResult.append(treesb.toString());
 						treesb.setLength(0);
 					}

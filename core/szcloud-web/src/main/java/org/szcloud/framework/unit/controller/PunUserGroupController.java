@@ -8,6 +8,8 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -35,7 +37,10 @@ import com.github.miemiedev.mybatis.paginator.domain.PageList;
 @Controller
 @RequestMapping("/punUserGroupController")
 public class PunUserGroupController {
-
+	/**
+	 * 日志对象
+	 */
+	protected final Log logger = LogFactory.getLog(getClass());
 	public static final int pagesize = 8;
 
 	@Resource(name = "punUserGroupServiceImpl")
@@ -110,7 +115,7 @@ public class PunUserGroupController {
 			model.addAttribute("class", list);
 			return "/manager/punUserGroups";
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 		return null;
 	}
@@ -321,8 +326,8 @@ public class PunUserGroupController {
 		List<PunUserBaseInfoVO> userVOs = userService.queryPagedResult(sqlMap, params, currentPage, pageSize,
 				sortString);
 		PunUserBaseInfoVO user = DocumentUtils.getUser();
-		for(int i=0;i<userVOs.size();i++){
-			if(user.getUserId().equals(userVOs.get(i).getUserId())){
+		for (int i = 0; i < userVOs.size(); i++) {
+			if (user.getUserId().equals(userVOs.get(i).getUserId())) {
 				userVOs.remove(i);
 				break;
 			}

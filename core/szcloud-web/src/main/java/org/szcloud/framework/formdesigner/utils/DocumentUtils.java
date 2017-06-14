@@ -9,14 +9,17 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.util.CollectionUtils;
 import org.szcloud.framework.core.domain.BaseExample;
 import org.szcloud.framework.core.domain.JdbcHandle;
 import org.szcloud.framework.core.utils.DateUtils;
@@ -27,6 +30,7 @@ import org.szcloud.framework.core.utils.constants.SessionContants;
 import org.szcloud.framework.formdesigner.application.service.DocumentService;
 import org.szcloud.framework.formdesigner.application.vo.DocumentVO;
 import org.szcloud.framework.formdesigner.application.vo.DynamicPageVO;
+import org.szcloud.framework.formdesigner.core.domain.Document;
 import org.szcloud.framework.metadesigner.application.MetaModelOperateService;
 import org.szcloud.framework.metadesigner.application.MetaModelService;
 import org.szcloud.framework.metadesigner.vo.MetaModelVO;
@@ -47,18 +51,27 @@ import org.szcloud.framework.venson.util.MD5Util;
 import com.github.miemiedev.mybatis.paginator.domain.PageList;
 import com.github.miemiedev.mybatis.paginator.domain.Paginator;
 
+import BP.WF.Dev2Interface;
+import BP.WF.Template.Flow;
+import BP.WF.Template.WorkBase.Work;
+
 /**
  * 文档操作
  */
 public class DocumentUtils {
 
-	private static final Logger logger = LoggerFactory.getLogger(DocumentUtils.class);
+	private static final Log logger = LogFactory.getLog(DocumentUtils.class);
+
+	@Resource(name = "documentServiceImpl")
+	private DocumentService service;
 
 	private DocumentVO doc = null;
 	private DynamicPageVO page = null;
 
 	public DocumentUtils() {
-
+		if (service == null) {
+			service = Springfactory.getBean("documentServiceImpl");
+		}
 	}
 
 	private static AtomicInteger atomicInteger = new AtomicInteger(1);
@@ -96,6 +109,9 @@ public class DocumentUtils {
 	public DocumentUtils(DocumentVO doc, DynamicPageVO page) {
 		this.doc = doc;
 		this.page = page;
+		if (service == null) {
+			service = Springfactory.getBean("documentServiceImpl");
+		}
 	}
 
 	/******************************/
@@ -190,15 +206,16 @@ public class DocumentUtils {
 			Map<String, String> data = list.get(0);
 			if (data != null) {
 				String value = data.get(item);
-				logger.debug(" getDataItem params is container : {} , item : {} , | value is {} .",
-						new Object[] { container, item, value });
+				logger.debug(" getDataItem params is container : " + container + " , item : " + item + " , | value is "
+						+ value + " .");
 				return value;
 			} else {
-				logger.debug(" getDataItem params is container : {} , item : {} but  record is null.", container, item);
+				logger.debug(" getDataItem params is container : " + container + " , item : " + item
+						+ " but  record is null.");
 			}
 		} else {
-			logger.debug(" getDataItem params is container : {} , item : {} but  DataContainer is null.", container,
-					item);
+			logger.debug(" getDataItem params is container : " + container + " , item : " + item
+					+ " but  DataContainer is null.");
 		}
 		return null;
 	}
@@ -405,7 +422,6 @@ public class DocumentUtils {
 	 * @return
 	 */
 	public String saveData(String name) {
-		DocumentService service = Springfactory.getBean("documentServiceImpl");
 		return service.saveModelData(page, doc, name);
 	}
 
@@ -418,7 +434,6 @@ public class DocumentUtils {
 	 */
 	@SuppressWarnings("rawtypes")
 	public Map saveDataFlow(String name, boolean masterDateSource) throws Exception {
-		DocumentService service = Springfactory.getBean("documentServiceImpl");
 		return service.saveModelDataFlow(page, doc, name, masterDateSource);
 	}
 
@@ -431,7 +446,6 @@ public class DocumentUtils {
 	 * @return
 	 */
 	public String saveModel(Map<String, String> map, String modelCode) {
-		DocumentService service = Springfactory.getBean("documentServiceImpl");
 		return service.insertModelData(map, modelCode);
 	}
 
@@ -444,7 +458,6 @@ public class DocumentUtils {
 	 * @return
 	 */
 	public String updateModel(Map<String, String> map, String modelCode) {
-		DocumentService service = Springfactory.getBean("documentServiceImpl");
 		return service.updateModelData(map, modelCode);
 	}
 
@@ -454,7 +467,6 @@ public class DocumentUtils {
 	 * @param sql
 	 */
 	public void excuteUpdate(String sql) {
-		DocumentService service = Springfactory.getBean("documentServiceImpl");
 		service.excuteUpdate(sql);
 	}
 
@@ -476,7 +488,6 @@ public class DocumentUtils {
 	 * @return
 	 */
 	public Map<String, Object> excuteQuery(String sql) {
-		DocumentService service = Springfactory.getBean("documentServiceImpl");
 		return service.excuteQuery(sql);
 	}
 
@@ -487,7 +498,6 @@ public class DocumentUtils {
 	 * @return List
 	 */
 	public List<Map<String, Object>> excuteQueryForList(String sql) {
-		DocumentService service = Springfactory.getBean("documentServiceImpl");
 		return service.excuteQueryForList(sql);
 	}
 
@@ -509,14 +519,12 @@ public class DocumentUtils {
 	 * @return
 	 */
 	public boolean updateData(String name) {
-		DocumentService service = Springfactory.getBean("documentServiceImpl");
 		service.updateModelData(page, doc, name);
 		return true;
 
 	}
 
 	public boolean updateDataFlow(String name) {
-		DocumentService service = Springfactory.getBean("documentServiceImpl");
 		service.updateModelDataFlow(page, doc, name);
 		return true;
 
@@ -809,8 +817,8 @@ public class DocumentUtils {
 			PunUserBaseInfoVO user = null;
 			if (users != null && !users.isEmpty()) {
 				if (users.size() != 1) {
-					logger.error("current user {} will add user of |id:{},name:{},moble:{},email:{}| but duplicate.",
-							new Object[] { creater.getUserIdCardNumber(), idCard, name, mobile, email });
+					logger.error("current user " + creater.getUserIdCardNumber() + " will add user of |id:" + idCard
+							+ ",name:" + name + ",moble:" + mobile + ",email:" + email + "| but duplicate.");
 				} else {
 					user = users.get(0);
 				}
@@ -830,8 +838,8 @@ public class DocumentUtils {
 				user.setMobile(mobile);
 				user.setUserEmail(email);
 				userService.updateUser(user);
-				logger.info("current user {} add or update user of |id:{},name:{},moble:{},email:{}| success.",
-						new Object[] { creater.getUserIdCardNumber(), idCard, name, mobile, email });
+				logger.info("current user " + creater.getUserIdCardNumber() + " add or update user of |id:" + idCard
+						+ ",name:" + name + ",moble:" + mobile + ",email:" + email + "| success.");
 				return user.getUserId();
 			}
 		}
@@ -957,7 +965,6 @@ public class DocumentUtils {
 	 */
 	public Map<String, String> copyTableRecord(String modelCode, String item, String value) {
 		Map<String, String> ret = new HashMap<String, String>();
-		DocumentService service = Springfactory.getBean("documentServiceImpl");
 		MetaModelService modelService = Springfactory.getBean("metaModelServiceImpl");
 		MetaModelVO model = modelService.queryByModelCode(modelCode);
 		StringBuilder sql = new StringBuilder();
@@ -995,7 +1002,6 @@ public class DocumentUtils {
 	public boolean updateTableData(String primarykey, String modelCode, Map<String, String> props) {
 		MetaModelOperateService tableService = Springfactory.getBean("metaModelOperateServiceImpl");
 		MetaModelService modelService = Springfactory.getBean("metaModelServiceImpl");
-		DocumentService service = Springfactory.getBean("documentServiceImpl");
 		MetaModelVO model = modelService.queryByModelCode(modelCode);
 		StringBuilder sql = new StringBuilder();
 		String primarykeyValue = props.get(primarykey);
@@ -1025,7 +1031,7 @@ public class DocumentUtils {
 		try {
 			return tableService.update(ret, modelCode);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 		return false;
 	}
@@ -1036,7 +1042,6 @@ public class DocumentUtils {
 	 * @return ID
 	 */
 	public String saveDocument() {
-		DocumentService service = Springfactory.getBean("documentServiceImpl");
 		return service.save(doc);
 	}
 
@@ -1047,7 +1052,6 @@ public class DocumentUtils {
 	 * @return
 	 */
 	public boolean deleteData(DynamicPageVO page, String recordId) {
-		DocumentService service = Springfactory.getBean("documentServiceImpl");
 		service.deleteModelData(page, recordId);
 		return true;
 	}
@@ -1072,6 +1076,37 @@ public class DocumentUtils {
 			return HttpUtils.sendPost(url, params);
 		} else {
 			return HttpUtils.sendGet(url, params);
+		}
+	}
+
+	public boolean executeFlow(String id, String flowId, int pageId) {
+		Map<String, Object> map = service.excuteQuery("select id from p_fm_document where RECORD_ID='" + id + "'");
+		long workID = 0;
+		String docId = null;
+		if (!CollectionUtils.isEmpty(map)) {
+			docId = (String) map.get("id");
+			Document document = Document.get(docId);
+			workID = Long.parseLong(document.getWorkItemId());
+			flowId = document.getWorkflowId();
+		} else {
+			Document document = new Document();
+			docId = UUID.randomUUID().toString();
+			document.setId(docId);
+			document.setRecordId(id);
+			Flow currFlow = new Flow(flowId);
+			Work currWK = currFlow.NewWork();
+			workID = currWK.getOID();
+			document.setWorkflowId(flowId);
+			document.setWorkItemId(workID + "");
+			document.setDynamicPageId(pageId + "");
+			document.setCreated(new Date());
+
+		}
+		if (workID != 0) {
+			Dev2Interface.Node_SendWork(flowId, workID);
+			return true;
+		} else {
+			return false;
 		}
 	}
 

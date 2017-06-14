@@ -7,6 +7,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jflow.framework.common.model.BaseModel;
 import org.jflow.framework.common.model.TempObject;
 import org.jflow.framework.controller.wf.workopt.BaseController;
@@ -30,53 +32,52 @@ import BP.Tools.StringHelper;
 @Controller
 @RequestMapping("/WF/MapDef")
 public class EditFController extends BaseController {
+	/**
+	 * 日志对象
+	 */
+	protected final Log logger = LogFactory.getLog(getClass());
 
 	@RequestMapping(value = "/ddlType_SelectedIndexChanged", method = RequestMethod.POST)
-	public void ddlType_SelectedIndexChanged(TempObject object,
-			HttpServletRequest request, HttpServletResponse response) {
+	public void ddlType_SelectedIndexChanged(TempObject object, HttpServletRequest request,
+			HttpServletResponse response) {
 
 		MapAttr attr = new MapAttr(this.getRefNo());
 		attr.setMyDataTypeS(request.getParameter("DDL_DTType"));
 		attr.Update();
 
 		try {
-			response.sendRedirect("EditF.jsp?DoType=" + this.getDoType()
-					+ "&MyPK=" + this.getMyPK() + "&RefNo=" + this.getRefNo()
-					+ "&FType=" + attr.getMyDataType() + "&GroupField="
-					+ object.getGroupField());
+			response.sendRedirect("EditF.jsp?DoType=" + this.getDoType() + "&MyPK=" + this.getMyPK() + "&RefNo="
+					+ this.getRefNo() + "&FType=" + attr.getMyDataType() + "&GroupField=" + object.getGroupField());
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 		// this.Response.Redirect(this.Request.RawUrl, true);
 	}
 
 	@RequestMapping(value = "/btn_Click1", method = RequestMethod.POST)
-	public void btn_Click(TempObject object, HttpServletRequest request,
-			HttpServletResponse response) {
+	public void btn_Click(TempObject object, HttpServletRequest request, HttpServletResponse response) {
 
 		if (object.getBtnName().equals("Btn_New")) {
 
 			MapAttr mapAttr = new MapAttr(this.getRefNo());
-			String url = "Do.jsp?DoType=AddF&MyPK=" + mapAttr.getFK_MapData()
-					+ "&IDX=" + mapAttr.getIDX() + "&GroupField = "
-					+ object.getGroupField();
+			String url = "Do.jsp?DoType=AddF&MyPK=" + mapAttr.getFK_MapData() + "&IDX=" + mapAttr.getIDX()
+					+ "&GroupField = " + object.getGroupField();
 
 			try {
 				response.sendRedirect(url);
 			} catch (IOException e) {
-				e.printStackTrace();
+				logger.info("ERROR", e);
 			}
 
 			return;
 
 		} else if (object.getBtnName().equals("Btn_Back")) {
 
-			String url1 = "Do.jsp?DoType=AddF&MyPK=" + this.getMyPK()
-					+ "&GroupField = " + object.getGroupField();
+			String url1 = "Do.jsp?DoType=AddF&MyPK=" + this.getMyPK() + "&GroupField = " + object.getGroupField();
 			try {
 				response.sendRedirect(url1);
 			} catch (IOException e) {
-				e.printStackTrace();
+				logger.info("ERROR", e);
 			}
 
 			return;
@@ -104,11 +105,9 @@ public class EditFController extends BaseController {
 	}
 
 	@RequestMapping(value = "/btn_Save_Click", method = RequestMethod.POST)
-	public void btn_Save_Click(TempObject object, HttpServletRequest request,
-			HttpServletResponse response) {
+	public void btn_Save_Click(TempObject object, HttpServletRequest request, HttpServletResponse response) {
 
-		HashMap<String, BaseWebControl> controls = HtmlUtils.httpParser(
-				object.getFormHtml(), request);
+		HashMap<String, BaseWebControl> controls = HtmlUtils.httpParser(object.getFormHtml(), request);
 		try {
 			if (object.getBtnName().equals("Btn_Del")) {
 				try {
@@ -120,7 +119,7 @@ public class EditFController extends BaseController {
 					// this.getMyPK() + "&RefNo=" + this.getRefNo() +
 					// "&GroupField = " + object.getGroupField());
 				} catch (IOException e) {
-					e.printStackTrace();
+					logger.info("ERROR", e);
 				}
 				return;
 			}
@@ -134,14 +133,10 @@ public class EditFController extends BaseController {
 					attr.CheckPhysicsTable();
 					attr.Retrieve();
 				}
-				attr = (MapAttr) BaseModel.Copy(request, attr, null,
-						attr.getEnMap(), controls);
-				attr.setGroupID(Integer.parseInt(request
-						.getParameter("DDL_GroupID")));
-				attr.setColSpan(Integer.parseInt(request
-						.getParameter("DDL_ColSpan")));
-				if (attr.getUIIsEnable() == false
-						&& attr.getMyDataType() == DataType.AppString) {
+				attr = (MapAttr) BaseModel.Copy(request, attr, null, attr.getEnMap(), controls);
+				attr.setGroupID(Integer.parseInt(request.getParameter("DDL_GroupID")));
+				attr.setColSpan(Integer.parseInt(request.getParameter("DDL_ColSpan")));
+				if (attr.getUIIsEnable() == false && attr.getMyDataType() == DataType.AppString) {
 					try {
 						// attr.IsSigan =
 						// this.Pub1.GetCBByID("CB_IsSigan").Checked;
@@ -185,13 +180,10 @@ public class EditFController extends BaseController {
 					break;
 				}
 			} else {
-				attr = (MapAttr) BaseModel.Copy(request, attr, null,
-						attr.getEnMap(), controls);
+				attr = (MapAttr) BaseModel.Copy(request, attr, null, attr.getEnMap(), controls);
 				// attr = (MapAttr)this.Pub1.Copy(attr);
-				attr.setGroupID(Integer.parseInt(request
-						.getParameter("DDL_GroupID")));
-				attr.setColSpan(Integer.parseInt(request
-						.getParameter("DDL_ColSpan")));
+				attr.setGroupID(Integer.parseInt(request.getParameter("DDL_GroupID")));
+				attr.setColSpan(Integer.parseInt(request.getParameter("DDL_ColSpan")));
 
 				MapAttrs attrS = new MapAttrs(this.getMyPK());
 				int idx = 0;
@@ -200,8 +192,7 @@ public class EditFController extends BaseController {
 					en.setIDX(idx);
 					en.Update();
 					if (en.getKeyOfEn() == attr.getKeyOfEn()) {
-						throw new RuntimeException("字段已经存在 Key="
-								+ attr.getKeyOfEn());
+						throw new RuntimeException("字段已经存在 Key=" + attr.getKeyOfEn());
 					}
 				}
 				if (StringHelper.isNullOrEmpty(object.getIDX())) {
@@ -238,34 +229,29 @@ public class EditFController extends BaseController {
 
 			// 增加是否为空, 对数字类型的字段有效.
 			try {
-				attr.setMinLen(Integer.parseInt(request
-						.getParameter("DDL_IsNull")));
+				attr.setMinLen(Integer.parseInt(request.getParameter("DDL_IsNull")));
 			} catch (java.lang.Exception e3) {
 			}
 
 			// 数字签名.
 			try {
 				// 签名类型.
-				attr.setSignType(SignType.forValue(Integer.parseInt(request
-						.getParameter("DDL_SignType") == null ? "0" : request
-						.getParameter("DDL_SignType"))));
+				attr.setSignType(SignType.forValue(Integer.parseInt(
+						request.getParameter("DDL_SignType") == null ? "0" : request.getParameter("DDL_SignType"))));
 
 				if (attr.getSignType() == SignType.Pic) {
-					attr.setPicType(PicType.forValue(Integer.parseInt(request
-							.getParameter("DDL_PicType") == null ? "0"
-							: request.getParameter("DDL_PicType")))); // 是否为自动签名
+					attr.setPicType(PicType.forValue(Integer.parseInt(
+							request.getParameter("DDL_PicType") == null ? "0" : request.getParameter("DDL_PicType")))); // 是否为自动签名
 				} else if (attr.getSignType() == SignType.CA) {
-					if (StringHelper.isNullOrEmpty(request
-							.getParameter("TB_SiganField"))) {
+					if (StringHelper.isNullOrEmpty(request.getParameter("TB_SiganField"))) {
 						attr.setPara_SiganField("");
 					} else {
-						attr.setPara_SiganField(request
-								.getParameter("TB_SiganField")); // 数字签名字段.
+						attr.setPara_SiganField(request.getParameter("TB_SiganField")); // 数字签名字段.
 					}
 				}
 
 			} catch (java.lang.Exception e4) {
-				e4.printStackTrace();
+				logger.info("ERROR", e4);
 			}
 
 			// 保存数字签名.
@@ -283,34 +269,31 @@ public class EditFController extends BaseController {
 				try {
 					this.winClose(response);
 				} catch (IOException e) {
-					e.printStackTrace();
+					logger.info("ERROR", e);
 				}
 				return;
 			} else if (object.getBtnName().equals("Btn_SaveAndNew")) {
 				try {
-					response.sendRedirect("Do.jsp?DoType=AddF&MyPK="
-							+ this.getMyPK() + "&IDX=" + object.getIDX()
+					response.sendRedirect("Do.jsp?DoType=AddF&MyPK=" + this.getMyPK() + "&IDX=" + object.getIDX()
 							+ "&GroupField=" + attr.getGroupID());
 				} catch (IOException e) {
-					e.printStackTrace();
+					logger.info("ERROR", e);
 				}
 				return;
 			} else {
 			}
 			try {
-				response.sendRedirect("EditF.jsp?DoType=Edit&MyPK="
-						+ this.getMyPK() + "&RefNo=" + attr.getMyPK()
-						+ "&FType=" + object.getFType() + "&GroupField="
-						+ attr.getGroupID());
+				response.sendRedirect("EditF.jsp?DoType=Edit&MyPK=" + this.getMyPK() + "&RefNo=" + attr.getMyPK()
+						+ "&FType=" + object.getFType() + "&GroupField=" + attr.getGroupID());
 			} catch (IOException e) {
-				e.printStackTrace();
+				logger.info("ERROR", e);
 			}
 		} catch (RuntimeException ex) {
-			ex.printStackTrace();
+			logger.info("ERROR", ex);
 			// try {
 			// this.printAlert(response, ex.getMessage());
 			// } catch (IOException e) {
-			// e.printStackTrace();
+			// logger.info("ERROR", e);
 			// }
 		}
 	}

@@ -15,14 +15,14 @@ import org.jflow.framework.system.ui.core.LinkButton;
 import org.jflow.framework.system.ui.core.ListBox;
 import org.jflow.framework.system.ui.core.RadioButton;
 import org.jflow.framework.system.ui.core.TextBox;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class UiFatory {
 	/**
 	 * 日志对象
 	 */
-	private static final Logger logger = LoggerFactory.getLogger(UiFatory.class);
+	private static final Log logger = LogFactory.getLog(UiFatory.class);
 	private Map<String, Object> tmpMap;
 	private List<Object> tmpList;
 

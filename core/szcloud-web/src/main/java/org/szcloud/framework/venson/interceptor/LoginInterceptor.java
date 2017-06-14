@@ -5,8 +5,8 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import org.szcloud.framework.core.utils.SessionUtils;
 import org.szcloud.framework.core.utils.constants.SessionContants;
@@ -23,7 +23,7 @@ import BP.Port.WebUser;
  * @author Venson Yang
  */
 public class LoginInterceptor extends HandlerInterceptorAdapter {
-	private Logger logger = LoggerFactory.getLogger(getClass());
+	private Log logger = LogFactory.getLog(getClass());
 
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)

@@ -6,9 +6,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.jflow.framework.common.model.BaseModel;
-import org.jflow.framework.common.model.TempObject;
 import org.jflow.framework.system.ui.UiFatory;
 import org.jflow.framework.system.ui.core.TextBox;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -31,56 +32,62 @@ import TL.ContextHolderUtils;
 
 @Controller
 @RequestMapping(value = "/DES")
-public class UIEnController{
-
+public class UIEnController {
+	/**
+	 * 日志对象
+	 */
+	private static Log logger = LogFactory.getLog(UIEnController.class);
 	public Entities _GetEns = null;
 
-//	private Entity CurrEn = null;
-	
-//	public Entity getCurrEn() throws Exception {
-//		if (null == CurrEn || CurrEn.getIsEmpty()) {
-//			this.CurrEn = this.getGetEnDa();
-//		}
-//		return CurrEn;
-//	}
-	
+	// private Entity CurrEn = null;
+
+	// public Entity getCurrEn() throws Exception {
+	// if (null == CurrEn || CurrEn.getIsEmpty()) {
+	// this.CurrEn = this.getGetEnDa();
+	// }
+	// return CurrEn;
+	// }
+
 	private String PK_Val;
-	
+
 	public void setPK_Val(String pK_Val) {
 		PK_Val = pK_Val;
 	}
-	
-//	public void setCurrEn(Entity currEn) {
-//		CurrEn = currEn;
-//	}
+
+	// public void setCurrEn(Entity currEn) {
+	// CurrEn = currEn;
+	// }
 
 	@RequestMapping(value = "/save", method = RequestMethod.POST)
-	public ModelAndView save(String EnsName, HttpServletRequest request,
-			HttpServletResponse response) throws Exception {
-		doSave( EnsName, request);
+	public ModelAndView save(String EnsName, HttpServletRequest request, HttpServletResponse response)
+			throws Exception {
+		doSave(EnsName, request);
 		String tab = GetHiddenTabTitle();
-		if(!StringHelper.isNullOrEmpty(tab)){
+		if (!StringHelper.isNullOrEmpty(tab)) {
 			tab = "&tab=" + tab;
 		}
-		if(StringHelper.isNullOrEmpty(EnsName)){
-			EnsName=request.getParameter("EnName")+"s";
-			response.sendRedirect(Glo.getCCFlowAppPath()+"WF/Comm/RefFunc/UIEn.jsp?EnsName=" + EnsName + "&PK=" + PK_Val + "&EnName=" + this.getEnName(EnsName) + tab);
-		}else{
-			response.sendRedirect(Glo.getCCFlowAppPath()+"WF/Comm/RefFunc/UIEn.jsp?EnsName=" + EnsName + "&PK=" + PK_Val + "&EnName=" + this.getEnName(EnsName) + tab);
+		if (StringHelper.isNullOrEmpty(EnsName)) {
+			EnsName = request.getParameter("EnName") + "s";
+			response.sendRedirect(Glo.getCCFlowAppPath() + "WF/Comm/RefFunc/UIEn.jsp?EnsName=" + EnsName + "&PK="
+					+ PK_Val + "&EnName=" + this.getEnName(EnsName) + tab);
+		} else {
+			response.sendRedirect(Glo.getCCFlowAppPath() + "WF/Comm/RefFunc/UIEn.jsp?EnsName=" + EnsName + "&PK="
+					+ PK_Val + "&EnName=" + this.getEnName(EnsName) + tab);
 		}
 		return null;
 	}
 
 	/**
 	 * 执行保存
+	 * 
 	 * @param object
 	 * @throws Exception
 	 */
 	private void doSave(String EnsName, HttpServletRequest request) throws Exception {
-		
+
 		// 小周鹏添加，当获取不到EnsName时, 可通过EnName获取，否则数据无法保存 Start
 		if (StringHelper.isNullOrEmpty(EnsName)) {
-			EnsName = request.getParameter("EnName")+"s";
+			EnsName = request.getParameter("EnName") + "s";
 		}
 		// 小周鹏添加，当获取不到EnsName时, 可通过EnName获取，否则数据无法保存 End
 
@@ -92,18 +99,20 @@ public class UIEnController{
 		}
 
 		en = GetEnData(en, request);
-//		setCurrEn(en);
+		// setCurrEn(en);
 		// 小周鹏修改，没有No, PK 重新设置 Start
-//		if(EnsName.contains("BP.WF.Template") && !EnsName.equals("BP.WF.Template.Selector") && !EnsName.endsWith("BP.WF.Template.FlowSorts")){
-		if(en.getPKVal().toString().equals("") && !StringHelper.isNullOrEmpty(pk_value)){
+		// if(EnsName.contains("BP.WF.Template") &&
+		// !EnsName.equals("BP.WF.Template.Selector") &&
+		// !EnsName.endsWith("BP.WF.Template.FlowSorts")){
+		if (en.getPKVal().toString().equals("") && !StringHelper.isNullOrEmpty(pk_value)) {
 			en.setPKVal(pk_value);
-		}	
-		
-//		}
+		}
+
+		// }
 		// 小周鹏修改，没有No, PK 重新设置 End
-		
+
 		en.Save();
-		
+
 		setPK_Val(en.getPKVal().toString());
 
 		// #region 保存 实体附件
@@ -122,8 +131,7 @@ public class UIEnController{
 
 					/* 如果包含这二个字段。 */
 					String fileName = f.getName();
-					fileName = fileName
-							.substring(fileName.lastIndexOf("\\") + 1);
+					fileName = fileName.substring(fileName.lastIndexOf("\\") + 1);
 
 					String filePath = cfg.getFJSavePath();
 					en.SetValByKey("MyFilePath", filePath);
@@ -134,11 +142,9 @@ public class UIEnController{
 
 					en.SetValByKey("MyFileExt", ext);
 					en.SetValByKey("MyFileName", fileName);
-					en.SetValByKey("WebPath",
-							cfg.getFJWebPath() + en.getPKVal() + "." + ext);
+					en.SetValByKey("WebPath", cfg.getFJWebPath() + en.getPKVal() + "." + ext);
 
-					String fullFile = filePath + "/" + en.getPKVal() + "."
-							+ ext;
+					String fullFile = filePath + "/" + en.getPKVal() + "." + ext;
 
 					// file.PostedFile.SaveAs(fullFile);
 					// file.PostedFile.InputStream.Close();
@@ -146,8 +152,7 @@ public class UIEnController{
 					// file.Dispose();
 
 					File info = new File(fullFile);
-					en.SetValByKey("MyFileSize",
-							BP.DA.DataType.PraseToMB(info.length()));
+					en.SetValByKey("MyFileSize", BP.DA.DataType.PraseToMB(info.length()));
 					// if (DataType.IsImgExt(ext))
 					// {
 					// System.Drawing.Image img =
@@ -160,18 +165,16 @@ public class UIEnController{
 				}
 			}
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			logger.info("ERROR", ex);
 			// logger.debug("保存附件出现错误：" + ex.getMessage());
-			PubClass.Alert("保存附件出现错误：" + ex.getMessage(),
-					ContextHolderUtils.getResponse());
+			PubClass.Alert("保存附件出现错误：" + ex.getMessage(), ContextHolderUtils.getResponse());
 			return;
 		}
 
 		// #region 保存 属性 附件
 		try {
 			AttrFiles fils = en.getEnMap().getHisAttrFiles();
-			SysFileManagers sfs = new SysFileManagers(en.toString(), en
-					.getPKVal().toString());
+			SysFileManagers sfs = new SysFileManagers(en.toString(), en.getPKVal().toString());
 			for (AttrFile fl : fils) {
 				// TextBox file = (TextBox) controls.get("F" + fl.FileNo);
 				// if (file.getText().contains(".") == false)
@@ -197,9 +200,8 @@ public class UIEnController{
 				// enN.Update();
 			}
 		} catch (Exception ex) {
-			ex.printStackTrace();
-			PubClass.Alert("保存附件出现错误：" + ex.getMessage(),
-					ContextHolderUtils.getResponse());
+			logger.info("ERROR", ex);
+			PubClass.Alert("保存附件出现错误：" + ex.getMessage(), ContextHolderUtils.getResponse());
 			return;
 			// logger.debug("保存附件出现错误：" + ex.getMessage());
 		}
@@ -212,18 +214,16 @@ public class UIEnController{
 	// / </summary>
 	// / <returns></returns>
 	private String GetHiddenTabTitle() {
-		String hiddenField = ContextHolderUtils.getRequest().getParameter(
-				"Hid_CurrentTab");
+		String hiddenField = ContextHolderUtils.getRequest().getParameter("Hid_CurrentTab");
 
 		return StringHelper.isEmpty(hiddenField, "");
 	}
 
 	@RequestMapping(value = "/saveorclose", method = RequestMethod.POST)
-	public void saveOrClose(String EnsName, HttpServletRequest request,
-			HttpServletResponse response)  {
+	public void saveOrClose(String EnsName, HttpServletRequest request, HttpServletResponse response) {
 		try {
 			this.doSave(EnsName, request);
-			BaseModel.WinClose();//.winClose(response);
+			BaseModel.WinClose();// .winClose(response);
 		} catch (Exception e) {
 		}
 	}
@@ -241,9 +241,8 @@ public class UIEnController{
 		return enName;
 	}
 
-	public Entity GetEnData(Entity en, HttpServletRequest request)
-			throws Exception {
-		
+	public Entity GetEnData(Entity en, HttpServletRequest request) throws Exception {
+
 		String key = "";
 		try {
 			Attrs attrs = en.getEnMap().getAttrs();
@@ -264,21 +263,21 @@ public class UIEnController{
 					if (attr.getUIVisible()) {
 						UiFatory uf = new UiFatory();
 						if (attr.getUIHeight() == 0) {
-							if(!attr.getUIIsReadonly()){
-								en.SetValByKey(attr.getKey(),request.getParameter("TB_" + attr.getKey()));
+							if (!attr.getUIIsReadonly()) {
+								en.SetValByKey(attr.getKey(), request.getParameter("TB_" + attr.getKey()));
 							}
-							
+
 							continue;
 						} else {
 							if (uf.GetUIByID("TB_" + attr.getKey()) == null) {
 								// TextBox tb=(TextBox)uf.GetUIByID("TB_" +
 								// attr.getKey());
-								en.SetValByKey(attr.getKey(),request.getParameter("TB_" + attr.getKey()));
+								en.SetValByKey(attr.getKey(), request.getParameter("TB_" + attr.getKey()));
 								continue;
 							}
 
 							if (uf.GetUIByID("TBH_" + attr.getKey()) == null) {
-								en.SetValByKey(attr.getKey(),request.getParameter("TBH_"+ attr.getKey()));
+								en.SetValByKey(attr.getKey(), request.getParameter("TBH_" + attr.getKey()));
 								continue;
 							}
 
@@ -291,35 +290,31 @@ public class UIEnController{
 							}
 						}
 					} else {
-						en.SetValByKey(attr.getKey(),
-								request.getParameter("TB_" + attr.getKey()));
+						en.SetValByKey(attr.getKey(), request.getParameter("TB_" + attr.getKey()));
 					}
 				} else if (ut == UIContralType.DDL) {
 					try {
-						en.SetValByKey(attr.getKey(),
-								request.getParameter("DDL_" + attr.getKey()));
+						en.SetValByKey(attr.getKey(), request.getParameter("DDL_" + attr.getKey()));
 					} catch (Exception e) {
-						e.printStackTrace();
+						logger.info("ERROR", e);
 					}
 				} else if (ut == UIContralType.CheckBok) {
-					en.SetValByKey(attr.getKey(),
-							request.getParameter("CB_" + attr.getKey()));
+					en.SetValByKey(attr.getKey(), request.getParameter("CB_" + attr.getKey()));
 				} else {
 
 				}
 
 			}
 		} catch (Exception ex) {
-			ex.printStackTrace();
-			throw new Exception("GetEnData error :" + ex.getMessage()
-					+ " key = " + key);
+			logger.info("ERROR", ex);
+			throw new Exception("GetEnData error :" + ex.getMessage() + " key = " + key);
 		}
 		return en;
 	}
-	
-	public String getParamter(String key, HttpServletRequest request){
+
+	public String getParamter(String key, HttpServletRequest request) {
 		String value = request.getParameter(key);
-		if(StringHelper.isNullOrEmpty(value))
+		if (StringHelper.isNullOrEmpty(value))
 			return "";
 		return value;
 	}
@@ -346,9 +341,10 @@ public class UIEnController{
 	public ModelAndView onSaveAndNew(HttpServletRequest request, HttpServletResponse response, String EnsName) {
 		try {
 			this.doSave(EnsName, request);
-			response.sendRedirect(Glo.getCCFlowAppPath()+"WF/Comm/RefFunc/UIEn.jsp?EnsName=" + EnsName + "&EnName="+ this.getEnName(EnsName));
+			response.sendRedirect(Glo.getCCFlowAppPath() + "WF/Comm/RefFunc/UIEn.jsp?EnsName=" + EnsName + "&EnName="
+					+ this.getEnName(EnsName));
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			logger.info("ERROR", ex);
 			PubClass.Alert(ex.getMessage(), ContextHolderUtils.getResponse());
 			// this.ResponseWriteBlueMsg(ex.Message);
 		}
@@ -358,15 +354,14 @@ public class UIEnController{
 	@RequestMapping(value = "/Delete", method = RequestMethod.POST)
 	public ModelAndView delete(HttpServletRequest request, HttpServletResponse response) {
 		try {
-			Entity en = GetEnData(this.getGetEns(request).getGetNewEntity(),
-					request);
+			Entity en = GetEnData(this.getGetEns(request).getGetNewEntity(), request);
 			if (this.getPKVal(request) != null)
 				en.setPKVal(getPKVal(request));
 			int i = en.Delete();
 			if (i == 1) {
-				BaseModel.WinClose();//.winCloseWithMsg(response, "删除成功!!!");
+				BaseModel.WinClose();// .winCloseWithMsg(response, "删除成功!!!");
 			} else {
-				BaseModel.WinClose();//winCloseWithMsg(response, "删除失败!!!");
+				BaseModel.WinClose();// winCloseWithMsg(response, "删除失败!!!");
 			}
 			// this.Alert("删除成功");
 
@@ -376,7 +371,7 @@ public class UIEnController{
 			// PubClass.Alert("删除成功!!!", ContextHolderUtils.getResponse());
 			BaseModel.ToErrorPage("删除期间出现错误: \t\n" + ex.getMessage());
 			// this.ToMsgPage("删除成功!!!");
-			ex.printStackTrace();
+			logger.info("ERROR", ex);
 			return null;
 		}
 	}
@@ -386,7 +381,7 @@ public class UIEnController{
 	 */
 	public final Entities getGetEns(HttpServletRequest request) {
 		if (_GetEns == null) {
-			String enName = request.getParameter("EnName");//this.getEnName();
+			String enName = request.getParameter("EnName");// this.getEnName();
 			if (StringHelper.isNullOrEmpty(enName)) {
 				String ensName = request.getParameter("EnsName");
 				if (!StringHelper.isNullOrEmpty(ensName)) {
@@ -412,20 +407,20 @@ public class UIEnController{
 		Entity en = this.getGetEns(request).getGetNewEntity();
 		Attrs myattrs1 = en.getEnMap().getAttrs();
 		for (Attr attr : myattrs1) {
-			if (getParamter(attr.getKey(),request) == null) {
+			if (getParamter(attr.getKey(), request) == null) {
 				continue;
 			}
-			en.SetValByKey(attr.getKey(), getParamter(attr.getKey(),request));
+			en.SetValByKey(attr.getKey(), getParamter(attr.getKey(), request));
 		}
 		if (en.getPKCount() == 1) {
-			Object pk = getParamter("PK",request);
+			Object pk = getParamter("PK", request);
 			if (pk != null) {
-				
+
 			} else {
-				if (StringHelper.isNullOrEmpty(getParamter(en.getPK(),request))) {
+				if (StringHelper.isNullOrEmpty(getParamter(en.getPK(), request))) {
 					return en;
 				} else {
-					en.setPKVal(getParamter(en.getPK(),request));
+					en.setPKVal(getParamter(en.getPK(), request));
 				}
 			}
 			if (en.getIsExits() == false) {
@@ -438,16 +433,16 @@ public class UIEnController{
 			}
 			Attrs myattrs = en.getEnMap().getAttrs();
 			for (Attr attr : myattrs) {
-				if (StringHelper.isNullOrEmpty(getParamter(attr.getKey(),request))) {
+				if (StringHelper.isNullOrEmpty(getParamter(attr.getKey(), request))) {
 					continue;
 				}
-				en.SetValByKey(attr.getKey(), getParamter(attr.getKey(),request));
+				en.SetValByKey(attr.getKey(), getParamter(attr.getKey(), request));
 			}
 			return en;
 		} else if (en.getIsMIDEntity()) {
-			Object val = getParamter("MID",request);
+			Object val = getParamter("MID", request);
 			if (val == null) {
-				val = getParamter("PK",request);
+				val = getParamter("PK", request);
 			}
 			if (val == null) {
 				return en;
@@ -461,19 +456,18 @@ public class UIEnController{
 		Attrs attrs = en.getEnMap().getAttrs();
 		for (Attr attr : attrs) {
 			if (attr.getIsPK()) {
-				String str = getParamter(attr.getKey(),request);
+				String str = getParamter(attr.getKey(), request);
 				if (str == null) {
 					if (en.getIsMIDEntity()) {
-						en.SetValByKey("MID", getParamter("PK",request));
+						en.SetValByKey("MID", getParamter("PK", request));
 						continue;
 					} else {
-						throw new RuntimeException("@没有把主键值[" + attr.getKey()
-								+ "]传输过来.");
+						throw new RuntimeException("@没有把主键值[" + attr.getKey() + "]传输过来.");
 					}
 				}
 			}
-			if (getParamter(attr.getKey(),request) != null) {
-				en.SetValByKey(attr.getKey(), getParamter(attr.getKey(),request));
+			if (getParamter(attr.getKey(), request) != null) {
+				en.SetValByKey(attr.getKey(), getParamter(attr.getKey(), request));
 			}
 		}
 
@@ -483,10 +477,10 @@ public class UIEnController{
 			en.RetrieveFromDBSources();
 			Attrs myattrs = en.getEnMap().getAttrs();
 			for (Attr attr : myattrs) {
-				if (getParamter(attr.getKey(),request) == null) {
+				if (getParamter(attr.getKey(), request) == null) {
 					continue;
 				}
-				en.SetValByKey(attr.getKey(), getParamter(attr.getKey(),request));
+				en.SetValByKey(attr.getKey(), getParamter(attr.getKey(), request));
 			}
 		}
 		return en;

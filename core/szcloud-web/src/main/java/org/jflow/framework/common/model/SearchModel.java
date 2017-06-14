@@ -9,6 +9,8 @@ import org.jflow.framework.system.ui.core.DDL;
 import org.jflow.framework.system.ui.core.ListItem;
 import org.jflow.framework.system.ui.core.NamesOfBtn;
 import org.jflow.framework.system.ui.core.ToolBar;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import BP.DA.DataType;
 import BP.En.Attr;
@@ -26,7 +28,10 @@ import BP.WF.Template.Flow;
 import BP.WF.Template.Rpt.MapRpt;
 
 public class SearchModel extends BaseModel {
-
+	/**
+	 * 日志对象
+	 */
+	private static Log logger = LogFactory.getLog(SearchModel.class);
 	private ThreadLocal<HttpServletRequest> request = new ThreadLocal<HttpServletRequest>();
 	private ThreadLocal<HttpServletResponse> response = new ThreadLocal<HttpServletResponse>();
 
@@ -74,10 +79,10 @@ public class SearchModel extends BaseModel {
 		toolBar.AddDDL(ddl);
 		ddl.addAttr("onchange", "ddl_SelectedIndexChanged_GoTo()");
 
-		toolBar.GetLinkBtnByID(NamesOfBtn.Search).setHref(
-				"ToolBar1_ButtonClick('" + NamesOfBtn.Search.getCode() + "')");
-		toolBar.GetLinkBtnByID(NamesOfBtn.Export).setHref(
-				"ToolBar1_ButtonClick('" + NamesOfBtn.Export.getCode() + "')");
+		toolBar.GetLinkBtnByID(NamesOfBtn.Search)
+				.setHref("ToolBar1_ButtonClick('" + NamesOfBtn.Search.getCode() + "')");
+		toolBar.GetLinkBtnByID(NamesOfBtn.Export)
+				.setHref("ToolBar1_ButtonClick('" + NamesOfBtn.Export.getCode() + "')");
 
 		// 处理按钮.
 		this.SetDGData();
@@ -103,10 +108,9 @@ public class SearchModel extends BaseModel {
 		QueryObject qo = new QueryObject(ens);
 		qo = toolBar.GetnQueryObject(ens, en);
 		// 执行数据分页查询，并绑定分页控件
-		BindPageIdxEasyUi(pub2, qo.GetCount(), getPageID() + ".jsp?RptNo="
-				+ getRptNo() + "&EnsName=" + getRptNo() + "&FK_Flow="
-				+ getFK_Flow(), pageIdx, SystemConfig.getPageSize(),
-				"'first','prev','sep','manual','sep','next','last'", false);
+		BindPageIdxEasyUi(pub2, qo.GetCount(),
+				getPageID() + ".jsp?RptNo=" + getRptNo() + "&EnsName=" + getRptNo() + "&FK_Flow=" + getFK_Flow(),
+				pageIdx, SystemConfig.getPageSize(), "'first','prev','sep','manual','sep','next','last'", false);
 
 		qo.DoQuery(en.getPK(), SystemConfig.getPageSize(), pageIdx);
 		// 检查是否显示按关键字查询，如果是就把关键标注为红色.
@@ -136,13 +140,8 @@ public class SearchModel extends BaseModel {
 						default:
 							break;
 						}
-						myen.SetValByKey(
-								attr.getKey(),
-								myen.GetValStrByKey(attr.getKey())
-										.replace(
-												keyVal,
-												"<font color=red>" + keyVal
-														+ "</font>"));
+						myen.SetValByKey(attr.getKey(), myen.GetValStrByKey(attr.getKey()).replace(keyVal,
+								"<font color=red>" + keyVal + "</font>"));
 					}
 				}
 			}
@@ -160,15 +159,15 @@ public class SearchModel extends BaseModel {
 		// String pk = myen.getPK();
 		// String clName = myen.toString();
 
-		UCSys1.append(AddTable("class='Table' cellspacing='0' cellpadding='0' border='0' style='width:100%;line-height:22px'"));
+		UCSys1.append(AddTable(
+				"class='Table' cellspacing='0' cellpadding='0' border='0' style='width:100%;line-height:22px'"));
 		// #region 生成表格标题
 		UCSys1.append(AddTR());
 		UCSys1.append(AddTDGroupTitle2("序"));
 		UCSys1.append(AddTDGroupTitle2("标题"));
 
 		for (Attr attr : attrs) {
-			if (attr.getIsRefAttr() || "Title".equals(attr.getKey())
-					|| "MyNum".equals(attr.getKey()))
+			if (attr.getIsRefAttr() || "Title".equals(attr.getKey()) || "MyNum".equals(attr.getKey()))
 				continue;
 
 			UCSys1.append(AddTDGroupTitle2(attr.getDesc()));
@@ -187,16 +186,13 @@ public class SearchModel extends BaseModel {
 			idx++;
 			UCSys1.append(AddTR());
 			UCSys1.append(AddTDIdx(idx));
-			UCSys1.append(AddTD("<a href=\"javascript:WinOpen('"
-					+ Glo.getCCFlowAppPath() + "WF/WFRpt.jsp?FK_Flow="
-					+ currMapRpt.getFK_Flow() + "&WorkID="
-					+ en.GetValStrByKey("OID") + "','tdr');\" >"
+			UCSys1.append(AddTD("<a href=\"javascript:WinOpen('" + Glo.getCCFlowAppPath() + "WF/WFRpt.jsp?FK_Flow="
+					+ currMapRpt.getFK_Flow() + "&WorkID=" + en.GetValStrByKey("OID") + "','tdr');\" >"
 					+ en.GetValByKey("Title") + "</a>"));
 
 			for (Attr attr : attrs) {
 				String key = attr.getKey();
-				if (attr.getIsRefAttr() || "MyNum".equals(key)
-						|| "Title".equals(key))
+				if (attr.getIsRefAttr() || "MyNum".equals(key) || "Title".equals(key))
 					continue;
 
 				if (attr.getUIContralType() == UIContralType.DDL) {
@@ -212,16 +208,13 @@ public class SearchModel extends BaseModel {
 					continue;
 				}
 
-				String str="";
+				String str = "";
 				str = en.GetValStrByKey(key);
-				if(key.equals("XingBie"))
-				{
-					if(en.GetValStrByKey(key).equals("0"))
-					{
-						str="男";
-					}else
-					{
-						str="女";
+				if (key.equals("XingBie")) {
+					if (en.GetValStrByKey(key).equals("0")) {
+						str = "男";
+					} else {
+						str = "女";
 					}
 				}
 
@@ -253,15 +246,14 @@ public class SearchModel extends BaseModel {
 					UCSys1.append(AddTDNum(str));
 					break;
 				case DataType.AppMoney:
-					UCSys1.append(AddTDNum((new BigDecimal(str)).setScale(2,
-							java.math.BigDecimal.ROUND_HALF_UP).doubleValue()
-							+ ""));
+					UCSys1.append(AddTDNum(
+							(new BigDecimal(str)).setScale(2, java.math.BigDecimal.ROUND_HALF_UP).doubleValue() + ""));
 					break;
 				default:
 					try {
 						throw new Exception("no this case ...");
 					} catch (Exception e) {
-						e.printStackTrace();
+						logger.info("ERROR", e);
 					}
 				}
 			}
@@ -271,8 +263,7 @@ public class SearchModel extends BaseModel {
 		boolean IsHJ = false;
 		for (Attr attr : attrs) {
 			String key = attr.getKey();
-			if (attr.getMyFieldType() == FieldType.RefText
-					|| "Title".equals(key) || "MyNum".equals(key))
+			if (attr.getMyFieldType() == FieldType.RefText || "Title".equals(key) || "MyNum".equals(key))
 				continue;
 
 			if (!attr.getUIVisible())
@@ -281,8 +272,7 @@ public class SearchModel extends BaseModel {
 			if (attr.getUIContralType() == UIContralType.DDL)
 				continue;
 
-			if ("OID".equals(key) || "MID".equals(key) || "FID".equals(key)
-					|| "PWorkID".equals(key)
+			if ("OID".equals(key) || "MID".equals(key) || "FID".equals(key) || "PWorkID".equals(key)
 					|| "WORKID".equals(key.toUpperCase()))
 				continue;
 
@@ -315,9 +305,7 @@ public class SearchModel extends BaseModel {
 				if (!attr.getUIVisible())
 					continue;
 
-				if ("OID".equals(key) || "MID".equals(key)
-						|| "WORKID".equals(key.toUpperCase())
-						|| "FID".equals(key)) {
+				if ("OID".equals(key) || "MID".equals(key) || "WORKID".equals(key.toUpperCase()) || "FID".equals(key)) {
 					UCSys1.append(AddTD());
 					continue;
 				}
@@ -577,23 +565,27 @@ public class SearchModel extends BaseModel {
 	// // + getRptNo() + "&FK_Flow=" + getFK_Flow(), pageIdx,
 	// // SystemConfig.getPageSize(),
 	// // "'first','prev','sep','manual','sep','next','last'", false);
-	// Pub2.append("    <style type='text/css'>"
-	// + "        #eupage table,#eupage td" + "        {"
-	// + "            border: 0;" + "            padding: 0;"
-	// + "            text-align: inherit;"
-	// + "            background-color: inherit;"
-	// + "            color: inherit;"
-	// + "            font-size: inherit;" + "        }"
-	// + "    </style>");
+	// Pub2.append(" <style type='text/css'>"
+	// + " #eupage table,#eupage td" + " {"
+	// + " border: 0;" + " padding: 0;"
+	// + " text-align: inherit;"
+	// + " background-color: inherit;"
+	// + " color: inherit;"
+	// + " font-size: inherit;" + " }"
+	// + " </style>");
 	//
 	// Pub2.append(String
-	// .format("<div id='eupage' class='easyui-pagination' data-options=\"total: %1$s,pageSize: %2$s,pageNumber: %3$s,showPageList: false,showRefresh: false,layout: [%4$s],beforePageText: '第&nbsp;',afterPageText: '&nbsp;/ {pages} 页',displayMsg: '显示 {from} 到 {to} 条，共 {total} 条'\"></div>",
+	// .format("<div id='eupage' class='easyui-pagination' data-options=\"total:
+	// %1$s,pageSize: %2$s,pageNumber: %3$s,showPageList: false,showRefresh:
+	// false,layout: [%4$s],beforePageText: '第&nbsp;',afterPageText: '&nbsp;/
+	// {pages} 页',displayMsg: '显示 {from} 到 {to} 条，共 {total} 条'\"></div>",
 	// qo.GetCount(), SystemConfig.getPageSize(), pageIdx,
 	// "'first','prev','sep','manual','sep','next','last'"));
 	//
 	// Pub2.append("<script type='text/javascript'>");
 	// Pub2.append(String
-	// .format("$('#eupage').pagination({	onSelectPage:function(pageNumber, pageSize){		location.href='%1$s&PageIdx=' + pageNumber	}});",
+	// .format("$('#eupage').pagination({ onSelectPage:function(pageNumber,
+	// pageSize){ location.href='%1$s&PageIdx=' + pageNumber }});",
 	// getPageID() + ".jsp?RptNo=" + getRptNo() + "&EnsName="
 	// + getRptNo() + "&FK_Flow=" + getFK_Flow()));
 	// Pub2.append("</script>");
@@ -660,13 +652,15 @@ public class SearchModel extends BaseModel {
 	// // if (this.PageIdx == 1)
 	// // {
 	// //
-	// this.UCSys1.Add("\t\n if (event.keyCode == 37 || event.keyCode == 33) alert('已经是第一页');");
+	// this.UCSys1.Add("\t\n if (event.keyCode == 37 || event.keyCode == 33)
+	// alert('已经是第一页');");
 	// // }
 	// // else
 	// // {
 	// //
-	// this.UCSys1.Add("\t\n if (event.keyCode == 37  || event.keyCode == 38 || event.keyCode == 33) ");
-	// // this.UCSys1.Add("\t\n     location='" + this.PageID + ".aspx?RptNo="
+	// this.UCSys1.Add("\t\n if (event.keyCode == 37 || event.keyCode == 38 ||
+	// event.keyCode == 33) ");
+	// // this.UCSys1.Add("\t\n location='" + this.PageID + ".aspx?RptNo="
 	// // + this.RptNo + "&FK_Flow=" + this.currMapRpt.FK_Flow + "&PageIdx=" +
 	// // PPageIdx + "';");
 	// // }
@@ -674,13 +668,15 @@ public class SearchModel extends BaseModel {
 	// // if (this.PageIdx == maxPageNum)
 	// // {
 	// //
-	// this.UCSys1.Add("\t\n if (event.keyCode == 39 || event.keyCode == 40 || event.keyCode == 34) alert('已经是最后一页');");
+	// this.UCSys1.Add("\t\n if (event.keyCode == 39 || event.keyCode == 40 ||
+	// event.keyCode == 34) alert('已经是最后一页');");
 	// // }
 	// // else
 	// // {
 	// //
-	// this.UCSys1.Add("\t\n if (event.keyCode == 39 || event.keyCode == 40 || event.keyCode == 34) ");
-	// // this.UCSys1.Add("\t\n     location='" + this.PageID + ".aspx?RptNo="
+	// this.UCSys1.Add("\t\n if (event.keyCode == 39 || event.keyCode == 40 ||
+	// event.keyCode == 34) ");
+	// // this.UCSys1.Add("\t\n location='" + this.PageID + ".aspx?RptNo="
 	// // + this.RptNo + "&FK_Flow=" + this.currMapRpt.FK_Flow + "&PageIdx=" +
 	// // ToPageIdx + "';");
 	// // }
@@ -730,7 +726,8 @@ public class SearchModel extends BaseModel {
 	//
 	// this.UCSys1
 	// .append(BaseModel
-	// .AddTable1("class='Table' cellspacing='0' cellpadding='0' border='0' style='width:100%;line-height:22px'"));
+	// .AddTable1("class='Table' cellspacing='0' cellpadding='0' border='0'
+	// style='width:100%;line-height:22px'"));
 	//
 	// // #region 生成表格标题
 	// this.UCSys1.append(BaseModel.AddTR());
@@ -843,7 +840,7 @@ public class SearchModel extends BaseModel {
 	// throw new Exception("no this case ...");
 	// } catch (Exception e) {
 	// // TODO Auto-generated catch block
-	// e.printStackTrace();
+	// logger.info("ERROR", e);
 	// }
 	// }
 	// }

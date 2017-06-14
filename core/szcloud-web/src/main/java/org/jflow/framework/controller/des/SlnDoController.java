@@ -5,8 +5,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.jflow.framework.common.model.TempObject;
 import org.jflow.framework.controller.wf.workopt.BaseController;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -20,7 +20,7 @@ public class SlnDoController extends BaseController {
 	/**
 	 * 日志对象
 	 */
-	private static final Logger logger = LoggerFactory.getLogger(SlnDoController.class);
+	private static final Log logger = LogFactory.getLog(SlnDoController.class);
 
 	@RequestMapping(value = "/btn_Click", method = RequestMethod.POST)
 	public void btn_Click(TempObject object, HttpServletRequest request, HttpServletResponse response) {

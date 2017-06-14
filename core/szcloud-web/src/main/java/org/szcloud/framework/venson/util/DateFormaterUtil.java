@@ -5,7 +5,14 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 public class DateFormaterUtil {
+	/**
+	 * 日志对象
+	 */
+	protected static final Log logger = LogFactory.getLog(DateFormaterUtil.class);
 	/**
 	 * 时间格式 yyyy-MM-dd
 	 */
@@ -66,7 +73,7 @@ public class DateFormaterUtil {
 		try {
 			return formater.parse(date);
 		} catch (ParseException e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			return null;
 		}
 	}
@@ -179,7 +186,7 @@ public class DateFormaterUtil {
 		try {
 			date = DateFormaterUtil.stringToDate(DateFormaterUtil.FORMART4, endtime);
 		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 		return date;
 	}
@@ -288,7 +295,7 @@ public class DateFormaterUtil {
 			Date date = sdf.parse(str);
 			return getCurrentMonday(date);
 		} catch (ParseException e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			return null;
 		}
 	}
@@ -308,7 +315,7 @@ public class DateFormaterUtil {
 			int days = DateFormaterUtil.dValueDate(beforeDate, endDate);
 		} catch (IllegalArgumentException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 	}
 }

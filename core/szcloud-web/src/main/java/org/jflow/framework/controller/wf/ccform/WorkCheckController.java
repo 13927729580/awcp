@@ -5,6 +5,8 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jflow.framework.controller.wf.workopt.BaseController;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
@@ -21,9 +23,13 @@ import TL.ContextHolderUtils;
 @RequestMapping("/WF/WorkOpt")
 @Scope("request")
 public class WorkCheckController extends BaseController {
+	/**
+	 * 日志对象
+	 */
+	protected final Log logger = LogFactory.getLog(getClass());
+
 	@RequestMapping(value = "/WorkCheckSave", method = RequestMethod.POST)
-	private void execute(HttpServletRequest request,
-			HttpServletResponse response) {
+	private void execute(HttpServletRequest request, HttpServletResponse response) {
 		String dotype = getDoType();
 		// 查看时取消保存
 		if (!StringHelper.isNullOrEmpty(dotype) && dotype.equals("View")) {
@@ -40,34 +46,29 @@ public class WorkCheckController extends BaseController {
 		FrmWorkCheck wcDesc = new FrmWorkCheck(this.getNodeID());
 
 		// 处理人大的需求，需要把审核意见写入到FlowNote里面去.
-		String sql = "UPDATE WF_GenerWorkFlow SET FlowNote='" + msg
-				+ "' WHERE WorkID=" + this.getWorkID();
+		String sql = "UPDATE WF_GenerWorkFlow SET FlowNote='" + msg + "' WHERE WorkID=" + this.getWorkID();
 		BP.DA.DBAccess.RunSQL(sql);
 
 		// 判断是否是抄送?
 		if (this.getIsCC()) {
 			// 写入审核信息，有可能是update数据。
-			BP.WF.Dev2Interface.WriteTrackWorkCheck(this.getFK_Flow(),
-					this.getNodeID(), this.getWorkID(), this.getFID(), msg,
-					wcDesc.getFWCOpLabel());
+			BP.WF.Dev2Interface.WriteTrackWorkCheck(this.getFK_Flow(), this.getNodeID(), this.getWorkID(),
+					this.getFID(), msg, wcDesc.getFWCOpLabel());
 
 			// 设置抄送状态 - 已经审核完毕.
-			BP.WF.Dev2Interface.Node_CC_SetSta(this.getNodeID(),
-					this.getWorkID(), WebUser.getNo(), CCSta.CheckOver);
+			BP.WF.Dev2Interface.Node_CC_SetSta(this.getNodeID(), this.getWorkID(), WebUser.getNo(), CCSta.CheckOver);
 		} else {
-			BP.WF.Dev2Interface.WriteTrackWorkCheck(this.getFK_Flow(),
-					this.getNodeID(), this.getWorkID(), this.getFID(), msg,
-					wcDesc.getFWCOpLabel());
+			BP.WF.Dev2Interface.WriteTrackWorkCheck(this.getFK_Flow(), this.getNodeID(), this.getWorkID(),
+					this.getFID(), msg, wcDesc.getFWCOpLabel());
 		}
 
 		try {
-			response.sendRedirect("WorkCheck.jsp?s=2&WorkID=" + this.getWorkID()
-					+ "&FK_Node=" + this.getNodeID() + "&FK_Flow="
-					+ this.getFK_Flow() + "&FID=" + this.getFID() + "&Paras="
+			response.sendRedirect("WorkCheck.jsp?s=2&WorkID=" + this.getWorkID() + "&FK_Node=" + this.getNodeID()
+					+ "&FK_Flow=" + this.getFK_Flow() + "&FID=" + this.getFID() + "&Paras="
 					+ ContextHolderUtils.getRequest().getParameter("Paras"));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 		// 执行审批.
 		// BP.PubClass.Alert("保存成功...");
@@ -77,8 +78,7 @@ public class WorkCheckController extends BaseController {
 	}
 
 	@RequestMapping(value = "/ddd", method = RequestMethod.POST)
-	public void btn_Click(HttpServletRequest request,
-			HttpServletResponse response, boolean IsCC, String WorkID)
+	public void btn_Click(HttpServletRequest request, HttpServletResponse response, boolean IsCC, String WorkID)
 			throws IOException {
 
 		// 查看时取消保存
@@ -94,30 +94,24 @@ public class WorkCheckController extends BaseController {
 		FrmWorkCheck wcDesc = new FrmWorkCheck(this.getNodeID());
 
 		// 处理人大的需求，需要把审核意见写入到FlowNote里面去.
-		String sql = "UPDATE WF_GenerWorkFlow SET FlowNote='" + msg
-				+ "' WHERE WorkID=" + WorkID;
+		String sql = "UPDATE WF_GenerWorkFlow SET FlowNote='" + msg + "' WHERE WorkID=" + WorkID;
 		BP.DA.DBAccess.RunSQL(sql);
 
 		// 判断是否是抄送?
 		if (IsCC) {
 			// 写入审核信息，有可能是update数据。
-			BP.WF.Dev2Interface.WriteTrackWorkCheck(this.getFK_Flow(),
-					this.getNodeID(), this.getWorkID(), this.getFID(), msg,
-					wcDesc.getFWCOpLabel());
+			BP.WF.Dev2Interface.WriteTrackWorkCheck(this.getFK_Flow(), this.getNodeID(), this.getWorkID(),
+					this.getFID(), msg, wcDesc.getFWCOpLabel());
 
 			// 设置抄送状态 - 已经审核完毕.
-			BP.WF.Dev2Interface.Node_CC_SetSta(this.getNodeID(),
-					this.getWorkID(), WebUser.getNo(), CCSta.CheckOver);
+			BP.WF.Dev2Interface.Node_CC_SetSta(this.getNodeID(), this.getWorkID(), WebUser.getNo(), CCSta.CheckOver);
 		} else {
-			BP.WF.Dev2Interface.WriteTrackWorkCheck(this.getFK_Flow(),
-					this.getNodeID(), this.getWorkID(), this.getFID(), msg,
-					wcDesc.getFWCOpLabel());
+			BP.WF.Dev2Interface.WriteTrackWorkCheck(this.getFK_Flow(), this.getNodeID(), this.getWorkID(),
+					this.getFID(), msg, wcDesc.getFWCOpLabel());
 		}
 
-		response.sendRedirect("WorkCheck.jsp?s=2&OID=" + this.getWorkID()
-				+ "&FK_Node=" + this.getNodeID() + "&FK_Flow="
-				+ this.getFK_Flow() + "&FID=" + this.getFID() + "&Paras="
-				+ request.getParameter("Paras"));
+		response.sendRedirect("WorkCheck.jsp?s=2&OID=" + this.getWorkID() + "&FK_Node=" + this.getNodeID() + "&FK_Flow="
+				+ this.getFK_Flow() + "&FID=" + this.getFID() + "&Paras=" + request.getParameter("Paras"));
 		// 执行审批.
 		// BP.Sys.PubClass.Alert("保存成功...");
 

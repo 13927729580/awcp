@@ -111,7 +111,7 @@ public class PfmWorkflowController extends BaseController {
 			}
 			return nodeList;
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			return null;
 		}
 	}
@@ -182,7 +182,7 @@ public class PfmWorkflowController extends BaseController {
 			JSONObject o = StringUtils.isNotEmpty(jsonStr) ? JSON.parseObject(jsonStr) : new JSONObject();
 			mv.addObject("nVos", o.values());
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			mv.addObject("result", "系统异常");
 		}
 		mv.addObject("pageId", pageId);
@@ -213,7 +213,7 @@ public class PfmWorkflowController extends BaseController {
 
 					mv.addObject("vos", ls);
 				} catch (Exception e) {
-					e.printStackTrace();
+					logger.info("ERROR", e);
 				}
 			}
 		}
@@ -245,7 +245,7 @@ public class PfmWorkflowController extends BaseController {
 					}
 					mv.addObject("vos", notBindNodeList);
 				} catch (Exception e) {
-					e.printStackTrace();
+					logger.info("ERROR", e);
 				}
 			}
 		}
@@ -350,7 +350,7 @@ public class PfmWorkflowController extends BaseController {
 			}
 			return mv;
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			return null;
 		}
 	}
@@ -449,7 +449,7 @@ public class PfmWorkflowController extends BaseController {
 		} catch (Exception e) {
 			rtn.put("result", "3");
 			rtn.put("msg", "错误");
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 		return rtn.toJSONString();
 	}
@@ -483,7 +483,7 @@ public class PfmWorkflowController extends BaseController {
 		} catch (Exception e) {
 			rtn.put("result", "3");
 			rtn.put("msg", "错误");
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 		return rtn.toJSONString();
 	}
@@ -568,7 +568,7 @@ public class PfmWorkflowController extends BaseController {
 			request.setCharacterEncoding("UTF-8");
 			varName = new String(request.getParameter("varName").getBytes("ISO-8859-1"), "UTF-8");
 		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 
 		ModelAndView mv = new ModelAndView();

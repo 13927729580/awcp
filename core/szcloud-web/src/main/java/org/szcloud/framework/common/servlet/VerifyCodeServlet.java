@@ -12,6 +12,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.szcloud.framework.common.security.VerifyCodeGenerator;
 import org.szcloud.framework.core.utils.SessionUtils;
 import org.szcloud.framework.core.utils.constants.SessionContants;
@@ -24,6 +26,10 @@ import org.szcloud.framework.core.utils.constants.SessionContants;
  */
 public class VerifyCodeServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
+	/**
+	 * 日志对象
+	 */
+	protected final Log logger = LogFactory.getLog(getClass());
 
 	/**
 	 * @see HttpServlet#HttpServlet()
@@ -58,7 +64,7 @@ public class VerifyCodeServlet extends HttpServlet {
 			// 关闭输出流
 			outStream.close();
 		} catch (IOException ex) {
-			ex.printStackTrace();
+			logger.info("ERROR", ex);
 		}
 
 	}

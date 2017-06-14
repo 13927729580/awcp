@@ -1,6 +1,7 @@
 package org.szcloud.framework.formdesigner.core.domain;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.ibatis.session.SqlSession;
@@ -11,29 +12,34 @@ import org.szcloud.framework.core.utils.Springfactory;
 public class Attachment implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-private static SqlSessionFactory sqlSessionFactory;
-	
-	public  static SqlSessionFactory getRepository() {
-    	if(sqlSessionFactory==null)
-    		sqlSessionFactory = Springfactory.getBean("sqlSessionFactory");
+	private static SqlSessionFactory sqlSessionFactory;
+
+	public static SqlSessionFactory getRepository() {
+		if (sqlSessionFactory == null)
+			sqlSessionFactory = Springfactory.getBean("sqlSessionFactory");
 		return Attachment.sqlSessionFactory;
 	}
-	
+
 	private String id;
-	
+
 	private String storageId;
-	
+
 	private String fileName;
-	
+
 	private Long userId;
-	
+
 	private String userName;
-	
+
 	private String contentType;
-	
+
 	private Long systemId;
-	
+
 	private Long size;
+
+	// 创建时间
+	private Date createTime;
+	// 更新时间
+	private Date updateTime;
 
 	public String getId() {
 		return id;
@@ -98,13 +104,32 @@ private static SqlSessionFactory sqlSessionFactory;
 	public void setSize(Long size) {
 		this.size = size;
 	}
-	
+
+	public Date getCreateTime() {
+		return createTime;
+	}
+
+	public void setCreateTime(Date createTime) {
+		this.createTime = createTime;
+	}
+
+	public Date getUpdateTime() {
+		return updateTime;
+	}
+
+	public void setUpdateTime(Date updateTime) {
+		this.updateTime = updateTime;
+	}
+
 	public String save() {
+		Date now = new Date();
+		this.createTime = now;
+		this.updateTime = now;
 		SqlSession session = getRepository().openSession();
 		try {
-			//TODO by ayesd
-				//this.setId(UUID.randomUUID().toString());
-				
+			// TODO by ayesd
+			// this.setId(UUID.randomUUID().toString());
+
 			session.insert(Attachment.class.getName() + ".insert", this);
 			session.commit();
 		} finally {
@@ -112,6 +137,19 @@ private static SqlSessionFactory sqlSessionFactory;
 		}
 		return this.id;
 	}
+
+	public String update() {
+		this.updateTime = new Date();
+		SqlSession session = getRepository().openSession();
+		try {
+			session.insert(Attachment.class.getName() + ".update", this);
+			session.commit();
+		} finally {
+			session.close();
+		}
+		return this.id;
+	}
+
 	public void remove() {
 		SqlSession session = getRepository().openSession();
 		try {
@@ -121,7 +159,7 @@ private static SqlSessionFactory sqlSessionFactory;
 			session.close();
 		}
 	}
-	
+
 	public static List<Store> selectByExample(BaseExample example) {
 		SqlSession session = getRepository().openSession();
 		try {
@@ -130,7 +168,7 @@ private static SqlSessionFactory sqlSessionFactory;
 			session.close();
 		}
 	}
-	
+
 	public static Attachment get(Serializable id) {
 		SqlSession session = getRepository().openSession();
 		try {
@@ -140,4 +178,5 @@ private static SqlSessionFactory sqlSessionFactory;
 			session.close();
 		}
 	}
+
 }

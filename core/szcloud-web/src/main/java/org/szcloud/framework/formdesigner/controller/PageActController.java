@@ -408,7 +408,7 @@ public class PageActController extends BaseController {
 		try {
 			storeService.delete(ids);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 
 		// 从session中获取当前页？

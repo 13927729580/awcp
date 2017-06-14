@@ -7,15 +7,15 @@ import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jflow.framework.common.model.BaseModel;
-import org.jflow.framework.common.model.EnModel;
 import org.jflow.framework.system.ui.core.BaseWebControl;
 import org.jflow.framework.system.ui.core.HtmlUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import TL.ContextHolderUtils;
 import BP.Sys.GEDtl;
 import BP.Sys.GEDtlAttr;
 import BP.Sys.Frm.MapDtl;
@@ -24,89 +24,93 @@ import BP.Tools.StringHelper;
 @Controller
 @RequestMapping("/WF/CCForm")
 public class FrmDtlController {
-	
 
+	/**
+	 * 日志对象
+	 */
+	protected final Log logger = LogFactory.getLog(getClass());
 	private HashMap<String, BaseWebControl> ctrlMap;
-	
+
 	@RequestMapping(value = "/FrmDtlSave", method = RequestMethod.POST)
-	public void Btn_Save_Click(HttpServletRequest request,HttpServletResponse response) {
+	public void Btn_Save_Click(HttpServletRequest request, HttpServletResponse response) {
 
 		try {
-			//UCEn1=new EnModel(request , response);
-			//ctrlMap = HtmlUtils.httpParser(ContextHolderUtils.getRequest().getParameter("BodyHtml"), true);
-		//	String s=request.getParameter(name)
+			// UCEn1=new EnModel(request , response);
+			// ctrlMap =
+			// HtmlUtils.httpParser(ContextHolderUtils.getRequest().getParameter("BodyHtml"),
+			// true);
+			// String s=request.getParameter(name)
 			ctrlMap = HtmlUtils.httpParser(request.getParameter("bodyHtml"), request);
 			MapDtl dtl = new MapDtl(this.getFK_MapData(request));
 			GEDtl dtlEn = dtl.getHisGEDtl();
 			dtlEn.SetValByKey("OID", this.getOID(request));
 			int i = dtlEn.RetrieveFromDBSources();
-			Object tempVar =  BaseModel.Copy(request, dtlEn, null, dtlEn.getEnMap(), ctrlMap);
-			dtlEn = (GEDtl)((tempVar instanceof GEDtl) ? tempVar : null);
-	 		dtlEn.SetValByKey(GEDtlAttr.RefPK, getWorkID(request));
+			Object tempVar = BaseModel.Copy(request, dtlEn, null, dtlEn.getEnMap(), ctrlMap);
+			dtlEn = (GEDtl) ((tempVar instanceof GEDtl) ? tempVar : null);
+			dtlEn.SetValByKey(GEDtlAttr.RefPK, getWorkID(request));
 
 			if (i == 0) {
 				dtlEn.setOID(0);
-				//dtlEn.Save();
+				// dtlEn.Save();
 				dtlEn.Insert();
-			}
-			else {
+			} else {
 				dtlEn.Update();
 			}
 
-			
 			try {
-				//  response.sendRedirect("FrmDtl.jsp?WorkID=" + dtlEn.getRefPK() + "&FK_MapData=" + this.getFK_MapData(request) + "&IsReadonly=" + this.getIsReadonly(request) + "&OID=" + dtlEn.getOID());
+				// response.sendRedirect("FrmDtl.jsp?WorkID=" + dtlEn.getRefPK()
+				// + "&FK_MapData=" + this.getFK_MapData(request) +
+				// "&IsReadonly=" + this.getIsReadonly(request) + "&OID=" +
+				// dtlEn.getOID());
 				PrintWriter out = response.getWriter();
 				out.print("保存成功");
-				//response.sendRedirect("FrmDtl.jsp?WorkID=" + dtlEn.getRefPK() + "&FK_MapData=" + this.getFK_MapData(request) + "&IsReadonly=" + this.getIsReadonly(request) + "&OID=" + dtlEn.getOID());
+				// response.sendRedirect("FrmDtl.jsp?WorkID=" + dtlEn.getRefPK()
+				// + "&FK_MapData=" + this.getFK_MapData(request) +
+				// "&IsReadonly=" + this.getIsReadonly(request) + "&OID=" +
+				// dtlEn.getOID());
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.info("ERROR", e);
 			}
 
+		} catch (RuntimeException ex) {
+			// this.UCEn1.AddMsgOfWarning("error:", ex.getMessage());
 		}
-		catch (RuntimeException ex) {
-			//this.UCEn1.AddMsgOfWarning("error:", ex.getMessage());
-		}
-		
-		
-	
+
 	}
-	
+
 	public final String getFK_MapData(HttpServletRequest request) {
-		String s =request.getParameter("FK_MapData");
+		String s = request.getParameter("FK_MapData");
 		if (s == null) {
 			return "ND101";
 		}
 		return s;
 	}
+
 	public final int getOID(HttpServletRequest request) {
 		try {
-			String oID=request.getParameter("OID");
+			String oID = request.getParameter("OID");
 			return Integer.parseInt(oID);
-		}
-		catch (java.lang.Exception e) {
+		} catch (java.lang.Exception e) {
 			return 0;
 		}
 	}
-	
-	public  long getWorkID(HttpServletRequest request)
-	{
+
+	public long getWorkID(HttpServletRequest request) {
 		String str = request.getParameter("WorkID");
-		if (StringHelper.isNullOrEmpty(str))
-		{
+		if (StringHelper.isNullOrEmpty(str)) {
 			str = request.getParameter("OID");
 		}
 
-		if (StringHelper.isNullOrEmpty(str))
-		{
+		if (StringHelper.isNullOrEmpty(str)) {
 			str = request.getParameter("PKVal");
 		}
 
 		return Long.parseLong(str);
 	}
+
 	public final boolean getIsReadonly(HttpServletRequest request) {
-		String isReadonly=request.getParameter("IsReadonly");
+		String isReadonly = request.getParameter("IsReadonly");
 		if (isReadonly.equals("1")) {
 			return true;
 		}

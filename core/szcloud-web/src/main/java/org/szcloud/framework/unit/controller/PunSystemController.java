@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
@@ -39,7 +41,10 @@ import com.github.miemiedev.mybatis.paginator.domain.PageList;
 @Controller
 @RequestMapping("/unit")
 public class PunSystemController {
-
+	/**
+	 * 日志对象
+	 */
+	protected final Log logger = LogFactory.getLog(getClass());
 	@Autowired
 	@Qualifier("punSystemServiceImpl")
 	PunSystemService sysService;
@@ -80,7 +85,7 @@ public class PunSystemController {
 			PunSystemVO vo = sysService.findById(boxs[0]);
 			mv.addObject("vo", vo);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			mv.addObject("result", "System error.");
 		}
 		return mv;
@@ -123,7 +128,7 @@ public class PunSystemController {
 			}
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			mv.addObject("result", "System error.");
 		}
 		return mv;
@@ -162,7 +167,7 @@ public class PunSystemController {
 			mv.addObject("currentPage", currentPage);
 			mv.addObject("pageSize", pageSize);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			mv.addObject("result", "System error.");
 		}
 		return mv;
@@ -194,7 +199,7 @@ public class PunSystemController {
 			mv.addObject("vos", syses);
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			mv.addObject("result", "System error.");
 		}
 		return mv;
@@ -226,7 +231,7 @@ public class PunSystemController {
 			mv.addObject("menuJson", factory.encode2Json(resultMap));
 			mv.addObject("sysVO", sysVO);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			mv.addObject("result", "System error.");
 		}
 		return mv;
@@ -258,7 +263,7 @@ public class PunSystemController {
 			mv.addObject("menuJson", factory.encode2Json(resultMap));
 			mv.addObject("sysVO", sysVO);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			mv.addObject("result", "异常");
 		}
 		return mv;
@@ -298,7 +303,7 @@ public class PunSystemController {
 		} catch (PermissionException ea) {
 			model.addAttribute("result", ea.getMessage());
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			model.addAttribute("result", "System error.");
 		}
 		return new ModelAndView("unit/punSystem-list");

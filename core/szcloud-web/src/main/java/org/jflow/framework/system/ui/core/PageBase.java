@@ -10,8 +10,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-public class PageBase {
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
+public class PageBase {
+	/**
+	 * 日志对象
+	 */
+	protected final Log logger = LogFactory.getLog(getClass());
 	protected StringBuilder _content = null;
 	protected List<String> _include = null;
 	protected List<String> _script = null;
@@ -66,7 +72,6 @@ public class PageBase {
 		this._response = _response;
 	}
 
-
 	public void AddBR() {
 		_content.append("<BR/>");
 	}
@@ -76,8 +81,7 @@ public class PageBase {
 	}
 
 	public void AddBtn(String id, String name) {
-		_content.append("<input type='button' id='" + id + "' name='" + name
-				+ "'></input>");
+		_content.append("<input type='button' id='" + id + "' name='" + name + "'></input>");
 	}
 
 	public void Add(String text) {
@@ -95,151 +99,147 @@ public class PageBase {
 	public void AddTDTitle(String title) {
 		_content.append("<TD>" + title + "</TD>");
 	}
-	
-    public void AddFieldSet(String title) {
-       Add("<fieldset width='100%' ><legend>&nbsp;" + title + "&nbsp;</legend>");
-    }
-   
-    public void AddFieldSetEnd(){
-       Add("</fieldset>");
-    }
-    
-    public void AddTDTitleExt(String str){
-    	Add("\n<TD class='TitleExt' nowrap=true >" + str + "</TD>");
+
+	public void AddFieldSet(String title) {
+		Add("<fieldset width='100%' ><legend>&nbsp;" + title + "&nbsp;</legend>");
 	}
-    
-	public void AddTR(){
+
+	public void AddFieldSetEnd() {
+		Add("</fieldset>");
+	}
+
+	public void AddTDTitleExt(String str) {
+		Add("\n<TD class='TitleExt' nowrap=true >" + str + "</TD>");
+	}
+
+	public void AddTR() {
 		Add("\n<TR>");
 	}
-	public void AddTR(String attr){
-	    this.Add("\n<TR " + attr + " >");
+
+	public void AddTR(String attr) {
+		this.Add("\n<TR " + attr + " >");
 	}
-	
-	public void AddTREnd(){
+
+	public void AddTREnd() {
 		Add("\n</TR>");
 	}
-	
+
 	public void AddTDDesc(String str) {
-        this.Add("\n<TD class='FDesc' nowrap=true >" + str + "</TD>");
-    }
-	
-	public void AddFieldSetRed(String title, String msg)
-    {
+		this.Add("\n<TD class='FDesc' nowrap=true >" + str + "</TD>");
+	}
+
+	public void AddFieldSetRed(String title, String msg) {
 		Add("<fieldset class=FieldSetRed ><legend>&nbsp;" + title + "&nbsp;</legend>");
 		Add(msg);
 		Add("</fieldset>");
-    }
-	
-	public void AddTD()
-    {
+	}
+
+	public void AddTD() {
 		Add("\n<TD >&nbsp;</TD>");
-    }
-    public void AddTD(String str){
-        if (str == null || str == "")
-        	Add("\n<TD  nowrap >&nbsp;</TD>");
-        else
-        	Add("\n<TD  nowrap >" + str + "</TD>");
-   	}
-    public void AddTDEnd()
-    {
-        this.Add("\n</TD>");
-    }
-    public void AddTD(String attr, String str)
-    {
-    	Add( "\n<TD " + attr + " >" + str + "</TD>");
-    }
-    
-    public void AddTDIdx(int idx)
-    {
-    	Add("\n<TD class='Idx' nowrap>" + idx + "</TD>");
-    }
-    
-    public void AddTDCenter(String str)
-    {
-    	Add("\n<TD align=center nowrap >" + str + "</TD>");
-    }
-    
-    public void AddTRSum()
-    {
-    	Add("\n<TR class='TRSum' >");
-    }
-    
-    public void addTableEnd()
-    {
-    	Add("</Table>");
-    }
-   
-    public void AddMsgOfInfo(String title, String doc) {
-       AddFieldSet(title);
-       if (doc != null){
-    	   Add(doc.replace("@", "<BR>@"));
-       }
-       AddFieldSetEnd();
-    }
-   
+	}
+
+	public void AddTD(String str) {
+		if (str == null || str == "")
+			Add("\n<TD  nowrap >&nbsp;</TD>");
+		else
+			Add("\n<TD  nowrap >" + str + "</TD>");
+	}
+
+	public void AddTDEnd() {
+		this.Add("\n</TD>");
+	}
+
+	public void AddTD(String attr, String str) {
+		Add("\n<TD " + attr + " >" + str + "</TD>");
+	}
+
+	public void AddTDIdx(int idx) {
+		Add("\n<TD class='Idx' nowrap>" + idx + "</TD>");
+	}
+
+	public void AddTDCenter(String str) {
+		Add("\n<TD align=center nowrap >" + str + "</TD>");
+	}
+
+	public void AddTRSum() {
+		Add("\n<TR class='TRSum' >");
+	}
+
+	public void addTableEnd() {
+		Add("</Table>");
+	}
+
+	public void AddMsgOfInfo(String title, String doc) {
+		AddFieldSet(title);
+		if (doc != null) {
+			Add(doc.replace("@", "<BR>@"));
+		}
+		AddFieldSetEnd();
+	}
+
 	/**
 	 * 关闭窗口
 	 */
-	public void WinClose(){
+	public void WinClose() {
 		try {
 			_response.getWriter().write("<script language='JavaScript'> window.close();</script>");
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
-     }
-	
-	public void WinClose(String val){
+	}
+
+	public void WinClose(String val) {
 		try {
-			 //经测试谷歌,IE都走window.top.returnValue 方法
-			String clientscript = "<script language='javascript'> if(window.opener != undefined){window.top.returnValue = '" + val + "';} else { window.returnValue = '" + val + "';} window.close(); </script>";
+			// 经测试谷歌,IE都走window.top.returnValue 方法
+			String clientscript = "<script language='javascript'> if(window.opener != undefined){window.top.returnValue = '"
+					+ val + "';} else { window.returnValue = '" + val + "';} window.close(); </script>";
 			_response.getWriter().write(clientscript);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
-     }
-	
+	}
+
 	public void WinCloseWithMsg(String mess) {
-       mess = mess.replace("'", "＇");
+		mess = mess.replace("'", "＇");
 
-       mess = mess.replace("\"", "＂");
+		mess = mess.replace("\"", "＂");
 
-       mess = mess.replace(";", "；");
-       mess = mess.replace(")", "）");
-       mess = mess.replace("(", "（");
+		mess = mess.replace(";", "；");
+		mess = mess.replace(")", "）");
+		mess = mess.replace("(", "（");
 
-       mess = mess.replace(",", "，");
-       mess = mess.replace(":", "：");
+		mess = mess.replace(",", "，");
+		mess = mess.replace(":", "：");
 
+		mess = mess.replace("<", "［");
+		mess = mess.replace(">", "］");
 
-       mess = mess.replace("<", "［");
-       mess = mess.replace(">", "］");
+		mess = mess.replace("[", "［");
+		mess = mess.replace("]", "］");
 
-       mess = mess.replace("[", "［");
-       mess = mess.replace("]", "］");
+		mess = mess.replace("@", "\\n@");
 
+		mess = mess.replace("\r\n", "");
 
-       mess = mess.replace("@", "\\n@");
-
-       mess = mess.replace("\r\n", "");
-
-       try {
+		try {
 			_response.getWriter().write("<script language='JavaScript'>alert('" + mess + "'); window.close()</script>");
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
-   }
-	
+	}
+
 	/**
 	 * 切换到信息也面。
+	 * 
 	 * @param mess
-	 * @param context 
+	 * @param context
 	 */
 	public void ToWFMsgPage(String mess, ServletContext context) {
 		mess = mess.replace("@", "<BR>@");
 		mess = mess.replace("~", "@");
 		HttpSession session = _request.getSession();
 		session.setAttribute("info", mess);
-		
+
 		try {
 			if (context.getAttribute("PageMsg") == null) {
 				_response.sendRedirect(BP.WF.Glo.getCCFlowAppPath() + "WF/Comm/Port/InfoPage.jsp?d=" + new Date());
@@ -247,22 +247,23 @@ public class PageBase {
 				_response.sendRedirect(context.getAttribute("PageMsg") + "WF/Comm/Port/InfoPage.jsp?d=" + new Date());
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 
 	}
-	
+
 	/**
 	 * 切换到错误信息页面。
+	 * 
 	 * @param mess
 	 */
-    public void ToErrorPage(String mess) {
-    	HttpSession session = _request.getSession();
+	public void ToErrorPage(String mess) {
+		HttpSession session = _request.getSession();
 		session.setAttribute("info", mess);
 		try {
 			_response.sendRedirect(BP.WF.Glo.getCCFlowAppPath() + "WF/Comm/Port/ToErrorPage.jsp?d=" + new Date());
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
-    }
+	}
 }

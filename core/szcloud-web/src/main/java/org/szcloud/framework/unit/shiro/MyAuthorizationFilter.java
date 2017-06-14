@@ -11,12 +11,12 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.filter.authc.FormAuthenticationFilter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.szcloud.framework.core.utils.Security;
 import org.szcloud.framework.core.utils.Springfactory;
 import org.szcloud.framework.unit.service.PunUserBaseInfoService;
@@ -32,7 +32,7 @@ import com.alibaba.fastjson.JSONObject;
 import TL.ContextHolderUtils;
 
 public class MyAuthorizationFilter extends FormAuthenticationFilter {
-	private static final Logger log = LoggerFactory.getLogger(MyAuthorizationFilter.class);
+	private static final Log log = LogFactory.getLog(MyAuthorizationFilter.class);
 
 	@Override
 	protected boolean onAccessDenied(ServletRequest request, ServletResponse response) throws Exception {

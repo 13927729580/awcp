@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
@@ -39,7 +39,7 @@ public class PunMenuController {
 	/**
 	 * 日志对象
 	 */
-	protected Logger logger = LoggerFactory.getLogger(getClass());
+	protected Log logger = LogFactory.getLog(getClass());
 	
 	@Autowired
 	@Qualifier("punMenuServiceImpl")
@@ -108,7 +108,7 @@ public class PunMenuController {
 		}catch(PermissionException ea){
 			model.addAttribute("result", ea.getMessage());
 		}catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			model.addAttribute("result", "System error.");
 		}
 		return new ModelAndView("/unit/punMenu-list");
@@ -153,7 +153,7 @@ public class PunMenuController {
 		}catch(PermissionException ea){
 			mv.addObject("result", ea.getMessage());
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			mv.addObject("result", "System error.");
 		}
 		return mv;
@@ -176,7 +176,7 @@ public class PunMenuController {
 			}
 			mv.addObject("vo", vo);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			mv.addObject("result", "System error.");
 		}
 		return mv;

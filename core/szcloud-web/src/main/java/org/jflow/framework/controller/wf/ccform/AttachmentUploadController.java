@@ -8,6 +8,8 @@ import java.net.BindException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jflow.framework.controller.wf.workopt.BaseController;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
@@ -30,6 +32,10 @@ import TL.ContextHolderUtils;
 @RequestMapping("/WF/CCForm")
 @Scope("request")
 public class AttachmentUploadController extends BaseController {
+	/**
+	 * 日志对象
+	 */
+	protected final Log logger = LogFactory.getLog(getClass());
 
 	public String getFK_FrmAttachment() {
 		return ContextHolderUtils.getRequest().getParameter("FK_FrmAttachment");
@@ -157,7 +163,8 @@ public class AttachmentUploadController extends BaseController {
 			// string realSaveTo = Server.MapPath("~/" + savePath) + "/" + guid
 			// + "." + fileName + "." + ext;
 
-			// string realSaveTo = Server.MapPath("~/" + savePath) + File.separator+ guid
+			// string realSaveTo = Server.MapPath("~/" + savePath) +
+			// File.separator+ guid
 			// + "." + fu.FileName.Substring(fu.FileName.LastIndexOf('.') + 1);
 			// string saveTo = savePath + "/" + guid + "." + fileName + "." +
 			// ext;
@@ -251,7 +258,7 @@ public class AttachmentUploadController extends BaseController {
 			// return null;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			return null;
 		}
 

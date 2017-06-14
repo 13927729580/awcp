@@ -5,8 +5,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Hashtable;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import BP.DA.DataColumn;
 import BP.DA.DataColumnCollection;
@@ -19,7 +19,7 @@ public class CCFormUtil {
 	/**
 	 * 日志对象
 	 */
-	private static final Logger logger = LoggerFactory.getLogger(CCFormUtil.class);
+	private static final Log logger = LogFactory.getLog(CCFormUtil.class);
 
 	public static String SaveDT(DataTable dt) throws Exception {
 		if (dt.Rows.size() == 0)

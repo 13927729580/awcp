@@ -6,6 +6,8 @@ import java.io.UnsupportedEncodingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -17,23 +19,25 @@ import BP.Tools.StringHelper;
 @Controller
 @RequestMapping("/WF/Comm")
 public class HelperOfSigantureController {
+	/**
+	 * 日志对象
+	 */
+	private static Log logger = LogFactory.getLog(HelperOfSigantureController.class);
 	private HttpServletRequest _request = null;
 	private HttpServletResponse _response = null;
 
 	public String getUTF8ToString(String param) {
 		try {
-			return java.net.URLDecoder.decode(_request.getParameter(param),
-					"utf-8");
+			return java.net.URLDecoder.decode(_request.getParameter(param), "utf-8");
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			return null;
 		}
 	}
 
 	@RequestMapping(value = "/HelperOfSiganture", method = RequestMethod.GET)
-	public void executeHelper(HttpServletRequest request,
-			HttpServletResponse response) {
+	public void executeHelper(HttpServletRequest request, HttpServletResponse response) {
 		_request = request;
 		_response = response;
 
@@ -47,9 +51,9 @@ public class HelperOfSigantureController {
 		method = request.getParameter("method").toString();
 
 		if (method.equals("sigantureact")) {
-			 s_responsetext = SigantureAction();
-		} 
-		
+			s_responsetext = SigantureAction();
+		}
+
 		if (StringHelper.isNullOrEmpty(s_responsetext))
 			s_responsetext = "";
 
@@ -57,14 +61,13 @@ public class HelperOfSigantureController {
 		response.setCharacterEncoding("UTF-8");
 		response.setContentType("text/html");
 		try {
-			response.getOutputStream().write(
-					s_responsetext.replace("][", "],[").getBytes("UTF-8"));
+			response.getOutputStream().write(s_responsetext.replace("][", "],[").getBytes("UTF-8"));
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 
 	}
@@ -82,12 +85,10 @@ public class HelperOfSigantureController {
 		// 修改表数据
 		MapData md = new MapData(FK_MapData);
 		if (imgSrc.contains(UserNo) || imgSrc.contains("UnName")) {
-			DBAccess.RunSQL("UPDATE " + md.getPTable() + " SET " + KeyOfEn
-					+ "='' WHERE OID=" + WorkID);
+			DBAccess.RunSQL("UPDATE " + md.getPTable() + " SET " + KeyOfEn + "='' WHERE OID=" + WorkID);
 			return "siganture";
 		} else {
-			DBAccess.RunSQL("UPDATE " + md.getPTable() + " SET " + KeyOfEn + "='"
-					+ UserNo + "' WHERE OID=" + WorkID);
+			DBAccess.RunSQL("UPDATE " + md.getPTable() + " SET " + KeyOfEn + "='" + UserNo + "' WHERE OID=" + WorkID);
 			return UserNo;
 		}
 	}

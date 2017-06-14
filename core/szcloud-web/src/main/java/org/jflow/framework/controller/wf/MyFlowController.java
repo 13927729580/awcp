@@ -7,9 +7,9 @@ import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jflow.framework.common.model.BaseModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -51,7 +51,7 @@ public class MyFlowController {
 	/**
 	 * 日志对象
 	 */
-	private static final Logger logger = LoggerFactory.getLogger(MyFlowController.class);
+	protected final Log logger = LogFactory.getLog(getClass());
 	private HttpServletRequest _request = null;
 	private HttpServletResponse _response = null;
 
@@ -121,7 +121,7 @@ public class MyFlowController {
 		try {
 			Send(true);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			printResult(toJson("flowMsg", BaseModel.AddMsgOfWarning("错误", e.getMessage())));
 		}
 		return null;
@@ -350,7 +350,7 @@ public class MyFlowController {
 				printResult(toJson("url", url));
 				return;
 			} else {
-				exSend.printStackTrace();
+				logger.info("ERROR", exSend);
 			}
 
 			StringBuffer errorMsg = new StringBuffer();
@@ -450,7 +450,7 @@ public class MyFlowController {
 
 			out.flush();
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		} finally {
 			if (out != null) {
 				out.close();
@@ -471,7 +471,7 @@ public class MyFlowController {
 					+ "&WorkID=" + workID + "&FID=" + fid + "&FK_Emp=" + WebUser.getNo() + "&SID=" + WebUser.getSID();
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 		return "";
 	}

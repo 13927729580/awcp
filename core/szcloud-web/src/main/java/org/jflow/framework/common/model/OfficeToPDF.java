@@ -211,13 +211,13 @@
 //			}
 //			out.flush();
 //		} catch (Exception e) {
-//			e.printStackTrace();
+//			logger.info("ERROR", e);
 //			return false;
 //		} finally {
 //			try {
 //				out.close();
 //			} catch (Exception e) {
-//				e.printStackTrace();
+//				logger.info("ERROR", e);
 //			}
 //		}
 //		return false;

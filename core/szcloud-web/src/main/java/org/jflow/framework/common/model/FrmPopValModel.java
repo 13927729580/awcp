@@ -5,6 +5,8 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jflow.framework.system.ui.UiFatory;
 import org.jflow.framework.system.ui.core.Button;
 import org.jflow.framework.system.ui.core.CheckBox;
@@ -16,15 +18,18 @@ import BP.Port.WebUser;
 import BP.Sys.Frm.MapExt;
 
 public class FrmPopValModel extends BaseModel {
+	/**
+	 * 日志对象
+	 */
+	private static Log logger = LogFactory.getLog(FrmPopValModel.class);
 
-	public FrmPopValModel(HttpServletRequest request,
-			HttpServletResponse response) {
+	public FrmPopValModel(HttpServletRequest request, HttpServletResponse response) {
 		super(request, response);
 		// TODO Auto-generated constructor stub
 	}
 
 	public UiFatory Pub1 = new UiFatory();
-	private String _CtrlVal=null;
+	private String _CtrlVal = null;
 	private String FK_MapExt;
 
 	public String get_CtrlVal() {
@@ -62,13 +67,10 @@ public class FrmPopValModel extends BaseModel {
 
 		if (me.getPopValShowModel() == 1) {
 			try {
-				get_response()
-						.sendRedirect(
-								"FrmPopValDir.jsp?a=2"
-										+ get_request().getQueryString());
+				get_response().sendRedirect("FrmPopValDir.jsp?a=2" + get_request().getQueryString());
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.info("ERROR", e);
 			}
 			return;
 		}
@@ -107,9 +109,9 @@ public class FrmPopValModel extends BaseModel {
 		DataTable dtObj = BP.DA.DBAccess.RunSQLReturnTable(sqlObjs);
 		if (dtObj.Columns.size() == 2) {
 			dtObj.Columns.Add("Group", String.class);
-//			for (DataRow dr : dtObj.Rows) {
-//				dr.setValue("Group", "01");
-//			}
+			// for (DataRow dr : dtObj.Rows) {
+			// dr.setValue("Group", "01");
+			// }
 			for (DataRow dr : dtObj.Rows) {
 				dr.setValue("Group", "");
 			}
@@ -125,8 +127,8 @@ public class FrmPopValModel extends BaseModel {
 				// 增加全部选择.
 				this.Pub1.append(AddTR());
 				CheckBox cbx = Pub1.creatCheckBox("CBs_" + drGroup.getValue(0).toString());
-//				cbx.setId("CBs_" + drGroup.getValue(0).toString());
-//				cbx.setName("CBs_" + drGroup.getValue(0).toString());
+				// cbx.setId("CBs_" + drGroup.getValue(0).toString());
+				// cbx.setName("CBs_" + drGroup.getValue(0).toString());
 				cbx.setText(drGroup.getValue(1).toString());
 				cbx.addAttr("onclick", "SetSelected(this)");
 				this.Pub1.append(AddTDTitle("align=left", cbx.toString()));
@@ -151,16 +153,15 @@ public class FrmPopValModel extends BaseModel {
 					}
 
 					CheckBox cb = Pub1.creatCheckBox("CB_" + no);
-//					cb.setId("CB_" + no);
-//					cb.setName("CB_" + no);
+					// cb.setId("CB_" + no);
+					// cb.setName("CB_" + no);
 					ctlIDs += cb.getId() + ",";
 					// cb.Attributes["onclick"] = "isChange=true;";
 					cb.addAttr("onclick", "isChange=true;");
 					cb.setText(name);
 					cb.setChecked(this.get_CtrlVal().contains("," + no + ","));
 					if (cb.getChecked()) {
-						cb.setText("<font color=green>" + cb.getText()
-								+ "</font>");
+						cb.setText("<font color=green>" + cb.getText() + "</font>");
 					}
 					this.Pub1.append(AddTD(cb));
 					if (cols - 1 == colIdx) {
@@ -170,7 +171,7 @@ public class FrmPopValModel extends BaseModel {
 				}
 				// cbx.Attributes["onclick"] = "SetSelected(this,'" + ctlIDs +
 				// "')";
-//				cbx.addAttr("onclick", "SetSelected(this,'" + ctlIDs + "')");
+				// cbx.addAttr("onclick", "SetSelected(this,'" + ctlIDs + "')");
 				if (colIdx != -1) {
 					while (colIdx != cols - 1) {
 						colIdx++;
@@ -194,16 +195,15 @@ public class FrmPopValModel extends BaseModel {
 			// 增加全部选择.
 			this.Pub1.append(AddTR());
 			CheckBox cbx = Pub1.creatCheckBox("CBs_" + dtGroup.getValue(0, 0).toString());
-//			cbx.setId("CBs_" + dtGroup.getValue(0, 0).toString());
-//			cbx.setName("CBs_" + dtGroup.getValue(0, 0).toString());
+			// cbx.setId("CBs_" + dtGroup.getValue(0, 0).toString());
+			// cbx.setName("CBs_" + dtGroup.getValue(0, 0).toString());
 			cbx.setText(dtGroup.getValue(0, 1).toString());
 			cbx.addAttr("onclick", "SetSelected(this)");
 
-			this.Pub1
-					.append(AddTDTitle("align=left colspan=4", cbx.toString()));
-//			this.Pub1.append("\n<TH align=left colspan=4 nowrap=true >");
-//			this.Pub1.append(cbx);
-//			this.Pub1.append("</TH>");
+			this.Pub1.append(AddTDTitle("align=left colspan=4", cbx.toString()));
+			// this.Pub1.append("\n<TH align=left colspan=4 nowrap=true >");
+			// this.Pub1.append(cbx);
+			// this.Pub1.append("</TH>");
 			this.Pub1.append(AddTREnd());
 
 			for (DataRow drObj : dtObj.Rows) {
@@ -230,7 +230,7 @@ public class FrmPopValModel extends BaseModel {
 				}
 
 				CheckBox cb = Pub1.creatCheckBox("CB_" + no);
-//				cb.setId("CB_" + no);
+				// cb.setId("CB_" + no);
 				ctlIDs += cb.getId() + ",";
 				cb.setText(name + group);
 				cb.setChecked(this.get_CtrlVal().contains("," + no + ","));
@@ -246,7 +246,7 @@ public class FrmPopValModel extends BaseModel {
 				}
 			}
 			// cbx.Attributes["onclick"] = "SetSelected(this,'" + ctlIDs + "')";
-//			cbx.addAttr("onclick", "SetSelected(this,'" + ctlIDs + "')");
+			// cbx.addAttr("onclick", "SetSelected(this,'" + ctlIDs + "')");
 			if (colIdx != -1) {
 				while (colIdx != cols - 1) {
 					colIdx++;
@@ -264,8 +264,8 @@ public class FrmPopValModel extends BaseModel {
 		this.Pub1.append(AddTableEnd());
 
 		Button btn = Pub1.creatButton("s");
-//		btn.setId("s");
-//		btn.setName("s");
+		// btn.setId("s");
+		// btn.setName("s");
 		btn.setText(" OK ");
 		// C# TO JAVA CONVERTER TODO TASK: Java has no equivalent to C#-style
 		// event wireups:
@@ -274,8 +274,8 @@ public class FrmPopValModel extends BaseModel {
 		this.Pub1.append(btn);
 
 		btn = Pub1.creatButton("Cancel");
-//		btn.setId("Cancel");
-//		btn.setName("Cancel");
+		// btn.setId("Cancel");
+		// btn.setName("Cancel");
 		btn.setText(" Cancel ");
 		// C# TO JAVA CONVERTER TODO TASK: Java has no equivalent to C#-style
 		// event wireups:

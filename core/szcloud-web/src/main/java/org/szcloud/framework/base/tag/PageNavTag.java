@@ -3,12 +3,19 @@ package org.szcloud.framework.base.tag;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.TagSupport;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.github.miemiedev.mybatis.paginator.domain.PageList;
 
 /**
  * The page tag for page navigation in list page.
  */
 public class PageNavTag extends TagSupport {
+	/**
+	 * 日志对象
+	 */
+	protected final Log logger = LogFactory.getLog(getClass());
 
 	private static final long serialVersionUID = 6338111746579488137L;
 
@@ -138,7 +145,7 @@ public class PageNavTag extends TagSupport {
 		try {
 			pageContext.getOut().print(html.toString());
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			logger.info("ERROR", ex);
 		}
 
 		return super.doEndTag();

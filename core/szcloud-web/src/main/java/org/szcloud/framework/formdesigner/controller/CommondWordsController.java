@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
@@ -27,7 +29,10 @@ import org.szcloud.framework.workflow.core.entity.CWorkItem;
 @Controller
 @RequestMapping("/commondWords")
 public class CommondWordsController {
-
+	/**
+	 * 日志对象
+	 */
+	protected final Log logger = LogFactory.getLog(getClass());
 	@Autowired
 	@Qualifier("suggestionServiceImpl")
 	private SuggestionService suggestionService;
@@ -48,7 +53,7 @@ public class CommondWordsController {
 		try {
 			lo_Item = TWorkItem.openWorkItem(lo_Logon, Integer.valueOf(workId), Integer.valueOf(EntryID));
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			lo_Logon.ClearUp();
 			lo_Item.ClearUp();
 		}
@@ -113,7 +118,7 @@ public class CommondWordsController {
 		try {
 			lo_Item = TWorkItem.openWorkItem(lo_Logon, Integer.valueOf(workId), Integer.valueOf(EntryID));
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			lo_Logon.ClearUp();
 			lo_Item.ClearUp();
 		}
@@ -157,7 +162,7 @@ public class CommondWordsController {
 		try {
 			lo_Item = TWorkItem.openWorkItem(lo_Logon, Integer.valueOf(workId), Integer.valueOf(EntryID));
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			lo_Logon.ClearUp();
 			if (lo_Item != null) {
 				lo_Item.ClearUp();

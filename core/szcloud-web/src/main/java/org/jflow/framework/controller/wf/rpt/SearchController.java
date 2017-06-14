@@ -1,19 +1,16 @@
 package org.jflow.framework.controller.wf.rpt;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFRow;
@@ -39,15 +36,18 @@ import BP.En.QueryObject;
 import BP.Sys.Frm.MapAttr;
 import BP.Sys.Frm.MapAttrs;
 import BP.Sys.Frm.MapData;
-import BP.Tools.FileAccess;
 
 @Controller
 @RequestMapping("/WF/Rpt")
 public class SearchController extends BaseController {
+	/**
+	 * 日志对象
+	 */
+	protected final Log logger = LogFactory.getLog(getClass());
 
 	@RequestMapping(value = "/Search", method = RequestMethod.POST)
-	public ModelAndView execute(TempObject object, HttpServletRequest request,
-			HttpServletResponse response) throws UnsupportedEncodingException {
+	public ModelAndView execute(TempObject object, HttpServletRequest request, HttpServletResponse response)
+			throws UnsupportedEncodingException {
 		ModelAndView mv = new ModelAndView("WF/Rpt/Search");
 		String btnName = request.getParameter("btnName");
 		String rptNo = request.getParameter("RptNo");
@@ -64,8 +64,7 @@ public class SearchController extends BaseController {
 			Entities ens = md.getHisEns();
 			Entity en = ens.getGetNewEntity();
 			QueryObject qo = new QueryObject(ens);
-			HashMap<String, BaseWebControl> controls = HtmlUtils.httpParser(
-					object.getFormHtml(), true);
+			HashMap<String, BaseWebControl> controls = HtmlUtils.httpParser(object.getFormHtml(), true);
 			for (Map.Entry<String, BaseWebControl> entry : controls.entrySet())// this.UCSys1.Controls)
 			{
 				String id = entry.getKey();
@@ -76,8 +75,7 @@ public class SearchController extends BaseController {
 			}
 
 			String title = en.getEnDesc().trim();
-			response.setHeader("content-disposition", "attachment;filename="
-					+ title + ".xls");
+			response.setHeader("content-disposition", "attachment;filename=" + title + ".xls");
 			HSSFWorkbook wb = new HSSFWorkbook();
 			// 第二步，在webbook中添加一个sheet,对应Excel文件中的sheet
 			HSSFSheet sheet = wb.createSheet(title);
@@ -110,11 +108,9 @@ public class SearchController extends BaseController {
 					// }
 					// for (MapAttr attr : attrs)
 					// {
-					HSSFCell cell1 = row.createCell(i,
-							HSSFCell.CELL_TYPE_STRING);
+					HSSFCell cell1 = row.createCell(i, HSSFCell.CELL_TYPE_STRING);
 					if (dr.getValue(attr.getField()) != null) {
-						cell1.setCellValue(dr.getValue(attr.getField())
-								.toString());
+						cell1.setCellValue(dr.getValue(attr.getField()).toString());
 					} else {
 						cell1.setCellValue("");
 					}
@@ -153,7 +149,7 @@ public class SearchController extends BaseController {
 
 				return mv;
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.info("ERROR", e);
 			} finally {
 				try {
 					fOut.flush();
@@ -181,7 +177,7 @@ public class SearchController extends BaseController {
 			// filepath.createNewFile();
 			// } catch (Exception e) {
 			// // TODO: handle exception
-			// e.printStackTrace();
+			// logger.info("ERROR", e);
 			// }
 			// }
 			// // if (Directory.Exists(filepath) == false)
@@ -269,7 +265,8 @@ public class SearchController extends BaseController {
 			// file,"down",90,90);
 			// //this.Write_Javascript(" window.open('"+ Request.ApplicationPath
 			// + @"/Report/Exported/" + filename +"'); " );
-			// //this.Write_Javascript(" window.open('"+Request.ApplicationPath+"/Temp/"
+			// //this.Write_Javascript("
+			// window.open('"+Request.ApplicationPath+"/Temp/"
 			// + file +"'); " );
 			// }
 			//
@@ -281,7 +278,7 @@ public class SearchController extends BaseController {
 			// // + ex.getMessage());
 			// } catch (Exception e) {
 			// // TODO Auto-generated catch block
-			// e.printStackTrace();
+			// logger.info("ERROR", e);
 			// }
 			// }
 			break;

@@ -26,7 +26,7 @@ public class EncryptUtils {
 			byte[] digest = md.digest(inStr.getBytes());// 用MD5进行加密
 			out = byte2hex(digest);// 转码
 		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 		return out;*/
 	}

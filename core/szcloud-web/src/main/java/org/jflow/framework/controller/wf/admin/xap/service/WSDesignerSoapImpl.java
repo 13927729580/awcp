@@ -7,6 +7,8 @@ import java.util.Hashtable;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 //import antlr.collections.List;
 import BP.DA.AtPara;
@@ -49,6 +51,10 @@ import BP.WF.Template.PubLib.RunModel;
 
 //@WebService(endpointInterface = "org.jflow.framework.controller.wf.admin.xap.service.WSDesignerSoap")
 public class WSDesignerSoapImpl implements WSDesignerSoap {
+	/**
+	 * 日志对象
+	 */
+	private static Log logger = LogFactory.getLog(WSDesignerSoapImpl.class);
 
 	public String GetFlowTree() {
 		String sql = "" + "\r\n" + "SELECT No ,ParentNo,Name, Idx, 1 IsParent FROM WF_FlowSort" + "\r\n" + "union "
@@ -153,7 +159,7 @@ public class WSDesignerSoapImpl implements WSDesignerSoap {
 			// String re = new { success = true, msg = string.Empty, ds = ds };
 			json = FormatToJson.ToJson(ds);
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			logger.info("ERROR", ex);
 		}
 		return json;
 	}
@@ -805,7 +811,7 @@ public class WSDesignerSoapImpl implements WSDesignerSoap {
 			return BP.DA.DBAccess.RunSQLReturnValFloat(sql);
 		} catch (Exception e) {
 
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 		return -1;
 	}

@@ -190,7 +190,7 @@ public class ActEngine {
 						 * docVo.setState("草稿"); // 最后修改时间
 						 * docVo.setLastmodified(new
 						 * Date(System.currentTimeMillis())); } } catch
-						 * (Exception e) { e.printStackTrace(); }
+						 * (Exception e) { logger.info("ERROR", e); }
 						 */
 					}
 				}

@@ -8,6 +8,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jflow.framework.common.model.AjaxJson;
 import org.jflow.framework.common.model.SelectDept;
 import org.jflow.framework.common.model.SelectUser;
@@ -37,10 +39,13 @@ import BP.WF.Template.PubLib.AskforHelpSta;
 @Controller
 @RequestMapping("/WF/WorkOpt")
 public class AskForController {
+	/**
+	 * 日志对象
+	 */
+	protected final Log logger = LogFactory.getLog(getClass());
 
 	@RequestMapping(value = "/Askfor", method = RequestMethod.POST)
-	public ModelAndView askfor(TempObject object, HttpServletRequest request,
-			HttpServletResponse response) {
+	public ModelAndView askfor(TempObject object, HttpServletRequest request, HttpServletResponse response) {
 
 		ModelAndView mv = new ModelAndView();
 		try {
@@ -51,8 +56,7 @@ public class AskForController {
 				sta = AskforHelpSta.AfterDealSendByWorker;
 			}
 
-			String info = Dev2Interface.Node_Askfor(object.getWorkID(), sta,
-					object.getAskFor(), object.getInfo());
+			String info = Dev2Interface.Node_Askfor(object.getWorkID(), sta, object.getAskFor(), object.getInfo());
 
 			request.getSession().setAttribute("info", info);
 
@@ -60,8 +64,7 @@ public class AskForController {
 			mv.addObject("FK_Type", "Info");
 			mv.addObject("FK_Node", object.getFK_Node());
 			mv.addObject("FK_Flow", object.getFK_Flow());
-			mv.setViewName("redirect:" + "/WF/MyFlowInfo"
-					+ Glo.getFromPageType() + ".jsp");
+			mv.setViewName("redirect:" + "/WF/MyFlowInfo" + Glo.getFromPageType() + ".jsp");
 		} catch (Exception e) {
 			mv.addObject("WorkID", object.getWorkID());
 			mv.addObject("FID", object.getFID());
@@ -72,26 +75,23 @@ public class AskForController {
 		}
 		return mv;
 	}
-	
+
 	@RequestMapping(value = "/AskforRe", method = RequestMethod.POST)
-	public ModelAndView askforRe(TempObject object, HttpServletRequest request,
-			HttpServletResponse response) {
+	public ModelAndView askforRe(TempObject object, HttpServletRequest request, HttpServletResponse response) {
 
 		ModelAndView mv = new ModelAndView();
 		try {
-			String info = Dev2Interface.Node_AskforReply(object.getFK_Flow(),
-					object.getFK_Node(), object.getWorkID(), object.getFID(),
-					object.getInfo());
-			
+			String info = Dev2Interface.Node_AskforReply(object.getFK_Flow(), object.getFK_Node(), object.getWorkID(),
+					object.getFID(), object.getInfo());
+
 			request.getSession().setAttribute("info", info);
-			
+
 			mv.addObject("WorkID", object.getWorkID());
 			mv.addObject("FK_Type", "Info");
 			mv.addObject("FK_Node", object.getFK_Node());
 			mv.addObject("FK_Flow", object.getFK_Flow());
-			mv.setViewName("redirect:" + "/WF/MyFlowInfo"
-					+ Glo.getFromPageType() + ".jsp");
-		}catch (Exception e) {
+			mv.setViewName("redirect:" + "/WF/MyFlowInfo" + Glo.getFromPageType() + ".jsp");
+		} catch (Exception e) {
 			mv.addObject("WorkID", object.getWorkID());
 			mv.addObject("FID", object.getFID());
 			mv.addObject("FK_Node", object.getFK_Node());
@@ -99,14 +99,13 @@ public class AskForController {
 			mv.addObject("errMsg", "回复加签出错：" + e.getMessage());
 			mv.setViewName("redirect:" + "/WF/WorkOpt/AskForRe.jsp");
 		}
-		
+
 		return mv;
 	}
-	
+
 	@RequestMapping(value = "/CheckAskfor", method = RequestMethod.POST)
 	@ResponseBody
-	public AjaxJson CheckAskfor(TempObject object, HttpServletRequest request,
-			HttpServletResponse response) {
+	public AjaxJson CheckAskfor(TempObject object, HttpServletRequest request, HttpServletResponse response) {
 
 		AjaxJson j = new AjaxJson();
 		try {
@@ -116,59 +115,53 @@ public class AskForController {
 			if (i != 1)
 				j.setSuccess(false);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 		return j;
 	}
-	
+
 	@RequestMapping(value = "/LoadSelectedEmployees", method = RequestMethod.POST)
 	@ResponseBody
-	public String loadSelectedEmployees(SelectUser user, HttpServletRequest request,
-			HttpServletResponse response) {
-		
-		 DataTable dt = DBAccess.RunSQLReturnTable("select * from Port_Emp");
-		 if(null != dt){
-			 List<DataRow> lists = new ArrayList<DataRow>();
-			 for(DataRow dr : dt.Rows){
-				 if(!String.format(",%s,", user.getSelUsers()).contains(String.format(",%s,", dr.getValue("No")))){
-					 lists.add(dr);
-				 }
-			 }
-			 dt.Rows.removeAll(lists);
-		 }
-		 return DataTableConvertJson.DataTable2Json(dt);
+	public String loadSelectedEmployees(SelectUser user, HttpServletRequest request, HttpServletResponse response) {
+
+		DataTable dt = DBAccess.RunSQLReturnTable("select * from Port_Emp");
+		if (null != dt) {
+			List<DataRow> lists = new ArrayList<DataRow>();
+			for (DataRow dr : dt.Rows) {
+				if (!String.format(",%s,", user.getSelUsers()).contains(String.format(",%s,", dr.getValue("No")))) {
+					lists.add(dr);
+				}
+			}
+			dt.Rows.removeAll(lists);
+		}
+		return DataTableConvertJson.DataTable2Json(dt);
 	}
-	
+
 	@RequestMapping(value = "/LoadEmps", method = RequestMethod.POST)
 	@ResponseBody
-	public String loadEmps(SelectUser user, HttpServletRequest request,
-			HttpServletResponse response){
-		 DataTable dt = DBAccess.RunSQLReturnTable(user.getKeyWord());
-		 return DataTableConvertJson.DataTable2Json(dt);
+	public String loadEmps(SelectUser user, HttpServletRequest request, HttpServletResponse response) {
+		DataTable dt = DBAccess.RunSQLReturnTable(user.getKeyWord());
+		return DataTableConvertJson.DataTable2Json(dt);
 	}
 
 	@RequestMapping(value = "/GetDepts", method = RequestMethod.POST)
 	@ResponseBody
-	public String getDepts(HttpServletRequest request,
-			HttpServletResponse response) {
+	public String getDepts(HttpServletRequest request, HttpServletResponse response) {
 
 		String str = "";
 		try {
-			DataTable dt_dept = DBAccess
-					.RunSQLReturnTable("select NO,NAME,ParentNo from port_dept order by Idx");
+			DataTable dt_dept = DBAccess.RunSQLReturnTable("select NO,NAME,ParentNo from port_dept order by Idx");
 
-			str = DataTableConvertJson.TransDataTable2TreeJson(dt_dept, "NO",
-					"NAME", "ParentNo", "0");
+			str = DataTableConvertJson.TransDataTable2TreeJson(dt_dept, "NO", "NAME", "ParentNo", "0");
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 		return str;
 	}
 
 	@RequestMapping(value = "/GetUser", method = RequestMethod.POST)
 	@ResponseBody
-	public String getUser(SelectUser user, HttpServletRequest request,
-			HttpServletResponse response) {
+	public String getUser(SelectUser user, HttpServletRequest request, HttpServletResponse response) {
 
 		String name = user.getKeyWord();
 		String deptId = user.getDeptId();
@@ -182,38 +175,30 @@ public class AskForController {
 		String sql = "";
 		if (Glo.getOSModel() == OSModel.BPM) {
 			String filter_dept = deptId == "0" ? ""
-					: String.format(
-							" and Port_Emp.No in (Select FK_Emp from Port_DeptEmp where FK_Dept in (%s))",
+					: String.format(" and Port_Emp.No in (Select FK_Emp from Port_DeptEmp where FK_Dept in (%s))",
 							deptId);
-			String filter_name = StringHelper.isNullOrEmpty(name) ? "" : String
-					.format(" and Port_Emp.Name+','+Port_Emp.NO like '%s'", "%"
-							+ name + "%");
+			String filter_name = StringHelper.isNullOrEmpty(name) ? ""
+					: String.format(" and Port_Emp.Name+','+Port_Emp.NO like '%s'", "%" + name + "%");
 			if (SystemConfig.getAppCenterDBType() == DBType.MySQL) {
 				filter_name = StringHelper.isNullOrEmpty(name) ? ""
-						: String.format(
-								" and CONCAT(Port_Emp.Name,Port_Emp.NO) like '%s'",
-								"%" + name + "%");
+						: String.format(" and CONCAT(Port_Emp.Name,Port_Emp.NO) like '%s'", "%" + name + "%");
 			}
-			sql = String
-					.format("select Port_Emp.*,Port_Dept.Name as DeptName from Port_Emp,Port_Dept where Port_Emp.FK_Dept = Port_Dept.No %1$s %2$s",
-							filter_dept, filter_name);
+			sql = String.format(
+					"select Port_Emp.*,Port_Dept.Name as DeptName from Port_Emp,Port_Dept where Port_Emp.FK_Dept = Port_Dept.No %1$s %2$s",
+					filter_dept, filter_name);
 		} else {
 			String filter_dept = deptId == "0" ? ""
-					: String.format(
-							" and Port_Emp.No in (Select FK_Emp from Port_EmpDept where FK_Dept in (%s))",
+					: String.format(" and Port_Emp.No in (Select FK_Emp from Port_EmpDept where FK_Dept in (%s))",
 							deptId);
-			String filter_name = StringHelper.isNullOrEmpty(name) ? "" : String
-					.format(" and Port_Emp.Name+','+Port_Emp.NO like '%s'", "%"
-							+ name + "%");
+			String filter_name = StringHelper.isNullOrEmpty(name) ? ""
+					: String.format(" and Port_Emp.Name+','+Port_Emp.NO like '%s'", "%" + name + "%");
 			if (SystemConfig.getAppCenterDBType() == DBType.MySQL) {
 				filter_name = StringHelper.isNullOrEmpty(name) ? ""
-						: String.format(
-								" and CONCAT(Port_Emp.Name,Port_Emp.NO) like '%s'",
-								"%" + name + "%");
+						: String.format(" and CONCAT(Port_Emp.Name,Port_Emp.NO) like '%s'", "%" + name + "%");
 			}
-			sql = String
-					.format("select Port_Emp.*,Port_Dept.Name as DeptName from Port_Emp,Port_Dept where Port_Emp.FK_Dept = Port_Dept.No %1$s %2$s",
-							filter_dept, filter_name);
+			sql = String.format(
+					"select Port_Emp.*,Port_Dept.Name as DeptName from Port_Emp,Port_Dept where Port_Emp.FK_Dept = Port_Dept.No %1$s %2$s",
+					filter_dept, filter_name);
 		}
 		DataTable dt = DBAccess.RunSQLReturnTable(sql);
 		return DataTableConvertJson.DataTable2Json(dt);
@@ -235,201 +220,200 @@ public class AskForController {
 		}
 		return strDepts;
 	}
-	
-	
+
 	@RequestMapping(value = "/SearchDepts", method = RequestMethod.POST)
 	@ResponseBody
-	public String getUser(SelectDept dept, HttpServletRequest request,
-			HttpServletResponse response) {
-		
+	public String getUser(SelectDept dept, HttpServletRequest request, HttpServletResponse response) {
+
 		String reJson = "";
 		String method = StringHelper.isEmpty(dept.getMethod(), "");
-		if("search".equals(method)){
+		if ("search".equals(method)) {
 			reJson = search(dept);
-		}else if("group".equals(method)){
+		} else if ("group".equals(method)) {
 			reJson = group(dept);
-		}else if("all".equals(method)){
+		} else if ("all".equals(method)) {
 			reJson = all(dept);
-		}else if("getdepts".equals(method)){
+		} else if ("getdepts".equals(method)) {
 			reJson = getdepts(dept);
 		}
 		return reJson;
 	}
-	
-	private String getdepts(SelectDept selectDept){
-		
+
+	private String getdepts(SelectDept selectDept) {
+
 		String selectedDepts = StringHelper.isEmpty(selectDept.getKw(), "");
-		if("".equals(selectedDepts)) return "[]";
-		
+		if ("".equals(selectedDepts))
+			return "[]";
+
 		String depts[] = selectedDepts.split(",");
 		String sql = "SELECT No,Name FROM Port_Dept WHERE";
-		
+
 		String str = "";
-		for (String dept : depts){
-			if(str.length()>0){
+		for (String dept : depts) {
+			if (str.length() > 0) {
 				str += String.format(" OR No = '%s' ", dept);
-			}else{
+			} else {
 				str = String.format(" No = '%s' ", dept);
 			}
 		}
 		sql = sql + str;
-		
+
 		String reJson = "[";
 		DataTable dt = DBAccess.RunSQLReturnTable(sql);
 
 		str = "";
-        for(DataRow dr : dt.Rows){
-        	if(str.length()>0){
-        		str += ",{\"No\":\"" + dr.getValue("No") + "\",\"Name\":\"" + dr.getValue("Name") + "\"}";
-        	}else{
-        		str = "{\"No\":\"" + dr.getValue("No") + "\",\"Name\":\"" + dr.getValue("Name") + "\"}";
-        	}
-        }
-        reJson = reJson + str + "]";
-        
-        return reJson;
+		for (DataRow dr : dt.Rows) {
+			if (str.length() > 0) {
+				str += ",{\"No\":\"" + dr.getValue("No") + "\",\"Name\":\"" + dr.getValue("Name") + "\"}";
+			} else {
+				str = "{\"No\":\"" + dr.getValue("No") + "\",\"Name\":\"" + dr.getValue("Name") + "\"}";
+			}
+		}
+		reJson = reJson + str + "]";
+
+		return reJson;
 	}
-	
-	private String search(SelectDept selectDept){
-		
+
+	private String search(SelectDept selectDept) {
+
 		String sql = "SELECT No,Name,ParentNo FROM Port_Dept ORDER BY No ASC";
 		DataTable dt = BP.DA.DBAccess.RunSQLReturnTable(sql);
-		
+
 		String kw = StringHelper.isEmpty(selectDept.getKw(), "").toLowerCase();
 		boolean haveSub = selectDept.isHavesub();
 		boolean haveSame = selectDept.isHavesame();
-		
+
 		String reJson = "[";
 		List<DataRow> drResults = new ArrayList<DataRow>();
-		
+
 		String zjm = "";
-		for(DataRow dr : dt.Rows){
-			 String name = dr.getValue("Name").toString();
-			 zjm = PinYinF4jUtils.spell(name).toLowerCase();
-			 if (zjm.contains(kw) || name.contains(kw)){
-				 if(!drResults.contains(dr)){
-					 reJson += "{\"No\":\"" + dr.getValue("No") + "\",\"Name\":\"" + dr.getValue("Name") + "\"},";
-                     drResults.add(dr);
-                     
-                     if (haveSub){
-                    	 reJson += getSubDatarow(drResults, dr.getValue("No").toString(), dt);
-                     }
-                     
-                     if (haveSame){
-                    	 reJson += getSameDatarow(drResults, dr.getValue("ParentNo").toString(), dt);
-                     }
-				 }
-				 
-			 }
+		for (DataRow dr : dt.Rows) {
+			String name = dr.getValue("Name").toString();
+			zjm = PinYinF4jUtils.spell(name).toLowerCase();
+			if (zjm.contains(kw) || name.contains(kw)) {
+				if (!drResults.contains(dr)) {
+					reJson += "{\"No\":\"" + dr.getValue("No") + "\",\"Name\":\"" + dr.getValue("Name") + "\"},";
+					drResults.add(dr);
+
+					if (haveSub) {
+						reJson += getSubDatarow(drResults, dr.getValue("No").toString(), dt);
+					}
+
+					if (haveSame) {
+						reJson += getSameDatarow(drResults, dr.getValue("ParentNo").toString(), dt);
+					}
+				}
+
+			}
 		}
 		reJson = StringHelper.trimEnd(reJson, ',') + "]";
 		return reJson;
 	}
-	
-	private String group(SelectDept selectDept){
-		
+
+	private String group(SelectDept selectDept) {
+
 		String sql = "SELECT No,Name,ParentNo FROM Port_Dept ORDER BY No ASC";
 		DataTable dt = BP.DA.DBAccess.RunSQLReturnTable(sql);
-		
+
 		String kw = StringHelper.isEmpty(selectDept.getKw(), "");
 		boolean haveSub = selectDept.isHavesub();
 		boolean haveSame = selectDept.isHavesame();
-		
+
 		String reJson = "[";
 		List<DataRow> drResults = new ArrayList<DataRow>();
-		
+
 		String zjm = "";
-		for(DataRow dr : dt.Rows){
-			 String name = dr.getValue("Name").toString();
-			 zjm = PinYinF4jUtils.spell(name);
-			 if(!StringHelper.isNullOrEmpty(zjm) && zjm.substring(0, 1).equals(kw)){
-				 if(!drResults.contains(dr)){
-					 reJson += "{\"No\":\"" + dr.getValue("No") + "\",\"Name\":\"" + dr.getValue("Name") + "\"},";
-                     drResults.add(dr);
-                     
-                     if (haveSub){
-                    	 reJson += getSubDatarow(drResults, dr.getValue("No").toString(), dt);
-                     }
-                     
-                     if (haveSame){
-                    	 reJson += getSameDatarow(drResults, dr.getValue("ParentNo").toString(), dt);
-                     }
-				 }
-			 }
+		for (DataRow dr : dt.Rows) {
+			String name = dr.getValue("Name").toString();
+			zjm = PinYinF4jUtils.spell(name);
+			if (!StringHelper.isNullOrEmpty(zjm) && zjm.substring(0, 1).equals(kw)) {
+				if (!drResults.contains(dr)) {
+					reJson += "{\"No\":\"" + dr.getValue("No") + "\",\"Name\":\"" + dr.getValue("Name") + "\"},";
+					drResults.add(dr);
+
+					if (haveSub) {
+						reJson += getSubDatarow(drResults, dr.getValue("No").toString(), dt);
+					}
+
+					if (haveSame) {
+						reJson += getSameDatarow(drResults, dr.getValue("ParentNo").toString(), dt);
+					}
+				}
+			}
 		}
-		
+
 		reJson = StringHelper.trimEnd(reJson, ',') + "]";
 		return reJson;
 	}
-	
-	private String all(SelectDept selectDept){
-	
-		  String sql = "SELECT No,Name FROM Port_Dept ORDER BY No ASC";
-		  DataTable dt = DBAccess.RunSQLReturnTable(sql);
-		  
-		  String reJson = "[";
-		  for(DataRow dr : dt.Rows){
-			  reJson += "{\"No\":\"" + dr.getValue("No") + "\",\"Name\":\"" + dr.getValue("Name") + "\"},";
-		  }
-		  reJson = StringHelper.trimEnd(reJson, ',') + "]";
-		  return reJson;
+
+	private String all(SelectDept selectDept) {
+
+		String sql = "SELECT No,Name FROM Port_Dept ORDER BY No ASC";
+		DataTable dt = DBAccess.RunSQLReturnTable(sql);
+
+		String reJson = "[";
+		for (DataRow dr : dt.Rows) {
+			reJson += "{\"No\":\"" + dr.getValue("No") + "\",\"Name\":\"" + dr.getValue("Name") + "\"},";
+		}
+		reJson = StringHelper.trimEnd(reJson, ',') + "]";
+		return reJson;
 	}
-	
-	 /// <summary>
-    /// 获取指定结点下的所有子结点
-    /// </summary>
-    /// <param name="drResults">用于识别结点已经加入JSON的集合</param>
-    /// <param name="no">结点</param>
-    /// <param name="dt">所有结点Table</param>
-    /// <returns></returns>
-    private String getSubDatarow(List<DataRow> drResults, String no, DataTable dt){
-    	
-    	Map<String,Object> filer = new HashMap<String, Object>();
-        filer.put("ParentNo", no);
-        
-        String reJson = "";
-        try{
-	        List<DataRow> drs = dt.Select(filer);
-	        for (DataRow dr : drs){
-	        	 if(!drResults.contains(dr)){
-	        		  reJson += "{\"No\":\"" + dr.getValue("No") + "\",\"Name\":\"" + dr.getValue("Name") + "\"},";
-	                  drResults.add(dr);
-	                  
-	                  reJson += getSubDatarow(drResults,  dr.getValue("No").toString(), dt);
-	        	 }
-	        }
-        }catch(Exception e){
-        	e.printStackTrace();
-        }
-    	
+
+	/// <summary>
+	/// 获取指定结点下的所有子结点
+	/// </summary>
+	/// <param name="drResults">用于识别结点已经加入JSON的集合</param>
+	/// <param name="no">结点</param>
+	/// <param name="dt">所有结点Table</param>
+	/// <returns></returns>
+	private String getSubDatarow(List<DataRow> drResults, String no, DataTable dt) {
+
+		Map<String, Object> filer = new HashMap<String, Object>();
+		filer.put("ParentNo", no);
+
+		String reJson = "";
+		try {
+			List<DataRow> drs = dt.Select(filer);
+			for (DataRow dr : drs) {
+				if (!drResults.contains(dr)) {
+					reJson += "{\"No\":\"" + dr.getValue("No") + "\",\"Name\":\"" + dr.getValue("Name") + "\"},";
+					drResults.add(dr);
+
+					reJson += getSubDatarow(drResults, dr.getValue("No").toString(), dt);
+				}
+			}
+		} catch (Exception e) {
+			logger.info("ERROR", e);
+		}
+
 		return reJson;
-    }
-	
-	   /// <summary>
-    /// 获取指定父结点下的同级结点
-    /// </summary>
-    /// <param name="drResults">用于识别结点已经加入JSON的集合</param>
-    /// <param name="parentNo">父结点</param>
-    /// <param name="dt">所有结点Table</param>
-    /// <returns></returns>
-    private String getSameDatarow(List<DataRow> drResults, String parentNo, DataTable dt){
-    	
-    	Map<String,Object> filer = new HashMap<String, Object>();
-        filer.put("ParentNo", parentNo);
-    	
-        String reJson = "";
-        try{
-	        List<DataRow> drs = dt.Select(filer);
-	        for (DataRow dr : drs){
-	        	 if(!drResults.contains(dr)){
-	        		  reJson += "{\"No\":\"" + dr.getValue("No") + "\",\"Name\":\"" + dr.getValue("Name") + "\"},";
-	                  drResults.add(dr);
-	        	 }
-	        }
-        }catch(Exception e){
-        	e.printStackTrace();
-        }
-    	
+	}
+
+	/// <summary>
+	/// 获取指定父结点下的同级结点
+	/// </summary>
+	/// <param name="drResults">用于识别结点已经加入JSON的集合</param>
+	/// <param name="parentNo">父结点</param>
+	/// <param name="dt">所有结点Table</param>
+	/// <returns></returns>
+	private String getSameDatarow(List<DataRow> drResults, String parentNo, DataTable dt) {
+
+		Map<String, Object> filer = new HashMap<String, Object>();
+		filer.put("ParentNo", parentNo);
+
+		String reJson = "";
+		try {
+			List<DataRow> drs = dt.Select(filer);
+			for (DataRow dr : drs) {
+				if (!drResults.contains(dr)) {
+					reJson += "{\"No\":\"" + dr.getValue("No") + "\",\"Name\":\"" + dr.getValue("Name") + "\"},";
+					drResults.add(dr);
+				}
+			}
+		} catch (Exception e) {
+			logger.info("ERROR", e);
+		}
+
 		return reJson;
-    }
+	}
 }

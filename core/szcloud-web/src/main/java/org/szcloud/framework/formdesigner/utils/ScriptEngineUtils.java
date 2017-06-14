@@ -4,8 +4,8 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.szcloud.framework.formdesigner.application.vo.DocumentVO;
 import org.szcloud.framework.formdesigner.application.vo.DynamicPageVO;
 import org.szcloud.framework.formdesigner.engine.util.MyScriptEngine;
@@ -18,7 +18,7 @@ public class ScriptEngineUtils {
 	/**
 	 * 日志对象
 	 */
-	private static final Logger logger = LoggerFactory.getLogger(ScriptEngineUtils.class);
+	private static final Log logger = LogFactory.getLog(ScriptEngineUtils.class);
 	private static ScriptEngineManager manager = null;
 
 	private static ScriptEngineManager getScriptEngineManger() {
@@ -49,7 +49,7 @@ public class ScriptEngineUtils {
 			engine.eval(expressionImport);
 
 		} catch (ScriptException e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			return null;
 		}
 		return engine;
@@ -111,7 +111,7 @@ public class ScriptEngineUtils {
 		 * 
 		 * String script ="var list  = "; Map map = (Map)engine.eval(script);
 		 * logger.debug(map.get("dynamicPageId")); } catch (ScriptException e) {
-		 * e.printStackTrace(); }
+		 * logger.info("ERROR", e); }
 		 */
 
 		/*
@@ -126,7 +126,7 @@ public class ScriptEngineUtils {
 		 * String script1 = "getUser();"; ScriptEngine engine
 		 * =getScriptEngine(null, null); String ret; try { ret = (String)
 		 * engine.eval(script1); logger.debug(ret); } catch (ScriptException e)
-		 * { // TODO Auto-generated catch block e.printStackTrace(); }
+		 * { // TODO Auto-generated catch block logger.info("ERROR", e); }
 		 */
 		// String test = "pmi1MEMBER_NAME";
 		// String[] ret = test.split("\\.");

@@ -10,6 +10,9 @@ import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import BP.DA.DataRow;
 import BP.DA.DataTable;
 import BP.En.Entities;
@@ -51,9 +54,12 @@ import BP.WF.Template.Form.Sys.Sln.FrmFields;
 import BP.WF.Template.PubLib.DeliveryWay;
 
 public class FormTreeBaseModel extends BaseModel {
+	/**
+	 * 日志对象
+	 */
+	private static Log logger = LogFactory.getLog(FormTreeBaseModel.class);
 
-	public FormTreeBaseModel(HttpServletRequest request,
-			HttpServletResponse response) {
+	public FormTreeBaseModel(HttpServletRequest request, HttpServletResponse response) {
 		super(request, response);
 	}
 
@@ -65,7 +71,7 @@ public class FormTreeBaseModel extends BaseModel {
 		try {
 			param2 = URLDecoder.decode(param2, "UTF-8");
 		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 		return param2;
 	}
@@ -174,7 +180,7 @@ public class FormTreeBaseModel extends BaseModel {
 			out.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 	}
 
@@ -190,11 +196,10 @@ public class FormTreeBaseModel extends BaseModel {
 				int i = flow.RetrieveFromDBSources();
 				if (i <= 0) {
 					try {
-						BP.WF.Dev2Interface.Node_CreateStartNodeWork(
-								this.getFK_Flow(), null, null, WebUser.getNo(),
+						BP.WF.Dev2Interface.Node_CreateStartNodeWork(this.getFK_Flow(), null, null, WebUser.getNo(),
 								null);
 					} catch (Exception e) {
-						e.printStackTrace();
+						logger.info("ERROR", e);
 					}
 				}
 			}
@@ -222,8 +227,7 @@ public class FormTreeBaseModel extends BaseModel {
 		String flowId = getUTF8ToString("flowId");
 		long workID = Long.parseLong(getUTF8ToString("workId"));
 
-		return BP.WF.Dev2Interface.Flow_DoFlowOverByCoercion(flowId,
-				this.getFK_Node(), workID, this.getFID(), "");
+		return BP.WF.Dev2Interface.Flow_DoFlowOverByCoercion(flowId, this.getFK_Node(), workID, this.getFID(), "");
 	}
 
 	/**
@@ -273,12 +277,11 @@ public class FormTreeBaseModel extends BaseModel {
 		BP.DA.Paras ps = new BP.DA.Paras();
 		ps.Add("FK_Node", fk_Node);
 
-		DataTable Sys_FrmSln = BP.DA.DBAccess
-				.RunSQLReturnTable(
-						"select Sys_FrmSln.FK_MapData,Sys_FrmSln.KeyOfEn,Sys_FrmSln.IsSigan,Sys_MapAttr.MyDataType from Sys_FrmSln,Sys_MapAttr where Sys_FrmSln.UIIsEnable=1 and Sys_FrmSln.IsNotNull=1 and Sys_FrmSln.FK_Node="
-								+ SystemConfig.getAppCenterDBVarStr()
-								+ "FK_Node and Sys_FrmSln.KeyOfEn=Sys_MapAttr.KeyOfEn and Sys_FrmSln.FK_MapData=Sys_MapAttr.FK_MapData",
-						ps);
+		DataTable Sys_FrmSln = BP.DA.DBAccess.RunSQLReturnTable(
+				"select Sys_FrmSln.FK_MapData,Sys_FrmSln.KeyOfEn,Sys_FrmSln.IsSigan,Sys_MapAttr.MyDataType from Sys_FrmSln,Sys_MapAttr where Sys_FrmSln.UIIsEnable=1 and Sys_FrmSln.IsNotNull=1 and Sys_FrmSln.FK_Node="
+						+ SystemConfig.getAppCenterDBVarStr()
+						+ "FK_Node and Sys_FrmSln.KeyOfEn=Sys_MapAttr.KeyOfEn and Sys_FrmSln.FK_MapData=Sys_MapAttr.FK_MapData",
+				ps);
 		boolean IsSign = false;
 		for (DataRow DR : Sys_FrmSln.Rows) {
 			// 这样翻译对ma String PTableField = DR["KeyOfEn"].toString();
@@ -294,14 +297,9 @@ public class FormTreeBaseModel extends BaseModel {
 
 			} else if (DR.getValue("MyDataType").toString().equals("1")) { // 意见字段
 				PTableField = PTableField.toUpperCase();
-				if (PTableField.endsWith("YJ") || PTableField.endsWith("YJ1")
-						|| PTableField.endsWith("YJ2")
-						|| PTableField.endsWith("YJ3")
-						|| PTableField.endsWith("YJ4")
-						|| PTableField.endsWith("YJ5")
-						|| PTableField.endsWith("YJ6")
-						|| PTableField.endsWith("YJ7")
-						|| PTableField.endsWith("YJ8")
+				if (PTableField.endsWith("YJ") || PTableField.endsWith("YJ1") || PTableField.endsWith("YJ2")
+						|| PTableField.endsWith("YJ3") || PTableField.endsWith("YJ4") || PTableField.endsWith("YJ5")
+						|| PTableField.endsWith("YJ6") || PTableField.endsWith("YJ7") || PTableField.endsWith("YJ8")
 						|| PTableField.endsWith("YJ9")) {
 					autotext = yj;
 				} else {
@@ -310,21 +308,16 @@ public class FormTreeBaseModel extends BaseModel {
 			} else {
 				continue;
 			}
-			String PTable = BP.DA.DBAccess
-					.RunSQLReturnString("select PTable from Sys_MapData where No='"
-							+ DR.getValue("FK_MapData").toString() + "'");
+			String PTable = BP.DA.DBAccess.RunSQLReturnString(
+					"select PTable from Sys_MapData where No='" + DR.getValue("FK_MapData").toString() + "'");
 			if (PTable != null) {
-				int HavData = BP.DA.DBAccess
-						.RunSQLReturnValInt("select count(OID) from " + PTable
-								+ " where oid=" + (new Long(workID)).toString());
+				int HavData = BP.DA.DBAccess.RunSQLReturnValInt(
+						"select count(OID) from " + PTable + " where oid=" + (new Long(workID)).toString());
 				if (HavData == 0) {
-					BP.DA.DBAccess.RunSQL("insert into " + PTable + "(oid,"
-							+ PTableField + ") values("
-							+ (new Long(workID)).toString() + ",'" + autotext
-							+ "')");
+					BP.DA.DBAccess.RunSQL("insert into " + PTable + "(oid," + PTableField + ") values("
+							+ (new Long(workID)).toString() + ",'" + autotext + "')");
 				} else {
-					BP.DA.DBAccess.RunSQL("update " + PTable + " set "
-							+ PTableField + "='" + autotext + "' where oid="
+					BP.DA.DBAccess.RunSQL("update " + PTable + " set " + PTableField + "='" + autotext + "' where oid="
 							+ (new Long(workID)).toString());
 				}
 				IsSign = true;
@@ -366,16 +359,14 @@ public class FormTreeBaseModel extends BaseModel {
 		// 子线程
 		if (btnLab.getThreadEnable()) {
 			toolsBar.append("{");
-			toolsBar.append("no:'Thread',btnlabel:'" + btnLab.getThreadLab()
-					+ "'");
+			toolsBar.append("no:'Thread',btnlabel:'" + btnLab.getThreadLab() + "'");
 			toolsBar.append("},");
 		}
 
 		// 退回
 		if (btnLab.getReturnEnable()) {
 			toolsBar.append("{");
-			toolsBar.append("no:'Return',btnlabel:'" + btnLab.getReturnLab()
-					+ "'");
+			toolsBar.append("no:'Return',btnlabel:'" + btnLab.getReturnLab() + "'");
 			toolsBar.append("},");
 		}
 		// 抄送
@@ -387,8 +378,7 @@ public class FormTreeBaseModel extends BaseModel {
 		// 移交
 		if (btnLab.getShiftEnable()) {
 			toolsBar.append("{");
-			toolsBar.append("no:'Shift',btnlabel:'" + btnLab.getShiftLab()
-					+ "'");
+			toolsBar.append("no:'Shift',btnlabel:'" + btnLab.getShiftLab() + "'");
 			toolsBar.append("},");
 		}
 		// 删除
@@ -400,29 +390,25 @@ public class FormTreeBaseModel extends BaseModel {
 		// 结束
 		if (btnLab.getEndFlowEnable()) {
 			toolsBar.append("{");
-			toolsBar.append("no:'EndFLow',btnlabel:'" + btnLab.getEndFlowLab()
-					+ "'");
+			toolsBar.append("no:'EndFLow',btnlabel:'" + btnLab.getEndFlowLab() + "'");
 			toolsBar.append("},");
 		}
 		// 打印
 		if (btnLab.getPrintDocEnable()) {
 			toolsBar.append("{");
-			toolsBar.append("no:'Rpt',btnlabel:'" + btnLab.getPrintDocLab()
-					+ "'");
+			toolsBar.append("no:'Rpt',btnlabel:'" + btnLab.getPrintDocLab() + "'");
 			toolsBar.append("},");
 		}
 		// 轨迹
 		if (btnLab.getTrackEnable()) {
 			toolsBar.append("{");
-			toolsBar.append("no:'Track',btnlabel:'" + btnLab.getTrackLab()
-					+ "'");
+			toolsBar.append("no:'Track',btnlabel:'" + btnLab.getTrackLab() + "'");
 			toolsBar.append("},");
 		}
 		// 挂起
 		if (btnLab.getHungEnable()) {
 			toolsBar.append("{");
-			toolsBar.append("no:'HungUp',btnlabel:'" + btnLab.getHungLab()
-					+ "'");
+			toolsBar.append("no:'HungUp',btnlabel:'" + btnLab.getHungLab() + "'");
 			toolsBar.append("},");
 		}
 		if (toolsBar.length() > 8) {
@@ -434,11 +420,9 @@ public class FormTreeBaseModel extends BaseModel {
 		extToolBars.RetrieveByAttr(NodeToolbarAttr.FK_Node, fk_Node);
 		toolsBar.append(",extTools:[");
 		if (extToolBars.size() > 0) {
-			for (NodeToolbar item : NodeToolbars
-					.convertNodeToolbars(extToolBars)) {
-				toolsBar.append("{OID:'" + item.getOID() + "',Title:'"
-						+ item.getTitle() + "',Target:'" + item.getTarget()
-						+ "',Url:'" + item.getUrl() + "'},");
+			for (NodeToolbar item : NodeToolbars.convertNodeToolbars(extToolBars)) {
+				toolsBar.append("{OID:'" + item.getOID() + "',Title:'" + item.getTitle() + "',Target:'"
+						+ item.getTarget() + "',Url:'" + item.getUrl() + "'},");
 			}
 			toolsBar.deleteCharAt(toolsBar.length() - 1);
 		}
@@ -464,8 +448,7 @@ public class FormTreeBaseModel extends BaseModel {
 			return "end";
 		} else if (nds.size() == 1) {
 			// Node toND = (Node) ((nds[0] instanceof Node) ? nds[0]
-			Node toND = (Node) ((nds.get(0) instanceof Node) ? nds.get(0)
-					: null);
+			Node toND = (Node) ((nds.get(0) instanceof Node) ? nds.get(0) : null);
 			tempToNodeID = toND.getNodeID();
 		} else {
 			for (Node mynd : Nodes.convertNodes(nds)) {
@@ -476,8 +459,7 @@ public class FormTreeBaseModel extends BaseModel {
 
 				// /过滤不能到达的节点.
 				Cond cond = new Cond();
-				int i = cond.Retrieve(CondAttr.FK_Node, _HisNode.getNodeID(),
-						CondAttr.ToNodeID, mynd.getNodeID());
+				int i = cond.Retrieve(CondAttr.FK_Node, _HisNode.getNodeID(), CondAttr.ToNodeID, mynd.getNodeID());
 				if (i == 0) {
 					continue; // 没有设置方向条件，就让它跳过去。
 				}
@@ -494,8 +476,7 @@ public class FormTreeBaseModel extends BaseModel {
 		if (tempToNodeID == 0) {
 			try {
 				// 检查必填项
-				WorkNode workeNode = new WorkNode(this.getWorkID(),
-						this.getFK_Node());
+				WorkNode workeNode = new WorkNode(this.getWorkID(), this.getFK_Node());
 				workeNode.CheckFrmIsNotNull();
 			} catch (RuntimeException ex) {
 				return "error:" + ex.getMessage();
@@ -523,22 +504,18 @@ public class FormTreeBaseModel extends BaseModel {
 	private String SendCase() {
 		String resultMsg = "";
 		try {
-			if (Dev2Interface.Flow_IsCanDoCurrentWork(this.getFK_Flow(),
-					this.getFK_Node(), this.getWorkID(), WebUser.getNo()) == false) {
-				resultMsg = "error|您好：" + WebUser.getNo() + ", "
-						+ WebUser.getName() + "当前的工作已经被处理，或者您没有执行此工作的权限。";
+			if (Dev2Interface.Flow_IsCanDoCurrentWork(this.getFK_Flow(), this.getFK_Node(), this.getWorkID(),
+					WebUser.getNo()) == false) {
+				resultMsg = "error|您好：" + WebUser.getNo() + ", " + WebUser.getName() + "当前的工作已经被处理，或者您没有执行此工作的权限。";
 			}
-			SendReturnObjs returnObjs = Dev2Interface.Node_SendWork(
-					this.getFK_Flow(), this.getWorkID());
+			SendReturnObjs returnObjs = Dev2Interface.Node_SendWork(this.getFK_Flow(), this.getWorkID());
 			resultMsg = returnObjs.ToMsgOfHtml();
 			if (resultMsg.indexOf("@<a") > 0) {
 				String kj = resultMsg.substring(0, resultMsg.indexOf("@<a"));
-				resultMsg = resultMsg.substring(resultMsg.indexOf("@<a"))
-						+ "<br/><br/>" + kj;
+				resultMsg = resultMsg.substring(resultMsg.indexOf("@<a")) + "<br/><br/>" + kj;
 			}
 			// 撤销单据
-			int docindex = resultMsg
-					.indexOf("@<img src='../../Img/FileType/doc.gif' />");
+			int docindex = resultMsg.indexOf("@<img src='../../Img/FileType/doc.gif' />");
 			if (docindex != -1) {
 				String kj = resultMsg.substring(0, docindex);
 				String kp = "";
@@ -549,8 +526,7 @@ public class FormTreeBaseModel extends BaseModel {
 				resultMsg = kj + kp;
 			}
 			// 撤销 撤销本次发送
-			int UnSendindex = resultMsg
-					.indexOf("@<a href='../../MyFlowInfo.jsp?DoType=UnSend");
+			int UnSendindex = resultMsg.indexOf("@<a href='../../MyFlowInfo.jsp?DoType=UnSend");
 			if (UnSendindex != -1) {
 				String kj = resultMsg.substring(0, UnSendindex);
 				String kp = "";
@@ -570,10 +546,8 @@ public class FormTreeBaseModel extends BaseModel {
 			resultMsg = resultMsg.replace("。", "");
 			resultMsg = resultMsg.replace("，", "");
 
-			resultMsg = resultMsg.replace("@Next Step",
-					"<br/><br/>&nbsp;&nbsp;&nbsp;Next Step");
-			resultMsg = "success|<br/>"
-					+ resultMsg.replace("@", "&nbsp;&nbsp;&nbsp;");
+			resultMsg = resultMsg.replace("@Next Step", "<br/><br/>&nbsp;&nbsp;&nbsp;Next Step");
+			resultMsg = "success|<br/>" + resultMsg.replace("@", "&nbsp;&nbsp;&nbsp;");
 
 			// /处理通用的发送成功后的业务逻辑方法，此方法可能会抛出异常.
 			// 这里有两种情况
@@ -581,8 +555,7 @@ public class FormTreeBaseModel extends BaseModel {
 			// 2，从流程已经完成，或者正在运行中，也就是说合并审批处理的情况.
 			try {
 				// 处理通用的发送成功后的业务逻辑方法，此方法可能会抛出异常.
-				BP.WF.Glo.DealBuinessAfterSendWork(this.getFK_Flow(),
-						this.getWorkID(), this.getDoFunc(), getWorkIDs(),
+				BP.WF.Glo.DealBuinessAfterSendWork(this.getFK_Flow(), this.getWorkID(), this.getDoFunc(), getWorkIDs(),
 						this.getCFlowNo(), 0, null);
 			} catch (RuntimeException ex) {
 				resultMsg = "sysError|" + ex.getMessage().replace("@", "<br/>");
@@ -590,7 +563,7 @@ public class FormTreeBaseModel extends BaseModel {
 			}
 			// 处理通用的发送成功后的业务逻辑方法，此方法可能会抛出异常.
 		} catch (RuntimeException ex) {
-			ex.printStackTrace();
+			logger.info("ERROR", ex);
 			resultMsg = "sysError|" + ex.getMessage().replace("@", "<br/>");
 		}
 		return resultMsg;
@@ -605,22 +578,19 @@ public class FormTreeBaseModel extends BaseModel {
 		int ToNode = Integer.parseInt(getUTF8ToString("ToNode"));
 		String resultMsg = "";
 		try {
-			if (Dev2Interface.Flow_IsCanDoCurrentWork(this.getFK_Flow(),
-					this.getFK_Node(), this.getWorkID(), WebUser.getNo()) == false) {
-				return resultMsg = "error|您好：" + WebUser.getNo() + ", "
-						+ WebUser.getName() + "当前的工作已经被处理，或者您没有执行此工作的权限。";
+			if (Dev2Interface.Flow_IsCanDoCurrentWork(this.getFK_Flow(), this.getFK_Node(), this.getWorkID(),
+					WebUser.getNo()) == false) {
+				return resultMsg = "error|您好：" + WebUser.getNo() + ", " + WebUser.getName()
+						+ "当前的工作已经被处理，或者您没有执行此工作的权限。";
 			}
-			SendReturnObjs returnObjs = Dev2Interface.Node_SendWork(
-					this.getFK_Flow(), this.getWorkID(), ToNode, null);
+			SendReturnObjs returnObjs = Dev2Interface.Node_SendWork(this.getFK_Flow(), this.getWorkID(), ToNode, null);
 			resultMsg = returnObjs.ToMsgOfHtml();
 			if (resultMsg.indexOf("@<a") > 0) {
 				String kj = resultMsg.substring(0, resultMsg.indexOf("@<a"));
-				resultMsg = resultMsg.substring(resultMsg.indexOf("@<a"))
-						+ "<br/><br/>" + kj;
+				resultMsg = resultMsg.substring(resultMsg.indexOf("@<a")) + "<br/><br/>" + kj;
 			}
 			// 撤销单据
-			int docindex = resultMsg
-					.indexOf("@<img src='../../Img/FileType/doc.gif' />");
+			int docindex = resultMsg.indexOf("@<img src='../../Img/FileType/doc.gif' />");
 			if (docindex != -1) {
 				String kj = resultMsg.substring(0, docindex);
 				String kp = "";
@@ -631,8 +601,7 @@ public class FormTreeBaseModel extends BaseModel {
 				resultMsg = kj + kp;
 			}
 			// 撤销 撤销本次发送
-			int UnSendindex = resultMsg
-					.indexOf("@<a href='MyFlowInfo.jsp?DoType=UnSend");
+			int UnSendindex = resultMsg.indexOf("@<a href='MyFlowInfo.jsp?DoType=UnSend");
 			if (UnSendindex != -1) {
 				String kj = resultMsg.substring(0, UnSendindex);
 				String kp = "";
@@ -640,8 +609,7 @@ public class FormTreeBaseModel extends BaseModel {
 				if (nextUnSendindex != -1) {
 					kp = resultMsg.substring(nextUnSendindex);
 				}
-				resultMsg = kj
-						+ "<a href='javascript:UnSend();'><img src='../../Img/UnDo.gif' border=0/>撤销本次发送</a>"
+				resultMsg = kj + "<a href='javascript:UnSend();'><img src='../../Img/UnDo.gif' border=0/>撤销本次发送</a>"
 						+ kp;
 			}
 
@@ -652,10 +620,8 @@ public class FormTreeBaseModel extends BaseModel {
 			resultMsg = resultMsg.replace("。", "");
 			resultMsg = resultMsg.replace("，", "");
 
-			resultMsg = resultMsg.replace("@下一步",
-					"<br/><br/>&nbsp;&nbsp;&nbsp;下一步");
-			resultMsg = "success|<br/>"
-					+ resultMsg.replace("@", "&nbsp;&nbsp;&nbsp;");
+			resultMsg = resultMsg.replace("@下一步", "<br/><br/>&nbsp;&nbsp;&nbsp;下一步");
+			resultMsg = "success|<br/>" + resultMsg.replace("@", "&nbsp;&nbsp;&nbsp;");
 
 			// /处理通用的发送成功后的业务逻辑方法，此方法可能会抛出异常.
 			// 这里有两种情况
@@ -663,8 +629,7 @@ public class FormTreeBaseModel extends BaseModel {
 			// 2，从流程已经完成，或者正在运行中，也就是说合并审批处理的情况.
 			try {
 				// 处理通用的发送成功后的业务逻辑方法，此方法可能会抛出异常.
-				BP.WF.Glo.DealBuinessAfterSendWork(this.getFK_Flow(),
-						this.getWorkID(), this.getDoFunc(), getWorkIDs(),
+				BP.WF.Glo.DealBuinessAfterSendWork(this.getFK_Flow(), this.getWorkID(), this.getDoFunc(), getWorkIDs(),
 						this.getCFlowNo(), 0, null);
 			} catch (RuntimeException ex) {
 				resultMsg = "sysError|" + ex.getMessage().replace("@", "<br/>");
@@ -686,8 +651,7 @@ public class FormTreeBaseModel extends BaseModel {
 		try {
 			String FK_Flow = getUTF8ToString("FK_Flow");
 			String WorkID = getUTF8ToString("WorkID");
-			String str1 = BP.WF.Dev2Interface.Flow_DoUnSend(FK_Flow,
-					Long.parseLong(WorkID));
+			String str1 = BP.WF.Dev2Interface.Flow_DoUnSend(FK_Flow, Long.parseLong(WorkID));
 			return "true";
 		} catch (RuntimeException ex) {
 			return "{message:'执行撤消失败，失败信息" + ex.getMessage() + "'}";
@@ -736,8 +700,7 @@ public class FormTreeBaseModel extends BaseModel {
 					continue;
 				}
 
-				for (SysFormTree formTree : SysFormTrees
-						.convertSysFormTrees(formTrees)) {
+				for (SysFormTree formTree : SysFormTrees.convertSysFormTrees(formTrees)) {
 					if (!md.getFK_FormTree().equals(formTree.getNo())) {
 						continue;
 					}
@@ -796,8 +759,7 @@ public class FormTreeBaseModel extends BaseModel {
 			formTree.setName(item.getTitle());
 			// 这个地方怎么回事====================
 			formTree.setNodeType("tools|0");
-			if (!StringHelper.isNullOrEmpty(item.getTarget())
-					&& item.getTarget().toUpperCase().equals("_BLANK")) {
+			if (!StringHelper.isNullOrEmpty(item.getTarget()) && item.getTarget().toUpperCase().equals("_BLANK")) {
 				formTree.setNodeType("tools|1");
 			}
 
@@ -818,11 +780,9 @@ public class FormTreeBaseModel extends BaseModel {
 	private StringBuilder appendMenus = new StringBuilder();
 	private StringBuilder appendMenuSb = new StringBuilder();
 
-	public final void TansEntitiesToGenerTree(Entities ens, String rootNo,
-			String checkIds) {
+	public final void TansEntitiesToGenerTree(Entities ens, String rootNo, String checkIds) {
 		Object tempVar = ens.GetEntityByKey(rootNo);
-		EntityMultiTree root = (EntityMultiTree) ((tempVar instanceof EntityMultiTree) ? tempVar
-				: null);
+		EntityMultiTree root = (EntityMultiTree) ((tempVar instanceof EntityMultiTree) ? tempVar : null);
 		if (root == null) {
 			throw new RuntimeException("@没有找到rootNo=" + rootNo + "的entity.");
 		}
@@ -831,14 +791,12 @@ public class FormTreeBaseModel extends BaseModel {
 		appendMenus.append(",\"text\":\"" + root.getName() + "\"");
 
 		// attributes
-		FlowFormTree formTree = (FlowFormTree) ((root instanceof FlowFormTree) ? root
-				: null);
+		FlowFormTree formTree = (FlowFormTree) ((root instanceof FlowFormTree) ? root : null);
 		if (formTree != null) {
 			String url = formTree.getUrl() == null ? "" : formTree.getUrl();
 			url = url.replace("/", "|");
 
-			appendMenus.append(",\"attributes\":{\"NodeType\":\""
-					+ formTree.getNodeType() + "\",\"IsEdit\":\""
+			appendMenus.append(",\"attributes\":{\"NodeType\":\"" + formTree.getNodeType() + "\",\"IsEdit\":\""
 					+ formTree.getIsEdit() + "\",\"Url\":\"" + url + "\"}");
 		}
 		// 增加它的子级.
@@ -848,8 +806,7 @@ public class FormTreeBaseModel extends BaseModel {
 		appendMenus.append("}]");
 	}
 
-	public final void AddChildren(EntityMultiTree parentEn, Entities ens,
-			String checkIds) {
+	public final void AddChildren(EntityMultiTree parentEn, Entities ens, String checkIds) {
 		appendMenus.append(appendMenuSb);
 		appendMenuSb.setLength(0);
 		;
@@ -862,23 +819,19 @@ public class FormTreeBaseModel extends BaseModel {
 			}
 
 			if (checkIds.contains("," + item.getNo() + ",")) {
-				appendMenuSb.append("{\"id\":\"" + item.getNo()
-						+ "\",\"text\":\"" + item.getName()
-						+ "\",\"checked\":true");
+				appendMenuSb.append(
+						"{\"id\":\"" + item.getNo() + "\",\"text\":\"" + item.getName() + "\",\"checked\":true");
 			} else {
-				appendMenuSb.append("{\"id\":\"" + item.getNo()
-						+ "\",\"text\":\"" + item.getName()
-						+ "\",\"checked\":false");
+				appendMenuSb.append(
+						"{\"id\":\"" + item.getNo() + "\",\"text\":\"" + item.getName() + "\",\"checked\":false");
 			}
 
-			FlowFormTree formTree = (FlowFormTree) ((item instanceof FlowFormTree) ? item
-					: null);
+			FlowFormTree formTree = (FlowFormTree) ((item instanceof FlowFormTree) ? item : null);
 			if (formTree != null) {
 				String url = formTree.getUrl() == null ? "" : formTree.getUrl();
 				String ico = "icon-tree_folder";
 				url = url.replace("/", "|");
-				appendMenuSb.append(",\"attributes\":{\"NodeType\":\""
-						+ formTree.getNodeType() + "\",\"IsEdit\":\""
+				appendMenuSb.append(",\"attributes\":{\"NodeType\":\"" + formTree.getNodeType() + "\",\"IsEdit\":\""
 						+ formTree.getIsEdit() + "\",\"Url\":\"" + url + "\"}");
 
 				// 图标

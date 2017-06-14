@@ -1,15 +1,14 @@
 package org.jflow.framework.common.model;
 
-import java.net.URLEncoder;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jflow.framework.system.ui.core.Label;
 import org.jflow.framework.system.ui.core.NamesOfBtn;
 import org.jflow.framework.system.ui.core.ToolBar;
 
-import TL.ContextHolderUtils;
 import BP.DA.DataType;
 import BP.En.Attr;
 import BP.En.AttrSearch;
@@ -22,9 +21,13 @@ import BP.En.QueryObject;
 import BP.Port.WebUser;
 import BP.Sys.SystemConfig;
 import BP.Tools.StringHelper;
+import TL.ContextHolderUtils;
 
 public class CommSearchModel extends BaseModel {
-
+	/**
+	 * 日志对象
+	 */
+	private static Log logger = LogFactory.getLog(CommSearchModel.class);
 	private ThreadLocal<HttpServletRequest> request = new ThreadLocal<HttpServletRequest>();
 	private ThreadLocal<HttpServletResponse> response = new ThreadLocal<HttpServletResponse>();
 
@@ -34,8 +37,7 @@ public class CommSearchModel extends BaseModel {
 	private StringBuilder UCSys1 = new StringBuilder();
 	private StringBuilder UCSys2;
 
-	public CommSearchModel(HttpServletRequest request,
-			HttpServletResponse response) {
+	public CommSearchModel(HttpServletRequest request, HttpServletResponse response) {
 		super(request, response);
 		this.request.set(request);
 		this.response.set(response);
@@ -71,18 +73,15 @@ public class CommSearchModel extends BaseModel {
 			if (w == 0) {
 				w = 800;
 			}
-			toolBar1.AddLab(
-					"inse",
+			toolBar1.AddLab("inse",
 					"<input type=button id='Btn_New' class=Btn name='Btn_New' "
-							+ "onclick=\"javascript:ShowEn('./RefFunc/UIEn.jsp?EnsName="
-							+ getEnsName() + "','cd','" + h + "' , '" + w
-							+ "');\"  value='新建(N)'  />");
+							+ "onclick=\"javascript:ShowEn('./RefFunc/UIEn.jsp?EnsName=" + getEnsName() + "','cd','" + h
+							+ "' , '" + w + "');\"  value='新建(N)'  />");
 
 		}
 
 		if (SystemConfig.getAppSettings().get("Admin").toString().equals(WebUser.getNo()))
-			toolBar1.AddLab(
-					"sw",
+			toolBar1.AddLab("sw",
 					"<input type=button class=Btn  id='Btn_P' name='Btn_P' onclick=\"javascript:OpenAttrs('"
 							+ getEnsName() + "');\" value='设置(P)'/>");
 		// #endregion
@@ -93,28 +92,24 @@ public class CommSearchModel extends BaseModel {
 			if (mykey == "" || mykey == null)
 				continue;
 			else
-				toolBar1.GetDDLByKey("DDL_" + attr.Key).SetSelectItem(mykey,
-						attr.HisAttr);
+				toolBar1.GetDDLByKey("DDL_" + attr.Key).SetSelectItem(mykey, attr.HisAttr);
 		}
 
 		if (getRequest().getParameter("Key") != null) {
-			toolBar1.GetTBByID("TB_Key").setText(
-					getRequest().getParameter("Key"));
+			toolBar1.GetTBByID("TB_Key").setText(getRequest().getParameter("Key"));
 		}
 		// #endregion
 
 		this.SetDGData();
 		toolBar1.GetLinkBtnByID(NamesOfBtn.Search).setHref("Search();");
 		if (null == toolBar1.GetLinkBtnByID(NamesOfBtn.Export)) {
-			toolBar1.AddLinkBtn(true, NamesOfBtn.Export.getCode(),
-					NamesOfBtn.Export.getDesc());
+			toolBar1.AddLinkBtn(true, NamesOfBtn.Export.getCode(), NamesOfBtn.Export.getDesc());
 		}
-		toolBar1.GetLinkBtnByID(NamesOfBtn.Export).addAttr("onclick",
-				"DoExp();");
+		toolBar1.GetLinkBtnByID(NamesOfBtn.Export).addAttr("onclick", "DoExp();");
 		label1.setId("Label1");
 		label1.setName("Label1");
-		label1.setText(GenerCaption(this.HisEn.getEnMap().getEnDesc() + ""
-				+ StringHelper.isEmpty(this.HisEn.getEnMap().TitleExt, "")));
+		label1.setText(GenerCaption(
+				this.HisEn.getEnMap().getEnDesc() + "" + StringHelper.isEmpty(this.HisEn.getEnMap().TitleExt, "")));
 	}
 
 	public String getToolBar() {
@@ -149,34 +144,31 @@ public class CommSearchModel extends BaseModel {
 		if (getDoType().equals("Exp")) {
 			/* 如果是导出，就把它导出到excel. */
 			try {
-				String httpFilePath = ExportDGToExcel(qo.DoQueryToTable(),
-						en.getEnMap(), en.getEnDesc());
+				String httpFilePath = ExportDGToExcel(qo.DoQueryToTable(), en.getEnMap(), en.getEnDesc());
 				ContextHolderUtils.getResponse().getWriter().write(httpFilePath);
-				
+
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.info("ERROR", e);
 			}
 			return;
 		}
 		int maxPageNum = 0;
 		try {
 			this.UCSys2 = new StringBuilder();
-			maxPageNum = BindPageIdx(UCSys2, qo.GetCount(),
-					SystemConfig.getPageSize(), pageIdx, "Search.jsp?EnsName="
-							+ this.getEnsName());
+			maxPageNum = BindPageIdx(UCSys2, qo.GetCount(), SystemConfig.getPageSize(), pageIdx,
+					"Search.jsp?EnsName=" + this.getEnsName());
 			if (maxPageNum > 1)
 				this.UCSys2.append("翻页键:← → PageUp PageDown");
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			try {
 				en.CheckPhysicsTable();
 			} catch (Exception wx) {
-				wx.printStackTrace();
+				logger.info("ERROR", wx);
 				BP.DA.Log.DefaultLogWriteLineError(wx.getMessage());
 			}
-			maxPageNum = BindPageIdx(UCSys2, qo.GetCount(),
-					SystemConfig.getPageSize(), pageIdx, "Search.jsp?EnsName="
-							+ this.getEnsName());
+			maxPageNum = BindPageIdx(UCSys2, qo.GetCount(), SystemConfig.getPageSize(), pageIdx,
+					"Search.jsp?EnsName=" + this.getEnsName());
 		}
 
 		qo.DoQuery(en.getPK(), SystemConfig.getPageSize(), pageIdx);
@@ -205,13 +197,8 @@ public class CommSearchModel extends BaseModel {
 							break;
 						}
 						Entity myen = (Entity) obj;
-						myen.SetValByKey(
-								attr.getKey(),
-								myen.GetValStrByKey(attr.getKey())
-										.replace(
-												keyVal,
-												"<font color=red>" + keyVal
-														+ "</font>"));
+						myen.SetValByKey(attr.getKey(), myen.GetValStrByKey(attr.getKey()).replace(keyVal,
+								"<font color=red>" + keyVal + "</font>"));
 					}
 				}
 			}
@@ -224,25 +211,22 @@ public class CommSearchModel extends BaseModel {
 		this.UCSys1.append("<SCRIPT language=javascript>");
 		this.UCSys1.append("\t\n document.onkeydown = chang_page;");
 		this.UCSys1.append("\t\n function chang_page() { ");
-		// this.UCSys3.Add("\t\n  alert(event.keyCode); ");
+		// this.UCSys3.Add("\t\n alert(event.keyCode); ");
 		if (getPageIdx() == 1) {
-			this.UCSys1
-					.append("\t\n if (event.keyCode == 37 || event.keyCode == 33) alert('已经是第一页');");
+			this.UCSys1.append("\t\n if (event.keyCode == 37 || event.keyCode == 33) alert('已经是第一页');");
 		} else {
-			this.UCSys1
-					.append("\t\n if (event.keyCode == 37  || event.keyCode == 38 || event.keyCode == 33) ");
-			this.UCSys1.append("\t\n     location='Search.jsp?EnsName="
-					+ this.getEnsName() + "&PageIdx=" + PPageIdx + "';");
+			this.UCSys1.append("\t\n if (event.keyCode == 37  || event.keyCode == 38 || event.keyCode == 33) ");
+			this.UCSys1.append(
+					"\t\n     location='Search.jsp?EnsName=" + this.getEnsName() + "&PageIdx=" + PPageIdx + "';");
 		}
 
 		if (getPageIdx() == maxPageNum) {
-			this.UCSys1
-					.append("\t\n if (event.keyCode == 39 || event.keyCode == 40 || event.keyCode == 34) alert('已经是最后一页');");
+			this.UCSys1.append(
+					"\t\n if (event.keyCode == 39 || event.keyCode == 40 || event.keyCode == 34) alert('已经是最后一页');");
 		} else {
-			this.UCSys1
-					.append("\t\n if (event.keyCode == 39 || event.keyCode == 40 || event.keyCode == 34) ");
-			this.UCSys1.append("\t\n     location='Search.jsp?EnsName="
-					+ this.getEnsName() + "&PageIdx=" + ToPageIdx + "';");
+			this.UCSys1.append("\t\n if (event.keyCode == 39 || event.keyCode == 40 || event.keyCode == 34) ");
+			this.UCSys1.append(
+					"\t\n     location='Search.jsp?EnsName=" + this.getEnsName() + "&PageIdx=" + ToPageIdx + "';");
 		}
 
 		this.UCSys1.append("\t\n } ");

@@ -25,7 +25,7 @@ public abstract class CRUDController<T> extends BaseController {
 		ReturnResult returnResult = ReturnResult.get();
 		Serializable id = crudService.save(entity);
 		returnResult.setStatus(StatusCode.SUCCESS).setData(id);
-		logger.debug("save {} success", getEntityName());
+		logger.debug("save " + getEntityName() + " success");
 		return returnResult;
 	}
 
@@ -34,7 +34,7 @@ public abstract class CRUDController<T> extends BaseController {
 	public ReturnResult update(T entity) {
 		ReturnResult returnResult = ReturnResult.get();
 		crudService.update(entity);
-		logger.debug("update {} success", getEntityName());
+		logger.debug("update " + getEntityName() + " success");
 		return returnResult.setStatus(StatusCode.SUCCESS);
 	}
 
@@ -44,7 +44,7 @@ public abstract class CRUDController<T> extends BaseController {
 		ReturnResult returnResult = ReturnResult.get();
 		crudService.delete(getEntityClass(), id);
 		returnResult.setStatus(StatusCode.SUCCESS).setData(id);
-		logger.debug("delete {} success", getEntityName());
+		logger.debug("delete " + getEntityName() + " success");
 		return returnResult;
 	}
 
@@ -53,7 +53,7 @@ public abstract class CRUDController<T> extends BaseController {
 	public ReturnResult get(Integer id) {
 		ReturnResult returnResult = ReturnResult.get();
 		returnResult.setStatus(StatusCode.SUCCESS).setData(crudService.get(getEntityClass(), id));
-		logger.debug("get {} success", getEntityName());
+		logger.debug("get " + getEntityName() + " success");
 		return returnResult;
 	}
 
@@ -62,7 +62,7 @@ public abstract class CRUDController<T> extends BaseController {
 	public ReturnResult findAll() {
 		ReturnResult returnResult = ReturnResult.get();
 		returnResult.setStatus(StatusCode.SUCCESS).setData(crudService.findAll(getEntityClass()));
-		logger.debug("findAll {} success", getEntityName());
+		logger.debug("findAll " + getEntityName() + " success");
 		return returnResult;
 	}
 
@@ -73,7 +73,7 @@ public abstract class CRUDController<T> extends BaseController {
 		ReturnResult returnResult = ReturnResult.get();
 		Map<String, Object> result = crudService.query(getEntityClass(), request.getParameterMap(), offset, limit);
 		returnResult.setStatus(StatusCode.SUCCESS).setData(result.get("data")).setTotal(result.get("tatol"));
-		logger.debug("findAll {} success", getEntityName());
+		logger.debug("findAll " + getEntityName() + " success");
 		return returnResult;
 	}
 

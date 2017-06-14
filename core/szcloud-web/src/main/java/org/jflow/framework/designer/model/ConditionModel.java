@@ -2,8 +2,8 @@ package org.jflow.framework.designer.model;
 
 import java.util.HashMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import BP.WF.Template.Condition.Cond;
 import BP.WF.Template.Condition.CondAttr;
@@ -13,7 +13,7 @@ public class ConditionModel {
 	/**
 	 * 日志对象
 	 */
-	private static final Logger logger = LoggerFactory.getLogger(ConditionModel.class);
+	private static final Log logger = LogFactory.getLog(ConditionModel.class);
 
 	public ConditionModel() {
 

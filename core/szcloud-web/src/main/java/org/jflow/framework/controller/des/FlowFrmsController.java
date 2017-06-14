@@ -8,6 +8,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.jflow.framework.common.model.TempObject;
 import org.jflow.framework.controller.wf.workopt.BaseController;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -27,10 +29,13 @@ import BP.WF.Template.Form.Sys.SysFormTree;
 @Controller
 @RequestMapping("/WF/Admin")
 public class FlowFrmsController extends BaseController {
+	/**
+	 * 日志对象
+	 */
+	private static Log logger = LogFactory.getLog(FlowFrmsController.class);
 
 	@RequestMapping(value = "/btn_SavePowerOrders_Click", method = RequestMethod.POST)
-	public void btn_SavePowerOrders_Click(TempObject object,
-			HttpServletRequest request, HttpServletResponse response) {
+	public void btn_SavePowerOrders_Click(TempObject object, HttpServletRequest request, HttpServletResponse response) {
 		FrmNodes fns = new FrmNodes(object.getFK_Flow(), object.getFK_Node());
 		for (FrmNode fn : FrmNodes.convertFrmNodes(fns)) {
 			// fn.setIsEdit(this.Pub1.GetCBByID("CB_IsEdit_" +
@@ -47,8 +52,7 @@ public class FlowFrmsController extends BaseController {
 			// fn.getFK_Frm()).SelectedItemIntVal);
 			// fn.setWhoIsPK((WhoIsPK)this.Pub1.GetDDLByID("DDL_WhoIsPK_" +
 			// fn.getFK_Frm()).SelectedItemIntVal);
-			String CB_IsEdit = request.getParameter("CB_IsEdit_"
-					+ fn.getFK_Frm());
+			String CB_IsEdit = request.getParameter("CB_IsEdit_" + fn.getFK_Frm());
 			boolean IsEdit = true;
 			if (CB_IsEdit != null && CB_IsEdit.equals("on")) {
 				IsEdit = true;
@@ -56,8 +60,7 @@ public class FlowFrmsController extends BaseController {
 				IsEdit = false;
 			}
 			fn.setIsEdit(IsEdit);
-			String CB_IsPrint = request.getParameter("CB_IsPrint_"
-					+ fn.getFK_Frm());
+			String CB_IsPrint = request.getParameter("CB_IsPrint_" + fn.getFK_Frm());
 			boolean IsPrint = true;
 			if (CB_IsPrint != null && CB_IsPrint.equals("on")) {
 				IsPrint = true;
@@ -65,41 +68,37 @@ public class FlowFrmsController extends BaseController {
 				IsPrint = false;
 			}
 			fn.setIsPrint(IsPrint);
-			int TB_Idx = Integer.parseInt(request.getParameter("TB_Idx_"
-					+ fn.getFK_Frm()));
+			int TB_Idx = Integer.parseInt(request.getParameter("TB_Idx_" + fn.getFK_Frm()));
 			fn.setIdx(TB_Idx);
-			FrmType DDL_FrmType = FrmType.forValue(Integer.parseInt(request
-					.getParameter("DDL_FrmType_" + fn.getFK_Frm())));
+			FrmType DDL_FrmType = FrmType
+					.forValue(Integer.parseInt(request.getParameter("DDL_FrmType_" + fn.getFK_Frm())));
 			fn.setHisFrmType(DDL_FrmType);
 
 			// 权限控制方案.
-			int DDL_Sln = Integer.parseInt(request.getParameter("DDL_Sln_"
-					+ fn.getFK_Frm()));
+			int DDL_Sln = Integer.parseInt(request.getParameter("DDL_Sln_" + fn.getFK_Frm()));
 			fn.setFrmSln(DDL_Sln);
-			WhoIsPK DDL_WhoIsPK = WhoIsPK.forValue(Integer.parseInt(request
-					.getParameter("DDL_WhoIsPK_" + fn.getFK_Frm())));
+			WhoIsPK DDL_WhoIsPK = WhoIsPK
+					.forValue(Integer.parseInt(request.getParameter("DDL_WhoIsPK_" + fn.getFK_Frm())));
 			fn.setWhoIsPK(DDL_WhoIsPK);
 			fn.setFK_Flow(object.getFK_Flow());
 			fn.setFK_Node(object.getFK_Node());
 			// fn.FK_Frm =
 
-			fn.setMyPK(fn.getFK_Frm() + "_" + fn.getFK_Node() + "_"
-					+ fn.getFK_Flow());
+			fn.setMyPK(fn.getFK_Frm() + "_" + fn.getFK_Node() + "_" + fn.getFK_Flow());
 
 			fn.Update();
 		}
 		try {
-			response.sendRedirect("FlowFrms.jsp?ShowType=EditPowerOrder&FK_Node="
-					+ object.getFK_Node() + "&FK_Flow=" + object.getFK_Flow());
+			response.sendRedirect("FlowFrms.jsp?ShowType=EditPowerOrder&FK_Node=" + object.getFK_Node() + "&FK_Flow="
+					+ object.getFK_Flow());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 	}
 
 	@RequestMapping(value = "/btn_SaveFrmSort_Click", method = RequestMethod.POST)
-	public void btn_SaveFrmSort_Click(TempObject object,
-			HttpServletRequest request, HttpServletResponse response) {
+	public void btn_SaveFrmSort_Click(TempObject object, HttpServletRequest request, HttpServletResponse response) {
 		for (int i = 1; i <= 15; i++) {
 			String tbName = request.getParameter("TB_Name_" + i);
 			// TextBox tbName = this.Pub1.GetTextBoxByID("TB_Name_" + i);
@@ -114,16 +113,16 @@ public class FlowFrmsController extends BaseController {
 		}
 		// this.Alert("保存成功");
 		try {
-			this.printAlertReload(response, "保存成功","FlowFrms.jsp?ShowType=FrmSorts&FK_Node=" +object.getFK_Node()+"&FK_Flow="+object.getFK_Flow());
+			this.printAlertReload(response, "保存成功", "FlowFrms.jsp?ShowType=FrmSorts&FK_Node=" + object.getFK_Node()
+					+ "&FK_Flow=" + object.getFK_Flow());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 	}
 
 	@RequestMapping(value = "/btn_SaveFlowFrms_Click", method = RequestMethod.POST)
-	public void btn_SaveFlowFrms_Click(TempObject object,
-			HttpServletRequest request, HttpServletResponse response) {
+	public void btn_SaveFlowFrms_Click(TempObject object, HttpServletRequest request, HttpServletResponse response) {
 		FrmNodes fns = new FrmNodes(object.getFK_Flow(), object.getFK_Node());
 		MapDatas mds = new MapDatas();
 		mds.Retrieve(MapDataAttr.AppType, AppType.Application.getValue());
@@ -170,17 +169,16 @@ public class FlowFrmsController extends BaseController {
 			fn.Save();
 		}
 		try {
-			response.sendRedirect("FlowFrms.jsp?ShowType=EditPowerOrder&FK_Node="
-					+ object.getFK_Node() + "&FK_Flow=" + object.getFK_Flow());
+			response.sendRedirect("FlowFrms.jsp?ShowType=EditPowerOrder&FK_Node=" + object.getFK_Node() + "&FK_Flow="
+					+ object.getFK_Flow());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 	}
 
 	@RequestMapping(value = "/btn_SaveFrm_Click", method = RequestMethod.POST)
-	public void btn_SaveFrm_Click(TempObject object,
-			HttpServletRequest request, HttpServletResponse response,
+	public void btn_SaveFrm_Click(TempObject object, HttpServletRequest request, HttpServletResponse response,
 			String btnName) {
 		// Button btn = (Button)((sender instanceof Button) ? sender : null);
 		// if (btn.getId().equals("Btn_Delete"))
@@ -190,15 +188,11 @@ public class FlowFrmsController extends BaseController {
 			// mdDel.No = this.FK_MapData;
 			// mdDel.Delete();
 			try {
-				response.sendRedirect("FlowFrms.jsp?ShowType=Frm&DoType=DelFrm&FK_Node="
-						+ object.getFK_Node()
-						+ "&FK_MapData="
-						+ object.getFK_MapData()
-						+ "&FK_Flow="
-						+ object.getFK_Flow());
+				response.sendRedirect("FlowFrms.jsp?ShowType=Frm&DoType=DelFrm&FK_Node=" + object.getFK_Node()
+						+ "&FK_MapData=" + object.getFK_MapData() + "&FK_Flow=" + object.getFK_Flow());
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.info("ERROR", e);
 			}
 			return;
 		}
@@ -241,18 +235,17 @@ public class FlowFrmsController extends BaseController {
 					this.printAlert(response, "表单编号(" + md.getNo() + ")已存在");
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.info("ERROR", e);
 				}
 				return;
 			} else {
 				md.Insert();
 				try {
-					response.sendRedirect("FlowFrms.jsp?ShowType=Frm&FK_Node="
-							+ object.getFK_Node() + "&FK_MapData=" + md.getNo()
-							+ "&FK_Flow=" + object.getFK_Flow());
+					response.sendRedirect("FlowFrms.jsp?ShowType=Frm&FK_Node=" + object.getFK_Node() + "&FK_MapData="
+							+ md.getNo() + "&FK_Flow=" + object.getFK_Flow());
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.info("ERROR", e);
 				}
 			}
 		} else {
@@ -262,7 +255,7 @@ public class FlowFrmsController extends BaseController {
 				this.printAlert(response, "更新成功。");
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.info("ERROR", e);
 			}
 		}
 	}

@@ -50,12 +50,12 @@
 		<!-- 排除的url -->
 		<init-param>
 			<param-name>excludeUrls</param-name>
-			<param-value>/admin</param-value>
+			<param-value>/admin,/fd,/DES,/metaModel,/func</param-value>
 		</init-param>
 		<!-- 排除的参数名 -->
 		<init-param>
 			<param-name>legalNames</param-name>
-			<param-value>content,dataJson,preLoadScript,afterLoadScript</param-value>
+			<param-value>content,dataJson,preLoadScript,afterLoadScript,slectsUserIds</param-value>
 		</init-param>
 		<!-- 要检验的非法字符 -->
 		<init-param>

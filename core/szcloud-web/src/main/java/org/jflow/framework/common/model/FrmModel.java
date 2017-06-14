@@ -9,12 +9,12 @@ import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jflow.framework.system.ui.core.BaseWebControl;
 import org.jflow.framework.system.ui.core.Button;
 import org.jflow.framework.system.ui.core.HtmlUtils;
 import org.jflow.framework.system.ui.core.TextBox;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import BP.DA.DBAccess;
 import BP.DA.DataRow;
@@ -47,7 +47,7 @@ public class FrmModel extends EnModel {
 	/**
 	 * 日志对象
 	 */
-	private static final Logger logger = LoggerFactory.getLogger(FrmModel.class);
+	private static final Log logger = LogFactory.getLog(FrmModel.class);
 	private int OIDPKVal;
 
 	public String TB_SealData_Value, TB_SealFile_Value;

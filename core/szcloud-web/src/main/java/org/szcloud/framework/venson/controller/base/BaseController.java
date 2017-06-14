@@ -9,8 +9,8 @@ import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.web.servlet.support.RequestContext;
 import org.szcloud.framework.core.utils.SessionUtils;
 import org.szcloud.framework.core.utils.constants.SessionContants;
@@ -18,7 +18,7 @@ import org.szcloud.framework.unit.vo.PunUserBaseInfoVO;
 
 public abstract class BaseController {
 
-	protected Logger logger = LoggerFactory.getLogger(getClass());
+	protected Log logger = LogFactory.getLog(getClass());
 
 	protected Map<String, Object> wrapMap(Map<String, String[]> map, String... filters) {
 		Map<String, Object> param = new HashMap<String, Object>();

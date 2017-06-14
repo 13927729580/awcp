@@ -16,8 +16,8 @@ import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -32,7 +32,7 @@ import org.szcloud.framework.venson.util.DateFormaterUtil;
 @Controller("attachment")
 @ResponseBody
 public class AttachmentController {
-	private static final Logger logger = LoggerFactory.getLogger(AttachmentController.class);
+	private static final Log logger = LogFactory.getLog(AttachmentController.class);
 	private static final Set<String> IMAGE_TYPE = new HashSet<String>();
 	private static final Set<String> EXCLE_TYPE = new HashSet<String>();
 	private static final Set<String> WORD_TYPE = new HashSet<String>();

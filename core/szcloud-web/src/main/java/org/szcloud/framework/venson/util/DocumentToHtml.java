@@ -64,8 +64,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.STUnderline;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.szcloud.framework.venson.controller.base.ControllerHelper;
 import org.w3c.dom.Document;
 
@@ -81,7 +81,7 @@ import net.arnx.wmf2svg.gdi.wmf.WmfParser;
  */
 public class DocumentToHtml {
 
-	private static final Logger logger = LoggerFactory.getLogger(DocumentToHtml.class);
+	private static final Log logger = LogFactory.getLog(DocumentToHtml.class);
 	public static final String CHAR_FULL_SPACE = (char) 12288 + "";
 	public static final String CHAR_SPACE = " ";
 	public static final String HTML_SPACE = "&nbsp;";
@@ -105,7 +105,7 @@ public class DocumentToHtml {
 			String content = getStringFormTxt(inputStream);
 			FileUtils.writeStringToFile(new File(outPath + outFileName), content, "UTF-8");
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 	}
 
@@ -192,7 +192,7 @@ public class DocumentToHtml {
 			scaleImg(content, width, height, fileName, pictureType.getExtension());
 			return fileName;
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 		return null;
 	}
@@ -342,7 +342,7 @@ public class DocumentToHtml {
 			}
 		} catch (Exception e) {
 			flag = false;
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 		return flag;
 	}
@@ -363,7 +363,7 @@ public class DocumentToHtml {
 			while (br.ready())
 				buffer.append((char) br.read());
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		} finally {
 			if (br != null)
 				br.close();
@@ -406,7 +406,7 @@ public class DocumentToHtml {
 					char letter = (char) Integer.parseInt(charStr, system);
 					buffer.append(new Character(letter).toString());
 				} catch (NumberFormatException e) {
-					e.printStackTrace();
+					logger.info("ERROR", e);
 				}
 			}
 
@@ -434,7 +434,7 @@ public class DocumentToHtml {
 			ps.println("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />");// 往文件里写入字符串,解决编码问题，语法不正规
 			ps.append(str);// 在已有的基础上添加字符串
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		} finally {
 			if (ps != null) {
 				ps.flush();
@@ -640,13 +640,13 @@ public class DocumentToHtml {
 			}
 
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		} finally {
 			if (workbook != null) {
 				try {
 					workbook.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					logger.info("ERROR", e);
 				}
 			}
 		}

@@ -433,13 +433,13 @@ public class DataSourceManageController extends BaseController {
 			mv.addObject("vo", vo);
 			mv.addObject("tables", tableNames);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		} finally {
 			if (conn != null) {
 				try {
 					conn.close();
 				} catch (SQLException e) {
-					e.printStackTrace();
+					logger.info("ERROR", e);
 				}
 			}
 		}

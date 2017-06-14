@@ -10,6 +10,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.jflow.framework.common.model.BaseModel;
 import org.jflow.framework.system.ui.core.BaseWebControl;
 import org.jflow.framework.system.ui.core.HtmlUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,7 +38,10 @@ import TL.ConvertTools;
 @RequestMapping("/Wf/Admin")
 @Scope("request")
 public class BillControlle {
-
+	/**
+	 * 日志对象
+	 */
+	private static Log logger = LogFactory.getLog(BillControlle.class);
 	// @Autowired
 	// public HttpServletRequest request;
 
@@ -65,7 +70,7 @@ public class BillControlle {
 		 * request.getSession().getServletContext().getRealPath("/") +
 		 * "/upload/" + file.getOriginalFilename(); // 转存文件
 		 * logger.debug(filePath.toString()); file.transferTo(new
-		 * File(filePath)); } catch (Exception e) { e.printStackTrace(); } }
+		 * File(filePath)); } catch (Exception e) { logger.info("ERROR", e); } }
 		 */
 		// 判断文件是否为空 end
 
@@ -138,10 +143,10 @@ public class BillControlle {
 					file.transferTo(new File(temp));
 				} catch (IllegalStateException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.info("ERROR", e);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.info("ERROR", e);
 				}
 				// file.PostedFile.SaveAs(temp);
 
@@ -152,10 +157,10 @@ public class BillControlle {
 					file.transferTo(new File(temp));
 				} catch (IllegalStateException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.info("ERROR", e);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.info("ERROR", e);
 				}
 			}
 
@@ -175,7 +180,7 @@ public class BillControlle {
 				file.transferTo(new File(fullFile));
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
-				e1.printStackTrace();
+				logger.info("ERROR", e1);
 			} // BP.Sys.SystemConfig.PathOfCyclostyleFile + File.separator+
 				// bt.No +
 				// ".rtf";
@@ -248,10 +253,10 @@ public class BillControlle {
 				file.transferTo(new File(tmp));
 			} catch (IllegalStateException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.info("ERROR", e);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.info("ERROR", e);
 			}
 		} else {
 			tmpName = "Temp.rtf";
@@ -259,9 +264,9 @@ public class BillControlle {
 			try {
 				file.transferTo(new File(tmp));
 			} catch (IllegalStateException e) {
-				e.printStackTrace();
+				logger.info("ERROR", e);
 			} catch (IOException e) {
-				e.printStackTrace();
+				logger.info("ERROR", e);
 			}
 		}
 
@@ -290,10 +295,10 @@ public class BillControlle {
 			;
 		} catch (IllegalStateException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 		// Ucsys1.GetDDLByID getddlbyid 弄不错俩
 
@@ -319,7 +324,7 @@ public class BillControlle {
 					Glo.getCCFlowAppPath() + "WF/Admin/Bill.jsp?FK_Flow=" + FK_Flow + "&NodeID=" + NodeID);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 
 	}
@@ -363,7 +368,7 @@ public class BillControlle {
 			ens.Delete();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 		// ens.Delete();
 		for (int i = 1; i < 18; i++) {

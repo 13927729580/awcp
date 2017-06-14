@@ -13,9 +13,11 @@
 		<result property="contentType" jdbcType="VARCHAR" column="content_Type"/>
 		 <result property="systemId" jdbcType="BIGINT" column="system_Id"/> 
 		<result property="size" jdbcType="BIGINT" column="size"/> 
+		<result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
+		<result column="UPDATE_TIME" property="updateTime" jdbcType="TIMESTAMP" />
 	</resultMap>
 	<sql id="Base_Column_List">
-		ID,storage_id,file_Name,user_Id,user_Name,content_Type,system_Id,size
+		ID,storage_id,file_Name,user_Id,user_Name,content_Type,system_Id,size,CREATE_TIME,UPDATE_TIME
 	</sql>
 
 	
@@ -29,7 +31,9 @@
 			user_Name,
 			content_Type,
 			system_Id,
-			size
+			size,
+			CREATE_TIME,
+			UPDATE_TIME
 			
 		) VALUES (
 			#{id},
@@ -39,8 +43,24 @@
 			#{userName},
 			#{contentType},
 			#{systemId},
-			#{size}
+			#{size},
+			#{createTime},
+			#{updateTime}
 		)
+	</insert>
+	 <!-- 更新 -->
+	<insert id="update" keyProperty="id">
+		update  p_fm_attachment set 
+			storage_id=#{storageId},
+			file_Name=#{fileName},
+			user_Id=#{userId},
+			user_Name=#{userName},
+			content_Type=#{contentType},
+			system_Id=#{systemId},
+			size=#{size},
+			UPDATE_TIME=#{updateTime}
+			WHERE
+			id = #{id}
 	</insert>
 	
 	<!-- 按Id删除 -->

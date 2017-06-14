@@ -19,8 +19,8 @@ import org.jflow.framework.system.ui.core.ListBox;
 import org.jflow.framework.system.ui.core.ListItem;
 import org.jflow.framework.system.ui.core.RadioButton;
 import org.jflow.framework.system.ui.core.TextBox;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -49,7 +49,7 @@ public class MExtController extends BaseController {
 	/**
 	 * 日志对象
 	 */
-	private static final Logger logger = LoggerFactory.getLogger(MExtController.class);
+	private static final Log logger = LogFactory.getLog(MExtController.class);
 
 	@RequestMapping(value = "/SaveJiLian", method = RequestMethod.POST)
 	public String btn_SaveJiLian_Click(HttpServletResponse response, String FK_MapData, String ExtType,

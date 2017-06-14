@@ -21,8 +21,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.util.ReflectionUtils;
 import org.szcloud.framework.core.utils.SessionUtils;
 import org.szcloud.framework.core.utils.Springfactory;
@@ -75,7 +75,7 @@ public final class ControllerHelper {
 	public static final String IMAGE_UPLOAD_PATH = "/upload/image";
 	public static final String HEAD_IMAGE_UPLOAD_PATH = "/upload/image/headImage";
 
-	private static final Logger logger = LoggerFactory.getLogger(ControllerHelper.class);
+	private static final Log logger = LogFactory.getLog(ControllerHelper.class);
 
 	/**
 	 * 在国际化资源文件中获取指定键值的value值
@@ -223,7 +223,7 @@ public final class ControllerHelper {
 				codedfilename = new String(fileNames.getBytes("UTF-8"), "iso-8859-1");
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 		return codedfilename;
 	}
@@ -267,7 +267,7 @@ public final class ControllerHelper {
 	 * @param logger
 	 *            日志
 	 */
-	public static boolean renderJSON(String contentType, String error, Logger logger) throws IOException {
+	public static boolean renderJSON(String contentType, String error, Log logger) throws IOException {
 		contentType = StringUtils.defaultString(contentType, CONTENT_TYPE_JSON);
 		ReturnResult returnResult = ReturnResult.get();
 		HttpServletResponse response = ControllerContext.getResponse();
@@ -280,7 +280,7 @@ public final class ControllerHelper {
 		return false;
 	}
 
-	public static boolean renderJSON(String error, Logger logger) throws IOException {
+	public static boolean renderJSON(String error, Log logger) throws IOException {
 		return renderJSON(null, error, logger);
 	}
 

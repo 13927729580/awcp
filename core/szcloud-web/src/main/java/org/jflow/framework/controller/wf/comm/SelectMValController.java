@@ -7,6 +7,8 @@ import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jflow.framework.common.model.AjaxJson;
 import org.jflow.framework.common.model.TempObject;
 import org.springframework.stereotype.Controller;
@@ -30,112 +32,116 @@ import BP.Sys.UserRegedit;
 @Controller
 @RequestMapping("//WF/Comm")
 public class SelectMValController {
-	
+	/**
+	 * 日志对象
+	 */
+	protected final Log logger = LogFactory.getLog(getClass());
 
 	@RequestMapping(value = "/SelectSave", method = RequestMethod.POST)
 	@ResponseBody
-	public AjaxJson dtlSave(TempObject object, HttpServletRequest request,
-			HttpServletResponse response) {
+	public AjaxJson dtlSave(TempObject object, HttpServletRequest request, HttpServletResponse response) {
 
 		AjaxJson j = new AjaxJson();
-		try{
+		try {
 			String url = request.getQueryString();
 			HashMap<String, String> map = this.getParamsMap(url, "utf-8");
-			
-			//HashMap<String,BaseWebControl> controls = HtmlUtils.httpParser(object.getFormHtml(), request);
-			
+
+			// HashMap<String,BaseWebControl> controls =
+			// HtmlUtils.httpParser(object.getFormHtml(), request);
+
 			UserRegedit ur = new UserRegedit();
 			ur.setMyPK(getMyPK(map));
-	        ur.RetrieveFromDBSources();
-	      	ur.setFK_Emp(WebUser.getNo());
+			ur.RetrieveFromDBSources();
+			ur.setFK_Emp(WebUser.getNo());
 			ur.setCfgKey(map.get("EnsName") + "_SearchAttrs");
-		
+
 			Entity en = ClassFactory.GetEns(map.get("EnsName")).getGetNewEntity();
 			Attr attr = en.getEnMap().GetAttrByKey(map.get("AttrKey"));
 
-            String cfgVal = ur.getMVals();
-            AtPara ap = new AtPara(cfgVal);
-            String old_Val = ap.GetValStrByKey(map.get("AttrKey"));
+			String cfgVal = ur.getMVals();
+			AtPara ap = new AtPara(cfgVal);
+			String old_Val = ap.GetValStrByKey(map.get("AttrKey"));
 
-            String keys = "";
-            if (attr.getIsEnum()){
-                SysEnums ses = new SysEnums(attr.getUIBindKey());
-                for (SysEnum item : SysEnums.convertSysEnums(ses)){
-                	Object obj = request.getParameter("CB_" + item.getIntKey());
-                    if (null == obj)
-                        continue;
-                    if(keys.length()>0){
-                    	 keys += "." + item.getIntKey();
-                    }else{
-                    	keys +=item.getIntKey();
-                    }
-                    //keys += "." + item.getIntKey() + ".";
-                }
+			String keys = "";
+			if (attr.getIsEnum()) {
+				SysEnums ses = new SysEnums(attr.getUIBindKey());
+				for (SysEnum item : SysEnums.convertSysEnums(ses)) {
+					Object obj = request.getParameter("CB_" + item.getIntKey());
+					if (null == obj)
+						continue;
+					if (keys.length() > 0) {
+						keys += "." + item.getIntKey();
+					} else {
+						keys += item.getIntKey();
+					}
+					// keys += "." + item.getIntKey() + ".";
+				}
 
-                keys = "@" + map.get("AttrKey") + "=" + keys;
-                if (ur.getMVals().contains("@" + map.get("AttrKey")))
-                    ur.setMVals(ur.getMVals().replace("@" + map.get("AttrKey") + "=" + old_Val, keys));
-                else
-                    ur.setMVals(ur.getMVals() + keys);
+				keys = "@" + map.get("AttrKey") + "=" + keys;
+				if (ur.getMVals().contains("@" + map.get("AttrKey")))
+					ur.setMVals(ur.getMVals().replace("@" + map.get("AttrKey") + "=" + old_Val, keys));
+				else
+					ur.setMVals(ur.getMVals() + keys);
 
-                ur.DirectUpdate();
-            }else if(attr.getIsBindTable()){
-            	
-          		String sql = "select * from " + attr.getUIBindKey();
-          		DataTable dt = DBAccess.RunSQLReturnTable(sql);
-              	for(DataRow dr : dt.Rows){
-              		Object obj = request.getParameter("CB_" + dr.getValue(attr.getUIRefKeyValue()));
-                    if (null == obj)
-                        continue;
-                    if(keys.length()>0){
-                    	 keys += "." + dr.getValue(attr.getUIRefKeyValue());
-                    }else{
-                    	keys +=dr.getValue(attr.getUIRefKeyValue());
-                    }
-              	}
-              	
-                keys = "@" + map.get("AttrKey") + "=" + keys;
-                if (ur.getMVals().contains("@" + map.get("AttrKey")))
-                    ur.setMVals(ur.getMVals().replace("@" + map.get("AttrKey") + "=" + old_Val, keys));
-                else
-                    ur.setMVals(ur.getMVals() + keys);
+				ur.DirectUpdate();
+			} else if (attr.getIsBindTable()) {
 
-                ur.DirectUpdate();
-            }else{
-                Entities ens = BP.En.ClassFactory.GetEns(attr.getUIBindKey());
-                ens.RetrieveAll();
-                for (Entity item : Entities.convertEntities(ens)){
-                	Object obj = request.getParameter("CB_" + item.GetValStrByKey(attr.getUIRefKeyValue()));
-                	if (null == obj)
-                        continue;
-                	if(keys.length()>0){
-                     	 keys += "." + item.GetValStrByKey(attr.getUIRefKeyValue());
-                    }else{
-                     	keys += item.GetValStrByKey(attr.getUIRefKeyValue());
-                    }
-                    //keys += "." + item.GetValStrByKey(attr.getUIRefKeyValue()) + ".";
-                }
-                
-                keys = "@" + map.get("AttrKey") + "=" + keys;
-                if (ur.getMVals().contains("@" + map.get("AttrKey")))
-                    ur.setMVals(ur.getMVals().replace("@" + map.get("AttrKey") + "=" + old_Val, keys));
-                else
-                    ur.setMVals(ur.getMVals() + keys);
+				String sql = "select * from " + attr.getUIBindKey();
+				DataTable dt = DBAccess.RunSQLReturnTable(sql);
+				for (DataRow dr : dt.Rows) {
+					Object obj = request.getParameter("CB_" + dr.getValue(attr.getUIRefKeyValue()));
+					if (null == obj)
+						continue;
+					if (keys.length() > 0) {
+						keys += "." + dr.getValue(attr.getUIRefKeyValue());
+					} else {
+						keys += dr.getValue(attr.getUIRefKeyValue());
+					}
+				}
 
-                ur.DirectUpdate();
-            }
-            keys = keys.replace("@" + map.get("AttrKey") + "=", "");
+				keys = "@" + map.get("AttrKey") + "=" + keys;
+				if (ur.getMVals().contains("@" + map.get("AttrKey")))
+					ur.setMVals(ur.getMVals().replace("@" + map.get("AttrKey") + "=" + old_Val, keys));
+				else
+					ur.setMVals(ur.getMVals() + keys);
+
+				ur.DirectUpdate();
+			} else {
+				Entities ens = BP.En.ClassFactory.GetEns(attr.getUIBindKey());
+				ens.RetrieveAll();
+				for (Entity item : Entities.convertEntities(ens)) {
+					Object obj = request.getParameter("CB_" + item.GetValStrByKey(attr.getUIRefKeyValue()));
+					if (null == obj)
+						continue;
+					if (keys.length() > 0) {
+						keys += "." + item.GetValStrByKey(attr.getUIRefKeyValue());
+					} else {
+						keys += item.GetValStrByKey(attr.getUIRefKeyValue());
+					}
+					// keys += "." +
+					// item.GetValStrByKey(attr.getUIRefKeyValue()) + ".";
+				}
+
+				keys = "@" + map.get("AttrKey") + "=" + keys;
+				if (ur.getMVals().contains("@" + map.get("AttrKey")))
+					ur.setMVals(ur.getMVals().replace("@" + map.get("AttrKey") + "=" + old_Val, keys));
+				else
+					ur.setMVals(ur.getMVals() + keys);
+
+				ur.DirectUpdate();
+			}
+			keys = keys.replace("@" + map.get("AttrKey") + "=", "");
 			j.setMsg(keys);
-		}catch(Exception e){
-			e.printStackTrace();
+		} catch (Exception e) {
+			logger.info("ERROR", e);
 		}
 		return j;
 	}
 
-	private String getMyPK(HashMap<String, String> map){
-		return WebUser.getNo() + map.get("EnsName") + "_SearchAttrs"; 
+	private String getMyPK(HashMap<String, String> map) {
+		return WebUser.getNo() + map.get("EnsName") + "_SearchAttrs";
 	}
-	
+
 	private HashMap<String, String> getParamsMap(String queryString, String enc) {
 		HashMap<String, String> paramsMap = new HashMap<String, String>();
 		if (queryString != null && queryString.length() > 0) {
@@ -145,8 +151,7 @@ public class SelectMValController {
 			do {
 				ampersandIndex = queryString.indexOf('&', lastAmpersandIndex) + 1;
 				if (ampersandIndex > 0) {
-					subStr = queryString.substring(lastAmpersandIndex,
-							ampersandIndex - 1);
+					subStr = queryString.substring(lastAmpersandIndex, ampersandIndex - 1);
 					lastAmpersandIndex = ampersandIndex;
 				} else {
 					subStr = queryString.substring(lastAmpersandIndex);

@@ -7,9 +7,8 @@ import java.util.Collection;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -29,14 +28,19 @@ import BP.WF.Template.Node;
 import BP.WF.Template.Form.FrmNode;
 import BP.WF.Template.Form.FrmNodes;
 import BP.WF.Template.WorkBase.Work;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 @Controller
 @RequestMapping("/WF/WorkOpt")
 public class GridDataController extends BaseController {
+	/**
+	 * 日志对象
+	 */
+	protected final Log logger = LogFactory.getLog(getClass());
 
 	@RequestMapping(value = "/GridData", method = RequestMethod.GET)
-	public void GridData(HttpServletRequest request,
-			HttpServletResponse response) {
+	public void GridData(HttpServletRequest request, HttpServletResponse response) {
 		String WorkID = String.valueOf(getWorkID());
 		String FK_Flow = getFK_Flow();
 		String FK_Node = String.valueOf(getFK_Node());
@@ -71,7 +75,7 @@ public class GridDataController extends BaseController {
 		try {
 			wirteMsg(response, jsonResult);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 		// context.Response.Clear();
 		// context.Response.ContentType = "text/plain";
@@ -84,9 +88,9 @@ public class GridDataController extends BaseController {
 
 		node = "ND" + node;
 
-		String sql = String
-				.format("select EnPk,ImgPath from Sys_FrmImg where FK_MapData ='%1$s' and ImgPath is not null UNION ALL  select v1.EnPK ,v2.Tag1 as ImgPath  from Sys_FrmImg v1 left join Sys_FrmEleDB v2 on v1.MyPK = v2.RefPKVal  where v1.FK_MapData='%1$s' and EleID='%2$s'",
-						node, workID);
+		String sql = String.format(
+				"select EnPk,ImgPath from Sys_FrmImg where FK_MapData ='%1$s' and ImgPath is not null UNION ALL  select v1.EnPK ,v2.Tag1 as ImgPath  from Sys_FrmImg v1 left join Sys_FrmEleDB v2 on v1.MyPK = v2.RefPKVal  where v1.FK_MapData='%1$s' and EleID='%2$s'",
+				node, workID);
 
 		DataTable table = DBAccess.RunSQLReturnTable(sql);
 
@@ -112,9 +116,9 @@ public class GridDataController extends BaseController {
 
 		ArrayList<PhotoEntity> photoEntities = new ArrayList<PhotoEntity>();
 		for (FrmNode fn : FrmNodes.convertFrmNodes(fns)) {
-			String sql = String
-					.format("select EnPk,ImgPath from Sys_FrmImg where FK_MapData ='%1$s' and ImgPath is not null UNION ALL  select v1.EnPK ,v2.Tag1 as ImgPath  from Sys_FrmImg v1 left join Sys_FrmEleDB v2 on v1.MyPK = v2.RefPKVal  where v1.FK_MapData='%1$s' and EleID='%2$s'",
-							fn.getFK_Frm(), workID);
+			String sql = String.format(
+					"select EnPk,ImgPath from Sys_FrmImg where FK_MapData ='%1$s' and ImgPath is not null UNION ALL  select v1.EnPK ,v2.Tag1 as ImgPath  from Sys_FrmImg v1 left join Sys_FrmEleDB v2 on v1.MyPK = v2.RefPKVal  where v1.FK_MapData='%1$s' and EleID='%2$s'",
+					fn.getFK_Frm(), workID);
 
 			DataTable table = DBAccess.RunSQLReturnTable(sql);
 
@@ -149,8 +153,7 @@ public class GridDataController extends BaseController {
 		return getSerializeObject(list);
 	}
 
-	private String GetDataByType(String fk_flow, String fk_node, String workID,
-			String getType) {
+	private String GetDataByType(String fk_flow, String fk_node, String workID, String getType) {
 		FrmNodes fns = new FrmNodes(fk_flow, Integer.parseInt(fk_node));
 
 		String result = "{";
@@ -163,11 +166,7 @@ public class GridDataController extends BaseController {
 
 						GEDtls ens = new GEDtls(dtl.getNo());
 						ens.Retrieve(GEDtlAttr.RefPK, workID);
-						result += "\""
-								+ dtl.getPTable()
-								+ "\":"
-								+ getSerializeObject(ens
-										.ToDataTableField()) + "}";
+						result += "\"" + dtl.getPTable() + "\":" + getSerializeObject(ens.ToDataTableField()) + "}";
 						break;
 					}
 				}
@@ -293,8 +292,7 @@ public class GridDataController extends BaseController {
 		// }
 	}
 
-	private String GetMainPage(String workID, String flow, String node,
-			String name) {
+	private String GetMainPage(String workID, String flow, String node, String name) {
 		String jsonData = "{";
 
 		Flow myFlow = new Flow(flow);
@@ -326,9 +324,7 @@ public class GridDataController extends BaseController {
 
 			for (Entities singlEntities : al) {
 				if (singlEntities.getGetNewEntity().toString().equals(name)) {
-					jsonData += "\"jsonDtl\":"
-							+ getSerializeObject(singlEntities
-									.ToDataTableField()) + "}";
+					jsonData += "\"jsonDtl\":" + getSerializeObject(singlEntities.ToDataTableField()) + "}";
 					break;
 				}
 			}
@@ -344,7 +340,7 @@ public class GridDataController extends BaseController {
 	public final boolean getIsReusable() {
 		return false;
 	}
-	
+
 	public String getSerializeObject(Object obj) {
 		// 返回結果
 		String jsonStr = null;

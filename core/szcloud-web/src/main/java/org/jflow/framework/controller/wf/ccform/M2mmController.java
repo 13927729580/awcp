@@ -6,6 +6,8 @@ import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jflow.framework.controller.wf.workopt.BaseController;
 import org.jflow.framework.system.ui.core.BaseWebControl;
 import org.jflow.framework.system.ui.core.CheckBox;
@@ -15,20 +17,26 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import TL.ContextHolderUtils;
 import BP.DA.DataRow;
 import BP.DA.DataTable;
 import BP.Sys.Frm.M2M;
 import BP.Sys.Frm.MapM2M;
 import BP.Tools.StringHelper;
+import TL.ContextHolderUtils;
+
 /**
  * 多对多多处理事件
+ * 
  * @author xiaozhoupeng 20150116
  */
 @Controller
 @RequestMapping("/WF/CCForm")
 @Scope("request")
 public class M2mmController extends BaseController {
+	/**
+	 * 日志对象
+	 */
+	protected final Log logger = LogFactory.getLog(getClass());
 
 	public final String getNoOfObj() {
 		if (ContextHolderUtils.getRequest().getParameter("NoOfObj") == null)
@@ -45,11 +53,9 @@ public class M2mmController extends BaseController {
 	}
 
 	@RequestMapping(value = "/M2MMSave", method = RequestMethod.POST)
-	private void execute(HttpServletRequest request,
-			HttpServletResponse response) {
+	private void execute(HttpServletRequest request, HttpServletResponse response) {
 		long OID = Long.parseLong(request.getParameter("OID"));
-		if (OID == 0)
-		{
+		if (OID == 0) {
 			return;
 		}
 
@@ -64,25 +70,22 @@ public class M2mmController extends BaseController {
 		String str = ",";
 		String strT = "";
 		int numOfselected = 0;
-		
+
 		String body = "";
 		try {
 			body = HtmlUtils.getBodyString(request);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
-		HashMap<String,BaseWebControl> ctrlMap = HtmlUtils.httpParser(body, true);
-		
-		for (DataRow dr : dtObj.Rows)
-		{
+		HashMap<String, BaseWebControl> ctrlMap = HtmlUtils.httpParser(body, true);
+
+		for (DataRow dr : dtObj.Rows) {
 			String id = dr.get(0).toString();
 			CheckBox cb = (CheckBox) ctrlMap.get("CB_" + id);
-			if (cb == null)
-			{
+			if (cb == null) {
 				continue;
 			}
-			if (cb.getChecked() == false)
-			{
+			if (cb.getChecked() == false) {
 				continue;
 			}
 			str += id + ",";
@@ -92,7 +95,7 @@ public class M2mmController extends BaseController {
 		m2m.setVals(str);
 		m2m.setValsName(strT);
 		m2m.InitMyPK();
-		m2m.setNumSelected( numOfselected);
+		m2m.setNumSelected(numOfselected);
 		m2m.Save();
 	}
 }

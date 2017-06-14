@@ -18,8 +18,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -87,7 +87,7 @@ public class WorkflowTaskControl extends BaseController {
 	/**
 	 * 日志对象
 	 */
-	private static final Logger logger = LoggerFactory.getLogger(WorkflowTaskControl.class);
+	protected static final Log logger = LogFactory.getLog(WorkflowTaskControl.class);
 	@Autowired
 	@Qualifier("punUserBaseInfoServiceImpl")
 	PunUserBaseInfoService userService;// 用户Service
@@ -160,6 +160,7 @@ public class WorkflowTaskControl extends BaseController {
 	 * 
 	 */
 	@RequestMapping("getUntreatedCount")
+	@ResponseBody
 	public ReturnResult getUntreatedCount(@RequestParam(required = false, value = "FK_Flow") String FK_Flow,
 			@RequestParam(required = false, value = "workItemName") String workItemName) throws IOException {
 		ReturnResult result = ReturnResult.get();
@@ -261,7 +262,7 @@ public class WorkflowTaskControl extends BaseController {
 						TB_Note);
 			}
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			logger.info("ERROR", ex);
 			message = ex.getMessage();
 		}
 		map.put("message", message);
@@ -536,13 +537,8 @@ public class WorkflowTaskControl extends BaseController {
 			case 2024:// 加签
 				// 根据选中的人员ID，组装信息
 				if (paras != null && !paras.equals("")) {
-					String users = getToUsers(request, paras);
-					if (users.contains(",")) {
-						resultMap.put("message", "只能转发一个对象!");
-					} else {
-						JFlowAdapter.Node_AskFor(masterDataSource, utils, user, resultMap, docVo, flowTempleteId,
-								workItemId, entryId, users);
-					}
+					JFlowAdapter.Node_AskFor(masterDataSource, utils, user, resultMap, docVo, flowTempleteId,
+							workItemId, entryId, getToUsers(request, paras));
 				}
 				break;
 			case 2025:// 已阅
@@ -566,13 +562,13 @@ public class WorkflowTaskControl extends BaseController {
 			jdbcTemplate1.commit();
 			return resultMap;
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			// arg0.setRollbackOnly();
 			try {
 				jdbcTemplate1.rollback();
 			} catch (Exception e1) {
 				// Auto-generated catch block
-				e1.printStackTrace();
+				logger.info("ERROR", e1);
 			}
 			resultMap.put("success", false);
 			if (e.getMessage() != null)
@@ -1034,7 +1030,7 @@ public class WorkflowTaskControl extends BaseController {
 			root.put("IsRead", isRead);
 			return FreeMarkers.renderString(templateString, root);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			return "<html>" + e.getMessage() + "</html>";
 		} finally {
 			templateString = null;
@@ -1369,11 +1365,11 @@ public class WorkflowTaskControl extends BaseController {
 			JFlowAdapter.Flow_DoUnSend(resultMap, flowTempleteId, workItemId);
 			jdbcTemplate1.commit();
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			try {
 				jdbcTemplate1.rollback();
 			} catch (Exception e1) {
-				e1.printStackTrace();
+				logger.info("ERROR", e1);
 			}
 			resultMap.put("success", false);
 			if (e.getMessage() != null)

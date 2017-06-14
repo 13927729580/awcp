@@ -189,10 +189,52 @@
 		});
 	}) 
 	
-    /*
-     
-     * 消息查询
-     * */
+      //消息查询
+     msgQuery = {
+ 			//默认值
+ 			url: baseUrl+"workflow/wf/getUntreatedCount.do",
+ 			time: 100,
+ 			msgNum:'',
+ 			options: function(url,time) {
+ 				if(url){
+ 					this.url = url;
+ 				}
+ 				if(time){
+ 					this.time = time*1000;
+ 				}
+ 			},
+ 			run: function() {
+ 				var _this = this;
+ 				var timer = setTimeout(function() {
+ 					$.ajax({
+ 						url: _this.url,
+ 						success: function(res, state) {
+ 							var isIndex = window.frames['main'].document.getElementById("index_index_index")		
+ 							
+ 							if(Number(res.data) > 1) {
+ 								if(_this.msgNum == ''){
+ 									_this.msgNum = res.data;
+ 								}
+ 								if(_this.msgNum != '' && _this.msgNum !=res.data){
+ 									_this.msgNum = res.data;
+ 									if( isIndex != null){
+ 										document.getElementById("main").contentWindow.location.reload();
+ 									}
+ 								}
+ 								$('.msgNum').html(_this.msgNum).css('display', 'inline-block');
+ 								console.log($('.msgNum'));
+ 							} else {
+ 								$('.msgNum').css('display', 'none');
+ 							}
+ 							_this.run();
+ 						}
+ 					});
+ 				},(_this.time))
+ 			}
+ 		}
+     	msgQuery.run();
+     	msgQuery.options('',60);
+     	//个人信息
     	$('#allchecker').bind("click",function() {
 						var content = '<div class="form-horizontal">'
 								+ '<div class="form-group">'

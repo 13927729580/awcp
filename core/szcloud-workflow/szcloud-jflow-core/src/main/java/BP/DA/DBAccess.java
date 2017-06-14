@@ -1994,7 +1994,6 @@ public class DBAccess {
 		default:
 			throw new RuntimeException("@没有判断的数据库类型");
 		}
-		System.err.println(sql);
 		if (dt.Rows.size() == 0) {
 
 			String cols = "";

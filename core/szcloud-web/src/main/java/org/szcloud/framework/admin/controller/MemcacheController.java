@@ -38,7 +38,7 @@ public class MemcacheController extends BaseController {
 			mc.flush();			
 		} catch (IOException e) {
 			msg = "清理失败！";
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		} finally {
 			if( mc != null) {
 				mc.shutdown();				

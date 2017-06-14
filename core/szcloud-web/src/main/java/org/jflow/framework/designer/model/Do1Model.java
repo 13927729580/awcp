@@ -8,8 +8,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.jflow.framework.common.model.BaseModel;
 import org.jflow.framework.system.ui.core.DDL;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import BP.DA.DataSet;
 import BP.DA.DataType;
@@ -41,7 +41,7 @@ public class Do1Model extends BaseModel {
 	/**
 	 * 日志对象
 	 */
-	private static final Logger logger = LoggerFactory.getLogger(Do1Model.class);
+	private static final Log logger = LogFactory.getLog(Do1Model.class);
 	private HttpServletRequest request;
 	private HttpServletResponse response;
 	public StringBuilder Pub1 = new StringBuilder();
@@ -82,7 +82,7 @@ public class Do1Model extends BaseModel {
 				try {
 					response.sendRedirect("../../Temp/" + getFK_MapData() + ".xml");
 				} catch (IOException e) {
-					e.printStackTrace();
+					logger.info("ERROR", e);
 				}
 				WinClose();
 				return;
@@ -123,7 +123,7 @@ public class Do1Model extends BaseModel {
 						response.sendRedirect(
 								"EditEnum.jsp?MyPK=" + mattr.getFK_MapData() + "&RefNo=" + mattr.getMyPK());
 					} catch (IOException e) {
-						e.printStackTrace();
+						logger.info("ERROR", e);
 					}
 					return;
 				case Normal:
@@ -131,7 +131,7 @@ public class Do1Model extends BaseModel {
 						response.sendRedirect("EditF.jsp?DoType=Edit&MyPK=" + mattr.getFK_MapData() + "&RefNo="
 								+ mattr.getMyPK() + "&FType=" + mattr.getMyDataType() + "&GroupField=0");
 					} catch (IOException e) {
-						e.printStackTrace();
+						logger.info("ERROR", e);
 					}
 					return;
 				case FK:
@@ -139,7 +139,7 @@ public class Do1Model extends BaseModel {
 						response.sendRedirect("EditTable.jsp?DoType=Edit&MyPK=" + mattr.getFK_MapData() + "&RefNo="
 								+ mattr.getMyPK() + "&FType=" + mattr.getMyDataType() + "&GroupField=0");
 					} catch (IOException e) {
-						e.printStackTrace();
+						logger.info("ERROR", e);
 					}
 					return;
 				default:
@@ -152,21 +152,21 @@ public class Do1Model extends BaseModel {
 					try {
 						response.sendRedirect("EditF.jsp?RefNo=" + getRefNo());
 					} catch (IOException e) {
-						e.printStackTrace();
+						logger.info("ERROR", e);
 					}
 					return;
 				case FK:
 					try {
 						response.sendRedirect("EditTable.jsp?RefNo=" + getRefNo());
 					} catch (IOException e) {
-						e.printStackTrace();
+						logger.info("ERROR", e);
 					}
 					return;
 				case Enum:
 					try {
 						response.sendRedirect("EditEnum.jsp?RefNo=" + getRefNo());
 					} catch (IOException e) {
-						e.printStackTrace();
+						logger.info("ERROR", e);
 					}
 					return;
 				default:
@@ -202,7 +202,7 @@ public class Do1Model extends BaseModel {
 					response.sendRedirect("EditEnum.jsp?MyPK=" + getMyPK() + "&RefNo=" + attrAdd.getMyPK());
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.info("ERROR", e);
 				}
 				WinClose();
 				return;
@@ -224,7 +224,7 @@ public class Do1Model extends BaseModel {
 					response.sendRedirect("EditTable.jsp?MyPK=" + getMyPK() + "&SFKey=" + sf.getNo());
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.info("ERROR", e);
 				}
 				WinClose();
 				return;

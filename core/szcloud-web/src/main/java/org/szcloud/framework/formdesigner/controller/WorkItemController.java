@@ -43,7 +43,7 @@ public class WorkItemController extends BaseController {
 			mv.addObject("workItemEntrylist", workItemEntrylist);
 			return workItemEntrylist;
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			return null;
 		}
 	}

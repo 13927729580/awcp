@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
  *
  */
 public class XssFilter implements Filter {
+
 	private String[] legalNames; // 合法参数名
 	private String[] excludeUrls; // 排除的Url
 	private String[] illegalChars; // 非法字符
@@ -49,6 +50,7 @@ public class XssFilter implements Filter {
 		HttpServletResponse res = (HttpServletResponse) response;
 
 		String tempURL = req.getRequestURI();
+
 		for (String url : excludeUrls) {
 			// 判断是否属于不需判断URL
 			if (tempURL.contains(url)) {
@@ -56,6 +58,7 @@ public class XssFilter implements Filter {
 				return;
 			}
 		}
+
 		Enumeration<String> params = req.getParameterNames();
 
 		// 是否执行过滤 true：执行过滤 false：不执行过滤
@@ -97,6 +100,8 @@ public class XssFilter implements Filter {
 
 						if (paramValue.indexOf(illegalChar) != -1) {
 							illegalStatus = true;// 非法状态
+							System.out.println(
+									"当前连接请求【" + tempURL + "】中[" + paramName + "]参数值[" + paramValue + "]，存在非法字符。");
 							break f2;
 						}
 					}
@@ -110,16 +115,6 @@ public class XssFilter implements Filter {
 
 			if (illegalStatus) {
 				break w;
-			}
-		}
-		// 对URL进行判断
-		for (int j = 0; j < illegalChars.length; j++) {
-
-			illegalChar = illegalChars[j];
-
-			if (tempURL.indexOf(illegalChar) != -1) {
-				illegalStatus = true;// 非法状态
-				break;
 			}
 		}
 		if (illegalStatus) {

@@ -23,8 +23,8 @@ import org.htmlparser.tags.TextareaTag;
 import org.htmlparser.util.NodeIterator;
 import org.htmlparser.util.NodeList;
 import org.htmlparser.util.ParserException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import BP.Tools.StringHelper;
 import TL.ContextHolderUtils;
@@ -33,7 +33,7 @@ public class HtmlUtils {
 	/**
 	 * 日志对象
 	 */
-	private static final Logger logger = LoggerFactory.getLogger(HtmlUtils.class);
+	private static final Log logger = LogFactory.getLog(HtmlUtils.class);
 	public static HashMap<String, ArrayList<String>> radioGroupMap;
 
 	public static boolean hasNode(Node aNode) {
@@ -143,7 +143,7 @@ public class HtmlUtils {
 			Parser myParser = Parser.createParser(control.toString(), "UTF-8");
 			nodeList = myParser.parse(lastFilter);
 		} catch (ParserException e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 
 		Node[] nodes = nodeList.toNodeArray();
@@ -211,7 +211,7 @@ public class HtmlUtils {
 			}
 			return htmlBuffer.toString();
 		} catch (ParserException e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 
 		return content;
@@ -424,7 +424,7 @@ public class HtmlUtils {
 				htmlBuffer.append(node.toHtml());
 			}
 		} catch (ParserException e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 		return htmlBuffer.toString();
 
@@ -462,7 +462,7 @@ public class HtmlUtils {
 			nodeList = myParser.parse(lastFilter);
 			myParser.elements();
 		} catch (ParserException e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 
 		Node[] nodes = nodeList.toNodeArray();

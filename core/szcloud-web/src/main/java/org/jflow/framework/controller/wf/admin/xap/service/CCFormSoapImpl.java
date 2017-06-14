@@ -3,8 +3,8 @@ package org.jflow.framework.controller.wf.admin.xap.service;
 import java.io.File;
 import java.io.FileOutputStream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import BP.DA.AtPara;
 import BP.DA.DBAccess;
@@ -54,7 +54,7 @@ public class CCFormSoapImpl implements CCFormSoap {
 	/**
 	 * 日志对象
 	 */
-	private static final Logger logger = LoggerFactory.getLogger(CCFormSoapImpl.class);
+	private static final Log logger = LogFactory.getLog(CCFormSoapImpl.class);
 
 	/// <summary>
 	/// 获取值
@@ -1128,7 +1128,7 @@ public class CCFormSoapImpl implements CCFormSoap {
 			// string xml = Silverlight.DataSetConnector.Connector.ToXml(ds);
 			return json;
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			logger.info("ERROR", ex);
 			return ex.getMessage();
 		}
 	}
@@ -1181,7 +1181,7 @@ public class CCFormSoapImpl implements CCFormSoap {
 					BP.DA.DBAccess.RunSQL("UPDATE WF_Node SET FWCType=1 WHERE FWCType =0 AND NodeID=" + nodeid);
 				}
 			} catch (Exception ex) {
-				ex.printStackTrace();
+				logger.info("ERROR", ex);
 				str += "@保存" + dt.TableName + "失败:" + ex.getMessage();
 			}
 		}

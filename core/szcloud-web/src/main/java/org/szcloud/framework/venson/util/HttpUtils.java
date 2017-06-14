@@ -6,6 +6,9 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * 用于模拟HTTP请求中GET/POST方式
  * 
@@ -13,6 +16,11 @@ import java.util.Map;
  *
  */
 public class HttpUtils {
+	/**
+	 * 日志对象
+	 */
+	protected static final Log logger = LogFactory.getLog(HttpUtils.class);
+
 	/**
 	 * 发送GET请求
 	 * 
@@ -61,14 +69,14 @@ public class HttpUtils {
 				result += line;
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		} finally {
 			try {
 				if (in != null) {
 					in.close();
 				}
-			} catch (IOException ex) {
-				ex.printStackTrace();
+			} catch (IOException e) {
+				logger.info("ERROR", e);
 			}
 		}
 		return result;
@@ -129,7 +137,7 @@ public class HttpUtils {
 				result += line;
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		} finally {
 			try {
 				if (out != null) {
@@ -139,7 +147,7 @@ public class HttpUtils {
 					in.close();
 				}
 			} catch (IOException ex) {
-				ex.printStackTrace();
+				logger.info("ERROR", ex);
 			}
 		}
 		return result;

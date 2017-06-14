@@ -25,8 +25,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
@@ -70,7 +70,7 @@ public class LayoutController extends BaseController {
 	/**
 	 * 日志对象
 	 */
-	private static final Logger logger = LoggerFactory.getLogger(LayoutController.class);
+	private static final Log logger = LogFactory.getLog(LayoutController.class);
 	@Autowired
 	@Qualifier("storeServiceImpl")
 	private StoreService storeService;
@@ -764,7 +764,7 @@ public class LayoutController extends BaseController {
 			exportByExcel(excelFile.getInputStream(), dynamicPageId);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 		// ModelAndView mv = new ModelAndView();
 		//
@@ -801,13 +801,13 @@ public class LayoutController extends BaseController {
 
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		} catch (BiffException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 
 		return null;
@@ -1215,7 +1215,7 @@ public class LayoutController extends BaseController {
 			bos.flush();
 			bos.close();
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 
 		return null;
@@ -1460,7 +1460,7 @@ public class LayoutController extends BaseController {
 			dataCode = java.net.URLDecoder.decode(dataCode, "UTF-8");
 			// cname = new String(cname.getBytes("ISO8859-1"),"UTF-8");
 		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 		logger.debug("cname:" + cname + ", dataCode:" + dataCode);
 

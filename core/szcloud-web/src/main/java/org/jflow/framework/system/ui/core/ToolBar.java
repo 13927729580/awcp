@@ -6,8 +6,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.jflow.framework.system.ui.UiFatory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import BP.DA.AtPara;
 import BP.DA.DBAccess;
@@ -50,7 +50,7 @@ public class ToolBar extends PageBase {
 	/**
 	 * 日志对象
 	 */
-	private static final Logger logger = LoggerFactory.getLogger(ToolBar.class);
+	private static final Log logger = LogFactory.getLog(ToolBar.class);
 	private boolean isVisible = true;
 	public String EnsName;
 	public boolean _AddSearchBtn = true;
@@ -292,7 +292,7 @@ public class ToolBar extends PageBase {
 						date = DateUtils.format(dt, DataType.getSysDataFormat());
 					}
 				} catch (Exception e) {
-					e.printStackTrace();
+					logger.info("ERROR", e);
 				}
 
 				qo.AddWhere(attr.getRefAttrKey(), opkey, date);
@@ -650,7 +650,7 @@ public class ToolBar extends PageBase {
 						Attr attr = map.GetAttrByKey(vals[0].replace("DDL_", ""));
 						ddl.SetSelectItem(vals[1], attr);
 					} catch (Exception e) {
-						e.printStackTrace();
+						logger.info("ERROR", e);
 					}
 				}
 			}
@@ -1160,7 +1160,7 @@ public class ToolBar extends PageBase {
 			try {
 				throw new Exception("@没有定义ToolBarBtn 标记 " + id);
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.info("ERROR", e);
 			}
 		}
 		return text;

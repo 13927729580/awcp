@@ -5,6 +5,8 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jflow.framework.controller.wf.workopt.BaseController;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
@@ -28,49 +30,46 @@ import BP.Tools.StringHelper;
 @Controller
 @RequestMapping("/WF/CCForm")
 @Scope("request")
-public class HanderMapExtController extends BaseController{
+public class HanderMapExtController extends BaseController {
+	/**
+	 * 日志对象
+	 */
+	protected final Log logger = LogFactory.getLog(getClass());
 	private String no;
 	private String name;
 	private String fk_dept;
 	private String oid;
 	private String kvs;
 	private String dealSQL;
-	
-	public final String DealSQL(String sql, String key)
-	{
+
+	public final String DealSQL(String sql, String key) {
 		sql = sql.replace("@Key", key);
 		sql = sql.replace("@key", key);
 		sql = sql.replace("@Val", key);
 		sql = sql.replace("@val", key);
 
-		//sql = sql.Replace("@WebUser.No", no);
-		//sql = sql.Replace("@WebUser.Name", name);
-		//sql = sql.Replace("@WebUser.FK_Dept", fk_dept);
+		// sql = sql.Replace("@WebUser.No", no);
+		// sql = sql.Replace("@WebUser.Name", name);
+		// sql = sql.Replace("@WebUser.FK_Dept", fk_dept);
 
 		sql = sql.replace("@WebUser.No", WebUser.getNo());
 		sql = sql.replace("@WebUser.Name", WebUser.getName());
 		sql = sql.replace("@WebUser.FK_Dept", WebUser.getFK_Dept());
-		if (oid != null)
-		{
+		if (oid != null) {
 			sql = sql.replace("@OID", oid);
 		}
 
-		if (StringHelper.isNullOrEmpty(kvs) == false && sql.contains("@")==true)
-		{
+		if (StringHelper.isNullOrEmpty(kvs) == false && sql.contains("@") == true) {
 			String[] strs = kvs.split("[~]", -1);
-			for (String s : strs)
-			{
-				if (StringHelper.isNullOrEmpty(s) || s.contains("=") == false)
-				{
+			for (String s : strs) {
+				if (StringHelper.isNullOrEmpty(s) || s.contains("=") == false) {
 					continue;
 				}
-
 
 				String[] mykv = s.split("[=]", -1);
 				sql = sql.replace("@" + mykv[0], mykv[1]);
 
-				if (sql.contains("@") == false)
-				{
+				if (sql.contains("@") == false) {
 					break;
 				}
 			}
@@ -78,52 +77,52 @@ public class HanderMapExtController extends BaseController{
 		dealSQL = sql;
 		return sql;
 	}
+
 	@RequestMapping(value = "/HanderMapExt", method = RequestMethod.GET)
-	public final void HanderMapExt(HttpServletRequest request, HttpServletResponse response)
-	{
+	public final void HanderMapExt(HttpServletRequest request, HttpServletResponse response) {
 		ProcessRequest(request, response);
 	}
-	public final void ProcessRequest(HttpServletRequest request, HttpServletResponse response)
-	{
+
+	public final void ProcessRequest(HttpServletRequest request, HttpServletResponse response) {
 		String fk_mapExt = request.getParameter("FK_MapExt");
-		if (StringHelper.isNullOrEmpty(request.getParameter("Key")))
-		{
+		if (StringHelper.isNullOrEmpty(request.getParameter("Key"))) {
 			return;
 		}
-		no=request.getParameter("WebUserNo");
+		no = request.getParameter("WebUserNo");
 		name = request.getParameter("WebUserName");
-		fk_dept = request.getParameter("WebUserFK_Dept"); 
+		fk_dept = request.getParameter("WebUserFK_Dept");
 		oid = request.getParameter("OID");
 		kvs = request.getParameter("KVs");
-				
+
 		MapExt me = new MapExt(fk_mapExt);
 		DataTable dt = null;
 		String sql = "";
-		String key= request.getParameter("Key");
-		// key = System.Web.HttpUtility.UrlDecode(key, System.Text.Encoding.GetEncoding("GB2312"));
+		String key = request.getParameter("Key");
+		// key = System.Web.HttpUtility.UrlDecode(key,
+		// System.Text.Encoding.GetEncoding("GB2312"));
 		key = key.trim();
-	    // key = "周";
-		
+		// key = "周";
+
 		// 动态填充ddl。
-		if(me.getExtType().equals(MapExtXmlList.ActiveDDL)){
+		if (me.getExtType().equals(MapExtXmlList.ActiveDDL)) {
 			sql = this.DealSQL(me.getDocOfSQLDeal(), key);
 			dt = BP.DA.DBAccess.RunSQLReturnTable(sql);
 			try {
-				if(dt.Rows.size()>0){
+				if (dt.Rows.size() > 0) {
 					wirteMsg(response, JSONTODT(dt));
-				}else{
+				} else {
 					wirteMsg(response, "{ \"Head\":[]}");
 				}
 			} catch (IOException e) {
-				e.printStackTrace();
+				logger.info("ERROR", e);
 			}
-			
-		// 自动完成，级连ddl.
-		}else if(me.getExtType().equals(MapExtXmlList.TBFullCtrl) || 
-				 me.getExtType().equals(MapExtXmlList.DDLFullCtrl)){
-			
+
+			// 自动完成，级连ddl.
+		} else if (me.getExtType().equals(MapExtXmlList.TBFullCtrl)
+				|| me.getExtType().equals(MapExtXmlList.DDLFullCtrl)) {
+
 			String doType = StringHelper.isEmpty(request.getParameter("DoType"), "");
-			if (doType.equals("ReqCtrl")){
+			if (doType.equals("ReqCtrl")) {
 				// 获取填充 ctrl 值的信息.
 				sql = this.DealSQL(me.getDocOfSQLDeal(), key);
 				request.getSession().setAttribute("DtlKey", key);
@@ -131,19 +130,18 @@ public class HanderMapExtController extends BaseController{
 				try {
 					wirteMsg(response, JSONTODT(dt));
 				} catch (IOException e) {
-					e.printStackTrace();
+					logger.info("ERROR", e);
 				}
-				
+
 			} else if (doType.equals("ReqM2MFullList")) {
-				
-				// 获取填充的M2m集合. 
+
+				// 获取填充的M2m集合.
 				DataTable dtM2M = new DataTable("Head");
 				dtM2M.Columns.Add("Dtl", String.class);
 				String[] strsM2M = me.getTag2().split("[$]", -1);
 				for (String str : strsM2M) {
-					
-					if (str.equals("") || str == null)
-					{
+
+					if (str.equals("") || str == null) {
 						continue;
 					}
 
@@ -159,8 +157,7 @@ public class HanderMapExtController extends BaseController{
 					m2mData.setM2MNo(noOfObj);
 					String mystr = ",";
 					String mystrT = "";
-					for (DataRow dr : dtFull.Rows)
-					{
+					for (DataRow dr : dtFull.Rows) {
 						String myno = dr.get("No").toString();
 						String myname = dr.get("Name").toString();
 						mystr += myno + ",";
@@ -179,174 +176,152 @@ public class HanderMapExtController extends BaseController{
 				try {
 					wirteMsg(response, JSONTODT(dtM2M));
 				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				
-		}else if (doType.equals("ReqDtlFullList")) {
-			// 获取填充的从表集合. 
-			DataTable dtDtl = new DataTable("Head");
-			dtDtl.Columns.Add("Dtl", String.class);
-			String[] strsDtl = me.getTag1().split("[$]", -1);
-			for (String str : strsDtl)
-			{
-				if (StringHelper.isNullOrEmpty(str))
-				{
-					continue;
+					logger.info("ERROR", e);
 				}
 
-				String[] ss = str.split("[:]", -1);
-				String fk_dtl = ss[0];
-				Object dtlKeyObj = request.getSession().getAttribute("DtlKey");
-				String dtlKey= (String)((dtlKeyObj instanceof String) ? dtlKeyObj : null);
-				if (dtlKey == null)
-				{
-					dtlKey = key;
-				}
-				String mysql = DealSQL(ss[1], dtlKey);
-
-				GEDtls dtls = new GEDtls(fk_dtl);
-				MapDtl dtl = new MapDtl(fk_dtl);
-
-				DataTable dtDtlFull = DBAccess.RunSQLReturnTable(mysql);
-				BP.DA.DBAccess.RunSQL("DELETE FROM " + dtl.getPTable() + " WHERE RefPK=" + oid);
-				for (DataRow dr : dtDtlFull.Rows)
-				{
-					BP.Sys.GEDtl mydtl = new GEDtl(fk_dtl);
-				  //  mydtl.OID = dtls.Count + 1;
-					dtls.AddEntity(mydtl);
-					for (DataColumn dc : dtDtlFull.Columns)
-					{
-						mydtl.SetValByKey(dc.ColumnName, dr.get(dc.ColumnName).toString());
+			} else if (doType.equals("ReqDtlFullList")) {
+				// 获取填充的从表集合.
+				DataTable dtDtl = new DataTable("Head");
+				dtDtl.Columns.Add("Dtl", String.class);
+				String[] strsDtl = me.getTag1().split("[$]", -1);
+				for (String str : strsDtl) {
+					if (StringHelper.isNullOrEmpty(str)) {
+						continue;
 					}
-					mydtl.setRefPKInt(Integer.parseInt(oid));
-					if (mydtl.getOID() > 100)
-					{
-						try {
-							mydtl.InsertAsOID(mydtl.getOID());
-						} catch (Exception e) {
-							e.printStackTrace();
+
+					String[] ss = str.split("[:]", -1);
+					String fk_dtl = ss[0];
+					Object dtlKeyObj = request.getSession().getAttribute("DtlKey");
+					String dtlKey = (String) ((dtlKeyObj instanceof String) ? dtlKeyObj : null);
+					if (dtlKey == null) {
+						dtlKey = key;
+					}
+					String mysql = DealSQL(ss[1], dtlKey);
+
+					GEDtls dtls = new GEDtls(fk_dtl);
+					MapDtl dtl = new MapDtl(fk_dtl);
+
+					DataTable dtDtlFull = DBAccess.RunSQLReturnTable(mysql);
+					BP.DA.DBAccess.RunSQL("DELETE FROM " + dtl.getPTable() + " WHERE RefPK=" + oid);
+					for (DataRow dr : dtDtlFull.Rows) {
+						BP.Sys.GEDtl mydtl = new GEDtl(fk_dtl);
+						// mydtl.OID = dtls.Count + 1;
+						dtls.AddEntity(mydtl);
+						for (DataColumn dc : dtDtlFull.Columns) {
+							mydtl.SetValByKey(dc.ColumnName, dr.get(dc.ColumnName).toString());
 						}
-					}
-					else
-					{
-						mydtl.setOID(0);
-						mydtl.Insert();
-					}
-
-				}
-				DataRow drRe = dtDtl.NewRow();
-				drRe.setValue(0, fk_dtl);;
-				dtDtl.Rows.add(drRe);
-			}
-			try {
-				wirteMsg(response, JSONTODT(dtDtl));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		} else if (doType.equals("ReqDDLFullList")) {
-					// 获取要个性化填充的下拉框. 
-					DataTable dt1 = new DataTable("Head");
-					dt1.Columns.Add("DDL", String.class);
-					//    dt1.Columns.Add("SQL", typeof(string));
-					String[] strs = me.getTag().split("[$]", -1);
-					for (String str : strs)
-					{
-						if (str.equals("") || str == null)
-						{
-							continue;
-						}
-
-						String[] ss = str.split("[:]", -1);
-						DataRow dr = dt1.NewRow();
-						dr.setValue(0, ss[0]);
-						// dr[1] = ss[1];
-						dt1.Rows.add(dr);
-					}
-					try {
-						wirteMsg(response, JSONTODT(dt1));
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				} else if (doType.equals("ReqDDLFullListDB")) {
-						// 获取要个性化填充的下拉框的值. 根据已经传递过来的 ddl id. 
-						String myDDL = request.getParameter("MyDDL");
-						sql = "";
-						String[] strs1 = me.getTag().split("[$]", -1);
-						for (String str : strs1)
-						{
-							if (str.equals("") || str == null)
-							{
-								continue;
+						mydtl.setRefPKInt(Integer.parseInt(oid));
+						if (mydtl.getOID() > 100) {
+							try {
+								mydtl.InsertAsOID(mydtl.getOID());
+							} catch (Exception e) {
+								logger.info("ERROR", e);
 							}
+						} else {
+							mydtl.setOID(0);
+							mydtl.Insert();
+						}
 
-							String[] ss = str.split("[:]", -1);
-							if (myDDL.equals(ss[0]))
-							{
-								sql = ss[1];
-								sql = this.DealSQL(sql, key);
-								break;
-							}
-						}
-						dt = BP.DA.DBAccess.RunSQLReturnTable(sql);
-						try {
-							wirteMsg(response, JSONTODT(dt));
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-				} else {
-						sql = this.DealSQL(me.getDocOfSQLDeal(), key);
-						//sql = this.DealSQL(me.DocOfSQLDeal, key);
-						dt = BP.DA.DBAccess.RunSQLReturnTable(sql);
-						try {
-							wirteMsg(response, JSONTODT(dt));
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
+					}
+					DataRow drRe = dtDtl.NewRow();
+					drRe.setValue(0, fk_dtl);
+					;
+					dtDtl.Rows.add(drRe);
 				}
-				return;
+				try {
+					wirteMsg(response, JSONTODT(dtDtl));
+				} catch (IOException e) {
+					logger.info("ERROR", e);
+				}
+			} else if (doType.equals("ReqDDLFullList")) {
+				// 获取要个性化填充的下拉框.
+				DataTable dt1 = new DataTable("Head");
+				dt1.Columns.Add("DDL", String.class);
+				// dt1.Columns.Add("SQL", typeof(string));
+				String[] strs = me.getTag().split("[$]", -1);
+				for (String str : strs) {
+					if (str.equals("") || str == null) {
+						continue;
+					}
+
+					String[] ss = str.split("[:]", -1);
+					DataRow dr = dt1.NewRow();
+					dr.setValue(0, ss[0]);
+					// dr[1] = ss[1];
+					dt1.Rows.add(dr);
+				}
+				try {
+					wirteMsg(response, JSONTODT(dt1));
+				} catch (IOException e) {
+					logger.info("ERROR", e);
+				}
+			} else if (doType.equals("ReqDDLFullListDB")) {
+				// 获取要个性化填充的下拉框的值. 根据已经传递过来的 ddl id.
+				String myDDL = request.getParameter("MyDDL");
+				sql = "";
+				String[] strs1 = me.getTag().split("[$]", -1);
+				for (String str : strs1) {
+					if (str.equals("") || str == null) {
+						continue;
+					}
+
+					String[] ss = str.split("[:]", -1);
+					if (myDDL.equals(ss[0])) {
+						sql = ss[1];
+						sql = this.DealSQL(sql, key);
+						break;
+					}
+				}
+				dt = BP.DA.DBAccess.RunSQLReturnTable(sql);
+				try {
+					wirteMsg(response, JSONTODT(dt));
+				} catch (IOException e) {
+					logger.info("ERROR", e);
+				}
+			} else {
+				sql = this.DealSQL(me.getDocOfSQLDeal(), key);
+				// sql = this.DealSQL(me.DocOfSQLDeal, key);
+				dt = BP.DA.DBAccess.RunSQLReturnTable(sql);
+				try {
+					wirteMsg(response, JSONTODT(dt));
+				} catch (IOException e) {
+					logger.info("ERROR", e);
+				}
+			}
+			return;
 		}
 	}
-	public final boolean getIsReusable()
-	{
+
+	public final boolean getIsReusable() {
 		return false;
 	}
-	public final String JSONTODT(DataTable dt)
-	{
+
+	public final String JSONTODT(DataTable dt) {
 		DBType dtType = BP.Sys.SystemConfig.getAppCenterDBType();
-		if (( dtType== DBType.Informix || dtType == DBType.Oracle) && dealSQL!=null)
-		{
-			//如果数据库不区分大小写, 就要按用户输入的sql进行二次处理。
+		if ((dtType == DBType.Informix || dtType == DBType.Oracle) && dealSQL != null) {
+			// 如果数据库不区分大小写, 就要按用户输入的sql进行二次处理。
 			String mysql = dealSQL.trim();
 			mysql = mysql.substring(6, mysql.toLowerCase().indexOf("from"));
-			mysql=mysql.replace(",", " ");
-			String[] strs=mysql.split("[ ]", -1);
-			for (String s : strs)
-			{
-				if (StringHelper.isNullOrEmpty(s))
-				{
+			mysql = mysql.replace(",", " ");
+			String[] strs = mysql.split("[ ]", -1);
+			for (String s : strs) {
+				if (StringHelper.isNullOrEmpty(s)) {
 					continue;
 				}
-				for (DataColumn dc : dt.Columns)
-				{
-					if (dc.ColumnName.toLowerCase().equals(s.toLowerCase()))
-					{
+				for (DataColumn dc : dt.Columns) {
+					if (dc.ColumnName.toLowerCase().equals(s.toLowerCase())) {
 						dc.ColumnName = s;
 						break;
 					}
 				}
 			}
-		}
-		else
-		{
-			for (DataColumn dc : dt.Columns)
-			{
-				if (dc.ColumnName.toLowerCase().equals("no"))
-				{
+		} else {
+			for (DataColumn dc : dt.Columns) {
+				if (dc.ColumnName.toLowerCase().equals("no")) {
 					dc.ColumnName = "No";
 					continue;
 				}
-				if (dc.ColumnName.toLowerCase().equals("name"))
-				{
+				if (dc.ColumnName.toLowerCase().equals("name")) {
 					dc.ColumnName = "Name";
 					continue;
 				}
@@ -354,42 +329,32 @@ public class HanderMapExtController extends BaseController{
 		}
 
 		StringBuilder JsonString = new StringBuilder();
-		if (dt != null && dt.Rows.size() > 0)
-		{
+		if (dt != null && dt.Rows.size() > 0) {
 			JsonString.append("{ ");
 			JsonString.append("\"Head\":[ ");
-			for (int i = 0; i < dt.Rows.size(); i++)
-			{
+			for (int i = 0; i < dt.Rows.size(); i++) {
 				JsonString.append("{ ");
-				for (int j = 0; j < dt.Columns.size(); j++)
-				{
-					if (j < dt.Columns.size() - 1)
-					{
-						JsonString.append("\"" + dt.Columns.get(j).ColumnName.toString() + "\":\"" + dt.Rows.get(i).getValue(j).toString() + "\",");
-					}
-					else if (j == dt.Columns.size() - 1)
-					{
-						JsonString.append("\"" + dt.Columns.get(j).ColumnName.toString() + "\":\"" + dt.Rows.get(i).getValue(j).toString() + "\"");
+				for (int j = 0; j < dt.Columns.size(); j++) {
+					if (j < dt.Columns.size() - 1) {
+						JsonString.append("\"" + dt.Columns.get(j).ColumnName.toString() + "\":\""
+								+ dt.Rows.get(i).getValue(j).toString() + "\",");
+					} else if (j == dt.Columns.size() - 1) {
+						JsonString.append("\"" + dt.Columns.get(j).ColumnName.toString() + "\":\""
+								+ dt.Rows.get(i).getValue(j).toString() + "\"");
 					}
 				}
 				//
-				//end Of String
-				if (i == dt.Rows.size() - 1)
-				{
+				// end Of String
+				if (i == dt.Rows.size() - 1) {
 					JsonString.append("} ");
-				}
-				else
-				{
+				} else {
 					JsonString.append("}, ");
 				}
 			}
 			JsonString.append("]}");
 			return JsonString.toString();
-		}
-		else
-		{
+		} else {
 			return null;
 		}
 	}
 }
-

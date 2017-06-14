@@ -6,14 +6,11 @@ import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,16 +21,23 @@ import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 //import org.szcloud.framework.metadesigner.core.generator.GeneratorMain;
 
 public class GeneratorUI extends JFrame {
+	/**
+	 * 日志对象
+	 */
+	protected final Log logger = LogFactory.getLog(getClass());
+
 	public GeneratorUI() {
 		this.setTitle("代码生成器");
 		this.getContentPane().setLayout(null);
@@ -41,8 +45,7 @@ public class GeneratorUI extends JFrame {
 		this.getContentPane().setBackground(Color.white);
 		double width = Toolkit.getDefaultToolkit().getScreenSize().getWidth();
 		double height = Toolkit.getDefaultToolkit().getScreenSize().getHeight();
-		setLocation((int) (width - this.getWidth()) / 2,
-				(int) (height - this.getHeight()) / 2);
+		setLocation((int) (width - this.getWidth()) / 2, (int) (height - this.getHeight()) / 2);
 		this.setVisible(true);
 		add(getPackeage());
 		add(getJTextPackage());
@@ -227,18 +230,15 @@ public class GeneratorUI extends JFrame {
 				try {
 					Class.forName("com.mysql.jdbc.Driver");
 					// mysql连接,如果要用别的数据库，要修改连接
-					conn = DriverManager.getConnection(jtextDataBase.getText()
-							.trim().toString()
-							+ "information_schema", jtextUserName.getText()
-							.trim().toString(), jtextPwd.getText().trim()
-							.toString());
+					conn = DriverManager.getConnection(jtextDataBase.getText().trim().toString() + "information_schema",
+							jtextUserName.getText().trim().toString(), jtextPwd.getText().trim().toString());
 					pstmt = conn.prepareStatement(sql);
 					ResultSet rs = pstmt.executeQuery();
 					while (rs.next()) {
 						list.add(rs.getString("table_name"));
 					}
 				} catch (Exception e1) {
-					e1.printStackTrace();
+					logger.info("ERROR", e1);
 					JOptionPane.showMessageDialog(rootPane, "用户名或密码错误！");
 				}
 				if (conn == null) {
@@ -250,11 +250,9 @@ public class GeneratorUI extends JFrame {
 					int windowHeight = jf.getHeight(); // 获得窗口高
 					Toolkit toolkit = Toolkit.getDefaultToolkit();
 
-					int x = (int) (toolkit.getScreenSize().getWidth() - jf
-							.getWidth());
+					int x = (int) (toolkit.getScreenSize().getWidth() - jf.getWidth());
 
-					int y = (int) (toolkit.getScreenSize().getHeight() - jf
-							.getHeight());
+					int y = (int) (toolkit.getScreenSize().getHeight() - jf.getHeight());
 					jf.setLocation(x / 4, y / 6);
 					jf.setSize(550, 530);
 					jf.setLayout(null);
@@ -293,9 +291,7 @@ public class GeneratorUI extends JFrame {
 					jp.add(jbOK);
 					JScrollPane jScrollBar1 = new JScrollPane(jp);
 					jScrollBar1.setBounds(20, 20, 500, 450);
-					jp.setPreferredSize(new Dimension(
-							jScrollBar1.getWidth() - 50, jScrollBar1
-									.getHeight() * 2));
+					jp.setPreferredSize(new Dimension(jScrollBar1.getWidth() - 50, jScrollBar1.getHeight() * 2));
 					jp.setBackground(Color.white);
 					jf.add(jScrollBar1);
 				}
@@ -458,15 +454,13 @@ public class GeneratorUI extends JFrame {
 					JOptionPane.showMessageDialog(rootPane, "密码不能为空！");
 					return;
 				}
-				String packageName = jtextfiledPackage.getText().trim()
-						.toString();
+				String packageName = jtextfiledPackage.getText().trim().toString();
 				if (packageName.equals("")) {
 					JOptionPane.showMessageDialog(rootPane, "包名不能为空！");
 					return;
 				}
 				map.put("packageName", packageName);
-				String rootOut = jtextfiledCreatePath.getText().trim()
-						.toString();
+				String rootOut = jtextfiledCreatePath.getText().trim().toString();
 				if (rootOut.equals("")) {
 					JOptionPane.showMessageDialog(rootPane, "输出路径不能为空！");
 					return;
@@ -495,25 +489,24 @@ public class GeneratorUI extends JFrame {
 					}
 					try {
 						map.put("templementSrc", "");
-						//调用代码生成器接口
-						//GeneratorMain.StartGenerator(map);
+						// 调用代码生成器接口
+						// GeneratorMain.StartGenerator(map);
 					} catch (Exception e1) {
-						e1.printStackTrace();
+						logger.info("ERROR", e1);
 					}
 				} else// 否则是选中自定义
 				{
-					String templementSrc = jtextfiledClass.getText().trim()
-							.toString();
+					String templementSrc = jtextfiledClass.getText().trim().toString();
 					if (templementSrc.equals("")) {
 						JOptionPane.showMessageDialog(rootPane, "模板路径不能为空！");
 						return;
 					}
 					map.put("templementSrc", templementSrc);
 					try {
-						//调用代码生成器接口
-						//GeneratorMain.StartGenerator(map);
+						// 调用代码生成器接口
+						// GeneratorMain.StartGenerator(map);
 					} catch (Exception e1) {
-						e1.printStackTrace();
+						logger.info("ERROR", e1);
 					}
 				}
 			}

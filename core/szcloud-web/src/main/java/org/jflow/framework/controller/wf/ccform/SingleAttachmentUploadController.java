@@ -9,8 +9,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.jflow.framework.controller.wf.workopt.BaseController;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,7 +36,7 @@ public class SingleAttachmentUploadController extends BaseController {
 	/**
 	 * 日志对象
 	 */
-	private static final Logger logger = LoggerFactory.getLogger(SingleAttachmentUploadController.class);
+	private static final Log logger = LogFactory.getLog(SingleAttachmentUploadController.class);
 
 	@RequestMapping(value = "/SingleUpload", method = RequestMethod.POST)
 	public void execute(HttpServletRequest request, HttpServletResponse response, BindException errors)

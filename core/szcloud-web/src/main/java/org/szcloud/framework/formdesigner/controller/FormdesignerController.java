@@ -296,7 +296,7 @@ public class FormdesignerController extends BaseController {
 			formdesignerServiceImpl.delete(temp);
 			temp.clear();
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 		return mv;
 	}
@@ -335,7 +335,7 @@ public class FormdesignerController extends BaseController {
 			try {
 				formdesignerServiceImpl.publish(id);
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.info("ERROR", e);
 				mv.addObject("errorMsg", "发布错误.");
 			}
 			mv.addObject("_selects", id);
@@ -395,7 +395,7 @@ public class FormdesignerController extends BaseController {
 				String content = formdesignerServiceImpl.getTemplateContext(Long.valueOf(id));
 				mv.addObject("content", content);
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.info("ERROR", e);
 				addMessage(mv, "啊哦~后台报错了，传入的id不能被转换为Long！");
 			}
 		} else {
@@ -432,7 +432,7 @@ public class FormdesignerController extends BaseController {
 			mv.addObject("parent", parent);
 			mv.addObject("child", child);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 		return mv;
 	}

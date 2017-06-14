@@ -7,8 +7,8 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.Properties;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.szcloud.framework.formdesigner.engine.util.HttpClientUtil;
 
 /**
@@ -25,7 +25,7 @@ public class SMSUtil {
 	/**
 	 * 日志对象
 	 */
-	private static Logger logger = LoggerFactory.getLogger(SMSUtil.class);
+	private static Log logger = LogFactory.getLog(SMSUtil.class);
 	/*
 	 * 获取配置信息
 	 */
@@ -39,7 +39,7 @@ public class SMSUtil {
 			password = p.getProperty("smsPassword");
 			name = p.getProperty("smsCompany");
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 	}
 

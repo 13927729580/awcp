@@ -12,8 +12,8 @@ import javax.script.ScriptException;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.szcloud.framework.core.utils.Springfactory;
 import org.szcloud.framework.formdesigner.application.vo.AuthorityCompoentVO;
 import org.szcloud.framework.formdesigner.application.vo.AuthorityGroupWorkFlowNodeVO;
@@ -33,7 +33,7 @@ public class DocUtils {
 	/**
 	 * 日志对象
 	 */
-	private static final Logger logger = LoggerFactory.getLogger(DocUtils.class);
+	private static final Log logger = LogFactory.getLog(DocUtils.class);
 	public static int FormToFlow = 1;
 	public static int FlowToForm = 2;
 
@@ -51,7 +51,7 @@ public class DocUtils {
 			try {
 				status = (Boolean) engine.eval(script);
 			} catch (ScriptException e) {
-				e.printStackTrace();
+				logger.info("ERROR", e);
 			}
 			if (status != null)
 				return status;
@@ -73,7 +73,7 @@ public class DocUtils {
 			try {
 				status = (Boolean) engine.eval(script);
 			} catch (ScriptException e) {
-				e.printStackTrace();
+				logger.info("ERROR", e);
 			}
 			if (status != null)
 				return status;
@@ -134,7 +134,7 @@ public class DocUtils {
 				}
 			}
 		} catch (ScriptException e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 		return null;
 	}

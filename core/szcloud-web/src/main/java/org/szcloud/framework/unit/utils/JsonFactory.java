@@ -1,6 +1,6 @@
 package org.szcloud.framework.unit.utils; 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -13,7 +13,7 @@ public class JsonFactory {
 	/**
 	 * 日志对象
 	 */
-	protected Logger logger = LoggerFactory.getLogger(getClass());
+	protected Log logger = LogFactory.getLog(getClass());
    private ObjectMapper mapper;  
    public JsonFactory(){
        mapper = new ObjectMapper();

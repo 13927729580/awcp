@@ -3,6 +3,8 @@ package org.jflow.framework.designer.model;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jflow.framework.common.model.BaseModel;
 import org.jflow.framework.system.ui.core.Button;
 import org.jflow.framework.system.ui.core.CheckBox;
@@ -17,93 +19,97 @@ import BP.WF.Template.Form.Sys.Sln.FrmField;
 import BP.WF.Template.Form.Sys.Sln.FrmFieldAttr;
 import BP.WF.Template.Form.Sys.Sln.FrmFields;
 
-public class SlnDoModel extends BaseModel{
-	public StringBuilder Pub1=new StringBuilder();
+public class SlnDoModel extends BaseModel {
+	/**
+	 * 日志对象
+	 */
+	protected final Log logger = LogFactory.getLog(getClass());
+	public StringBuilder Pub1 = new StringBuilder();
 	public String KeyOfEn;
 	public String FK_Node;
 
 	public SlnDoModel(HttpServletRequest request, HttpServletResponse response, String KeyOfEn, String FK_Node) {
 		super(request, response);
-		this.Pub1=new StringBuilder();
-		this.KeyOfEn=KeyOfEn;
-		this.FK_Node=FK_Node;
+		this.Pub1 = new StringBuilder();
+		this.KeyOfEn = KeyOfEn;
+		this.FK_Node = FK_Node;
 	}
-	public  void init()
-	{
-//C# TO JAVA CONVERTER NOTE: The following 'switch' operated on a string member and was converted to Java 'if-else' logic:
-//		switch (this.DoType)
-//ORIGINAL LINE: case "DelSln":
-		if (this.getDoType().equals("DelSln")) //删除sln.
-		{
-				FrmField sln = new FrmField();
-				sln.Delete(FrmFieldAttr.FK_MapData, this.getFK_MapData(), FrmFieldAttr.KeyOfEn, KeyOfEn, FrmFieldAttr.FK_Flow, this.getFK_Flow(), FrmFieldAttr.FK_Node, FK_Node);
-				this.WinClose();
-				return;
-		}
-//ORIGINAL LINE: case "EditSln":
-		else if (this.getDoType().equals("EditSln")) //编辑sln.
-		{
-				this.EditSln();
-				return;
-		}
-//ORIGINAL LINE: case "Copy":
-		else if (this.getDoType().equals("Copy")) //编辑sln.
-		{
-				this.Copy();
-				return;
-		}
-//ORIGINAL LINE: case "CopyIt":
-		else if (this.getDoType().equals("CopyIt")) //编辑sln.
-		{
-				FrmFields fss = new FrmFields();
-				try {
-					fss.Delete(FrmFieldAttr.FK_MapData, this.getFK_MapData(), FrmFieldAttr.FK_Flow, this.getFK_Flow(), FrmFieldAttr.FK_Node, FK_Node);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
 
-				fss = new FrmFields(this.getFK_MapData(),Integer.parseInt(this.get_request().getParameter("FromSln")));
-				//fss.Retrieve(FrmFieldAttr.FK_MapData, this.FK_MapData,
-				//    FrmFieldAttr.FK_Node, this.Request.QueryString["FromSln"]);
-
-				for (FrmField sl : FrmFields.convertFrmFields(fss))
-				{
-					sl.setFK_Node(Integer.valueOf(FK_Node));
-					sl.setFK_Flow(this.getFK_Flow());
-					sl.setMyPK(this.getFK_MapData() + "_" +this.getFK_Flow()+"_"+ this.getFK_Node() + "_" + sl.getKeyOfEn());
-					sl.Insert();
-				}
-				this.WinClose();
-				return;
-		}
-		else
+	public void init() {
+		// C# TO JAVA CONVERTER NOTE: The following 'switch' operated on a
+		// string member and was converted to Java 'if-else' logic:
+		// switch (this.DoType)
+		// ORIGINAL LINE: case "DelSln":
+		if (this.getDoType().equals("DelSln")) // 删除sln.
 		{
+			FrmField sln = new FrmField();
+			sln.Delete(FrmFieldAttr.FK_MapData, this.getFK_MapData(), FrmFieldAttr.KeyOfEn, KeyOfEn,
+					FrmFieldAttr.FK_Flow, this.getFK_Flow(), FrmFieldAttr.FK_Node, FK_Node);
+			this.WinClose();
+			return;
+		}
+		// ORIGINAL LINE: case "EditSln":
+		else if (this.getDoType().equals("EditSln")) // 编辑sln.
+		{
+			this.EditSln();
+			return;
+		}
+		// ORIGINAL LINE: case "Copy":
+		else if (this.getDoType().equals("Copy")) // 编辑sln.
+		{
+			this.Copy();
+			return;
+		}
+		// ORIGINAL LINE: case "CopyIt":
+		else if (this.getDoType().equals("CopyIt")) // 编辑sln.
+		{
+			FrmFields fss = new FrmFields();
+			try {
+				fss.Delete(FrmFieldAttr.FK_MapData, this.getFK_MapData(), FrmFieldAttr.FK_Flow, this.getFK_Flow(),
+						FrmFieldAttr.FK_Node, FK_Node);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				logger.info("ERROR", e);
+			}
+
+			fss = new FrmFields(this.getFK_MapData(), Integer.parseInt(this.get_request().getParameter("FromSln")));
+			// fss.Retrieve(FrmFieldAttr.FK_MapData, this.FK_MapData,
+			// FrmFieldAttr.FK_Node, this.Request.QueryString["FromSln"]);
+
+			for (FrmField sl : FrmFields.convertFrmFields(fss)) {
+				sl.setFK_Node(Integer.valueOf(FK_Node));
+				sl.setFK_Flow(this.getFK_Flow());
+				sl.setMyPK(this.getFK_MapData() + "_" + this.getFK_Flow() + "_" + this.getFK_Node() + "_"
+						+ sl.getKeyOfEn());
+				sl.Insert();
+			}
+			this.WinClose();
+			return;
+		} else {
 		}
 	}
-	/** 
-	 执行复制.
-	 
-	*/
-	public final void Copy()
-	{
-		String sql = "SELECT NodeID, Name, Step FROM WF_Node WHERE NodeID IN (SELECT FK_Node FROM Sys_FrmSln WHERE FK_MapData='" + this.getFK_MapData() + "' )";
+
+	/**
+	 * 执行复制.
+	 * 
+	 */
+	public final void Copy() {
+		String sql = "SELECT NodeID, Name, Step FROM WF_Node WHERE NodeID IN (SELECT FK_Node FROM Sys_FrmSln WHERE FK_MapData='"
+				+ this.getFK_MapData() + "' )";
 		DataTable dtNodes = BP.DA.DBAccess.RunSQLReturnTable(sql);
 
 		this.Pub1.append(AddFieldSet("请选择要copy的节点."));
 
 		this.Pub1.append(AddUL());
-		for (DataRow dr : dtNodes.Rows)
-		{
+		for (DataRow dr : dtNodes.Rows) {
 			String name = "步骤:" + dr.getValue(2) + ",节点ID:" + dr.getValue(0) + ":" + dr.getValue(1).toString();
 			String no = dr.getValue(0).toString();
-			if (no!=null&&FK_Node.equals(no))
-			{
+			if (no != null && FK_Node.equals(no)) {
 				continue;
-			}
-			else
-			{
-				this.Pub1.append(AddLi("<a href='SlnDo.jsp?FK_MapData=" + this.getFK_MapData() + "&FromSln=" + no +"&FK_Flow=" + this.getFK_Flow() + "&FK_Node=" + FK_Node + "&DoType=CopyIt' >" + name + "</a>"));
+			} else {
+				this.Pub1.append(
+						AddLi("<a href='SlnDo.jsp?FK_MapData=" + this.getFK_MapData() + "&FromSln=" + no + "&FK_Flow="
+								+ this.getFK_Flow() + "&FK_Node=" + FK_Node + "&DoType=CopyIt' >" + name + "</a>"));
 			}
 		}
 		this.Pub1.append(AddULEnd());
@@ -111,16 +117,16 @@ public class SlnDoModel extends BaseModel{
 		this.Pub1.append(AddFieldSetEnd());
 
 	}
-	public final void EditSln()
-	{
+
+	public final void EditSln() {
 		FrmField sln = new FrmField();
-		int num = sln.Retrieve(FrmFieldAttr.FK_MapData, this.getFK_MapData(), FrmFieldAttr.KeyOfEn, KeyOfEn, FrmFieldAttr.FK_Node, FK_Node);
+		int num = sln.Retrieve(FrmFieldAttr.FK_MapData, this.getFK_MapData(), FrmFieldAttr.KeyOfEn, KeyOfEn,
+				FrmFieldAttr.FK_Node, FK_Node);
 
 		MapAttr attr = new MapAttr();
 		attr.Retrieve(MapAttrAttr.FK_MapData, this.getFK_MapData(), MapAttrAttr.KeyOfEn, KeyOfEn);
 
-		if (num == 0)
-		{
+		if (num == 0) {
 			sln.setUIIsEnable(attr.getUIIsEnable());
 			sln.setUIVisible(attr.getUIVisible());
 			sln.setIsSigan(attr.getIsSigan());
@@ -168,9 +174,8 @@ public class SlnDoModel extends BaseModel{
 		this.Pub1.append(AddTD("在该方案中是否只读？"));
 		this.Pub1.append(AddTREnd());
 
-		if (attr.getMyDataType()== DataType.AppString)
-		{
-			//只读，并且是String. 
+		if (attr.getMyDataType() == DataType.AppString) {
+			// 只读，并且是String.
 			this.Pub1.append(AddTR());
 			this.Pub1.append(AddTD());
 			cb = new CheckBox();
@@ -198,8 +203,9 @@ public class SlnDoModel extends BaseModel{
 		btn.setId("Btn_Save");
 		btn.setName("Btn_Save");
 		btn.setText("Save");
-//C# TO JAVA CONVERTER TODO TASK: Java has no equivalent to C#-style event wireups:
-		//btn.Click += new EventHandler(btn_Click);
+		// C# TO JAVA CONVERTER TODO TASK: Java has no equivalent to C#-style
+		// event wireups:
+		// btn.Click += new EventHandler(btn_Click);
 		btn.addAttr("onClick", "btn_Click()");
 		this.Pub1.append(btn);
 

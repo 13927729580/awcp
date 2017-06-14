@@ -12,6 +12,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Controller;
@@ -35,7 +37,10 @@ import com.alibaba.fastjson.JSONArray;
 @Controller
 @RequestMapping("/")
 public class RootController {
-
+	/**
+	 * 日志对象
+	 */
+	protected final Log logger = LogFactory.getLog(getClass());
 	@Autowired
 	private MetaModelOperateService metaModelOperateServiceImpl;
 	@Resource(name = "namedParameterJdbcTemplate")
@@ -173,7 +178,7 @@ public class RootController {
 			result.setData(data).setTotal(countSql);
 		} catch (Exception e) {
 			result.setStatus(StatusCode.FAIL.setMessage("执行脚本出错！"));
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 		return result;
 	}

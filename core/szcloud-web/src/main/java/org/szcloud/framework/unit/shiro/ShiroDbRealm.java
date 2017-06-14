@@ -16,8 +16,8 @@ import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.szcloud.framework.core.domain.BaseExample;
@@ -39,7 +39,7 @@ public class ShiroDbRealm extends AuthorizingRealm {
 	/**
 	 * 日志对象
 	 */
-	private static final Logger logger = LoggerFactory.getLogger(ShiroDbRealm.class);
+	private static final Log logger = LogFactory.getLog(ShiroDbRealm.class);
 
 	@Autowired
 	@Qualifier("punGroupServiceImpl")

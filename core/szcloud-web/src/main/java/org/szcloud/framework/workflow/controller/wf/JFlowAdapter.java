@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.szcloud.framework.core.utils.DesUtils;
 import org.szcloud.framework.core.utils.SessionUtils;
@@ -31,7 +31,7 @@ public class JFlowAdapter {
 	/**
 	 * 日志对象
 	 */
-	private static final Logger logger = LoggerFactory.getLogger(JFlowAdapter.class);
+	private static final Log logger = LogFactory.getLog(JFlowAdapter.class);
 
 	/**
 	 * 发送
@@ -277,14 +277,6 @@ public class JFlowAdapter {
 		}
 		String result = Dev2Interface.Node_Askfor(Long.parseLong(workID), AskforHelpSta.AfterDealSend, toUsers,
 				fk_node);
-		Hashtable table = convertHashtable(masterDataSource, utils);
-		String title = null;
-		if (table.get("title") != null) {
-			title = (String) table.get("title");
-		}
-		Dev2Interface.Node_SendWork(fk_flow, Long.parseLong(workID), table, null, 0, null, WebUser.getNo(),
-				WebUser.getName(), WebUser.getFK_Dept(), WebUser.getFK_DeptName(), title);
-
 		boolean flag = saveExecuteData(utils, docVo, masterDataSource);
 		if (flag) {
 			resultMap.put("success", true);
@@ -550,7 +542,7 @@ public class JFlowAdapter {
 	// //printResult(toJson("url", url));
 	// return;
 	// }else{
-	// exSend.printStackTrace();
+	// exSend.logger.info("ERROR", e)();
 	// }
 	//
 	//

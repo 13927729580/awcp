@@ -5,6 +5,8 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jflow.framework.common.model.BaseModel;
 import org.jflow.framework.controller.wf.workopt.BaseController;
 import org.jflow.framework.system.ui.UiFatory;
@@ -30,7 +32,10 @@ import BP.Tools.StringHelper;
 @Controller
 @RequestMapping("/WF/Comm")
 public class CommSearchController extends BaseController {
-
+	/**
+	 * 日志对象
+	 */
+	protected final Log logger = LogFactory.getLog(getClass());
 	private Entity _HisEn;
 
 	private Entities _HisEns;
@@ -50,7 +55,7 @@ public class CommSearchController extends BaseController {
 			try {
 				winClose(getResponse());
 			} catch (IOException e) {
-				e.printStackTrace();
+				logger.info("ERROR", e);
 			}
 			throw new RuntimeException("类名无效。");
 		}
@@ -87,11 +92,11 @@ public class CommSearchController extends BaseController {
 			if (maxPageNum > 1)
 				this.UCSys2.append("翻页键:← → PageUp PageDown");
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 			try {
 				en.CheckPhysicsTable();
 			} catch (Exception wx) {
-				wx.printStackTrace();
+				logger.info("ERROR", wx);
 				BP.DA.Log.DefaultLogWriteLineError(wx.getMessage());
 			}
 			maxPageNum = BaseModel.BindPageIdx(UCSys2, qo.GetCount(), SystemConfig.getPageSize(), pageIdx,
@@ -180,7 +185,7 @@ public class CommSearchController extends BaseController {
 		try {
 			wirteMsg(getResponse(), jsonObject.toString());
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 
 		return null;
@@ -205,7 +210,7 @@ public class CommSearchController extends BaseController {
 				String httpFilePath = BaseModel.ExportDGToExcel(qo.DoQueryToTable(), en.getEnMap(), en.getEnDesc());
 				wirteMsg(getResponse(), httpFilePath);
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.info("ERROR", e);
 			}
 		}
 	}

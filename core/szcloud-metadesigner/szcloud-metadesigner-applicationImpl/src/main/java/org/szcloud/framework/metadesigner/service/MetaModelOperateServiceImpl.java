@@ -10,9 +10,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Service;
 import org.szcloud.framework.core.domain.BaseExample;
 import org.szcloud.framework.core.utils.Tools;
@@ -84,24 +82,23 @@ public class MetaModelOperateServiceImpl implements MetaModelOperateService {
 
 			}
 		}
-
-		/**
-		 * 去除groupId modify by venson 20170320
-		 * 
-		 */
-		sb.delete(sb.length() - 1, sb.length());
-		sb.append(") value(");
-		sb.append(values.delete(values.length() - 1, values.length())).append(");");
 		try {
-			NamedParameterJdbcTemplate namedParameterJdbcTemplate = null;
-			namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
-			SqlParameterSource paramSource = new MapSqlParameterSource(maps);
-			namedParameterJdbcTemplate.update(sb.toString(), paramSource);
-			return true;
+			if (values.length() > 0) {
+				/**
+				 * 去除groupId modify by venson 20170320
+				 * 
+				 */
+				sb.delete(sb.length() - 1, sb.length());
+				sb.append(") value(");
+				sb.append(values.delete(values.length() - 1, values.length())).append(");");
+				NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
+				namedParameterJdbcTemplate.update(sb.toString(), maps);
+				return true;
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			return false;
 		}
+		return false;
 	}
 
 	/**
@@ -170,10 +167,8 @@ public class MetaModelOperateServiceImpl implements MetaModelOperateService {
 		}
 
 		try {
-			NamedParameterJdbcTemplate namedParameterJdbcTemplate = null;
-			namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
-			SqlParameterSource paramSource = new MapSqlParameterSource(map);
-			namedParameterJdbcTemplate.update(sb.toString(), paramSource);
+			NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
+			namedParameterJdbcTemplate.update(sb.toString(), map);
 			return true;
 		} catch (Exception e) {
 			return false;
@@ -235,10 +230,8 @@ public class MetaModelOperateServiceImpl implements MetaModelOperateService {
 
 		try {
 			if (size > 0) {// 如果要更新的字段数大于0，则更新
-				NamedParameterJdbcTemplate namedParameterJdbcTemplate = null;
-				namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
-				SqlParameterSource paramSource = new MapSqlParameterSource(maps);
-				namedParameterJdbcTemplate.update(sb.toString(), paramSource);
+				NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
+				namedParameterJdbcTemplate.update(sb.toString(), maps);
 			}
 			return true;
 		} catch (Exception e) {

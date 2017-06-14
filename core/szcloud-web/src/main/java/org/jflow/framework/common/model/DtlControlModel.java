@@ -2,14 +2,14 @@ package org.jflow.framework.common.model;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jflow.framework.system.ui.core.BaseWebControl;
 import org.jflow.framework.system.ui.core.CheckBox;
 import org.jflow.framework.system.ui.core.DDL;
@@ -58,9 +58,12 @@ import BP.WF.XML.EventListDtlList;
 import TL.ContextHolderUtils;
 
 public class DtlControlModel extends BaseModel {
+	/**
+	 * 日志对象
+	 */
+	private static Log logger = LogFactory.getLog(DtlControlModel.class);
 
-	public DtlControlModel(HttpServletRequest request,
-			HttpServletResponse response) {
+	public DtlControlModel(HttpServletRequest request, HttpServletResponse response) {
 		super(request, response);
 		// TODO Auto-generated constructor stub
 	}
@@ -137,8 +140,7 @@ public class DtlControlModel extends BaseModel {
 	 */
 	public final int getaddRowNum() {
 		try {
-			int i = Integer.parseInt(this.get_request().getParameter(
-					"addRowNum"));
+			int i = Integer.parseInt(this.get_request().getParameter("addRowNum"));
 			if (this.get_request().getParameter("IsCut") == null) {
 				return i;
 			} else {
@@ -211,17 +213,14 @@ public class DtlControlModel extends BaseModel {
 		MapDtl mdtl = new MapDtl(this.getEnsName());
 
 		// 20150615 xiaozhoupeng 添加，原因ccflow 代码更新 START
-		if (getFK_Node() != 0
-				&& !mdtl.getFK_MapData().equals("Temp")
+		if (getFK_Node() != 0 && !mdtl.getFK_MapData().equals("Temp")
 				&& this.getEnsName().contains("ND" + this.getFK_Node()) == false) {
 			Node nd = new Node(this.getFK_Node());
 			// 如果
 			// * 1,传来节点ID, 不等于0.
 			// * 2,不是节点表单. 就要判断是否是流程表单，如果是就要处理权限方案。
-			FrmNode fn = new FrmNode(nd.getFK_Flow(), nd.getNodeID(),
-					mdtl.getFK_MapData());
-			int i = fn.Retrieve(FrmNodeAttr.FK_Frm, mdtl.getFK_MapData(),
-					FrmNodeAttr.FK_Node, this.getFK_Node());
+			FrmNode fn = new FrmNode(nd.getFK_Flow(), nd.getNodeID(), mdtl.getFK_MapData());
+			int i = fn.Retrieve(FrmNodeAttr.FK_Frm, mdtl.getFK_MapData(), FrmNodeAttr.FK_Node, this.getFK_Node());
 			if (i != 0 && fn.getFrmSln() != 0) {
 				// 使用了自定义的方案.
 				// * 并且，一定为dtl设定了自定义方案，就用自定义方案.
@@ -230,12 +229,9 @@ public class DtlControlModel extends BaseModel {
 				mymdtl.setNo(this.getEnsName() + "_" + this.getFK_Node());
 				if (mymdtl.RetrieveFromDBSources() == 1) {
 					// /Dtl.aspx?EnsName=DtlDemo_FJDtl396340&RefPKVal=212&IsReadonly=0&FID=0&FK_Node=8701
-					sendRedirect(Glo.getCCFlowAppPath()
-							+ "WF/CForm/Dtl2.jsp?EnsName=" + this.getEnsName()
-							+ "_" + this.getFK_Node() + "&RefPKVal="
-							+ this.getRefPKVal() + "&IsReadonly="
-							+ this.getIsReadonly() + "&FID=" + this.getFID()
-							+ "&FK_Node=" + this.getFK_Node());
+					sendRedirect(Glo.getCCFlowAppPath() + "WF/CForm/Dtl2.jsp?EnsName=" + this.getEnsName() + "_"
+							+ this.getFK_Node() + "&RefPKVal=" + this.getRefPKVal() + "&IsReadonly="
+							+ this.getIsReadonly() + "&FID=" + this.getFID() + "&FK_Node=" + this.getFK_Node());
 					return;
 				}
 			}
@@ -244,12 +240,10 @@ public class DtlControlModel extends BaseModel {
 
 		if (mdtl.getDtlModel() == DtlModel.FixRow) {
 			try {
-				this.get_response().sendRedirect(
-						"DtlFixRow.jsp?1=2"
-								+ this.get_request().getQueryString());
+				this.get_response().sendRedirect("DtlFixRow.jsp?1=2" + this.get_request().getQueryString());
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.info("ERROR", e);
 			}
 			return;
 		}
@@ -257,15 +251,13 @@ public class DtlControlModel extends BaseModel {
 
 		if (mdtl.getHisDtlShowModel() == DtlShowModel.Card) {
 			try {
-				this.get_response().sendRedirect(
-						"DtlCard.jsp?EnsName=" + this.getEnsName()
-								+ "&RefPKVal=" + this.getRefPKVal() + "&IsWap="
-								+ this.getIsWap() + "&FK_Node="
-								+ this.getFK_Node() + "&MainEnsName="
+				this.get_response()
+						.sendRedirect("DtlCard.jsp?EnsName=" + this.getEnsName() + "&RefPKVal=" + this.getRefPKVal()
+								+ "&IsWap=" + this.getIsWap() + "&FK_Node=" + this.getFK_Node() + "&MainEnsName="
 								+ this.getMainEnsName());
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.info("ERROR", e);
 			}
 			return;
 		}
@@ -298,22 +290,14 @@ public class DtlControlModel extends BaseModel {
 		if (mdtl.getIsShowTitle()) {
 			this.Pub1.append(BaseModel.AddTR());
 			if (this.getIsWap() == 1) {
-				BP.WF.Template.Node nd = new BP.WF.Template.Node(
-						this.getFK_Node());
-				String url = "../WAP/MyFlow.jsp?WorkID=" + this.getRefPKVal()
-						+ "&FK_Node=" + this.getFK_Node() + "&FK_Flow="
-						+ nd.getFK_Flow();
-				this.Pub1
-						.append(BaseModel
-								.AddTD("<img onclick=\"javascript:SaveDtlDataTo('"
-										+ url
-										+ "');\" src='../Wap/Img/Back.png' style='width:50px;height:16px' border=0/>"));
+				BP.WF.Template.Node nd = new BP.WF.Template.Node(this.getFK_Node());
+				String url = "../WAP/MyFlow.jsp?WorkID=" + this.getRefPKVal() + "&FK_Node=" + this.getFK_Node()
+						+ "&FK_Flow=" + nd.getFK_Flow();
+				this.Pub1.append(BaseModel.AddTD("<img onclick=\"javascript:SaveDtlDataTo('" + url
+						+ "');\" src='../Wap/Img/Back.png' style='width:50px;height:16px' border=0/>"));
 			} else {
-				this.Pub1
-						.append("<TD class='Idx' ><img src='../Img/Btn/Table.gif' onclick=\"return DtlOpt('"
-								+ this.getRefPKVal()
-								+ "','"
-								+ this.getEnsName() + "');\" border=0/></TD>");
+				this.Pub1.append("<TD class='Idx' ><img src='../Img/Btn/Table.gif' onclick=\"return DtlOpt('"
+						+ this.getRefPKVal() + "','" + this.getEnsName() + "');\" border=0/></TD>");
 				numOfCol++;
 			}
 
@@ -327,16 +311,19 @@ public class DtlControlModel extends BaseModel {
 				}
 
 				// 如果启用了分组，并且是当前的分组字段。
-				if (mdtl.getIsEnableGroupField()
-						&& mdtl.getGroupField() == attr.getKeyOfEn()) {
+				if (mdtl.getIsEnableGroupField() && mdtl.getGroupField() == attr.getKeyOfEn()) {
 					continue;
 				}
 
 				// for lijian 增加了 @符号是一个换行符.
-				this.Pub1.append(BaseModel.AddTDTitleExt(attr.getName()
-						.replace("@", "<br>"))); // ("<TD class='FDesc' nowarp=true ><label>"
-													// + attr.Name +
-													// "</label></TD>");
+				this.Pub1.append(BaseModel.AddTDTitleExt(attr.getName().replace("@", "<br>"))); // ("<TD
+																								// class='FDesc'
+																								// nowarp=true
+																								// ><label>"
+																								// +
+																								// attr.Name
+																								// +
+																								// "</label></TD>");
 				numOfCol++;
 			}
 
@@ -356,8 +343,8 @@ public class DtlControlModel extends BaseModel {
 			}
 
 			if (mdtl.getIsDelete() && !this.getIsReadonly()) {
-				this.Pub1
-						.append("<TD class='TitleExt' nowarp=true ><img src='../Img/Btn/Save.gif' border=0 onclick='SaveDtlData();' ></TD>");
+				this.Pub1.append(
+						"<TD class='TitleExt' nowarp=true ><img src='../Img/Btn/Save.gif' border=0 onclick='SaveDtlData();' ></TD>");
 				numOfCol++;
 			}
 
@@ -367,7 +354,7 @@ public class DtlControlModel extends BaseModel {
 			}
 
 			this.Pub1.append(BaseModel.AddTREnd());
-		}//
+		} //
 			// /结束ShowTitle
 
 		// //////////////////////////////////////
@@ -397,8 +384,7 @@ public class DtlControlModel extends BaseModel {
 
 		// ///////////////////////////////////////////
 		// /# 生成翻页
-		if (mdtl.getIsEnableGroupField()
-				|| mdtl.getHisWhenOverSize() == WhenOverSize.None
+		if (mdtl.getIsEnableGroupField() || mdtl.getHisWhenOverSize() == WhenOverSize.None
 				|| mdtl.getHisWhenOverSize() == WhenOverSize.AddRow) {
 			// 如果 是分组显示模式 .
 			try {
@@ -461,18 +447,11 @@ public class DtlControlModel extends BaseModel {
 
 				this.setDtlCount(count);
 				this.Pub2.setLength(0);
-				this.Pub2.append(this.BindPageIdx(
-						this.Pub2,
-						count,
-						mdtl.getRowsOfList(),
-						this.getPageIdx(),
-						"Dtl.jsp?EnsName=" + this.getEnsName() + "&RefPKVal="
-								+ this.getRefPKVal() + "&IsWap="
-								+ this.getIsWap() + "&IsReadonly="
-								+ this.getIsReadonly() + "&MainEnsName="
+				this.Pub2.append(this.BindPageIdx(this.Pub2, count, mdtl.getRowsOfList(), this.getPageIdx(),
+						"Dtl.jsp?EnsName=" + this.getEnsName() + "&RefPKVal=" + this.getRefPKVal() + "&IsWap="
+								+ this.getIsWap() + "&IsReadonly=" + this.getIsReadonly() + "&MainEnsName="
 								+ this.getMainEnsName()));
-				int num = qo.DoQuery("OID", mdtl.getRowsOfList(),
-						this.getPageIdx(), false);
+				int num = qo.DoQuery("OID", mdtl.getRowsOfList(), this.getPageIdx(), false);
 
 				if (mdtl.getIsInsert() && !this.getIsReadonly()) {
 					int dtlCount = dtls.size();
@@ -533,12 +512,10 @@ public class DtlControlModel extends BaseModel {
 
 			String gField = mdtl.getGroupField();
 			Object tempVar = attrs.GetEntityByKey(MapAttrAttr.KeyOfEn, gField);
-			MapAttr attrG = (MapAttr) ((tempVar instanceof MapAttr) ? tempVar
-					: null);
+			MapAttr attrG = (MapAttr) ((tempVar instanceof MapAttr) ? tempVar : null);
 			if (attrG == null) {
 				this.Pub1.setLength(0);
-				this.Pub1.append(BaseModel.AddFieldSetRed("err",
-						"明细表设计错误,分组字段已经不存在明细表中，请联系管理员解决此问题。"));
+				this.Pub1.append(BaseModel.AddFieldSetRed("err", "明细表设计错误,分组字段已经不存在明细表中，请联系管理员解决此问题。"));
 				return;
 			}
 
@@ -565,16 +542,13 @@ public class DtlControlModel extends BaseModel {
 				this.Pub1.append(BaseModel.AddTR());
 				if (attrG.getUIContralType() == UIContralType.CheckBok) {
 					if (str.equals("0")) {
-						this.Pub1.append(BaseModel.AddTD("colspan=" + numOfCol,
-								attrG.getName() + ":是"));
+						this.Pub1.append(BaseModel.AddTD("colspan=" + numOfCol, attrG.getName() + ":是"));
 					} else {
-						this.Pub1.append(BaseModel.AddTD("colspan=" + numOfCol,
-								attrG.getName() + ":否"));
+						this.Pub1.append(BaseModel.AddTD("colspan=" + numOfCol, attrG.getName() + ":否"));
 					}
 				} else {
 					if (!groupStr.contains(str + ",")) {
-						this.Pub1.append(BaseModel.AddTD("colspan=" + numOfCol,
-								str));
+						this.Pub1.append(BaseModel.AddTD("colspan=" + numOfCol, str));
 						groupStr += str + ",";
 					}
 				}
@@ -601,8 +575,7 @@ public class DtlControlModel extends BaseModel {
 					}
 
 					for (MapAttr attr : MapAttrs.convertMapAttrs(attrs)) {
-						if (!attr.getUIVisible()
-								|| attr.getKeyOfEn().equals("OID")
+						if (!attr.getUIVisible() || attr.getKeyOfEn().equals("OID")
 								|| attr.getKeyOfEn() == attrG.getKeyOfEn()) {
 							continue;
 						}
@@ -612,34 +585,26 @@ public class DtlControlModel extends BaseModel {
 						// attr.getUIIsEnable() == false)
 						// dtl.SetValByKey(attr.getKeyOfEn(), attr.DefVal);
 
-						String val = dtl.GetValByKey(attr.getKeyOfEn())
-								.toString();
-						if (!attr.getUIIsEnable()
-								&& dtl.getOID() >= 100
-								&& LinkFields.contains("," + attr.getKeyOfEn()
-										+ ",")) {
+						String val = dtl.GetValByKey(attr.getKeyOfEn()).toString();
+						if (!attr.getUIIsEnable() && dtl.getOID() >= 100
+								&& LinkFields.contains("," + attr.getKeyOfEn() + ",")) {
 							if (StringHelper.isNullOrEmpty(val)) {
 								val = "...";
 							}
-							Object tempVar2 = mes.GetEntityByKey(
-									MapExtAttr.ExtType, MapExtXmlList.Link,
+							Object tempVar2 = mes.GetEntityByKey(MapExtAttr.ExtType, MapExtXmlList.Link,
 									MapExtAttr.AttrOfOper, attr.getKeyOfEn());
-							MapExt meLink = (MapExt) ((tempVar2 instanceof MapExt) ? tempVar2
-									: null);
+							MapExt meLink = (MapExt) ((tempVar2 instanceof MapExt) ? tempVar2 : null);
 
 							Object tempVar3 = new String(meLink.getTag());
-							String url = (String) ((tempVar3 instanceof String) ? tempVar3
-									: null);
+							String url = (String) ((tempVar3 instanceof String) ? tempVar3 : null);
 							if (!url.contains("?")) {
 								url = url + "?a3=2";
 							}
 
-							url = url + "&WebUserNo=" + WebUser.getNo()
-									+ "&SID=" + WebUser.getSID() + "&EnName="
+							url = url + "&WebUserNo=" + WebUser.getNo() + "&SID=" + WebUser.getSID() + "&EnName="
 									+ mdtl.getNo() + "&OID=" + dtl.getOID();
 							if (url.contains("@AppPath")) {
-								url = url.replace("@AppPath", "http://"
-										+ this.get_request().getRemoteHost()
+								url = url.replace("@AppPath", "http://" + this.get_request().getRemoteHost()
 										+ this.get_request().getRequestURI());
 							}
 
@@ -647,11 +612,8 @@ public class DtlControlModel extends BaseModel {
 								if (attrs2.size() == 0) {
 									attrs2 = new MapAttrs(mdtl.getNo());
 								}
-								for (MapAttr item : MapAttrs
-										.convertMapAttrs(attrs2)) {
-									url = url.replace("@" + item.getKeyOfEn(),
-											dtl.GetValStrByKey(item
-													.getKeyOfEn()));
+								for (MapAttr item : MapAttrs.convertMapAttrs(attrs2)) {
+									url = url.replace("@" + item.getKeyOfEn(), dtl.GetValStrByKey(item.getKeyOfEn()));
 									if (!url.contains("@")) {
 										break;
 									}
@@ -661,28 +623,23 @@ public class DtlControlModel extends BaseModel {
 									if (mainEn == null) {
 										mainEn = this.getMainEn();
 									}
-									for (Attr attrM : mainEn.getEnMap()
-											.getAttrs()) {
-										url = url.replace("@" + attrM.getKey(),
-												mainEn.GetValStrByKey(attrM
-														.getKey()));
+									for (Attr attrM : mainEn.getEnMap().getAttrs()) {
+										url = url.replace("@" + attrM.getKey(), mainEn.GetValStrByKey(attrM.getKey()));
 										if (!url.contains("@")) {
 											break;
 										}
 									}
 								}
 							}
-							this.Pub1.append(BaseModel.AddTD("<a href='" + url
-									+ "' target='" + meLink.getTag1() + "' >"
-									+ val + "</a>"));
+							this.Pub1.append(BaseModel
+									.AddTD("<a href='" + url + "' target='" + meLink.getTag1() + "' >" + val + "</a>"));
 							continue;
 						}
 						// switch qin 15/9/16 添加
 						switch (attr.getUIContralType()) {
 						case TB:
 							TextBox tb = new TextBox();
-							tb.setId("TB_" + attr.getKeyOfEnToLowerCase() + "_"
-									+ dtl.getOID());
+							tb.setId("TB_" + attr.getKeyOfEnToLowerCase() + "_" + dtl.getOID());
 							// liuxc,2015.7.3,如果Enabled=false，则服务器控件将不能获取此控件的真实值
 							// tb.setEnabled(attr.getUIIsEnable());//edited by
 
@@ -690,17 +647,13 @@ public class DtlControlModel extends BaseModel {
 								tb.addAttr("readonly", "true");
 								tb.setCssClass("TBReadonly");
 							} else {
-								tb.attributes
-										.put("onfocus", "SetChange(true);");
+								tb.attributes.put("onfocus", "SetChange(true);");
 							}
 							switch (attr.getMyDataType()) {
 							case DataType.AppString:
-								tb.addAttr("style",
-										"width:" + attr.getUIWidth()
-												+ "px;border-width:0px;");
+								tb.addAttr("style", "width:" + attr.getUIWidth() + "px;border-width:0px;");
 
-								this.Pub1.append(BaseModel.AddTD("width='2px'",
-										tb));
+								this.Pub1.append(BaseModel.AddTD("width='2px'", tb));
 								tb.setText(val);
 								// 一下注释代码多余 qin 15/9/16----687行
 								// if (attr.getUIIsEnable() == false) {
@@ -710,26 +663,21 @@ public class DtlControlModel extends BaseModel {
 
 								if (attr.getUIHeight() > 25) {
 									tb.setTextMode(TextBoxMode.MultiLine);
-									tb.attributes.put("Height",
-											attr.getUIHeight() + "px");
+									tb.attributes.put("Height", attr.getUIHeight() + "px");
 									tb.setRows(attr.getUIHeightInt() / 25);
 								}
 								break;
 							case DataType.AppDate:
-								float dateWidth = attr.getUIWidth() == 100 ? 85
-										: attr.getUIWidth();
-								tb.attributes.put("style", "width:" + dateWidth
-										+ "px;border-width:0px;");
+								float dateWidth = attr.getUIWidth() == 100 ? 85 : attr.getUIWidth();
+								tb.attributes.put("style", "width:" + dateWidth + "px;border-width:0px;");
 								if (!val.equals("0")) {
-									val=val.substring(0, 10);
+									val = val.substring(0, 10);
 									tb.setText(val);
 								}
 
 								if (attr.getUIIsEnable()) {
-									tb.attributes.put("onfouse",
-											"WdatePicker();SetChange(false);");
-									tb.attributes.put("onChange",
-											"SetChange(true);");
+									tb.attributes.put("onfouse", "WdatePicker();SetChange(false);");
+									tb.attributes.put("onChange", "SetChange(true);");
 									tb.attributes.put("class", "Wdate");
 									// tb.CssClass = "easyui-datebox";
 									// tb.Attributes["data-options"] =
@@ -738,40 +686,31 @@ public class DtlControlModel extends BaseModel {
 								} else {
 									tb.setReadOnly(true);
 								}
-								this.Pub1.append(BaseModel.AddTD("width='2px'",
-										tb));
+								this.Pub1.append(BaseModel.AddTD("width='2px'", tb));
 								break;
 							case DataType.AppDateTime:
-								float dateTimeWidth = attr.getUIWidth() == 100 ? 125
-										: attr.getUIWidth();
-								tb.attributes.put("style", "width:"
-										+ dateTimeWidth
-										+ "px;border-width:0px;");
+								float dateTimeWidth = attr.getUIWidth() == 100 ? 125 : attr.getUIWidth();
+								tb.attributes.put("style", "width:" + dateTimeWidth + "px;border-width:0px;");
 								if (!val.equals("0")) {
 									tb.setText(val);
 								}
 								if (attr.getUIIsEnable()) {
-									tb.attributes
-											.put("onfocus",
-													"WdatePicker({dateFmt:'yyyy-MM-dd HH:mm'});SetChange(false);");
+									tb.attributes.put("onfocus",
+											"WdatePicker({dateFmt:'yyyy-MM-dd HH:mm'});SetChange(false);");
 									// tb.CssClass = "easyui-datetimebox";
 									// tb.Attributes["data-options"] =
 									// "editable:false";
 
-									tb.attributes.put("onChange",
-											"SetChange(true);");
+									tb.attributes.put("onChange", "SetChange(true);");
 									tb.attributes.put("class", "Wdate");
 
 								} else {
 									tb.setReadOnly(true);
 								}
-								this.Pub1.append(BaseModel.AddTD("width='2px'",
-										tb));
+								this.Pub1.append(BaseModel.AddTD("width='2px'", tb));
 								break;
 							case DataType.AppInt:
-								tb.attributes.put("style",
-										"width:" + attr.getUIWidth()
-												+ "px;border-width:0px;");
+								tb.attributes.put("style", "width:" + attr.getUIWidth() + "px;border-width:0px;");
 
 								if (attr.getUIIsEnable() == false) {
 									tb.attributes.put("class", "TBNumReadonly");
@@ -788,17 +727,14 @@ public class DtlControlModel extends BaseModel {
 								break;
 							case DataType.AppMoney:
 							case DataType.AppRate:
-								tb.attributes.put("style",
-										"width:" + attr.getUIWidth()
-												+ "px;border-width:0px;");
+								tb.attributes.put("style", "width:" + attr.getUIWidth() + "px;border-width:0px;");
 								if (attr.getUIIsEnable() == false) {
 									tb.attributes.put("class", "TBNumReadonly");
 									tb.setReadOnly(true);
 								}
 
 								try {
-									tb.setText(String.format("%.2f",
-											Double.parseDouble(val)));
+									tb.setText(String.format("%.2f", Double.parseDouble(val)));
 								} catch (RuntimeException ex) {
 									this.Alert(ex.getMessage() + " val =" + val);
 									tb.setText("0.00");
@@ -806,68 +742,38 @@ public class DtlControlModel extends BaseModel {
 								this.Pub1.append(BaseModel.AddTD(tb));
 								break;
 							default:
-								tb.attributes
-										.put("style",
-												"width:"
-														+ attr.getUIWidth()
-														+ "px;text-align:right;border-width:0px;");
+								tb.attributes.put("style",
+										"width:" + attr.getUIWidth() + "px;text-align:right;border-width:0px;");
 								tb.setText(val);
 
 								this.Pub1.append(BaseModel.AddTD(tb));
 								break;
 							}
 
-							if (attr.getIsNum()
-									&& attr.getLGType() == FieldTypeS.Normal) {
+							if (attr.getIsNum() && attr.getLGType() == FieldTypeS.Normal) {
 								if (tb.getEnabled()) {
-									// OnKeyPress="javascript:return VirtyNum(this);"
+									// OnKeyPress="javascript:return
+									// VirtyNum(this);"
 									if (attr.getMyDataType() == DataType.AppInt) {
-										tb.addAttr("onkeyup",
-												"C" + dtl.getOID() + "();C"
-														+ attr.getKeyOfEn()
-														+ "(); ");
-										tb.addAttr("OnKeyPress",
-												"javascript:return VirtyNum(this,'int');");
+										tb.addAttr("onkeyup", "C" + dtl.getOID() + "();C" + attr.getKeyOfEn() + "(); ");
+										tb.addAttr("OnKeyPress", "javascript:return VirtyNum(this,'int');");
 
-										tb.addAttr("onblur",
-												"value=value.replace(/[^-?\\d]/g,'');C"
-														+ dtl.getOID() + "();C"
-														+ attr.getKeyOfEn()
-														+ "();");
+										tb.addAttr("onblur", "value=value.replace(/[^-?\\d]/g,'');C" + dtl.getOID()
+												+ "();C" + attr.getKeyOfEn() + "();");
 									} else {
-										tb.addAttr("onkeyup",
-												"C" + dtl.getOID() + "();C"
-														+ attr.getKeyOfEn()
-														+ "();");
-										tb.addAttr("OnKeyPress",
-												"javascript:return VirtyNum(this,'float');");
+										tb.addAttr("onkeyup", "C" + dtl.getOID() + "();C" + attr.getKeyOfEn() + "();");
+										tb.addAttr("OnKeyPress", "javascript:return VirtyNum(this,'float');");
 
-										tb.addAttr("onblur",
-												"value=value.replace(/[^-?\\d+\\.*\\d*$]/g,'');C"
-														+ dtl.getOID() + "();C"
-														+ attr.getKeyOfEn()
-														+ "();");
+										tb.addAttr("onblur", "value=value.replace(/[^-?\\d+\\.*\\d*$]/g,'');C"
+												+ dtl.getOID() + "();C" + attr.getKeyOfEn() + "();");
 									}
 
-									tb.addAttr(
-											"style",
-											"height:"
-													+ attr.getUIHeight()
-													+ "px;"
-													+ "width:"
-													+ attr.getUIWidth()
-													+ "px;text-align:right;border-width:0px;");
+									tb.addAttr("style", "height:" + attr.getUIHeight() + "px;" + "width:"
+											+ attr.getUIWidth() + "px;text-align:right;border-width:0px;");
 								} else {
-									tb.addAttr("onpropertychange",
-											"C" + attr.getKeyOfEn() + "();");
-									tb.addAttr(
-											"style",
-											"height:"
-													+ attr.getUIHeight()
-													+ "px;"
-													+ "width:"
-													+ attr.getUIWidth()
-													+ "px;text-align:right;border-width:0px;");
+									tb.addAttr("onpropertychange", "C" + attr.getKeyOfEn() + "();");
+									tb.addAttr("style", "height:" + attr.getUIHeight() + "px;" + "width:"
+											+ attr.getUIWidth() + "px;text-align:right;border-width:0px;");
 								}
 							}
 							break;
@@ -875,12 +781,9 @@ public class DtlControlModel extends BaseModel {
 							switch (attr.getLGType()) {
 							case Enum:
 								DDL myddl = new DDL();
-								myddl.setId("DDL_" + attr.getKeyOfEn() + "_"
-										+ dtl.getOID());
-								myddl.setName("DDL_" + attr.getKeyOfEn() + "_"
-										+ dtl.getOID());
-								myddl.attributes.put("onchange",
-										"SetChange (true);");
+								myddl.setId("DDL_" + attr.getKeyOfEn() + "_" + dtl.getOID());
+								myddl.setName("DDL_" + attr.getKeyOfEn() + "_" + dtl.getOID());
+								myddl.attributes.put("onchange", "SetChange (true);");
 								if (attr.getUIIsEnable()) {
 									try {
 										myddl.BindSysEnum(attr.getKeyOfEn());
@@ -890,43 +793,29 @@ public class DtlControlModel extends BaseModel {
 										// BP.Sys.PubClass.Alert(ex.getMessage());
 									}
 								} else {
-									myddl.Items
-											.add(new ListItem(dtl
-													.GetValRefTextByKey(attr
-															.getKeyOfEn()), dtl
-													.GetValStrByKey(attr
-															.getKeyOfEn())));
+									myddl.Items.add(new ListItem(dtl.GetValRefTextByKey(attr.getKeyOfEn()),
+											dtl.GetValStrByKey(attr.getKeyOfEn())));
 								}
 								myddl.setEnabled(attr.getUIIsEnable());
 								this.Pub1.append(BaseModel.AddTDCenter(myddl));
 								break;
 							case FK:
 								DDL ddl1 = new DDL();
-								ddl1.setId("DDL_" + attr.getKeyOfEn() + "_"
-										+ dtl.getOID());
-								ddl1.setName("DDL_" + attr.getKeyOfEn() + "_"
-										+ dtl.getOID());
-								ddl1.attributes.put("onchange",
-										"SetChange (true);");
-								ddl1.attributes.put("onfocus",
-										"SetChange (true);");
+								ddl1.setId("DDL_" + attr.getKeyOfEn() + "_" + dtl.getOID());
+								ddl1.setName("DDL_" + attr.getKeyOfEn() + "_" + dtl.getOID());
+								ddl1.attributes.put("onchange", "SetChange (true);");
+								ddl1.attributes.put("onfocus", "SetChange (true);");
 								if (attr.getUIIsEnable()) {
 									// ddl1.Attributes["onchange","isChange=true;";
-									EntitiesNoName ens = attr
-											.getHisEntitiesNoName();
+									EntitiesNoName ens = attr.getHisEntitiesNoName();
 									ens.RetrieveAll();
 									ddl1.BindEntities(ens);
 									if (!ddl1.SetSelectItem(val)) {
-										ddl1.Items.add(0, new ListItem("请选择",
-												val));
+										ddl1.Items.add(0, new ListItem("请选择", val));
 									}
 								} else {
-									ddl1.Items
-											.add(new ListItem(dtl
-													.GetValRefTextByKey(attr
-															.getKeyOfEn()), dtl
-													.GetValStrByKey(attr
-															.getKeyOfEn())));
+									ddl1.Items.add(new ListItem(dtl.GetValRefTextByKey(attr.getKeyOfEn()),
+											dtl.GetValStrByKey(attr.getKeyOfEn())));
 								}
 								ddl1.setEnabled(attr.getUIIsEnable());
 								this.Pub1.append(BaseModel.AddTDCenter(ddl1));
@@ -937,8 +826,7 @@ public class DtlControlModel extends BaseModel {
 							break;
 						case CheckBok:
 							cb = new CheckBox();
-							cb.setId("CB_" + attr.getKeyOfEnToLowerCase() + "_"
-									+ dtl.getOID());
+							cb.setId("CB_" + attr.getKeyOfEnToLowerCase() + "_" + dtl.getOID());
 							cb.setText(attr.getName());
 							if (val.equals("1")) {
 								cb.setChecked(true);
@@ -955,15 +843,11 @@ public class DtlControlModel extends BaseModel {
 
 					if (mdtl.getIsEnableAthM()) {
 						if (dtl.getOID() >= 100) {
-							this.Pub1
-									.append(BaseModel
-											.AddTD("<a href=\"javascript:window.showModalDialog('AttachmentUpload.jsp?IsBTitle=1&PKVal="
-													+ dtl.getOID()
-													+ "&Ath=AthM&FK_MapData="
-													+ mdtl.getNo()
-													+ "&FK_FrmAttachment="
-													+ mdtl.getNo()
-													+ "_AthM','dialogHeight: 500px; dialogWidth: 600px;center: yes; help: no')\"><img src='../Img/AttachmentM.png' border=0 width='16px') /></a>"));
+							this.Pub1.append(BaseModel
+									.AddTD("<a href=\"javascript:window.showModalDialog('AttachmentUpload.jsp?IsBTitle=1&PKVal="
+											+ dtl.getOID() + "&Ath=AthM&FK_MapData=" + mdtl.getNo()
+											+ "&FK_FrmAttachment=" + mdtl.getNo()
+											+ "_AthM','dialogHeight: 500px; dialogWidth: 600px;center: yes; help: no')\"><img src='../Img/AttachmentM.png' border=0 width='16px') /></a>"));
 						} else {
 							this.Pub1.append(BaseModel.AddTD(""));
 						}
@@ -971,13 +855,10 @@ public class DtlControlModel extends BaseModel {
 
 					if (mdtl.getIsEnableM2M()) {
 						if (dtl.getOID() >= 100) {
-							this.Pub1
-									.append(BaseModel
-											.AddTD("<a href=\"javascript:window.showModalDialog('M2M.jsp?IsOpen=1&NoOfObj=M2M&OID="
-													+ dtl.getOID()
-													+ "&FK_MapData="
-													+ mdtl.getNo()
-													+ "','m2m','dialogHeight: 500px; dialogWidth: 600px;center: yes; help: no')\"><img src='../Img/M2M.png' border=0 width='16px' /></a>"));
+							this.Pub1.append(BaseModel
+									.AddTD("<a href=\"javascript:window.showModalDialog('M2M.jsp?IsOpen=1&NoOfObj=M2M&OID="
+											+ dtl.getOID() + "&FK_MapData=" + mdtl.getNo()
+											+ "','m2m','dialogHeight: 500px; dialogWidth: 600px;center: yes; help: no')\"><img src='../Img/M2M.png' border=0 width='16px' /></a>"));
 						} else {
 							this.Pub1.append(BaseModel.AddTD(""));
 						}
@@ -985,40 +866,26 @@ public class DtlControlModel extends BaseModel {
 
 					if (mdtl.getIsEnableM2MM()) {
 						if (dtl.getOID() >= 100) {
-							this.Pub1
-									.append(BaseModel
-											.AddTD("<a href=\"javascript:window.showModalDialog('M2MM.jsp?IsOpen=1&NoOfObj=M2MM&OID="
-													+ dtl.getOID()
-													+ "&FK_MapData="
-													+ mdtl.getNo()
-													+ "','m2m','dialogHeight: 500px; dialogWidth: 600px;center: yes; help: no')\"><img src='../Img/M2M.png' border=0 width='16px' /></a>"));
+							this.Pub1.append(BaseModel
+									.AddTD("<a href=\"javascript:window.showModalDialog('M2MM.jsp?IsOpen=1&NoOfObj=M2MM&OID="
+											+ dtl.getOID() + "&FK_MapData=" + mdtl.getNo()
+											+ "','m2m','dialogHeight: 500px; dialogWidth: 600px;center: yes; help: no')\"><img src='../Img/M2M.png' border=0 width='16px' /></a>"));
 						} else {
 							this.Pub1.append(BaseModel.AddTD(""));
 						}
 					}
 
-					if (mdtl.getIsDelete() && !this.getIsReadonly()
-							&& dtl.getOID() >= 100) {
+					if (mdtl.getIsDelete() && !this.getIsReadonly() && dtl.getOID() >= 100) {
 						if (isRowLock && dtl.getIsRowLock()) {
-							this.Pub1
-									.append(BaseModel
-											.AddTD("<img src='../Img/Btn/Lock.png' class=ICON />")); // 如果当前记录是锁定的，并且启动了锁定设置.
+							this.Pub1.append(BaseModel.AddTD("<img src='../Img/Btn/Lock.png' class=ICON />")); // 如果当前记录是锁定的，并且启动了锁定设置.
 						} else {
-							this.Pub1
-									.append("<TD border=0><img src='../Img/Btn/Delete.gif' onclick=\"javascript:Del('"
-											+ dtl.getOID()
-											+ "','"
-											+ this.getEnsName()
-											+ "','"
-											+ this.getRefPKVal()
-											+ "','"
-											+ this.getPageIdx()
-											+ "')\" /></TD>");
+							this.Pub1.append("<TD border=0><img src='../Img/Btn/Delete.gif' onclick=\"javascript:Del('"
+									+ dtl.getOID() + "','" + this.getEnsName() + "','" + this.getRefPKVal() + "','"
+									+ this.getPageIdx() + "')\" /></TD>");
 						}
 					} else if (mdtl.getIsDelete()) {
 						if (!this.getIsReadonly()) {
-							this.Pub1
-									.append("<TD class=TD border=0>&nbsp;</TD>");
+							this.Pub1.append("<TD class=TD border=0>&nbsp;</TD>");
 						}
 
 					}
@@ -1046,42 +913,33 @@ public class DtlControlModel extends BaseModel {
 					}
 
 					String val = dtl.GetValByKey(attr.getKeyOfEn()).toString();
-					if (!attr.getUIIsEnable()
-							&& dtl.getOID() >= 100
-							&& LinkFields.contains("," + attr.getKeyOfEn()
-									+ ",")) {
+					if (!attr.getUIIsEnable() && dtl.getOID() >= 100
+							&& LinkFields.contains("," + attr.getKeyOfEn() + ",")) {
 						if (StringHelper.isNullOrEmpty(val)) {
 							val = "...";
 						}
-						Object tempVar4 = mes.GetEntityByKey(
-								MapExtAttr.ExtType, MapExtXmlList.Link,
+						Object tempVar4 = mes.GetEntityByKey(MapExtAttr.ExtType, MapExtXmlList.Link,
 								MapExtAttr.AttrOfOper, attr.getKeyOfEn());
-						MapExt meLink = (MapExt) ((tempVar4 instanceof MapExt) ? tempVar4
-								: null);
+						MapExt meLink = (MapExt) ((tempVar4 instanceof MapExt) ? tempVar4 : null);
 
 						Object tempVar5 = new String(meLink.getTag());
-						String url = (String) ((tempVar5 instanceof String) ? tempVar5
-								: null);
+						String url = (String) ((tempVar5 instanceof String) ? tempVar5 : null);
 						if (!url.contains("?")) {
 							url = url + "?a3=2";
 						}
 
-						url = url + "&WebUserNo=" + WebUser.getNo() + "&SID="
-								+ WebUser.getSID() + "&EnName=" + mdtl.getNo()
-								+ "&OID=" + dtl.getOID();
+						url = url + "&WebUserNo=" + WebUser.getNo() + "&SID=" + WebUser.getSID() + "&EnName="
+								+ mdtl.getNo() + "&OID=" + dtl.getOID();
 						if (url.contains("@AppPath")) {
-							url = url.replace("@AppPath", "http://"
-									+ this.get_request().getRemoteHost()
+							url = url.replace("@AppPath", "http://" + this.get_request().getRemoteHost()
 									+ this.get_request().getRequestURI());
 						}
 						if (url.contains("@")) {
 							if (attrs2.size() == 0) {
 								attrs2 = new MapAttrs(mdtl.getNo());
 							}
-							for (MapAttr item : MapAttrs
-									.convertMapAttrs(attrs2)) {
-								url = url.replace("@" + item.getKeyOfEn(),
-										dtl.GetValStrByKey(item.getKeyOfEn()));
+							for (MapAttr item : MapAttrs.convertMapAttrs(attrs2)) {
+								url = url.replace("@" + item.getKeyOfEn(), dtl.GetValStrByKey(item.getKeyOfEn()));
 								if (!url.contains("@")) {
 									break;
 								}
@@ -1092,28 +950,23 @@ public class DtlControlModel extends BaseModel {
 									mainEn = this.getMainEn();
 								}
 								for (Attr attrM : mainEn.getEnMap().getAttrs()) {
-									url = url.replace("@" + attrM.getKey(),
-											mainEn.GetValStrByKey(attrM
-													.getKey()));
+									url = url.replace("@" + attrM.getKey(), mainEn.GetValStrByKey(attrM.getKey()));
 									if (!url.contains("@")) {
 										break;
 									}
 								}
 							}
 						}
-						this.Pub1.append(BaseModel.AddTD("<a href='" + url
-								+ "' target='" + meLink.getTag1() + "' >" + val
-								+ "</a>"));
+						this.Pub1.append(BaseModel
+								.AddTD("<a href='" + url + "' target='" + meLink.getTag1() + "' >" + val + "</a>"));
 						continue;
 					}
 
 					switch (attr.getUIContralType()) {
 					case TB:
 						TextBox tb = new TextBox();
-						tb.setId("TB_" + attr.getKeyOfEnToLowerCase() + "_"
-								+ dtl.getOID());
-						tb.setName("TB_" + attr.getKeyOfEnToLowerCase() + "_"
-								+ dtl.getOID());
+						tb.setId("TB_" + attr.getKeyOfEnToLowerCase() + "_" + dtl.getOID());
+						tb.setName("TB_" + attr.getKeyOfEnToLowerCase() + "_" + dtl.getOID());
 						tb.setEnabled(attr.getUIIsEnable());
 						if (!attr.getUIIsEnable()) {
 							tb.addAttr("readonly", "true");
@@ -1124,10 +977,8 @@ public class DtlControlModel extends BaseModel {
 
 						switch (attr.getMyDataType()) {
 						case DataType.AppString:
-							tb.attributes.put("style",
-									"height:" + attr.getUIHeight() + "px;"
-											+ "width:" + attr.getUIWidth()
-											+ "px;border-width:0px;");
+							tb.attributes.put("style", "height:" + attr.getUIHeight() + "px;" + "width:"
+									+ attr.getUIWidth() + "px;border-width:0px;");
 							tb.setText(val);
 							if (!attr.getUIIsEnable()) {
 								tb.addAttr("readonly", "true");
@@ -1136,29 +987,23 @@ public class DtlControlModel extends BaseModel {
 
 							if (attr.getUIHeight() > 25) {
 								tb.setTextMode(TextBoxMode.MultiLine);
-								tb.attributes.put("Height", attr.getUIHeight()
-										+ "px");
+								tb.attributes.put("Height", attr.getUIHeight() + "px");
 								tb.setRows(attr.getUIHeightInt() / 25);
 							}
-							this.Pub1
-									.append(BaseModel.AddTD("width='2px'", tb));
+							this.Pub1.append(BaseModel.AddTD("width='2px'", tb));
 							break;
 						case DataType.AppDate:
-							float dateWidth = attr.getUIWidth() == 100 ? 85
-									: attr.getUIWidth();
+							float dateWidth = attr.getUIWidth() == 100 ? 85 : attr.getUIWidth();
 
-							tb.attributes.put("style", "width:" + dateWidth
-									+ "px;" + "border-width:0px;");
+							tb.attributes.put("style", "width:" + dateWidth + "px;" + "border-width:0px;");
 							if (!val.equals("0")) {
-								val=val.substring(0, 10);
+								val = val.substring(0, 10);
 								tb.setText(val);
 							}
 							tb.attributes.put("readonly", "readonly");
 							if (attr.getUIIsEnable()) {
-								tb.attributes.put("onfocus",
-										"WdatePicker();SetChange(false);");
-								tb.attributes.put("onChange",
-										"SetChange(true);");
+								tb.attributes.put("onfocus", "WdatePicker();SetChange(false);");
+								tb.attributes.put("onChange", "SetChange(true);");
 								tb.attributes.put("class", "Wdate");
 
 								// tb.CssClass = "easyui-datebox";
@@ -1166,37 +1011,29 @@ public class DtlControlModel extends BaseModel {
 							} else {
 								tb.setReadOnly(true);
 							}
-							this.Pub1
-									.append(BaseModel.AddTD("width='2px'", tb));
+							this.Pub1.append(BaseModel.AddTD("width='2px'", tb));
 							break;
 						case DataType.AppDateTime:
-							float dateTimeWidth = attr.getUIWidth() == 100 ? 125
-									: attr.getUIWidth();
+							float dateTimeWidth = attr.getUIWidth() == 100 ? 125 : attr.getUIWidth();
 
-							tb.attributes.put("style", "width:" + dateTimeWidth
-									+ "px;border-width:0px;");
+							tb.attributes.put("style", "width:" + dateTimeWidth + "px;border-width:0px;");
 							if (!val.equals("0")) {
 								tb.setText(val);
 							}
 							if (attr.getUIIsEnable()) {
-								tb.attributes
-										.put("onfocus",
-												"WdatePicker({dateFmt:'yyyy-MM-dd HH:mm'});SetChange(false);");
+								tb.attributes.put("onfocus",
+										"WdatePicker({dateFmt:'yyyy-MM-dd HH:mm'});SetChange(false);");
 								// tb.CssClass = "easyui-datetimebox";
 								// tb.attributes.put("data-options","editable:false";
-								tb.attributes.put("onChange",
-										"SetChange(true);");
+								tb.attributes.put("onChange", "SetChange(true);");
 								tb.attributes.put("class", "Wdate");
 							} else {
 								tb.setReadOnly(true);
 							}
-							this.Pub1
-									.append(BaseModel.AddTD("width='2px'", tb));
+							this.Pub1.append(BaseModel.AddTD("width='2px'", tb));
 							break;
 						case DataType.AppInt:
-							tb.attributes.put("style",
-									"width:" + attr.getUIWidth()
-											+ "px;border-width:0px;");
+							tb.attributes.put("style", "width:" + attr.getUIWidth() + "px;border-width:0px;");
 							if (!attr.getUIIsEnable()) {
 								tb.attributes.put("class", "TBNumReadonly");
 								tb.setReadOnly(true);
@@ -1211,17 +1048,14 @@ public class DtlControlModel extends BaseModel {
 							break;
 						case DataType.AppMoney:
 						case DataType.AppRate:
-							tb.attributes.put("style",
-									"width:" + attr.getUIWidth()
-											+ "px;border-width:0px;");
+							tb.attributes.put("style", "width:" + attr.getUIWidth() + "px;border-width:0px;");
 							if (!attr.getUIIsEnable()) {
 								tb.attributes.put("class", "TBNumReadonly");
 								tb.setReadOnly(true);
 							}
 
 							try {
-								DecimalFormat mformat = new DecimalFormat(
-										"0.00");
+								DecimalFormat mformat = new DecimalFormat("0.00");
 								tb.setText(mformat.format(Double.valueOf(val)));
 							} catch (RuntimeException ex) {
 								// this.Alert(ex.getMessage() + " val =" + val);
@@ -1230,67 +1064,36 @@ public class DtlControlModel extends BaseModel {
 							this.Pub1.append(BaseModel.AddTD(tb));
 							break;
 						default:
-							tb.attributes
-									.put("style",
-											"width:"
-													+ attr.getUIWidth()
-													+ "px;text-align:right;border-width:0px;");
+							tb.attributes.put("style",
+									"width:" + attr.getUIWidth() + "px;text-align:right;border-width:0px;");
 							tb.setText(val);
 							this.Pub1.append(BaseModel.AddTD(tb));
 							break;
 						}
-						if (attr.getIsNum()
-								&& attr.getLGType() == FieldTypeS.Normal) {
+						if (attr.getIsNum() && attr.getLGType() == FieldTypeS.Normal) {
 							if (tb.getEnabled()) {
-								tb.attributes.put("onchange",
-										"C" + attr.getKeyOfEn() + "()");
-								// OnKeyPress="javascript:return VirtyNum(this);"
+								tb.attributes.put("onchange", "C" + attr.getKeyOfEn() + "()");
+								// OnKeyPress="javascript:return
+								// VirtyNum(this);"
 								if (attr.getMyDataType() == DataType.AppInt) {
-									tb.attributes.put(
-											"onkeyup",
-											"C" + dtl.getOID() + "();C"
-													+ attr.getKeyOfEn()
-													+ "(); ");
-									tb.attributes
-											.put("OnKeyPress",
-													"javascript:return  VirtyNum(this,'int');");
-									tb.attributes
-											.put("onblur",
-													"value=value.replace(/[^-?\\d]/g,'');C"
-															+ dtl.getOID()
-															+ "();C"
-															+ attr.getKeyOfEn()
-															+ "();");
+									tb.attributes.put("onkeyup",
+											"C" + dtl.getOID() + "();C" + attr.getKeyOfEn() + "(); ");
+									tb.attributes.put("OnKeyPress", "javascript:return  VirtyNum(this,'int');");
+									tb.attributes.put("onblur", "value=value.replace(/[^-?\\d]/g,'');C" + dtl.getOID()
+											+ "();C" + attr.getKeyOfEn() + "();");
 								} else {
-									tb.attributes.put(
-											"onkeyup",
-											"C" + dtl.getOID() + "();C"
-													+ attr.getKeyOfEn()
-													+ "(); ");
-									tb.attributes
-											.put("OnKeyPress",
-													"javascript:return  VirtyNum(this,'float');");
-									tb.attributes
-											.put("onblur",
-													"value=value.replace(/[^-?\\d+\\.*\\d*$]/g,'');C"
-															+ dtl.getOID()
-															+ "();C"
-															+ attr.getKeyOfEn()
-															+ "();");
+									tb.attributes.put("onkeyup",
+											"C" + dtl.getOID() + "();C" + attr.getKeyOfEn() + "(); ");
+									tb.attributes.put("OnKeyPress", "javascript:return  VirtyNum(this,'float');");
+									tb.attributes.put("onblur", "value=value.replace(/[^-?\\d+\\.*\\d*$]/g,'');C"
+											+ dtl.getOID() + "();C" + attr.getKeyOfEn() + "();");
 								}
-								tb.attributes
-										.put("style",
-												"width:"
-														+ attr.getUIWidth()
-														+ "px;text-align:right;border-width:0px;");
+								tb.attributes.put("style",
+										"width:" + attr.getUIWidth() + "px;text-align:right;border-width:0px;");
 							} else {
-								tb.attributes.put("onpropertychange", "C"
-										+ attr.getKeyOfEn() + "();");
-								tb.attributes
-										.put("style",
-												"width:"
-														+ attr.getUIWidth()
-														+ "px;text-align:right;border-width:0px;");
+								tb.attributes.put("onpropertychange", "C" + attr.getKeyOfEn() + "();");
+								tb.attributes.put("style",
+										"width:" + attr.getUIWidth() + "px;text-align:right;border-width:0px;");
 							}
 						}
 						break;
@@ -1298,12 +1101,9 @@ public class DtlControlModel extends BaseModel {
 						switch (attr.getLGType()) {
 						case Enum:
 							DDL myddl = new DDL();
-							myddl.setId("DDL_" + attr.getKeyOfEn() + "_"
-									+ dtl.getOID());
-							myddl.setName("DDL_" + attr.getKeyOfEn() + "_"
-									+ dtl.getOID());
-							myddl.attributes.put("onchange",
-									"SetChange( true);");
+							myddl.setId("DDL_" + attr.getKeyOfEn() + "_" + dtl.getOID());
+							myddl.setName("DDL_" + attr.getKeyOfEn() + "_" + dtl.getOID());
+							myddl.attributes.put("onchange", "SetChange( true);");
 							if (attr.getUIIsEnable()) {
 								try {
 									myddl.BindSysEnum(attr.getKeyOfEn());
@@ -1312,8 +1112,7 @@ public class DtlControlModel extends BaseModel {
 									// BP.Sys.PubClass.Alert(ex.getMessage());
 								}
 							} else {
-								myddl.Items.add(new ListItem(dtl
-										.GetValRefTextByKey(attr.getKeyOfEn()),
+								myddl.Items.add(new ListItem(dtl.GetValRefTextByKey(attr.getKeyOfEn()),
 										dtl.GetValStrByKey(attr.getKeyOfEn())));
 							}
 							myddl.setEnabled(attr.getUIIsEnable());
@@ -1321,24 +1120,20 @@ public class DtlControlModel extends BaseModel {
 							break;
 						case FK:
 							DDL ddl1 = new DDL();
-							ddl1.setId("DDL_" + attr.getKeyOfEn() + "_"
-									+ dtl.getOID());
-							ddl1.setName("DDL_" + attr.getKeyOfEn() + "_"
-									+ dtl.getOID());
+							ddl1.setId("DDL_" + attr.getKeyOfEn() + "_" + dtl.getOID());
+							ddl1.setName("DDL_" + attr.getKeyOfEn() + "_" + dtl.getOID());
 							ddl1.attributes.put("onchange", "SetChange(true);");
 							ddl1.attributes.put("onfocus", "SetChange(true);");
 							if (attr.getUIIsEnable()) {
 								// ddl1.Attributes["onchange","isChange=true;";
-								EntitiesNoName ens = attr
-										.getHisEntitiesNoName();
+								EntitiesNoName ens = attr.getHisEntitiesNoName();
 								ens.RetrieveAll();
 								ddl1.BindEntities(ens);
 								if (!ddl1.SetSelectItem(val)) {
 									ddl1.Items.add(0, new ListItem("请选择", val));
 								}
 							} else {
-								ddl1.Items.add(new ListItem(dtl
-										.GetValRefTextByKey(attr.getKeyOfEn()),
+								ddl1.Items.add(new ListItem(dtl.GetValRefTextByKey(attr.getKeyOfEn()),
 										dtl.GetValStrByKey(attr.getKeyOfEn())));
 							}
 							ddl1.setEnabled(attr.getUIIsEnable());
@@ -1350,15 +1145,15 @@ public class DtlControlModel extends BaseModel {
 						break;
 					case CheckBok:
 						cb = new CheckBox();
-						cb.setId("CB_" + attr.getKeyOfEnToLowerCase() + "_"
-								+ dtl.getOID());
+						cb.setId("CB_" + attr.getKeyOfEnToLowerCase() + "_" + dtl.getOID());
 						cb.setText(attr.getName());
 						if (val.equals("1")) {
 							cb.setChecked(true);
 						} else {
 							cb.setChecked(false);
 						}
-						// cb.Attributes["onchecked","alert('ss'); isChange= true; ";
+						// cb.Attributes["onchecked","alert('ss'); isChange=
+						// true; ";
 						cb.attributes.put("onclick", "SetChange(true);");
 						this.Pub1.append(BaseModel.AddTD(cb));
 						break;
@@ -1369,15 +1164,11 @@ public class DtlControlModel extends BaseModel {
 
 				if (mdtl.getIsEnableAthM()) {
 					if (dtl.getOID() >= 100) {
-						this.Pub1
-								.append(BaseModel
-										.AddTD("<a href=\"javascript:window.showModalDialog('AttachmentUpload.jsp?IsBTitle=1&PKVal="
-												+ dtl.getOID()
-												+ "&Ath=AthM&FK_MapData="
-												+ mdtl.getNo()
-												+ "&FK_FrmAttachment="
-												+ mdtl.getNo()
-												+ "_AthM','dialogHeight: 500px; dialogWidth: 600px;center: yes; help: no')\"><img src='../Img/AttachmentM.png' border=0 width='16px' /></a>"));
+						this.Pub1.append(BaseModel
+								.AddTD("<a href=\"javascript:window.showModalDialog('AttachmentUpload.jsp?IsBTitle=1&PKVal="
+										+ dtl.getOID() + "&Ath=AthM&FK_MapData=" + mdtl.getNo() + "&FK_FrmAttachment="
+										+ mdtl.getNo()
+										+ "_AthM','dialogHeight: 500px; dialogWidth: 600px;center: yes; help: no')\"><img src='../Img/AttachmentM.png' border=0 width='16px' /></a>"));
 					} else {
 						this.Pub1.append(BaseModel.AddTD(""));
 					}
@@ -1385,13 +1176,10 @@ public class DtlControlModel extends BaseModel {
 
 				if (mdtl.getIsEnableM2M()) {
 					if (dtl.getOID() >= 100) {
-						this.Pub1
-								.append(BaseModel
-										.AddTD("<a href=\"javascript:window.showModalDialog('M2M.jsp?IsOpen=1&NoOfObj=M2M&OID="
-												+ dtl.getOID()
-												+ "&FK_MapData="
-												+ mdtl.getNo()
-												+ "','m2m','dialogHeight: 500px; dialogWidth: 600px;center: yes; help: no')\"><img src='../Img/M2M.png' border=0 width='16px' /></a>"));
+						this.Pub1.append(BaseModel
+								.AddTD("<a href=\"javascript:window.showModalDialog('M2M.jsp?IsOpen=1&NoOfObj=M2M&OID="
+										+ dtl.getOID() + "&FK_MapData=" + mdtl.getNo()
+										+ "','m2m','dialogHeight: 500px; dialogWidth: 600px;center: yes; help: no')\"><img src='../Img/M2M.png' border=0 width='16px' /></a>"));
 					} else {
 						this.Pub1.append(BaseModel.AddTD());
 					}
@@ -1399,13 +1187,10 @@ public class DtlControlModel extends BaseModel {
 
 				if (mdtl.getIsEnableM2MM()) {
 					if (dtl.getOID() >= 100) {
-						this.Pub1
-								.append(BaseModel
-										.AddTD("<a href=\"javascript:window.showModalDialog('M2MM.jsp?IsOpen=1&NoOfObj=M2MM&OID="
-												+ dtl.getOID()
-												+ "&FK_MapData="
-												+ mdtl.getNo()
-												+ "','m2m','dialogHeight: 500px; dialogWidth: 600px;center: yes; help: no')\"><img src='../Img/M2M.png' border=0 width='16px' /></a>"));
+						this.Pub1.append(BaseModel
+								.AddTD("<a href=\"javascript:window.showModalDialog('M2MM.jsp?IsOpen=1&NoOfObj=M2MM&OID="
+										+ dtl.getOID() + "&FK_MapData=" + mdtl.getNo()
+										+ "','m2m','dialogHeight: 500px; dialogWidth: 600px;center: yes; help: no')\"><img src='../Img/M2M.png' border=0 width='16px' /></a>"));
 					} else {
 						this.Pub1.append(BaseModel.AddTD(""));
 					}
@@ -1413,59 +1198,45 @@ public class DtlControlModel extends BaseModel {
 
 				if (mdtl.getIsEnableLink()) {
 					Object tempVar6 = new String(mdtl.getLinkUrl());
-					String url = (String) ((tempVar6 instanceof String) ? tempVar6
-							: null);
+					String url = (String) ((tempVar6 instanceof String) ? tempVar6 : null);
 					if (!url.contains("?")) {
 						url = url + "?a3=2";
 					}
 					url = url.replace("*", "@");
 
 					if (url.contains("OID=")) {
-						url = url + "&WebUserNo=" + WebUser.getNo() + "&SID="
-								+ WebUser.getSID() + "&EnName=" + mdtl.getNo();
+						url = url + "&WebUserNo=" + WebUser.getNo() + "&SID=" + WebUser.getSID() + "&EnName="
+								+ mdtl.getNo();
 					} else {
-						url = url + "&WebUserNo=" + WebUser.getNo() + "&SID="
-								+ WebUser.getSID() + "&EnName=" + mdtl.getNo()
-								+ "&OID=" + dtl.getOID();
+						url = url + "&WebUserNo=" + WebUser.getNo() + "&SID=" + WebUser.getSID() + "&EnName="
+								+ mdtl.getNo() + "&OID=" + dtl.getOID();
 					}
 
 					if (url.contains("@AppPath")) {
-						url = url.replace("@AppPath", "http://"
-								+ this.get_request().getRemoteHost()
-								+ this.get_request().getRequestURI());
+						url = url.replace("@AppPath",
+								"http://" + this.get_request().getRemoteHost() + this.get_request().getRequestURI());
 					}
 
 					url = BP.WF.Glo.DealExp(url, dtl, null);
 					url = url.replace("@OID", String.valueOf(dtl.getOID()));
-					url = url.replace("@FK_Node",
-							(new Integer(this.getFK_Node())).toString());
+					url = url.replace("@FK_Node", (new Integer(this.getFK_Node())).toString());
 					url = url.replace("'", "");
 
 					if (dtl.getOID() >= 100) {
-						this.Pub1.append(BaseModel.AddTD("<a href=\"" + url
-								+ "\" target='" + mdtl.getLinkTarget() + "' >"
-								+ mdtl.getLinkLabel() + "</a>"));
+						this.Pub1.append(BaseModel.AddTD("<a href=\"" + url + "\" target='" + mdtl.getLinkTarget()
+								+ "' >" + mdtl.getLinkLabel() + "</a>"));
 					} else {
 						this.Pub1.append(BaseModel.AddTD(""));
 					}
 				}
 
-				if (mdtl.getIsDelete() && !this.getIsReadonly()
-						&& dtl.getOID() >= 100) {
+				if (mdtl.getIsDelete() && !this.getIsReadonly() && dtl.getOID() >= 100) {
 					if (isRowLock && dtl.getIsRowLock()) {
-						this.Pub1
-								.append(BaseModel
-										.AddTD("<img src='../Img/Btn/Lock.png' class=ICON />")); // 如果当前记录是锁定的，并且启动了锁定设置.
+						this.Pub1.append(BaseModel.AddTD("<img src='../Img/Btn/Lock.png' class=ICON />")); // 如果当前记录是锁定的，并且启动了锁定设置.
 					} else {
-						this.Pub1
-								.append("<TD border=0><img src='../Img/Btn/Delete.gif' onclick=\"javascript:Del('"
-										+ dtl.getOID()
-										+ "','"
-										+ this.getEnsName()
-										+ "','"
-										+ this.getRefPKVal()
-										+ "','"
-										+ this.getPageIdx() + "')\" /></TD>");
+						this.Pub1.append("<TD border=0><img src='../Img/Btn/Delete.gif' onclick=\"javascript:Del('"
+								+ dtl.getOID() + "','" + this.getEnsName() + "','" + this.getRefPKVal() + "','"
+								+ this.getPageIdx() + "')\" /></TD>");
 					}
 				} else if (mdtl.getIsDelete()) {
 					if (!this.getIsReadonly()) {
@@ -1484,18 +1255,14 @@ public class DtlControlModel extends BaseModel {
 				// myAdd. setAutoPostBack(true);
 				myAdd.Items.add(new ListItem("+", "+"));
 				for (int i = 1; i < 10; i++) {
-					myAdd.Items.add(new ListItem((new Integer(i)).toString(),
-							(new Integer(i)).toString()));
+					myAdd.Items.add(new ListItem((new Integer(i)).toString(), (new Integer(i)).toString()));
 				}
-				String url = BP.WF.Glo.getCCFlowAppPath()
-						+ "WF/CCForm/Dtl2.jsp?EnsName=" + this.getEnsName()
-						+ "&RefPKVal=" + this.getRefPKVal() + "&PageIdx="
-						+ this.getPageIdx() + "&IsCut=0&IsWap="
-						+ this.getIsWap() + "&FK_Node=" + this.getFK_Node()
-						+ "&Key=" + this.get_request().getParameter("Key");
+				String url = BP.WF.Glo.getCCFlowAppPath() + "WF/CCForm/Dtl2.jsp?EnsName=" + this.getEnsName()
+						+ "&RefPKVal=" + this.getRefPKVal() + "&PageIdx=" + this.getPageIdx() + "&IsCut=0&IsWap="
+						+ this.getIsWap() + "&FK_Node=" + this.getFK_Node() + "&Key="
+						+ this.get_request().getParameter("Key");
 
-				myAdd.attributes.put("onchange", "addRow(this,\'" + url + "\',"
-						+ _allRowCount + ");");
+				myAdd.attributes.put("onchange", "addRow(this,\'" + url + "\'," + _allRowCount + ");");
 				this.Pub1.append(BaseModel.AddTD(myAdd));
 				for (MapAttr attr : MapAttrs.convertMapAttrs(attrs)) {
 					if (!attr.getUIVisible() || attr.getKeyOfEn().equals("OID")) {
@@ -1520,8 +1287,8 @@ public class DtlControlModel extends BaseModel {
 		// /#region 拓展属性
 		if (!this.getIsReadonly() && mes.size() != 0) {
 
-			this.Pub1
-					.append("<div id='divinfo' style='width: 155px; position: absolute; color: Lime; display: none;cursor: pointer;align:left'></div>");
+			this.Pub1.append(
+					"<div id='divinfo' style='width: 155px; position: absolute; color: Lime; display: none;cursor: pointer;align:left'></div>");
 
 			ArrayList<GEDtl> geDtls = GEDtls.convertGEDtls(dtls);
 
@@ -1536,20 +1303,17 @@ public class DtlControlModel extends BaseModel {
 
 					if (me.getExtType().equals(MapExtXmlList.DDLFullCtrl)) {// 自动填充.
 
-						BaseWebControl ddlCtl = ctrlMap.get("DDL_"
-								+ me.getAttrOfOper() + "_" + mydtl.getOID());
+						BaseWebControl ddlCtl = ctrlMap.get("DDL_" + me.getAttrOfOper() + "_" + mydtl.getOID());
 						if (ddlCtl == null) {
 							continue;
 						}
 						DDL ddlOper = (DDL) ddlCtl;
 						ddlOper.attributes.put("onchange",
-								"DDLFullCtrl(this.value,\'" + ddlCtl.getId()
-										+ "\', \'" + me.getMyPK() + "\')");
+								"DDLFullCtrl(this.value,\'" + ddlCtl.getId() + "\', \'" + me.getMyPK() + "\')");
 						setHtmlByCtrl(ddlOper);
 
 					} else if (me.getExtType().equals(MapExtXmlList.ActiveDDL)) {
-						BaseWebControl ddlCtl = ctrlMap.get("DDL_"
-								+ me.getAttrOfOper() + "_" + mydtl.getOID());
+						BaseWebControl ddlCtl = ctrlMap.get("DDL_" + me.getAttrOfOper() + "_" + mydtl.getOID());
 						if (ddlCtl == null) {
 							continue;
 						}
@@ -1559,22 +1323,17 @@ public class DtlControlModel extends BaseModel {
 						// C# TO JAVA CONVERTER TODO TASK: There is no
 						// preprocessor in Java:
 						// /#warning 此处需要优化
-						String ddlC = "DDL_" + me.getAttrsOfActive() + "_"
-								+ mydtl.getOID();
+						String ddlC = "DDL_" + me.getAttrsOfActive() + "_" + mydtl.getOID();
 						if (ddlPerant.toString().contains("SetChange (true)")) {
 							ddlPerant.attributes.put("onchange",
-									"  DDLAnsc(this.value, \'" + ddlC
-											+ "\', \'" + me.getMyPK() + "\')");
+									"  DDLAnsc(this.value, \'" + ddlC + "\', \'" + me.getMyPK() + "\')");
 						} else {
-							ddlPerant.attributes.put("onchange",
-									" SetChange (true); DDLAnsc(this.value, \'"
-											+ ddlC + "\', \'" + me.getMyPK()
-											+ "\')");
+							ddlPerant.attributes.put("onchange", " SetChange (true); DDLAnsc(this.value, \'" + ddlC
+									+ "\', \'" + me.getMyPK() + "\')");
 						}
 						setHtmlByCtrl(ddlPerant);
 
-						ddlCtl = ctrlMap.get("DDL_" + me.getAttrsOfActive()
-								+ "_" + mydtl.getOID());
+						ddlCtl = ctrlMap.get("DDL_" + me.getAttrsOfActive() + "_" + mydtl.getOID());
 
 						if (ddlCtl == null) {
 							continue;
@@ -1605,41 +1364,31 @@ public class DtlControlModel extends BaseModel {
 
 						ddlChild.Bind(dt, "No", "Name");
 						if (ddlChild.SetSelectItem(valC) == false) {
-							ddlChild.Items.add(0, new ListItem("请选择" + valC,
-									valC));
+							ddlChild.Items.add(0, new ListItem("请选择" + valC, valC));
 							ddlChild.SetSelectItemByIndex(0);
 						}
 						if (!ddlChild.toString().contains("SetChange (true)")) {
-							ddlChild.attributes.put("onchange",
-									" SetChange (true);");
+							ddlChild.attributes.put("onchange", " SetChange (true);");
 						}
 						setHtmlByCtrl(ddlChild);
-					} else if (me.getExtType()
-							.equals(MapExtXmlList.AutoFullDLL))
+					} else if (me.getExtType().equals(MapExtXmlList.AutoFullDLL))
 					// 自动填充下拉框的范围.
 					{
-						BaseWebControl ddlCtl = ctrlMap.get("DDL_"
-								+ me.getAttrOfOper() + "_" + mydtl.getOID());
+						BaseWebControl ddlCtl = ctrlMap.get("DDL_" + me.getAttrOfOper() + "_" + mydtl.getOID());
 
 						if (ddlCtl == null) {
 							continue;
 						}
 						DDL ddlFull = (DDL) ddlCtl;
 
-						String valOld = mydtl
-								.GetValStrByKey(me.getAttrOfOper());
+						String valOld = mydtl.GetValStrByKey(me.getAttrOfOper());
 						// string valOld =ddlFull.SelectedItemStringVal;
 
-						String fullSQL = me.getDoc().replace(
-								"@WebUser.getNo()", WebUser.getNo());
-						fullSQL = fullSQL.replace("@WebUser.getName()",
-								WebUser.getName());
-						fullSQL = fullSQL.replace("@WebUser.getFK_Dept()",
-								WebUser.getFK_Dept());
-						fullSQL = fullSQL.replace("@WebUser.getFK_DeptName()",
-								WebUser.getFK_DeptName());
-						fullSQL = fullSQL.replace("@Key", this.get_request()
-								.getParameter("Key"));
+						String fullSQL = me.getDoc().replace("@WebUser.getNo()", WebUser.getNo());
+						fullSQL = fullSQL.replace("@WebUser.getName()", WebUser.getName());
+						fullSQL = fullSQL.replace("@WebUser.getFK_Dept()", WebUser.getFK_Dept());
+						fullSQL = fullSQL.replace("@WebUser.getFK_DeptName()", WebUser.getFK_DeptName());
+						fullSQL = fullSQL.replace("@Key", this.get_request().getParameter("Key"));
 
 						if (fullSQL.contains("@")) {
 							Attrs attrsFull = mydtl.getEnMap().getAttrs();
@@ -1649,15 +1398,13 @@ public class DtlControlModel extends BaseModel {
 								}
 								if (fullSQL.contains("@" + attr.getKey() + ";") == false)
 									continue;
-								fullSQL = fullSQL.replace("@" + attr.getKey(),
-										mydtl.GetValStrByKey(attr.getKey()));
+								fullSQL = fullSQL.replace("@" + attr.getKey(), mydtl.GetValStrByKey(attr.getKey()));
 							}
 						}
 
 						if (fullSQL.contains("@")) {
 							// 从主表中取数据
-							Attrs attrsFull = this.getMainEn().getEnMap()
-									.getAttrs();
+							Attrs attrsFull = this.getMainEn().getEnMap().getAttrs();
 							for (Attr attr : attrsFull) {
 								if (fullSQL.contains("@") == false) {
 									break;
@@ -1667,36 +1414,29 @@ public class DtlControlModel extends BaseModel {
 									continue;
 								}
 
-								fullSQL = fullSQL.replace(
-										"@" + attr.getKey(),
-										this.getMainEn().GetValStrByKey(
-												attr.getKey()));
+								fullSQL = fullSQL.replace("@" + attr.getKey(),
+										this.getMainEn().GetValStrByKey(attr.getKey()));
 							}
 						}
 
 						// 宋洪刚 解决如果是退回状态，并且设置自动填充没有值情况下则不进行自动填充！
-						DataTable autoFullTable = DBAccess
-								.RunSQLReturnTable(fullSQL);
-						boolean isHaveValue = (valOld == null || valOld
-								.equals("")) ? true : false;
+						DataTable autoFullTable = DBAccess.RunSQLReturnTable(fullSQL);
+						boolean isHaveValue = (valOld == null || valOld.equals("")) ? true : false;
 						if (autoFullTable.Rows.size() > 0 || isHaveValue) {
 
 							ddlFull.Items.clear();
 							ddlFull.Bind(autoFullTable, "No", "Name");
 							if (ddlFull.SetSelectItem(valOld) == false) {
-								ddlFull.Items.add(0, new ListItem("请选择"
-										+ valOld, valOld));
+								ddlFull.Items.add(0, new ListItem("请选择" + valOld, valOld));
 								ddlFull.SetSelectItemByIndex(0);
 							}
 						}
-						ddlFull.attributes
-								.put("onchange", " SetChange (true);");
+						ddlFull.attributes.put("onchange", " SetChange (true);");
 						setHtmlByCtrl(ddlFull);
 					} else if (me.getExtType().equals(MapExtXmlList.TBFullCtrl))// 自动填充.
 					{
-						BaseWebControl tbCtl = ctrlMap.get("TB_"
-								+ me.getAttrOfOperToLowerCase() + "_"
-								+ mydtl.getOID());
+						BaseWebControl tbCtl = ctrlMap
+								.get("TB_" + me.getAttrOfOperToLowerCase() + "_" + mydtl.getOID());
 						if (tbCtl == null) {
 							continue;
 						}
@@ -1705,11 +1445,8 @@ public class DtlControlModel extends BaseModel {
 						if (tbAuto == null) {
 							continue;
 						}
-						tbAuto.attributes.put(
-								"onkeyup",
-								" SetChange (true); DoAnscToFillDiv(this,this.value,\'"
-										+ tbAuto.getId() + "\', \'"
-										+ me.getMyPK() + "\');");
+						tbAuto.attributes.put("onkeyup", " SetChange (true); DoAnscToFillDiv(this,this.value,\'"
+								+ tbAuto.getId() + "\', \'" + me.getMyPK() + "\');");
 						tbAuto.attributes.put("AUTOCOMPLETE", "OFF");
 						if (!me.getTag().equals("")) {
 							// 处理下拉框的选择范围的问题
@@ -1718,37 +1455,29 @@ public class DtlControlModel extends BaseModel {
 								String[] myCtl = str.split("[:]", -1);
 								String ctlID = myCtl[0];
 
-								BaseWebControl ddlCtl = ctrlMap.get("DDL_"
-										+ ctlID + "_" + mydtl.getOID());
+								BaseWebControl ddlCtl = ctrlMap.get("DDL_" + ctlID + "_" + mydtl.getOID());
 								if (ddlCtl == null) {
 									continue;
 								}
 								DDL ddlC1 = (DDL) ddlCtl;
 
 								String sql = myCtl[1].replace("~", "'");
-								sql = sql.replace("@WebUser.getNo()",
-										WebUser.getNo());
-								sql = sql.replace("@WebUser.getName()",
-										WebUser.getName());
-								sql = sql.replace("@WebUser.getFK_Dept()",
-										WebUser.getFK_Dept());
-								sql = sql.replace("@Key", tbAuto.getText()
-										.trim());
+								sql = sql.replace("@WebUser.getNo()", WebUser.getNo());
+								sql = sql.replace("@WebUser.getName()", WebUser.getName());
+								sql = sql.replace("@WebUser.getFK_Dept()", WebUser.getFK_Dept());
+								sql = sql.replace("@Key", tbAuto.getText().trim());
 								DataTable dt = DBAccess.RunSQLReturnTable(sql);
 								String valC1 = ddlC1.getSelectedItemStringVal();
 								ddlC1.Items.clear();
 								for (DataRow dr : dt.Rows) {
-									ddlC1.Items.add(new ListItem(dr.getValue(1)
-											.toString(), dr.getValue(0)
-											.toString()));
+									ddlC1.Items.add(new ListItem(dr.getValue(1).toString(), dr.getValue(0).toString()));
 								}
 								ddlC1.SetSelectItem(valC1);
 							}
 						}
 					} else if (me.getExtType().equals(MapExtXmlList.InputCheck)) {
-						BaseWebControl tbCtl = ctrlMap.get("TB_"
-								+ me.getAttrOfOperToLowerCase() + "_"
-								+ mydtl.getOID());
+						BaseWebControl tbCtl = ctrlMap
+								.get("TB_" + me.getAttrOfOperToLowerCase() + "_" + mydtl.getOID());
 
 						if (tbCtl == null) {
 							continue;
@@ -1757,16 +1486,12 @@ public class DtlControlModel extends BaseModel {
 						TextBox tbCheck = (TextBox) tbCtl;
 
 						if (tbCheck != null) {
-							tbCheck.addAttr(
-									me.getTag2(),
-									" rowPK=" + mydtl.getOID() + "; "
-											+ me.getTag1() + "(this);");
+							tbCheck.addAttr(me.getTag2(), " rowPK=" + mydtl.getOID() + "; " + me.getTag1() + "(this);");
 						}
 					} else if (me.getExtType().equals(MapExtXmlList.PopVal))// 弹出窗.
 					{
-						BaseWebControl tbCtl = ctrlMap.get("TB_"
-								+ me.getAttrOfOperToLowerCase() + "_"
-								+ mydtl.getOID());
+						BaseWebControl tbCtl = ctrlMap
+								.get("TB_" + me.getAttrOfOperToLowerCase() + "_" + mydtl.getOID());
 
 						if (tbCtl == null) {
 							continue;
@@ -1774,22 +1499,19 @@ public class DtlControlModel extends BaseModel {
 
 						TextBox tb = (TextBox) tbCtl;
 						tb.attributes.put("onfocus", "SetChange(false);");
-						tb.attributes.put(
-								"ondblclick",
-								" SetChange(false);ReturnVal(this,'"
-										+ me.getDoc() + "','sd');");
+						tb.attributes.put("ondblclick",
+								" SetChange(false);ReturnVal(this,'" + me.getDoc() + "','sd');");
 					} else if (me.getExtType().equals(MapExtXmlList.Link)) // 超链接.
 					{
 						// TB tb = this.Pub1.GetTBByID("TB_" +
 						// me.getAttrOfOper() + "_" + mydtl.getOID());
-						// tb.attributes.put("ondblclick"," isChange=true; ReturnVal(this,'"
+						// tb.attributes.put("ondblclick"," isChange=true;
+						// ReturnVal(this,'"
 						// + me.Doc + "','sd');";
-					} else if (me.getExtType().equals(
-							MapExtXmlList.RegularExpression)) // 正则表达式,对数据控件处理
+					} else if (me.getExtType().equals(MapExtXmlList.RegularExpression)) // 正则表达式,对数据控件处理
 					{
-						BaseWebControl tbCtl = ctrlMap.get("TB_"
-								+ me.getAttrOfOperToLowerCase() + "_"
-								+ mydtl.getOID());
+						BaseWebControl tbCtl = ctrlMap
+								.get("TB_" + me.getAttrOfOperToLowerCase() + "_" + mydtl.getOID());
 						if (tbCtl == null) {
 							continue;
 						}
@@ -1799,14 +1521,12 @@ public class DtlControlModel extends BaseModel {
 						}
 						// 验证输入的正则格式
 						String regFilter = me.getDoc();
-						if (regFilter.lastIndexOf("/g") < 0
-								&& regFilter.lastIndexOf('/') < 0) {
+						if (regFilter.lastIndexOf("/g") < 0 && regFilter.lastIndexOf('/') < 0) {
 							regFilter = "'" + regFilter + "'";
 						}
 						// 处理事件
 						tbExp.addAttr("" + me.getTag() + "",
-								"return txtTest_Onkeyup(this," + regFilter
-										+ ",'" + me.getTag1() + "')");
+								"return txtTest_Onkeyup(this," + regFilter + ",'" + me.getTag1() + "')");
 
 					}
 				}
@@ -1825,8 +1545,7 @@ public class DtlControlModel extends BaseModel {
 				if (!attr.getUIVisible()) {
 					continue;
 				}
-				if (attr.getField().equals(mdtl.getGroupField())
-						&& mdtl.getIsEnableGroupField()) {
+				if (attr.getField().equals(mdtl.getGroupField()) && mdtl.getIsEnableGroupField()) {
 					continue;
 				}
 
@@ -1842,22 +1561,16 @@ public class DtlControlModel extends BaseModel {
 					case DataType.AppRate:
 					case DataType.AppMoney:
 						DecimalFormat mformat = new DecimalFormat("0.00");
-						tb.setText(mformat.format(dtls.GetSumDecimalByKey(attr
-								.getKeyOfEn())));
-						tb.attributes.put("style", "width:" + attr.getUIWidth()
-								+ "px;text-align:right;border:none");
+						tb.setText(mformat.format(dtls.GetSumDecimalByKey(attr.getKeyOfEn())));
+						tb.attributes.put("style", "width:" + attr.getUIWidth() + "px;text-align:right;border:none");
 						break;
 					case DataType.AppInt:
-						tb.setText(String.valueOf(dtls.GetSumIntByKey(attr
-								.getKeyOfEn())));
-						tb.attributes.put("style", "width:" + attr.getUIWidth()
-								+ "px;text-align:right;border:none");
+						tb.setText(String.valueOf(dtls.GetSumIntByKey(attr.getKeyOfEn())));
+						tb.attributes.put("style", "width:" + attr.getUIWidth() + "px;text-align:right;border:none");
 						break;
 					case DataType.AppFloat:
-						tb.setText(String.valueOf(dtls.GetSumFloatByKey(attr
-								.getKeyOfEn())));
-						tb.attributes.put("style", "width:" + attr.getUIWidth()
-								+ "px;text-align:right;border:none");
+						tb.setText(String.valueOf(dtls.GetSumFloatByKey(attr.getKeyOfEn())));
+						tb.attributes.put("style", "width:" + attr.getUIWidth() + "px;text-align:right;border:none");
 						break;
 					default:
 						break;
@@ -1925,10 +1638,8 @@ public class DtlControlModel extends BaseModel {
 							continue;
 						}
 
-						if (ext.getTag().equals("1")
-								&& !ext.getDoc().equals("")) {
-							script += this.GenerAutoFull(
-									String.valueOf(dtl.getOID()), attrs, ext);
+						if (ext.getTag().equals("1") && !ext.getDoc().equals("")) {
+							script += this.GenerAutoFull(String.valueOf(dtl.getOID()), attrs, ext);
 						}
 					}
 					this.Pub1.append(top + script + end);
@@ -1950,11 +1661,9 @@ public class DtlControlModel extends BaseModel {
 					continue;
 				}
 
-				String top = "\n<script language='JavaScript'> function C"
-						+ attr.getKeyOfEn() + "() { \n ";
+				String top = "\n<script language='JavaScript'> function C" + attr.getKeyOfEn() + "() { \n ";
 				String end = "\n  isChange =true ;  } </script>";
-				this.Pub1.append(top + this.GenerSum(attr, dtls) + " ; \t\n"
-						+ end);
+				this.Pub1.append(top + this.GenerSum(attr, dtls) + " ; \t\n" + end);
 			}
 		}
 		// C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
@@ -1971,8 +1680,7 @@ public class DtlControlModel extends BaseModel {
 		isAddDDLSelectIdxChange = true;
 		this.Save();
 		try {
-			int addRow = Integer.parseInt(ddl.getSelectedItemStringVal()
-					.replace("+", "").replace("-", ""));
+			int addRow = Integer.parseInt(ddl.getSelectedItemStringVal().replace("+", "").replace("-", ""));
 			_allRowCount += addRow;
 		} catch (java.lang.Exception e) {
 
@@ -1980,42 +1688,23 @@ public class DtlControlModel extends BaseModel {
 
 		if (val.contains("+")) {
 
-			url = BP.WF.Glo.getCCFlowAppPath()
-					+ "WF/CCForm/Dtl2.jsp?EnsName="
-					+ this.getEnsName()
-					+ "&RefPKVal="
-					+ this.getRefPKVal()
-					+ "&PageIdx="
-					+ this.getPageIdx()
-					+ "&rowCount="
-					+ _allRowCount
-					+ "&AddRowNum="
-					+ ddl.getSelectedItemStringVal().replace("+", "")
-							.replace("-", "") + "&IsCut=0&IsWap="
-					+ this.getIsWap() + "&FK_Node=" + this.getFK_Node()
-					+ "&Key=" + this.get_request().getParameter("Key");
-		} else {
-			url = BP.WF.Glo.getCCFlowAppPath()
-					+ "Dtl2.jsp?EnsName="
-					+ this.getEnsName()
-					+ "&RefPKVal="
-					+ this.getRefPKVal()
-					+ "&PageIdx="
-					+ this.getPageIdx()
-					+ "&rowCount="
-					+ _allRowCount
-					+ "&AddRowNum="
-					+ ddl.getSelectedItemStringVal().replace("+", "")
-							.replace("-", "") + "&IsWap=" + this.getIsWap()
-					+ "&FK_Node=" + this.getFK_Node() + "&Key="
+			url = BP.WF.Glo.getCCFlowAppPath() + "WF/CCForm/Dtl2.jsp?EnsName=" + this.getEnsName() + "&RefPKVal="
+					+ this.getRefPKVal() + "&PageIdx=" + this.getPageIdx() + "&rowCount=" + _allRowCount + "&AddRowNum="
+					+ ddl.getSelectedItemStringVal().replace("+", "").replace("-", "") + "&IsCut=0&IsWap="
+					+ this.getIsWap() + "&FK_Node=" + this.getFK_Node() + "&Key="
 					+ this.get_request().getParameter("Key");
+		} else {
+			url = BP.WF.Glo.getCCFlowAppPath() + "Dtl2.jsp?EnsName=" + this.getEnsName() + "&RefPKVal="
+					+ this.getRefPKVal() + "&PageIdx=" + this.getPageIdx() + "&rowCount=" + _allRowCount + "&AddRowNum="
+					+ ddl.getSelectedItemStringVal().replace("+", "").replace("-", "") + "&IsWap=" + this.getIsWap()
+					+ "&FK_Node=" + this.getFK_Node() + "&Key=" + this.get_request().getParameter("Key");
 		}
 
 		try {
 			ContextHolderUtils.getResponse().sendRedirect(url);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.info("ERROR", e);
 		}
 	}
 
@@ -2036,8 +1725,7 @@ public class DtlControlModel extends BaseModel {
 				mainEn = mdtl.GenerGEMainEntity(this.getRefPKVal());
 				// 20150615 xiaozhoupeng 添加，原因ccflow 代码更新 END
 
-				String msg = fes.DoEventNode(EventListDtlList.DtlSaveEnd,
-						mainEn);
+				String msg = fes.DoEventNode(EventListDtlList.DtlSaveEnd, mainEn);
 				if (msg != null) {
 					// this.Alert(msg);
 				}
@@ -2067,8 +1755,7 @@ public class DtlControlModel extends BaseModel {
 			break;
 		}
 
-		int num = qo.DoQuery("OID", mdtl.getRowsOfList(), this.getPageIdx(),
-				false);
+		int num = qo.DoQuery("OID", mdtl.getRowsOfList(), this.getPageIdx(), false);
 		int dtlCount = dtls.size();
 		if (getallRowCount() == 0) {
 			mdtl.setRowsOfList(mdtl.getRowsOfList() + this.getaddRowNum());
@@ -2098,20 +1785,16 @@ public class DtlControlModel extends BaseModel {
 		// 判断是否有事件.
 		boolean isHaveBefore = false;
 		boolean isHaveEnd = false;
-		Object tempVar = fes.GetEntityByKey(FrmEventAttr.FK_Event,
-				EventListDtlList.DtlItemSaveBefore);
-		FrmEvent fe_Before = (FrmEvent) ((tempVar instanceof FrmEvent) ? tempVar
-				: null);
+		Object tempVar = fes.GetEntityByKey(FrmEventAttr.FK_Event, EventListDtlList.DtlItemSaveBefore);
+		FrmEvent fe_Before = (FrmEvent) ((tempVar instanceof FrmEvent) ? tempVar : null);
 		if (fe_Before == null) {
 			isHaveBefore = false;
 		} else {
 			isHaveBefore = true;
 		}
 
-		Object tempVar2 = fes.GetEntityByKey(FrmEventAttr.FK_Event,
-				EventListDtlList.DtlItemSaveAfter);
-		FrmEvent fe_End = (FrmEvent) ((tempVar2 instanceof FrmEvent) ? tempVar2
-				: null);
+		Object tempVar2 = fes.GetEntityByKey(FrmEventAttr.FK_Event, EventListDtlList.DtlItemSaveAfter);
+		FrmEvent fe_End = (FrmEvent) ((tempVar2 instanceof FrmEvent) ? tempVar2 : null);
 		if (fe_End == null) {
 			isHaveEnd = false;
 		} else {
@@ -2163,8 +1846,7 @@ public class DtlControlModel extends BaseModel {
 					// 小周鹏20150610修改，原因：ccflow 代码更新 End
 					if (isHaveBefore) {
 						try {
-							String r = fes.DoEventNode(
-									EventListDtlList.DtlItemSaveBefore, dtl);
+							String r = fes.DoEventNode(EventListDtlList.DtlItemSaveBefore, dtl);
 							if (r.equals("false") || r.equals("0")) {
 								continue;
 							}
@@ -2178,7 +1860,7 @@ public class DtlControlModel extends BaseModel {
 						dtl.InsertAsOID(DBAccess.GenerOID("Dtl"));
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
-						e.printStackTrace();
+						logger.info("ERROR", e);
 					}
 				} else {
 					if (this.getFID() != 0) {
@@ -2186,8 +1868,7 @@ public class DtlControlModel extends BaseModel {
 					}
 					if (isHaveBefore) {
 						try {
-							err += fes.DoEventNode(
-									EventListDtlList.DtlItemSaveBefore, dtl);
+							err += fes.DoEventNode(EventListDtlList.DtlItemSaveBefore, dtl);
 						} catch (RuntimeException ex) {
 							err += ex.getMessage();
 							continue;
@@ -2224,8 +1905,7 @@ public class DtlControlModel extends BaseModel {
 		// /#region 从表保存后处理事件。
 		if (fes.size() > 0) {
 			try {
-				String msg = fes.DoEventNode(EventListDtlList.DtlSaveEnd,
-						mainEn);
+				String msg = fes.DoEventNode(EventListDtlList.DtlSaveEnd, mainEn);
 				if (msg != null) {
 					// this.Alert(msg);
 				}
@@ -2240,8 +1920,7 @@ public class DtlControlModel extends BaseModel {
 		if (isTurnPage) {
 			int pageNum = 0;
 			int count = this.getDtlCount() + 1;
-			java.math.BigDecimal pageCountD = java.math.BigDecimal
-					.valueOf(count / mdtl.getRowsOfList()); // 页面个数。
+			java.math.BigDecimal pageCountD = java.math.BigDecimal.valueOf(count / mdtl.getRowsOfList()); // 页面个数。
 
 			DecimalFormat mformat = new DecimalFormat("0.0000");
 			String[] strs = mformat.format(pageCountD).split("[.]", -1);
@@ -2251,32 +1930,25 @@ public class DtlControlModel extends BaseModel {
 				pageNum = Integer.parseInt(strs[0]);
 			}
 			try {
-				ContextHolderUtils.getResponse().sendRedirect(
-						BP.WF.Glo.getCCFlowAppPath()
-								+ "WF/CCForm/Dtl2.jsp?EnsName="
-								+ this.getEnsName() + "&RefPKVal="
-								+ this.getRefPKVal() + "&PageIdx=" + pageNum
-								+ "&IsWap=" + this.getIsWap() + "&FK_Node="
-								+ this.getFK_Node() + "&FID=" + this.getFID()
-								+ "&Key=" + this.getKey());
+				ContextHolderUtils.getResponse()
+						.sendRedirect(BP.WF.Glo.getCCFlowAppPath() + "WF/CCForm/Dtl2.jsp?EnsName=" + this.getEnsName()
+								+ "&RefPKVal=" + this.getRefPKVal() + "&PageIdx=" + pageNum + "&IsWap="
+								+ this.getIsWap() + "&FK_Node=" + this.getFK_Node() + "&FID=" + this.getFID() + "&Key="
+								+ this.getKey());
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.info("ERROR", e);
 			}
 		} else {
 			try {
-				ContextHolderUtils.getResponse().sendRedirect(
-						BP.WF.Glo.getCCFlowAppPath()
-								+ "WF/CCForm/Dtl2.jsp?EnsName="
-								+ this.getEnsName() + "&RefPKVal="
-								+ this.getRefPKVal() + "&PageIdx="
-								+ this.getPageIdx() + "&IsWap="
-								+ this.getIsWap() + "&FK_Node="
-								+ this.getFK_Node() + "&FID=" + this.getFID()
-								+ "&Key=" + this.getKey());
+				ContextHolderUtils.getResponse()
+						.sendRedirect(BP.WF.Glo.getCCFlowAppPath() + "WF/CCForm/Dtl2.jsp?EnsName=" + this.getEnsName()
+								+ "&RefPKVal=" + this.getRefPKVal() + "&PageIdx=" + this.getPageIdx() + "&IsWap="
+								+ this.getIsWap() + "&FK_Node=" + this.getFK_Node() + "&FID=" + this.getFID() + "&Key="
+								+ this.getKey());
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.info("ERROR", e);
 			}
 		}
 	}
@@ -2344,21 +2016,18 @@ public class DtlControlModel extends BaseModel {
 
 				// right = right.Replace("@" + mattr.Name,
 				// " parseFloat( document.forms[0]." + tb.ClientID +
-				// ".value.replace( ',' ,  '' ) ) ");
+				// ".value.replace( ',' , '' ) ) ");
 				// right = right.Replace("@" + mattr.KeyOfEn,
 				// " parseFloat( document.forms[0]." + tb.ClientID +
-				// ".value.replace( ',' ,  '' ) ) ");
+				// ".value.replace( ',' , '' ) ) ");
 
 				right = right.replace("@" + mattr.getName(),
-						" parseFloat(replaceAll(document.forms[0]." + tbID
-								+ ".value,',' ,  '' ) ) ");
+						" parseFloat(replaceAll(document.forms[0]." + tbID + ".value,',' ,  '' ) ) ");
 				right = right.replace("@" + mattr.getKeyOfEn(),
-						" parseFloat( replaceAll(document.forms[0]." + tbID
-								+ ".value, ',' ,  '' ) ) ");
+						" parseFloat( replaceAll(document.forms[0]." + tbID + ".value, ',' ,  '' ) ) ");
 			}
 			String s = left + right;
-			s += "\t\n  document.forms[0]." + leftTbId
-					+ ".value= VirtyMoney(document.forms[0]." + leftTbId
+			s += "\t\n  document.forms[0]." + leftTbId + ".value= VirtyMoney(document.forms[0]." + leftTbId
 					+ ".value ) ;";
 			return s += " C" + ext.getAttrOfOper() + "();";
 		} catch (RuntimeException ex) {
@@ -2377,8 +2046,7 @@ public class DtlControlModel extends BaseModel {
 		String right = "";
 		int i = 0;
 		for (GEDtl dtl : GEDtls.convertGEDtls(dtls)) {
-			String tbID = "TB_" + mattr.getKeyOfEnToLowerCase() + "_"
-					+ dtl.getOID();
+			String tbID = "TB_" + mattr.getKeyOfEnToLowerCase() + "_" + dtl.getOID();
 
 			if (i == 0) {
 				right += " parseVal2Float('" + tbID + "')";
@@ -2391,8 +2059,7 @@ public class DtlControlModel extends BaseModel {
 		switch (mattr.getMyDataType()) {
 		case BP.DA.DataType.AppMoney:
 		case BP.DA.DataType.AppRate:
-			return s += "\t\n  document.forms[0]." + clientID
-					+ ".value= VirtyMoney(document.forms[0]." + clientID
+			return s += "\t\n  document.forms[0]." + clientID + ".value= VirtyMoney(document.forms[0]." + clientID
 					+ ".value ) ;";
 		default:
 			return s;
@@ -2405,8 +2072,7 @@ public class DtlControlModel extends BaseModel {
 	 * @param control
 	 */
 	private void setHtmlByCtrl(BaseWebControl control) {
-		String replacedHtml = HtmlUtils.setCtrlHtml(control,
-				this.Pub1.toString());
+		String replacedHtml = HtmlUtils.setCtrlHtml(control, this.Pub1.toString());
 		Pub1 = new StringBuilder(replacedHtml);
 	}
 }
