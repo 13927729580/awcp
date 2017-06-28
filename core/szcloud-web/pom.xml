@@ -300,5 +300,11 @@
 			<artifactId>cxf-common-utilities</artifactId>
 			<version>${cxf.version}</version>
 		</dependency>
+		<!-- openoffice -->
+		<dependency>
+			<groupId>com.github.livesense</groupId>
+			<artifactId>jodconverter-core</artifactId>
+			<version>1.0.5</version>
+		</dependency>
 	</dependencies>
 </project>

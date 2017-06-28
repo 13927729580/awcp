@@ -42,8 +42,11 @@
 						return;
 					}
 					var name =textNames[i];
-					var html='<div class="col-md-3"><div class="input-group"><span class="input-group-addon">'+e+'</span><input name="'+name+'" class="'+textPrefix+' form-control"/></div></div>';
-					$(that.option.container).append(html);
+					var html='<div class="col-xs-6 col-sm-2 col-md-2 col-lg-2" style="margin-bottom:10px"><div class="input-group"><span class="input-group-addon">'+e+'</span><input name="'+name+'" class="'+textPrefix+' form-control"/></div></div>';
+					var $warp=$(html);
+					$(that.option.container).append($warp);
+					var $tag=$warp.find("."+textPrefix);
+					that.setDefaultValue($tag);
 				})
 			},
 			initSelect:function(){
@@ -59,7 +62,7 @@
 					}
 					var option =selectOptions[i];
 					var name =selectNames[i];
-					var html='<div class="col-md-3"><div class="input-group"><span class="input-group-addon">'+e+'</span><select name="'+name+'" class="'+selectPrefix+' form-control"></select></div></div>';
+					var html='<div class="col-xs-6 col-sm-2 col-md-2 col-lg-2"  style="margin-bottom:10px"><div class="input-group"><span class="input-group-addon">'+e+'</span><select name="'+name+'" class="'+selectPrefix+' form-control"></select></div></div>';
 					var data;
 					//查找是否是动态语句查找
 					if(option.indexOf("=")==-1){
@@ -79,7 +82,26 @@
 					$(that.option.container).append($warp);
 					var $tag=$warp.find("."+selectPrefix);
 					Comm.setSelectData($tag,data);
+					that.setDefaultValue($tag);
 				})
+			},
+			setDefaultValue:function($tag){
+				var name=$tag.attr("name");
+				if($tag.is("select")){
+					if(location.href==document.referrer||location.href+"?dynamicPageId="+$("#dynamicPageId").val()==document.referrer){
+						$tag.val(Comm.get(this.selectPrefix+name));
+					}
+					$tag.bind("change",function(){
+						Comm.set(this.selectPrefix+name,this.value);
+					})
+				}else{
+					if(location.href==document.referrer||location.href+"?dynamicPageId="+$("#dynamicPageId").val()==document.referrer){
+						$tag.val(Comm.get(this.textPrefix+name));
+					}
+					$tag.bind("blur",function(){
+						Comm.set(this.textPrefix+name,this.value);
+					})
+				}
 			}
 			
 	}
