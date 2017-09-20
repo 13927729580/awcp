@@ -6,7 +6,6 @@ import java.util.TreeSet;
 import org.szcloud.framework.metadesigner.core.generator.provider.java.model.JavaClass;
 import org.szcloud.framework.metadesigner.core.generator.util.StringHelper;
 
-
 public class JavaImport {
     TreeSet<String> imports = new TreeSet<String>();
 
@@ -25,9 +24,9 @@ public class JavaImport {
         return imports;
     }
     
-    public static void addImportClass(Set<JavaClass> set, Class... clazzes) {
+    public static void addImportClass(Set<JavaClass> set, Class<?>... clazzes) {
         if(clazzes == null) return;
-        for(Class c : clazzes) {
+        for(Class<?> c : clazzes) {
             if(c == null) continue;
             if(c.getName().startsWith("java.lang.")) continue;
             if(c.isPrimitive()) continue;

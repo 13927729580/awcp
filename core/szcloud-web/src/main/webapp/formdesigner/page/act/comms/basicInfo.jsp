@@ -32,6 +32,10 @@
 		<div class='col-md-5'>
 			<input name="name" class="form-control" id="name" type="text" value="${act.name }"> 
 		</div>
+		<label class="col-md-1 control-label">英文名称</label>
+		<div class='col-md-5'>
+			<input name="enName" class="form-control" id="enName" type="text" value="${act.enName }"> 
+		</div>
 		
 		<label class="col-md-1 control-label">风格</label>
 		<div class='col-md-5'>

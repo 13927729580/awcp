@@ -48,7 +48,6 @@ public class SystemContext {
 		if (fileName == null) {
 			fileName = DEFAULT_CONFIG;
 		}
-
 		this.initConext(new File(fileName));
 	}
 
@@ -99,7 +98,6 @@ public class SystemContext {
 		if (value == null) {
 			value = defaultValue;
 		}
-
 		return value;
 	}
 
@@ -113,7 +111,6 @@ public class SystemContext {
 		if (value != null && value.trim().length() > 0) {
 			defaultValue = Integer.parseInt(value.trim());
 		}
-
 		return defaultValue;
 	}
 
@@ -122,7 +119,6 @@ public class SystemContext {
 		if (value != null && value.trim().length() > 0) {
 			defaultValue = Boolean.parseBoolean(value.trim());
 		}
-
 		return defaultValue;
 	}
 

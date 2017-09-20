@@ -24,14 +24,14 @@ public class DataSourceManageServiceImpl implements DataSourceManageService{
 	private QueryChannelService queryChannel;
 	
 	public long save(DataSourceManageVO vo) {
-		DataSourceManage dsm=BeanUtils.getNewInstance(vo, DataSourceManage.class);
+		DataSourceManage dsm = BeanUtils.getNewInstance(vo, DataSourceManage.class);
 		dsm.save();
 		vo.setId(dsm.getId());
 		return dsm.getId();
 	}
 
 	public boolean delete(DataSourceManageVO vo) {
-		DataSourceManage dsm=BeanUtils.getNewInstance(vo, DataSourceManage.class);
+		DataSourceManage dsm = BeanUtils.getNewInstance(vo, DataSourceManage.class);
 		try {
 			dsm.remove();
 			return true;
@@ -41,57 +41,52 @@ public class DataSourceManageServiceImpl implements DataSourceManageService{
 	}
 
 	public boolean update(DataSourceManageVO vo) {
-		DataSourceManage dsm=BeanUtils.getNewInstance(vo, DataSourceManage.class);
+		DataSourceManage dsm = BeanUtils.getNewInstance(vo, DataSourceManage.class);
 		try {
 			dsm.save();
 			return true;
 		} catch (Exception e) {
 			return false;
 		}
-
 	}
 
 	public List<DataSourceManageVO> findAll() {
-		List<DataSourceManage> ls=new DataSourceManage().findAll(DataSourceManage.class);
-		List<DataSourceManageVO> list=new ArrayList<DataSourceManageVO>();
+		List<DataSourceManage> ls = DataSourceManage.findAll(DataSourceManage.class);
+		List<DataSourceManageVO> list = new ArrayList<DataSourceManageVO>();
 		for(DataSourceManage d:ls){
 			list.add(BeanUtils.getNewInstance(d, DataSourceManageVO.class));
-		}
-		
+		}		
 		return list;
 	}
 
 	public DataSourceManageVO get(long id) {
-		DataSourceManage dsm=DataSourceManage.get(DataSourceManage.class, id);
-		DataSourceManageVO dsmv=BeanUtils.getNewInstance(dsm, DataSourceManageVO.class);
+		DataSourceManage dsm = DataSourceManage.get(DataSourceManage.class, id);
+		DataSourceManageVO dsmv = BeanUtils.getNewInstance(dsm, DataSourceManageVO.class);
 		return dsmv;
 	}
 
 	public DataSourceManageVO queryDataSourceByName(String name) {
-		Map<String,Object> map=new HashMap<String, Object>();
+		Map<String,Object> map = new HashMap<String, Object>();
 		map.put("name", name);
-		DataSourceManage dsm=this.queryChannel.querySingleResult(DataSourceManage.class, "queryResult", map);
+		DataSourceManage dsm = queryChannel.querySingleResult(DataSourceManage.class, "queryResult", map);
 		if(dsm==null){
 			return null;
 		}else{
-			DataSourceManageVO dsmv=BeanUtils.getNewInstance(dsm, DataSourceManageVO.class);
+			DataSourceManageVO dsmv = BeanUtils.getNewInstance(dsm, DataSourceManageVO.class);
 			return dsmv;
-		}
-		
+		}		
 	}
 	
-	public PageList<DataSourceManageVO> selectPagedByExample(
-			BaseExample baseExample, int currentPage, int pageSize,
-			String sortString) {
-		PageList<DataSourceManage> result = queryChannel.selectPagedByExample(DataSourceManage.class,
-				baseExample, currentPage, pageSize, sortString);
+	public PageList<DataSourceManageVO> selectPagedByExample(BaseExample baseExample, 
+			int currentPage, int pageSize,String sortString) {
+		PageList<DataSourceManage> result = queryChannel.selectPagedByExample(DataSourceManage.class,baseExample, 
+				currentPage, pageSize, sortString);
 		List<DataSourceManageVO> resultVO = new ArrayList<DataSourceManageVO>();
 		for (Object dd : result) {
 			resultVO.add(BeanUtils.getNewInstance(dd, DataSourceManageVO.class));			
 		}
 		PageList<DataSourceManageVO> rv = new PageList<DataSourceManageVO>(resultVO,result.getPaginator());
 		result.clear();
-		
 		return rv;
 	}
 	
@@ -99,13 +94,13 @@ public class DataSourceManageServiceImpl implements DataSourceManageService{
 		Map<String,Object> map=new HashMap<String, Object>();
 		map.put("name", name);
 		map.put("systemId", systemId);
-		DataSourceManage dsm=this.queryChannel.querySingleResult(DataSourceManage.class, "queryDataSourceByNameAndSystemId", map);
+		DataSourceManage dsm = queryChannel.querySingleResult(DataSourceManage.class, "queryDataSourceByNameAndSystemId", map);
 		if(dsm==null){
 			return null;
 		}else{
-			DataSourceManageVO dsmv=BeanUtils.getNewInstance(dsm, DataSourceManageVO.class);
+			DataSourceManageVO dsmv = BeanUtils.getNewInstance(dsm, DataSourceManageVO.class);
 			return dsmv;
-		}
-		
+		}	
 	}
+	
 }

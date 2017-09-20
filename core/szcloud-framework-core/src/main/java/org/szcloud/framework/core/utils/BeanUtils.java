@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (c) OpenKoala 2011 All Rights Reserved
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -24,10 +24,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
-
 public class BeanUtils {
-    
-    
+      
     /**
      * <b>实体值复制</b> <br>
      * @author vakin jiang <br />

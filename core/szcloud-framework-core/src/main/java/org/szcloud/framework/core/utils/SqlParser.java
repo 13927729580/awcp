@@ -30,7 +30,6 @@ public class SqlParser implements SqlUtil.Parser {
     static {
         COUNT_ITEM = new ArrayList<SelectItem>();
         COUNT_ITEM.add(new SelectExpressionItem(new Column("count(*)")));
-
         TABLE_ALIAS = new Alias("table_count");
         TABLE_ALIAS.setUseAs(false);
     }

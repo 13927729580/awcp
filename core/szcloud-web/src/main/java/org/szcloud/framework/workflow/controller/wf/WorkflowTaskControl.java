@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -22,6 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -32,6 +34,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.szcloud.framework.base.BaseController;
 import org.szcloud.framework.core.domain.BaseExample;
+import org.szcloud.framework.core.domain.SzcloudJdbcTemplate;
 import org.szcloud.framework.core.utils.SessionUtils;
 import org.szcloud.framework.core.utils.Springfactory;
 import org.szcloud.framework.core.utils.constants.SessionContants;
@@ -46,12 +49,15 @@ import org.szcloud.framework.formdesigner.core.domain.design.context.act.PageAct
 import org.szcloud.framework.formdesigner.core.engine.FreeMarkers;
 import org.szcloud.framework.formdesigner.utils.DocUtils;
 import org.szcloud.framework.formdesigner.utils.DocumentUtils;
+import org.szcloud.framework.formdesigner.utils.PageBindUtil;
 import org.szcloud.framework.formdesigner.utils.ScriptEngineUtils;
 import org.szcloud.framework.metadesigner.application.MetaModelOperateService;
 import org.szcloud.framework.unit.service.PunPositionService;
 import org.szcloud.framework.unit.service.PunUserBaseInfoService;
 import org.szcloud.framework.unit.service.PunUserGroupService;
 import org.szcloud.framework.unit.vo.PunUserBaseInfoVO;
+import org.szcloud.framework.venson.common.I18nKey;
+import org.szcloud.framework.venson.controller.base.ControllerContext;
 import org.szcloud.framework.venson.controller.base.ControllerHelper;
 import org.szcloud.framework.venson.controller.base.ReturnResult;
 import org.szcloud.framework.venson.controller.base.StatusCode;
@@ -97,8 +103,6 @@ public class WorkflowTaskControl extends BaseController {
 
 	@Resource(name = "metaModelOperateServiceImpl")
 	private MetaModelOperateService meta;
-
-	private CWorkItem lo_Item = null;
 
 	@Resource(name = "punUserGroupServiceImpl")
 	private PunUserGroupService punUserGroupService;
@@ -390,31 +394,43 @@ public class WorkflowTaskControl extends BaseController {
 		return result;
 	}
 
+	private static final String preset = "005";
+
 	private Map executeAct(final HttpServletRequest request, HttpServletResponse response) {
 
-		org.szcloud.framework.core.domain.SzcloudJdbcTemplate jdbcTemplate1 = Springfactory.getBean("jdbcTemplate");
+		SzcloudJdbcTemplate jdbcTemplate1 = Springfactory.getBean("jdbcTemplate");
 
 		String docId = request.getParameter("docId");
 		String pageId = request.getParameter("dynamicPageId");
 		String flowTempleteId = request.getParameter("FK_Flow");
 		String fid = request.getParameter("FID");
 		String workItemId = request.getParameter("WorkID");
+		boolean isNewWork = false;
+		// 如果是新增流程则创建workId
+		if (!StringUtils.isNumeric(workItemId)) {
+			Flow currFlow = new Flow(flowTempleteId);
+			Work currWK = currFlow.NewWork();
+			workItemId = currWK.getOID() + "";
+			isNewWork = true;
+		}
+
 		String entryId = request.getParameter("FK_Node");
 		String workflowId = request.getParameter("workflowId");
 		String actId = request.getParameter("actId");
 		String update = request.getParameter("update");
 		String masterDataSource = request.getParameter("masterDataSource");
 		// json格式的对话框参数
-		String paras = request.getParameter("slectsUserIds");
+		String slectsUserIds = request.getParameter("slectsUserIds");
+		String acte = request.getParameter("actType");
 
 		Integer actType = 0;
 
 		String toNode = request.getParameter("toNode");
 
-		logger.debug("===================paras:" + paras);
+		logger.debug("===================slectsUserIds:" + slectsUserIds);
 
 		// 返回信息
-		Map resultMap = new HashMap();
+		Map<String, Object> resultMap = new HashMap();
 		DynamicPageVO pageVO = null;
 		PunUserBaseInfoVO user = null;
 		DocumentVO docVo = new DocumentVO();
@@ -422,9 +438,9 @@ public class WorkflowTaskControl extends BaseController {
 		StoreVO store = null;
 		PageActVO act = null;
 		ScriptEngine engine = null;
-		DocumentUtils utils = null;
 		Enumeration enumeration = null;
 		Map<String, Object> extMap = new HashMap<String, Object>();
+		DocumentUtils utils;
 		try {
 			// 获取当前登录用户
 			jdbcTemplate1.beginTranstaion();
@@ -473,7 +489,7 @@ public class WorkflowTaskControl extends BaseController {
 			}
 
 			// 设置主数据源
-			if (docVo.getListParams().size() == 1) {
+			if (docVo.getListParams().size() >= 1) {
 				masterDataSource = docVo.getListParams().keySet().iterator().next();
 			}
 
@@ -481,9 +497,22 @@ public class WorkflowTaskControl extends BaseController {
 			utils = (DocumentUtils) engine.get("DocumentUtils");
 			if (StringUtils.isNotEmpty(docVo.getRecordId()))
 				utils.setDataItem(masterDataSource, "ID", docVo.getRecordId());
-			actType = act.getActType();
+			// 流程标题
+			String dd_message_title = request.getParameter("dd_message_title");
+			if (StringUtils.isNotBlank(dd_message_title)) {
+				utils.setDataItem(masterDataSource, "title", dd_message_title);
+			}
+			// 判断是否有权限处理
+			if (!"2026".equals(acte) && isNewWork == false) {
+				if (Dev2Interface.Flow_IsCanDoCurrentWork(flowTempleteId, Integer.parseInt(entryId),
+						Long.parseLong(workItemId), WebUser.getNo()) == false) {
+					resultMap.put("success", false);
+					resultMap.put("message", ControllerHelper.getMessage("wf_not_can_do"));
+					jdbcTemplate1.commit();
+					return resultMap;
+				}
+			}
 			// 根据actType 执行其默认操作
-			String acte = request.getParameter("actType");
 			actType = StringUtils.isNumeric(acte) ? Integer.parseInt(acte) : act.getActType();
 			switch (actType) {
 			case 2000:
@@ -491,67 +520,72 @@ public class WorkflowTaskControl extends BaseController {
 			case 2002:
 			case 2006:
 				// 流程回撤
-				JFlowAdapter.Node_SaveWork(masterDataSource, utils, user, resultMap, docVo, flowTempleteId, entryId,
-						workItemId);
+				JFlowAdapter.Flow_DoUnSend(resultMap, flowTempleteId, workItemId);
 				break;
 
 			case 2008:
 				// 根据选中的人员ID，组装信息
-				JFlowAdapter.Node_SaveWork(masterDataSource, utils, user, resultMap, docVo, flowTempleteId, entryId,
-						workItemId);
+				JFlowAdapter.Node_SaveWork(masterDataSource, utils, user, resultMap, docVo);
 
 				break;
 			case 2011:// 流程流转(发送)
-				// 根据选中的人员ID，组装信息
-				if (paras != null && !paras.equals("")) {
-
-					JFlowAdapter.Node_SendWork(masterDataSource, utils, user, resultMap, docVo, flowTempleteId,
-							workItemId, entryId, getToUsers(request, paras));
-				}
-				break;
 			case 2018:// 流程转发
 				// 根据选中的人员ID，组装信息
-
-				JFlowAdapter.Node_SendWork(masterDataSource, utils, user, resultMap, docVo, flowTempleteId, workItemId,
-						entryId, getToUsers(request, paras));
-
+				if (StringUtils.isNotBlank(slectsUserIds)) {
+					JFlowAdapter.Node_SendWork(masterDataSource, utils, resultMap, docVo,
+							getToUsers(request, slectsUserIds));
+					afterExecuteFlow(docVo, masterDataSource, jdbcTemplate1, resultMap);
+				} else {
+					resultMap.put("success", false);
+					resultMap.put("message", ControllerHelper.getMessage(I18nKey.wf_select_least_person));
+					return resultMap;
+				}
 				break;
 			case 2019:// 流程传阅
-				JFlowAdapter.Node_SendWork(masterDataSource, utils, user, resultMap, docVo, flowTempleteId, workItemId,
-						entryId);
+				JFlowAdapter.Node_SendWork(masterDataSource, utils, resultMap, docVo, null);
+				afterExecuteFlow(docVo, masterDataSource, jdbcTemplate1, resultMap);
 				break;
-			case 2020:// 流程图
-
+			case 2026:// 流程撤销
+				// 状态撤销
+				request.setAttribute("state", 3);
+				JFlowAdapter.Flow_DoFlowOverByCoercion(resultMap, flowTempleteId, Integer.valueOf(entryId),
+						Long.valueOf(workItemId), Long.valueOf(fid), WFState.Undo);
+				insertIntoLogs(docVo, user.getUserIdCardNumber(),
+						ControllerHelper.getMessage(I18nKey.wf_approval_undo));
 				break;
-			case 2021:// 流程归档
+			case 2027:// 流程拒绝
+				// 状态拒绝
+				request.setAttribute("state", 1);
+				JFlowAdapter.Flow_DoFlowOverByCoercion(resultMap, flowTempleteId, Integer.valueOf(entryId),
+						Long.valueOf(workItemId), Long.valueOf(fid), WFState.Reject);
+				afterExecuteFlow(docVo, masterDataSource, jdbcTemplate1, resultMap);
 				break;
-			case 2022:// 流程办结
+			case 2017:// 流程办结
 				JFlowAdapter.Flow_DoFlowOverByCoercion(resultMap, flowTempleteId, Integer.valueOf(entryId),
 						Long.valueOf(workItemId), Long.valueOf(fid), "");
+
 				break;
 			case 2023:// 流程退回
-				JFlowAdapter.Flow_returnWork(resultMap, flowTempleteId, Integer.valueOf(entryId),
-						Long.valueOf(workItemId), Long.valueOf(fid), "", user.getUserIdCardNumber(), toNode,
+				JFlowAdapter.Flow_returnWork(resultMap, Long.valueOf(fid), "", user.getUserIdCardNumber(), toNode,
 						masterDataSource, utils, docVo);
 				break;
 			case 2024:// 加签
 				// 根据选中的人员ID，组装信息
-				if (paras != null && !paras.equals("")) {
-					JFlowAdapter.Node_AskFor(masterDataSource, utils, user, resultMap, docVo, flowTempleteId,
-							workItemId, entryId, getToUsers(request, paras));
+				if (StringUtils.isNotBlank(slectsUserIds)) {
+					JFlowAdapter.Node_AskFor(masterDataSource, utils, user, resultMap, docVo,
+							getToUsers(request, slectsUserIds));
+					afterExecuteFlow(docVo, masterDataSource, jdbcTemplate1, resultMap);
+				} else {
+					resultMap.put("success", false);
+					resultMap.put("message", ControllerHelper.getMessage(I18nKey.wf_select_least_person));
+					return resultMap;
 				}
 				break;
 			case 2025:// 已阅
 				Dev2Interface.Node_DoCCCheckNote(workflowId, Integer.parseInt(entryId), Long.parseLong(workItemId),
-						Long.parseLong(fid), "已阅");
-				boolean flag = JFlowAdapter.saveExecuteData(utils, docVo, masterDataSource);
-				if (flag) {
-					resultMap.put("success", true);
-					resultMap.put("message", "已阅。");
-				} else {
-					resultMap.put("success", false);
-					resultMap.put("message", "表单数据保存失败");
-				}
+						Long.parseLong(fid), I18nKey.wf_send_success);
+				resultMap.put("success", true);
+				resultMap.put("message", ControllerHelper.getMessage(I18nKey.wf_send_success));
 				break;
 			}
 
@@ -559,22 +593,18 @@ public class WorkflowTaskControl extends BaseController {
 			resultMap.put("WorkItemID", docVo.getWorkItemId());
 			resultMap.put("EntryID", docVo.getEntryId());
 			resultMap.put("dynamicPageId", pageId);
+			resultMap.put("flowTempleteId", flowTempleteId);
+			resultMap.put("FID", fid);
 			jdbcTemplate1.commit();
 			return resultMap;
 		} catch (Exception e) {
 			logger.info("ERROR", e);
-			// arg0.setRollbackOnly();
 			try {
 				jdbcTemplate1.rollback();
 			} catch (Exception e1) {
-				// Auto-generated catch block
-				logger.info("ERROR", e1);
 			}
 			resultMap.put("success", false);
-			if (e.getMessage() != null)
-				resultMap.put("message", e.getMessage());
-			else
-				resultMap.put("message", "操作失败!");
+			resultMap.put("message", ControllerHelper.getMessage(I18nKey.wf_operation_failure));
 
 		} finally {
 			pageVO = null;
@@ -594,16 +624,23 @@ public class WorkflowTaskControl extends BaseController {
 		return resultMap;
 	}
 
-	private String getToUsers(final HttpServletRequest request, String paras) {
+	/**
+	 * 获取转发用户
+	 * 
+	 * @param request
+	 * @param slectsUserIds
+	 * @return
+	 */
+	private String getToUsers(final HttpServletRequest request, String slectsUserIds) {
+		Object direct = request.getAttribute("direct");
+		if (HttpRequestDeviceUtils.isMobileDevice(request) || direct != null) {
+			// List<Map<String, Object>> person = (List<Map<String, Object>>)
+			// JSON.parse(slectsUserIds);
+			// slectsUserIds = person.get(0).get("value").toString();
+			return slectsUserIds;
+		}
 		StringBuffer sb = new StringBuffer();
-		if (HttpRequestDeviceUtils.isMobileDevice(request)) {
-			List<Map<String, Object>> person = (List<Map<String, Object>>) JSON.parse(paras);
-			paras = person.get(0).get("value").toString();
-		}
-		if (StringUtils.isBlank(paras)) {
-			throw new RuntimeException("请至少选择一个人员。");
-		}
-		String[] strs = paras.split(",");
+		String[] strs = slectsUserIds.split(",");
 		for (String s : strs) {
 			if (s != null && !s.equals("")) {
 				PunUserBaseInfoVO pbi = userService.findById(Long.parseLong(s));
@@ -613,6 +650,150 @@ public class WorkflowTaskControl extends BaseController {
 
 		}
 		return sb.substring(0, sb.length() - 1).toString();
+	}
+
+	private void afterExecuteFlow(DocumentVO docVo, String masterDataSource, SzcloudJdbcTemplate jdbcTemplate1,
+			Map<String, Object> resultMap) {
+		if (preset.equals(docVo.getFlowTempleteId()) && resultMap.containsKey("success")
+				&& (Boolean) resultMap.get("success")) {
+			// 执行消息推送
+			addPush(docVo, masterDataSource, jdbcTemplate1);
+			// 流程日志
+			addLogs(docVo);
+		}
+	}
+
+	private void addLogs(DocumentVO docVo) {
+		// 查看是否属于预置流程
+		if (preset.equals(docVo.getFlowTempleteId())) {
+
+			String userId = ControllerHelper.getUser().getUserIdCardNumber();
+			HttpServletRequest request = ControllerContext.getRequest();
+			String content = request.getParameter("work_logs_content");
+			Object CURRENT_NODE = request.getAttribute("CURRENT_NODE");
+			Object state = request.getAttribute("state");
+			int currentNode = 0;
+			if (CURRENT_NODE != null) {
+				// 先从流程预设中获取
+				currentNode = Integer.parseInt(CURRENT_NODE + "");
+			}
+			// 默认意见为同意。
+			if (StringUtils.isBlank(content)) {
+				content = ControllerHelper.getMessage(I18nKey.wf_agree);
+			}
+			if (state == null) {
+				state = 0;
+			}
+			String today = DocumentUtils.getIntance().today();
+			try {
+				// 取出发送时间为空，并且创建时间最早的那条记录ID
+				Integer id = this.jdbcTemplate.queryForObject(
+						"select ID from p_fm_work_logs where WORK_ID=? and creator=? and CURRENT_NODE=? and send_time is null order by create_time limit 0,1",
+						Integer.class, docVo.getWorkItemId(), userId, currentNode);
+				// 如果记录表已经存在该成员的日志则直接更新,没有则插入
+				String sql = "update p_fm_work_logs set send_time=?, content=?,state=? where id=?";
+				this.jdbcTemplate.update(sql, today, content, state, id);
+			} catch (DataAccessException e) {
+				insertIntoLogs(docVo, userId, content);
+			}
+		}
+	}
+
+	private void insertIntoLogs(DocumentVO docVo, String userId, String content) {
+		if (preset.equals(docVo.getFlowTempleteId())) {
+			HttpServletRequest request = ControllerContext.getRequest();
+			Object CURRENT_NODE = request.getAttribute("CURRENT_NODE");
+			String today = DocumentUtils.getIntance().today();
+			String sql = "insert into p_fm_work_logs(CONTENT,WORK_ID,PAGE_ID,CREATOR,SEND_TIME,CURRENT_NODE,state) values(?,?,?,?,?,?,?)";
+			Object state = request.getAttribute("state");
+			if (state == null) {
+				state = 0;
+			}
+			// 如果没有指定排序则自动生成排序
+			if (CURRENT_NODE == null) {
+				// 流程预设中不存在则自动生成
+				Integer currentNode = this.jdbcTemplate.queryForObject(
+						"select max(CURRENT_NODE) from p_fm_work_logs where WORK_ID=?", Integer.class,
+						docVo.getWorkItemId());
+				this.jdbcTemplate.update(sql, content, docVo.getWorkItemId(), docVo.getDynamicPageId(), userId, today,
+						currentNode, state);
+			} else {
+				this.jdbcTemplate.update(sql, content, docVo.getWorkItemId(), docVo.getDynamicPageId(), userId, today,
+						CURRENT_NODE, state);
+			}
+		}
+	}
+
+	/**
+	 * 增加消息推送
+	 * 
+	 * @param workItemId
+	 * @param entryId
+	 */
+	private void addPush(DocumentVO vo, String masterDataSource, SzcloudJdbcTemplate jdbcTemplate1) {
+		String workItemId = vo.getWorkItemId();
+		String fid = vo.getFid();
+		if (fid != null && !fid.equals("0")) {
+			workItemId = fid;
+		}
+		String sql;
+		String wf_approval_result = ControllerHelper.getMessage(I18nKey.wf_approval_result);
+		String wf_approval_reject = ControllerHelper.getMessage(I18nKey.wf_approval_reject);
+		sql = "select starter FK_EMP,workid,FK_Node,RDT,FID,concat(title,(CASE wfstate WHEN 13 THEN '"
+				+ wf_approval_reject + "' ELSE  '" + wf_approval_result
+				+ "' END)) title from wf_generworkflow where wfstate<>12 and workid=? and wfsta=1";
+		List<Map<String, Object>> emps = this.jdbcTemplate.queryForList(sql, workItemId);
+		if (!emps.isEmpty()) {
+			if ((emps.get(0).get("title") + "").contains(wf_approval_result)) {
+				sql = "select a.CCTo FK_EMP,a.workid,a.FK_Node,a.RDT,a.FID,concat(b.title,'"
+						+ ControllerHelper.getMessage(I18nKey.wf_approval_CC)
+						+ "') title from wf_cclist a left join wf_generworkflow b on a.workid=b.workid where a.workid=?";
+				emps.addAll(this.jdbcTemplate.queryForList(sql, workItemId));
+			}
+		} else {
+			sql = "SELECT DISTINCT FID,FK_Node,workid,FK_EMP,RDT  FROM wf_generworkerlist WHERE IsPass=0 AND (workid=? or FID=?) ";
+			emps = jdbcTemplate.queryForList(sql, workItemId, workItemId);
+		}
+
+		if (!emps.isEmpty()) {
+			HttpServletRequest request = ControllerContext.getRequest();
+
+			// 流程标题
+			String dd_message_title = request.getParameter("dd_message_title");
+			dd_message_title = StringUtils.isBlank(dd_message_title) ? "流程处理" : dd_message_title;
+			List<Map<String, Object>> data = jdbcTemplate
+					.queryForList("select * from " + vo.getTableName() + " where id=? ", vo.getRecordId());
+			// 去app表中查找需要显示的字段
+			Object FIELDS = meta.queryObject("SELECT FIELDS FROM dd_apps WHERE dynamicPageId=?", vo.getDynamicPageId());
+			Map<String, String> content = new LinkedHashMap<>();
+			if (FIELDS instanceof String) {
+				String[] fields = ((String) FIELDS).split(",");
+				Map<String, Object> params = data.get(0);
+				for (String str : fields) {
+					if (StringUtils.isNotBlank(str)) {
+						String[] arr = str.split("=");
+						String key = arr[0];
+						Object v = params.get(key);
+						if (v != null && !v.toString().isEmpty()) {
+							String value = arr[1];
+							content.put(value, params.get(key) + "");
+						}
+					}
+				}
+			}
+			String baseUrl = ControllerHelper.getBasePath();
+			String gotoUrl;
+			for (Map<String, Object> map : emps) {
+				String user = map.get("FK_EMP") + "";
+				gotoUrl = baseUrl + "dingding/wf/openTask.do?FK_Flow=" + vo.getFlowTempleteId() + "&WorkID="
+						+ map.get("workid") + "&FID=" + map.get("FID") + "&FK_Node=" + map.get("FK_Node")
+						+ "&dynamicPageId=" + vo.getDynamicPageId();
+				content.put("validRepeat", map.get("RDT") + "");
+				String title = (String) map.get("title");
+				title = title == null ? dd_message_title : title;
+				DocumentUtils.getIntance().sendMessage(gotoUrl, "0", content, title, user);
+			}
+		}
 	}
 
 	/**
@@ -699,30 +880,32 @@ public class WorkflowTaskControl extends BaseController {
 		List<StoreVO> stores = null;
 		Map<String, Map<String, Object>> pageActStatus = new HashMap<String, Map<String, Object>>();
 		Map<String, Object> sessionMap = new HashMap<String, Object>();
-		Enumeration enumeration = null;
 		List<JSONObject> components = null;
 		Map dataMap = null;
 		ScriptEngine engine = null;
 		String isRead = request.getParameter("IsRead");
-
+		dynamicPageId = request.getParameter("dynamicPageId");
 		try {
-			if (StringUtils.isNotBlank(flowTempleteId)) {// 通过模板打开表单
-				// 如果是阅知节点则默认打开1301的绑定页面
-				if (entryId.equals("0")) {
-					dynamicPageId = findDynamicpageByflowTempleteId(flowTempleteId,
-							Integer.parseInt(flowTempleteId) + "01");
-				} else {
-					dynamicPageId = findDynamicpageByflowTempleteId(flowTempleteId, entryId);
+			// 如果页面指定动态页面则以传来页面为准
+			if (StringUtils.isBlank(dynamicPageId)) {
+				if (StringUtils.isNotBlank(flowTempleteId)) {// 通过模板打开表单
+					// 如果是阅知节点则默认打开1301的绑定页面
+					if (entryId.equals("0")) {
+						dynamicPageId = findDynamicpageByflowTempleteId(flowTempleteId,
+								Integer.parseInt(flowTempleteId) + "01");
+					} else {
+						dynamicPageId = findDynamicpageByflowTempleteId(flowTempleteId, entryId);
 
-				}
-				if (StringUtils.isBlank(dynamicPageId))
-					throw new Exception("表单配置错误，没有关联流程!");
-				// 新增移动参数配置
-				if (HttpRequestDeviceUtils.isMobileDevice(request)) {
-					dynamicPageId = DocumentUtils.getMPageIDByDefaultId(dynamicPageId);
+					}
 					if (StringUtils.isBlank(dynamicPageId))
-						throw new Exception("表单配置错误，手机表单没做关联!");
+						throw new Exception("表单配置错误，没有关联流程!");
+					// 新增移动参数配置
+					if (HttpRequestDeviceUtils.isMobileDevice(request)) {
+						dynamicPageId = PageBindUtil.getInstance().getMPageIDByDefaultId(dynamicPageId);
+						if (StringUtils.isBlank(dynamicPageId))
+							throw new Exception("表单配置错误，手机表单没做关联!");
 
+					}
 				}
 			}
 
@@ -749,12 +932,9 @@ public class WorkflowTaskControl extends BaseController {
 				docVo.setDynamicPageName(pageVO.getName());
 			}
 
-			enumeration = request.getParameterNames();
-			for (; enumeration.hasMoreElements();) {
-				Object o = enumeration.nextElement();
-				String name = o.toString();
-				String[] values = request.getParameterValues(name);
-				map.put(o.toString(), StringUtils.join(values, ";"));
+			Map<String, String[]> parameterMap = request.getParameterMap();
+			for (String key : parameterMap.keySet()) {
+				map.put(key, StringUtils.join(parameterMap.get(key), ";"));
 			}
 			docVo.setRequestParams(map);
 			// 拿脚本执行引擎
@@ -775,9 +955,6 @@ public class WorkflowTaskControl extends BaseController {
 			String allowOrderBy = docVo.getRequestParams().get("allowOrderBy");
 			docVo.setAllowOrderBy(allowOrderBy);
 			docVo.setOrderBy(orderBy);
-			// engine.put("DocumentUtils", new DocumentUtils(docVo, pageVO));
-			// Map dataMap = request.getParameterMap();
-			// if(dataMap == null)
 			dataMap = documentServiceImpl.initDocumentDataFlow(currentPage, pageSize, docVo, engine, pageVO);
 
 			docVo.setListParams(dataMap);
@@ -790,173 +967,8 @@ public class WorkflowTaskControl extends BaseController {
 			jcon.put("relatePageId", pageVO.getId());
 			jcon.put("componentType", "");
 			components = formdesignerServiceImpl.getComponentByContainerWithColumn(jcon);
-			String value = "";
-			if (components != null && components.size() > 0) {
-				for (int i = 0; i < components.size(); i++) {
-					JSONObject component = components.get(i);
-					if (component != null) {
-						JSONObject o = new JSONObject();
-						value = DocUtils.getComponentValue(component, dataMap, engine);
-						int type = component.getIntValue("componentType");
-						String optionsText = null;
-						switch (type) {
-						case 1010: // 计算值、禁用
-							o.put("disabled", String
-									.valueOf(DocUtils.computeStatus(component.getString("disabledScript"), engine)));
-							break;
-						case 1008:// 列框
-							// if (pageVO.getPageType() == 1003) {
-							String showScript = component.getString("showScript");
-							if (StringUtils.isNotBlank(showScript)) {
-								Boolean rtn = (Boolean) engine.eval(showScript);
-								if (rtn) {
-									break;
-								} else {
-									// 报错
-								}
-							}
-							// }
-							// 下面三个 计算值、隐藏
-						case 1014:
-						case 1015:
-						case 1009:
-							o.put("hidden", String
-									.valueOf(DocUtils.computeStatus(component.getString("hiddenScript"), engine)));
-							o.put("isRequired", component.getString("isRequired"));
-							break;
-						case 1017:
-							o.put("hidden", String
-									.valueOf(DocUtils.computeStatus(component.getString("hiddenScript"), engine)));
-							o.put("disabled", String
-									.valueOf(DocUtils.computeStatus(component.getString("disabledScript"), engine)));
-							break;
-						case 1006:
-							o.put("hidden", String
-									.valueOf(DocUtils.computeStatus(component.getString("hiddenScript"), engine)));
-							o.put("readonly", String
-									.valueOf(DocUtils.computeStatus(component.getString("readonlyScript"), engine)));
-							o.put("disabled", String
-									.valueOf(DocUtils.computeStatus(component.getString("disabledScript"), engine)));
-							String script = component.getString("optionScript");
-							String ret = "";
-							String markerText = "";
-							if (StringUtils.isNotBlank(script)) {
-								ret = (String) engine.eval(script);
-							}
-							markerText = "<option value=\"{0}\" {1}>{2}</option>";
-							optionsText = DocUtils.getOptionText(ret, value, markerText);
-							// o.put("optionText", optionsText);
-							others.put(component.getString("name"), optionsText);
-							break;
-						case 1003:
-							ret = "";
-							o.put("hidden", String
-									.valueOf(DocUtils.computeStatus(component.getString("hiddenScript"), engine)));
-							o.put("readonly", String
-									.valueOf(DocUtils.computeStatus(component.getString("readonlyScript"), engine)));
-							o.put("disabled", String
-									.valueOf(DocUtils.computeStatus(component.getString("disabledScript"), engine)));
-							script = component.getString("optionScript");
-							if (StringUtils.isNotBlank(script)) {
-								ret = (String) engine.eval(script);
-							}
+			DocUtils.calculateCompents(docVo, others, status, components, dataMap, engine);
 
-							Map<String, JSONObject> mapResult = DocUtils.getStatus(lo_Item, docVo,
-									component.getString("name"));
-							if (mapResult != null && mapResult.size() > 0) {
-
-								if (mapResult.get(component.getString("name")).get("readonly") != null) {
-
-									markerText = "<label class='radio-inline'><input type='checkbox' disabled='disabled' name='"
-											+ component.getString("name") + "' value=\"{0}\" {1}>{2}</label>";
-
-								} else {
-
-									markerText = "<label class='radio-inline'><input type='checkbox' name='"
-											+ component.getString("name") + "' value=\"{0}\" {1}>{2}</label>";
-
-								}
-
-							} else {
-
-								markerText = "<label class='radio-inline'><input type='checkbox' name='"
-										+ component.getString("name") + "' value=\"{0}\" {1}>{2}</label>";
-
-							}
-
-							optionsText = DocUtils.getOptionText(ret, value, markerText);
-							// o.put("optionText", optionsText);
-							others.put(component.getString("name"), optionsText);
-							break;
-						case 1004:
-							ret = "";
-							o.put("hidden", String
-									.valueOf(DocUtils.computeStatus(component.getString("hiddenScript"), engine)));
-							o.put("readonly", String
-									.valueOf(DocUtils.computeStatus(component.getString("readonlyScript"), engine)));
-							o.put("disabled", String
-									.valueOf(DocUtils.computeStatus(component.getString("disabledScript"), engine)));
-							script = component.getString("optionScript");
-							if (StringUtils.isNotBlank(script)) {
-								ret = (String) engine.eval(script);
-							}
-
-							Map<String, JSONObject> checkbox = DocUtils.getStatus(null, docVo,
-									component.getString("name"));
-							if (checkbox != null && checkbox.size() > 0) {
-
-								if (checkbox.get(component.getString("name")).get("readonly") != null) {
-
-									markerText = "<label class='radio-inline'><input type='radio' disabled='disabled' name='"
-											+ component.getString("name") + "' value=\"{0}\" {1}>{2}</label>";
-								} else {
-
-									markerText = "<label class='radio-inline'><input type='radio' name='"
-											+ component.getString("name") + "' value=\"{0}\" {1}>{2}</label>";
-								}
-
-							} else {
-
-								markerText = "<label class='radio-inline'><input type='radio' name='"
-										+ component.getString("name") + "' value=\"{0}\" {1}>{2}</label>";
-							}
-
-							optionsText = DocUtils.getOptionText(ret, value, markerText);
-							// o.put("optionText", optionsText);
-							others.put(component.getString("name"), optionsText);
-							break;
-						// 下面几种，只需执行同一段代码，所以没有break;计算值、隐藏、只读、禁用
-						case 1001:
-						case 1002:
-						case 1005:
-						case 1007:
-						case 1011:
-						case 1012:
-						case 1013:
-						case 1016:
-						case 1020:
-						case 1029:
-						case 1030:
-						case 1031:
-						case 1032:
-						case 1033:
-						case 1037:
-						case 1019:
-							o.put("hidden", String
-									.valueOf(DocUtils.computeStatus(component.getString("hiddenScript"), engine)));
-							o.put("readonly", String
-									.valueOf(DocUtils.computeStatus(component.getString("readonlyScript"), engine)));
-							o.put("disabled", String
-									.valueOf(DocUtils.computeStatus(component.getString("disabledScript"), engine)));
-						default:
-							break;
-						}
-
-						status.put(component.getString("name"), o);
-
-					}
-				}
-			}
 			// Map<String, Object> actAttr = new HashMap<String, Object>();
 			BaseExample actExample = new BaseExample();
 			actExample.createCriteria().andEqualTo("dynamicPage_id", pageVO.getId()).andLike("code",
@@ -1008,7 +1020,7 @@ public class WorkflowTaskControl extends BaseController {
 			root.putAll(docVo.getListParams());
 			root.put("others", others);
 			root.put("status", status);
-			root.put("status", DocUtils.flowAuthorityResolve(lo_Item, docVo, status));
+			root.put("status", DocUtils.flowAuthorityResolve(null, docVo, status));
 			root.put("request", request);
 
 			Enumeration sessionEnumeration = request.getSession().getAttributeNames();
@@ -1036,7 +1048,6 @@ public class WorkflowTaskControl extends BaseController {
 			templateString = null;
 			docVo = null;
 			pageVO = null;
-			enumeration = null;
 			engine = null;
 			if (map != null)
 				map.clear();
@@ -1324,7 +1335,7 @@ public class WorkflowTaskControl extends BaseController {
 		CLogon lo_Logon = new CLogon(0, user.getUserIdCardNumber(), user.getName(), "192.168.0.1");
 		StringBuffer sBuffer = new StringBuffer();
 		for (int i = 0; i < workItemIDs.size(); i++) {
-			lo_Item = (CWorkItem) SessionUtils.getObjectFromSession("WorkItemKey");
+			CWorkItem lo_Item = (CWorkItem) SessionUtils.getObjectFromSession("WorkItemKey");
 			CResult result = TWorkItem.recallWorkItem(lo_Logon, workItemIDs.get(i), 0);
 			if (result.Result) {
 				sBuffer.append(workItemNames.get(i) + " : " + result.Information + ";");
@@ -1409,7 +1420,7 @@ public class WorkflowTaskControl extends BaseController {
 	public Map<String, Object> shiftWork(Long userId) {
 
 		PunUserBaseInfoVO user = (PunUserBaseInfoVO) SessionUtils.getObjectFromSession(SessionContants.CURRENT_USER);
-		Map<String, Object> map = query.getUntreatedData(10000, 0, null, null, user.getUserName(), true);
+		Map<String, Object> map = query.getUntreatedData(10000, 0, null, null, user.getUserIdCardNumber(), true);
 		List<Map<String, Object>> ls = (List<Map<String, Object>>) map.get("data");
 		int count = ls.size();
 		PunUserBaseInfoVO punUserBaseInfoVO = userService.findById(userId);
@@ -1418,7 +1429,7 @@ public class WorkflowTaskControl extends BaseController {
 			Dev2Interface.Node_Shift(ls.get(i).get("FK_Flow").toString(),
 					Integer.parseInt(ls.get(i).get("FK_Node").toString()),
 					Long.parseLong(ls.get(i).get("WorkID").toString()), Long.parseLong(ls.get(i).get("FID").toString()),
-					punUserBaseInfoVO.getUserName(), "");
+					punUserBaseInfoVO.getUserIdCardNumber(), "");
 		}
 		Map<String, Object> mm = new HashMap<String, Object>();
 		mm.put("statu", true);

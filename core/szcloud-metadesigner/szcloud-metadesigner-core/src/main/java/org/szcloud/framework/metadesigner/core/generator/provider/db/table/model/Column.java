@@ -1,7 +1,5 @@
 package org.szcloud.framework.metadesigner.core.generator.provider.db.table.model;
 
-
-
 import java.util.List;
 
 import org.szcloud.framework.metadesigner.core.generator.GeneratorProperties;
@@ -15,12 +13,14 @@ import org.szcloud.framework.metadesigner.core.generator.util.typemapping.Databa
 import org.szcloud.framework.metadesigner.core.generator.util.typemapping.JavaPrimitiveTypeMapping;
 import org.szcloud.framework.metadesigner.core.generator.util.typemapping.JdbcType;
 
-
 /**
  * 用于生成代码的Columb对象.对应数据库表column
  * @author caoyong
  */
 public class Column implements java.io.Serializable,Cloneable{
+
+	private static final long serialVersionUID = 5319834101763876088L;
+
 	/**
 	 * Reference to the containing table
 	 */
@@ -476,6 +476,7 @@ public class Column implements java.io.Serializable,Cloneable{
 		return StringHelper.contains(getSqlName(), keywords.split(","));
 	}
 	
+	@SuppressWarnings("deprecation")
 	public boolean isHtmlHidden() {
 		return isPk() && _table.isSingleId();
 	}

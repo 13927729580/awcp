@@ -37,7 +37,7 @@ public class FileHelper {
 	}
 
 	public static List<File> searchAllNotIgnoreFile(File dir) throws IOException {
-		ArrayList arrayList = new ArrayList();
+		ArrayList<File> arrayList = new ArrayList<File>();
 		searchAllNotIgnoreFile(dir, arrayList);
 		Collections.sort(arrayList, new Comparator<File>() {
 			public int compare(File o1, File o2) {
@@ -97,7 +97,7 @@ public class FileHelper {
 		throw new FileNotFoundException(resourceName);
 	}
 
-	public static List ignoreList = new ArrayList();
+	public static List<String> ignoreList = new ArrayList<String>();
 	static {
 		ignoreList.add(".svn");
 		ignoreList.add("CVS");
@@ -111,7 +111,6 @@ public class FileHelper {
 	}
 
 	private static boolean isIgnoreFile(File file) {
-
 		for (int i = 0; i < ignoreList.size(); i++) {
 			if (file.getName().equals(ignoreList.get(i))) {
 				return true;
@@ -120,7 +119,7 @@ public class FileHelper {
 		return false;
 	}
 
-	public static Set binaryExtentionsList = new HashSet();
+	public static Set<String> binaryExtentionsList = new HashSet<String>();
 	static {
 		loadBinaryExtentionsList("binary_filelist.txt", true);
 		loadBinaryExtentionsList("binary_filelist.txt", false);
@@ -157,12 +156,7 @@ public class FileHelper {
 
 	public static void loadBinaryExtentionsList(String resourceName, boolean ignoreException) {
 		try {
-			URL fileURL = getResourceFromJar(GeneratorProperties.class, "binary_filelist.txt");
-			// Enumeration<URL>
-			// fileURL=GeneratorProperties.class.getClassLoader().getResources("/resources/binary_filelist.txt");
-			// URL
-			// fileURL=GeneratorProperties.class.getClass().getResource("/resources/binary_filelist.txt");
-			// logger.debug(fileURL.getFile());
+			getResourceFromJar(GeneratorProperties.class, "binary_filelist.txt");
 			InputStream input = GeneratorProperties.class.getClassLoader().getResourceAsStream(resourceName);
 			binaryExtentionsList.addAll(IOHelper.readLines(new InputStreamReader(input)));
 			input.close();

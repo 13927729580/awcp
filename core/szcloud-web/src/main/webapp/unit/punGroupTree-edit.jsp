@@ -34,7 +34,7 @@
 			</li>
 		</ul>
 		<div style="margin-top: 20px;">
-			<ul class="CloudTreeGroup list-group"></ul>
+			<ul id="groups" class="ztree"></ul>
 		</div>
 
 	
@@ -295,11 +295,11 @@ function removeHoverDom(treeId, treeNode) {
 function creatGroup(){
 	var dataLi="";
 	var dataMap = ${groupJson};
-	$.each(dataMap,function(i,item){
+	/* $.each(dataMap,function(i,item){
 		dataLi ='<li class="list-group-item"><ul id="tree'+i+'" class="ztree"></ul></li>';
 		$(dataLi).appendTo(".CloudTreeGroup");
-		$.fn.zTree.init($("#tree"+i),setting,item);
-	});
+	}); */
+	$.fn.zTree.init($("#groups"),setting,dataMap);
 }
 function alertMessage(message){
 	var md = dialog({

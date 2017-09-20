@@ -23,9 +23,7 @@ public class CommandLine {
 	private static final Logger logger = LoggerFactory.getLogger(CommandLine.class);
 
 	public static void main(String[] args) throws Exception {
-		// disable freemarker logging
 		freemarker.log.Logger.selectLoggerLibrary(freemarker.log.Logger.LIBRARY_NONE);
-
 		startProcess();
 	}
 

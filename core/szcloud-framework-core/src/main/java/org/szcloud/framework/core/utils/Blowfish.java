@@ -11,7 +11,6 @@
  *
  * Released under the Apache 2.0 license.
  */
-
 package org.szcloud.framework.core.utils;
 
 import java.security.MessageDigest;
@@ -213,7 +212,8 @@ public class Blowfish {
     private static class BlowfishECB
     {
         /** maximum possible key length */
-        public final static int MAXKEYLENGTH = 56;
+        @SuppressWarnings("unused")
+		public final static int MAXKEYLENGTH = 56;
 
 
         /** block size of this cipher (in bytes) */
@@ -341,7 +341,8 @@ public class Blowfish {
          * selftest routine, to check e.g. for a valid class file transmission
          * @return true: selftest passed / false: selftest failed
          */
-        public static boolean selfTest()
+        @SuppressWarnings("unused")
+		public static boolean selfTest()
         {
             // test vector #1 (checking for the "signed bug")
             byte[] testKey1 = { (byte) 0x1c, (byte) 0x58, (byte) 0x7f, (byte) 0x1c,
@@ -479,7 +480,8 @@ public class Blowfish {
          * @param inbuffer buffer with plaintext data
          * @param outbuffer buffer to get the ciphertext data
          */
-        public void encrypt(byte[] inbuffer, byte[] outbuffer) {
+        @SuppressWarnings("unused")
+		public void encrypt(byte[] inbuffer, byte[] outbuffer) {
             int nLen = inbuffer.length;
             long lTemp;
             for (int nI = 0; nI < nLen; nI +=8)
@@ -495,7 +497,8 @@ public class Blowfish {
          * encrypts a byte buffer (should be aligned to an 8 byte border) to itself
          * @param buffer buffer to encrypt
          */
-        public void encrypt(byte[] buffer)
+        @SuppressWarnings("unused")
+		public void encrypt(byte[] buffer)
         {
             int nLen = buffer.length;
             long lTemp;
@@ -532,7 +535,8 @@ public class Blowfish {
          * two integer border)
          * @param buffer buffer to encrypt
          */
-        public void encrypt(int[] buffer) {
+        @SuppressWarnings("unused")
+		public void encrypt(int[] buffer) {
             int nLen = buffer.length;
             long lTemp;
             for (int nI = 0; nI < nLen; nI +=2)
@@ -549,7 +553,8 @@ public class Blowfish {
          * @param inbuffer buffer with plaintext data
          * @param outbuffer buffer to get the ciphertext data
          */
-        public void encrypt(long[] inbuffer, long[] outbuffer) {
+        @SuppressWarnings("unused")
+		public void encrypt(long[] inbuffer, long[] outbuffer) {
             int nLen = inbuffer.length;
             for (int nI = 0; nI < nLen; nI++)
             {
@@ -561,7 +566,8 @@ public class Blowfish {
          * encrypts a long buffer to itself
          * @param buffer buffer to encrypt
          */
-        public void encrypt(long[] buffer) {
+        @SuppressWarnings("unused")
+		public void encrypt(long[] buffer) {
             int nLen = buffer.length;
             for (int nI = 0; nI < nLen; nI++)
             {
@@ -575,7 +581,8 @@ public class Blowfish {
          * @param inbuffer buffer with ciphertext data
          * @param outbuffer buffer to get the plaintext data
          */
-        public void decrypt(byte[] inbuffer,
+        @SuppressWarnings("unused")
+		public void decrypt(byte[] inbuffer,
                             byte[] outbuffer)
         {
             int nLen = inbuffer.length;
@@ -593,7 +600,8 @@ public class Blowfish {
          * decrypts a byte buffer (should be aligned to an 8 byte border) to itself
          * @param buffer buffer to decrypt
          */
-        public void decrypt(byte[] buffer)
+        @SuppressWarnings("unused")
+		public void decrypt(byte[] buffer)
         {
             int nLen = buffer.length;
             long lTemp;
@@ -612,7 +620,8 @@ public class Blowfish {
          * @param inbuffer buffer with ciphertext data
          * @param outbuffer buffer to get the plaintext data
          */
-        public void decrypt(int[] inbuffer,
+        @SuppressWarnings("unused")
+		public void decrypt(int[] inbuffer,
                             int[] outbuffer)
         {
             int nLen = inbuffer.length;
@@ -649,7 +658,8 @@ public class Blowfish {
          * @param inbuffer buffer with ciphertext data
          * @param outbuffer buffer to get the plaintext data
          */
-        public void decrypt(long[] inbuffer,
+        @SuppressWarnings("unused")
+		public void decrypt(long[] inbuffer,
                             long[] outbuffer)
         {
             int nLen = inbuffer.length;
@@ -663,7 +673,8 @@ public class Blowfish {
          * decrypts a long buffer to itself
          * @param buffer buffer to decrypt
          */
-        public void decrypt(long[] buffer) {
+        @SuppressWarnings("unused")
+		public void decrypt(long[] buffer) {
 
             int nLen = buffer.length;
             for (int nI = 0; nI < nLen; nI++)
@@ -673,7 +684,7 @@ public class Blowfish {
         }
 
         // the boxes init. data,
-        // FIXME: it might be better to create them at runtime to make the class
+        // it might be better to create them at runtime to make the class
         //        file smaller, e.g. by calculating the hexdigits of pi (default)
         //        or just a fixed random sequence (out of the standard)
 
@@ -882,7 +893,8 @@ public class Blowfish {
          * get the current CBC IV (for cipher resets)
          * @return current CBC IV
          */
-        public long getCBCIV()
+        @SuppressWarnings("unused")
+		public long getCBCIV()
         {
             return m_lCBCIV;
         }
@@ -891,7 +903,8 @@ public class Blowfish {
          * get the current CBC IV (for cipher resets)
          * @param dest wher eto put current CBC IV in network byte ordered array
          */
-        public void getCBCIV(byte[] dest)
+        @SuppressWarnings("unused")
+		public void getCBCIV(byte[] dest)
         {
             longToByteArray(m_lCBCIV, dest, 0);
         }

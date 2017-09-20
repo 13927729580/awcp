@@ -20,7 +20,8 @@
 	http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring  
 	http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring/ehcache-spring-1.1.xsd">
 
-
+	
+	
 	<bean id="propertyConfigurer"
 		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="locations">
@@ -88,7 +89,10 @@
 	<bean id="jdbcRepository" class="org.szcloud.framework.core.domain.EntityRepositoryJDBC">
 		<constructor-arg index="0" ref="dataSource" />
 	</bean>
-	
+	<!-- 文档检索 -->
+	<bean id="solrClient" class="org.apache.solr.client.solrj.impl.HttpSolrClient">
+		<constructor-arg index="0" value="http://192.168.1.134:8080/solr/awcp-files" />
+	</bean>
 	<bean id="jdbcTemplate" class="org.szcloud.framework.core.domain.SzcloudJdbcTemplate">
 		<property name="dataSource" ref="dataSource"></property>
 	</bean>
@@ -108,26 +112,12 @@
 
 	<!--使用基于注解方式配置事务 -->
 	<tx:annotation-driven transaction-manager="txManager" />
-
+	
 	<!-- 开启自动扫描 -->
 	<context:annotation-config />
 	
-	<context:component-scan base-package="org.szcloud,org.jflow" use-default-filters="false">
-		<context:include-filter type="annotation" expression="org.springframework.stereotype.Service" />
-		<context:include-filter type="annotation" expression="org.springframework.stereotype.Repository" />
-		<context:include-filter type="annotation" expression="org.springframework.stereotype.Component" />
-	</context:component-scan>
-	<context:component-scan base-package="org.jflow" use-default-filters="false">
-		<context:include-filter type="annotation" expression="org.springframework.stereotype.Service" />
-		<context:include-filter type="annotation" expression="org.springframework.stereotype.Repository" />
-		<context:include-filter type="annotation" expression="org.springframework.stereotype.Component" />
-	</context:component-scan>
-	<context:component-scan base-package="BP.WF" use-default-filters="false">
-		<context:include-filter type="annotation" expression="org.springframework.stereotype.Service" />
-		<context:include-filter type="annotation" expression="org.springframework.stereotype.Repository" />
-		<context:include-filter type="annotation" expression="org.springframework.stereotype.Component" />
-	</context:component-scan>
-	<context:component-scan base-package="BP.DA" use-default-filters="false">
+	<context:component-scan base-package="org.szcloud,org.jflow,BP.WF,BP.DA" use-default-filters="false">
+		<!-- 只扫描service,repository,component -->
 		<context:include-filter type="annotation" expression="org.springframework.stereotype.Service" />
 		<context:include-filter type="annotation" expression="org.springframework.stereotype.Repository" />
 		<context:include-filter type="annotation" expression="org.springframework.stereotype.Component" />
@@ -157,5 +147,5 @@
 		<property name="cookieName" value="Language"></property>
 	</bean>
 
-
+	
 </beans>

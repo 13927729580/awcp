@@ -4,27 +4,20 @@ import org.szcloud.framework.core.domain.BaseEntity;
 
 public class SysDataSource extends BaseEntity {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1636699772682203735L;
-	/**
+	/*
 	 * 系统ID
 	 */
 	private Long systemId;
-	/**
+	/*
 	 * 数据源ID
 	 */
 	private Long dataSourceId;
-	/**
+	/*
 	 * 是否默认数据源
 	 */
 	private Boolean isDefault = false;
 
-	/*
-	 * public Long getId() { return id; } public void setId(Long id) { this.id =
-	 * id; }
-	 */
 	public Long getSystemId() {
 		return systemId;
 	}

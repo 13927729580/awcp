@@ -113,7 +113,7 @@ function uploadFile(that){
 	var $msg=$parent.find(".msg");
 	$msg.text("正在上传...");
 	$.ajaxFileUpload({  
-		url:basePath+ "common/file/upload.do",            //需要链接到服务器地址  
+		url:basePath+ "common/file/upload.do?uploadType="+$("#uploadImgType").val(),            //需要链接到服务器地址  
 		secureuri:true,  
 		fileElementId:$(that).attr("id"),                        //文件选择框的id属性  
 		dataType :"json",

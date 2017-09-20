@@ -325,7 +325,7 @@ public class PunUserGroupController {
 
 		List<PunUserBaseInfoVO> userVOs = userService.queryPagedResult(sqlMap, params, currentPage, pageSize,
 				sortString);
-		PunUserBaseInfoVO user = DocumentUtils.getUser();
+		PunUserBaseInfoVO user = DocumentUtils.getIntance().getUser();
 		for (int i = 0; i < userVOs.size(); i++) {
 			if (user.getUserId().equals(userVOs.get(i).getUserId())) {
 				userVOs.remove(i);

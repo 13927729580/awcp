@@ -1,6 +1,6 @@
 package org.szcloud.framework.formdesigner.utils;
 
-import org.szcloud.framework.formdesigner.constrants.FormDesignGlobal;
+import org.szcloud.framework.formdesigner.core.constants.FormDesignGlobal;
 
 
 public class FormDesignUtil {

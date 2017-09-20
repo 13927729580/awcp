@@ -2,9 +2,10 @@ package org.szcloud.framework.formdesigner.core.domain.design.context.component.
 
 public class LabelComponent extends TextComponent{
 
+	private static final long serialVersionUID = 2101331298789015937L;
+
 	@Override
 	public String getKeyString() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

@@ -84,7 +84,7 @@ public class CommondWordsController {
 			vo.setPerson(String.valueOf(user.getUserId()));
 			vo.setPersonName(user.getName());
 
-			List<PunGroupVO> group = DocumentUtils.listGroupByUser(user.getUserId());
+			List<PunGroupVO> group = DocumentUtils.getIntance().listGroupByUser(user.getUserId());
 
 			if (group != null) {
 				PunGroupVO pun = group.get(0);

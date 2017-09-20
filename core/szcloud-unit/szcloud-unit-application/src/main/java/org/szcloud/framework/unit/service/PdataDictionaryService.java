@@ -22,19 +22,17 @@ public interface PdataDictionaryService {
 	
 	public PdataDictionaryVO findById(Long id);
 	
-	/*
+	/**
 	 * 根据code查找字典项；
 	 */
 	public PdataDictionaryVO findByCode(String code);
 	
-	/*
+	/**
 	 * 根据父亲code查找其子数据字典项；
 	 */
 	public List<PdataDictionaryVO> findChildByParentCode(String parentCode);
 	
 	public List<PdataDictionaryVO> findAll();
-	
-
 	
 	public List<PdataDictionaryVO> queryResult(String queryStr,Map<String, Object> params);
 	
@@ -46,7 +44,5 @@ public interface PdataDictionaryService {
 		
 	public PageList<PdataDictionaryVO> selectPagedByExample(BaseExample baseExample,
 			int currentPage, int pageSize,String sortString);
-
-
 
 }

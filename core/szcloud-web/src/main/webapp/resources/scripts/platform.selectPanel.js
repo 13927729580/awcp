@@ -99,7 +99,9 @@ function selectItem(event, treeId, treeNode) {
 	
 	if(treeId!=undefined){
 	  //标示为部门
-	  parent.frames["main"].document.getElementById("slectsUserIds").value="10";
+		var tab = top.$('#tabs-panel').tabs('getSelected');
+		var index = top.$('#tabs-panel').tabs('getTabIndex',tab);
+		$(top.document).find("iframe")[index].contentWindow.document.getElementById("slectsUserIds").value="10";
 	}
     var itemID = (arguments.length==0)?999999:treeNode.id,
         url = "punUserGroupController/getUserListByAjax.do";
@@ -112,8 +114,9 @@ function selectItem(event, treeId, treeNode) {
 };
 
 function selectItemByRole(event, treeId, treeNode) {
-	
-	parent.frames["main"].document.getElementById("slectsUserIds").value="";
+	var tab = top.$('#tabs-panel').tabs('getSelected');
+	var index = top.$('#tabs-panel').tabs('getTabIndex',tab);
+	$(top.document).find("iframe")[index].contentWindow.document.getElementById("slectsUserIds").value="";
 	
     var itemID = (arguments.length==0)?999999:treeNode.id,
         url = "punUserGroupController/getUserListByWhere.do";
@@ -126,7 +129,9 @@ function selectItemByRole(event, treeId, treeNode) {
 };
 
 function selectItemByJob(event, treeId, treeNode) {
-	parent.frames["main"].document.getElementById("slectsUserIds").value="";
+	var tab = top.$('#tabs-panel').tabs('getSelected');
+	var index = top.$('#tabs-panel').tabs('getTabIndex',tab);
+	$(top.document).find("iframe")[index].contentWindow.document.getElementById("slectsUserIds").value="";
 	
     var itemID = (arguments.length==0)?999999:treeNode.id,
         url = "punUserGroupController/getUserListByWhere.do";
@@ -140,7 +145,9 @@ function selectItemByJob(event, treeId, treeNode) {
 
 //根据组查询组人员
 function selectItemByGroup(event, treeId, treeNode){
-	parent.frames["main"].document.getElementById("slectsUserIds").value="";
+	var tab = top.$('#tabs-panel').tabs('getSelected');
+	var index = top.$('#tabs-panel').tabs('getTabIndex',tab);
+	$(top.document).find("iframe")[index].contentWindow.document.getElementById("slectsUserIds").value="";
 	
 	var itemID = (arguments.length==0)?999999:treeNode.id,
     url = "UserGroup/queryUser.do";

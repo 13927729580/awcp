@@ -22,7 +22,7 @@ public class MetaModelChartServiceImpl implements MetaModelChartService{
 	
 	public long save(MetaModelChartVO vo) {
 		try {
-			MetaModelChart mmc=BeanUtils.getNewInstance(vo, MetaModelChart.class);
+			MetaModelChart mmc = BeanUtils.getNewInstance(vo, MetaModelChart.class);
 			mmc.save();
 			vo.setId(mmc.getId());
 			return mmc.getId();
@@ -34,7 +34,7 @@ public class MetaModelChartServiceImpl implements MetaModelChartService{
 
 	public boolean delete(MetaModelChartVO vo) {
 		try {
-			MetaModelChart mmc=BeanUtils.getNewInstance(vo, MetaModelChart.class);
+			MetaModelChart mmc = BeanUtils.getNewInstance(vo, MetaModelChart.class);
 			mmc.remove();
 			return true;
 		} catch (Exception e) {
@@ -44,7 +44,7 @@ public class MetaModelChartServiceImpl implements MetaModelChartService{
 
 	public boolean update(MetaModelChartVO vo) {
 		try {
-			MetaModelChart mmc=BeanUtils.getNewInstance(vo, MetaModelChart.class);
+			MetaModelChart mmc = BeanUtils.getNewInstance(vo, MetaModelChart.class);
 			mmc.save();
 			return true;
 		} catch (Exception e) {
@@ -54,22 +54,19 @@ public class MetaModelChartServiceImpl implements MetaModelChartService{
 
 	public List<MetaModelChartVO> findAll() {
 		
-		List<MetaModelChartVO> list=new ArrayList<MetaModelChartVO>();
-		List<MetaModelChart> ls=MetaModelChart.findAll();
+		List<MetaModelChartVO> list = new ArrayList<MetaModelChartVO>();
+		List<MetaModelChart> ls = MetaModelChart.findAll();
 		for(MetaModelChart m:ls){
 			list.add(BeanUtils.getNewInstance(m, MetaModelChartVO.class));
 		}
 		return list;
-		
 	}
 	
-	
 	public List<MetaModelChartVO> queryByClassId(long projectId){
-	
-		Map<String,Object> map=new HashMap<String, Object>();
+		Map<String,Object> map = new HashMap<String, Object>();
 		map.put("classId", projectId);
-		List<MetaModelChart> ls=queryChannel.queryResult(MetaModelChart.class, "queryByClassId", map);
-		List<MetaModelChartVO> list=new ArrayList<MetaModelChartVO>();
+		List<MetaModelChart> ls = queryChannel.queryResult(MetaModelChart.class, "queryByClassId", map);
+		List<MetaModelChartVO> list = new ArrayList<MetaModelChartVO>();
 		for(MetaModelChart mm:ls){
 			list.add(BeanUtils.getNewInstance(mm, MetaModelChartVO.class));
 		}

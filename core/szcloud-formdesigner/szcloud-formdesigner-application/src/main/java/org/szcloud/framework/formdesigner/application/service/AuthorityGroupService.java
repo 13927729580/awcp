@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.szcloud.framework.core.common.exception.MRTException;
 import org.szcloud.framework.core.domain.BaseExample;
-import org.szcloud.framework.formdesigner.application.vo.AuthorityCompoentVO;
 import org.szcloud.framework.formdesigner.application.vo.AuthorityGroupVO;
 
 import com.github.miemiedev.mybatis.paginator.domain.PageList;
@@ -36,9 +35,8 @@ public interface AuthorityGroupService {
 	 * @param sortString
 	 * @return
 	 */
-	public PageList<AuthorityGroupVO> queryPagedResult(String queryStr,
-			Map<String, Object> params, int currentPage, int pageSize,
-			String sortString);
+	public PageList<AuthorityGroupVO> queryPagedResult(String queryStr,Map<String, Object> params, 
+			int currentPage, int pageSize,String sortString);
 
 	/**
 	 * 模糊查询分页显示

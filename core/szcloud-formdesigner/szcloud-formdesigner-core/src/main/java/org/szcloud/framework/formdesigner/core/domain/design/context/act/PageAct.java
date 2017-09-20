@@ -15,80 +15,44 @@ import org.szcloud.framework.formdesigner.core.domain.PageObject;
 public class PageAct extends PageObject {
 
 	private static final long serialVersionUID = 4845744389122582801L;
-	/**
-	 * 动作类型 PageObjectType 放入数据字典
-	 */
-	private Integer actType;
-
-	/**
-	 * 图标
-	 */
-	private String icon;
-
-	/**
-	 * 
+	private Integer actType;// 动作类型 PageObjectType 放入数据字典
+	private String icon; // 图标
+	/*
 	 * 客户端执行脚本 示例： onclick(function(){ alert(1); var c =
 	 * getClientComponent('componetName'); }); 解析为: $("#id").click(function(){
 	 * alert(1); var c = $('#componetName_componetId');//需要解析还是提供固定的方法？ });
 	 */
 	private String clientScript;
-	/**
-	 * 按钮的执行脚本，上下文需要有Document，能够访问和操纵Document、Element以及对外的接口 在服务端解析执行
-	 */
-	private String serverScript;
+	private String serverScript;// 按钮的执行脚本，上下文需要有Document，能够访问和操纵Document、Element以及对外的接口 在服务端解析执行
 	private String paramScript;
-	/**
-	 * 是否操作前提示
-	 */
-	private boolean confirm;
-	/**
-	 * 是否对选择项校验
-	 */
-	private boolean chooseValidate;
-	/**
-	 * 选择项校验脚本
-	 */
-	private String chooseScript;
-
-	/**
-	 * 按钮组
-	 */
-	private String buttonGroup;
-	private boolean hiddenStatus=false;
-	/**
-	 * 提示内容类型 *1 = 自定义提示内容是文本，允许有html标签 *2 = 静态页面提示内容是完整的链接地址,如
-	 * http://www.baidu.com *3 = 动态页面提示内容是"文档的id,表单id",两者不可以都为空
+	private boolean confirm; // 是否操作前提示
+	private boolean chooseValidate; // 是否对选择项校验
+	private String chooseScript;// 选择项校验脚本
+	private String buttonGroup; // 按钮组
+	private boolean hiddenStatus = false;
+	/*
+	 * 提示内容类型 *1 = 自定义提示内容是文本，允许有html标签 *2 = 静态页面提示内容是完整的链接地址,如 http://www.baidu.com
+	 * *3 = 动态页面提示内容是"文档的id,表单id",两者不可以都为空
 	 */
 	private Integer contentType;
-	/**
-	 * 提示框内容
-	 */
-	private String content;
-	/**
-	 * 提示框标题
-	 */
-	private String tittle;
-	/**
-	 * 提示框宽度
-	 */
-	private Integer width;
-	/**
-	 * 提示框高度
-	 */
-	private Integer height;
-	/**
-	 * 提示框按钮 1,0= 确定按钮+取消按钮都要显示。
-	 */
-	private String buttons;
-	/**
-	 * 扩展按钮属性
-	 */
-	private Map<String, String> extbute = new HashMap<String, String>();
-	/**
-	 * 系统ID
-	 */
-	private Long systemId;
+	private String content; // 提示框内容
+	private String tittle; // 提示框标题
+	private Integer width; // 提示框宽度
+	private Integer height; // 提示框高度
+	private String buttons; // 提示框按钮 1,0= 确定按钮+取消按钮都要显示。
+	private Map<String, String> extbute = new HashMap<String, String>();// 扩展按钮属性
+	private Long systemId; // 系统ID
 	private String color;
+	private String enName;
+
+	public String getEnName() {
+		return enName;
+	}
+
+	public void setEnName(String enName) {
+		this.enName = enName;
+	}
+
 	public String getColor() {
 		return color;
 	}
@@ -240,5 +204,15 @@ public class PageAct extends PageObject {
 	public void setChooseScript(String chooseScript) {
 		this.chooseScript = chooseScript;
 	}
-	
+
+	@Override
+	public String toString() {
+		return "PageAct [actType=" + actType + ", icon=" + icon + ", clientScript=" + clientScript + ", serverScript="
+				+ serverScript + ", paramScript=" + paramScript + ", confirm=" + confirm + ", chooseValidate="
+				+ chooseValidate + ", chooseScript=" + chooseScript + ", buttonGroup=" + buttonGroup + ", hiddenStatus="
+				+ hiddenStatus + ", contentType=" + contentType + ", content=" + content + ", tittle=" + tittle
+				+ ", width=" + width + ", height=" + height + ", buttons=" + buttons + ", extbute=" + extbute
+				+ ", systemId=" + systemId + ", color=" + color + "]";
+	}
+
 }

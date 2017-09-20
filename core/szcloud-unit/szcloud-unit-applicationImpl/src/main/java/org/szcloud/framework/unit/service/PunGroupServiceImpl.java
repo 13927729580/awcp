@@ -28,13 +28,13 @@ public class PunGroupServiceImpl implements PunGroupService {
 
 	@Autowired
 	private QueryChannelService queryChannel;
+	
 	@Autowired
 	private SqlSessionFactory sqlSessionFactory;
+	
 	@Autowired
 	@Qualifier("workflowSyncServiceImpl")
 	private WorkflowSyncService workflowSyncService;
-
-	private static final Long COMPANY_GROUP_TYPE = new Long(2);
 
 	/**
 	 * 保存或修改
@@ -78,7 +78,6 @@ public class PunGroupServiceImpl implements PunGroupService {
 		}
 		result.clear();
 		return resultVo;
-
 	}
 
 	/**
@@ -168,7 +167,6 @@ public class PunGroupServiceImpl implements PunGroupService {
 	 * pageSize @param @param sortString @param @return @return
 	 * PageList<T> @throws
 	 */
-	@SuppressWarnings("unchecked")
 	public PageList<PunGroupVO> queryPagedResult(String queryStr, Map<String, Object> params, int currentPage,
 			int pageSize, String sortString) {
 		PageList<PunGroup> groups = queryChannel.queryPagedResult(PunGroup.class, queryStr, params, currentPage,
@@ -194,21 +192,14 @@ public class PunGroupServiceImpl implements PunGroupService {
 
 	public List<PunGroupVO> getGroupListByPids(String pid) throws MRTException {
 		Map<String, Object> params = new HashMap<String, Object>();
-		pid = "%" + pid;
-		if (!pid.endsWith(",")) {
-			pid = pid;
-		}
-		pid = pid + "%";
+		pid = "%" + pid + "%";
 		params.put("pid", pid);
 		return this.queryResult("queryByPID", params);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public PageList<PunGroupVO> selectPagedByExample(BaseExample baseExample, int currentPage, int pageSize,
-			String sortString) {
-		PageList<PunGroup> list = queryChannel.selectPagedByExample(PunGroup.class, baseExample, currentPage, pageSize,
-				sortString);
+	public PageList<PunGroupVO> selectPagedByExample(BaseExample baseExample, int currentPage, int pageSize,String sortString) {
+		PageList<PunGroup> list = queryChannel.selectPagedByExample(PunGroup.class, baseExample, currentPage, pageSize,sortString);
 		PageList<PunGroupVO> vos = new PageList<PunGroupVO>(list.getPaginator());
 		for (PunGroup dp : list) {
 			vos.add(BeanUtils.getNewInstance(dp, PunGroupVO.class));
@@ -217,10 +208,8 @@ public class PunGroupServiceImpl implements PunGroupService {
 		return vos;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public PageList<PunGroupVO> selectPagedByExample2(BaseExample baseExample, int currentPage, int pageSize,
-			String sortString) {
+	public PageList<PunGroupVO> selectPagedByExample2(BaseExample baseExample, int currentPage, int pageSize,String sortString) {
 		PageList<PunGroup> list = queryChannel.selectPagedByExample("queryCountByExampleWithUser",
 				"selectByExampleWithUser", PunGroup.class, baseExample, currentPage, pageSize, sortString);
 		PageList<PunGroupVO> vos = new PageList<PunGroupVO>(list.getPaginator());
@@ -238,7 +227,6 @@ public class PunGroupServiceImpl implements PunGroupService {
 		BaseExample baseExample = new BaseExample();
 		Criteria criteria = baseExample.createCriteria();
 		criteria.andEqualTo("u.USER_ID", userId);
-
 		PageList<PunGroup> list = queryChannel.selectPagedByExample("queryCountByExampleWithUser",
 				"selectByExampleWithUser", PunGroup.class, baseExample, currentPage, pageSize, sortString);
 		PageList<PunGroupVO> vos = new PageList<PunGroupVO>(list.getPaginator());

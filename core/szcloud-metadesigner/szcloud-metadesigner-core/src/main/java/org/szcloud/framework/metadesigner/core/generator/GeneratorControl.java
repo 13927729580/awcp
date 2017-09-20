@@ -50,6 +50,7 @@ public class GeneratorControl {
 	 */
 	private Logger logger = LoggerFactory.getLogger(getClass());
 	private boolean isOverride = Boolean.parseBoolean(System.getProperty("gg.isOverride", "false"));
+	@SuppressWarnings("unused")
 	private boolean isAppend = false; // no pass
 	private boolean ignoreOutput = false;
 	private boolean isMergeIfExists = true; // no pass
@@ -321,6 +322,7 @@ public class GeneratorControl {
 		return v;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public List<Map> queryForList(String sql, int limit) throws SQLException {
 		Connection conn = DataSourceProvider.getConnection();
 		return SqlExecutorHelper.queryForList(conn, sql, limit);

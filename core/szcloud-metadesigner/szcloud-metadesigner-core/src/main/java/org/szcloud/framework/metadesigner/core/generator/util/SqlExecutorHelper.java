@@ -10,11 +10,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.szcloud.framework.metadesigner.core.generator.provider.db.table.TableFactory;
-
-
 public class SqlExecutorHelper {
 
+	@SuppressWarnings("rawtypes")
 	public static List<Map> queryForList(Connection conn,String sql,int limit) throws SQLException {
 		PreparedStatement ps = conn.prepareStatement(sql.trim());
 		ps.setMaxRows(limit);
@@ -23,6 +21,7 @@ public class SqlExecutorHelper {
 		return toListMap(limit, rs);
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static List<Map> toListMap(int limit, ResultSet rs) throws SQLException {
 		ResultSetMetaData rsmd = rs.getMetaData();
 		int count = 0;

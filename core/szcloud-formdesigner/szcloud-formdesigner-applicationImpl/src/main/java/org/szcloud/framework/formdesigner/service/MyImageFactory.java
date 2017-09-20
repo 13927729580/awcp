@@ -9,6 +9,7 @@ import com.itextpdf.text.Image;
 import com.itextpdf.text.html.simpleparser.ChainedProperties;
 import com.itextpdf.text.html.simpleparser.ImageProvider;
 
+@SuppressWarnings("deprecation")
 public class MyImageFactory implements ImageProvider{
 
 	private String servletContextPath;
@@ -17,6 +18,7 @@ public class MyImageFactory implements ImageProvider{
 		this.servletContextPath = servletContextPath;
 	}
 	
+	@SuppressWarnings("rawtypes")
 	public Image getImage(String src, Map h, ChainedProperties cprops,
 			DocListener doc) {
 		String url = servletContextPath + src;
@@ -37,6 +39,5 @@ public class MyImageFactory implements ImageProvider{
 	public void setServletContextPath(String servletContextPath) {
 		this.servletContextPath = servletContextPath;
 	}
-	
-	
+		
 }

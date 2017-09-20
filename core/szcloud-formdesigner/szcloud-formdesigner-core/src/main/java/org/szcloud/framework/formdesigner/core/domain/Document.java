@@ -1,6 +1,5 @@
 package org.szcloud.framework.formdesigner.core.domain;
 
-
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
@@ -16,20 +15,16 @@ import org.szcloud.framework.core.utils.Springfactory;
 import org.szcloud.framework.formdesigner.core.domain.design.context.component.Component;
 import org.szcloud.framework.formdesigner.core.domain.design.context.data.DataDefine;
 
-
 /**
  * 主要作为页面的数据载体，会关联页面和提交的数据
  * 模版+数据
- * 	根据输出格式进行转化
- * 
- * 
+ * 根据输出格式进行转化
  * @author lenovo
  *
  */
 public class Document {
 	private String id;
 	private Date lastmodified;
-	
 	private String dynamicPageName;
 	private String dynamicPageId;
 	private Long authorId;
@@ -61,15 +56,10 @@ public class Document {
 	private String workItemId;
 	private String flowTempleteId;
 	private String entryId;
-
-
-
-
 	/**
 	 * 是新增or修改
 	 */
-	private boolean update = false;
-	
+	private boolean update = false;	
 	/**
 	 * 包装request传递过来的数据 
 	 */
@@ -88,13 +78,13 @@ public class Document {
 	private Map<String, DataDefine> datas = new HashMap<String, DataDefine>();
 
 	private static SqlSessionFactory sqlSessionFactory;
-		
+
 	public  static SqlSessionFactory getRepository() {
-	    	if(sqlSessionFactory==null)
-	    		sqlSessionFactory = Springfactory.getBean("sqlSessionFactory");
-			return Document.sqlSessionFactory;
-		}
-	
+		if(sqlSessionFactory==null)
+			sqlSessionFactory = Springfactory.getBean("sqlSessionFactory");
+		return Document.sqlSessionFactory;
+	}
+
 	public String getFlowTempleteId() {
 		return flowTempleteId;
 	}
@@ -125,6 +115,7 @@ public class Document {
 		}
 		return this.id;
 	}
+	
 	public void remove() {
 		SqlSession session = getRepository().openSession();
 		try {
@@ -133,7 +124,7 @@ public class Document {
 			session.close();
 		}
 	}
-	
+
 	public static List<Document> selectByExample(BaseExample example) {
 		SqlSession session = getRepository().openSession();
 		try {
@@ -142,7 +133,7 @@ public class Document {
 			session.close();
 		}
 	}
-	
+
 	public static Document  findByWorkItemId(String flowTemplateId,String workItemId) {
 		SqlSession session = getRepository().openSession();
 		try {
@@ -155,7 +146,7 @@ public class Document {
 			session.close();
 		}
 	}
-	
+
 	public static Document get(Serializable id) {
 		SqlSession session = getRepository().openSession();
 		try {
@@ -165,6 +156,7 @@ public class Document {
 			session.close();
 		}
 	}
+	
 	public String getId() {
 		return id;
 	}
@@ -204,6 +196,7 @@ public class Document {
 	public void setAuthor_group(String author_group) {
 		this.author_group = author_group;
 	}
+	
 	public String getWorkItemId() {
 		return workItemId;
 	}
@@ -243,8 +236,6 @@ public class Document {
 	public void setVersions(String versions) {
 		this.versions = versions;
 	}
-
-	
 
 	public String getInitiator() {
 		return initiator;
@@ -358,7 +349,6 @@ public class Document {
 		return stateint;
 	}
 
-
 	public void setStateint(int stateint) {
 		this.stateint = stateint;
 	}
@@ -435,5 +425,4 @@ public class Document {
 		this.taskId = taskId;
 	}
 
-	
 }

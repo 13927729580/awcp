@@ -11,10 +11,13 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import org.szcloud.framework.core.common.exception.MRTException;
 import org.szcloud.framework.core.domain.BaseEntity;
 
+/**
+ * 组实体类
+ * @author Administrator
+ *
+ */
 public class PunGroup extends BaseEntity{
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 9200889246300170404L;
 	private Long groupId;
 	private Long parentGroupId;
@@ -30,13 +33,15 @@ public class PunGroup extends BaseEntity{
 	private String groupBusinessSphere;
 	private java.util.Date createDate;
 	private String pid;
-	private String number;
-	
-	private List<PunSystem> systems;
-	
+	private String number;	
+	private Set<PunGroup> punGroups = new HashSet<PunGroup>();
+	private Set<PunGroupSys> punGroupSyss = new HashSet<PunGroupSys>();
+	private List<PunSystem> systems;	
+	private PunGroup punGroup;
 	private Long id;
 
 	public PunGroup(){
+		
 	}
 
 	public PunGroup(Long groupId){
@@ -50,6 +55,7 @@ public class PunGroup extends BaseEntity{
 	public Long getGroupId() {
 		return this.groupId;
 	}
+	
 	public void setParentGroupId(Long value) {
 		this.parentGroupId = value;
 	}
@@ -57,6 +63,7 @@ public class PunGroup extends BaseEntity{
 	public Long getParentGroupId() {
 		return this.parentGroupId;
 	}
+	
 	public void setGroupType(String value) {
 		this.groupType = value;
 	}
@@ -64,6 +71,7 @@ public class PunGroup extends BaseEntity{
 	public String getGroupType() {
 		return this.groupType;
 	}
+	
 	public void setGroupChName(String value) {
 		this.groupChName = value;
 	}
@@ -71,6 +79,7 @@ public class PunGroup extends BaseEntity{
 	public String getGroupChName() {
 		return this.groupChName;
 	}
+	
 	public void setGroupShortName(String value) {
 		this.groupShortName = value;
 	}
@@ -78,6 +87,7 @@ public class PunGroup extends BaseEntity{
 	public String getGroupShortName() {
 		return this.groupShortName;
 	}
+	
 	public void setGroupEnName(String value) {
 		this.groupEnName = value;
 	}
@@ -85,6 +95,7 @@ public class PunGroup extends BaseEntity{
 	public String getGroupEnName() {
 		return this.groupEnName;
 	}
+	
 	public void setOrgCode(String value) {
 		this.orgCode = value;
 	}
@@ -92,6 +103,7 @@ public class PunGroup extends BaseEntity{
 	public String getOrgCode() {
 		return this.orgCode;
 	}
+	
 	public void setGroupAddress(String value) {
 		this.groupAddress = value;
 	}
@@ -99,6 +111,7 @@ public class PunGroup extends BaseEntity{
 	public String getGroupAddress() {
 		return this.groupAddress;
 	}
+	
 	public void setZipCode(String value) {
 		this.zipCode = value;
 	}
@@ -106,6 +119,7 @@ public class PunGroup extends BaseEntity{
 	public String getZipCode() {
 		return this.zipCode;
 	}
+	
 	public void setContactNumber(String value) {
 		this.contactNumber = value;
 	}
@@ -113,6 +127,7 @@ public class PunGroup extends BaseEntity{
 	public String getContactNumber() {
 		return this.contactNumber;
 	}
+	
 	public void setFax(String value) {
 		this.fax = value;
 	}
@@ -120,6 +135,7 @@ public class PunGroup extends BaseEntity{
 	public String getFax() {
 		return this.fax;
 	}
+	
 	public void setGroupBusinessSphere(String value) {
 		this.groupBusinessSphere = value;
 	}
@@ -136,7 +152,6 @@ public class PunGroup extends BaseEntity{
 		return this.createDate;
 	}
 	
-	private Set punGroups = new HashSet(0);
 	public void setPunGroups(Set<PunGroup> punGroup){
 		this.punGroups = punGroup;
 	}
@@ -145,7 +160,6 @@ public class PunGroup extends BaseEntity{
 		return punGroups;
 	}
 	
-	private Set punGroupSyss = new HashSet(0);
 	public void setPunGroupSyss(Set<PunGroupSys> punGroupSys){
 		this.punGroupSyss = punGroupSys;
 	}
@@ -154,69 +168,12 @@ public class PunGroup extends BaseEntity{
 		return punGroupSyss;
 	}
 	
-	/*private Set punMemberships = new HashSet(0);
-	public void setPunMemberships(Set<PunMembership> punMembership){
-		this.punMemberships = punMembership;
-	}
-	
-	public Set<PunMembership> getPunMemberships() {
-		return punMemberships;
-	}*/
-	
-	private PunGroup punGroup;
-	
 	public void setPunGroup(PunGroup punGroup){
 		this.punGroup = punGroup;
 	}
 	
 	public PunGroup getPunGroup() {
 		return punGroup;
-	}
-
-	public String toString() {
-		return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-			.append("GroupId",getGroupId())
-			.append("ParentGroupId",getParentGroupId())
-			.append("GroupType",getGroupType())
-			.append("GroupChName",getGroupChName())
-			.append("GroupShortName",getGroupShortName())
-			.append("GroupEnName",getGroupEnName())
-			.append("OrgCode",getOrgCode())
-			.append("GroupAddress",getGroupAddress())
-			.append("ZipCode",getZipCode())
-			.append("ContactNumber",getContactNumber())
-			.append("Fax",getFax())
-			.append("GroupBusinessSphere",getGroupBusinessSphere())
-			.append("CreateDate",getCreateDate())
-			.append("Pid",getPid())
-			.toString();
-	}
-	
-	public int hashCode() {
-		return new HashCodeBuilder()
-			.append(getGroupId())
-			.toHashCode();
-	}
-	
-	public boolean equals(Object obj) {
-		if(obj instanceof PunGroup == false) return false;
-		if(this == obj) return true;
-		PunGroup other = (PunGroup)obj;
-		return new EqualsBuilder()
-			.append(getGroupId(),other.getGroupId())
-			.isEquals();
-	}
-	
-	public void save(){
-		PunGroup.getRepository().save(this);
-	}
-	
-	public void delete() throws MRTException{
-		PunGroup.getRepository().remove(this);
-	}
-	
-	public static List<PunGroup> findAll() throws MRTException{
-		return PunGroup.getRepository().findAll(PunGroup.class);
 	}
 
 	public Long getId() {
@@ -251,6 +208,46 @@ public class PunGroup extends BaseEntity{
 		this.number = number;
 	}
 	
+	public String toString() {
+		return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
+			.append("GroupId",getGroupId())
+			.append("ParentGroupId",getParentGroupId())
+			.append("GroupType",getGroupType())
+			.append("GroupChName",getGroupChName())
+			.append("GroupShortName",getGroupShortName())
+			.append("GroupEnName",getGroupEnName())
+			.append("OrgCode",getOrgCode())
+			.append("GroupAddress",getGroupAddress())
+			.append("ZipCode",getZipCode())
+			.append("ContactNumber",getContactNumber())
+			.append("Fax",getFax())
+			.append("GroupBusinessSphere",getGroupBusinessSphere())
+			.append("CreateDate",getCreateDate())
+			.append("Pid",getPid())
+			.toString();
+	}
 	
+	public int hashCode() {
+		return new HashCodeBuilder().append(getGroupId()).toHashCode();
+	}
+	
+	public boolean equals(Object obj) {
+		if(obj instanceof PunGroup == false) return false;
+		if(this == obj) return true;
+		PunGroup other = (PunGroup)obj;
+		return new EqualsBuilder().append(getGroupId(),other.getGroupId()).isEquals();
+	}
+	
+	public void save(){
+		PunGroup.getRepository().save(this);
+	}
+	
+	public void delete() throws MRTException{
+		PunGroup.getRepository().remove(this);
+	}
+	
+	public static List<PunGroup> findAll() throws MRTException{
+		return PunGroup.getRepository().findAll(PunGroup.class);
+	}
 }
 

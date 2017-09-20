@@ -1,9 +1,7 @@
 package org.szcloud.framework.metadesigner.application;
 
-
 import java.util.List;
 
-import org.szcloud.framework.metadesigner.vo.MetaModelChartVO;
 import org.szcloud.framework.metadesigner.vo.MetaModelClassVO;
 /**
  * 元数据模型类型

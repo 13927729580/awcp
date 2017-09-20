@@ -5,9 +5,15 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.szcloud.framework.core.domain.BaseEntity;
-import java.util.*;
 
+/**
+ * 职位实体类
+ * @author Administrator
+ *
+ */
 public class PunPosition extends BaseEntity{
+
+	private static final long serialVersionUID = -951060333032755905L;
 	private Long positionId;
 	private String name;
 	private String shortName;
@@ -15,6 +21,7 @@ public class PunPosition extends BaseEntity{
 	private Long groupId;
 
 	public PunPosition(){
+		
 	}
 
 	public PunPosition(Long positionId){
@@ -28,6 +35,7 @@ public class PunPosition extends BaseEntity{
 	public Long getPositionId() {
 		return this.positionId;
 	}
+	
 	public void setName(String value) {
 		this.name = value;
 	}
@@ -35,6 +43,7 @@ public class PunPosition extends BaseEntity{
 	public String getName() {
 		return this.name;
 	}
+	
 	public void setShortName(String value) {
 		this.shortName = value;
 	}
@@ -42,6 +51,7 @@ public class PunPosition extends BaseEntity{
 	public String getShortName() {
 		return this.shortName;
 	}
+	
 	public int getGrade() {
 		return grade;
 	}

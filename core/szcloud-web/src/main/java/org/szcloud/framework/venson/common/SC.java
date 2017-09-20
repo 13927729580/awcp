@@ -17,10 +17,12 @@ public class SC {
 	public static final String USER_IP_ADDRESS = "userIpAddress";
 	public static final String PRIVILEGES_ID = "privilegesID";
 	public static final long SYSTEM_ID = 110L;
-	public static final long GROUP_ID = 529614L;
+	public static final long GROUP_ID = 1L;
+	public static final String DEFAULT_PWD = "73ab6949fc707fa7baf2626984014323a0fbcbf51f61568a";
 	public static final String ORG_CODE = "45575544-2";
-	public static final String SALT = "sfdsfkxdhfsdfhsfsdfjhwsfdfhs";
-	public static final String FLOW_013 = "013";
-	public static final String[] TARGET_URL = new String[] { "manage/index.html", "devAdmin/list.jsp" };
+	public static final String SALT = "awcp";
+	public static final String USER_STATUS_AUDIT = "0";
+	public static final String USER_STATUS_DISABLED = "2";
+	public static final String[] TARGET_URL = new String[] { "index.html", "devAdmin/list.jsp" };
 
 }

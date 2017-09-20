@@ -56,7 +56,6 @@ public class JSONTokener {
         this.index = 0;
     }
 
-
     /**
      * Construct a JSONTokener from a string.
      *
@@ -65,7 +64,6 @@ public class JSONTokener {
     public JSONTokener(String s) {
         this(new StringReader(s));
     }
-
 
     /**
      * Back up one character. This provides a sort of lookahead capability,
@@ -79,8 +77,6 @@ public class JSONTokener {
         index -= 1;
         useLastChar = true;
     }
-
-
 
     /**
      * Get the hex value of a character (base16).
@@ -101,7 +97,6 @@ public class JSONTokener {
         return -1;
     }
 
-
     /**
      * Determine if the source string still contains characters that next()
      * can consume.
@@ -115,7 +110,6 @@ public class JSONTokener {
         back();
         return true;
     }
-
 
     /**
      * Get the next character in the source string.
@@ -146,7 +140,6 @@ public class JSONTokener {
         return this.lastChar;
     }
 
-
     /**
      * Consume the next character, and check that it matches a specified
      * character.
@@ -162,7 +155,6 @@ public class JSONTokener {
         }
         return n;
     }
-
 
     /**
      * Get the next n characters.
@@ -205,7 +197,6 @@ public class JSONTokener {
          return new String(buffer);
      }
 
-
     /**
      * Get the next char in the string, skipping whitespace.
      * @throws JSONException
@@ -219,7 +210,6 @@ public class JSONTokener {
             }
         }
     }
-
 
     /**
      * Return the characters up to the next close quote character.
@@ -279,7 +269,6 @@ public class JSONTokener {
         }
     }
 
-
     /**
      * Get the text up but not including the specified character or the
      * end of line, whichever comes first.
@@ -299,7 +288,6 @@ public class JSONTokener {
             sb.append(c);
         }
     }
-
 
     /**
      * Get the text up but not including one of the specified delimiter
@@ -322,7 +310,6 @@ public class JSONTokener {
             sb.append(c);
         }
     }
-
 
     /**
      * Get the next value. The value can be a Boolean, Double, Integer,
@@ -371,7 +358,6 @@ public class JSONTokener {
         return JSONObject.stringToValue(s);
     }
 
-
     /**
      * Skip characters until the next character is the requested character.
      * If the requested character is not found, no characters are skipped.
@@ -409,7 +395,6 @@ public class JSONTokener {
     public JSONException syntaxError(String message) {
         return new JSONException(message + toString());
     }
-
 
     /**
      * Make a printable string of this JSONTokener.

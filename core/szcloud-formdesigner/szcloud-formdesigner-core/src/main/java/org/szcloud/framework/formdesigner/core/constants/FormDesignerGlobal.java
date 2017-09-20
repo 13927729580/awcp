@@ -33,8 +33,6 @@ public class FormDesignerGlobal {
 		COMPONENT_TYPES.put("1009","org.szcloud.framework.formdesigner.core.domain.design.context.component.text.LabelComponent");
 	}
 	
-	
-	
 	public static boolean isValueComponent(JSONObject o){
 		int componentType = Integer.valueOf(o.getString("componentType"));
 		if(componentType==1001 || componentType==1002 ||componentType==1003
@@ -46,8 +44,7 @@ public class FormDesignerGlobal {
 		}
 		return false;
 	}
-	
-	
+		
 	public static boolean isValuedNoneContain(JSONObject o){
 		int componentType = Integer.valueOf(o.getString("componentType"));
 		if(componentType==1001 || componentType==1002 ||componentType==1003

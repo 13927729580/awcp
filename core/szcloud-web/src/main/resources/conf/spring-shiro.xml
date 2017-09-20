@@ -14,7 +14,7 @@
     
 	
 	<bean id="sessionManager" class="org.apache.shiro.web.session.mgt.DefaultWebSessionManager">
-		<property name="globalSessionTimeout" value="360000000" />
+		<property name="globalSessionTimeout" value="7200000" />
 		<property name="sessionValidationSchedulerEnabled" value="true" /> 
 		<property name="sessionValidationScheduler" ref="sessionValidationScheduler"/> 
 		<!-- <property name="globalSessionTimeout" value="3600000" />  -->
@@ -33,12 +33,14 @@
 	    <constructor-arg value="sid"/>
 	    <property name="httpOnly" value="true"/>
 	    <property name="maxAge" value="-1"/>
+	    <property name="path" value="/"/>
 	</bean>
 	
 	<bean id="rememberMeCookie" class="org.apache.shiro.web.servlet.SimpleCookie">
 	    <constructor-arg value="rememberMe"/>
 	    <property name="httpOnly" value="true"/>
 	    <property name="maxAge" value="2592000"/><!-- 30天 -->
+	    <property name="path" value="/"/>
 	</bean>
 	
 	<!-- 定期验证 -->

@@ -9,10 +9,13 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import org.szcloud.framework.core.common.exception.MRTException;
 import org.szcloud.framework.core.domain.BaseEntity;
 
+/**
+ * 数据字典实体类
+ * @author Administrator
+ *
+ */
 public class PdataDictionary extends BaseEntity{
-	/**
-	 * 
-	 */
+	
 	private static final long serialVersionUID = 6442609976185597249L;
 	private Long id;
 	private String code;
@@ -24,6 +27,7 @@ public class PdataDictionary extends BaseEntity{
 	private Long level;
 
 	public PdataDictionary(){
+		
 	}
 
 	public void setId(Long value) {
@@ -33,6 +37,7 @@ public class PdataDictionary extends BaseEntity{
 	public Long getId() {
 		return this.id;
 	}
+	
 	public void setCode(String value) {
 		this.code = value;
 	}
@@ -40,6 +45,7 @@ public class PdataDictionary extends BaseEntity{
 	public String getCode() {
 		return this.code;
 	}
+	
 	public void setDataKey(String value) {
 		this.dataKey = value;
 	}
@@ -47,6 +53,7 @@ public class PdataDictionary extends BaseEntity{
 	public String getDataKey() {
 		return this.dataKey;
 	}
+	
 	public void setDataValue(String value) {
 		this.dataValue = value;
 	}
@@ -54,6 +61,7 @@ public class PdataDictionary extends BaseEntity{
 	public String getDataValue() {
 		return this.dataValue;
 	}
+	
 	public void setDataOrder(Integer value) {
 		this.dataOrder = value;
 	}
@@ -61,6 +69,7 @@ public class PdataDictionary extends BaseEntity{
 	public Integer getDataOrder() {
 		return this.dataOrder;
 	}
+	
 	public void setDictRemark(String value) {
 		this.dictRemark = value;
 	}
@@ -77,6 +86,14 @@ public class PdataDictionary extends BaseEntity{
 		this.level = level;
 	}
 
+	public String getDictStatus() {
+		return dictStatus;
+	}
+
+	public void setDictStatus(String dictStatus) {
+		this.dictStatus = dictStatus;
+	}
+	
 	public String toString() {
 		return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
 			.append("Id",getId())
@@ -116,15 +133,5 @@ public class PdataDictionary extends BaseEntity{
 		return PdataDictionary.getRepository().findAll(PdataDictionary.class);
 	}
 
-	public String getDictStatus() {
-		return dictStatus;
-	}
-
-	public void setDictStatus(String dictStatus) {
-		this.dictStatus = dictStatus;
-	}
-	
-	
-	
 }
 

@@ -1863,39 +1863,6 @@ public class PrintServiceImpl implements PrintService, ServletContextAware {
 		return finalContent;
 	}
 
-	private String getItemByCodeAndScript(String code, String script) {
-		if (StringUtils.isEmpty(code)) {
-			return " ";
-		}
-
-		String value = DocumentUtils.getItem(code);
-		if (StringUtils.isNotBlank(value)) {
-			return value;
-		} else { // 如果key不为空，但value从数据字典中取不到，则option脚本为"1=是;0=否"格式
-			if (StringUtils.isNotBlank(script)) {
-				String ret = "";
-				ScriptEngine engine = ScriptEngineUtils.getScriptEngine();
-				try {
-					ret = (String) engine.eval(script);
-				} catch (ScriptException e) {
-					// TODO Auto-generated catch block
-					logger.info("ERROR", e);
-				}
-				Map<String, String> map = new HashMap<String, String>();
-				String[] optionStr = ret.split("\\;");
-				if (optionStr.length > 0) {
-					for (String str : optionStr) {
-						String[] entry = str.split("\\=");
-						map.put(entry[0], entry[1]);
-					}
-
-				}
-				return (String) map.get(code);
-			}
-		}
-		return " ";
-	}
-
 	/**
 	 * 根据文件Id获取到mangoDB的相片，返回对应的二进制数组
 	 * 
@@ -2062,8 +2029,8 @@ class ChineseSplitCharacter implements SplitCharacter {
 	/**
 	 * Checks if a character can be used to split a <CODE>PdfString</CODE>.
 	 * <P>
-	 * for the moment every character less than or equal to SPACE, the character
-	 * '-' and some specific unicode ranges are 'splitCharacters'.
+	 * for the moment every character less than or equal to SPACE, the character '-'
+	 * and some specific unicode ranges are 'splitCharacters'.
 	 * 
 	 * @param start
 	 *            start position in the array

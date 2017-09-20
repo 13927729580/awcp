@@ -44,7 +44,7 @@ import org.szcloud.framework.formdesigner.application.service.FormdesignerServic
 import org.szcloud.framework.formdesigner.application.service.StoreService;
 import org.szcloud.framework.formdesigner.application.vo.DynamicPageVO;
 import org.szcloud.framework.formdesigner.application.vo.StoreVO;
-import org.szcloud.framework.formdesigner.constrants.FormDesignGlobal;
+import org.szcloud.framework.formdesigner.core.constants.FormDesignGlobal;
 import org.szcloud.framework.formdesigner.core.domain.Store;
 import org.szcloud.framework.formdesigner.core.domain.design.context.component.Layout;
 import org.szcloud.framework.unit.vo.PunSystemVO;

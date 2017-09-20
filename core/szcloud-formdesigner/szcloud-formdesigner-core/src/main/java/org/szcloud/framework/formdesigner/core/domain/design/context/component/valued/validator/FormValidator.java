@@ -58,69 +58,91 @@ public class FormValidator extends MyCustomValidator {
 	public String getValidatorGroup() {
 		return validatorGroup;
 	}
+	
 	public void setValidatorGroup(String validatorGroup) {
 		this.validatorGroup = validatorGroup;
 	}
+	
 	public boolean isEmpty() {
 		return empty;
 	}
+	
 	public void setEmpty(boolean empty) {
 		this.empty = empty;
 	}
+	
 	public String getOnEmpty() {
 		return onEmpty;
 	}
+	
 	public void setOnEmpty(String onEmpty) {
 		this.onEmpty = onEmpty;
 	}
+	
 	public String getOnShow() {
 		return onShow;
 	}
+	
 	public void setOnShow(String onShow) {
 		this.onShow = onShow;
 	}
+	
 	public String getOnFocus() {
 		return onFocus;
 	}
+	
 	public void setOnFocus(String onFocus) {
 		this.onFocus = onFocus;
 	}
+	
 	public String getOnCorrect() {
 		return onCorrect;
 	}
+	
 	public void setOnCorrect(String onCorrect) {
 		this.onCorrect = onCorrect;
 	}
+	
 	public String getTipID() {
 		return tipID;
 	}
+	
 	public void setTipID(String tipID) {
 		this.tipID = tipID;
 	}
+	
 	public String getRelativeID() {
 		return relativeID;
 	}
+	
 	public void setRelativeID(String relativeID) {
 		this.relativeID = relativeID;
 	}
+	
 	public String getValidatorsJson() {
 		return validatorsJson;
 	}
+	
 	public void setValidatorsJson(String validatorsJson) {
 		this.validatorsJson = validatorsJson;
 	}
+	
 	public Map<String, MyCustomValidator> getValidatorsMap() {
 		return validatorsMap;
 	}
+	
 	public void setValidatorsMap(Map<String, MyCustomValidator> validatorsMap) {
 		this.validatorsMap = validatorsMap;
 	}
+	
 	public ValuedComponent getComponent() {
 		return component;
 	}
+	
 	public void setComponent(ValuedComponent component) {
 		this.component = component;
 	}
+	
 	@Override
 	public String toClientScriptString() {
 		StringBuilder sb = new StringBuilder();
@@ -148,24 +170,21 @@ public class FormValidator extends MyCustomValidator {
 		}
 		if(StringUtils.isNotBlank(this.onFocus)){
 			sb.append("onFocus:\""+this.onFocus+"\",");
-		}
-		
+		}		
 		if(StringUtils.isNotBlank(this.onShow)){
 			sb.append("onShow:\""+this.onShow+"\",");
-		}
-		
+		}		
 		sb.deleteCharAt(sb.length()-1);
-		sb.append("})");
-		
+		sb.append("})");	
 		for(MyCustomValidator my:validatorsMap.values()){
 			sb.append(my.toClientScriptString());
 		}
 		sb.append(";");
 		return sb.toString();
 	}
+	
 	@Override
 	public String toServerScriptString() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 }

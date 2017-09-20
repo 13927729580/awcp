@@ -13,9 +13,11 @@ package org.szcloud.framework.core.common.exception;
  * @author not attributable
  * @version 1.0
  */
-@SuppressWarnings({"unchecked","serial"})
 public class MAuthRTException extends MRTException {
-    public MAuthRTException() {
+
+	private static final long serialVersionUID = 8827061579511630246L;
+
+	public MAuthRTException() {
         super();
     }
 

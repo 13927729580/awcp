@@ -7,18 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-
-
-
-import java.util.Properties;
-
 import javax.sql.DataSource;
 
 import org.apache.poi.ss.formula.functions.T;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.stereotype.Repository;
 import org.szcloud.framework.core.utils.Springfactory;
 
 /**
@@ -26,7 +19,6 @@ import org.szcloud.framework.core.utils.Springfactory;
  * @author  caoyong
  *
  */
-//@Repository(value="jdbcRepository")
 public class EntityRepositoryJDBC extends SimpleJdbcTemplate{
 	
 	/**
@@ -36,6 +28,7 @@ public class EntityRepositoryJDBC extends SimpleJdbcTemplate{
 	public static final String DATABSE_TYPE_POSTGRE ="postgresql";
 	public static final String DATABSE_TYPE_ORACLE ="oracle";
 	public static final String DATABSE_TYPE_SQLSERVER ="sqlserver";
+	
 	/**
 	 * 分页SQL
 	 */
@@ -56,6 +49,7 @@ public class EntityRepositoryJDBC extends SimpleJdbcTemplate{
 	 * @param parameters参数集合(key为参数名，value为参数值)
 	 * @return bean对象集合
 	 */
+	@SuppressWarnings("rawtypes")
 	public List find(String sql,Class clazz,Map parameters){
 		return super.find(sql,clazz,parameters);
 	}
@@ -67,6 +61,7 @@ public class EntityRepositoryJDBC extends SimpleJdbcTemplate{
 	 * @param parameters参数集合(key为参数名，value为参数值)
 	 * @return bean对象
 	 */
+	@SuppressWarnings("rawtypes")
 	public Object findForObject(String sql,Class clazz,Map parameters){
 		return super.findForObject(sql, clazz, parameters);
 	}
@@ -77,6 +72,7 @@ public class EntityRepositoryJDBC extends SimpleJdbcTemplate{
 	 * @param parameters参数集合(key为参数名，value为参数值)
 	 * @return bean对象
 	 */
+	@SuppressWarnings("rawtypes")
 	public long findForLong(String sql,Map parameters){
 		return super.findForLong(sql, parameters);
 	}
@@ -87,6 +83,7 @@ public class EntityRepositoryJDBC extends SimpleJdbcTemplate{
 	 * @param parameters参数集合(key为参数名，value为参数值)
 	 * @return bean对象
 	 */
+	@SuppressWarnings("rawtypes")
 	public Map findForMap(String sql,Map parameters){
 		return super.findForMap(sql, parameters);
 	}
@@ -98,6 +95,7 @@ public class EntityRepositoryJDBC extends SimpleJdbcTemplate{
 	 * @param parameters参数集合(key为参数名，value为参数值)
 	 * @return bean对象
 	 */
+	@SuppressWarnings("rawtypes")
 	public List<Map<String,Object>> findForListMap(String sql,Map parameters){
 		return super.findForListMap(sql, parameters);
 	}
@@ -120,9 +118,11 @@ public class EntityRepositoryJDBC extends SimpleJdbcTemplate{
 	 * @param sql
 	 * @param parameters
 	 */
+	@SuppressWarnings("rawtypes")
 	public int executeForMap(String sql,Map parameters){
 		return super.executeForMap(sql, parameters);
 	}
+	
 	/*
 	 * 批量处理操作
 	 * 例如：update t_actor set first_name = :firstName, last_name = :lastName where id = :id
@@ -135,23 +135,24 @@ public class EntityRepositoryJDBC extends SimpleJdbcTemplate{
 	/**
 	 * 使用指定的检索标准检索数据并分页返回数据
 	 */
+	@SuppressWarnings("deprecation")
 	public List<Map<String, Object>> find(String sql, int page, int rows) {
 		//封装分页SQL
 		sql = jeecgCreatePageSql(sql,page,rows);
-		return this.jdbcTemplate.queryForList(sql);
+		return jdbcTemplate.queryForList(sql);
 	}
 	
-	
+	@SuppressWarnings("deprecation")
 	public List<Map<String, Object>> find(String sql, Object... objs) {
 		return this.jdbcTemplate.queryForList(sql,objs);
 	}
-
 	
 	/**
 	 * 使用指定的检索标准检索数据并分页返回数据
 	 * @throws IllegalAccessException 
 	 * @throws InstantiationException 
 	 */
+	@SuppressWarnings({ "deprecation", "unused" })
 	public List<Map<String, Object>> findObj(String sql, int page, int rows,Class<T> clazz) {
 		List<T> rsList = new ArrayList<T>();
 		//封装分页SQL
@@ -168,12 +169,14 @@ public class EntityRepositoryJDBC extends SimpleJdbcTemplate{
 	 * @return
 	 * @throws DataAccessException
 	 */
+	@SuppressWarnings("deprecation")
 	public  List<Map<String, Object>>  find(String  sql,  int page, int rows,Object... objs){
 		//封装分页SQL
 		sql = jeecgCreatePageSql(sql,page,rows);
 		return jdbcTemplate.queryForList(sql,objs);
 	}
 	
+	@SuppressWarnings("deprecation")
 	public Map<String, Object> findOne(String sql, Object... objs) {
 		try{ 
 			return this.jdbcTemplate.queryForMap(sql, objs);
@@ -185,25 +188,31 @@ public class EntityRepositoryJDBC extends SimpleJdbcTemplate{
 	/**
 	 * 使用指定的检索标准检索数据并分页返回数据For JDBC
 	 */
+	@SuppressWarnings("deprecation")
 	public Long getCount(String  sql) {
 		return  jdbcTemplate.queryForLong(sql);
 	}
+	
 	/**
 	 * 使用指定的检索标准检索数据并分页返回数据For JDBC-采用预处理方式
 	 * 
 	 */
+	@SuppressWarnings("deprecation")
 	public Long getCount(String  sql,Object... objs) {
 		return  jdbcTemplate.queryForLong(sql, objs);
 	}
 
+	@SuppressWarnings("deprecation")
 	public Integer executeSql2(String sql,List<Object> param) {
 		return this.jdbcTemplate.update(sql,param);
 	}
 
+	@SuppressWarnings("deprecation")
 	public Integer executeSql(String sql, Object... param) {
 		return this.jdbcTemplate.update(sql,param);
 	}
 
+	@SuppressWarnings("deprecation")
 	public Integer queryCount(String sql, Object... param) {
 		return this.jdbcTemplate.queryForInt(sql, param);
 	}
@@ -218,35 +227,33 @@ public class EntityRepositoryJDBC extends SimpleJdbcTemplate{
 		sqlParam[1] = beginNum+"";
 		sqlParam[2] = rows+"";
 		if(EntityRepositoryJDBC.getDbType().indexOf(DATABSE_TYPE_MYSQL)!=-1){
-			sql = MessageFormat.format(MYSQL_SQL, sqlParam);
+			sql = MessageFormat.format(MYSQL_SQL, sqlParam[0],sqlParam[1],sqlParam[2]);
 		}else if(EntityRepositoryJDBC.getDbType().indexOf(DATABSE_TYPE_POSTGRE)!=-1){
-			sql = MessageFormat.format(POSTGRE_SQL, sqlParam);
+			sql = MessageFormat.format(POSTGRE_SQL, sqlParam[0],sqlParam[1],sqlParam[2]);
 		}else {
 			int beginIndex = (page-1)*rows;
 			int endIndex = beginIndex+rows;
 			sqlParam[2] = Integer.toString(beginIndex);
 			sqlParam[1] = Integer.toString(endIndex);
 			if(EntityRepositoryJDBC.getDbType().indexOf(DATABSE_TYPE_ORACLE)!=-1) {
-				sql = MessageFormat.format(ORACLE_SQL, sqlParam);
+				sql = MessageFormat.format(ORACLE_SQL, sqlParam[0],sqlParam[1],sqlParam[2]);
 			} else if(EntityRepositoryJDBC.getDbType().indexOf(DATABSE_TYPE_SQLSERVER)!=-1) {
 				sqlParam[0] = sql.substring(getAfterSelectInsertPoint(sql));
-				sql = MessageFormat.format(SQLSERVER_SQL, sqlParam);
+				sql = MessageFormat.format(SQLSERVER_SQL, sqlParam[0],sqlParam[1],sqlParam[2]);
 			}
 		}
 		return sql;
 	}
+	
 	private static int getAfterSelectInsertPoint(String sql) {
 	    int selectIndex = sql.toLowerCase().indexOf("select");
 	    int selectDistinctIndex = sql.toLowerCase().indexOf("select distinct");
 	    return selectIndex + (selectDistinctIndex == selectIndex ? 15 : 6);
     }
 	
-	private static String  getDbType()
-	{
-		DataSource dataSource = Springfactory.getBean("dataSource");
-		
-		String retStr = "";
-		
+	private static String  getDbType(){
+		DataSource dataSource = Springfactory.getBean("dataSource");		
+		String retStr = "";		
 		String dbdialect="";
 		Connection con = null;
 		try {
@@ -274,7 +281,7 @@ public class EntityRepositoryJDBC extends SimpleJdbcTemplate{
 			retStr = "postgres";
 		}
 		return retStr;
-
 	}
+	
 }
 

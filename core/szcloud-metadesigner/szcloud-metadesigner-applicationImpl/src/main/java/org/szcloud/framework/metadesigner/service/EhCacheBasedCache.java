@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.stereotype.Service;
 import org.szcloud.framework.metadesigner.application.Cache;
 import org.szcloud.framework.metadesigner.core.domain.EhCacheConfiguration;
 
@@ -16,17 +15,15 @@ import net.sf.ehcache.Element;
  * @author Administrator
  *
  */
-
 public class EhCacheBasedCache implements Cache{
 
-	 /**
+	/**
      * cache属性
      */
     private net.sf.ehcache.Cache cache;
 
     /**
      * 使用指定的名字构建一个缓存，name对应ehcache.xml中的配置
-     *
      * @param name
      * @throws Exception 
      */
@@ -40,7 +37,6 @@ public class EhCacheBasedCache implements Cache{
 
     /**
      * 指定配置，构建一个缓存对象
-     *
      * @param configuration EhCache配置信息
      */
     public EhCacheBasedCache(EhCacheConfiguration configuration) {
@@ -58,7 +54,6 @@ public class EhCacheBasedCache implements Cache{
 
     /**
      * 指定详细的参数，构建一个缓存对象
-     *
      * @param name
      * @param maxElementsInMemory
      * @param overflowToDisk
@@ -96,8 +91,7 @@ public class EhCacheBasedCache implements Cache{
         }
         return result;
     }
-
-    
+   
     /**
      * 判定一个KEY值是否在缓存中存在
      */
@@ -112,10 +106,8 @@ public class EhCacheBasedCache implements Cache{
         cache.put(new Element(key, obj));
     }
 
-
     /**
-     * 向缓存中存入一个键值对，到指定的时间过期
-     * 
+     * 向缓存中存入一个键值对，到指定的时间过期 
      * @param key         指定对象的key
      * @param obj
      * @param expiredDate
@@ -124,17 +116,16 @@ public class EhCacheBasedCache implements Cache{
         Date now = new Date();
         long timeToLiveSeconds = (expiredDate.getTime() - now.getTime()) / 1000;
         put(key, obj, timeToLiveSeconds);
-
     }
 
     /**
      * 向缓存中存入一个键值对，指定其生存的秒数
-     *
      * @param key               指定对象的key
      * @param obj
      * @param timeToLiveSeconds
      */
-    public void put(String key, Object obj, long timeToLiveSeconds) {
+    @SuppressWarnings("deprecation")
+	public void put(String key, Object obj, long timeToLiveSeconds) {
         cache.put(new Element(key, obj, false, (int) timeToLiveSeconds, (int) timeToLiveSeconds));
     }
 
@@ -142,7 +133,6 @@ public class EhCacheBasedCache implements Cache{
      * 从缓存中将某一个KEY值移除出去
      */
     public boolean remove(String key) {
-
         return cache.remove(key);
     }
 	

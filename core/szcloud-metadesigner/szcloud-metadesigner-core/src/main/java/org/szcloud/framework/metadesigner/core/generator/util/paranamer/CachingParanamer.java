@@ -1,9 +1,7 @@
-
 package org.szcloud.framework.metadesigner.core.generator.util.paranamer;
 
 import java.lang.reflect.AccessibleObject;
 import java.util.WeakHashMap;
-
 
 public class CachingParanamer implements Paranamer {
 

@@ -1,6 +1,4 @@
-
 package  org.szcloud.framework.unit.service;
-
 
 import java.util.List;
 import java.util.Map;
@@ -62,6 +60,7 @@ public interface PunUserRoleService {
 	public List<PunUserRoleVO> selectByExample(PunUserRoleVO vo);
 		
 	public void save(PunUserRoleVO vo);
+	
 	//参数：1.类名  2.mapper文件中对应的id  固定位queryList  3.根据条件来分页查询   4.当前页   5.取的记录他条数  6. 根据字段排序("name.asc")列子
 	public PageList<PunUserRoleVO> queryPagedResult(Map<String, Object> params, int currentPage, int pageSize,String sortString);
 	
@@ -80,6 +79,7 @@ public interface PunUserRoleService {
 	 * @param userId
 	 * @throws MRTException
 	 */
+	
 	public void deletebyUserIdAndRoleIds(Long userId,List<PunRoleInfoVO> roles) throws MRTException;
 	/**
 	 * 

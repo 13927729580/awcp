@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -14,6 +13,7 @@ import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.Locale;
 
 import org.apache.commons.lang3.StringUtils;
@@ -904,8 +904,8 @@ public abstract class Tools {
 			org.dom4j.Element root = document.addElement("system");
 
 			java.util.Properties properties = System.getProperties();
-			for (java.util.Enumeration elements = properties.propertyNames(); elements
-					.hasMoreElements();) {
+			for (Enumeration<?> elements = properties.propertyNames(); 
+					elements.hasMoreElements();) {
 				String name = (String) elements.nextElement();
 				String value = properties.getProperty(name);
 				org.dom4j.Element element = root.addElement("property");
@@ -928,7 +928,7 @@ public abstract class Tools {
 			org.dom4j.Element root = document.addElement("system");
 
 			java.util.Properties properties = System.getProperties();
-			for (java.util.Enumeration elements = properties.propertyNames(); elements
+			for (Enumeration<?> elements = properties.propertyNames(); elements
 					.hasMoreElements();) {
 				String name = (String) elements.nextElement();
 				String value = properties.getProperty(name);

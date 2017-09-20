@@ -2,28 +2,14 @@ package org.szcloud.framework.metadesigner.util;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.szcloud.framework.metadesigner.application.MetaModelItemService;
-import org.szcloud.framework.metadesigner.application.MetaModelService;
-import org.szcloud.framework.metadesigner.application.ModelRelationService;
 import org.szcloud.framework.metadesigner.vo.MetaModelItemsVO;
 import org.szcloud.framework.metadesigner.vo.MetaModelVO;
-import org.szcloud.framework.metadesigner.vo.ModelRelationVO;
 
 @Service("createTables")
 public class CreateTables implements ICreateTables {
-	/**
-	 * 日志对象
-	 */
-	private static final Logger logger = LoggerFactory.getLogger(CreateTables.class);
-	@Autowired
-	private ModelRelationService modelRelationServiceImpl;
-
-	@Autowired
-	private MetaModelService metaModelServiceImpl;
 
 	@Autowired
 	private MetaModelItemService metaModelItemsServiceImpl;
@@ -38,7 +24,6 @@ public class CreateTables implements ICreateTables {
 			for (MetaModelItemsVO mmo : mmi) {
 				sq.append(checkIsNull.columnSql(mmo));
 			}
-
 		} else {
 			sq.append("ID VARCHAR primary key auto_increment,");
 			// sql+="id bigInt primary key auto_increment,";

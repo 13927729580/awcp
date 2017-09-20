@@ -2,6 +2,7 @@ package org.szcloud.framework.formdesigner.core.domain.design.context.component;
 
 import java.util.List;
 
+@SuppressWarnings("rawtypes")
 public class Layout implements Comparable{
 
 	private String pageId;
@@ -23,6 +24,7 @@ public class Layout implements Comparable{
 	private String parentId;
 
 	private List<Layout> childLayouts;
+	
 	public String getPageId() {
 		return pageId;
 	}
@@ -54,8 +56,6 @@ public class Layout implements Comparable{
 	public void setDynamicPageId(Long dynamicPageId) {
 		this.dynamicPageId = dynamicPageId;
 	}
-
-	
 
 	public Integer getTop() {
 		return top;
@@ -106,12 +106,10 @@ public class Layout implements Comparable{
 	public void setChildLayouts(List<Layout> childLayouts) {
 		this.childLayouts = childLayouts;
 	}
-
 	
 	@Override
 	public int compareTo(Object o) {
 		return this.order.compareTo(((Layout)o).getOrder());
 	}
-	
 	
 }

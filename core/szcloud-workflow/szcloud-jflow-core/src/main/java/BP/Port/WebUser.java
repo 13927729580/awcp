@@ -44,7 +44,7 @@ public class WebUser {
 	 * @param em
 	 */
 	public static void SignInOfGener(Emp em) {
-		SignInOfGener(em, "CH", null, true, false);
+		SignInOfGener(em, getSysLang(), null, true, false);
 	}
 
 	/**
@@ -54,7 +54,7 @@ public class WebUser {
 	 * @param isRememberMe
 	 */
 	public static void SignInOfGener(Emp em, boolean isRememberMe) {
-		SignInOfGener(em, "CH", null, isRememberMe, false);
+		SignInOfGener(em, getSysLang(), null, isRememberMe, false);
 	}
 
 	/**
@@ -64,7 +64,7 @@ public class WebUser {
 	 * @param auth
 	 */
 	public static void SignInOfGenerAuth(Emp em, String auth) {
-		SignInOfGener(em, "CH", auth, true, false);
+		SignInOfGener(em, getSysLang(), auth, true, false);
 	}
 
 	/**
@@ -142,8 +142,7 @@ public class WebUser {
 				// 如果记录sid
 				String sid1 = DataType.dateToStr(new Date(), "MMddHHmmss");
 				/*
-				 * warning String sid1 = new
-				 * java.util.Date().ToString("MMddHHmmss");
+				 * warning String sid1 = new java.util.Date().ToString("MMddHHmmss");
 				 */
 
 				DBAccess.RunSQL("UPDATE Port_Emp SET SID='" + sid1 + "' WHERE No='" + WebUser.getNo() + "'");
@@ -154,10 +153,8 @@ public class WebUser {
 			if (SystemConfig.getIsBSsystem()) {
 				/*
 				 * warning HttpCookie hc =
-				 * BP.Glo.getHttpContextCurrent().Request.Cookies["CCS"]; if (hc
-				 * != null) {
-				 * BP.Glo.getHttpContextCurrent().Request.Cookies.Remove("CCS");
-				 * }
+				 * BP.Glo.getHttpContextCurrent().Request.Cookies["CCS"]; if (hc != null) {
+				 * BP.Glo.getHttpContextCurrent().Request.Cookies.Remove("CCS"); }
 				 */
 
 				int expiry = 60 * 60 * 24 * 2;
@@ -166,26 +163,16 @@ public class WebUser {
 				ContextHolderUtils.addCookie("IsRememberMe", expiry, isRememberMe ? "1" : "0");
 				ContextHolderUtils.addCookie("FK_Dept", expiry, em.getFK_Dept());
 				ContextHolderUtils.addCookie("FK_DeptName", expiry, URLEncoder.encode(em.getFK_DeptText(), "UTF-8"));
-				if (ContextHolderUtils.getSession() != null) {
-					ContextHolderUtils.addCookie("Token", expiry, (String) SessionUtils.getCurrentSession().getId());
-					ContextHolderUtils.addCookie("SID", expiry, (String) SessionUtils.getCurrentSession().getId());
-				}
-				ContextHolderUtils.addCookie("Lang", expiry, lang);
 				/*
-				 * warning HttpCookie cookie = new HttpCookie("CCS");
-				 * cookie.Expires = new java.util.Date().AddDays(2);
-				 * cookie.Values.Add("No", em.getNo());
-				 * cookie.Values.Add("Name",
-				 * HttpUtility.UrlEncode(em.getName())); if(isRememberMe){
-				 * cookie.Values.Add("IsRememberMe", "1"); } else {
-				 * cookie.Values.Add("IsRememberMe", "0"); }
-				 * cookie.Values.Add("FK_Dept", em.getFK_Dept());
-				 * cookie.Values.Add("FK_DeptName",
+				 * warning HttpCookie cookie = new HttpCookie("CCS"); cookie.Expires = new
+				 * java.util.Date().AddDays(2); cookie.Values.Add("No", em.getNo());
+				 * cookie.Values.Add("Name", HttpUtility.UrlEncode(em.getName()));
+				 * if(isRememberMe){ cookie.Values.Add("IsRememberMe", "1"); } else {
+				 * cookie.Values.Add("IsRememberMe", "0"); } cookie.Values.Add("FK_Dept",
+				 * em.getFK_Dept()); cookie.Values.Add("FK_DeptName",
 				 * HttpUtility.UrlEncode(em.getFK_DeptText())); if
-				 * (BP.Glo.getHttpContextCurrent().Session != null) {
-				 * cookie.Values.Add("Token",
-				 * BP.Glo.getHttpContextCurrent().Session.SessionID);
-				 * cookie.Values.Add("SID",
+				 * (BP.Glo.getHttpContextCurrent().Session != null) { cookie.Values.Add("Token",
+				 * BP.Glo.getHttpContextCurrent().Session.SessionID); cookie.Values.Add("SID",
 				 * BP.Glo.getHttpContextCurrent().Session.SessionID); }
 				 * cookie.Values.Add("Lang", lang);
 				 */
@@ -196,8 +183,7 @@ public class WebUser {
 						String sql = "SELECT Style FROM WF_Emp WHERE No='" + em.getNo() + "' ";
 						int val = DBAccess.RunSQLReturnValInt(sql, 0);
 						/*
-						 * warning cookie.Values.Add("Style", (new
-						 * Integer(val)).toString());
+						 * warning cookie.Values.Add("Style", (new Integer(val)).toString());
 						 */
 						ContextHolderUtils.addCookie("Style", expiry, String.valueOf(val));
 						WebUser.setStyle(String.valueOf(val));
@@ -231,10 +217,10 @@ public class WebUser {
 	 */
 	public static String GetSessionByKey(String key, String isNullAsVal) {
 		/*
-		 * warning if (getIsBSMode() && BP.Glo.getHttpContextCurrent() != null
-		 * && BP.Glo.getHttpContextCurrent().Session != null) { String str =
-		 * (String) ((BP.Glo.getHttpContextCurrent().Session[key] instanceof
-		 * String) ? BP.Glo .getHttpContextCurrent().Session[key] : null);
+		 * warning if (getIsBSMode() && BP.Glo.getHttpContextCurrent() != null &&
+		 * BP.Glo.getHttpContextCurrent().Session != null) { String str = (String)
+		 * ((BP.Glo.getHttpContextCurrent().Session[key] instanceof String) ? BP.Glo
+		 * .getHttpContextCurrent().Session[key] : null);
 		 */
 		if (getIsBSMode() && null != ContextHolderUtils.getRequest() && null != ContextHolderUtils.getSession()) {
 			Object value = ContextHolderUtils.getSession().getAttribute(key);
@@ -284,11 +270,10 @@ public class WebUser {
 
 	public static Object GetSessionByKey(String key, Object defaultObjVal) {
 		/*
-		 * warning if (getIsBSMode() && BP.Glo.getHttpContextCurrent() != null
-		 * && BP.Glo.getHttpContextCurrent().Session != null) { if
-		 * (BP.Glo.getHttpContextCurrent().Session[key] == null) { return
-		 * defaultObjVal; } else { return
-		 * BP.Glo.getHttpContextCurrent().Session[key]; }
+		 * warning if (getIsBSMode() && BP.Glo.getHttpContextCurrent() != null &&
+		 * BP.Glo.getHttpContextCurrent().Session != null) { if
+		 * (BP.Glo.getHttpContextCurrent().Session[key] == null) { return defaultObjVal;
+		 * } else { return BP.Glo.getHttpContextCurrent().Session[key]; }
 		 */
 		if (getIsBSMode() && null != ContextHolderUtils.getRequest() && null != ContextHolderUtils.getSession()) {
 			Object value = ContextHolderUtils.getSession().getAttribute(key);
@@ -319,8 +304,8 @@ public class WebUser {
 			return;
 		}
 		/*
-		 * warning if (getIsBSMode() && BP.Glo.getHttpContextCurrent() != null
-		 * && BP.Glo.getHttpContextCurrent().Session != null) {
+		 * warning if (getIsBSMode() && BP.Glo.getHttpContextCurrent() != null &&
+		 * BP.Glo.getHttpContextCurrent().Session != null) {
 		 * BP.Glo.getHttpContextCurrent().Session[key] = val;
 		 */
 		if (getIsBSMode() && null != ContextHolderUtils.getRequest() && null != ContextHolderUtils.getSession()) {
@@ -338,14 +323,11 @@ public class WebUser {
 			try {
 				String token = WebUser.getToken();
 				/*
-				 * warning
-				 * BP.Glo.getHttpContextCurrent().Response.Cookies.Clear();
-				 * BP.Glo.getHttpContextCurrent().Request.Cookies.Clear();
-				 * HttpCookie cookie = new HttpCookie("CCS", ""); cookie.Expires
-				 * = new java.util.Date().AddDays(2); cookie.Values.Add("No",
-				 * ""); cookie.Values.Add("Name", ""); // 2013.06.07 H
-				 * cookie.Values.Add("Pass", "");
-				 * cookie.Values.Add("IsRememberMe", "0");
+				 * warning BP.Glo.getHttpContextCurrent().Response.Cookies.Clear();
+				 * BP.Glo.getHttpContextCurrent().Request.Cookies.Clear(); HttpCookie cookie =
+				 * new HttpCookie("CCS", ""); cookie.Expires = new java.util.Date().AddDays(2);
+				 * cookie.Values.Add("No", ""); cookie.Values.Add("Name", ""); // 2013.06.07 H
+				 * cookie.Values.Add("Pass", ""); cookie.Values.Add("IsRememberMe", "0");
 				 * BP.Glo.getHttpContextCurrent().Response.Cookies.Add(cookie);
 				 */
 				int expiry = 60 * 60 * 24 * 2;
@@ -366,13 +348,11 @@ public class WebUser {
 				 * BP.Glo.getHttpContextCurrent().Request.Cookies.Clear();
 				 * BP.Glo.getHttpContextCurrent().Session.Clear();
 				 * 
-				 * HttpCookie cookie = new HttpCookie("CCS", ""); cookie.Expires
-				 * = new java.util.Date().AddDays(2); cookie.Values.Add("No",
-				 * ""); cookie.Values.Add("Name", ""); // 2013.06.07 H
-				 * cookie.Values.Add("Pass", "");
-				 * cookie.Values.Add("IsRememberMe", "0");
-				 * cookie.Values.Add("Auth", ""); // 授权人.
-				 * BP.Glo.getHttpContextCurrent().Response.Cookies.Add(cookie);
+				 * HttpCookie cookie = new HttpCookie("CCS", ""); cookie.Expires = new
+				 * java.util.Date().AddDays(2); cookie.Values.Add("No", "");
+				 * cookie.Values.Add("Name", ""); // 2013.06.07 H cookie.Values.Add("Pass", "");
+				 * cookie.Values.Add("IsRememberMe", "0"); cookie.Values.Add("Auth", ""); //
+				 * 授权人. BP.Glo.getHttpContextCurrent().Response.Cookies.Add(cookie);
 				 */
 				ContextHolderUtils.clearCookie();
 				// ContextHolderUtils.getSession().invalidate();
@@ -534,10 +514,8 @@ public class WebUser {
 		try {
 			// 先从session里面取.
 			/*
-			 * warning String v = (String)
-			 * ((BP.Glo.getHttpContextCurrent().Session[valKey] instanceof
-			 * String) ? BP.Glo .getHttpContextCurrent().Session[valKey] :
-			 * null);
+			 * warning String v = (String) ((BP.Glo.getHttpContextCurrent().Session[valKey]
+			 * instanceof String) ? BP.Glo .getHttpContextCurrent().Session[valKey] : null);
 			 */
 			Object value = ContextHolderUtils.getSession().getAttribute(valKey);
 			String v = value == null ? "" : String.valueOf(value);
@@ -552,16 +530,16 @@ public class WebUser {
 
 		/*
 		 * warning String key = "CCS"; HttpCookie hc =
-		 * BP.Glo.getHttpContextCurrent().Request.Cookies[key]; if (hc == null)
-		 * { return null; }
+		 * BP.Glo.getHttpContextCurrent().Request.Cookies[key]; if (hc == null) { return
+		 * null; }
 		 */
 		try {
 			String val = null;
 			Cookie cookie = ContextHolderUtils.getCookie(valKey);
 			if (isChinese) {
 				/*
-				 * warning val = HttpUtility.UrlDecode(hc[valKey]); if (val ==
-				 * null) { val = hc.Values[valKey]; }
+				 * warning val = HttpUtility.UrlDecode(hc[valKey]); if (val == null) { val =
+				 * hc.Values[valKey]; }
 				 */
 				val = URLEncoder.encode(cookie.getValue(), "UTF-8");
 			} else {

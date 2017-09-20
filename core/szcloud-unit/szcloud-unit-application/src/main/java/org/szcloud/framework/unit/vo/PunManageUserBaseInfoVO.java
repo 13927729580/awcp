@@ -1,7 +1,9 @@
 package org.szcloud.framework.unit.vo;
 
 import org.szcloud.framework.core.domain.BaseEntity;
+
 public class PunManageUserBaseInfoVO extends BaseEntity{
+	private static final long serialVersionUID = 6210891886254626208L;
 	private Long userId;
 	private String userName;
 	private String userPwd;
@@ -37,6 +39,7 @@ public class PunManageUserBaseInfoVO extends BaseEntity{
 	public Long getUserId() {
 		return this.userId;
 	}
+	
 	public void setUserName(String value) {
 		this.userName = value;
 	}
@@ -44,6 +47,7 @@ public class PunManageUserBaseInfoVO extends BaseEntity{
 	public String getUserName() {
 		return this.userName;
 	}
+	
 	public void setUserPwd(String value) {
 		this.userPwd = value;
 	}
@@ -51,6 +55,7 @@ public class PunManageUserBaseInfoVO extends BaseEntity{
 	public String getUserPwd() {
 		return this.userPwd;
 	}
+	
 	public void setUserIdCardNumber(String value) {
 		this.userIdCardNumber = value;
 	}
@@ -58,6 +63,7 @@ public class PunManageUserBaseInfoVO extends BaseEntity{
 	public String getUserIdCardNumber() {
 		return this.userIdCardNumber;
 	}
+	
 	public void setName(String value) {
 		this.name = value;
 	}
@@ -65,6 +71,7 @@ public class PunManageUserBaseInfoVO extends BaseEntity{
 	public String getName() {
 		return this.name;
 	}
+	
 	public void setUserBirthPlace(String value) {
 		this.userBirthPlace = value;
 	}
@@ -72,6 +79,7 @@ public class PunManageUserBaseInfoVO extends BaseEntity{
 	public String getUserBirthPlace() {
 		return this.userBirthPlace;
 	}
+	
 	public void setUserHouseholdRegist(String value) {
 		this.userHouseholdRegist = value;
 	}
@@ -79,6 +87,7 @@ public class PunManageUserBaseInfoVO extends BaseEntity{
 	public String getUserHouseholdRegist() {
 		return this.userHouseholdRegist;
 	}
+	
 	public void setUserDomicile(String value) {
 		this.userDomicile = value;
 	}
@@ -86,6 +95,7 @@ public class PunManageUserBaseInfoVO extends BaseEntity{
 	public String getUserDomicile() {
 		return this.userDomicile;
 	}
+	
 	public void setUserOfficePhone(String value) {
 		this.userOfficePhone = value;
 	}
@@ -93,6 +103,7 @@ public class PunManageUserBaseInfoVO extends BaseEntity{
 	public String getUserOfficePhone() {
 		return this.userOfficePhone;
 	}
+	
 	public void setUserHousePhone(String value) {
 		this.userHousePhone = value;
 	}
@@ -100,6 +111,7 @@ public class PunManageUserBaseInfoVO extends BaseEntity{
 	public String getUserHousePhone() {
 		return this.userHousePhone;
 	}
+	
 	public void setMobile(String value) {
 		this.mobile = value;
 	}
@@ -107,6 +119,7 @@ public class PunManageUserBaseInfoVO extends BaseEntity{
 	public String getMobile() {
 		return this.mobile;
 	}
+	
 	public void setUserFax(String value) {
 		this.userFax = value;
 	}
@@ -114,6 +127,7 @@ public class PunManageUserBaseInfoVO extends BaseEntity{
 	public String getUserFax() {
 		return this.userFax;
 	}
+	
 	public void setUserEmail(String value) {
 		this.userEmail = value;
 	}
@@ -121,6 +135,7 @@ public class PunManageUserBaseInfoVO extends BaseEntity{
 	public String getUserEmail() {
 		return this.userEmail;
 	}
+	
 	public void setEmployeeId(String value) {
 		this.employeeId = value;
 	}
@@ -128,6 +143,7 @@ public class PunManageUserBaseInfoVO extends BaseEntity{
 	public String getEmployeeId() {
 		return this.employeeId;
 	}
+	
 	public void setUserTitle(String value) {
 		this.userTitle = value;
 	}
@@ -135,6 +151,7 @@ public class PunManageUserBaseInfoVO extends BaseEntity{
 	public String getUserTitle() {
 		return this.userTitle;
 	}
+	
 	public void setUserDossierNumber(String value) {
 		this.userDossierNumber = value;
 	}
@@ -142,6 +159,7 @@ public class PunManageUserBaseInfoVO extends BaseEntity{
 	public String getUserDossierNumber() {
 		return this.userDossierNumber;
 	}
+	
 	public void setUserOfficeNum(String value) {
 		this.userOfficeNum = value;
 	}
@@ -149,6 +167,7 @@ public class PunManageUserBaseInfoVO extends BaseEntity{
 	public String getUserOfficeNum() {
 		return this.userOfficeNum;
 	}
+	
 	public void setGroupId(Long value) {
 		this.groupId = value;
 	}
@@ -173,6 +192,16 @@ public class PunManageUserBaseInfoVO extends BaseEntity{
 		this.orgCode = orgCode;
 	}
 
+	@Override
+	public String toString() {
+		return "PunManageUserBaseInfoVO [userId=" + userId + ", userName=" + userName + ", userPwd=" + userPwd
+				+ ", userIdCardNumber=" + userIdCardNumber + ", name=" + name + ", userBirthPlace=" + userBirthPlace
+				+ ", userHouseholdRegist=" + userHouseholdRegist + ", userDomicile=" + userDomicile
+				+ ", userOfficePhone=" + userOfficePhone + ", userHousePhone=" + userHousePhone + ", mobile=" + mobile
+				+ ", userFax=" + userFax + ", userEmail=" + userEmail + ", employeeId=" + employeeId + ", userTitle="
+				+ userTitle + ", userDossierNumber=" + userDossierNumber + ", userOfficeNum=" + userOfficeNum
+				+ ", groupId=" + groupId + ", orgCode=" + orgCode + ", verifyCode=" + verifyCode + "]";
+	}
 		
 }
 

@@ -27,8 +27,9 @@ public class PunGroupSysServiceImpl implements PunGroupSysService{
 	
 	@Autowired
 	private SqlSessionFactory sqlSessionFactory;
-	 /**
-	  * 
+	
+	/**
+	 * 
 	 * @Title: addOrUpdate 
 	 * @Description: 新增或修改
 	 * @author ljw 
@@ -36,7 +37,7 @@ public class PunGroupSysServiceImpl implements PunGroupSysService{
 	 * @param @throws MRTException    
 	 * @return void
 	 * @throws
-	  */
+	 */
 	public void addOrUpdate(PunGroupSysVO vo) throws MRTException{
 		PunGroupSys sys = BeanUtils.getNewInstance(vo, PunGroupSys.class);
 		if(null != vo.getSysId()){
@@ -59,11 +60,10 @@ public class PunGroupSysServiceImpl implements PunGroupSysService{
 		for(PunGroupSys sys: systems){
 			sys.remove();
 		}
-//		queryChannel.excuteMethod(PunGroupSys.class, "deleteBySysAndGroup",params);
 	}
 	
-	 /**
-	  * 
+	/**
+	 * 
 	 * @Title: findById 
 	 * @Description: 根据ID查找
 	 * @author ljw 
@@ -72,7 +72,7 @@ public class PunGroupSysServiceImpl implements PunGroupSysService{
 	 * @param @throws MRTException    
 	 * @return PunGroupSysVO
 	 * @throws
-	  */
+	 */
 	public PunGroupSysVO findById(Long id) throws MRTException{
 		PunGroupSys user = PunGroupSys.get(PunGroupSys.class, id);
 		return BeanUtils.getNewInstance(user, PunGroupSysVO.class);
@@ -80,46 +80,41 @@ public class PunGroupSysServiceImpl implements PunGroupSysService{
 	
 	/**
 	 * 
-	* @Title: findAll 
-	* @Description: 查询全部记录
-	* @author ljw 
-	* @param @return
-	* @param @throws MRTException    
-	* @return List<PunGroupSysVO>
-	* @throws
+	 * @Title: findAll 
+	 * @Description: 查询全部记录
+	 * @author ljw 
+	 * @param @return
+	 * @param @throws MRTException    
+	 * @return List<PunGroupSysVO>
+	 * @throws
 	 */
 	public List<PunGroupSysVO> findAll() throws MRTException{
 		List<PunGroupSys> result = PunGroupSys.findAll();
 		List<PunGroupSysVO> resultVo = new ArrayList<PunGroupSysVO>();
-		for(PunGroupSys mm : result)
-		{
+		for(PunGroupSys mm : result){
 			resultVo.add(BeanUtils.getNewInstance(mm, PunGroupSysVO.class));
 		}
 		result.clear();
 		return resultVo; 
-		
 	}
  
 	/**
 	 * 
-	* @Title: queryResult 
-	* @Description: 分页查询
-	* @author ljw 
-	* @param @param queryStr
-	* @param @param params
-	* @param @param currentPage
-	* @param @param pageSize
-	* @param @param sortString
-	* @param @return    
-	* @return PageList<T>
-	* @throws
+	 * @Title: queryResult 
+	 * @Description: 分页查询
+	 * @author ljw 
+	 * @param queryStr
+	 * @param params
+	 * @param currentPage
+	 * @param pageSize
+	 * @param sortString
+	 * @return PageList<T>
+	 * @throws
 	 */
 	public PageList<PunGroupSysVO> queryPagedResult(String queryStr,
-			Map<String, Object> params, int currentPage, int pageSize,
-			String sortString) {
-		PageList<PunGroupSys> systems = queryChannel.queryPagedResult(
-				PunGroupSys.class, queryStr, params, currentPage, pageSize,
-				sortString);
+			Map<String, Object> params, int currentPage, int pageSize,String sortString) {
+		PageList<PunGroupSys> systems = queryChannel.queryPagedResult(PunGroupSys.class, queryStr, 
+				params, currentPage, pageSize,sortString);
 		List<PunGroupSysVO> tmp = new ArrayList<PunGroupSysVO>();
 		for (PunGroupSys system : systems) {
 			tmp.add(BeanUtils.getNewInstance(system, PunGroupSysVO.class));
@@ -131,14 +126,13 @@ public class PunGroupSysServiceImpl implements PunGroupSysService{
 	
 	/**
 	 * 
-	* @Title: queryResult 
-	* @Description: 查询
-	* @author ljw 
-	* @param @param queryStr
-	* @param @param params 查询条件
-	* @param @return    
-	* @return List<PunGroupSysVO>
-	* @throws
+	 * @Title: queryResult 
+	 * @Description: 查询
+	 * @author ljw 
+	 * @param queryStr
+	 * @param params 查询条件
+	 * @return List<PunGroupSysVO>
+	 * @throws
 	 */
 	public List<PunGroupSysVO> queryResult(String queryStr,Map<String, Object> params){
 		List<PunGroupSys> systems = queryChannel.queryResult(PunGroupSys.class, queryStr, params);
@@ -152,14 +146,13 @@ public class PunGroupSysServiceImpl implements PunGroupSysService{
 	
 	/**
 	 * 
-	* @Title: delete 
-	* @Description: 删除，根据ID
-	* @author ljw 
-	* @param @param id
-	* @param @return
-	* @param @throws MRTException    
-	* @return String
-	* @throws
+	 * @Title: delete 
+	 * @Description: 删除，根据ID
+	 * @author ljw 
+	 * @param id
+	 * @param @throws MRTException    
+	 * @return String
+	 * @throws
 	 */
 	public void delete(Long id) throws MRTException {
 		PunGroupSys sys = PunGroupSys.get(PunGroupSys.class, id);

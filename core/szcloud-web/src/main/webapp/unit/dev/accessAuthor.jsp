@@ -24,15 +24,22 @@
 	</head>
 	<body id="main">
 		<div class="container-fluid">
+			<div class="row" id="breadcrumb">
+				<ul class="breadcrumb">
+					<li><i class="icon-location-arrow icon-muted"></i></li>
+					<li>${roleName }</li>
+				</ul>
+			</div>
+		
 			<div class="row" id="tab">
 				<ul class="nav nav-tabs"><!-- 标签页nav里面的 href的值对应的是 tab-content里面的tab-pane的id值 -->
-					<li class="active"><a href="#tab1" data-toggle="tab">Menu</a></li>
-					<li class=""><a href="#tab2" data-toggle="tab">Button</a></li>
+					<li class=""><a href="#tab1" data-toggle="tab">菜单</a></li>
+					<li class="active"><a href="#tab2" data-toggle="tab">按钮</a></li>
 				</ul>
 			</div>
 			<div class="row tab-content">
- 				<div class="tab-pane active" id="tab1"><jsp:include page="/unit/punRoleMenuAccess-edit.jsp"/></div> 
-				<div class="tab-pane" id="tab2"><jsp:include page="/unit/componentAccess-edit.jsp"/></div> 
+ 				<div class="tab-pane" id="tab1"><jsp:include page="/unit/punRoleMenuAccess-edit.jsp"/></div> 
+				<div class="tab-pane active" id="tab2"><jsp:include page="/unit/componentAccess-edit.jsp"/></div> 
 			</div>
 		</div>
 		
@@ -42,7 +49,8 @@
 		<script src="<%=basePath%>resources/plugins/select2/select2_locale_zh-CN.js"></script>
 		<script src="<%=basePath%>resources/plugins/zTree_v3/js/jquery.ztree.all-3.5.js"></script>
 		<script>
-			var roleId = ${vo.roleId};
+			var roleId = "${vo.roleId}";
+			
 			var setting = {
 				check: {
 					enable: true
@@ -156,7 +164,7 @@
 							$.ajax({
 								url:"<%=basePath%>unit/punResoAccessAJAXSave.do",
 								data:{roleId:roleId,resourceId:resourceId},
-								async:false,
+								async:true,
 								success:function(data){						
 								}
 							});	
@@ -173,7 +181,7 @@
 							$.ajax({
 								url:"<%=basePath%>unit/punResoAccessAJAXDelete.do",
 								data:{roleId:roleId,resourceId:resourceId},
-								async:false,
+								async:true,
 								success:function(data){
 								}
 							});	
@@ -181,10 +189,14 @@
 					});
 				});
 				
-				$("#saveBtn").click(function(){
-					window.location = "<%=basePath%>unit/punRoleMenuAccessEdit.do?boxs=${roleId}&sysId=${sysId}";
-					return false;
-				});		
+				var moduleId = "${moduleId}"?"${moduleId}":1;
+				$("#modules").val(moduleId);
+				$("#modules").bind("change",function(){
+					var moduleId = $("#modules").val();
+					location.href = "<%=basePath%>punAccessRelationController/punRoleMenuAccessEdit.do?roleId=" 
+									+ roleId + "&moduleId=" + moduleId;
+				});
+					
 			});
 		</script>		
 	</body>

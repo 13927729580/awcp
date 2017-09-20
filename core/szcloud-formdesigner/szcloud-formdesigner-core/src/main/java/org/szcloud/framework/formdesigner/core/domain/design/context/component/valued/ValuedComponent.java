@@ -21,27 +21,35 @@ public abstract class ValuedComponent extends SimpleComponent{
 	 * 校验
 	 */
 	protected FormValidator formValidator;
+	
 	public String getValueType() {
 		return valueType;
 	}
+	
 	public void setValueType(String valueType) {
 		this.valueType = valueType;
 	}
+	
 	public String getFormatString() {
 		return formatString;
 	}
+	
 	public void setFormatString(String formatString) {
 		this.formatString = formatString;
 	}
+	
 	public String getDefaultValueScript() {
 		return defaultValueScript;
 	}
+	
 	public void setDefaultValueScript(String defaultValueScript) {
 		this.defaultValueScript = defaultValueScript;
 	}
+	
 	public FormValidator getFormValidator() {
 		return formValidator;
 	}
+	
 	public void setFormValidator(FormValidator formValidator) {
 		this.formValidator = formValidator;
 	}

@@ -14,8 +14,10 @@ import org.szcloud.framework.core.utils.Assert;
  * @author yyang
  * @param <E> 查询的类型
  */
+@SuppressWarnings("rawtypes")
 public abstract class BaseQuery<E extends BaseQuery> {
-    private final EntityRepository repository;
+    @SuppressWarnings("unused")
+	private final EntityRepository repository;
     private QueryParameters parameters = PositionalParameters.create();
     private final NamedParameters mapParameters = NamedParameters.create();
     private int firstResult;
@@ -39,7 +41,8 @@ public abstract class BaseQuery<E extends BaseQuery> {
      * @param parameters 要设置的参数
      * @return 该对象本身
      */
-    public E setParameters(Object... parameters) {
+    @SuppressWarnings("unchecked")
+	public E setParameters(Object... parameters) {
         this.parameters = PositionalParameters.create(parameters);
         return (E)this;
     }
@@ -49,7 +52,8 @@ public abstract class BaseQuery<E extends BaseQuery> {
      * @param parameters 要设置的参数
      * @return 该对象本身
      */
-    public E setParameters(List<Object> parameters) {
+    @SuppressWarnings("unchecked")
+	public E setParameters(List<Object> parameters) {
         this.parameters = PositionalParameters.create(parameters);
         return (E) this;
     }
@@ -59,7 +63,8 @@ public abstract class BaseQuery<E extends BaseQuery> {
      * @param parameters 要设置的参数
      * @return 该对象本身
      */
-    public E setParameters(Map<String, Object> parameters) {
+    @SuppressWarnings("unchecked")
+	public E setParameters(Map<String, Object> parameters) {
         this.parameters = NamedParameters.create(parameters);
         return (E) this;
     }
@@ -70,7 +75,8 @@ public abstract class BaseQuery<E extends BaseQuery> {
      * @param value 参数值
      * @return 该对象本身
      */
-    public E addParameter(String key, Object value) {
+    @SuppressWarnings("unchecked")
+	public E addParameter(String key, Object value) {
         mapParameters.add(key, value);
         this.parameters = mapParameters;
         return (E) this;
@@ -81,7 +87,8 @@ public abstract class BaseQuery<E extends BaseQuery> {
      * @param parameters 要设置的参数
      * @return 该对象本身
      */
-    public E setParameters(QueryParameters parameters) {
+    @SuppressWarnings("unchecked")
+	public E setParameters(QueryParameters parameters) {
         this.parameters = parameters;
         return (E) this;
     }
@@ -101,7 +108,8 @@ public abstract class BaseQuery<E extends BaseQuery> {
      * @param firstResult 要设置的firstResult值。
      * @return 该对象本身
      */
-    public E setFirstResult(int firstResult) {
+    @SuppressWarnings("unchecked")
+	public E setFirstResult(int firstResult) {
         Assert.isTrue(firstResult >= 0);
         this.firstResult = firstResult;
         return (E) this;
@@ -122,14 +130,11 @@ public abstract class BaseQuery<E extends BaseQuery> {
      * @param maxResults 要设置的maxResults值
      * @return 该对象本身
      */
-    public E setMaxResults(int maxResults) {
+    @SuppressWarnings("unchecked")
+	public E setMaxResults(int maxResults) {
         Assert.isTrue(maxResults > 0);
         this.maxResults = maxResults;
         return (E) this;
     }
-
-
-    
-    
     
 }

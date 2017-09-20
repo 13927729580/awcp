@@ -5,10 +5,9 @@ import java.util.Map;
 
 import org.szcloud.framework.metadesigner.core.generator.util.StringHelper;
 
-
 public class JavaPrimitiveTypeMapping {
-	static Map<String, String> wraper2primitive = new HashMap();
-	static Map<String, String> primitive2wraper = new HashMap();
+	static Map<String, String> wraper2primitive = new HashMap<String, String>();
+	static Map<String, String> primitive2wraper = new HashMap<String, String>();
 	static {
 		wraper2primitive.put("Byte", "byte");
 		wraper2primitive.put("Short", "short");

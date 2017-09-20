@@ -2,6 +2,7 @@
     pageEncoding="UTF-8"%>
  <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %> 
  <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%> 
+  <%@ page import="org.szcloud.framework.venson.util.PlatfromProp" %>
  <%@ taglib prefix="sc" uri="szcloud" %>
  <%@page isELIgnored="false"%> 
  <%
@@ -56,8 +57,20 @@
 		<script type="text/javascript">	
 		var basePath = "<%=basePath%>";
 		$('document').ready(function(){
+			$("#uploadType").val('<%=PlatfromProp.getValue("default_upload_type")%>')
+			$("#uploadType").on("change",function(){
+				if(this.value==1){
+					$("#filePathDiv").show();
+				}else{
+					$("#filePathDiv").hide();
+				}
+			})
 			initializeDocument("${componentType}","${_ComponentTypeName[componentType]}");
-			
+			if($("#uploadType").val()==1){
+				$("#filePathDiv").show();
+			}else{
+				$("#filePathDiv").hide();
+			}
 			//var url = "<%=basePath%>component/validateComponentNameInPage.do?dynamicPageId="+$("#dynamicPageId").val()+"&componentName="+$("#name").val()+"&componentId="+$("#pageId").val();
 			//alert(url);
 			

@@ -12,6 +12,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 
 public class DateConverter implements Converter {
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public boolean canConvert(Class clazz) {
 		return (Date.class).equals(clazz);
@@ -28,9 +29,7 @@ public class DateConverter implements Converter {
 	}
 
 	@Override
-	public Object unmarshal(HierarchicalStreamReader arg0,
-			UnmarshallingContext arg1) {
-		// TODO Auto-generated method stub
+	public Object unmarshal(HierarchicalStreamReader arg0,UnmarshallingContext arg1) {
 		return null;
 	}
 

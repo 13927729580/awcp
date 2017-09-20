@@ -11,18 +11,22 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import org.szcloud.framework.core.common.exception.MRTException;
 import org.szcloud.framework.core.domain.BaseEntity;
 
+/**
+ * 角色实体类
+ * @author Administrator
+ *
+ */
 public class PunRoleInfo extends BaseEntity{
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -3446349440907017146L;
 	private Long roleId;
 	private Long sysId;
 	private String roleName;
 	private String dictRemark;
 	private PunSystem punSystem;
+	private Set<PunRoleAccess> punRoleAccesss = new HashSet<PunRoleAccess>();
 	
 	public PunRoleInfo(){
+		
 	}
 
 	public PunRoleInfo(Long roleId){
@@ -36,6 +40,7 @@ public class PunRoleInfo extends BaseEntity{
 	public Long getRoleId() {
 		return this.roleId;
 	}
+	
 	public void setSysId(Long value) {
 		this.sysId = value;
 	}
@@ -43,6 +48,7 @@ public class PunRoleInfo extends BaseEntity{
 	public Long getSysId() {
 		return this.sysId;
 	}
+	
 	public void setRoleName(String value) {
 		this.roleName = value;
 	}
@@ -50,6 +56,7 @@ public class PunRoleInfo extends BaseEntity{
 	public String getRoleName() {
 		return this.roleName;
 	}
+	
 	public void setDictRemark(String value) {
 		this.dictRemark = value;
 	}
@@ -58,7 +65,6 @@ public class PunRoleInfo extends BaseEntity{
 		return this.dictRemark;
 	}
 	
-	private Set punRoleAccesss = new HashSet(0);
 	public void setPunRoleAccesss(Set<PunRoleAccess> punRoleAccess){
 		this.punRoleAccesss = punRoleAccess;
 	}

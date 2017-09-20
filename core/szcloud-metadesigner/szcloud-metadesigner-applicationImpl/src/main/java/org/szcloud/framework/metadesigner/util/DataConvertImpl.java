@@ -10,8 +10,7 @@ import org.szcloud.framework.core.utils.DateUtils;
 @Service(value="dataConvertImpl")
 public class DataConvertImpl implements DataConvert{
 	
-	public Object stringToObject(String s,String type) throws ParseException {
-		
+	public Object stringToObject(String s,String type) throws ParseException {		
 		if(type.equalsIgnoreCase("int") || type.equalsIgnoreCase("smallint")){
 			if(StringUtils.isNotBlank(s)) {
 				try {
@@ -29,29 +28,39 @@ public class DataConvertImpl implements DataConvert{
 		}
 		if(type.equalsIgnoreCase("bigInt")){
 			if(StringUtils.isNotBlank(s)) {
-				return Long.parseLong(s);
+				try{
+					return Long.parseLong(s);
+				} catch(Exception e){
+					return null;
+				}
 			} else {
 				return null;
 			}
 		}
 		if(type.equalsIgnoreCase("double") || type.equalsIgnoreCase("DECIMAL")){
 			if(StringUtils.isNotBlank(s)) {
-				return Double.parseDouble(s);
+				try{
+					return Double.parseDouble(s);
+				} catch(Exception e){
+					return null;
+				}
 			} else {
 				return null;
 			}
 		}
 		if(type.equalsIgnoreCase("float")){
 			if(StringUtils.isNotBlank(s)) {
-				return Float.parseFloat(s);
+				try{
+					return Float.parseFloat(s);
+				} catch(Exception e){
+					return null;
+				}
 			} else {
 				return null;
 			}
 		}
 		if(type.equalsIgnoreCase("date") ||type.equalsIgnoreCase("DATETIME")){
 			Date d = DateUtils.parseDate(s);
-			//if(d != null)
-			//	return new java.sql.Date(d.getTime());
 			return d;
 		}
 		return s;

@@ -22,7 +22,6 @@ public class SysSourceRelationServiceImpl implements SysSourceRelationService {
 	public SysDataSourceVO get(Long id) {
 		SysDataSource system = SysDataSource.get(SysDataSource.class, id);
 		return BeanUtils.getNewInstance(system, SysDataSourceVO.class);
-
 	}
 
 	@Override
@@ -53,8 +52,8 @@ public class SysSourceRelationServiceImpl implements SysSourceRelationService {
 		return vo;
 	}
 
-	public PageList<SysDataSourceVO> selectPagedByExample(BaseExample baseExample, int currentPage, int pageSize,
-			String sortString) {
+	public PageList<SysDataSourceVO> selectPagedByExample(BaseExample baseExample,
+			int currentPage, int pageSize,String sortString) {
 		PageList<SysDataSource> result = queryChannel.selectPagedByExample(SysDataSource.class, baseExample,
 				currentPage, pageSize, sortString);
 		List<SysDataSourceVO> resultVO = new ArrayList<SysDataSourceVO>();
@@ -63,7 +62,6 @@ public class SysSourceRelationServiceImpl implements SysSourceRelationService {
 		}
 		PageList<SysDataSourceVO> rv = new PageList<SysDataSourceVO>(resultVO, result.getPaginator());
 		result.clear();
-
 		return rv;
 	}
 

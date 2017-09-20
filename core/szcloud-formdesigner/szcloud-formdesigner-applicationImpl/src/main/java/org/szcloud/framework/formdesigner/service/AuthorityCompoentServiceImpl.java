@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.ws.soap.MTOMFeature;
-
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,25 +16,26 @@ import org.szcloud.framework.formdesigner.core.domain.AuthorityCompoent;
 
 @Service(value="authorityCompoentServiceImpl")
 public class AuthorityCompoentServiceImpl implements AuthorityCompoentService{
-	
+
+	@SuppressWarnings("unused")
 	@Autowired
 	private SqlSessionFactory sqlSessionFactory;
-	
+
 	@Autowired
 	private QueryChannelService queryChannel;
 
 	public void setSqlSessionFactory(SqlSessionFactory sqlSessionFactory) {
 		this.sqlSessionFactory = sqlSessionFactory;
 	}
-	
+
 	@Override
 	public AuthorityCompoentVO findById(String id) {
 		AuthorityCompoentVO vo=BeanUtils.getNewInstance(AuthorityCompoent.get(id), AuthorityCompoentVO.class);
 		return vo;
 	}
-	
+
 	public AuthorityCompoentVO findByComponent(String componentId){
-		
+
 		AuthorityCompoentVO vo=BeanUtils.getNewInstance(AuthorityCompoent.getByComponent(componentId), AuthorityCompoentVO.class);
 		return vo;
 	}
@@ -51,7 +50,6 @@ public class AuthorityCompoentServiceImpl implements AuthorityCompoentService{
 
 	@Override
 	public boolean update(String id) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -61,15 +59,12 @@ public class AuthorityCompoentServiceImpl implements AuthorityCompoentService{
 		List<AuthorityCompoent> resources = queryChannel.queryResult(
 				AuthorityCompoent.class, queryStr, params);
 		List<AuthorityCompoentVO> vos = new ArrayList<AuthorityCompoentVO>();
-		
+
 		for (AuthorityCompoent resource : resources) {
 			vos.add(BeanUtils.getNewInstance(resource, AuthorityCompoentVO.class));
 		}
 		resources.clear();
 		return vos;
 	}
-
-	
-
 
 }

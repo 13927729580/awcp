@@ -242,6 +242,7 @@ public class JavadocParanamer implements Paranamer {
 
 	// throws CLASS_NOT_SUPPORTED if the class file is not found in the javadocs
 	// return null if the parameter names were not found
+	@SuppressWarnings("resource")
 	private String[] getParameterNames(Class<?> klass,
 			String constructorOrMethodName, Class<?>[] types) throws IOException {
 		// silly request for names of a parameterless method/constructor!
@@ -313,8 +314,6 @@ public class JavadocParanamer implements Paranamer {
 			regex.append(getCanonicalName(types[i]));
 		}
 		regex.append("\\E\\)\"");
-
-		// FIXME: handle Javadoc 1.3, 1.4 and 1.5 as well (this is 1.6)
 
 		Pattern pattern = Pattern.compile(regex.toString());
 		Matcher matcher = pattern.matcher(javadoc);

@@ -25,27 +25,23 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
 public class MyScriptEngine implements ScriptEngine {
-	Logger logger = LoggerFactory.getLogger(MyScriptEngine.class);
+	private Logger logger = LoggerFactory.getLogger(MyScriptEngine.class);
 	private HashSet<String> libs = new HashSet<String>();
 	private ScriptEngine engine;
 	private Long systemId;
-	
-	private MyScriptEngine(){}
-	
+
 	public MyScriptEngine(ScriptEngine scriptEngine, Long systemId){
 		this.engine = scriptEngine;
 		this.systemId = systemId;
 	}
 
 	@Override
-	public Object eval(String script, ScriptContext context)
-			throws ScriptException {
+	public Object eval(String script, ScriptContext context) throws ScriptException {
 		return this.engine.eval(script, context);
 	}
 
 	@Override
-	public Object eval(Reader reader, ScriptContext context)
-			throws ScriptException {
+	public Object eval(Reader reader, ScriptContext context) throws ScriptException {
 		return this.engine.eval(reader, context);
 	}
 

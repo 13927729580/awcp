@@ -2,7 +2,6 @@ package org.szcloud.framework.metadesigner.application;
 
 import java.util.List;
 
-import org.szcloud.framework.metadesigner.vo.MetaModelVO;
 import org.szcloud.framework.metadesigner.vo.ModelRelationVO;
 
 /**

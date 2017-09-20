@@ -1,10 +1,7 @@
 package org.szcloud.framework.unit.vo;
 
-
 public class PunResourceVO{
-	/**
-	 * 
-	 */
+
 	private Long resourceId;
 	private Long sysId;
 	private String resouType;
@@ -62,7 +59,12 @@ public class PunResourceVO{
 	public void setResourceName(String resourceName) {
 		this.resourceName = resourceName;
 	}
-	
+
+	@Override
+	public String toString() {
+		return "PunResourceVO [resourceId=" + resourceId + ", sysId=" + sysId + ", resouType=" + resouType
+				+ ", relateResoId=" + relateResoId + ", whichEnd=" + whichEnd + ", resourceName=" + resourceName + "]";
+	}
 	
 }
 

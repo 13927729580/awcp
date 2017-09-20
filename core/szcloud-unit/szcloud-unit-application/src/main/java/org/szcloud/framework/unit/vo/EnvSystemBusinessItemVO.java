@@ -1,4 +1,5 @@
 package org.szcloud.framework.unit.vo;
+
 public class EnvSystemBusinessItemVO{
 	private String itemId;
 	private String parentId;
@@ -32,6 +33,7 @@ public class EnvSystemBusinessItemVO{
 	public String getItemId() {
 		return this.itemId;
 	}
+	
 	public void setParentId(String value) {
 		this.parentId = value;
 	}
@@ -39,6 +41,7 @@ public class EnvSystemBusinessItemVO{
 	public String getParentId() {
 		return this.parentId;
 	}
+	
 	public void setParentIdChain(String value) {
 		this.parentIdChain = value;
 	}
@@ -46,6 +49,7 @@ public class EnvSystemBusinessItemVO{
 	public String getParentIdChain() {
 		return this.parentIdChain;
 	}
+	
 	public void setName(String value) {
 		this.name = value;
 	}
@@ -53,6 +57,7 @@ public class EnvSystemBusinessItemVO{
 	public String getName() {
 		return this.name;
 	}
+	
 	public void setSequence(Integer value) {
 		this.sequence = value;
 	}
@@ -60,6 +65,7 @@ public class EnvSystemBusinessItemVO{
 	public Integer getSequence() {
 		return this.sequence;
 	}
+	
 	public void setSysId(Long value) {
 		this.sysId = value;
 	}
@@ -67,6 +73,7 @@ public class EnvSystemBusinessItemVO{
 	public Long getSysId() {
 		return this.sysId;
 	}
+	
 	public void setYear(Integer value) {
 		this.year = value;
 	}
@@ -74,6 +81,7 @@ public class EnvSystemBusinessItemVO{
 	public Integer getYear() {
 		return this.year;
 	}
+	
 	public void setBusinessType(String value) {
 		this.businessType = value;
 	}
@@ -81,6 +89,7 @@ public class EnvSystemBusinessItemVO{
 	public String getBusinessType() {
 		return this.businessType;
 	}
+	
 	public void setDynamicPageId(Long value) {
 		this.dynamicPageId = value;
 	}
@@ -88,6 +97,7 @@ public class EnvSystemBusinessItemVO{
 	public Long getDynamicPageId() {
 		return this.dynamicPageId;
 	}
+	
 	public void setStatus(String value) {
 		this.status = value;
 	}
@@ -95,6 +105,7 @@ public class EnvSystemBusinessItemVO{
 	public String getStatus() {
 		return this.status;
 	}
+	
 	public void setLevel(Integer value) {
 		this.level = value;
 	}
@@ -102,6 +113,7 @@ public class EnvSystemBusinessItemVO{
 	public Integer getLevel() {
 		return this.level;
 	}
+	
 	public void setComment(String value) {
 		this.comment = value;
 	}
@@ -117,6 +129,7 @@ public class EnvSystemBusinessItemVO{
 	public java.util.Date getLastUpdate() {
 		return this.lastUpdate;
 	}
+	
 	public void setProjectTypeName(String value) {
 		this.projectTypeName = value;
 	}
@@ -124,6 +137,7 @@ public class EnvSystemBusinessItemVO{
 	public String getProjectTypeName() {
 		return this.projectTypeName;
 	}
+	
 	public void setItemHallCode(String value) {
 		this.itemHallCode = value;
 	}
@@ -131,6 +145,7 @@ public class EnvSystemBusinessItemVO{
 	public String getItemHallCode() {
 		return this.itemHallCode;
 	}
+	
 	public void setItemServiceCode(String value) {
 		this.itemServiceCode = value;
 	}
@@ -138,6 +153,7 @@ public class EnvSystemBusinessItemVO{
 	public String getItemServiceCode() {
 		return this.itemServiceCode;
 	}
+	
 	public void setClasscode(String value) {
 		this.classcode = value;
 	}
@@ -145,6 +161,7 @@ public class EnvSystemBusinessItemVO{
 	public String getClasscode() {
 		return this.classcode;
 	}
+	
 	public void setTechReviewTable(String value) {
 		this.techReviewTable = value;
 	}
@@ -152,6 +169,7 @@ public class EnvSystemBusinessItemVO{
 	public String getTechReviewTable() {
 		return this.techReviewTable;
 	}
+	
 	public void setTechOverallReviewTable(String value) {
 		this.techOverallReviewTable = value;
 	}
@@ -159,6 +177,7 @@ public class EnvSystemBusinessItemVO{
 	public String getTechOverallReviewTable() {
 		return this.techOverallReviewTable;
 	}
+	
 	public void setFinanceReviewTable(String value) {
 		this.financeReviewTable = value;
 	}
@@ -166,6 +185,7 @@ public class EnvSystemBusinessItemVO{
 	public String getFinanceReviewTable() {
 		return this.financeReviewTable;
 	}
+	
 	public void setInvestigateTable(String value) {
 		this.investigateTable = value;
 	}
@@ -173,6 +193,7 @@ public class EnvSystemBusinessItemVO{
 	public String getInvestigateTable() {
 		return this.investigateTable;
 	}
+	
 	public void setSuperviseTable(String value) {
 		this.superviseTable = value;
 	}
@@ -180,6 +201,7 @@ public class EnvSystemBusinessItemVO{
 	public String getSuperviseTable() {
 		return this.superviseTable;
 	}
+	
 	public void setAcceptanceTable(String value) {
 		this.acceptanceTable = value;
 	}
@@ -187,6 +209,7 @@ public class EnvSystemBusinessItemVO{
 	public String getAcceptanceTable() {
 		return this.acceptanceTable;
 	}
+	
 	public void setTotalDayToEnd(Integer value) {
 		this.totalDayToEnd = value;
 	}
@@ -195,5 +218,18 @@ public class EnvSystemBusinessItemVO{
 		return this.totalDayToEnd;
 	}
 
+	@Override
+	public String toString() {
+		return "EnvSystemBusinessItemVO [itemId=" + itemId + ", parentId=" + parentId + ", parentIdChain="
+				+ parentIdChain + ", name=" + name + ", sequence=" + sequence + ", sysId=" + sysId + ", year=" + year
+				+ ", businessType=" + businessType + ", dynamicPageId=" + dynamicPageId + ", status=" + status
+				+ ", level=" + level + ", comment=" + comment + ", lastUpdate=" + lastUpdate + ", projectTypeName="
+				+ projectTypeName + ", itemHallCode=" + itemHallCode + ", itemServiceCode=" + itemServiceCode
+				+ ", classcode=" + classcode + ", techReviewTable=" + techReviewTable + ", techOverallReviewTable="
+				+ techOverallReviewTable + ", financeReviewTable=" + financeReviewTable + ", investigateTable="
+				+ investigateTable + ", superviseTable=" + superviseTable + ", acceptanceTable=" + acceptanceTable
+				+ ", totalDayToEnd=" + totalDayToEnd + "]";
+	}
+	
 }
 

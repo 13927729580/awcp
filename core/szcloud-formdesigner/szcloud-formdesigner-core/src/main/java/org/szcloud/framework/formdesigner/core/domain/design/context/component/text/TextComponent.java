@@ -4,12 +4,15 @@ import org.szcloud.framework.formdesigner.core.domain.design.context.component.S
 import org.szcloud.framework.formdesigner.core.domain.design.context.component.TextFormat;
 
 public abstract class TextComponent extends SimpleComponent{
+
+	private static final long serialVersionUID = 3767107055552344353L;
 	protected String value;
 	protected TextFormat format;
 	
 	public String getValue(){
 		return this.value;
 	}
+	
 	public void setValue(String value){
 		this.value = value;
 	}

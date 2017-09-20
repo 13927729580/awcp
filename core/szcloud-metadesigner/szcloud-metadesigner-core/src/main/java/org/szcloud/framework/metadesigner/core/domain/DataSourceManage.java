@@ -6,6 +6,11 @@ import java.util.List;
 import org.szcloud.framework.core.common.exception.MRTException;
 import org.szcloud.framework.core.domain.BaseEntity;
 
+/**
+ * 数据源
+ * @author yqtao
+ *
+ */
 public class DataSourceManage extends BaseEntity{
 	
 	/**
@@ -13,95 +18,63 @@ public class DataSourceManage extends BaseEntity{
 	 */
 	private static final long serialVersionUID = 1L;
 
-	/**
-	 * 数据源名称
-	 */
+	//数据源名称
 	private String name;
 	
-	/**
-	 * 数据源类型：MYSQL ORACLE ...
-	 */
+	//数据源类型：MYSQL ORACLE ...
 	private String sourceType;
 	
-
-
-	/**
-	 * 链接地址
-	 */
+	//链接地址
 	private String sourceUrl;
 	
-	/**
-	 * 驱动类全称
-	 */
+	//驱动类全称
 	private String sourceDriver;
-	/**
-	 *  数据库连接别名
-	 */
+	
+	//数据库连接别名
 	private String alias;
 	
-	
-	/**
-	 * 帐号
-	 */
+	//帐号
 	private String userName;
 	
-	/**
-	 * 密码
-	 */
+	//密码
 	private String userPwd;
 	
-	/**
-	 * 最大活动时间
-	 */
+	//最大活动时间
 	private Integer maximumActiveTime;
-	/**
-	 * 连接池保持的最小空闲连接数
-	 */
+
+	//连接池保持的最小空闲连接数
 	private Integer prototypeCount;
-	/**
-	 * 最大连接数 
-	 */
+
+	//最大连接数
 	private Integer maximumConnectionCount;
-	/**
-	 * 最小连接数
-	 */
+
+	//最小连接数
 	private Integer minimumConnectionCount;
-	/**
-	 * 同时执行的最大连接数
-	 */
+
+	//同时执行的最大连接数
 	private Integer simultaneousBuildThrottle;
-	/**
-	 * true:sql执行时log(debug level)
-	 */
+
+	//true:sql执行时log(debug level)
 	private Boolean trace;
 	
-	/**
-	 * 数据源来源：内部或者外部
-	 */
+	//数据源来源：内部或者外部
 	private String domain;
-	/**
-	 * 分组
-	 */
+
+	//分组
 	private Long groupId;
-	/**
-	 * 创建时间
-	 */
+
+	//创建时间
 	private Date createTime;
-	/**
-	 * 创建人
-	 */
+
+	//创建人
 	private String createUser;
-	/**
-	 * 最后修改时间
-	 */
+
+	//最后修改时间
 	private Date lastModifyTime;
-	/**
-	 * 最后修改时间
-	 */
+
+	//最后修改时间
 	private String lastModifier;
-	
-	
-	
+		
 	public Long getGroupId() {
 		return groupId;
 	}
@@ -253,15 +226,19 @@ public class DataSourceManage extends BaseEntity{
 		this.userPwd = userPwd;
 	}
 	
-	public static List<DataSourceManage>   findAll() throws MRTException
-	{
-		List<DataSourceManage> treeMenuList = null;
+	/**
+	 * 获取所有数据源
+	 * @return
+	 * @throws MRTException
+	 */
+	public static List<DataSourceManage> findAll() throws MRTException{
+		List<DataSourceManage> manageList = null;
 		try {
-			treeMenuList =  MetaModel.findAll(DataSourceManage.class);
+			manageList = findAll(DataSourceManage.class);
 		} catch (Exception e) {
 			throw new  MRTException(e.getMessage(),e);
 		}
-		return treeMenuList;
+		return manageList;
 	}
 	
 }

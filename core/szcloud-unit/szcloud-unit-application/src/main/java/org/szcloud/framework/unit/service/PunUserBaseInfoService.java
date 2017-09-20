@@ -3,7 +3,6 @@ package org.szcloud.framework.unit.service;
 import java.util.List;
 import java.util.Map;
 
-import org.szcloud.framework.core.common.exception.MRTException;
 import org.szcloud.framework.core.domain.BaseExample;
 import org.szcloud.framework.unit.core.domain.PunUserBaseInfo;
 import org.szcloud.framework.unit.vo.PunUserBaseInfoVO;

@@ -6,7 +6,6 @@ import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -17,7 +16,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.List;
-import java.util.Properties;
 
 import javax.imageio.ImageIO;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -29,13 +27,10 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.apache.batik.transcoder.TranscoderInput;
-import org.apache.batik.transcoder.TranscoderOutput;
-import org.apache.batik.transcoder.image.ImageTranscoder;
-import org.apache.batik.transcoder.image.JPEGTranscoder;
-import org.apache.batik.transcoder.image.PNGTranscoder;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hwpf.HWPFDocument;
 import org.apache.poi.hwpf.converter.PicturesManager;
@@ -54,23 +49,13 @@ import org.apache.poi.xwpf.converter.xhtml.XHTMLConverter;
 import org.apache.poi.xwpf.converter.xhtml.XHTMLOptions;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
-import org.apache.poi.xwpf.usermodel.XWPFPictureData;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
-import org.freehep.graphicsio.emf.EMFInputStream;
-import org.freehep.graphicsio.emf.EMFPanel;
-import org.freehep.graphicsio.emf.EMFRenderer;
-import org.freehep.graphicsio.svg.SVGGraphics2D;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.STUnderline;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.szcloud.framework.venson.controller.base.ControllerHelper;
 import org.w3c.dom.Document;
-
-import net.arnx.wmf2svg.gdi.svg.SvgGdi;
-import net.arnx.wmf2svg.gdi.wmf.WmfParser;
 
 /**
  * word(03,07)文档，excel(03,07)文档，txt文本转html
@@ -180,15 +165,6 @@ public class DocumentToHtml {
 		try {
 			String fileName = outPath + outFloder + File.separator + java.util.UUID.randomUUID().toString() + "."
 					+ pictureType.getExtension();
-			if (pictureType.getExtension() == PictureType.WMF.getExtension()) {
-				fileName = outPath + outFloder + File.separator + java.util.UUID.randomUUID().toString() + ".png";
-				wmf2Png(content, fileName, width, height);
-				return fileName;
-			} else if (pictureType.getExtension() == PictureType.EMF.getExtension()) {
-				fileName = outPath + outFloder + File.separator + java.util.UUID.randomUUID().toString() + ".png";
-				emf2Png(content, fileName, width, height);
-				return fileName;
-			}
 			scaleImg(content, width, height, fileName, pictureType.getExtension());
 			return fileName;
 		} catch (Exception e) {
@@ -209,98 +185,6 @@ public class DocumentToHtml {
 			bi.flush();
 			ImageIO.write(bi, ext, new File(path));
 		}
-	}
-
-	/**
-	 * emf转png
-	 * 
-	 * @param content
-	 *            文件
-	 * @param fileName
-	 *            输入文件名
-	 */
-	private void emf2Png(byte[] content, String fileName, float width, float height) throws Exception {
-
-		EMFInputStream sin = new EMFInputStream(new ByteArrayInputStream(content));
-		// read the EMF file
-		EMFRenderer emfRenderer = new EMFRenderer(sin);
-
-		EMFPanel emfPanel = new EMFPanel();
-		emfPanel.setRenderer(emfRenderer);
-
-		// create SVG properties
-		Properties p = new Properties();
-		p.put(SVGGraphics2D.EMBED_FONTS, Boolean.toString(false));
-		p.put(SVGGraphics2D.CLIP, Boolean.toString(true));
-		p.put(SVGGraphics2D.COMPRESS, Boolean.toString(false));
-		p.put(SVGGraphics2D.TEXT_AS_SHAPES, Boolean.toString(false));
-		p.put(SVGGraphics2D.STYLABLE, Boolean.toString(false));
-		ByteArrayOutputStream fOut = new ByteArrayOutputStream();
-		// prepare Graphics2D
-		SVGGraphics2D graphics2D = new SVGGraphics2D(fOut, emfPanel);
-		graphics2D.setProperties(p);
-		graphics2D.setDeviceIndependent(true);
-
-		graphics2D.startExport();
-		emfPanel.print(graphics2D);
-		graphics2D.endExport();
-
-		PNGTranscoder it = new PNGTranscoder();
-		ByteArrayOutputStream png = new ByteArrayOutputStream();
-		TranscoderOutput transcoderOutput = new TranscoderOutput(png);
-		TranscoderInput transcoderInput = new TranscoderInput(new ByteArrayInputStream(fOut.toByteArray()));
-		it.transcode(transcoderInput, transcoderOutput);
-		// 设置大小和质量
-		it.addTranscodingHint(JPEGTranscoder.KEY_QUALITY, new Float(1.0f));
-		it.addTranscodingHint(ImageTranscoder.KEY_WIDTH, width);
-		it.addTranscodingHint(ImageTranscoder.KEY_HEIGHT, height);
-		FileOutputStream pngfos = new FileOutputStream(fileName);
-		pngfos.write(png.toByteArray());
-		pngfos.close();
-		transcoderInput.getInputStream().close();
-		png.close();
-		sin.close();
-	}
-
-	/**
-	 * wmf转png
-	 * 
-	 * @param content
-	 *            文件
-	 * @param fileName
-	 *            输入文件名
-	 */
-	private void wmf2Png(byte[] content, String fileName, float width, float height) throws Exception {
-		WmfParser parser = new WmfParser();
-		SvgGdi gdi = new SvgGdi(false);
-		parser.parse(new ByteArrayInputStream(content), gdi);
-
-		Document doc = gdi.getDocument();
-		ByteArrayOutputStream sout = new ByteArrayOutputStream();
-		TransformerFactory factory = TransformerFactory.newInstance();
-		Transformer transformer = factory.newTransformer();
-		transformer.setOutputProperty(OutputKeys.METHOD, "xml");
-		transformer.setOutputProperty(OutputKeys.ENCODING, "utf-8");
-		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-		transformer.setOutputProperty(OutputKeys.DOCTYPE_PUBLIC, "-//W3C//DTD SVG 1.0//EN");
-		transformer.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, "链接地址-20010904/DTD/svg10.dtd");
-		transformer.transform(new DOMSource(doc), new StreamResult(sout));
-		sout.flush();
-
-		ByteArrayOutputStream pout = new ByteArrayOutputStream();
-		PNGTranscoder it = new PNGTranscoder();
-		// 设置大小和质量
-		it.addTranscodingHint(JPEGTranscoder.KEY_QUALITY, new Float(0.9f));
-		it.addTranscodingHint(ImageTranscoder.KEY_WIDTH, width);
-		it.addTranscodingHint(ImageTranscoder.KEY_HEIGHT, height);
-
-		it.transcode(new TranscoderInput(new ByteArrayInputStream(sout.toByteArray())), new TranscoderOutput(pout));
-
-		FileOutputStream fos = new FileOutputStream(fileName);
-		fos.write(pout.toByteArray());
-		fos.close();
-		pout.close();
-		sout.close();
 	}
 
 	public boolean doGenerateSysOut(InputStream inputStream, String inFileName, String outPath, String outFileName)
@@ -330,16 +214,6 @@ public class DocumentToHtml {
 			outFile.getParentFile().mkdirs();
 			OutputStream out = new FileOutputStream(outFile);
 			XHTMLConverter.getInstance().convert(document, out, options);
-			String imgPath = outPath + fileName + File.separator + "word" + File.separator + "media";
-			List<XWPFPictureData> pits = document.getAllPictures();
-			for (XWPFPictureData pit : pits) {
-
-				if (pit.suggestFileExtension().equalsIgnoreCase(PictureType.WMF.getExtension())) {
-					String wfileName = imgPath + File.separator
-							+ pit.getFileName().substring(0, pit.getFileName().lastIndexOf(".")) + ".png";
-					wmf2Png(pit.getData(), wfileName, 100, 100);
-				}
-			}
 		} catch (Exception e) {
 			flag = false;
 			logger.info("ERROR", e);

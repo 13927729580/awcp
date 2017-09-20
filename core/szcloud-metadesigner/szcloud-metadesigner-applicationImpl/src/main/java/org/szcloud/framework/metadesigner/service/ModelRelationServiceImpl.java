@@ -21,29 +21,30 @@ public class ModelRelationServiceImpl implements ModelRelationService{
 	private QueryChannelService queryChannel;
 	
 	public List<ModelRelationVO> findAll() {
-		List<ModelRelation> model=ModelRelation.findAll();
-		List<ModelRelationVO> mro=new ArrayList<ModelRelationVO>();
+		List<ModelRelation> model = ModelRelation.findAll();
+		List<ModelRelationVO> mro = new ArrayList<ModelRelationVO>();
 		for(ModelRelation mm:model){
-			ModelRelationVO mmm=BeanUtils.getNewInstance(mm, ModelRelationVO.class);
+			ModelRelationVO mmm = BeanUtils.getNewInstance(mm, ModelRelationVO.class);
+			mro.add(mmm);
 		}
 		return mro;
 	}
 	
 	public ModelRelationVO queryByItem(Long itemId) {
-		Map<String,Object> obj=new HashMap<String, Object>();
+		Map<String,Object> obj = new HashMap<String, Object>();
 		obj.put("itemId",itemId);
-		ModelRelation mr=queryChannel.querySingleResult(ModelRelation.class, "queryByItem", obj);
-		ModelRelationVO mro=BeanUtils.getNewInstance(mr, ModelRelationVO.class);
+		ModelRelation mr = queryChannel.querySingleResult(ModelRelation.class, "queryByItem", obj);
+		ModelRelationVO mro = BeanUtils.getNewInstance(mr, ModelRelationVO.class);
 		return mro;
 	}
 	
 	public List<ModelRelationVO> queryByModelId(Long modelId){
-		Map<String,Object> obj=new HashMap<String,Object>();
+		Map<String,Object> obj = new HashMap<String,Object>();
 		obj.put("modelId", modelId);
-		List<ModelRelation> list=this.queryChannel.queryResult(ModelRelation.class, "queryByModelId", obj);
-		List<ModelRelationVO> ls=new ArrayList<ModelRelationVO>();
+		List<ModelRelation> list = queryChannel.queryResult(ModelRelation.class, "queryByModelId", obj);
+		List<ModelRelationVO> ls = new ArrayList<ModelRelationVO>();
 		for(ModelRelation m:list){
-			ModelRelationVO mro=BeanUtils.getNewInstance(m, ModelRelationVO.class);
+			ModelRelationVO mro = BeanUtils.getNewInstance(m, ModelRelationVO.class);
 			ls.add(mro);
 		}
 		return ls;
@@ -51,7 +52,7 @@ public class ModelRelationServiceImpl implements ModelRelationService{
 	
 	public boolean save(ModelRelationVO vo) {
 		try {
-			ModelRelation mr=BeanUtils.getNewInstance(vo, ModelRelation.class);
+			ModelRelation mr = BeanUtils.getNewInstance(vo, ModelRelation.class);
 			ModelRelation.getRepository().save(mr);
 			return true;
 		} catch (Exception e) {
@@ -60,8 +61,7 @@ public class ModelRelationServiceImpl implements ModelRelationService{
 	}
 
 	public boolean executeUpdate(ModelRelationVO vo,String queryStr) {
-		ModelRelation mr=BeanUtils.getNewInstance(vo, ModelRelation.class);
-		Map<String,Object> map=new HashMap<String, Object>();
+		Map<String,Object> map = new HashMap<String, Object>();
 		map.put("id", vo.getId());
 		map.put("relationName", vo.getRelationName());
 		map.put("relationType", vo.getRelationType());

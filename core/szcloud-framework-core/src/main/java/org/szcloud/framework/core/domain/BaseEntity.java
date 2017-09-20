@@ -21,8 +21,6 @@ public abstract class BaseEntity implements Entity {
 	private static EntityRepository repository;
 	
 	private Long id;
-
-	
     
 	public  static EntityRepository getRepository() {
     	if(repository==null)
@@ -40,7 +38,6 @@ public abstract class BaseEntity implements Entity {
 
 	private static final long serialVersionUID = 8882145540383345037L;
 
-	
 	public void save() {
 		getRepository().save(this);
 	}

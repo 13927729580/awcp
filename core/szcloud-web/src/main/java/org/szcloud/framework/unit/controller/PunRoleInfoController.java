@@ -25,6 +25,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.szcloud.framework.core.domain.BaseExample;
 import org.szcloud.framework.core.domain.Criteria;
+import org.szcloud.framework.core.domain.SzcloudJdbcTemplate;
 import org.szcloud.framework.core.utils.Tools;
 import org.szcloud.framework.core.utils.constants.ResourceTypeEnum;
 import org.szcloud.framework.core.utils.constants.SessionContants;
@@ -71,6 +72,9 @@ public class PunRoleInfoController {
 	@Autowired
 	private FormdesignerService formdesignerServiceImpl;
 
+	@Autowired
+	private SzcloudJdbcTemplate jdbcTemplate;
+	
 	private StringBuffer valMessage = null;// 校验信息
 
 	@RequestMapping("/listRolesInSys")
@@ -107,21 +111,16 @@ public class PunRoleInfoController {
 
 	@ResponseBody
 	@RequestMapping("/listRolesInSysByAjax")
-	public List<PunRoleInfoVO> listRolesInSysByAjax(@RequestParam(value = "boxs") Long sysId,
-			@RequestParam(value = "roleId", required = false) Long roleId,
-			@RequestParam(value = "currentPage", required = false, defaultValue = "1") int currentPage,
-			@RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize) {
+	public List<PunRoleInfoVO> listRolesInSysByAjax(@RequestParam(value="boxs") Long sysId,
+			PunRoleInfoVO vo,
+			@RequestParam(value="currentPage",required=false,defaultValue="1") int currentPage,
+			@RequestParam(value="pageSize",required=false,defaultValue="10") int pageSize){
 		ModelAndView mv = new ModelAndView();
-		List<PunRoleInfoVO> vos;
+		
 		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("sysId", sysId);
-		if (roleId == null) {
-			vos = roleService.queryResult("eqQueryList", params);
-		} else {
-			params.put("roleId", "101,104");
-			vos = roleService.queryResult("queryListByRoleIds", params);
-		}
+		params.put("SYS_ID", sysId);
 
+		List<PunRoleInfoVO> vos = roleService.queryResult("eqQueryList", params);
 		mv.addObject("PunRoleInfoVO", vos);
 		return vos;
 	}
@@ -369,7 +368,7 @@ public class PunRoleInfoController {
 	 * @return
 	 */
 	@RequestMapping(value = "punRoleMenuAccessEdit")
-	public ModelAndView punRoleMenuAccessEdit(Long boxs, Long sysId) {
+	public ModelAndView punRoleMenuAccessEdit(Long boxs, Long sysId,String moduleId) {
 		PunSystemVO sysVO = punSystemService.findById(sysId);
 		ModelAndView mv = new ModelAndView();
 		mv.setViewName("unit/dev/accessAuthor");
@@ -380,7 +379,8 @@ public class PunRoleInfoController {
 				PunRoleInfoVO vo = new PunRoleInfoVO();
 				vo.setRoleId(boxs);
 				vo.setSysId(sysId);
-
+				mv.addObject("roleName", jdbcTemplate.queryForObject(
+						"select ROLE_NAME from p_un_role_info where ROLE_ID=" + boxs, String.class));
 				mv.addObject("vo", vo);
 				accVOS = menuService.getByRoleAndSys(vo, sysVO);
 			}
@@ -399,10 +399,22 @@ public class PunRoleInfoController {
 			JsonFactory factory = new JsonFactory();
 			mv.addObject("menuJson", factory.encode2Json(resultMap));
 
+			String sql = "";
+			if(StringUtils.isNoneBlank(moduleId)){
+				sql = "select id from p_fm_dynamicpage where modular=" + moduleId;
+			}
+			else{
+				sql = "select id from p_fm_dynamicpage where modular=(select ID from p_fm_modular limit 1)";
+			}
+			List<Long> dynamicPageIds =	jdbcTemplate.queryForList(sql,Long.class);
+			sql = "select ID,modularName from p_fm_modular order by ID ";
+			mv.addObject("modules", jdbcTemplate.queryForList(sql));
+			mv.addObject("moduleId",moduleId);
+			
 			// 1、查找当前系统的所有按钮，按动态表单名分类
 			// 2、查找资源，格式为Map<relateResoId,Resource>
 			// 3、查找已授权的资源
-			Map<String, List<StoreVO>> buttonMap = formdesignerServiceImpl.getSystemActs();
+			Map<String, List<StoreVO>> buttonMap = formdesignerServiceImpl.getSystemActs(dynamicPageIds);
 
 			Map<String, Object> params = new HashMap<String, Object>();
 			params.put("sysId", sysId);

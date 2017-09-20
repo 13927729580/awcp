@@ -133,5 +133,12 @@ public class MetaModelItemsVO {
 	public void setRemark(String remark) {
 		this.remark = remark;
 	}
+
+	public String toString() {
+		return "MetaModelItemsVO [id=" + id + ", modelId=" + modelId + ", itemName=" + itemName + ", itemCode="
+				+ itemCode + ", itemType=" + itemType + ", itemLength=" + itemLength + ", usePrimaryKey="
+				+ usePrimaryKey + ", useIndex=" + useIndex + ", useNull=" + useNull + ", itemValid=" + itemValid
+				+ ", defaultValue=" + defaultValue + ", remark=" + remark + "]";
+	}
 	
 }

@@ -26,78 +26,103 @@ public class MetaModelVO {
 	public Long getSystemId() {
 		return systemId;
 	}
+	
 	public void setSystemId(Long systemId) {
 		this.systemId = systemId;
 	}
+	
 	public Long getId() {
 		return id;
 	}
+	
 	public void setId(Long id) {
 		this.id = id;
 	}
+	
 	public void setModelSynchronization(boolean modelSynchronization) {
 		this.modelSynchronization = modelSynchronization;
 	}
+	
 	public void setModelValid(boolean modelValid) {
 		this.modelValid = modelValid;
 	}
+	
 	public Long getModelClassId() {
 		return modelClassId;
 	}
+	
 	public void setModelClassId(Long modelClassId) {
 		this.modelClassId = modelClassId;
 	}
+	
 	public String getModelName() {
 		return modelName;
 	}
+	
 	public void setModelName(String modelName) {
 		this.modelName = modelName;
 	}
+	
 	public String getModelCode() {
 		return modelCode;
 	}
+	
 	public void setModelCode(String modelCode) {
 		this.modelCode = modelCode;
 	}
+	
 	public String getModelDesc() {
 		return modelDesc;
 	}
+	
 	public void setModelDesc(String modelDesc) {
 		this.modelDesc = modelDesc;
 	}
+	
 	public String getTableName() {
 		return tableName;
 	}
+	
 	public void setTableName(String tableName) {
 		this.tableName = tableName;
 	}
+	
 	public String getProjectName() {
 		return projectName;
 	}
+	
 	public void setProjectName(String projectName) {
 		this.projectName = projectName;
 	}
+	
 	public Integer getModelType() {
 		return modelType;
 	}
+	
 	public void setModelType(Integer modelType) {
 		this.modelType = modelType;
 	}
+	
 	public Boolean getModelSynchronization() {
 		return modelSynchronization;
 	}
+	
 	public void setModelSynchronization(Boolean modelSynchronization) {
 		this.modelSynchronization = modelSynchronization;
 	}
+	
 	public Boolean getModelValid() {
 		return modelValid;
 	}
+	
 	public void setModelValid(Boolean modelValid) {
 		this.modelValid = modelValid;
 	}
+	
 	public Long getDataSourceId() {
 		return dataSourceId;
 	}
+	
 	public void setDataSourceId(Long dataSourceId) {
 		this.dataSourceId = dataSourceId;
 	}

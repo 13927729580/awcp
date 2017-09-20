@@ -21,9 +21,7 @@ public class Calendar implements Serializable {
 	 * 日志对象
 	 */
 	private static final Logger logger = LoggerFactory.getLogger(Calendar.class);
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = -3194804753546276914L;
 
 	private static SqlSessionFactory sqlSessionFactory;

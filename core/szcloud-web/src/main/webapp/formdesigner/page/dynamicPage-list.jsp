@@ -3,7 +3,7 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%> 
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="sc" uri="szcloud" %>
-<%@page isELIgnored="false"%> 
+<%@ page isELIgnored="false"%> 
 <%
 	String path = request.getContextPath();
 	String basePath = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + path + "/";
@@ -50,11 +50,22 @@
 			<div id="collapseButton" class="in">
 				<form action="<%=basePath%>fd/list.do" id="groupForm" class="clearfix" method="post">
 					<div class="form-group">
-						<div class="col-md-3">
+						<div class="col-md-2">
 							<div class="input-group">
 								<span class="input-group-addon">页面名称/ID</span>
 								<input name="name" class="form-control" id="name" value="${name }" type="text"/>
 								<input type="hidden" name="currentPage" value="${currentPage }">
+							</div>
+						</div>
+						<div class="col-md-2">
+							<div class="input-group">
+								<span class="input-group-addon">模块</span>
+								<select class="form-control" data-allow-clear="true" tabindex="2" name="modular">
+										<option value=""></option>
+										<c:forEach items="${modulars}" var="item" varStatus="status">
+											<option value="${item.ID}">${item.modularName }</option>
+										</c:forEach>
+								</select>
 							</div>
 						</div>
 						<div class="col-md-2">
@@ -68,7 +79,7 @@
 								</select>
 							</div>
 						</div>
-						<div class="col-md-3">
+						<div class="col-md-2">
 							<div class="input-group">
 								<span class="input-group-addon">页面模板</span>
 								<select class="form-control"  data-allow-clear="true" tabindex="2" name="templateId">
@@ -172,6 +183,7 @@
 			$("select[name='pageType']").val('${pageType}');
 			$("select[name='templateId']").val('${templateId}');
 			$("select[name='menuId']").val('${menuId}');
+			$("select[name='modular']").val('${modular}');
 			
 			var height = $(top).height();
     		height = height -145;
@@ -387,6 +399,19 @@
 				   	}
 				});
 	    	});
+			
+			$(".table-datatable").find("thead").find("th").eq(2).css("width","10%");
+			$(".table-datatable").find("tbody").find("tr").eq(0).find("td").eq(2).css("width","10%");
+			$(".table-datatable").find("thead").find("th").eq(3).css("width","50%");
+			$(".table-datatable").find("tbody").find("tr").eq(0).find("td").eq(3).css("width","50%");
+			$(".table-datatable").find("thead").find("th").eq(4).css("width","10%");
+			$(".table-datatable").find("tbody").find("tr").eq(0).find("td").eq(4).css("width","10%");
+			$(".table-datatable").find("thead").find("th").eq(5).css("width","10%");
+			$(".table-datatable").find("tbody").find("tr").eq(0).find("td").eq(5).css("width","10%");
+			$(".table-datatable").find("thead").find("th").eq(6).css("width","10%");
+			$(".table-datatable").find("tbody").find("tr").eq(0).find("td").eq(6).css("width","10%");
+			$(".table-datatable").find("thead").find("th").eq(7).css("width","10%");
+			$(".table-datatable").find("tbody").find("tr").eq(0).find("td").eq(7).css("width","10%");
     	});
 	</script>
 </body>

@@ -39,7 +39,7 @@ var pageConstant = {
 
 
 			this.type.put("1019", "富文本框");
-//			this.type.put("1020", "用户选择框");
+			this.type.put("1020", "用户选择框");
 //			this.type.put("1021", "审批意见");
 //			this.type.put("1022", "审批状态 ");
 			this.type.put("1023", "word编辑");

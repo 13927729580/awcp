@@ -6,5 +6,4 @@ public abstract class MyCustomValidator {
 	
 	public abstract String toServerScriptString();
 	
-//	public MyMessage valid(Component component, Document doc);
 }	

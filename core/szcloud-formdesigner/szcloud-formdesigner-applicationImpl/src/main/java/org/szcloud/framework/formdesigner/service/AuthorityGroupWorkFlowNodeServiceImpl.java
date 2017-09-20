@@ -10,9 +10,7 @@ import org.szcloud.framework.core.common.exception.MRTException;
 import org.szcloud.framework.core.domain.QueryChannelService;
 import org.szcloud.framework.core.utils.BeanUtils;
 import org.szcloud.framework.formdesigner.application.service.AuthorityGroupWorkFlowNodeService;
-import org.szcloud.framework.formdesigner.application.vo.AuthorityCompoentVO;
 import org.szcloud.framework.formdesigner.application.vo.AuthorityGroupWorkFlowNodeVO;
-import org.szcloud.framework.formdesigner.core.domain.AuthorityCompoent;
 import org.szcloud.framework.formdesigner.core.domain.AuthorityGroupWorkFlowNode;
 
 @Service(value="authorityGroupWorkFlowNodeServiceImpl")
@@ -22,15 +20,14 @@ public class AuthorityGroupWorkFlowNodeServiceImpl implements AuthorityGroupWork
 	private QueryChannelService queryChannel;
 	
 	@Override
-	public AuthorityGroupWorkFlowNodeVO findById(String id) {
-		
-		AuthorityGroupWorkFlowNodeVO vo=BeanUtils.getNewInstance(AuthorityGroupWorkFlowNode.get(id), AuthorityGroupWorkFlowNodeVO.class);
+	public AuthorityGroupWorkFlowNodeVO findById(String id) {	
+		AuthorityGroupWorkFlowNodeVO vo=BeanUtils.getNewInstance(AuthorityGroupWorkFlowNode.get(id), 
+				AuthorityGroupWorkFlowNodeVO.class);
 		return vo;
 	}
 
 	@Override
-	public String save(AuthorityGroupWorkFlowNodeVO vo) {
-		
+	public String save(AuthorityGroupWorkFlowNodeVO vo) {		
 		AuthorityGroupWorkFlowNode v = BeanUtils.getNewInstance(vo, AuthorityGroupWorkFlowNode.class);
 		String id = v.save();
 		vo.setId(id);
@@ -45,19 +42,14 @@ public class AuthorityGroupWorkFlowNodeServiceImpl implements AuthorityGroupWork
 	}
 
 	@Override
-	public List<AuthorityGroupWorkFlowNodeVO> queryResult(String queryStr,
-			Map<String, Object> params) throws MRTException {
-		
-		List<AuthorityGroupWorkFlowNode> resources = queryChannel.queryResult(
-				AuthorityGroupWorkFlowNode.class, queryStr, params);
-		List<AuthorityGroupWorkFlowNodeVO> vos = new ArrayList<AuthorityGroupWorkFlowNodeVO>();
-		
+	public List<AuthorityGroupWorkFlowNodeVO> queryResult(String queryStr,Map<String, Object> params) throws MRTException {	
+		List<AuthorityGroupWorkFlowNode> resources = queryChannel.queryResult(AuthorityGroupWorkFlowNode.class, queryStr, params);
+		List<AuthorityGroupWorkFlowNodeVO> vos = new ArrayList<AuthorityGroupWorkFlowNodeVO>();		
 		for (AuthorityGroupWorkFlowNode resource : resources) {
 			vos.add(BeanUtils.getNewInstance(resource, AuthorityGroupWorkFlowNodeVO.class));
 		}
 		resources.clear();
-		return vos;
-		
+		return vos;		
 	}
 
 }

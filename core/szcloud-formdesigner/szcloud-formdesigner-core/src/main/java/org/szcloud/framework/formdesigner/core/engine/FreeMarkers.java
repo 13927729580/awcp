@@ -67,37 +67,13 @@ public class FreeMarkers {
 		return cfg;
 	}
 
-	// public static void main(String[] args) throws IOException {
-	// // renderString
-	// Map<String, String> model = com.google.common.collect.Maps.newHashMap();
-	// model.put("userName", "calvin");
-	// String result = FreeMarkers.renderString("hello ${userName}", model);
-	// logger.debug(result);
-	// // renderTemplate
-	// Configuration cfg = FreeMarkers.buildConfiguration("classpath:/");
-	// Template template = cfg.getTemplate("testTemplate.ftl");
-	// String result2 = FreeMarkers.renderTemplate(template, model);
-	// logger.debug(result2);
-
-	// Map<String, String> model = com.google.common.collect.Maps.newHashMap();
-	// model.put("userName", "calvin");
-	// String result = FreeMarkers.renderString("hello ${userName}
-	// ${r'${userName}'}", model);
-	// logger.debug(result);
-
-	// }
 	public static void main(String args[]) {
 		ScriptEngineManager manager = new ScriptEngineManager();
-		// 得到所有的脚本引擎工厂
-
-		// 这是Java SE 5 和Java SE 6的新For语句语法
-
 		for (ScriptEngineFactory factory : manager.getEngineFactories()) {
 			// 打印脚本信息
 			logger.debug("Name: " + factory.getEngineName() + "Language version: " + factory.getLanguageVersion()
 					+ "Extensions:  " + factory.getExtensions() + "Mime types:  " + factory.getMimeTypes() + "Names: "
 					+ factory.getNames().toString() + "\n");
-
 		}
 	}
 }

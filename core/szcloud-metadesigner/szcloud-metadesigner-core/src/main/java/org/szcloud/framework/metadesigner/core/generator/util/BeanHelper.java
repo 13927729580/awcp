@@ -14,8 +14,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 public class BeanHelper {
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static Map describe(Object obj) {
 		if (obj instanceof Map)
 			return (Map) obj;
@@ -27,9 +28,7 @@ public class BeanHelper {
             Method readMethod = descriptors[i].getReadMethod();
 			if (readMethod != null) {
 				try {
-				    long start = System.currentTimeMillis();
 					map.put(name, readMethod.invoke(obj, new Object[]{}));
-					long cost = start - System.currentTimeMillis();
 				}catch(Exception e){
 					GLogger.warn("error get property value,name:"+name+" on bean:"+obj,e);
 				}
@@ -38,7 +37,7 @@ public class BeanHelper {
 		return map;
 	}
 
-   public static PropertyDescriptor getPropertyDescriptor(Class beanClass,String propertyName) {
+   public static PropertyDescriptor getPropertyDescriptor(Class<?> beanClass,String propertyName) {
         for(PropertyDescriptor pd : getPropertyDescriptors(beanClass)) {
             if(pd.getName().equals(propertyName)) {
                 return pd;
@@ -47,7 +46,7 @@ public class BeanHelper {
         return null;
    }
 	   
-	public static PropertyDescriptor[] getPropertyDescriptors(Class beanClass) {
+	public static PropertyDescriptor[] getPropertyDescriptors(Class<?> beanClass) {
 		BeanInfo beanInfo = null;
 		try {
 			beanInfo = Introspector.getBeanInfo(beanClass);
@@ -62,7 +61,7 @@ public class BeanHelper {
 	}
 	
 
-    public static PropertyDescriptor getPropertyDescriptors(Class beanClass,String name) {
+    public static PropertyDescriptor getPropertyDescriptors(Class<?> beanClass,String name) {
         for(PropertyDescriptor pd : getPropertyDescriptors(beanClass)) {
             if(pd.getName().equals(name)) {
                 return pd;
@@ -75,13 +74,14 @@ public class BeanHelper {
         copyProperties(target,source,null);
     }
 
-    public static void copyProperties(Object target, Object source,String[] ignoreProperties)  {
+    @SuppressWarnings("rawtypes")
+	public static void copyProperties(Object target, Object source,String[] ignoreProperties)  {
         if(target instanceof Map) {
             throw new UnsupportedOperationException("target is Map unsuported");
         }
         
         PropertyDescriptor[] targetPds = getPropertyDescriptors(target.getClass());
-        List ignoreList = (ignoreProperties != null) ? Arrays.asList(ignoreProperties) : null;
+        List<String> ignoreList = (ignoreProperties != null) ? Arrays.asList(ignoreProperties) : null;
 
         for (int i = 0; i < targetPds.length; i++) {
             PropertyDescriptor targetPd = targetPds[i];

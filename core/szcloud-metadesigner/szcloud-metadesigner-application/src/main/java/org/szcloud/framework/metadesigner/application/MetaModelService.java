@@ -2,7 +2,6 @@ package org.szcloud.framework.metadesigner.application;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.szcloud.framework.core.domain.BaseExample;
 import org.szcloud.framework.metadesigner.vo.MetaModelVO;
@@ -10,6 +9,7 @@ import org.szcloud.framework.metadesigner.vo.MetaModelVO;
 import com.github.miemiedev.mybatis.paginator.domain.PageList;
 
 public interface MetaModelService {
+	
 	/**
 	 * 增加
 	 * @param vo
@@ -22,16 +22,11 @@ public interface MetaModelService {
 	 */
 	public boolean remove(MetaModelVO vo);
 	
-	
-	
-
-	
 	/**
 	 * 查询所有
 	 * @return
 	 */
-	public List<MetaModelVO> findAll();
-	
+	public List<MetaModelVO> findAll();	
 	
 	/**
 	 * 查询一条数据
@@ -50,8 +45,7 @@ public interface MetaModelService {
 	 * @return
 	 */
 	public PageList<MetaModelVO> queryResult(String queryStr, Map<String, Object> params, int currentPage, int pageSize,String sortString);
-	
-	
+		
 	/**
 	 * 判断表是否存在
 	 * @param tableName
@@ -95,7 +89,6 @@ public interface MetaModelService {
 	 */
 	public MetaModelVO queryByModelCode(String modelCode);
 	
-
 	/**
 	 * 根据模型名称查找
 	 * @param modelCode

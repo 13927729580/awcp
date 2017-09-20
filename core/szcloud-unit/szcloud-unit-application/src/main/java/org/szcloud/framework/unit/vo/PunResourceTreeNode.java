@@ -124,4 +124,11 @@ public class PunResourceTreeNode {
 		this.number = number;
 	}
 
+	@Override
+	public String toString() {
+		return "PunResourceTreeNode [id=" + id + ", pId=" + pId + ", name=" + name + ", url=" + url + ", target="
+				+ target + ", open=" + open + ", isParent=" + isParent + ", checked=" + checked + ", groupType="
+				+ groupType + ", iconSkin=" + iconSkin + ", click=" + click + ", number=" + number + "]";
+	}
+
 }

@@ -3,7 +3,6 @@ package org.szcloud.framework.unit.service;
 import java.util.List;
 import java.util.Map;
 
-import org.szcloud.framework.core.common.exception.MRTException;
 import org.szcloud.framework.unit.vo.PunResourceVO;
 
 public interface PunResourceService {
@@ -74,21 +73,13 @@ public interface PunResourceService {
 	List<PunResourceVO> getPunResourceByIds(List<Long> resourceIds);
 	
 	/**
-	 * 统计资源类型的数量
-	 * @param queryStr
-	 * @param params
-	 * @return
-	 */
-	/*List<String> queryResoType(Map<String, Object> params);*/
-	
-	/**
 	 * 根据relate ID列表获取资源清单；
 	 * @param relateResourceId
 	 * @return
 	 */
 	public List<PunResourceVO> getResourceListByRelateIds(List<Long> relateResourceId, int resourceType);
 	
-	
 	public Long getResourceIdByRelateId(String relateId, String resourceType);
+	
 	public PunResourceVO getResourceByRelateId(String relateId, String resourceType);
 }

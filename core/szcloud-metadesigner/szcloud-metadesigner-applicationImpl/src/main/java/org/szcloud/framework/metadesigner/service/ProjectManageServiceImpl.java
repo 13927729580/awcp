@@ -20,19 +20,18 @@ public class ProjectManageServiceImpl implements ProjectManageService{
 	
 	public long save(ProjectManageVO vo) {
 		try {
-			ProjectManage pm=BeanUtils.getNewInstance(vo, ProjectManage.class);
+			ProjectManage pm = BeanUtils.getNewInstance(vo, ProjectManage.class);
 			pm.save();
 			vo.setId(pm.getId());
 			return pm.getId();
 		} catch (Exception e) {
 			return 0;
 		}
-		
 	}
 
 	public boolean remove(ProjectManageVO vo) {
 		try {
-			ProjectManage pm=BeanUtils.getNewInstance(vo, ProjectManage.class);
+			ProjectManage pm = BeanUtils.getNewInstance(vo, ProjectManage.class);
 			pm.remove();
 			return true;
 		} catch (Exception e) {
@@ -42,7 +41,7 @@ public class ProjectManageServiceImpl implements ProjectManageService{
 
 	public boolean update(ProjectManageVO vo) {
 		try {
-			ProjectManage pm=BeanUtils.getNewInstance(vo, ProjectManage.class);
+			ProjectManage pm = BeanUtils.getNewInstance(vo, ProjectManage.class);
 			pm.save();
 			return true;
 		} catch (Exception e) {
@@ -52,9 +51,8 @@ public class ProjectManageServiceImpl implements ProjectManageService{
 
 	public List<ProjectManageVO> findAll() {
 		try {
-			ProjectManage pm=new ProjectManage();
-			List<ProjectManage> ls=pm.findAll(ProjectManage.class);
-			List<ProjectManageVO> list=new ArrayList<ProjectManageVO>();
+			List<ProjectManage> ls = ProjectManage.findAll(ProjectManage.class);
+			List<ProjectManageVO> list = new ArrayList<ProjectManageVO>();
 			for(ProjectManage p:ls){
 				list.add(BeanUtils.getNewInstance(p, ProjectManageVO.class));
 			}
@@ -66,8 +64,8 @@ public class ProjectManageServiceImpl implements ProjectManageService{
 
 	public ProjectManageVO get(long id) {
 		try {
-			ProjectManage pm=ProjectManage.get(ProjectManage.class, id);
-			ProjectManageVO pmvo=BeanUtils.getNewInstance(pm, ProjectManageVO.class);
+			ProjectManage pm = ProjectManage.get(ProjectManage.class, id);
+			ProjectManageVO pmvo = BeanUtils.getNewInstance(pm, ProjectManageVO.class);
 			return pmvo;
 		} catch (Exception e) {
 			return null;

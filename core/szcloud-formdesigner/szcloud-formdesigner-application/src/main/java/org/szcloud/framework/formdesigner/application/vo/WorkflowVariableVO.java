@@ -21,6 +21,5 @@ public class WorkflowVariableVO {
 	public void setValue(String value) {
 		this.value = value;
 	}
-	
-	
+		
 }

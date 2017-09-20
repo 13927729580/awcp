@@ -365,4 +365,21 @@ public class PunUserBaseInfoVO implements Serializable {
 		this.userStatus = userStatus;
 	}
 
+	@Override
+	public String toString() {
+		return "PunUserBaseInfoVO [userId=" + userId + ", userName=" + userName + ", userPwd=" + userPwd
+				+ ", userIdCardNumber=" + userIdCardNumber + ", name=" + name + ", userBirthPlace=" + userBirthPlace
+				+ ", userHouseholdRegist=" + userHouseholdRegist + ", userDomicile=" + userDomicile
+				+ ", userOfficePhone=" + userOfficePhone + ", userHousePhone=" + userHousePhone + ", mobile=" + mobile
+				+ ", userFax=" + userFax + ", userEmail=" + userEmail + ", employeeId=" + employeeId + ", userTitle="
+				+ userTitle + ", userDossierNumber=" + userDossierNumber + ", userOfficeNum=" + userOfficeNum
+				+ ", orgCode=" + orgCode + ", userStatus=" + userStatus + ", groupId=" + groupId + ", positionList="
+				+ positionList + ", verifyCode=" + verifyCode + ", smsCode=" + smsCode + ", token=" + token + ", date="
+				+ date + ", number=" + number + ", deptId=" + deptId + ", deptName=" + deptName + ", signatureImg="
+				+ signatureImg + ", userHeadImg=" + userHeadImg + ", roleList=" + roleList + ", userRoleId="
+				+ userRoleId + ", updatePassword=" + updatePassword + ", belong_Group=" + belong_Group + ", positionId="
+				+ positionId + ", positionName=" + positionName + ", shortName=" + shortName + ", positionGroupId="
+				+ positionGroupId + ", isManage=" + isManage + "]";
+	}
+
 }

@@ -3,16 +3,18 @@
  * 
  */
 // 后台接口前缀
-    var baseUrl = window.location.protocol + "//" + window.location.host + "/awcp/";
+var baseUrl = window.location.protocol + "//" + window.location.host + "/awcp/";
+var basePath=baseUrl;
 // 前台跳转前缀
 var baseUIUrl = window.location.protocol + "//" + window.location.host + "/awcp/";
 var Comm = {};
+
 
 Comm.getUrlParam= function (name,url) {
     var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); // 构造一个含有目标参数的正则表达式对象
     var r=(url)?url.match(reg):window.location.search.substr(1).match(reg);
     if (r)
-        return unescape(r[2]);
+        return decodeURIComponent(r[2]);
     else
         return null; // 返回参数值
 }
@@ -329,9 +331,9 @@ Comm.setFormData = function (data, id) {
 Comm.getData = function (url, params, cache) {
     params = (params) ? params : {};
     cache = (cache) ? cache : false;
-    var name = this.builderName(url, params);
     var data;
     if (cache) {
+    	var name = this.builderName(url, params);
         // if (!parent.window.cache[name]) {
         if (!this.get(name)) {
             $.ajax({
@@ -341,31 +343,35 @@ Comm.getData = function (url, params, cache) {
                 async: false,
                 dataType: "json",
                 success: function (d) {
-                    if (d.status == 0) {
-                    	data = d.data;
-                        if(typeof(data)=="string"){
-                        	try{
-                        		data=JSON.parse(data);
-                        	}catch (e) {
-    							
-    						}
-                        }
-                        // parent.window.cache[name] = data;
-                        Comm.set(name, data);
-                    } else if(d.status === -4){
-                        alert("您还未登录,请先登录！");
-                        if(Comm.isMobile()){
-                        	location.href=baseUrl+"apps/login.html";
-                        }else{
-                        	location.href=baseUrl+"login.html";
-                        }
-                    }else {
-                        alert(d.message, "error");
-                        throw new Error(d.message);
-                    }
+                	if(d.hasOwnProperty("status")){
+                		 if (d.status == 0) {
+                         	data = d.data;
+                             if(typeof(data)=="string"){
+                             	try{
+                             		data=JSON.parse(data);
+                             	}catch (e) {
+         							
+         						}
+                             }
+                             // parent.window.cache[name] = data;
+                             Comm.set(name, data);
+                         } else if(d.status === -4){
+                             Comm.alert("您还未登录,请先登录！");
+                             if(Comm.isMobile()){
+                             	location.href=baseUrl+"apps/login.html";
+                             }else{
+                             	location.href=baseUrl+"login.html";
+                             }
+                         }else {
+                        	 Comm.alert(d.message, "error");
+                             throw new Error(d.message);
+                         }
+                	}else{
+                		data = d;
+                	}
                 },
                 error: function () {
-                    alert("网络出错，请联系管理员！", "error");
+                	Comm.alert("网络出错，请联系管理员！", "error");
                     throw new Error("网络出错，请联系管理员！");
                 }
             });
@@ -381,29 +387,34 @@ Comm.getData = function (url, params, cache) {
             async: false,
             dataType: "json",
             success: function (d) {
-                if (d.status == 0) {
-                    data = d.data;
-                    if(typeof(data)=="string"){
-                    	try{
-                    		data=JSON.parse(data);
-                    	}catch (e) {
-							
-						}
+            	if(d.hasOwnProperty("status")){
+            		if (d.status == 0) {
+                        data = d.data;
+                        if(typeof(data)=="string"){
+                        	try{
+                        		data=JSON.parse(data);
+                        	}catch (e) {
+    							
+    						}
+                        }
+                    }else if(d.status === -4){
+                    	Comm.alert("您还未登录,请先登录！");
+                        if(Comm.isMobile()){
+                        	location.href=baseUrl+"apps/login.html";
+                        }else{
+                        	location.href=baseUrl+"login.html";
+                        }
+                    }else {
+                    	Comm.alert(d.message, "error");
+	                     throw new Error(d.message);
                     }
-                }else if(d.status === -4){
-                    alert("您还未登录,请先登录！");
-                    if(Comm.isMobile()){
-                    	location.href=baseUrl+"apps/login.html";
-                    }else{
-                    	location.href=baseUrl+"login.html";
-                    }
-                } else {
-                	 alert(d.message, "error");
-                     throw new Error(d.message);
-                }
+            	}else{
+            		data = d;
+            	}
+                 
             },
             error: function () {
-            	alert("网络出错，请联系管理员！", "error");
+            	Comm.alert("网络出错，请联系管理员！", "error");
                 throw new Error("网络出错，请联系管理员！");
             }
         });
@@ -593,21 +604,21 @@ Comm.uniqueArr = function (arr) {
 }
 
 Comm.set = function (key, value) {
-    	if( typeof(value)=="object" ){
-    		top.sessionStorage.setItem(key, JSON.stringify(value));
-    	}else{
-    		top.sessionStorage.setItem(key, value);
-    	}
+	if( typeof(value)=="object" ){
+		localStorage.setItem(key, JSON.stringify(value));
+	}else{
+		localStorage.setItem(key, value);
+	}
 }
 Comm.get = function (key) {
-		var data;
-    	var obj=top.sessionStorage.getItem(key);
-    	try{
-    		data=JSON.parse(obj);
-    	}catch (e) {
-    		data=obj;
-    	}
-    	return data;
+	var data;
+	var obj=localStorage.getItem(key);
+	try{
+		data=JSON.parse(obj);
+	}catch (e) {
+		data=obj;
+	}
+	return data;
 }
 Comm.indexOfArr = function (arr, val) {
     for (var i = 0; i < arr.length; i++) {
@@ -663,9 +674,7 @@ Comm.setSelectData=function($tag,data){
 	$tag.append(html.join(''));
 }
 Comm.alert=function(message){
-	if($.alert){
-		$.alert.open(message);
-	}else if(top.dialog){
+	if(top.dialog){
 		top.dialog({
 			id : 'edit-dialog' + Math.ceil(Math.random() * 10000),
 			title : '提示框',
@@ -676,7 +685,67 @@ Comm.alert=function(message){
 			cancelValue: "取消",
 			cancel: true
 		}).showModal();
+	}else if(window.hasOwnProperty("dd")){
+		var _default={message: "",title:"提示",button:"确认"};
+		if(typeof(message)=="object"){
+			_default=$.extend(_default,message);
+		}else{
+			_default.message=message;
+		}
+		dd.device.notification.alert(_default);
 	}else{
 		alert(message);
+	}
+}
+
+Comm.confirm=function(message){
+	var _default={message: "",title:"提示",buttons:['取消', '确定'],fn:function(data){}};
+	if(typeof(message)=="object"){
+		_default=$.extend(_default,message);
+	}else{
+		_default.message=message;
+	}
+	if(window.hasOwnProperty("dd")){
+		dd.device.notification.confirm({
+		    message: _default.message,
+		    title: _default.title,
+		    buttonLabels: _default.buttons,
+		    onSuccess : function(result) {
+		    	_default.fn(result.buttonIndex);
+		    },
+		    onFail : function(err) {}
+		});
+	}else{
+		_default.fn(confirm(_default.message))
+	}
+}
+
+Comm.prompt=function(message){
+	var _default={message: "",title:"提示",buttons:['取消', '确定'],fn:function(data){}};
+	if(typeof(message)=="object"){
+		_default=$.extend(_default,message);
+	}else{
+		_default.message=message;
+	}
+	if(window.hasOwnProperty("dd")){
+		dd.device.notification.prompt({
+		    message: _default.message,
+		    title: _default.title,
+		    buttonLabels: _default.buttons,
+		    onSuccess : function(result) {
+		    	_default.fn(result.value);
+		    },
+		    onFail : function(err) {}
+		});
+	}else{
+		_default.fn(prompt(_default.message))
+	}
+}
+
+Comm.toast=function(message){
+	if(window.hasOwnProperty("dd")){
+		dd.device.notification.toast({
+		    text: message //提示信息
+		});
 	}
 }

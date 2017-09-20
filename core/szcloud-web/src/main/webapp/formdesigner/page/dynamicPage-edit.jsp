@@ -21,6 +21,9 @@
 		<link rel="stylesheet" href="<%=basePath%>resources/plugins/select2/select2.css"/>
 		<link rel="stylesheet" href="<%=basePath%>resources/plugins/select2/select2-bootstrap.css"/>
 		<link rel="stylesheet" href="<%=basePath%>resources/plugins/zTree_v3/css/zTreeStyle/zTreeStyle.css">
+		<style type="text/css">
+			.compoents{display: inline-block;width:120px;height:30px;}
+		</style>
 	</head>
 	<body id="main">
 		<div class="container-fluid">
@@ -141,6 +144,9 @@
 					}
 				});
 				
+				var modularID = '${vo.modular}';
+				$("#modular").val(modularID);
+				$("#modular").select2();
 				$("#pageType").select2();
 				initStyle();
 				initAct();

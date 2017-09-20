@@ -57,11 +57,11 @@ public class GeneratorFacade {
 		g.deleteOutRootDir();
 	}
 
-	public void generateByMap(Map map, String templateRootDir) throws Exception {
+	public void generateByMap(Map<String,Object> map, String templateRootDir) throws Exception {
 		new ProcessUtils().processByMap(map, templateRootDir, false);
 	}
 
-	public void deleteByMap(Map map, String templateRootDir) throws Exception {
+	public void deleteByMap(Map<String,Object> map, String templateRootDir) throws Exception {
 		new ProcessUtils().processByMap(map, templateRootDir, true);
 	}
 
@@ -81,11 +81,11 @@ public class GeneratorFacade {
 		new ProcessUtils().processByTable(tableName, templateRootDir, true);
 	}
 
-	public void generateByClass(Class clazz, String templateRootDir) throws Exception {
+	public void generateByClass(Class<?> clazz, String templateRootDir) throws Exception {
 		new ProcessUtils().processByClass(clazz, templateRootDir, false);
 	}
 
-	public void deleteByClass(Class clazz, String templateRootDir) throws Exception {
+	public void deleteByClass(Class<?> clazz, String templateRootDir) throws Exception {
 		new ProcessUtils().processByClass(clazz, templateRootDir, true);
 	}
 
@@ -118,14 +118,17 @@ public class GeneratorFacade {
 
 	/** 生成器的上下文，存放的变量将可以在模板中引用 */
 	public static class GeneratorContext {
+		@SuppressWarnings("rawtypes")
 		static ThreadLocal<Map> context = new ThreadLocal<Map>();
 
+		@SuppressWarnings("rawtypes")
 		public static void clear() {
 			Map m = context.get();
 			if (m != null)
 				m.clear();
 		}
 
+		@SuppressWarnings("rawtypes")
 		public static Map getContext() {
 			Map map = context.get();
 			if (map == null) {
@@ -134,10 +137,12 @@ public class GeneratorFacade {
 			return context.get();
 		}
 
+		@SuppressWarnings("rawtypes")
 		public static void setContext(Map map) {
 			context.set(map);
 		}
 
+		@SuppressWarnings("unchecked")
 		public static void put(String key, Object value) {
 			getContext().put(key, value);
 		}
@@ -145,6 +150,7 @@ public class GeneratorFacade {
 
 	public class ProcessUtils {
 
+		@SuppressWarnings("rawtypes")
 		public void processByMap(Map params, String templateRootDir, boolean isDelete)
 				throws Exception, FileNotFoundException {
 			Generator g = getGenerator(templateRootDir);
@@ -159,7 +165,7 @@ public class GeneratorFacade {
 			processByGeneratorModel(templateRootDir, isDelete, g, m);
 		}
 
-		public void processByClass(Class clazz, String templateRootDir, boolean isDelete)
+		public void processByClass(Class<?> clazz, String templateRootDir, boolean isDelete)
 				throws Exception, FileNotFoundException {
 			Generator g = getGenerator(templateRootDir);
 			GeneratorModel m = GeneratorModelUtils.newFromClass(clazz);
@@ -198,6 +204,7 @@ public class GeneratorFacade {
 			}
 		}
 
+		@SuppressWarnings({ "rawtypes", "unchecked" })
 		public void processByAllTable(String templateRootDir, boolean isDelete) throws Exception {
 			List<Table> tables = TableFactory.getInstance().getAllTables();
 			List exceptions = new ArrayList();

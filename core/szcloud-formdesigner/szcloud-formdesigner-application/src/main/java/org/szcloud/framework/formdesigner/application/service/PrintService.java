@@ -11,11 +11,16 @@ import com.itextpdf.text.DocumentException;
 
 public interface PrintService {
 
+	@SuppressWarnings("rawtypes")
 	public  void printPDF(StoreVO printManageVO,Map dataMap,OutputStream os);
 	
-	public  void batchPrintPDF(List<StoreVO> printManageVOs,List<Map> dataMaps,List<List<JSONObject>> componentsList, OutputStream os);
+	@SuppressWarnings("rawtypes")
+	public  void batchPrintPDF(List<StoreVO> printManageVOs,List<Map> dataMaps,
+			List<List<JSONObject>> componentsList, OutputStream os);
 	
-	public  void printPDFByTemplate(StoreVO printManageVO,Map dataMap,OutputStream os,List<JSONObject> components) throws DocumentException;
+	@SuppressWarnings("rawtypes")
+	public  void printPDFByTemplate(StoreVO printManageVO,Map dataMap,OutputStream os,
+			List<JSONObject> components) throws DocumentException;
 	
 	public byte[] getFileByFileId(String fileId);
 	

@@ -4,9 +4,6 @@ import java.io.Serializable;
 
 public class WorkItemEntryVO implements Serializable{
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	
 	/** 步骤ID */
@@ -33,63 +30,81 @@ public class WorkItemEntryVO implements Serializable{
 	public int getOrginalID() {
 		return orginalID;
 	}
+	
 	public void setOrginalID(int orginalID) {
 		this.orginalID = orginalID;
 	}
+	
 	public String getWorkFlowStatus() {
 		return workFlowStatus;
 	}
+	
 	public void setWorkFlowStatus(String workFlowStatus) {
 		this.workFlowStatus = workFlowStatus;
 	}
+	
 	public String getActivityName() {
 		return activityName;
 	}
+	
 	public void setActivityName(String activityName) {
 		this.activityName = activityName;
 	}
+	
 	public String getParticipant() {
 		return participant;
 	}
+	
 	public void setParticipant(String participant) {
 		this.participant = participant;
 	}
+	
 	public String getInceptDate() {
 		return inceptDate;
 	}
+	
 	public void setInceptDate(String inceptDate) {
 		this.inceptDate = inceptDate;
 	}
+	
 	public String getHandleDate() {
 		return handleDate;
 	}
+	
 	public void setHandleDate(String handleDate) {
 		this.handleDate = handleDate;
 	}
+	
 	public String getHandleStatus() {
 		return handleStatus;
 	}
+	
 	public void setHandleStatus(String handleStatus) {
 		this.handleStatus = handleStatus;
 	}
+	
 	public String getHandleView() {
 		return handleView;
 	}
+	
 	public void setHandleView(String handleView) {
 		this.handleView = handleView;
 	}
+	
 	public String getSendStep() {
 		return sendStep;
 	}
+	
 	public void setSendStep(String sendStep) {
 		this.sendStep = sendStep;
 	}
+	
 	public String getSender() {
 		return sender;
 	}
+
 	public void setSender(String sender) {
 		this.sender = sender;
 	}
-	
 	
 }

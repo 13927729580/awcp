@@ -64,7 +64,7 @@ public class DataSourceProvider {
 			this.url = url;
 			this.username = username;
 			this.password = password;
-			this.driverClass = driverClass;
+			this.setDriverClass(driverClass);
 			loadJdbcDriver(driverClass);
 		}
 
@@ -92,6 +92,7 @@ public class DataSourceProvider {
 			throw new UnsupportedOperationException("setLoginTimeout");
 		}
 
+		@SuppressWarnings("unchecked")
 		public <T> T  unwrap(Class<T> iface) throws SQLException {
 			if(iface == null) throw new IllegalArgumentException("Interface argument must not be null");
 			if (!DataSource.class.equals(iface)) {
@@ -107,6 +108,14 @@ public class DataSourceProvider {
 		public Logger getParentLogger() throws SQLFeatureNotSupportedException{
 			 return null;
 		 }
+
+		public String getDriverClass() {
+			return driverClass;
+		}
+
+		public void setDriverClass(String driverClass) {
+			this.driverClass = driverClass;
+		}
 
 	}
 }

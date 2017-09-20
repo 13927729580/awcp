@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -16,21 +18,19 @@ import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.szcloud.framework.core.domain.BaseExample;
 import org.szcloud.framework.core.domain.Criteria;
 import org.szcloud.framework.core.utils.SessionUtils;
 import org.szcloud.framework.core.utils.constants.SessionContants;
+import org.szcloud.framework.metadesigner.application.MetaModelOperateService;
 import org.szcloud.framework.unit.service.PunGroupService;
 import org.szcloud.framework.unit.service.PunRoleAccessService;
 import org.szcloud.framework.unit.service.PunRoleInfoService;
 import org.szcloud.framework.unit.service.PunUserBaseInfoService;
 import org.szcloud.framework.unit.utils.EncryptUtils;
 import org.szcloud.framework.unit.utils.WhichEndEnum;
-import org.szcloud.framework.unit.vo.PunGroupVO;
 import org.szcloud.framework.unit.vo.PunRoleAccessVO;
 import org.szcloud.framework.unit.vo.PunRoleInfoVO;
 import org.szcloud.framework.unit.vo.PunUserBaseInfoVO;
@@ -53,9 +53,14 @@ public class ShiroDbRealm extends AuthorizingRealm {
 	@Qualifier("punRoleInfoServiceImpl")
 	private PunRoleInfoService roleService;// 角色
 
+	public final static String SPLIT = "-_-";
+
 	@Autowired
 	@Qualifier("punRoleAccessServiceImpl")
 	private PunRoleAccessService roleAccessService;// 访问控制
+
+	@Autowired
+	private MetaModelOperateService metaModelOperateServiceImpl;
 
 	// 授权方法
 	@Override
@@ -67,7 +72,7 @@ public class ShiroDbRealm extends AuthorizingRealm {
 		// 获取当前登录的用户名
 		String userName = (String) super.getAvailablePrincipal(principals);
 
-		String[] result = userName.split("_");
+		String[] result = userName.split(SPLIT);
 		String whichEnd = result[2];// 端
 		switch (WhichEndEnum.getOperChartType(whichEnd)) {
 		case FRONT_END:// 前端
@@ -138,15 +143,14 @@ public class ShiroDbRealm extends AuthorizingRealm {
 	 */
 	private SimpleAuthenticationInfo verifyEnd(UsernamePasswordToken token) {
 		String nameAndOrgcodeAndEnd = token.getUsername();
-		String[] result = nameAndOrgcodeAndEnd.split("_");
+		String[] result = nameAndOrgcodeAndEnd.split(SPLIT);
 		String orgCode = result[0];// 组织机构代码
 		String idCard = result[1];// 身份证号码
 		String whichEnd = result[2];// 端
-		String plainToken = "";
+		String password = null;
 		if (result.length > 3)
-			plainToken = result[3];
-		String password = "";// 密码
-		if (StringUtils.isEmpty(plainToken)) {
+			password = EncryptUtils.decript(result[3]);
+		if (StringUtils.isBlank(password)) {
 			switch (WhichEndEnum.getOperChartType(whichEnd)) {
 			case FRONT_END:// 前端
 				password = validateFrontUser(orgCode, idCard);
@@ -168,16 +172,10 @@ public class ShiroDbRealm extends AuthorizingRealm {
 	 */
 	private String validateFrontUser(String orgCode, String idCard) {
 		logger.debug("validateFrontUser");
-		Map<String, Object> groupParams = new HashMap<String, Object>();
-		groupParams.put("orgCode", orgCode);
-		List<PunGroupVO> groups = groupService.queryResult("eqQueryList", groupParams);// 组信息
-		if (groups == null || groups.size() == 0)
-			return null; // no group found by orgCode;
-		PunGroupVO group = groups.get(0);
-		List<PunUserBaseInfoVO> users = userService.selectByIDCard(idCard);// 用户基础信息
-		for (PunUserBaseInfoVO user : users) {
-			if (group.getGroupId().equals(user.getGroupId()))
-				return EncryptUtils.decript(user.getUserPwd());
+		Object password = metaModelOperateServiceImpl.queryObject(
+				"select USER_PWD from p_un_user_base_info where mobile=? or user_id_card_number=?", idCard, idCard);
+		if (password instanceof String) {
+			return EncryptUtils.decript(password.toString());
 		}
 		return null;
 	}

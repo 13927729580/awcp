@@ -38,7 +38,9 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@SuppressWarnings("deprecation")
 public class HttpClientUtil {
+	
 	/**
 	 * 日志对象
 	 */
@@ -184,46 +186,35 @@ public class HttpClientUtil {
 	public static String post(String url, Map<String, String> params) {
 		DefaultHttpClient httpclient = new DefaultHttpClient();
 		String body = null;
-
 		logger.debug("create httppost:" + url);
 		HttpPost post = postForm(url, params);
-
 		body = invoke(httpclient, post);
-
 		httpclient.getConnectionManager().shutdown();
-
 		return body;
 	}
 
 	public static String get(String url) {
 		DefaultHttpClient httpclient = new DefaultHttpClient();
 		String body = null;
-
 		logger.debug("create httppost:" + url);
 		HttpGet get = new HttpGet(url);
 		body = invoke(httpclient, get);
-
 		httpclient.getConnectionManager().shutdown();
-
 		return body;
 	}
 
 	private static String invoke(DefaultHttpClient httpclient, HttpUriRequest httpost) {
-
 		HttpResponse response = sendRequest(httpclient, httpost);
 		String body = paseResponse(response);
-
 		return body;
 	}
 
 	private static String paseResponse(HttpResponse response) {
 		logger.debug("get response from http server..");
 		HttpEntity entity = response.getEntity();
-
 		logger.debug("response status: " + response.getStatusLine());
 		String charset = EntityUtils.getContentCharSet(entity);
 		logger.debug(charset);
-
 		String body = null;
 		try {
 			body = EntityUtils.toString(entity);
@@ -233,14 +224,12 @@ public class HttpClientUtil {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
 		return body;
 	}
 
 	private static HttpResponse sendRequest(DefaultHttpClient httpclient, HttpUriRequest httpost) {
 		logger.debug("execute post...");
 		HttpResponse response = null;
-
 		try {
 			response = httpclient.execute(httpost);
 		} catch (ClientProtocolException e) {
@@ -252,36 +241,32 @@ public class HttpClientUtil {
 	}
 
 	private static HttpPost postForm(String url, Map<String, String> params) {
-
 		HttpPost httpost = new HttpPost(url);
 		List<NameValuePair> nvps = new ArrayList<NameValuePair>();
-
 		Set<String> keySet = params.keySet();
 		for (String key : keySet) {
 			nvps.add(new BasicNameValuePair(key, params.get(key)));
 		}
-
 		try {
-
 			httpost.setEntity(new UrlEncodedFormEntity(nvps, HTTP.UTF_8));
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
-
 		return httpost;
 	}
 }
 
 class myX509TrustManager implements X509TrustManager {
 	public myX509TrustManager() {
+		
 	}
 
 	public void checkClientTrusted(X509Certificate[] chain, String authType) {
+		
 	}
 
 	public void checkServerTrusted(X509Certificate[] chain, String authType) {
-		// logger.debug("cert: " + chain[0].toString() + ", authType: " +
-		// authType);
+
 	}
 
 	public X509Certificate[] getAcceptedIssuers() {
@@ -291,10 +276,10 @@ class myX509TrustManager implements X509TrustManager {
 
 class myHostnameVerifier implements HostnameVerifier {
 	public myHostnameVerifier() {
+		
 	}
 
 	public boolean verify(String hostname, SSLSession session) {
-		// logger.debug("hostname: " + hostname);
 		return true;
 	}
 }

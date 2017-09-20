@@ -10,15 +10,16 @@ import org.szcloud.framework.core.common.exception.MRTException;
 import org.szcloud.framework.core.domain.BaseEntity;
 
 public class PunGroupSys extends BaseEntity{
-	/**
-	 * 
-	 */
+	
 	private static final long serialVersionUID = -642108785424695932L;
 	private Long groupSysId;
 	private Long groupId;
 	private Long sysId;
-
+	private PunGroup punGroup;
+	private PunSystem punSystem;
+	
 	public PunGroupSys(){
+		
 	}
 
 	public PunGroupSys(Long groupSysId,Long groupId,Long sysId){
@@ -34,6 +35,7 @@ public class PunGroupSys extends BaseEntity{
 	public Long getGroupId() {
 		return this.groupId;
 	}
+	
 	public void setSysId(Long value) {
 		this.sysId = value;
 	}
@@ -50,8 +52,6 @@ public class PunGroupSys extends BaseEntity{
 		this.groupSysId = groupSysId;
 	}
 	
-	private PunGroup punGroup;
-	
 	public void setPunGroup(PunGroup punGroup){
 		this.punGroup = punGroup;
 	}
@@ -59,8 +59,6 @@ public class PunGroupSys extends BaseEntity{
 	public PunGroup getPunGroup() {
 		return punGroup;
 	}
-	
-	private PunSystem punSystem;
 	
 	public void setPunSystem(PunSystem punSystem){
 		this.punSystem = punSystem;
@@ -96,6 +94,7 @@ public class PunGroupSys extends BaseEntity{
 			.append(getGroupSysId(), other.getGroupSysId())
 			.isEquals();
 	}
+	
 	public static List<PunGroupSys> findAll() throws MRTException{
 		return PunGroupSys.getRepository().findAll(PunGroupSys.class);
 	}
@@ -107,7 +106,6 @@ public class PunGroupSys extends BaseEntity{
 	public void remove() throws MRTException{
 		PunGroupSys.getRepository().remove(this);
 	}
-	
 	
 }
 

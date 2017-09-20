@@ -1,5 +1,6 @@
 package org.szcloud.framework.unit.controller;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,6 +10,7 @@ import javax.annotation.Resource;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -19,7 +21,10 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.szcloud.framework.core.utils.SessionUtils;
+import org.szcloud.framework.core.utils.constants.SessionContants;
 import org.szcloud.framework.formdesigner.application.service.FormdesignerService;
 import org.szcloud.framework.formdesigner.application.vo.DocumentVO;
 import org.szcloud.framework.formdesigner.application.vo.DynamicPageVO;
@@ -30,6 +35,10 @@ import org.szcloud.framework.venson.controller.base.ControllerContext;
 import org.szcloud.framework.venson.controller.base.ControllerHelper;
 import org.szcloud.framework.venson.controller.base.ReturnResult;
 import org.szcloud.framework.venson.controller.base.StatusCode;
+import org.szcloud.framework.venson.util.CheckUtils;
+import org.szcloud.framework.venson.util.EmailUtil;
+import org.szcloud.framework.venson.util.QRCoreUtil;
+import org.szcloud.framework.venson.util.SMSUtil;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -99,6 +108,13 @@ public class RootController {
 		return returnList;
 	}
 
+	/**
+	 * 树性模板获取节点数
+	 * 
+	 * @param dynamicPageId
+	 * @return
+	 * @throws ScriptException
+	 */
 	@RequestMapping(value = "getTreeData", method = RequestMethod.POST)
 	@ResponseBody
 	public Object getTreeData(Long dynamicPageId) throws ScriptException {
@@ -129,8 +145,8 @@ public class RootController {
 		return null;
 	}
 
-	private ScriptEngine getEngine(DynamicPageVO page, DocumentVO docVo) {
-		ScriptEngine engine = ScriptEngineUtils.getScriptEngine(docVo, page);
+	private ScriptEngine getEngine(DynamicPageVO pageVO, DocumentVO docVo) {
+		ScriptEngine engine = ScriptEngineUtils.getScriptEngine(docVo, pageVO);
 		Map<String, Object> root = new HashMap<String, Object>();
 		HttpServletRequest request = ControllerContext.getRequest();
 		engine.put("request", request);
@@ -192,4 +208,46 @@ public class RootController {
 		return docVo;
 	}
 
+	/**
+	 * 发送验证码
+	 * 
+	 * @param type
+	 *            0：短信，1：邮箱
+	 * @param to
+	 *            发送对象(手机号或QQ邮箱)
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(value = "sendCode", method = RequestMethod.GET)
+	public ReturnResult sendCode(@RequestParam(value = "type", required = false, defaultValue = "0") int type,
+			@RequestParam("to") String to) {
+		ReturnResult result = ReturnResult.get();
+		String code;
+		// 0是发送短信验证码
+		if (type == 0) {
+			if (!CheckUtils.isChinaPhoneLegal(to)) {
+				return result.setStatus(StatusCode.FAIL.setMessage("手机号有误"));
+			}
+			code = SMSUtil.send(to);
+			SessionUtils.addObjectToSession(SessionContants.SMS_VERIFY_CODE + to, code);
+		} else {
+			if (!CheckUtils.isLegalEmail(to)) {
+				return result.setStatus(StatusCode.FAIL.setMessage("邮箱格式有误"));
+			}
+			code = EmailUtil.sendVerificationEmail(to);
+			SessionUtils.addObjectToSession(SessionContants.SMS_VERIFY_CODE + to, code);
+		}
+		logger.debug(SessionContants.SMS_VERIFY_CODE + to + "--------------" + code);
+		result.setStatus(StatusCode.SUCCESS);
+		return result;
+	}
+
+	@RequestMapping(value = "createQRCode", method = RequestMethod.GET)
+	public void createQRCode(String content, HttpServletResponse response) {
+		try {
+			QRCoreUtil.create(500, 500, content, response.getOutputStream());
+		} catch (IOException e) {
+			logger.debug("ERROR", e);
+		}
+	}
 }

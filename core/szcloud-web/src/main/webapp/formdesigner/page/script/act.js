@@ -145,7 +145,7 @@ function act_add(type) {
 				url : basePath
 						+ "fd/act/edit.do?dialog=1&dynamicPageId="
 						+ $("#id").val() + "&order=3&type="+type,
-				height : 800,
+				height : 540,
 				width : 1000,
 				onclose : function() {
 					if (this.returnValue) {
@@ -164,7 +164,7 @@ function editAct(id) {// open dialog to update the act info
 		id : 'act-dialog' + Math.ceil(Math.random() * 10000),
 		title : '动作编辑',
 		url : basePath + 'fd/act/edit.do?_selects=' + id,
-		height : 800,
+		height : 540,
 		width : 1000,
 		onclose : function() {
 			if (this.returnValue) {

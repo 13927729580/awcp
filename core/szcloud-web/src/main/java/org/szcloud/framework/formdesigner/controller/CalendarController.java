@@ -51,7 +51,7 @@ public class CalendarController extends BaseController {
 	@RequestMapping(value = "/findByUserId")
 	public List<CalendarVO> findByUserId(Long userId) {
 		List<CalendarVO> result = new ArrayList<CalendarVO>();
-		if (userId != null && !userId.equals("")) {
+		if (userId != null) {
 			result = calendarService.findByUserId(userId);
 		}
 		return result;

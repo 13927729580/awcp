@@ -40,7 +40,6 @@ public class SessionContants {
 	 */
 	public static final String SMS_VERIFY_CODE = "sms_verify_code";
 	
-
 	/**
 	 * 短信验证码
 	 */

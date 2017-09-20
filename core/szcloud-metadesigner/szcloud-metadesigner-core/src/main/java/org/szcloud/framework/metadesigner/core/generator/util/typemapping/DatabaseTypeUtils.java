@@ -1,6 +1,5 @@
 package org.szcloud.framework.metadesigner.core.generator.util.typemapping;
 
-
 public class DatabaseTypeUtils {
 	
 	public static String getDatabaseTypeByJdbcDriver(String driver) {

@@ -13,7 +13,6 @@ import java.util.regex.Pattern;
 import org.szcloud.framework.metadesigner.core.generator.util.IOHelper;
 import org.szcloud.framework.metadesigner.core.generator.util.StringHelper;
 
-
 public class JavaSourceParanamer implements Paranamer{
     private ClassLoader classLoader;
     
@@ -26,7 +25,7 @@ public class JavaSourceParanamer implements Paranamer{
         return lookupParameterNames(methodOrConstructor,true);
     }
 
-    @SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	public String[] lookupParameterNames(AccessibleObject methodOrConstructor,boolean throwExceptionIfMissing) {
         try {
 	        JavaSourceFileMethodParametersParser parser = new JavaSourceFileMethodParametersParser();
@@ -70,7 +69,8 @@ public class JavaSourceParanamer implements Paranamer{
             return parseJavaFileForParamNames(content, method.getName(), method.getParameterTypes());
         }
 
-        public String[] parseJavaFileForParamNames(AccessibleObject methodOrConstructor,String content) {
+        @SuppressWarnings("rawtypes")
+		public String[] parseJavaFileForParamNames(AccessibleObject methodOrConstructor,String content) {
         	if(methodOrConstructor instanceof Method) {
         		return parseJavaFileForParamNames((Method)methodOrConstructor,content);
         	}else if(methodOrConstructor instanceof Constructor) {
@@ -96,9 +96,9 @@ public class JavaSourceParanamer implements Paranamer{
         }
 
         private String getParamsPattern(Class<?>[] parameterTypes) {
-            List paramPatterns = new ArrayList();
+            List<Object> paramPatterns = new ArrayList<Object>();
             for(int i = 0; i < parameterTypes.length; i++ ) {
-                Class type = parameterTypes[i];
+                Class<?> type = parameterTypes[i];
                 String paramPattern = ".*"+type.getSimpleName()+".*\\s+(\\w+).*";
                 paramPatterns.add(paramPattern);
             }

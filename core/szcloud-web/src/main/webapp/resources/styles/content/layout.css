@@ -4,10 +4,12 @@
 body,html{background:#f1f1f1;font-family:宋体;}
 .container{position:relative;background:#fff;min-width:920px;margin-top:20px;padding-top:20px; padding-bottom:60px;}
 .icons li > i {display: inline-block;width: 20px;}
-form[role='customForm'],#buttons{width:900px;margin:0 auto;}
+
+form[role='customForm'],#buttons{width:98%;margin:0 auto;}
 #buttons button{margin-bottom:5px;font-size:15px;}
 @media (max-width: 900px){
-	.container{min-width:720px;}
+
+	/*.container{min-width:720px;}
 	form[role='customForm'],#buttons{width:700px}
 	form[role='customForm'] .form-group{display:table;width:100%;margin-left:0;margin-right:0;}
 	form[role='customForm'] .form-group [class^=col-]{display:table-cell; float:none;vertical-align:middle; overflow:hidden;}
@@ -53,7 +55,7 @@ form[role='customForm'] .form-group [class^=col-]{/* display:table-cell; float:n
 .table-c {border-right:1px solid #333;border-bottom:1px solid #333; border-collapse:collapse;word-break:normal;table-layout:fixed;}
 .table-c td{border-left:1px solid #333;border-top:1px solid #333;padding:0px;line-height:30px;}
 .table-c td label.control-label{font-weight:bold;}
-.control-label{padding-top:0;}
+.control-label{padding-top:0;display: block;text-align: center !important;}
 input{border:none;}
 .chosenName{white-space:normal;height:auto;word-break:break-all;word-wrap:break-word;}
 .chosenNameOne{white-space:normal;height:auto;word-break:break-all;word-wrap:break-word;}

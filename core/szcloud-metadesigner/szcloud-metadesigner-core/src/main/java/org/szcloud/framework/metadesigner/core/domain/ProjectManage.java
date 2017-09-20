@@ -4,12 +4,8 @@ import org.szcloud.framework.core.domain.BaseEntity;
 
 public class ProjectManage extends BaseEntity{
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
-	
-	
+
 	private String projectName;
 	
 	private String projectCode;

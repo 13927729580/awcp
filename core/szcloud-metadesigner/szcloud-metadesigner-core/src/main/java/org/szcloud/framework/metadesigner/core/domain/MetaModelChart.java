@@ -12,12 +12,8 @@ import org.szcloud.framework.core.domain.BaseEntity;
  */
 public class MetaModelChart extends BaseEntity{
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
-	
 	private String chartContext;
 	
 	private String chartInfo;
@@ -59,11 +55,10 @@ public class MetaModelChart extends BaseEntity{
 		this.classId = classId;
 	}
 	
-	public static List<MetaModelChart>  findAll() throws MRTException
-	{
+	public static List<MetaModelChart>  findAll() throws MRTException{
 		List<MetaModelChart> treeMenuList = null;
 		try {
-			treeMenuList =  MetaModelChart.findAll(MetaModelChart.class);
+			treeMenuList = findAll(MetaModelChart.class);
 		} catch (Exception e) {
 			throw new  MRTException(e.getMessage(),e);
 		}

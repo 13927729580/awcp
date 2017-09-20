@@ -92,8 +92,6 @@ public class PunUserBaseInfoController extends BaseController {
 	@Autowired
 	private MetaModelOperateService metaModelOperateServiceImpl;
 
-	private StringBuffer valMessage = null;// 校验信息
-
 	/**
 	 * 获取当前系统角色
 	 * 
@@ -145,12 +143,12 @@ public class PunUserBaseInfoController extends BaseController {
 		try {
 			PunGroupVO groupVO = (PunGroupVO) SessionUtils.getObjectFromSession(SessionContants.CURRENT_USER_GROUP);
 			vo.setGroupId(groupVO.getGroupId());// 设置所属组织ID
-			vo.setUserIdCardNumber(vo.getUserName());
 			if (vo.getOrgCode() == null || vo.getOrgCode().equals("")) {
 
 				vo.setOrgCode(SC.ORG_CODE);
 			}
-			if (validate(vo)) {
+			String msg = validate(vo);
+			if (msg == null) {
 				if (null == vo.getUserId() || "yes".equals(vo.getUpdatePassword())) {// 新增用户或者修改密码
 					vo.setUserPwd(EncryptUtils.encrypt(vo.getUserPwd()));// 密码加密
 				} else {
@@ -179,10 +177,10 @@ public class PunUserBaseInfoController extends BaseController {
 					}
 				}
 
-				ra.addFlashAttribute("result", "用户名为" + vo.getUserName() + "的用户新增/更新成功！");
+				ra.addFlashAttribute("result", "用户名为" + vo.getUserIdCardNumber() + "的用户新增/更新成功！");
 				return new ModelAndView("redirect:/unit/punUserBaseInfoList.do");
 			} else {
-				model.addAttribute("result", "校验失败" + valMessage.toString() + "。");
+				model.addAttribute("result", "校验失败" + msg + "。");
 			}
 		} catch (Exception e) {
 			logger.info("ERROR", e);
@@ -220,7 +218,7 @@ public class PunUserBaseInfoController extends BaseController {
 			List<PunPositionVO> posiVos = punPositionService.findAll();
 			vo.setUserPwd(Security.decryptPassword(vo.getUserPwd()));
 			mv.addObject("vo", vo);
-			mv.addObject("selectedRole", selectedRole);
+			mv.addObject("selectedRole", StringUtils.join(selectedRole.toArray(new String[] {})));
 			mv.addObject("selectedGroup", groupId);
 			mv.addObject("selectedPosition", positionId);
 			mv.addObject("roleVos", roleVos);
@@ -371,8 +369,8 @@ public class PunUserBaseInfoController extends BaseController {
 
 	/**
 	 * 
-	 * @Title: punUserBaseInfoDelete @Description: 根据ID删除 @author
-	 *         ljw @param @param id @param @return @return ModelAndView @throws
+	 * @Title: punUserBaseInfoDelete @Description: 根据ID删除 @author ljw @param @param
+	 *         id @param @return @return ModelAndView @throws
 	 */
 	@RequestMapping(value = "punUserBaseInfoDelete", method = RequestMethod.POST)
 	public ModelAndView punUserBaseInfoDelete(Long[] boxs, int currentPage, RedirectAttributes ra) {
@@ -594,9 +592,7 @@ public class PunUserBaseInfoController extends BaseController {
 	 * @param vo
 	 * @return boolean
 	 */
-	private boolean validate(PunUserBaseInfoVO vo) {
-		valMessage = new StringBuffer();
-
+	private String validate(PunUserBaseInfoVO vo) {
 		List<PunUserBaseInfoVO> users = null;
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("groupId", vo.getGroupId());// 所属组织ID
@@ -611,29 +607,9 @@ public class PunUserBaseInfoController extends BaseController {
 			}
 		}
 		if (null != users && users.size() > 0) {
-			valMessage.append("，该用户名已注册过");
-			return false;
+			return "该用户名已注册过";
 		}
-
-		params.clear();
-		params.put("groupId", vo.getGroupId());// 所属组织ID
-		params.put("userName", vo.getUserName());// 身份证号
-		if (null == vo.getUserId()) {// 若新增
-			users = userService.queryResult("eqQueryList", params);
-		} else {// 若修改
-			PunUserBaseInfoVO userVo = userService.findById(vo.getUserId());
-			// 判断新录入的用户名与原用户名，校验
-			// 有可能userVo.getUserName()为空
-			if (StringUtils.isBlank(userVo.getUserName()) || !userVo.getUserName().equals(vo.getUserName())) {
-				users = userService.queryResult("eqQueryList", params);
-			}
-		}
-		if (null != users && users.size() > 0) {
-			valMessage.append("，该用户名已注册过");
-			return false;
-		}
-
-		return true;
+		return null;
 	}
 
 	/**

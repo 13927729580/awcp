@@ -1,3 +1,89 @@
+function saveFormPage(dynamicPageId,actId){
+	$("#actId").val(actId);	
+	if($.formValidator.pageIsValid('1')){
+		$.ajax({
+		   type: "POST",
+		   url: basePath + "document/excuteOnly.do",
+		   data:$("#groupForm").serialize(),
+		   async : false,
+		   success: function(data){
+				if(data==1){
+					alert("保存成功");			
+					location.href = basePath + "document/view.do?dynamicPageId=" + dynamicPageId;
+				}
+				else{
+					alert(data);
+				}
+		   }
+		});
+	}
+}
+
+function excuteNormalAct(dynamicPageId,actId){
+	var count = $("input[name='_selects']").length;
+	if(count != 1){
+		alert("请至选择一项进行操作");
+		return false;
+	}
+	$("#actId").val(actId);	
+	$.ajax({
+	   type: "POST",
+	   url: basePath + "document/excuteOnly.do",
+	   data:$("#groupForm").serialize(),
+	   async : false,
+	   success: function(data){
+			if(data==1){
+				alert("执行成功");			
+				location.href = basePath + "document/view.do?dynamicPageId=" + dynamicPageId;
+			}
+			else{
+				alert(data);
+			}
+	   }
+	});
+}
+
+function backToViewPage(dynamicPageId){
+	location.href = basePath + "document/view.do?dynamicPageId=" + dynamicPageId;
+}
+
+function editFormPage(dynamicPageId){
+	var count = $("input[name='_selects']").length;
+	if(count!=1){
+		alert("请选择一项进行操作");
+		return false;
+	}
+	var id = $("input[name='_selects']").val();
+	location.href = basePath + "document/view.do?dynamicPageId=" + dynamicPageId + "&id=" + id;	
+}
+
+function deleteRecord(dynamicPageId,actId){
+	var count = $("input[name='_selects']").length;
+	if(count==0){
+		alert("请至少选择一项进行操作");
+		return false;
+	}
+	if(!confirm("是否确认删除?")){
+		return false;
+	}
+	$("#actId").val(actId);	
+	$.ajax({
+	   type: "POST",
+	   url: basePath + "document/excuteOnly.do",
+	   data:$("#groupForm").serialize(),
+	   async : false,
+	   success: function(data){
+			if(data==1){
+				alert("删除成功");			
+				location.href = basePath + "document/view.do?dynamicPageId=" + dynamicPageId;
+			}
+			else{
+				alert(data);
+			}
+	   }
+	});
+}
+
 function addModal(e){
 	title = e.title?e.title:'提示';
 	url = e.url?e.url:'';

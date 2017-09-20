@@ -1,17 +1,25 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %> 
+<div>
+<c:forEach items="${_COMPOENT_TYPE_NAME }" var="cs" varStatus="status">
+			<div class="compoents">
+				<a href="javascript:void(0)" onclick="editComponent('${cs.key}','${vo.id }',null);">${cs.value}</a>
+			</div>
+</c:forEach>
+</div>
 <div class="btn-group mb10">
+		<%--
 	<div class="btn-group">
 		<button type="button" class="btn btn-sm btn-info dropdown-toggle" data-toggle="dropdown">
 			<i class="icon-plus-sign"></i>添加 <span class="caret"></span>
 		</button>
-		<ul class="dropdown-menu" role="menu">
+		 <ul class="dropdown-menu" role="menu">
 			<c:forEach items="${_COMPOENT_TYPE_NAME }" var="cs">
 				<li><a href="javascript:void(0)" onclick="editComponent('${cs.key}','${vo.id }',null);">${cs.value}</a></li>
 			</c:forEach>
 		</ul>
 	</div>
-		
+		 --%>
 	<div class="btn-group">
 		<button type="button" class="btn btn-sm btn-info dropdown-toggle" data-toggle="dropdown">
 			<i class="icon-plus-sign"></i>快捷新增 <span class="caret"></span>

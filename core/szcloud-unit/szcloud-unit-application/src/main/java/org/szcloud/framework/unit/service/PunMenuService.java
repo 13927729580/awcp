@@ -90,7 +90,6 @@ public interface PunMenuService {
 	 */
 	public List<PunMenuVO> getByRoleAndSys(PunRoleInfoVO vo, PunSystemVO svo);
 	
-	
 	/**
 	 * 条件查询,分页显示
 	 * @param baseExample

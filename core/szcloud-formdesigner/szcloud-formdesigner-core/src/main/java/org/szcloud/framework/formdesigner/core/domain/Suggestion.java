@@ -13,9 +13,6 @@ import org.szcloud.framework.core.utils.Springfactory;
 
 public class Suggestion implements Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	private String id;
 	private String dept;

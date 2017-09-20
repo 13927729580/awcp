@@ -25,10 +25,8 @@ public class EntityRepositoryMybatis implements EntityRepository {
 	public <T extends Entity> T save(T entity) {
 		SqlSession session = sqlSessionFactory.openSession();
 		try {
-			int i = 0;
 			if(entity.getId() != null) {
-				i = session.update(entity.getClass().getName() + ".update",
-						entity);				
+				session.update(entity.getClass().getName() + ".update",entity);				
 			} else  {
 				session.insert(entity.getClass().getName() + ".insert", entity);
 			}
@@ -115,7 +113,6 @@ public class EntityRepositoryMybatis implements EntityRepository {
 			session.close();
 		}
 		return t;
-
 	}
 
 	public void flush() {
@@ -135,46 +132,35 @@ public class EntityRepositoryMybatis implements EntityRepository {
 	}
 
 	public boolean existed() throws Exception {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	public boolean notExisted() throws Exception {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
-	public <T extends Entity> List<T> findByProperty(Class<T> clazz,
-			String propertyName, Object propertyValue) {
-		// TODO Auto-generated method stub
+	public <T extends Entity> List<T> findByProperty(Class<T> clazz,String propertyName, Object propertyValue) {
 		return null;
 	}
 
-	public <T extends Entity> List<T> findByProperties(Class<T> clazz,
-			NamedParameters properties) {
-		// TODO Auto-generated method stub
+	public <T extends Entity> List<T> findByProperties(Class<T> clazz,NamedParameters properties) {
 		return null;
 	}
 
-	public <T extends Entity> List<T> selectByExample(Class<T> clazz,
-			BaseExample example) {
+	public <T extends Entity> List<T> selectByExample(Class<T> clazz,BaseExample example) {
 		SqlSession session = sqlSessionFactory.openSession();
 		try {
-			return session.selectList(clazz.getName() + ".selectByExample",
-					example);
+			return session.selectList(clazz.getName() + ".selectByExample",example);
 		} finally {
 			session.close();
 		}
-
 	}
 
 	public String getQueryStringOfNamedQuery(String queryName) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 	
 	public void excuteSql(String sql) {
-		// TODO Auto-generated method stub
 		SqlSession session = sqlSessionFactory.openSession();
 		try {
 			Map<String,Object> map=new HashMap<String, Object>();
@@ -186,46 +172,37 @@ public class EntityRepositoryMybatis implements EntityRepository {
 		}
 	}
 
-
-	public void executeUpdate(String queryString, Map<String, Object> params,
-			Class clazz) {
-		//String className = new Exception().getStackTrace()[1].getClassName();
+	public void executeUpdate(String queryString, Map<String, Object> params,Class<?> clazz) {
 		SqlSession session = sqlSessionFactory.openSession();
 		try {
 			session.update(clazz.getName()+"."+queryString, params);
 			session.commit();
 		} finally {
-//			session.clearCache();
 			session.close();
 		}
 	}
 	
-	public int executeUpdateForInt(String queryString, Map<String, Object> params,
-			Class clazz) {
-		//String className = new Exception().getStackTrace()[1].getClassName();
+	public int executeUpdateForInt(String queryString, Map<String, Object> params,Class<?> clazz) {
 		SqlSession session = sqlSessionFactory.openSession();
 		int i = 0;
 		try {
 			i = session.update(clazz.getName()+"."+queryString, params);
 			session.commit();
 		} finally {
-//			session.clearCache();
 			session.close();
 		}
 		return i;
 	}
 
-
-	public void removeByFK(Class clazz,String queryStr,long fkId) {
-		SqlSession session=sqlSessionFactory.openSession();
-		
+	public void removeByFK(Class<?> clazz,String queryStr,long fkId) {
+		SqlSession session = sqlSessionFactory.openSession();	
 		try {
 			Map<String,Object> map=new HashMap<String, Object>();
 			map.put("fkId", fkId);
 			session.delete(clazz.getName()+"."+queryStr, map);
 			session.commit();
 		} catch (Exception e) {
-			// TODO: handle exception
+			e.printStackTrace();
 		} finally {
 			session.clearCache();
 			session.close();
@@ -233,7 +210,7 @@ public class EntityRepositoryMybatis implements EntityRepository {
 	}
 
 	@Override
-	public void removeByExample(Class clazz, BaseExample example) {
+	public void removeByExample(Class<?> clazz, BaseExample example) {
 		SqlSession session = sqlSessionFactory.openSession();
 		try {
 			session.delete(clazz.getName() + ".removeByExample", example);

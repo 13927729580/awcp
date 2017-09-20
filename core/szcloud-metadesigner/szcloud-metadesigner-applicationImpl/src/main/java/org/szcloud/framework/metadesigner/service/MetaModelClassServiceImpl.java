@@ -14,20 +14,18 @@ import org.szcloud.framework.metadesigner.application.MetaModelClassService;
 import org.szcloud.framework.metadesigner.core.domain.MetaModelClass;
 import org.szcloud.framework.metadesigner.vo.MetaModelClassVO;
 
-
 @Service(value="metaModelClassServiceImpl")
 public class MetaModelClassServiceImpl implements MetaModelClassService{
 
 	@Resource(name="queryChannel")
 	private QueryChannelService queryChannel;
 	
-	
 	/**
 	 * 查询所有
 	 */
 	public List<MetaModelClassVO> findAll(long projectId) {
-		List<MetaModelClass> list=MetaModelClass.findAll();
-		List<MetaModelClassVO> ls=new ArrayList<MetaModelClassVO>();
+		List<MetaModelClass> list = MetaModelClass.findAll();
+		List<MetaModelClassVO> ls = new ArrayList<MetaModelClassVO>();
 		for(MetaModelClass mm:list){
 			ls.add(BeanUtils.getNewInstance(mm, MetaModelClassVO.class));
 		}
@@ -36,9 +34,8 @@ public class MetaModelClassServiceImpl implements MetaModelClassService{
 
 	public void remove(MetaModelClassVO vo) {
 		try {
-			MetaModelClass mm=BeanUtils.getNewInstance(vo, MetaModelClass.class);
+			MetaModelClass mm = BeanUtils.getNewInstance(vo, MetaModelClass.class);
 			MetaModelClass.getRepository().remove(mm);
-			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -46,7 +43,7 @@ public class MetaModelClassServiceImpl implements MetaModelClassService{
 
 	public void update(MetaModelClassVO vo,String queryStr) {
 		try{
-			Map<String,Object> map=new HashMap<String, Object>();
+			Map<String,Object> map = new HashMap<String, Object>();
 			map.put("id", vo.getId());
 			map.put("name", vo.getName());
 			map.put("classCode", vo.getClassCode());
@@ -58,7 +55,7 @@ public class MetaModelClassServiceImpl implements MetaModelClassService{
 
 	public void save(MetaModelClassVO vo) {
 		try {
-			MetaModelClass mmc=BeanUtils.getNewInstance(vo, MetaModelClass.class);
+			MetaModelClass mmc = BeanUtils.getNewInstance(vo, MetaModelClass.class);
 			mmc.save();
 			vo.setId(mmc.getId());
 		} catch (Exception e) {
@@ -68,7 +65,7 @@ public class MetaModelClassServiceImpl implements MetaModelClassService{
 
 	public MetaModelClassVO get(int id) {
 		try {
-			MetaModelClass mmc=new MetaModelClass().get(MetaModelClass.class, id);
+			MetaModelClass mmc = MetaModelClass.get(MetaModelClass.class, id);
 			return BeanUtils.getNewInstance(mmc, MetaModelClassVO.class);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -79,13 +76,12 @@ public class MetaModelClassServiceImpl implements MetaModelClassService{
 	public List<MetaModelClassVO> queryByProjectId(long sysId) {
 		Map<String,Object> map=new HashMap<String, Object>();
 		map.put("sysId", sysId);
-		List<MetaModelClass> ls=this.queryChannel.queryResult(MetaModelClass.class, "queryByProjectId", map);
-		List<MetaModelClassVO> list=new ArrayList<MetaModelClassVO>();
+		List<MetaModelClass> ls = queryChannel.queryResult(MetaModelClass.class, "queryByProjectId", map);
+		List<MetaModelClassVO> list = new ArrayList<MetaModelClassVO>();
 		for(MetaModelClass m:ls){
 			list.add(BeanUtils.getNewInstance(m, MetaModelClassVO.class));
 		}
 		return list;
 	}
-	
 	
 }

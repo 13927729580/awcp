@@ -1,6 +1,5 @@
 package org.szcloud.framework.unit.vo;
 
-
 public class PunManageResourceVO{
 	/**
 	 * 
@@ -53,7 +52,12 @@ public class PunManageResourceVO{
 	public void setWhichEnd(String whichEnd) {
 		this.whichEnd = whichEnd;
 	}
-	
+
+	@Override
+	public String toString() {
+		return "PunManageResourceVO [resourceId=" + resourceId + ", sysId=" + sysId + ", resouType=" + resouType
+				+ ", relateResoId=" + relateResoId + ", whichEnd=" + whichEnd + "]";
+	}
 	
 }
 

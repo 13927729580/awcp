@@ -33,14 +33,18 @@ public class AuthorityFilter implements Filter {
 		if (user != null) {
 			String uri = httpRequest.getRequestURI();
 			if (uri.endsWith("jsp") || uri.endsWith("do")) {
-				if (uri.contains("/dev")) {
+				if (uri.contains("/dev") || uri.contains("/fd") || uri.contains("/dataSys")
+						|| uri.contains("/metaModel") || uri.contains("/dataSourceManage")
+						|| uri.contains("/Designer.jsp")) {
 					@SuppressWarnings("unchecked")
 					List<PunRoleInfoVO> roles = (List<PunRoleInfoVO>) SessionUtils
 							.getObjectFromSession(SessionContants.CURRENT_ROLES);
 					boolean isSuperAdmin = false;
 					for (PunRoleInfoVO role : roles) {
-						if (role.getRoleName().equals("超级后台管理员"))
+						if (role.getRoleName().equals("超级后台管理员")) {
 							isSuperAdmin = true;
+							break;
+						}
 					}
 					if (!isSuperAdmin) {
 						httpRequest.getRequestDispatcher("/errorHandle.jsp").forward(request, response);

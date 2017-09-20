@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,6 +30,10 @@ import org.szcloud.framework.venson.controller.base.ControllerHelper;
 import org.szcloud.framework.venson.controller.base.ReturnResult;
 import org.szcloud.framework.venson.controller.base.StatusCode;
 
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
+
 @Controller
 @RequestMapping("api")
 public class APIController extends BaseController {
@@ -42,38 +47,70 @@ public class APIController extends BaseController {
 	@Resource(name = "metaModelOperateServiceImpl")
 	private MetaModelOperateService meta;
 
+	@Autowired
+	private CacheManager cacheManager;
+
+	private static final String CACHE_NAME = "api";
+
 	@RequestMapping("executeAPI")
 	@ResponseBody
-	public ReturnResult executeAPI(@RequestParam("APIId") String APIId, HttpServletRequest request) throws Exception {
+	public ReturnResult executeAPI(@RequestParam("APIId") String APIId, HttpServletRequest request) {
 		ReturnResult result = ReturnResult.get();
 		PFMAPI api = PFMAPI.get(APIId);
 		// 校验接口
-		if (!validateAPI(result, api)) {
+		if (!validateAPI(result, api, request)) {
 			return result;
 		}
-		result.setStatus(StatusCode.SUCCESS.setMessage(api.getAPIDesc()));
+		// 获取参数值
+		Map<String, Object> params = wrapMap(request.getParameterMap(), "APIId");
+		result.setStatus(StatusCode.SUCCESS);
+		// 是否缓存
+		if (api.isCache()) {
+			// 从缓存中读取值
+			Cache cache = cacheManager.getCache(CACHE_NAME);
+			if (cache != null) {
+				Element obj = cache.get(api.getAPIName() + "_" + params.toString());
+				if (obj != null) {
+					result.setData(obj.getValue());
+					return result;
+				}
+
+			}
+		}
 		// 增加数据
 		if (api.getAPIType() == APIType.ADD.getValue()) {
 			executeAdd(request, result, api);
 		} else if (api.getAPIType() == APIType.UPDATE.getValue()) {
-			executeUpdate(request, api);
+			executeUpdate(request, result, api);
 		} else if (api.getAPIType() == APIType.GET.getValue()) {
-			return executeGet(request, result, api);
+			executeGet(request, result, api);
 		} else if (api.getAPIType() == APIType.DELETE.getValue()) {
 			executeDelete(request, api);
 		} else if (api.getAPIType() == APIType.EXECUTE.getValue()) {
-			return execute(request, result, api);
+			execute(request, result, api, params);
 		} else if (api.getAPIType() == APIType.QUERY.getValue()) {
-			return executeQuery(request, result, api);
+			executeQuery(request, result, api, params);
 		} else if (api.getAPIType() == APIType.PAGE.getValue()) {
-			return executePage(request, result, api);
+			executePage(request, result, api, params);
 		} else if (api.getAPIType() == APIType.EXECUTE_SCRIPT.getValue()) {
-			return executeScript(request, result, api);
+			executeScript(request, result, api);
+		}
+		String resName = request.getParameter("resName");
+		if (StringUtils.isNotBlank(resName)) {
+			result.setRows(result.getData());
+			result.setData(null);
+		}
+		if (api.isCache()) {
+			Cache cache = cacheManager.getCache(CACHE_NAME);
+			if (cache != null) {
+				Element element = new Element(api.getAPIName() + "_" + params.toString(), result.getData());
+				cache.put(element);
+			}
 		}
 		return result;
 	}
 
-	private boolean validateAPI(ReturnResult result, PFMAPI api) {
+	private boolean validateAPI(ReturnResult result, PFMAPI api, HttpServletRequest request) {
 		if (api == null) {
 			result.setStatus(StatusCode.FAIL.setMessage("无效接口！"));
 			return false;
@@ -91,10 +128,44 @@ public class APIController extends BaseController {
 			}
 		}
 		// 判断请求方式
-		String method = ControllerContext.getRequest().getMethod().toLowerCase();
+		String method = request.getMethod().toLowerCase();
 		if (!api.getAPIMethod().equals("both") && !api.getAPIMethod().equals(method)) {
 			result.setStatus(StatusCode.NO_ACCESS.setMessage("非法请求，禁止访问！"));
 			return false;
+		}
+		List<APIRule> rules = api.getRules();
+		// 接口权限认证
+		if (rules != null && !rules.isEmpty()) {
+			for (APIRule rule : rules) {
+				if (!checkRule(result, rule))
+					return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * 权限校验
+	 * 
+	 * @param result
+	 * @param rule
+	 * @return
+	 */
+	private boolean checkRule(ReturnResult result, APIRule rule) {
+		// 0为脚本规则
+		if ("0".equals(rule.getType())) {
+			ScriptEngine engine = getEngine();
+			try {
+				Object ret = (Object) engine.eval(rule.getRules());
+				// 返回值为false则校验不通过
+				if (ret instanceof Boolean && !(Boolean) ret) {
+					result.setStatus(StatusCode.FAIL.setMessage(rule.getMessage()));
+					return false;
+				}
+			} catch (ScriptException e) {
+				result.setStatus(StatusCode.NO_ACCESS.setMessage(e.toString()));
+				return false;
+			}
 		}
 		return true;
 	}
@@ -108,8 +179,7 @@ public class APIController extends BaseController {
 	 * @return
 	 * @throws ScriptException
 	 */
-	private ReturnResult executeScript(HttpServletRequest request, ReturnResult result, PFMAPI api)
-			throws ScriptException {
+	private void executeScript(HttpServletRequest request, ReturnResult result, PFMAPI api) {
 		// 获取参数值
 		String script = api.getAPISQL();
 		ScriptEngine engine = getEngine();
@@ -119,19 +189,17 @@ public class APIController extends BaseController {
 			try {
 				Object ret = engine.eval(script);
 				jdbcTemplate1.commit();
-				return result.setData(ret);
+				result.setData(ret);
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
+				result.setStatus(StatusCode.FAIL.setMessage(e.toString()));
 				logger.info("ERROR", e);
 				try {
 					jdbcTemplate1.rollback();
 				} catch (Exception e1) {
-					// TODO Auto-generated catch block
 					logger.info("ERROR", e1);
 				}
 			}
 		}
-		return result;
 	}
 
 	/**
@@ -143,10 +211,8 @@ public class APIController extends BaseController {
 	 * @return
 	 * @throws ScriptException
 	 */
-	private ReturnResult executePage(HttpServletRequest request, ReturnResult result, PFMAPI api)
-			throws ScriptException {
-		// 获取参数值
-		Map<String, Object> params = wrapMap(request.getParameterMap(), "APIId");
+	private void executePage(HttpServletRequest request, ReturnResult result, PFMAPI api, Map<String, Object> params) {
+
 		String ps = request.getParameter("pageSize");
 		String cp = request.getParameter("currentPage");
 		int pageSize = Integer.parseInt(StringUtils.isNumeric(ps) ? ps : "5");
@@ -155,14 +221,20 @@ public class APIController extends BaseController {
 		ScriptEngine engine = getEngine();
 		String sql = null;
 		if (StringUtils.isNotBlank(script)) {
-			sql = (String) engine.eval(script);
+			try {
+				sql = (String) engine.eval(script);
+			} catch (ScriptException e) {
+				result.setStatus(StatusCode.FAIL.setMessage(e.toString()));
+				logger.info("ERROR", e);
+				return;
+			}
 		}
 		// 执行分页语句
 		List<Map<String, Object>> data = jdbcTemplate
 				.queryForList(sql + " limit " + (currentPage - 1) * pageSize + "," + pageSize, params);
 		// 获取总数
 		Object count = jdbcTemplate.queryForObject("select count(1) from(" + sql + ") temp", params, Object.class);
-		return result.setData(data).setTotal(count);
+		result.setData(data).setTotal(count);
 	}
 
 	/**
@@ -174,19 +246,23 @@ public class APIController extends BaseController {
 	 * @return
 	 * @throws ScriptException
 	 */
-	private ReturnResult execute(HttpServletRequest request, ReturnResult result, PFMAPI api) throws ScriptException {
-		// 获取参数值
-		Map<String, Object> params = wrapMap(request.getParameterMap(), "APIId");
+	private void execute(HttpServletRequest request, ReturnResult result, PFMAPI api, Map<String, Object> params) {
 		String script = api.getAPISQL();
 		ScriptEngine engine = getEngine();
 		engine.put("jdbcTemplate", Springfactory.getBean("jdbcTemplate"));
 		String sql = null;
 		if (StringUtils.isNotBlank(script)) {
-			sql = (String) engine.eval(script);
+			try {
+				sql = (String) engine.eval(script);
+			} catch (ScriptException e) {
+				result.setStatus(StatusCode.FAIL.setMessage(e.toString()));
+				logger.info("ERROR", e);
+				return;
+			}
 		}
 		// 执行语句
 		int data = jdbcTemplate.update(sql, params);
-		return result.setData(data);
+		result.setData(data);
 	}
 
 	private ScriptEngine getEngine() {
@@ -207,19 +283,22 @@ public class APIController extends BaseController {
 	 * @return
 	 * @throws ScriptException
 	 */
-	private ReturnResult executeQuery(HttpServletRequest request, ReturnResult result, PFMAPI api)
-			throws ScriptException {
-		// 获取参数值
-		Map<String, Object> params = wrapMap(request.getParameterMap(), "APIId");
+	private void executeQuery(HttpServletRequest request, ReturnResult result, PFMAPI api, Map<String, Object> params) {
 		String script = api.getAPISQL();
 		ScriptEngine engine = getEngine();
 		String sql = null;
 		if (StringUtils.isNotBlank(script)) {
-			sql = (String) engine.eval(script);
+			try {
+				sql = (String) engine.eval(script);
+			} catch (ScriptException e) {
+				result.setStatus(StatusCode.FAIL.setMessage(e.toString()));
+				logger.info("ERROR", e);
+				return;
+			}
 		}
 		// 执行语句
 		List<Map<String, Object>> data = jdbcTemplate.queryForList(sql, params);
-		return result.setData(data);
+		result.setData(data);
 	}
 
 	/**
@@ -241,12 +320,12 @@ public class APIController extends BaseController {
 	 * @param request
 	 * @param api
 	 */
-	private ReturnResult executeGet(HttpServletRequest request, ReturnResult result, PFMAPI api) {
+	private void executeGet(HttpServletRequest request, ReturnResult result, PFMAPI api) {
 		// 获取主键
 		String id = request.getParameter("id");
 		// 根据获取记录
 		Map<String, Object> data = meta.get(id, api.getAPITable());
-		return result.setData(data);
+		result.setData(data);
 	}
 
 	/**
@@ -255,7 +334,7 @@ public class APIController extends BaseController {
 	 * @param request
 	 * @param api
 	 */
-	private void executeUpdate(HttpServletRequest request, PFMAPI api) throws Exception {
+	private void executeUpdate(HttpServletRequest request, ReturnResult result, PFMAPI api) {
 		List<TableDesc> fields = api.getAPITableFields();
 		Map<String, String> params = new HashMap<>();
 		// 获取参数值
@@ -266,7 +345,12 @@ public class APIController extends BaseController {
 			}
 		}
 		// 更新
-		meta.update(params, api.getAPITable());
+		try {
+			meta.update(params, api.getAPITable());
+		} catch (Exception e) {
+			result.setStatus(StatusCode.FAIL.setMessage(e.toString()));
+			logger.info("ERROR", e);
+		}
 	}
 
 	/**
@@ -275,7 +359,7 @@ public class APIController extends BaseController {
 	 * @param request
 	 * @param api
 	 */
-	private void executeAdd(HttpServletRequest request, ReturnResult result, PFMAPI api) throws Exception {
+	private void executeAdd(HttpServletRequest request, ReturnResult result, PFMAPI api) {
 		List<TableDesc> fields = api.getAPITableFields();
 		Map<String, String> params = new HashMap<>();
 		for (TableDesc field : fields) {
@@ -290,6 +374,11 @@ public class APIController extends BaseController {
 			}
 		}
 		// 保存
-		meta.save(params, api.getAPITable());
+		try {
+			meta.save(params, api.getAPITable());
+		} catch (Exception e) {
+			result.setStatus(StatusCode.FAIL.setMessage(e.toString()));
+			logger.info("ERROR", e);
+		}
 	}
 }

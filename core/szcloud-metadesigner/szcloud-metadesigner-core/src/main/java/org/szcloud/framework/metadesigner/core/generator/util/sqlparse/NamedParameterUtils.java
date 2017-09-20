@@ -1,4 +1,3 @@
-
 package org.szcloud.framework.metadesigner.core.generator.util.sqlparse;
 
 import java.util.HashSet;
@@ -8,8 +7,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-
 
 public abstract class NamedParameterUtils {
 
@@ -194,10 +191,9 @@ public abstract class NamedParameterUtils {
 	public static String substituteNamedParameters(ParsedSql parsedSql) {
 		String originalSql = parsedSql.getOriginalSql();
 		StringBuilder actualSql = new StringBuilder();
-		List paramNames = parsedSql.getParameterNames();
+		List<String> paramNames = parsedSql.getParameterNames();
 		int lastIndex = 0;
 		for (int i = 0; i < paramNames.size(); i++) {
-			String paramName = (String) paramNames.get(i);
 			int[] indexes = parsedSql.getParameterIndexes(i);
 			int startIndex = indexes[0];
 			int endIndex = indexes[1];
@@ -227,8 +223,8 @@ public abstract class NamedParameterUtils {
 	
 	/** by badqiu,FIXME: delete me */
 	static Pattern PATTERN = Pattern.compile(":([\\w_]*):([\\w_]*)");
-	public static Map getNamedParameters(String sql) {
-		Map map = new LinkedHashMap();
+	public static Map<String,String> getNamedParameters(String sql) {
+		Map<String,String> map = new LinkedHashMap<String,String>();
 		Matcher m =  PATTERN.matcher(sql);
 		if(m.find()) {
 			map.put(m.group(1), m.group(2));

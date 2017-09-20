@@ -10,48 +10,63 @@ public class InputValidator  extends MyCustomValidator{
 	private String onErrorMin;
 	private String onErrorMax;
 	private String empty;
+	
 	public String getType() {
 		return type;
 	}
+	
 	public void setType(String type) {
 		this.type = type;
 	}
+	
 	public String getMin() {
 		return min;
 	}
+	
 	public void setMin(String min) {
 		this.min = min;
 	}
+	
 	public String getMax() {
 		return max;
 	}
+	
 	public void setMax(String max) {
 		this.max = max;
 	}
+	
 	public String getOnError() {
 		return onError;
 	}
+	
 	public void setOnError(String onError) {
 		this.onError = onError;
 	}
+	
 	public String getOnErrorMin() {
 		return onErrorMin;
 	}
+	
 	public void setOnErrorMin(String onErrorMin) {
 		this.onErrorMin = onErrorMin;
 	}
+	
 	public String getOnErrorMax() {
 		return onErrorMax;
 	}
+	
 	public void setOnErrorMax(String onErrorMax) {
 		this.onErrorMax = onErrorMax;
 	}
+	
 	public String getEmpty() {
 		return empty;
 	}
+	
 	public void setEmpty(String empty) {
 		this.empty = empty;
 	}
+	
 	@Override
 	public String toClientScriptString() {
 		StringBuilder sb = new StringBuilder();
@@ -81,11 +96,10 @@ public class InputValidator  extends MyCustomValidator{
 		sb.append("})");
 		return sb.toString();
 	}
+	
 	@Override
 	public String toServerScriptString() {
-		// TODO Auto-generated method stub
 		return null;
 	}
-	
-	
+
 }

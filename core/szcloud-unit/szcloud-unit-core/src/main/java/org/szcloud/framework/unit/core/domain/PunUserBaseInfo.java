@@ -10,10 +10,12 @@ import org.szcloud.framework.core.common.exception.MRTException;
 import org.szcloud.framework.core.domain.BaseEntity;
 import org.szcloud.framework.core.domain.BaseExample;
 
+/**
+ * 用户实体类
+ * @author Administrator
+ *
+ */
 public class PunUserBaseInfo extends BaseEntity {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 2471309498373330411L;
 	private Long userId;
 	private String userName;
@@ -43,6 +45,14 @@ public class PunUserBaseInfo extends BaseEntity {
 	private String signatureImg;
 	private String userHeadImg;
 
+	public PunUserBaseInfo() {
+		
+	}
+
+	public PunUserBaseInfo(Long userId) {
+		this.userId = userId;
+	}
+	
 	public String getDeptId() {
 		return deptId;
 	}
@@ -57,13 +67,6 @@ public class PunUserBaseInfo extends BaseEntity {
 
 	public void setDeptName(String deptName) {
 		this.deptName = deptName;
-	}
-
-	public PunUserBaseInfo() {
-	}
-
-	public PunUserBaseInfo(Long userId) {
-		this.userId = userId;
 	}
 
 	public void setUserId(Long value) {
@@ -202,20 +205,6 @@ public class PunUserBaseInfo extends BaseEntity {
 		return this.userOfficeNum;
 	}
 
-	public String toString() {
-		return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE).append("UserId", getUserId())
-				.append("UserName", getUserName()).append("UserPwd", getUserPwd())
-				.append("UserIdCardNumber", getUserIdCardNumber()).append("Name", getName())
-				.append("UserBirthPlace", getUserBirthPlace()).append("UserHouseholdRegist", getUserHouseholdRegist())
-				.append("UserDomicile", getUserDomicile()).append("UserOfficePhone", getUserOfficePhone())
-				.append("UserHousePhone", getUserHousePhone()).append("Mobile", getMobile())
-				.append("UserFax", getUserFax()).append("UserEmail", getUserEmail())
-				.append("EmployeeId", getEmployeeId()).append("UserTitle", getUserTitle())
-				.append("UserDossierNumber", getUserDossierNumber()).append("UserOfficeNum", getUserOfficeNum())
-				.append("GroupId", getGroupId()).append("deptId", getDeptId()).append("deptName", getDeptName())
-				.toString();
-	}
-
 	public String getUserStatus() {
 		return userStatus;
 	}
@@ -223,36 +212,7 @@ public class PunUserBaseInfo extends BaseEntity {
 	public void setUserStatus(String userStatus) {
 		this.userStatus = userStatus;
 	}
-
-	public int hashCode() {
-		return new HashCodeBuilder().append(getUserId()).toHashCode();
-	}
-
-	public boolean equals(Object obj) {
-		if (obj instanceof PunUserBaseInfo == false)
-			return false;
-		if (this == obj)
-			return true;
-		PunUserBaseInfo other = (PunUserBaseInfo) obj;
-		return new EqualsBuilder().append(getUserId(), other.getUserId()).isEquals();
-	}
-
-	public static List<PunUserBaseInfo> findAll() throws MRTException {
-		return PunUserBaseInfo.getRepository().findAll(PunUserBaseInfo.class);
-	}
-
-	public void save() throws MRTException {
-		PunUserBaseInfo.getRepository().save(this);
-	}
-
-	public void delete() throws MRTException {
-		PunUserBaseInfo.getRepository().remove(this);
-	}
-
-	public List<PunUserBaseInfo> findByIdCard(BaseExample example) throws MRTException {
-		return PunUserBaseInfo.getRepository().selectByExample(PunUserBaseInfo.class, example);
-	}
-
+	
 	public Long getId() {
 		return id;
 	}
@@ -307,6 +267,49 @@ public class PunUserBaseInfo extends BaseEntity {
 
 	public void setUserHeadImg(String userHeadImg) {
 		this.userHeadImg = userHeadImg;
+	}
+	
+	public String toString() {
+		return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE).append("UserId", getUserId())
+				.append("UserName", getUserName()).append("UserPwd", getUserPwd())
+				.append("UserIdCardNumber", getUserIdCardNumber()).append("Name", getName())
+				.append("UserBirthPlace", getUserBirthPlace()).append("UserHouseholdRegist", getUserHouseholdRegist())
+				.append("UserDomicile", getUserDomicile()).append("UserOfficePhone", getUserOfficePhone())
+				.append("UserHousePhone", getUserHousePhone()).append("Mobile", getMobile())
+				.append("UserFax", getUserFax()).append("UserEmail", getUserEmail())
+				.append("EmployeeId", getEmployeeId()).append("UserTitle", getUserTitle())
+				.append("UserDossierNumber", getUserDossierNumber()).append("UserOfficeNum", getUserOfficeNum())
+				.append("GroupId", getGroupId()).append("deptId", getDeptId()).append("deptName", getDeptName())
+				.toString();
+	}
+
+	public int hashCode() {
+		return new HashCodeBuilder().append(getUserId()).toHashCode();
+	}
+
+	public boolean equals(Object obj) {
+		if (obj instanceof PunUserBaseInfo == false)
+			return false;
+		if (this == obj)
+			return true;
+		PunUserBaseInfo other = (PunUserBaseInfo) obj;
+		return new EqualsBuilder().append(getUserId(), other.getUserId()).isEquals();
+	}
+
+	public static List<PunUserBaseInfo> findAll() throws MRTException {
+		return PunUserBaseInfo.getRepository().findAll(PunUserBaseInfo.class);
+	}
+
+	public void save() throws MRTException {
+		PunUserBaseInfo.getRepository().save(this);
+	}
+
+	public void delete() throws MRTException {
+		PunUserBaseInfo.getRepository().remove(this);
+	}
+
+	public List<PunUserBaseInfo> findByIdCard(BaseExample example) throws MRTException {
+		return PunUserBaseInfo.getRepository().selectByExample(PunUserBaseInfo.class, example);
 	}
 
 }

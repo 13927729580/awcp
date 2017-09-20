@@ -2,8 +2,11 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:mvc="http://www.springframework.org/schema/mvc"
 	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:aop="http://www.springframework.org/schema/aop"
 	xmlns:context="http://www.springframework.org/schema/context"
 	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+		http://www.springframework.org/schema/aop   
+		http://www.springframework.org/schema/aop/spring-aop-4.0.xsd  
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd" 
 		default-lazy-init="true">
@@ -62,7 +65,10 @@
 		p:defaultEncoding="utf-8" />
 
 
-	<context:component-scan base-package="org.szcloud,org.jflow" />
+	<context:component-scan base-package="org.szcloud,org.jflow" >
+		<!-- 只扫描controller -->
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+	</context:component-scan>
 
 	<mvc:default-servlet-handler />
 
@@ -73,6 +79,6 @@
 				class="com.github.miemiedev.mybatis.paginator.springmvc.PageListAttrHandlerInterceptor" />
 		</mvc:interceptor>
 	</mvc:interceptors>
-
-
+	<!-- 激活自动代理功能 -->
+	<aop:aspectj-autoproxy expose-proxy="true" proxy-target-class="true"/>
 </beans>

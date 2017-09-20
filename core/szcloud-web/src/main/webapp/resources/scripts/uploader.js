@@ -23,15 +23,16 @@
 	var toMb = function(n) {
 		return(n / (1024 * 1024)).toFixed(2)
 	};
-	var uploadType=$("#uploadType").val();
-	var uploadServer=uploadType==2?"uploadToFolder.do":"upload.do";
+	
+	var uploadType = $("#uploadType").val();
+	var uploadServer = uploadType==2?"uploadToFolder.do":"upload.do";
 	var keyOption = {};
-	var initUploader = function(option, uploader) {
+	var initUploader = function(option) {
 		var itemOption = {
 			auto: option.auto, //自动上传           
 			compress: false, // 不压缩image
-			swf: basePath + BASE_URL + '/Uploader.swf', // swf文件路径          
-			server: basePath + 'common/file/'+uploadServer, // 文件接收服务端。          
+			swf: basePath + BASE_URL + '/Uploader.swf', 		// swf文件路径          
+			server: basePath + 'common/file/' + uploadServer, 	// 文件接收服务端。          
 			pick: option.$pick, // 选择文件的按钮。可选。内部根据当前运行是创建，可能是input元素，也可能是flash.           
 			fileNumLimit: option.fileNumLimit - option.fileNum, //验证文件总数量            
 			fileSizeLimit: option.fileSizeLimit - option.fileSize, //验证文件总大小是否超出限制, 超出则不允许加入队列     
@@ -44,7 +45,7 @@
 			}
 		};
 
-		uploader = option.uploader(itemOption);
+		var uploader = option.createUploader(itemOption);	//webuploader生成的对象
 		option.item = uploader;
 
 		uploader.on('beforeFileQueued', function(file) {
@@ -53,17 +54,20 @@
 				return false;
 			}
 		});
-		if(uploadType==2){
-			//上传前增加额外参数
-			uploader.on('uploadBeforeSend', function(object,data,headers) {
-				data.uploadFolder=option.$uploader.attr("id");
-			});
-		}
+		
+		//上传前增加额外参数
+		uploader.on('uploadBeforeSend', function(object,data,headers) {
+			data.uploadFolder=option.$uploader.attr("id");
+			data.isIndex=$("#isIndex").val();
+			data.uploadType=$("#uploadType").val();
+		});
+		
 		// 当有文件添加进来的时候
 		uploader.on('fileQueued', function(file) {
 			if(!option.auto) {
 				option.$list.append('<div id="' + file.id + '" class="item clearfix">' +
-					'<h4 class="info">' + file.name + '-' + toMb(file.size) + 'Mb<span class="cancel"><i class="icon-remove"></i></span></h4>' +
+					'<h4 class="info">' + file.name + '-' + toMb(file.size) + 
+					'Mb<span class="cancel"><i class="icon-remove"></i></span></h4>' +
 					'<p class="state">等待上传...</p>' + '</div>');
 			} else {
 				return true;
@@ -106,35 +110,36 @@
 			$('#' + file.id).find('p.state').css('color', 'green').text('Uploaded');
 			$('#' + file.id).remove();
 			fileAjax("get", { 'id': response.msg }, function(result) {
-				var item = eval("(" + result.msg + ")");
-				if(option.auto) {
-					var _file = item.filename.split(".");
-					var selectOption = option.$uploader.find('select.type');
-					var selectOptionText = selectOption.find("option[value=" + selectOption.val() + "]").text();
-					var fileNames = "";
-					for(var j = 0; j < _file.length - 1; j++) {
-						fileNames += _file[j] + "."
+				if(result.data){
+					var item = eval("(" + result.msg + ")");
+					if(option.auto) {
+						var _file = item.filename.split(".");
+						var selectOption = option.$uploader.find('select.type');
+						var selectOptionText = selectOption.find("option[value=" + selectOption.val() + "]").text();
+						var fileNames = "";
+						for(var j = 0; j < _file.length - 1; j++) {
+							fileNames += _file[j] + "."
+						}
+						fileNames = fileNames.substring(0, fileNames.length - 1)
+						var tHtml = '<tr id="' + item.id + '" class="item"><td class="hidden formData text-center"><input id="boxs" type="hidden" value="' + item.id + '">' +
+							'<td  class="text-center"><a class="download" href="' + basePath + 'common/file/download.do?fileId=' + item.id + '" data-id="' + item.id + '">' + fileNames + '</a></td>' +
+							'<td  class="text-center">' + _file[_file.length - 1] + '</td>';
+						tHtml += option.isEditor ? ('<td data-id="' + selectOption.val() + '">' + selectOptionText + '</td>') : '';
+						tHtml += '<td  class="text-center">' + toMb(item.length) + 'mb</td></tr>';
+						option.$oldlist.find("table tbody").append(tHtml);
+						initTable();
+						setInterval(formatUploadTable, 100);
+					} else {
+						var dHtml = '<div id="' + item.id + '" class="item clearfix">' +
+							'<h4 class="info" data-size="' + item.length + '"><a data-backdrop="static" data-width="1000px" data-height="500px" data-iframe="' + basePath + 'common/file/preview.do?fileId=' + item.id + '" data-id="' + item.id + '" data-toggle="modal" class="download">' + item.filename + "</a>&nbsp;&nbsp;--" + toMb(item.length) + 'Mb<span class="cancel"><i class="icon-remove"></i></span></h4>' +
+							'</div>';
+						option.$oldlist.append(dHtml);
+						initTable();
+						setInterval(formatUploadTable, 100);
 					}
-					fileNames = fileNames.substring(0, fileNames.length - 1)
-					var tHtml = '<tr id="' + item.id + '" class="item"><td class="hidden formData text-center"><input id="boxs" type="hidden" value="' + item.id + '">' +
-						'<td  class="text-center"><a class="download" href="' + basePath + 'common/file/download.do?fileId=' + item.id + '" data-id="' + item.id + '">' + fileNames + '</a></td>' +
-						'<td  class="text-center">' + _file[_file.length - 1] + '</td>';
-					tHtml += option.isEditor ? ('<td data-id="' + selectOption.val() + '">' + selectOptionText + '</td>') : '';
-					tHtml += '<td  class="text-center">' + toMb(item.length) + 'mb</td></tr>';
-
-					option.$oldlist.find("table tbody").append(tHtml);
-					initTable();
-					setInterval(formatUploadTable, 100);
-				} else {
-					var dHtml = '<div id="' + item.id + '" class="item clearfix">' +
-						'<h4 class="info" data-size="' + item.length + '"><a data-backdrop="static" data-width="1000px" data-height="500px" data-iframe="' + basePath + 'common/file/preview.do?fileId=' + item.id + '" data-id="' + item.id + '" data-toggle="modal" class="download">' + item.filename + "</a>&nbsp;&nbsp;--" + toMb(item.length) + 'Mb<span class="cancel"><i class="icon-remove"></i></span></h4>' +
-						'</div>';
-					option.$oldlist.append(dHtml);
-					initTable();
-					setInterval(formatUploadTable, 100);
-				}
-				option.fileNum = option.fileNum + 1;
-				option.fileSize = option.fileSize + item.length;
+					option.fileNum = option.fileNum + 1;
+					option.fileSize = option.fileSize + item.length;
+				}			
 			});
 
 			//增加文件至附件列表
@@ -234,6 +239,7 @@
 			option.fileNum = newFileNum;
 		} else return;
 	};
+	
 	//删除已上传文件;n为文件id
 	var deleteFile = function(id) {
 		if(id){
@@ -247,7 +253,7 @@
 		}
 	};
 
-	var init = function(option, uploader) { //option:uploader参数；uploader:uploader标识符
+	var init = function(option) { //option:uploader参数；uploader:uploader标识符
 		if(option.isReadonly) {
 			option.$uploader.find(".btns div:last-child").remove();
 			option.$uploader.find(".btns div:first-child").remove();
@@ -256,14 +262,15 @@
 			option.$uploader.find(".btns div[id='MoreDownload']").remove();
 		}
 		getList(option);
-		initUploader(option, uploader);
+		initUploader(option);
 		option.$uploader.find(".tips").html("提示: <label class='filenumber'>" + option.fileNum + "</label>/" + option.fileNumLimit + " 已上传, 文件大小 <label class='filesize'>" + toMb(option.fileSize) + "</label>/" + toMb(option.fileSizeLimit) + "Mb。");
 		return option;
 	};
 
 	//document.load;
-	var getOption = function(dom, us, ie, ir, fnl, fsl, fssl, ft) { //dom id ,uploaderStyle,fileNumLimit,fileSizeLimit(MB),fileSingleSizeLimit(MB).extensions
-		this.uploader = function(n) {
+	//dom id ,uploaderStyle,fileNumLimit,fileSizeLimit(MB),fileSingleSizeLimit(MB).extensions
+	var getOption = function(dom, us, ie, ir, fnl, fsl, fssl, ft) { 
+		this.createUploader = function(n) {
 			if(us != "default") $("#" + dom).find(".ctlBtn").remove();
 			return WebUploader.create(n);
 		};
@@ -275,11 +282,11 @@
 		this.auto = (us == "default") ? false : true;
 		this.isEditor = ie;
 		this.isReadonly = ir;
-		this.fileNumLimit = fnl; //最大上传文件数
-		this.fileNum = 0; //已上传文件数
-		this.fileSizeLimit = fsl * 1024 * 1024; //最大上传文件大小20M
-		this.fileSize = 0; //已上传文件总大小
-		this.fileSingleSizeLimit = fssl * 1024 * 1024;
+		this.fileNumLimit = fnl; 						//最大上传文件数
+		this.fileNum = 0; 								//已上传文件数
+		this.fileSizeLimit = fsl * 1024 * 1024; 		//最大上传文件大小
+		this.fileSize = 0; 								//已上传文件总大小
+		this.fileSingleSizeLimit = fssl * 1024 * 1024;	//单个文件上传大小
 		this.fileArray = [];
 		this.extensions = ft; //文件类型
 		this.orgFile = ''; //默认附件ids
@@ -300,11 +307,12 @@
 			var options = $.extend(defaults, options);
 			return this.each(function() {
 				var o = options;
-				var obj = $(this);
-				var id = obj.attr("id");
-				option = new getOption(obj.attr("id"), o.uploaderStyle, o.isEditor, o.isReadonly, o.fileNumLimit, o.fileSizeLimit, o.fileSingleSizeLimit, o.extensions);
+				var $obj = $(this);
+				var id = $obj.attr("id");
+				option = new getOption(id, o.uploaderStyle, o.isEditor, o.isReadonly,
+						o.fileNumLimit, o.fileSizeLimit, o.fileSingleSizeLimit, o.extensions);
 				keyOption[id] = option;
-				init(option, id);
+				init(option);
 			});
 		}
 	});
@@ -339,31 +347,31 @@
 		var _option = $(this).parents(".uploader");
 		var _optionId = _option.attr("id");
 		var _thisOption = keyOption[_optionId];
-		$(event.target).parent().parent().find("table.table-datatable tbody tr").each(function() {
-			if($(this).hasClass("active")) {
-				var _this = this;
-				var _itemId = $(this).children('td').eq(1).children('input').eq(0).val(); //$(this).attr("id");//获取当前文件ID	
-				var reloadUploader = function(option) {
-					var msgIndex = $(this).index(); //option.orgFile.split(";").length;
-					var msgId = (msgIndex == 0) ? (option.orgFile.split(";").length == 1 ? _itemId : (_itemId + ";")) : (";" + _itemId); //截取附件ids
-					option.orgFile = option.orgFile.replace(msgId, "");
-					option.$uploader.find(".orgfile").val(option.orgFile);
-					option.fileSize = 0;
-					option.fileNum = 0;
-					option.$list.html("");
-					if(option.auto)
-						option.$oldlist.find("table tbody").html("");
-					else
-						option.$oldlist.html("");
-				};
-				deleteFile(_itemId);
-				reloadUploader(_thisOption);
-				$(_this).remove();
-			}
-		});
+		var deleteArr = [];
+		$(event.target).parent().parent().find("table.table-datatable tbody tr.active").each(function() {		
+			var _itemId = $(this).children('td').eq(1).children('input').eq(0).val(); //获取当前文件ID			
+			deleteFile(_itemId);
+			deleteArr.push(_itemId);
+		});	
+		if(deleteArr.length == 0){
+			dialogAlert("请至少选择一项进行删除");
+			return false;
+		} else if(_thisOption.orgFile.split(";").length == deleteArr.length){
+			_thisOption.orgFile = "";
+		}
+		else{
+			_thisOption.orgFile = _thisOption.orgFile.replace(";" + deleteArr.join(";"),"").replace(deleteArr.join(";") + ";","");
+		}
+		_thisOption.$uploader.find(".orgfile").val(_thisOption.orgFile);
+		_thisOption.fileSize = 0;
+		_thisOption.fileNum = 0;
+		_thisOption.$list.html("");
+		if(option.auto)
+			_thisOption.$oldlist.find("table tbody").html("");
+		else
+			_thisOption.$oldlist.html("");
 		_thisOption.item.destroy();
 		init(_thisOption, _optionId);
-
-	});
+	});	
 
 })(jQuery)

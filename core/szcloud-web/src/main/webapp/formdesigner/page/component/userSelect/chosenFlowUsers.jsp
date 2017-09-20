@@ -177,19 +177,22 @@
 				})
 			    var userIds = memberIDs.join(",");
 			    var userNames=memberNames.join(",");
-		        parent.frames["main"].document.getElementById("actId").value = "<%=actId%>";
-		        parent.frames["main"].document.getElementById("masterDataSource").value = "<%=master%>";
-		        parent.frames["main"].document.getElementById("toNode").value = "${param.toNode}";
+			    var tab = top.$('#tabs-panel').tabs('getSelected');
+			    var index = top.$('#tabs-panel').tabs('getTabIndex',tab);
+			    $(top.document).find("iframe")[index].contentWindow.document.getElementById("actId").value = "<%=actId%>";
+			    $(top.document).find("iframe")[index].contentWindow.document.getElementById("masterDataSource").value = "<%=master%>";
+			    $(top.document).find("iframe")[index].contentWindow.document.getElementById("toNode").value = "${param.toNode}";
 				
-				parent.frames["main"].document.getElementById("slectsUserIds").value = userIds;
+			    $(top.document).find("iframe")[index].contentWindow.document.getElementById("slectsUserIds").value = userIds;
 				//工作安排表单中需要的人员name
-				
 				try{
-					parent.frames["main"].document.getElementById("slectsUserNames").value =userNames;
+					$(top.document).find("iframe")[index].contentWindow.document.getElementById("slectsUserNames").value =userNames;
+
 				}catch(e){
 				
 				}
-				AJAX(3);
+				 dialog.close("");
+				AJAX(2);
 
 		   });
 		 });

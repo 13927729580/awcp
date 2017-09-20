@@ -1,8 +1,5 @@
 package org.szcloud.framework.metadesigner.util;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.szcloud.framework.core.utils.BeanUtils;
 import org.szcloud.framework.metadesigner.core.domain.MetaModel;
 import org.szcloud.framework.metadesigner.vo.MetaModelVO;
@@ -13,16 +10,16 @@ import org.szcloud.framework.metadesigner.vo.MetaModelVO;
  *
  */
 public class CheckIsExist {
-		public static boolean checkTableIsExist(long id){
-			//查询单个
-			try {
-				MetaModel model =  MetaModel.get(MetaModel.class, id);
-				MetaModelVO vo=BeanUtils.getNewInstance(model, MetaModelVO.class);
-				String sql="select * from "+vo.getTableName();
-				MetaModel.getRepository().excuteSql(sql);//修改
-				return true;
-			} catch (Exception e) {
-				return false;
-			}
+	public static boolean checkTableIsExist(long id){
+		//查询单个
+		try {
+			MetaModel model =  MetaModel.get(MetaModel.class, id);
+			MetaModelVO vo=BeanUtils.getNewInstance(model, MetaModelVO.class);
+			String sql="select * from "+vo.getTableName();
+			MetaModel.getRepository().excuteSql(sql);//修改
+			return true;
+		} catch (Exception e) {
+			return false;
 		}
+	}
 }

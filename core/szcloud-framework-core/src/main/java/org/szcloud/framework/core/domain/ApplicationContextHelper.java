@@ -17,8 +17,7 @@ public class ApplicationContextHelper implements ApplicationContextAware {
      */
     public void setApplicationContext(ApplicationContext applicationContext)
             throws BeansException {
-        ApplicationContextHolder.getInstance().setApplicationContext(
-                applicationContext);
+        ApplicationContextHolder.getInstance().setApplicationContext(applicationContext);
     }
 
     /**
@@ -38,8 +37,7 @@ public class ApplicationContextHelper implements ApplicationContextAware {
      * @return T
      */
     public static <T> T getBean(Class<T> clz) {
-        return ApplicationContextHolder.getInstance().getApplicationContext()
-                .getBean(clz);
+        return ApplicationContextHolder.getInstance().getApplicationContext().getBean(clz);
     }
 
     /**
@@ -49,8 +47,8 @@ public class ApplicationContextHelper implements ApplicationContextAware {
      *            String
      * @return T
      */
-    public static <T> T getBean(String id) {
-        return (T) ApplicationContextHolder.getInstance()
-                .getApplicationContext().getBean(id);
+    @SuppressWarnings("unchecked")
+	public static <T> T getBean(String id) {
+        return (T) ApplicationContextHolder.getInstance().getApplicationContext().getBean(id);
     }
 }

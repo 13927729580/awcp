@@ -5,13 +5,11 @@ import java.util.Map;
 
 import org.szcloud.framework.core.domain.BaseExample;
 import org.szcloud.framework.formdesigner.application.vo.CalendarVO;
-import org.szcloud.framework.formdesigner.application.vo.DynamicPageVO;
-import org.szcloud.framework.formdesigner.application.vo.StoreVO;
 
-import com.alibaba.fastjson.JSONObject;
 import com.github.miemiedev.mybatis.paginator.domain.PageList;
 
 public interface CalendarService {
+	
 	/**
 	 * 
 	 * @Title: save
@@ -31,15 +29,13 @@ public interface CalendarService {
 	 */
 	public boolean delete(CalendarVO vo);
 
-
 	/**
 	 * @Title: logicDeleteLikeCode
 	 * @Description: 按照id查找
 	 * @param code
 	 * @return CalendarVO
 	 * @throws
-	 */
-	
+	 */	
 	public CalendarVO findById(String id);
 	
 	/**
@@ -59,8 +55,7 @@ public interface CalendarService {
 	 * @throws
 	 */
 	public List<CalendarVO> findByIds(String[]ids);
-	
-	
+		
 	/**
 	 * @Title: queryPagedResult 
 	 * @Description: 分页查找 可以按照指定字段排序
@@ -94,10 +89,8 @@ public interface CalendarService {
 	 */
 	boolean delete(String[] ids);
 	
-
 	List<CalendarVO> findByIds(List<String> ids);
 
 	boolean delete(List<String> ids);
-
 
 }

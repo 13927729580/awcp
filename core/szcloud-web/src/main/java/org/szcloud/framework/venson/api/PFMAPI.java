@@ -3,6 +3,7 @@ package org.szcloud.framework.venson.api;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.szcloud.framework.core.domain.SzcloudJdbcTemplate;
 import org.szcloud.framework.core.utils.Springfactory;
@@ -32,6 +33,19 @@ public class PFMAPI {
 	private String APITable;
 	// API描述
 	private String APIDesc;
+
+	// API缓存
+	private String APICache;
+
+	private List<APIRule> rules;
+
+	public List<APIRule> getRules() {
+		return rules;
+	}
+
+	public void setRules(List<APIRule> rules) {
+		this.rules = rules;
+	}
 
 	public int getAPIID() {
 		return APIID;
@@ -105,6 +119,26 @@ public class PFMAPI {
 		APIDesc = aPIDesc;
 	}
 
+	public boolean isCache() {
+		return "1".equals(APICache);
+	}
+
+	public void setAPIState(Integer aPIState) {
+		APIState = aPIState;
+	}
+
+	public void setAPIType(Integer aPIType) {
+		APIType = aPIType;
+	}
+
+	public void setAPIIsLogin(Integer aPIIsLogin) {
+		APIIsLogin = aPIIsLogin;
+	}
+
+	public void setAPICache(String aPICache) {
+		APICache = aPICache;
+	}
+
 	/**
 	 * 根据Id获取API记录
 	 */
@@ -116,13 +150,20 @@ public class PFMAPI {
 		}
 		SzcloudJdbcTemplate jdbcTemplate = Springfactory.getBean("jdbcTemplate");
 		String sql = "select API_ID as APIID,API_Name as APIName,API_SQL as APISQL,API_DESC as APIDesc,"
-				+ "API_State as APIState,API_Type as APIType,API_Table as APITable,API_IS_LOGIN as APIIsLogin,API_Method as APIMethod from p_fm_api where ";
+				+ "API_State as APIState,API_Type as APIType,API_Table as APITable,API_IS_LOGIN as APIIsLogin,"
+				+ "API_Method as APIMethod,API_ISCACHE as APICache from p_fm_api where ";
 		if (StringUtils.isNumeric(id)) {
 			sql += " API_ID=?";
 		} else {
 			sql += " API_Name=?";
 		}
-		return jdbcTemplate.queryForObject(sql, new BeanPropertyRowMapper<PFMAPI>(PFMAPI.class), id);
+		try {
+			PFMAPI result = jdbcTemplate.queryForObject(sql, new BeanPropertyRowMapper<PFMAPI>(PFMAPI.class), id);
+			result.setRules(APIRule.get(result.getAPIID(), jdbcTemplate));
+			return result;
+		} catch (DataAccessException e) {
+			return null;
+		}
 	}
 
 	/**

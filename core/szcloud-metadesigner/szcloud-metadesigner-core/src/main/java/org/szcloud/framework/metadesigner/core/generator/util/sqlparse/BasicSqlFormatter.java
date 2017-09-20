@@ -5,17 +5,16 @@ import java.util.LinkedList;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-
 public class BasicSqlFormatter {
 
 	public static final String WHITESPACE = " \n\r\f\t";
 	
-	private static final Set BEGIN_CLAUSES = new HashSet();
-	private static final Set END_CLAUSES = new HashSet();
-	private static final Set LOGICAL = new HashSet();
-	private static final Set QUANTIFIERS = new HashSet();
-	private static final Set DML = new HashSet();
-	private static final Set MISC = new HashSet();
+	private static final Set<String> BEGIN_CLAUSES = new HashSet<String>();
+	private static final Set<String> END_CLAUSES = new HashSet<String>();
+	private static final Set<String> LOGICAL = new HashSet<String>();
+	private static final Set<String> QUANTIFIERS = new HashSet<String>();
+	private static final Set<String> DML = new HashSet<String>();
+	private static final Set<String> MISC = new HashSet<String>();
 
 	static {
 		BEGIN_CLAUSES.add( "left" );
@@ -66,14 +65,14 @@ public class BasicSqlFormatter {
 		boolean beginLine = true;
 		boolean afterBeginBeforeEnd = false;
 		boolean afterByOrSetOrFromOrSelect = false;
-		boolean afterValues = false;
+		private boolean afterValues = false;
 		boolean afterOn = false;
 		boolean afterBetween = false;
 		boolean afterInsert = false;
 		int inFunction = 0;
 		int parensSinceSelect = 0;
-		private LinkedList parenCounts = new LinkedList();
-		private LinkedList afterByOrFromOrSelects = new LinkedList();
+		private LinkedList<Integer> parenCounts = new LinkedList<Integer>();
+		private LinkedList<Boolean> afterByOrFromOrSelects = new LinkedList<Boolean>();
 
 		int indent = 1;
 
@@ -298,7 +297,7 @@ public class BasicSqlFormatter {
 			out();
 			indent++;
 			newline();
-			afterValues = true;
+			setAfterValues(true);
 		}
 
 		private void closeParen() {
@@ -362,6 +361,15 @@ public class BasicSqlFormatter {
 				result.append( indentString );
 			}
 			beginLine = true;
+		}
+
+		@SuppressWarnings("unused")
+		public boolean isAfterValues() {
+			return afterValues;
+		}
+
+		public void setAfterValues(boolean afterValues) {
+			this.afterValues = afterValues;
 		}
 	}
 

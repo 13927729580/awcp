@@ -1,13 +1,10 @@
 package org.szcloud.framework.metadesigner.core.generator.provider.db.table;
 
-
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -63,7 +60,7 @@ public class TableFactory {
 		return DataSourceProvider.getConnection();
 	}
 
-	public List getAllTables() {
+	public List<Table> getAllTables() {
 		try {
 			Connection conn = getConnection();
 			return getAllTables(conn);
@@ -125,8 +122,6 @@ public class TableFactory {
 	private Table createTable(Connection conn, ResultSet rs) throws SQLException {
 		String realTableName = null;
 		try {
-			ResultSetMetaData rsMetaData = rs.getMetaData();
-			String schemaName = rs.getString("TABLE_SCHEM") == null ? "" : rs.getString("TABLE_SCHEM");
 			realTableName = rs.getString("TABLE_NAME");
 			String tableType = rs.getString("TABLE_TYPE");
 			String remarks = rs.getString("REMARKS");
@@ -153,10 +148,10 @@ public class TableFactory {
 		}
 	}
 	
-	private List getAllTables(Connection conn) throws SQLException {
+	private List<Table> getAllTables(Connection conn) throws SQLException {
 		DatabaseMetaData dbMetaData = conn.getMetaData();
 		ResultSet rs = dbMetaData.getTables(getCatalog(), getSchema(), null, null);
-		List tables = new ArrayList();
+		List<Table> tables = new ArrayList<Table>();
 		while(rs.next()) {
 			tables.add(createTable(conn, rs));
 		}
@@ -231,6 +226,7 @@ public class TableFactory {
 		return getConnection().getMetaData();
 	}
 	
+	@SuppressWarnings({ "deprecation", "unchecked", "rawtypes" })
 	private void retriveTableColumns(Table table) throws SQLException {
 	      GLogger.trace("-------setColumns(" + table.getSqlName() + ")");
 
@@ -295,6 +291,7 @@ public class TableFactory {
 	      }
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private List getTableColumns(Table table, List primaryKeys, List indices, Map uniqueIndices, Map uniqueColumns) throws SQLException {
 		// get the columns
 	      List columns = new LinkedList();
@@ -358,6 +355,7 @@ public class TableFactory {
 		return columnRs;
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private List<String> getTablePrimaryKeys(Table table) throws SQLException {
 		// get the primary keys
 	      List primaryKeys = new LinkedList();
@@ -390,6 +388,7 @@ public class TableFactory {
 	/** 得到表的自定义配置信息 */
 	public static class TableOverrideValuesProvider {
 		
+		@SuppressWarnings("rawtypes")
 		private static Map getTableOverrideValues(String tableSqlName){
 			NodeData nd = getTableConfigXmlNodeData(tableSqlName);
 			if(nd == null) {
@@ -398,6 +397,7 @@ public class TableFactory {
 			return nd == null ? new HashMap() : nd.attributes;
 		}
 	
+		@SuppressWarnings("rawtypes")
 		private static Map getColumnOverrideValues(Table table, Column column) {
 			NodeData root = getTableConfigXmlNodeData(table.getSqlName());
 			if(root != null){

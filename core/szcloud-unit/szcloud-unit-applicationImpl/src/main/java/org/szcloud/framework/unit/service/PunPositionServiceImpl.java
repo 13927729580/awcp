@@ -1,6 +1,4 @@
-
 package org.szcloud.framework.unit.service;
-
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,11 +15,7 @@ import org.szcloud.framework.core.common.exception.MRTException;
 import org.szcloud.framework.core.domain.BaseExample;
 import org.szcloud.framework.core.domain.QueryChannelService;
 import org.szcloud.framework.core.utils.BeanUtils;
-import org.szcloud.framework.unit.core.domain.PunMenu;
 import org.szcloud.framework.unit.core.domain.PunPosition;
-import org.szcloud.framework.unit.core.domain.PunRoleInfo;
-import org.szcloud.framework.unit.core.domain.PunUserBaseInfo;
-import org.szcloud.framework.unit.vo.PunMenuVO;
 import org.szcloud.framework.unit.vo.PunPositionVO;
 
 import com.github.miemiedev.mybatis.paginator.domain.PageList;
@@ -101,9 +95,11 @@ public class PunPositionServiceImpl implements PunPositionService{
 	}
 	
 	//参数：1.类名  2.mapper文件中对应的id  固定位queryList  3.根据条件来分页查询   4.当前页   5.取的记录他条数  6. 根据字段排序("name.asc")列子
-	public PageList selectPagedByExample(String queryStr, Map<String, Object> params, int currentPage, int pageSize,String sortString) {
-		PageList resultVO = new PageList();
-		PageList result = queryChannel.queryPagedResult(PunPosition.class,queryStr,params, currentPage, pageSize, sortString);
+	public PageList<PunPositionVO> selectPagedByExample(String queryStr, Map<String, Object> params, 
+			int currentPage, int pageSize,String sortString) {
+		PageList<PunPositionVO> resultVO = new PageList<PunPositionVO>();
+		PageList<PunPosition> result = queryChannel.queryPagedResult(PunPosition.class,queryStr,params, 
+				currentPage, pageSize, sortString);
 		for (Object dd : result) {
 			resultVO.add(BeanUtils.getNewInstance(dd, PunPositionVO.class));			
 		}
@@ -114,8 +110,7 @@ public class PunPositionServiceImpl implements PunPositionService{
 	public List<PunPositionVO> selectByExample(BaseExample example) throws MRTException{
 		List<PunPosition> result = PunPosition.selectByExample(PunPosition.class, example);
 		List<PunPositionVO> resultVo = new ArrayList<PunPositionVO>();
-		for(PunPosition mm : result)
-		{
+		for(PunPosition mm : result){
 			resultVo.add(BeanUtils.getNewInstance(mm, PunPositionVO.class));
 		}
 		result.clear();
@@ -136,13 +131,11 @@ public class PunPositionServiceImpl implements PunPositionService{
 	public List<PunPositionVO> queryResult(String queryStr,Map<String, Object> params) {
 		List<PunPosition> result = queryChannel.queryResult(PunPosition.class, queryStr, params);
 		List<PunPositionVO> resultVo = new ArrayList<PunPositionVO>();
-		for(PunPosition mm : result)
-		{
+		for(PunPosition mm : result){
 			resultVo.add(BeanUtils.getNewInstance(mm, PunPositionVO.class));
 		}
 		result.clear();
 		return resultVo;
 	}
-	
 	
 }

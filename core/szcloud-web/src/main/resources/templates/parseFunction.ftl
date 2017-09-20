@@ -58,7 +58,9 @@
 
 		<#local coms = components[rootId]/>
 			<#list coms?sort_by("order") as c>
-				<@parseComponent c />
+				<#if c['componentType']!='1013'&&c['componentType']!='1036' >
+					<@parseComponent c />
+				</#if>
 			</#list>
 		</#if>
 	</#if>
@@ -194,6 +196,18 @@
 		<#case 1038>
 			<@convertGridTable c/>
 			<#break>
+		<#case 1039>
+			<@convertEasyUiBaseGrid c/>
+			<#break>
+		<#case 1040>
+			<@convertEasyUiRowEditingGrid c/>
+			<#break>
+		<#case 1041>
+			<@convertEasyUiNestGrid c/>
+			<#break>
+		<#case 1042>
+			<@convertEasyUiGridComponent c/>
+			<#break>
 		<#default>
 	</#switch>
 </#macro>
@@ -280,93 +294,545 @@
 <#-------------------------------------------签名解析END------------------------------------->
 
 
+
 <#-------------------------------------------tab---------------------------------------->
 <#macro converttab c >
-    <div class="wrap">
-        <div class="tabs" lang="${c['tab_name']}">
+	<div class="wrap">
+        <div id="easyui-tabs${c['name']}" class="tabs" lang="${c['tab_name']}">
         </div>
        <div class="swiper-container" lang='<#noparse><#if others??> ${others['</#noparse>${c['name']}<#noparse>']!''}</#if></#noparse>'>
-            <div class="swiper-wrapper">
+            <div class="swiper-wrapper" style="height:100%">
             </div>
         </div>
     </div>
 </#macro>
-<#macro convertGridTableScript c >	<#------ tab脚本 ----->
-    new tabs();
-    setTimeout(function(){
-    		var width = $(".swiper-slide").length * 896;
-			$(".swiper-wrapper").attr("style","").css("width",width + "px")
-			$(".swiper-slide").attr("style","").css("width","896px")
-		},500)
+<#macro converttabScript c >	<#------ tab脚本 ----->
+
+ 	new tabs("#easyui-tabs${c['name']}");
+ 	
 </#macro>
-<#-------------------------------------------gridTable---------------------------------------->
-<#macro convertGridTable c >
-    <div id="gridTable">
-       <input type='hidden' name='dataSource' id='dataSource' value='${c['dataSource']}'>
-       <input type='hidden' name='thHead' id='thHead' value='${c['thHead']}'>
-       <input type='hidden' name='field' id='field' value='${c['field']}'>
-       <div id="pager2"></div>
-	   <table id="jqgrid"></table>
+
+    
+<#-------------------------------------------老版tab---------------------------------------->
+<#-----
+	<div class="wrap">
+        <div class="tabs" lang="${c['tab_name']}">
+        </div>
+       <div class="swiper-container" lang='<#noparse><#if others??> ${others['</#noparse>${c['name']}<#noparse>']!''}</#if></#noparse>'>
+            <div class="swiper-wrapper" style="height:100%">
+            </div>
+        </div>
     </div>
+--->
+<#-----
+	  	new tabs();
+    	setTimeout(function(){
+    		var w = $(".tabs").width();
+    		console.log(w);
+    		var width = $(".swiper-slide").length * w;
+    		
+			$(".swiper-wrapper").attr("style","").css("width",width + "px")
+			console.log($(".swiper-wrapper"))
+			$(".swiper-slide").attr("style","").css("width",w + "px")
+			console.log()
+			
+		},500)
+--->
+
+ 
+
+
+
+
+<#-------------------------------------------EasyUiBaseGrid---------------------------------------->
+<#macro convertEasyUiBaseGrid c >	<#------ EasyUiBaseGrid脚本 ----->
+    <table id="dg${c['name']!""}" class="${c['gridType']!''}" data-options="url:'<#noparse>${basePath}</#noparse>${c['dataSource']}',method:'post',${c['tableConf']}">
+		<thead>
+			<tr>
+				<#if c['gridConf']?exists>  
+	            	<#list c['gridConf']?split("@") as thName>
+	            			<#assign thArr=(thName?split("|"))>
+            				<th data-options="${thArr[0]}">${thArr[1]}</th>
+	            	</#list>  
+			   	</#if>  
+			</tr>
+		</thead>
+	</table>
+	
 </#macro>
-<#macro converttabScript c >	<#------ gridTable脚本 ----->
-   (function(){
-   		console.log($("#dataSource").val(),$("#thHead").val());
-   		var jqgridID = 'jqgrid'; //表格ID
-			var URL = { //进入展示数据地址 和 编辑提交地址
-				getDataURL: basePath+"api/executeAPI.do?APIId="+$("#dataSource").val(),
-				editURL: 'basePath'
+<#-------------------------------------------EasyUiRowEditingGrid---------------------------------------->
+<#macro convertEasyUiRowEditingGrid c >	<#------ EasyUiRowEditingGrid脚本 ----->
+
+<table id="dg${c['name']!""}" class="easyui-datagrid" data-options="
+				iconCls: 'icon-edit',
+				singleSelect: true,
+				${c['tableConf']!""}
+				toolbar: '#tb',
+				url: '<#noparse>${basePath}</#noparse>${c['dataSource']}',
+				method: 'post',
+				onClickCell: onClickCell,
+				onEndEdit: onEndEdit
+			">
+			<thead>
+				<tr>
+					<#list c['gridConf']?split("@") as thName>
+	            			<#assign thArr=(thName?split("|"))>  
+            				<th data-options="${thArr[0]}">${thArr[1]}</th>
+	            	</#list>  
+				</tr>
+			</thead>
+		</table>
+
+		<div id="tb" style="height:auto">
+			<a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-add',plain:true" onclick="append()">增加</a>
+			<a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-remove',plain:true" onclick="removeit()">移除</a>
+			<a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-save',plain:true" onclick="accept()">接受更改</a>
+			<a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-undo',plain:true" onclick="reject()">还原</a>
+			<a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-search',plain:true" onclick="getChanges()">获取变动记录</a>
+		</div>
+		
+
+		
+		<script type="text/javascript">
+				var dg = 'dg${c['name']!""}'
+				
+				var editIndex = undefined;
+
+				function endEditing() {
+					if(editIndex == undefined) {
+						return true
+					}
+					if($('#'+dg).datagrid('validateRow', editIndex)) {
+						$('#'+dg).datagrid('endEdit', editIndex);
+						editIndex = undefined;
+						return true;
+					} else {
+						return false;
+					}
+				}
+
+				function onClickCell(index, field) {
+					if(editIndex != index) {
+						if(endEditing()) {
+							$('#'+dg).datagrid('selectRow', index)
+								.datagrid('beginEdit', index);
+							var ed = $('#'+dg).datagrid('getEditor', {
+								index: index,
+								field: field
+							});
+							if(ed) {
+								($(ed.target).data('textbox') ? $(ed.target).textbox('textbox') : $(ed.target)).focus();
+							}
+							editIndex = index;
+						} else {
+							setTimeout(function() {
+								$('#'+dg).datagrid('selectRow', editIndex);
+							}, 0);
+						}
+					}
+				}
+
+				function onEndEdit(index, row) {
+					var ed = $(this).datagrid('getEditor', {
+						index: index,
+						field: 'productid'
+					});
+				
+					//row.productname = $(ed.target).combobox('getText');
+				
+				}
+
+
+				function append() {
+					if(endEditing()) {
+						$('#'+dg).datagrid('appendRow', {
+							status: 'P'
+						});
+						editIndex = $('#'+dg).datagrid('getRows').length - 1;
+						$('#'+dg).datagrid('selectRow', editIndex)
+							.datagrid('beginEdit', editIndex);
+					}
+				}
+
+				function removeit() {
+					if(editIndex == undefined) {
+						return
+					}
+					$('#'+dg).datagrid('cancelEdit', editIndex)
+						.datagrid('deleteRow', editIndex);
+					editIndex = undefined;
+				}
+
+				function accept() {
+					if(editIndex == undefined) {
+						return true
+					}
+					if($('#'+dg).datagrid('validateRow', editIndex)) {
+						$('#'+dg).datagrid('endEdit', editIndex);
+						editIndex = undefined;
+						return true;
+					} else {
+						return false;
+					}
+					onClickCell(index, field);
+					
+//					if(endEditing()) {
+//						$('#'+dg).datagrid('acceptChanges');
+//					}
+				}
+
+				function reject() {
+					$('#'+dg).datagrid('rejectChanges');
+					editIndex = undefined;
+				}
+
+				function getChanges() {
+					var rows = $('#'+dg).datagrid('getChanges');
+					//alert(rows.length + ' rows are changed!');
+				}
+		
+		</script>
+	
+</#macro>
+
+<#-------------------------------------------nestGrid---------------------------------------->
+<#macro convertEasyUiNestGrid c >	<#------ nestGrid脚本 ----->
+    <table id="dg${c['name']!""}" class="easyui-datagrid" style="height:${c['gridHeight']!""};"></table>
+<script>
+	var dg = 'dg${c['name']!""}';
+	window.onload=function(){				
+		$('#'+dg).datagrid({
+	        view: detailview,
+	        url:"<#noparse>${basePath}<#if others??> ${others['</#noparse>${c['name']}<#noparse>']!''}</#if></#noparse>",
+			${c['gridCellConf']}
+			columns:[[ ${c['gridConf']} ]],
+			detailFormatter:function(index,row){
+	          	return '<div style="padding:2px"><table class="ddv"></table></div>';
+	        },
+	        onExpandRow: function(index,row){
+	          	var ddv = $(this).datagrid('getRowDetail',index).find('table.ddv');
+	          	ddv.datagrid({
+		            url:'<#noparse>${basePath}</#noparse>${c['sonDataSource']},
+		            height:'auto',
+		        	${c['sonGridCellConf']}
+		            columns:[[ ${c['sonGridConf']} ]],
+		            onResize:function(){
+		              	$('#'+dg).datagrid('fixDetailRowHeight',index);
+		            },
+		            onLoadSuccess:function(){
+			            setTimeout(function(){
+			                $('#'+dg).datagrid('fixDetailRowHeight',index);
+		              	},0);
+		        	}
+	      		});
+	      		$('#'+dg).datagrid('fixDetailRowHeight',index);
+	        }
+		});
+	}
+</script>
+</#macro>
+
+
+<#-------------------------------------------easyUI表格組件---------------------------------------->
+<#macro convertEasyUiGridComponent c >
+	<table id="dg${c['name']!""}" style=
+		"
+	<#if (c['panelWidth']?? || c['panelWidth']=="" ) || c['tableType'] == "combogrid" || c['tableType'] == "combotree">
+		width:100%;
+	<#else>
+		width:${c['panelWidth']!""}px;
+	</#if>
+		
+	<#if c['panelHeight']?? && c['panelHeight']!= "">
+		height:${c['panelHeight']!""}px;
+	</#if>
+		"
+	></table>
+<#--右键菜单dom-->
+<#if c['tableType'] == 'treegrid' &&  c['contextMenu']??>
+	<div id="mm${c['name']!""}" class="easyui-menu" style="width:120px;">
+		<div onclick="append${c['name']!""}()" data-options="iconCls:'icon-add'">Add New Directory</div>
+		<div onclick="edit${c['name']!""}()" data-options="iconCls:'icon-edit'">Edit Directory</div>
+		<div onclick="removeIt${c['name']!""}()" data-options="iconCls:'icon-remove'">Delete Directory</div>
+		<div class="menu-sep"></div>
+		<div onclick="collapse${c['name']!""}()">Move Up</div>
+		<div onclick="expand${c['name']!""}()">Move Down</div>
+	</div>
+</#if>
+
+	
+	
+</#macro>
+<#macro convertEasyuiScript c >            <#------------------脚本----------------->
+	<#--普通表格和树表格计算高度-->
+	<#if (!c['panelHeight']?? || c['panelHeight']=="") && (c['tableType'] == "datagrid" || c['tableType'] == "treegrid")>
+		
+		var btnHeight =  $(".search_main_warp").height();
+		$("#dg${c['name']!""}").css("height",$(window).height()-btnHeight- 25 +"px")
+	</#if>
+	
+	var Index${c['name']!""} = undefined;
+	var cellChangeData${c['name']!""};
+	var _this = this;
+	<#--下拉选择数据    在编辑中  会重复触发请求 -->
+	<#if c['setEdit']??>
+		<#list c['cellConf']?split(",") as index>
+			<#assign celleditType = "celleditType${index}">
+			<#assign editSelecturl = "editSelecturl${index}">
+			<#if c[celleditType]?? && c[celleditType] == 'combobox'>
+				var combobox${c['name']!""};
+				$.ajax({
+					type:'post',
+					async:false,
+					url:'<#noparse>${basePath}</#noparse>${c[editSelecturl]!""}',
+					success:function(res){
+						if($.isArray(res)){
+							combobox${c['name']!""} = res;
+						}else if($.isArray(res.rows)){
+							combobox${c['name']!""} = res.rows;
+						}else if($.isArray(res.data)){
+							combobox${c['name']!""} = res.data;
+						}
+					}
+				})
+			</#if>
+		</#list>
+	</#if>
+	
+	
+	$("#dg${c['name']!""}").${c['tableType']!""}({
+		url:'<#noparse>${basePath}<#if others??>${others['</#noparse>${c['name']}<#noparse>']!''}</#if></#noparse>'
+		
+		,singleSelect:${c['tablesingleSelect']!"false"}
+		
+		,columns: [[
+			<#list c['cellConf']?split(",") as index>
+				<#assign cellfield = "cellfield${index}">
+				<#assign celltxt = "celltxt${index}">
+				<#assign cellwidth = "cellwidth${index}">
+				<#assign cellalign = "cellalign${index}">
+				{field:'${c[cellfield]!""}',title:'${c[celltxt]!""}',width:${c[cellwidth]!"80"},align:'${c[cellalign]!""}',
+					<#if c['setEdit']??>
+						<#assign celleditType = "celleditType${index}">
+						
+						<#if c[celleditType]?? && c[celleditType] == 'combobox'>
+							<#assign editSelectfield = "editSelectfield${index}">
+							<#assign editSelecttext = "editSelecttext${index}">
+							<#assign onchangeScript = "onchangeScript${index}">
+							
+							formatter:function(value,row){
+							    <#if c[editSelecttext] != ''>
+									return row.${c[editSelecttext]!""};
+								</#if>
+							},
+							editor:{
+								type:'${c[celleditType]!""}',
+								options:{
+									onSelect:function(value){cellChangeData${c['name']!""} = value;},
+									onChange:function(newValue,oldValue,rowData){var rowData =cellChangeData${c['name']!""}; ${c[onchangeScript]!""}},
+									valueField:'${c[editSelectfield]!""}',
+									textField:'${c[editSelecttext]!""}',
+									data:combobox${c['name']!""},
+									required:true
+								}
+							}
+						<#elseif c[celleditType]?? && c[celleditType] == 'checkbox'>
+							formatter:function(value,row){
+								var on = '<input type=checkbox checked=checked/>';
+								var off = '<input type=checkbox />';
+								if(row.${c[cellfield]} == 1){
+									return on;
+								}else{
+									return off;
+								}
+							},editor:{type:'checkbox',options:{on:'1',off:'0'}}
+						<#else>
+							editor:'${c[celleditType]!""}'
+						</#if>
+					</#if>	
+				},
+        	</#list>
+		]]
+			
+		<#if c['panelWidth']?? && c['tableType'] == "combogrid" || c['tableType'] == "combotree">
+			,panelWidth:'${c['panelWidth']!""}'
+		</#if>
+		
+		<#if c['tableType'] == "combotree">
+			,required: true
+		</#if>
+		
+		
+		<#if c['idField']??>
+			,idField:'${c['idField']!""}'
+		</#if>
+		
+		<#if c['tableType'] == 'treegrid' || c['tableType'] == 'combotreegrid'>
+			,treeField:'${c['textField']!""}'
+		<#else>
+			,textField:'${c['textField']!""}'
+		</#if>
+		
+		<#if c['fitColumns']??>
+			,fitColumns:${c['fitColumns']!""}
+		</#if>
+			
+		<#if c['tableHasPager']??>
+			,pagination:${c['tableHasPager']!""}
+		</#if>
+		
+		<#if  c['contextMenu']??>
+			,onContextMenu: onContextMenu${c['name']!""}
+		</#if>
+		
+		<#if  c['tableType']?? && c['tableType'] == "combogrid">
+			<#--下拉--->
+			,onChange:function(newValue, oldValue){
+				${c['combogridChangeScript']!""}
 			}
-			var listName = $("#thHead").val().split("@"); //列名
-			var tdName = $("#field").val().split("@"); //字段名
-			var colModel = [] //jqGrid每一列的配置信息。包括名字，索引，宽度,对齐方式,editable是否可以编辑.....
-			var len = tdName.length;
-			for(var i=0;i<len;i++) {
-				var td = tdName[i].split(",");
-				colModel.push(
-					{'name':td[0],editable:td[1]=='true'?true:false,edittype:td[2],sortable:false}
-				)
+		</#if>
+		
+		<#if c['tableType']?? && c['tableType'] =="datagrid" >
+			<#--事件-->
+			,onClickRow:function(rowIndex, rowData){
+				${c['datagridClickScript']!""}
 			}
-			console.log(colModel)
-			//树
-			//	var listName = ['name', 'invdate']; //列名
-			//	var colModel = [ //jqGrid每一列的配置信息。包括名字，索引，宽度,对齐方式,editable是否可以编辑.....
-			//		{ name: 'name', index: 'id', editable: true, key: true },
-			//		{ name: 'invdate', index: 'invdate', editable: true },
-			//	]
-			var multiselect = false; //多选
-			var jsonReader = { //后台返回数据格式 
-				root: "data",
-				page: "page",
-				total: "total",
-				records: "records",
-				repeatitems: true,
-				id: "id",
-				userdata: "userdata",
-				subgrid: {
-					root: "rows",
-					repeatitems: true,
-					cell: "cell"
+		</#if>
+		
+		<#if c['tableType']?? && c['tableType'] =="treegrid" >
+			<#--事件-->
+			,onClickRow:function(rowData){
+				${c['treegridClickScript']!""}
+			}
+		</#if>
+		
+		<#--编辑-->
+		<#if c['setEdit']??>
+			,onClickCell : function(index, field) {
+					if(Index${c['name']!""} != index){
+						if(endEditing${c['name']!""}()){
+							$("#dg${c['name']!""}").${c['tableType']!""}('selectRow', index)
+								.${c['tableType']!""}('beginEdit', index);
+							var ed = $("#dg${c['name']!""}").${c['tableType']!""}('getEditor', {
+								index: index,
+								field: field
+							});
+							if(ed) {
+								($(ed.target).data('textbox') ? $(ed.target).textbox('textbox') : $(ed.target)).focus();
+							}
+							Index${c['name']!""} = index;
+						<#--自动新增空白列-->	
+						<#if c['tableType']?? && c['setRowsAdd']?? && c['tableType'] == "datagrid">
+							var rows = $('#dg${c['name']!""}').datagrid('getRows');
+							var len = rows.length-1;
+							if(!isNull(rows[len])){
+								$('#dg${c['name']!""}').datagrid('appendRow', {});
+							}
+							if(isNull(rows[len]) && index == len ){
+								$('#dg${c['name']!""}').datagrid('appendRow', {});
+							}
+						</#if>
+							
+						} else {
+							setTimeout(function() {
+								$("#dg${c['name']!""}").${c['tableType']!""}('selectRow', Index${c['name']!""});
+							}, 0);
+						}
+					}
+				}
+				/*----------------------------编辑下拉选择类型------------------------------*/
+				<#list c['cellConf']?split(",") as index>
+					<#assign cellfield = "cellfield${index}">
+					<#assign celleditType = "celleditType${index}">
+					<#if c[celleditType]?? && c[celleditType] == 'combobox'>
+						<#assign editSelectfield = "editSelectfield${index}">
+						<#assign editSelecttext = "editSelecttext${index}">
+						,onEndEdit:function(index,row){
+						  <#if c[cellfield]!= '' && c[editSelecttext] != ''>
+							var ed = $(this).datagrid('getEditor', {
+								index: index,
+								field: '${c[cellfield]!""}'
+							});
+							row.${c[editSelecttext]!""} = $(ed.target).combobox('getText');
+						  </#if>
+						}
+					</#if>
+				</#list>
+			
+		</#if>
+		/*------------------------数据加载完----------------------------------*/
+			,onLoadSuccess:function(){
+			<#if c['setEdit']??>
+				<#if c['tableType']?? && c['tableType'] == "datagrid">
+					var rows = $('#dg${c['name']!""}').datagrid('getRows');
+					if(rows.length == 0){
+						$('#dg${c['name']!""}').datagrid('appendRow', {});
+					}
+				</#if>
+			</#if>
+			<#if  c['LoadSuccessScript']??>
+				${c['LoadSuccessScript']!""}
+			</#if>
+			}
+				
+	})
+	
+		
+		<#if c['setEdit']??>
+			//编辑js
+			function endEditing${c['name']!""}(){
+				if(Index${c['name']!""} == undefined) {
+					return true
+				}
+				if($('#dg${c['name']!""}').${c['tableType']!""}('validateRow', Index${c['name']!""})) {
+					$("#dg${c['name']!""}").${c['tableType']!""}('endEdit', Index${c['name']!""});
+					Index${c['name']!""} = undefined;
+					return  true;
+				} else {
+					return  false;
 				}
 			}
-			var subGrid = { //子树
-				subGrid: false, //是否有子数据
-				subGridUrl: 'data/JSONData.json', //子数据地址
-				subGridModel: [{
-					name: ['No', 'Item', 'Qty', 'Unit', 'Line Total'],
-					width: [55, 200, 80, 80, 80],
-					params: ['invdate']
-				}]
+		</#if>
+		<#if c['contextMenu']??>
+			//右键菜单
+			function onContextMenu${c['name']!""}(e,row){
+				if (row){
+					e.preventDefault();
+					$(this).treegrid('select', row.id);
+					$("#mm${c['name']}").menu('show',{
+						left: e.pageX,
+						top: e.pageY
+					});				
+				}
 			}
-			jqGridFN = pageInit(jqgridID, URL, listName, colModel, multiselect, jsonReader, subGrid); //构造页面和返回操作方法
-			
-			//事件
-   })()
+		</#if>
+		<#if c['contextMenu']?? && c['tableType'] == "treegrid">
+			function append${c['name']!""}(){
+				var node = $('#dg${c['name']!""}').treegrid('getSelected');
+				
+			}
+			function edit${c['name']!""}(){
+				var node = $('#dg${c['name']!""}').treegrid('getSelected');
+			}
+			function removeIt${c['name']!""}(){
+				var node = $('#dg${c['name']!""}').treegrid('getSelected');
+			}
+			function collapse${c['name']!""}(){
+				var node = $('#dg${c['name']!""}').treegrid('getSelected');
+			}
+			function expand${c['name']!""}(){
+				var node = $('#dg${c['name']!""}').treegrid('getSelected');
+			}
+		</#if>
 </#macro>
+<#-------------------------------------------easyUI表格組件end---------------------------------------->
+
+
+
+
 
 <#-------------------------------------------搜索条件begin---------------------------------------->
 <#macro convertAddSearch c >
-	<div class="search_main_warp row" >
 		<div class="search_main">
 			<input type="hidden" value="${c['selectOption']}" id="selectOption">
 			<input type="hidden" value="${c['selectLabel']}" id="selectLabel">
@@ -374,9 +840,10 @@
 			<input type="hidden" value="${c['textLabel']}" id="textLabel">
 			<input type="hidden" value="${c['textName']}" id="textName">
 		</div>
-		<input type="submit" value="搜索" class="btn btn-primary">  
-		<input type="reset" value="清空" class="btn btn-primary">
-	</div>
+		<!--
+			<input type="submit" value="搜索" class="btn btn-primary">  
+			<input type="reset" value="清空" class="btn btn-primary">
+		-->
 </#macro>
 <#macro convertAddSearchScript c >	<#------ 搜索条件脚本 ----->
 	new addSearch();
@@ -782,7 +1249,7 @@
 	<#if c['css']?? && c['css']?length gt 0>
 		${c['css']}
 	<#else>
-		form-control ${c['dateType']!'form-date'}
+		form-control form-date
 	</#if>
 	<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['hidden'])?? && status['</#noparse>${c['name']}<#noparse>']['hidden'] == 'true'>hidden</#if></#noparse>'
 	<#if c['name']?? >
@@ -795,26 +1262,7 @@
 
 	</#if>
 
-	<#if c['dataItemCode']?? && c['dataItemCode']?length gt 0>
-		<#noparse><#if (</#noparse> ${c['dataItemCode']} <#noparse>)?? &&(</#noparse> ${c['dataItemCode']} <#noparse>) ?length gt 0></#noparse>
-			<#local dateType = 'yyyy-MM-dd' />
-			<#if c['dateType']?? && c['dateType']=='form-date-long-medium'>
-				<#local dateType = 'yyyy-MM-dd HH:mm' />
-			<#elseif c['dateType']?? && c['dateType']=='form-time-medium'>
-				<#local dateType = 'yyyy-MM-dd HH:mm' />
-			<#elseif c['dateType']?? && c['dateType']=='form-date-long-long'>
-				<#local dateType = 'yyyy-MM-dd HH:mm:ss' />
-			<#elseif c['dateType']?? && c['dateType']=='form-year'>
-				<#local dateType = 'yyyy' />
-			<#elseif c['dateType']?? && c['dateType']=='form-year-month'>
-				<#local dateType = 'yyyy-MM' />
-			</#if>
-			value="<#noparse>${(</#noparse>${c['dataItemCode']}<#noparse>)?datetime("</#noparse>${dateType}<#noparse>")?string("</#noparse>${dateType}<#noparse>")}</#noparse>"
-		<#noparse><#else> </#noparse>
-			value=""
-		<#noparse></#if> </#noparse>
-
-	</#if>
+	value="<#noparse>${(</#noparse>${c['dataItemCode']}<#noparse>)!''}</#noparse>"
 
 	id='${(c['pageId'])!""}'
 	<#if c['description']?? >
@@ -844,6 +1292,52 @@
 			${component['onchangeScript']}
 			});
 	</#if>
+</#macro>
+<#macro convertDatetimeScript component >
+	(function(){
+		var dateType="${component['dateType']}";
+		var id='#${(component['pageId'])!""}';
+		var minView,startView;
+		if(dateType.length>10){
+			$(id).datetimepicker({
+					language : 'zh-CN',
+					weekStart : 1,
+					todayBtn : 1,
+					autoclose : 1,
+					todayHighlight : 1,
+					startView : 2,
+					forceParse : 0,
+					showMeridian : 1,
+					format : dateType
+			});
+		}else if(dateType.length<10){
+				$(id).datetimepicker({
+						language : 'zh-CN',
+						weekStart : 1,
+						todayBtn : 1,
+						autoclose : 1,
+						todayHighlight : 1,
+						startView : 1,
+						minView : 0,
+						maxView : 1,
+						forceParse : 0,
+						format : 'hh:ii'
+				});
+		}else{
+			$(id).datetimepicker({
+					language : 'zh-CN',
+					weekStart : 1,
+					todayBtn : 1,
+					autoclose : 1,
+					todayHighlight : 1,
+					startView : 2,
+					minView : 2,
+					forceParse : 0,
+					format : 'yyyy-mm-dd'
+			});
+		}
+		
+	})();
 </#macro>
 
 <#-------------------------------------------角色选择框option赋值 begin------------------------------------------>
@@ -1050,9 +1544,15 @@
 
 
 <#macro convertLabel c >
-	<label  class="control-label 
-		<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['hidden'])?? && status['</#noparse>${c['name']}<#noparse>']['hidden'] == 'true'>hidden</#if></#noparse> 
-		<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['isRequired'])?? && status['</#noparse>${c['name']}<#noparse>']['isRequired'] == '1'>required</#if></#noparse> "
+	<label  class="control-label <#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['hidden'])?? && status['</#noparse>${c['name']}<#noparse>']['hidden'] == 'true'>hidden</#if></#noparse> 	
+		<#if c['isRequired']?? && c['isRequired'] == '1'>
+			required
+		<#elseif c['isRequired']?? && c['isRequired'] == '3'>	
+			centerLabel
+		<#else>
+			rightLabel
+		</#if>
+	 "
 		<#if c['style']?? >
 			style='${c['style']}'
 
@@ -1128,7 +1628,7 @@
 			            allowFileManager : true,
 			            allowUpload : true,
 			            uploadJson : basePath+'common/file/uploadImg.do',
-			            height:"500px",
+			            height:"300px",
 			            //readonlyMode:true,
 			            bodyClass : 'article-content',
 			            afterBlur: function(){this.sync();$(this.container[0]).removeClass('focus');
@@ -1185,6 +1685,7 @@
 
 <#macro convertImage c >
 	<div class="uploadPreview">
+			<input type="hidden" id="uploadImgType" value="${c['uploadType']!''}"/>
 			<input type="hidden" class="photo" name="${c['name']!""}" value="<#noparse>${(</#noparse>${c['dataItemCode']}<#noparse>)!''}</#noparse>"/>
 	      	<div class="photo-con"><img id="${c['pageId']}_Img"
 	      	<#noparse><#if </#noparse>(${c['dataItemCode']}) <#noparse>?? &&</#noparse>(${c['dataItemCode']})<#noparse>?length gt 0></#noparse>
@@ -1476,58 +1977,49 @@
 <#-------------------------------------------文件上传框组件begin---------------------------------------->
 <#macro convertFile c >
 	<input type="hidden" id="uploadType" value="${c['uploadType']!''}"/>
+	<input type="hidden" id="isIndex" value="${c['isIndex']!''}"/>
 	<#if c['showType']?? && c['showType']=='2' >
 		<div id='${(c['pageId'])!""}' class="uploader" >
-						<input type="hidden" class="orgfile" name="${c['name']}" value="<#noparse>${(</#noparse>${c['dataItemCode']}<#noparse>)!''}</#noparse>" />
-					    <div class="btns mb10">
-					        <div class="picker"><i class="icon-upload-alt"></i> 上传附件</div>
-					        <div class="btn btn-primary" style="background:rgb(0, 183, 238); border-radius: 3px; border: medium none; padding: 6px 12px;margin-right:12px;float:left;" id="MoreDownload"><i class="icon-download-alt"></i> 下载附件</div>
-					        <div class="btn btn-primary" style="background:rgb(0, 183, 238); border-radius: 3px; border: medium none; padding: 6px 12px;float:left;" id="FileRemove"><i class="icon-trash"></i> 删除附件</div>
-					    </div>
-					    <div class="table table-bordered uploader-list oldlist">
-					    	<table class="table datatable table-bordered table-hover" id="uploadListTable">
-								<thead>
-									<tr>
-										<th class="hidden"></th>
-										<!--<th width="60px" class="text-center">序号</th>-->
-										<th>文件名称</th>
-										<th>文件类型</th>
-										<th>文件大小</th>
-										<!--<th width="150px" class="text-center">操作</th>---->
-
-									</tr>
-								</thead>
-								<tbody></tbody>
-								<tfoot><tr><td colspan="5" class="tips"></td></tr></tfoot>
-							</table>
-					    </div>
-					</div>
-
+			<input type="hidden" class="orgfile" name="${c['name']}" value="<#noparse>${(</#noparse>${c['dataItemCode']}<#noparse>)!''}</#noparse>" />
+		    <div class="btns mb10">
+		        <div class="picker"><i class="icon-upload-alt"></i> 上传附件</div>
+		        <div class="btn btn-primary" style="background:rgb(0, 183, 238); border-radius: 3px; border: medium none; padding: 6px 12px;margin-right:12px;float:left;" id="MoreDownload"><i class="icon-download-alt"></i> 下载附件</div>
+		        <div class="btn btn-primary" style="background:rgb(0, 183, 238); border-radius: 3px; border: medium none; padding: 6px 12px;float:left;" id="FileRemove"><i class="icon-trash"></i> 删除附件</div>
+		    </div>
+		    <div class="table table-bordered uploader-list oldlist">
+		    	<table class="table datatable table-bordered table-hover" id="uploadListTable">
+					<thead>
+						<tr>
+							<th class="hidden"></th>
+							<th>文件名称</th>
+							<th>文件类型</th>
+							<th>文件大小</th>
+						</tr>
+					</thead>
+					<tbody></tbody>
+					<tfoot>
+						<tr><td colspan="5" class="tips"></td></tr>
+					</tfoot>
+				</table>
+			</div>
+		</div>
 	<#else>
     	<div style="position: relative;">
 			<input type="text" value="<#noparse><#if (</#noparse>${c['dataItemCode']}<#noparse>)?? && (</#noparse>${c['dataItemCode']}<#noparse>)?length gt 32></#noparse>-<#noparse></#if></#noparse>" 
 			 readonly="readonly" style="width: 310px;">
-            <input 
-            
+            <input         
             <#noparse><#if (</#noparse>${c['dataItemCode']}<#noparse>)?? && (</#noparse>${c['dataItemCode']}<#noparse>)?length gt 32></#noparse>disabled="disabled"<#noparse></#if></#noparse> 
-
-            type="button" value="选择文件">
-            
-            
+            type="button" value="选择文件">                     
             <input name="file" style="left: 320px;  opacity: 0; position: absolute; top: 11px; width: 70px;" class="file" onchange="upload(this)" type="file"
             <#noparse><#if (</#noparse>${c['dataItemCode']}<#noparse>)?? && (</#noparse>${c['dataItemCode']}<#noparse>)?length gt 32></#noparse>disabled="disabled"<#noparse></#if></#noparse> 
-            >
-             
-			<input id='${(c['pageId'])!""}' name="${c['name']}" lang="${c['dataItemCode']}" class="fileName" value="<#noparse>${(</#noparse>${c['dataItemCode']}<#noparse>)!''}</#noparse>" type="hidden">
-			
+            >            
+			<input id='${(c['pageId'])!""}' name="${c['name']}" lang="${c['dataItemCode']}" class="fileName" value="<#noparse>${(</#noparse>${c['dataItemCode']}<#noparse>)!''}</#noparse>" type="hidden">			
 			<#if c['description']?? && c['description']?length gt 0>
 				<input class="add"
 				<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['disabled'])?? && status['</#noparse>${c['name']}<#noparse>']['disabled'] == 'true'>disabled="disabled"</#if></#noparse>
-				<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['readonly'])?? && status['</#noparse>${c['name']}<#noparse>']['readonly'] == 'true'>readonly="readonly"</#if></#noparse>
-				
+				<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['readonly'])?? && status['</#noparse>${c['name']}<#noparse>']['readonly'] == 'true'>readonly="readonly"</#if></#noparse>				
 				 type="button" value='${(c['description'])!""}'>
-			</#if>
-			
+			</#if>		
     	</div>
 	</#if>
 </#macro>
@@ -1683,17 +2175,8 @@ $("#${c.getPageId()}").click(function(){
 
 	<#local componetType=component['componentType']?number>
 	<#switch componetType>
-		<#case 1012>
-			<@convertContainPageScript component/>
-			<#break>
-		<#case 1013>
-			<@convertContainPageScript component/>
-			<#break>
-		<#case 1017>
-			<@convertdataGridScript component/>
-			<#break>
-		<#case 1024>
-			<@convertAppendixScript component/>
+		<#case 1002>
+			<@convertDatetimeScript component/>
 			<#break>
 		<#case 1003>
 			<@convertChangeScript component/>
@@ -1721,6 +2204,27 @@ $("#${c.getPageId()}").click(function(){
 
 
 			</#if>
+			<#break>
+		<#case 1011>
+			<@convertFileScript component/>
+			<#break>
+		<#case 1012>
+			<@convertContainPageScript component/>
+			<#break>
+		<#case 1013>
+			<@convertContainPageScript component/>
+			<#break>
+		<#case 1016>
+			<@convertImageScript component/>
+			<#break>
+		<#case 1017>
+			<@convertdataGridScript component/>
+			<#break>
+		<#case 1019>
+			<@convertKindEditorScript component/>
+			<#break>
+		<#case 1024>
+			<@convertAppendixScript component/>
 			<#break>
 		<#case 1025>
 			<@tabsActiveScript component/>
@@ -1751,6 +2255,12 @@ $("#${c.getPageId()}").click(function(){
 			<#break>
 		<#case 1005>
 			<@convertTextareaScript component/>
+			<#break>
+		<#case 1033>
+			<@convertMultilevelLinkageScript component/>
+			<#break>
+		<#case 1034>
+			<@converttabScript component/>
 			<#break>
 		<#default>
 

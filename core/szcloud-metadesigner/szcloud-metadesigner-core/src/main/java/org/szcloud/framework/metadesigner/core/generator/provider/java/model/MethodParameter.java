@@ -17,13 +17,11 @@ import org.szcloud.framework.metadesigner.core.generator.util.paranamer.DefaultP
 import org.szcloud.framework.metadesigner.core.generator.util.paranamer.JavaSourceParanamer;
 import org.szcloud.framework.metadesigner.core.generator.util.paranamer.Paranamer;
 
-
-
 public class MethodParameter {
-	int paramIndex = -1; // paramIndex,从1开始
-	String paramName; //paramName名称
-	JavaClass paramClass; //parameter的类型
-	JavaMethod method; //与parameter相关联的method
+	private int paramIndex = -1; // paramIndex,从1开始
+	private String paramName; //paramName名称
+	private JavaClass paramClass; //parameter的类型
+	private JavaMethod method; //与parameter相关联的method
 	
 	public MethodParameter(int paramIndex, JavaMethod method,JavaClass paramClazz) {
 		super();
@@ -59,7 +57,7 @@ public class MethodParameter {
 	}
 	
 	private String[] lookupParameterNamesByParanamer() {
-		return paranamer.lookupParameterNames(method.method,false);
+		return paranamer.lookupParameterNames(method.getMethod(),false);
 	}
 
 	public int getParamIndex() {
@@ -164,7 +162,7 @@ public class MethodParameter {
         public String[] parseJavaFileForParamNames(Method method,String content) {
             Pattern methodPattern = Pattern.compile("(?s)"+method.getName()+"\\s*\\("+getParamsPattern(method)+"\\)\\s*\\{");
     	    Matcher m = methodPattern.matcher(content);
-    	    List paramNames = new ArrayList();
+    	    List<String> paramNames = new ArrayList<String>();
     	    while(m.find()) {
     	        for(int i = 1; i <= method.getParameterTypes().length; i++) {
                     paramNames.add(m.group(i));
@@ -175,15 +173,14 @@ public class MethodParameter {
         }
     
         private String getParamsPattern(Method method) {
-            List paramPatterns = new ArrayList();
+            List<Object> paramPatterns = new ArrayList<Object>();
     	    for(int i = 0; i < method.getParameterTypes().length; i++ ) {
-    	        Class type = method.getParameterTypes()[i];
+    	        Class<?> type = method.getParameterTypes()[i];
     	        String paramPattern = ".*"+type.getSimpleName()+".*\\s+(\\w+).*";
     	        paramPatterns.add(paramPattern);
     	    }
     	    return StringHelper.join(paramPatterns, ",");
-        }
-        
+        }     
 	}
     
 	public String toString() {

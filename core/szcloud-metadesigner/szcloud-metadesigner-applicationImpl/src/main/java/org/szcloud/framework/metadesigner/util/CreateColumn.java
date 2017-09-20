@@ -17,8 +17,10 @@ public class CreateColumn {
 	 * 日志对象
 	 */
 	private static final Logger logger = LoggerFactory.getLogger(CreateColumn.class);
+	
 	@Autowired
 	private ModelRelationService modelRelationServiceImpl;
+	
 	@Autowired
 	private MetaModelItemService metaModelItemsServiceImpl;
 

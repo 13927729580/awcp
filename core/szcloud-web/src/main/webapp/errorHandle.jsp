@@ -29,12 +29,10 @@
 	<div class="errorPage">
 		<h1 class="alert alert-info">
 			<span><i class="icon-warning-sign"></i></span>
-			<span class="status_message">操作超时或未登录系统，无权访问。请点击下方按钮登录</span>
+			<span class="status_message">登录超时或无权访问。请点击下方按钮登录</span>
 		</h1>
 		<div class="buttons">
-			<%-- <a class="btn btn-primary" href="javascript:;" data-url="<%=basePath%>manageAdmin">管理方登录</a> --%>
 			<a class="btn btn-primary" href="javascript:;" data-url="<%=basePath%>login.html">重新登录</a>
-			<%-- <a class="btn btn-primary" href="javascript:;" data-url="<%=basePath%>devAdmin">开发方登录</a> --%>
 			<!-- <a class="btn" href="javascript:history.go(-1)">返回上一页</a> -->
 		</div>
 	</div>

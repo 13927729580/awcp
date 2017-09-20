@@ -30,7 +30,6 @@ public class ProjectManage {
 
 	public void setProjectCode(String projectCode) {
 		this.projectCode = projectCode;
-	}
-	
+	}	
 	
 }

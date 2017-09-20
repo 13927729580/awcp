@@ -100,7 +100,7 @@ public class CommonUserController {
 		for (String s : userId) {
 
 			PunGroupVO vo = groupService.findById(Long.parseLong(s));
-			List<PunGroupVO> list = DocumentUtils.listGroupByUser(Long.parseLong(s));
+			List<PunGroupVO> list = DocumentUtils.getIntance().listGroupByUser(Long.parseLong(s));
 
 			if (list != null) {
 				PunGroupVO pun = list.get(0);
@@ -147,7 +147,7 @@ public class CommonUserController {
 
 		List<PunUserBaseInfoVO> list = new ArrayList<PunUserBaseInfoVO>();
 		for (Map<String, Object> map : mapResult) {
-			PunUserBaseInfoVO pbi = DocumentUtils.getUserById((Long) map.get("user"));
+			PunUserBaseInfoVO pbi = DocumentUtils.getIntance().getUserById((Long) map.get("user"));
 			list.add(pbi);
 		}
 		return list;
@@ -168,7 +168,7 @@ public class CommonUserController {
 		List<Map<String, Object>> mapResult = jdbcTemplate.queryForList(sql);
 		List<PunUserBaseInfoVO> list = new ArrayList<PunUserBaseInfoVO>();
 		for (Map<String, Object> map : mapResult) {
-			PunUserBaseInfoVO pbi = DocumentUtils.getUserById((Long) map.get("USER_ID"));
+			PunUserBaseInfoVO pbi = DocumentUtils.getIntance().getUserById((Long) map.get("USER_ID"));
 			list.add(pbi);
 		}
 		return list;
@@ -190,7 +190,7 @@ public class CommonUserController {
 		List<Map<String, Object>> mapResult = jdbcTemplate.queryForList(sql);
 		List<PunUserBaseInfoVO> list = new ArrayList<PunUserBaseInfoVO>();
 		for (Map<String, Object> map : mapResult) {
-			PunUserBaseInfoVO pbi = DocumentUtils.getUserById((Long) map.get("USER_ID"));
+			PunUserBaseInfoVO pbi = DocumentUtils.getIntance().getUserById((Long) map.get("USER_ID"));
 			list.add(pbi);
 		}
 		return list;
@@ -329,11 +329,10 @@ public class CommonUserController {
 		 * Set<String > key=map.keySet();
 		 * 
 		 * for (String s : key) {
-		 * if(!"id".equals(s)&&!"".equals(map.get(s))&&map.get(s)!=null){
-		 * DynamicPageVO
-		 * vo=formdesignerServiceImpl.findById(Long.parseLong(map.get(s).
-		 * toString())); res.put(s,map.get(s)+"("+vo.getName()+")"); }else
-		 * if("id".equals(s)){ res.put("id",map.get(s)); } }
+		 * if(!"id".equals(s)&&!"".equals(map.get(s))&&map.get(s)!=null){ DynamicPageVO
+		 * vo=formdesignerServiceImpl.findById(Long.parseLong(map.get(s). toString()));
+		 * res.put(s,map.get(s)+"("+vo.getName()+")"); }else if("id".equals(s)){
+		 * res.put("id",map.get(s)); } }
 		 */
 
 		return map;

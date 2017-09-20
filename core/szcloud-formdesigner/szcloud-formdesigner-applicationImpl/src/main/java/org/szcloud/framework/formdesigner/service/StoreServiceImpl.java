@@ -40,6 +40,7 @@ import com.github.miemiedev.mybatis.paginator.domain.PageList;
  */
 @Service(value = "storeServiceImpl")
 public class StoreServiceImpl implements StoreService {
+	
 	@Autowired
 	@Qualifier("queryChannel")
 	private QueryChannelService queryChannel;
@@ -126,8 +127,6 @@ public class StoreServiceImpl implements StoreService {
 			PunSystemVO system = (PunSystemVO) obj;
 			params.put("systemId", system.getSysId());
 		}
-
-		@SuppressWarnings("unchecked")
 		PageList<Store> result = queryChannel.queryPagedResult(Store.class, "eqQueryList", params, currentPage,
 				pageSize, sortString);
 		List<StoreVO> tmp = new ArrayList<StoreVO>();
@@ -171,7 +170,6 @@ public class StoreServiceImpl implements StoreService {
 			}
 
 		}
-		@SuppressWarnings("unchecked")
 		PageList<Store> result = queryChannel.selectPagedByExample(Store.class, baseExample, currentPage, pageSize,
 				sortString);
 		PageList<StoreVO> resultVO = new PageList<StoreVO>(result.getPaginator());
@@ -192,7 +190,6 @@ public class StoreServiceImpl implements StoreService {
 			params.put("systemId", system.getSysId());
 
 		}
-		@SuppressWarnings("unchecked")
 		PageList<Store> result = queryChannel.queryPagedResult(Store.class, "eqQueryList", params, 1, Integer.MAX_VALUE,
 				"code.desc");
 		if (result.size() > 0)
@@ -396,7 +393,6 @@ public class StoreServiceImpl implements StoreService {
 				Criteria c = baseExample.createCriteria().andEqualTo("id", id);
 				baseExample.or(c);
 			}
-			@SuppressWarnings("unchecked")
 			PageList<Store> result = queryChannel.selectPagedByExample(Store.class, baseExample, 1, Integer.MAX_VALUE,
 					null);
 			for (Store s : result) {

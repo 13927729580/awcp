@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.szcloud.framework.core.domain.BaseExample;
-import org.szcloud.framework.core.domain.QueryChannelService;
 import org.szcloud.framework.core.utils.BeanUtils;
 import org.szcloud.framework.unit.core.domain.PunSystemDict;
 import org.szcloud.framework.unit.vo.PunSystemDictVO;
@@ -20,9 +19,7 @@ import com.github.miemiedev.mybatis.paginator.domain.PageList;
 @Transactional
 @Service
 public class PunSystemDictServiceImpl implements PunSystemDictService {
-	
-	@Autowired
-	private QueryChannelService queryChannel;
+
 	@Autowired
 	private SqlSessionFactory sqlSessionFactory;
 
@@ -56,11 +53,9 @@ public class PunSystemDictServiceImpl implements PunSystemDictService {
 	public List<PunSystemDictVO> findLikeCode(String code) {
 		BaseExample example = new BaseExample();
 		example.or(example.createCriteria().andLike("code", code));
-		List<PunSystemDict> result =  PunSystemDict.selectByExample(PunSystemDict.class, example);
-		
+		List<PunSystemDict> result =  PunSystemDict.selectByExample(PunSystemDict.class, example);	
 		List<PunSystemDictVO> resultVo = new ArrayList<PunSystemDictVO>();
-		for(PunSystemDict mm : result)
-		{
+		for(PunSystemDict mm : result){
 			resultVo.add(BeanUtils.getNewInstance(mm, PunSystemDictVO.class));
 		}
 		result.clear();
@@ -69,11 +64,9 @@ public class PunSystemDictServiceImpl implements PunSystemDictService {
 
 	@Override
 	public List<PunSystemDictVO> findAll() {
-		List<PunSystemDict> result =  PunSystemDict.findAll(PunSystemDict.class);
-		
+		List<PunSystemDict> result =  PunSystemDict.findAll(PunSystemDict.class);	
 		List<PunSystemDictVO> resultVo = new ArrayList<PunSystemDictVO>();
-		for(PunSystemDict mm : result)
-		{
+		for(PunSystemDict mm : result){
 			resultVo.add(BeanUtils.getNewInstance(mm, PunSystemDictVO.class));
 		}
 		result.clear();
@@ -82,14 +75,12 @@ public class PunSystemDictServiceImpl implements PunSystemDictService {
 
 	@Override
 	public String delete(Long id) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public List<PunSystemDictVO> queryResult(String queryStr,
 			Map<String, Object> params) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -97,7 +88,6 @@ public class PunSystemDictServiceImpl implements PunSystemDictService {
 	public PageList<PunSystemDictVO> queryPagedResult(String queryStr,
 			Map<String, Object> params, int currentPage, int pageSize,
 			String sortString) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

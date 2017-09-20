@@ -109,7 +109,6 @@ public class FormdesignerServiceImpl implements FormdesignerService {
 			PunSystemVO system = (PunSystemVO) obj;
 			example.createCriteria().andEqualTo("SYSTEM_ID", system.getSysId());
 		}
-		@SuppressWarnings("unchecked")
 		PageList<DynamicPage> list = queryChannel.selectPagedByExample(DynamicPage.class, example, 1, Integer.MAX_VALUE,
 				null);
 		PageList<DynamicPageVO> resultVo = new PageList<DynamicPageVO>(list.getPaginator());
@@ -119,7 +118,6 @@ public class FormdesignerServiceImpl implements FormdesignerService {
 		return resultVo;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public PageList<DynamicPageVO> queryPagedResult(String queryStr, Map<String, Object> params, int currentPage,
 			int pageSize, String sortString) {
@@ -128,7 +126,6 @@ public class FormdesignerServiceImpl implements FormdesignerService {
 			PunSystemVO system = (PunSystemVO) obj;
 			params.put("systemId", system.getSysId());
 		}
-
 		PageList<DynamicPage> groups = queryChannel.queryPagedResult(DynamicPage.class, queryStr, params, currentPage,
 				pageSize, sortString);
 		List<DynamicPageVO> tmp = new ArrayList<DynamicPageVO>();
@@ -140,7 +137,6 @@ public class FormdesignerServiceImpl implements FormdesignerService {
 		return vos;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public PageList<DynamicPageVO> selectPagedByExample(BaseExample example, int currentPage, int pageSize,
 			String sortString) {
@@ -153,7 +149,6 @@ public class FormdesignerServiceImpl implements FormdesignerService {
 				example.createCriteria().andEqualTo("SYSTEM_ID", system.getSysId());
 			}
 		}
-
 		PageList<DynamicPage> list = queryChannel.selectPagedByExample(DynamicPage.class, example, currentPage,
 				pageSize, sortString);
 		PageList<DynamicPageVO> vos = new PageList<DynamicPageVO>(list.getPaginator());
@@ -165,7 +160,6 @@ public class FormdesignerServiceImpl implements FormdesignerService {
 	}
 
 	public void delete(List<Long> ids) throws MRTException {
-
 		for (Long id : ids) {
 			DynamicPage dp = DynamicPage.get(DynamicPage.class, id);
 			dp.remove();
@@ -174,9 +168,6 @@ public class FormdesignerServiceImpl implements FormdesignerService {
 
 	@Override
 	public List<DynamicPageVO> queryResult(String queryStr, Map<String, Object> params) {
-
-		// queryChannel.queryResult(DynamicPage.class, queryStr, params);
-
 		List<DynamicPage> result = queryChannel.queryResult(DynamicPage.class, queryStr, params);
 		List<DynamicPageVO> resultVO = new ArrayList<DynamicPageVO>();
 		for (DynamicPage dd : result) {
@@ -223,10 +214,7 @@ public class FormdesignerServiceImpl implements FormdesignerService {
 
 	@Override
 	public DynamicPageVO publish(DynamicPageVO vo) {
-		JSONObject o = new JSONObject();
 		String disStr = this.generateDisTemplateByPageId(vo);
-		// logger.debug(disStr);
-		// save Template to DynamicPage
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("templateContext", disStr);
 		params.put("id", vo.getId());
@@ -239,19 +227,15 @@ public class FormdesignerServiceImpl implements FormdesignerService {
 		Map<String, Object> root = new HashMap<String, Object>();
 		BaseExample example = new BaseExample();
 		example.createCriteria().andEqualTo("dynamicPage_id", vo.getId());
-
 		List<Store> children = Store.selectByExample(example);
 		List<JSONObject> mainLayouts = new ArrayList<JSONObject>();
 		List<JSONObject> coms = new ArrayList<JSONObject>();
 		List<JSONObject> tipsComs = new ArrayList<JSONObject>();
 		Map<String, PageAct> pageActs = new HashMap<String, PageAct>();
 		List<PageAct> pageActsList = new ArrayList<PageAct>();
-
 		// 布局组件
 		Map<String, JSONObject> map = new HashMap<String, JSONObject>();
-
 		Map<String, List<JSONObject>> components = new HashMap<String, List<JSONObject>>();
-
 		// 隱藏框組件
 		List<JSONObject> hiddenCom = new ArrayList<JSONObject>();
 		// tab页主要页面包含所有子页面的所有的dataJson
@@ -281,11 +265,8 @@ public class FormdesignerServiceImpl implements FormdesignerService {
 							Long relatePageId = c.getLong("relatePageId");
 							logger.debug("start contain component {} [id : {}]  relatedPageId is {}",
 									c.getString("name"), c.getString("pageId"), relatePageId);
-
 							DynamicPageVO relaPageVO = findById(relatePageId);
-
 							String relaPageStr = generateDisTemplateByPageId(relaPageVO);
-
 							JSONArray relComArray = c.getJSONArray("configures");
 							if (relComArray != null && relComArray.size() > 0) {
 								for (int k = 0; k < relComArray.size(); k++) { // 遍历更改包含页面中组件的dataItemCode，pageId，name
@@ -372,7 +353,7 @@ public class FormdesignerServiceImpl implements FormdesignerService {
 								JSONArray tags = c.getJSONArray("tags");
 								JSONArray resultTags = new JSONArray();
 								Map<String, JSONObject> parents = new HashMap<String, JSONObject>();
-								if (tags != null && !tags.equals("")) {
+								if (tags != null) {
 									for (int z = 0; z < tags.size(); z++) {
 										JSONObject tag = tags.getJSONObject(z);
 										String relatePageId = tag.getString("relatePageId");
@@ -424,7 +405,7 @@ public class FormdesignerServiceImpl implements FormdesignerService {
 												.parseArray(StringEscapeUtils.unescapeHtml4(tabPage.getDataJson()));
 										// 遍历所有包含页面的数据源dataJson，去掉重复
 										for (int j = 0; j < dataJson.size(); j++) {
-											if (tabDataJson != null && !tabDataJson.equals("")) {
+											if (tabDataJson != null) {
 												if (!tabDataJson.contains(dataJson.get(j))) {
 													tabDataJson.add(dataJson.get(j));
 												}
@@ -794,7 +775,6 @@ public class FormdesignerServiceImpl implements FormdesignerService {
 	 */
 	@Override
 	public DynamicPageVO checkOut(Long id) {
-		DynamicPageVO vo = findById(id);
 		Map<String, Object> params = new HashMap<String, Object>();
 		Object obj = SessionUtils.getObjectFromSession(SessionContants.CURRENT_USER);
 		if (obj instanceof PunUserBaseInfoVO) {
@@ -811,7 +791,6 @@ public class FormdesignerServiceImpl implements FormdesignerService {
 	 */
 	@Override
 	public DynamicPageVO checkIn(Long id) {
-		DynamicPageVO vo = findById(id);
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("id", id);
 		queryChannel.excuteMethod(DynamicPage.class, "checkInPage", params);
@@ -855,9 +834,8 @@ public class FormdesignerServiceImpl implements FormdesignerService {
 	/**
 	 * 修改内容：修改查找按钮方式，由发送多条sql改为使用in(?,..,?)发送一条sql 修改人：wuhengguan 修改日期：2015.3.26
 	 */
-	@SuppressWarnings("unused")
 	@Override
-	public Map<String, List<StoreVO>> getSystemActs() {
+	public Map<String, List<StoreVO>> getSystemActs(List<Long> dynamicPageIds) {
 		BaseExample baseExample = new BaseExample();
 		Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 		if (obj instanceof PunSystemVO) {
@@ -866,24 +844,19 @@ public class FormdesignerServiceImpl implements FormdesignerService {
 		}
 		List<DynamicPageVO> pageVos = selectPagedByExample(baseExample, 1, Integer.MAX_VALUE, null);
 		Map<String, List<StoreVO>> ret = new HashMap<String, List<StoreVO>>();
-
-		/*
-		 * for(DynamicPageVO pageVo:pageVos){ Long id = pageVo.getId();
-		 * BaseExample example = new BaseExample();
-		 * example.createCriteria().andEqualTo("DYNAMICPAGE_ID",
-		 * id).andLike("code", StoreService.PAGEACT_CODE + "%"); List<StoreVO>
-		 * stores = storeService.selectPagedByExample(example, 1,
-		 * Integer.MAX_VALUE, null); ret.put(pageVo.getName(), stores); }
-		 */
 		if (pageVos != null) {
 			List<Long> ids = new ArrayList<Long>();
 			for (DynamicPageVO pageVo : pageVos) {
 				ids.add(pageVo.getId());
 			}
 			BaseExample example = new BaseExample();
-
-			example.createCriteria().andInLong("DYNAMICPAGE_ID", ids).andLike("code", StoreService.PAGEACT_CODE + "%");
-
+			if (dynamicPageIds != null) {
+				example.createCriteria().andInLong("DYNAMICPAGE_ID", ids).andInLong("DYNAMICPAGE_ID", dynamicPageIds)
+						.andLike("code", StoreService.PAGEACT_CODE + "%");
+			} else {
+				example.createCriteria().andInLong("DYNAMICPAGE_ID", ids).andLike("code",
+						StoreService.PAGEACT_CODE + "%");
+			}
 			List<StoreVO> stores = storeService.selectPagedByExample(example, 1, Integer.MAX_VALUE, null);
 			for (StoreVO store : stores) {
 				String pageName = null;
@@ -913,7 +886,7 @@ public class FormdesignerServiceImpl implements FormdesignerService {
 		String dynamicPageId = container.getString("relatePageId");
 
 		DynamicPageVO pageVO = findById(Long.valueOf(dynamicPageId));
-		// TODO 只查询表单和普通页面
+		// 只查询表单和普通页面
 		if (pageVO.getPageType() != 1003) {
 			String componentType = container.getString("componentType");
 			String configures = container.getString("configures");
@@ -958,7 +931,7 @@ public class FormdesignerServiceImpl implements FormdesignerService {
 
 						JSONObject tag = tags.getJSONObject(i);
 						Integer relatePageId = tag.getInteger("relatePageId");
-						if (relatePageId != null && !relatePageId.equals("")) {
+						if (relatePageId != null) {
 							JSONObject jcon = new JSONObject();
 							jcon.put("relatePageId", relatePageId);
 							jcon.put("componentType", "");
@@ -1051,9 +1024,8 @@ public class FormdesignerServiceImpl implements FormdesignerService {
 		return retVal;
 	}
 
-	public List getChildListPages(Long dynamicPageId) {
-
-		List list = new ArrayList();
+	public List<Long> getChildListPages(Long dynamicPageId) {
+		List<Long> list = new ArrayList<Long>();
 		DynamicPageVO pageVO = findById(dynamicPageId);
 		if (pageVO.getPageType() == 1003) {// 列表页面，则返回自己
 			list.add(dynamicPageId);
@@ -1097,10 +1069,6 @@ public class FormdesignerServiceImpl implements FormdesignerService {
 		params.put("systemId", systemId);
 		params.put("start", 0);
 		params.put("limit", Integer.MAX_VALUE);
-		// PageList<DynamicPage> list =
-		// queryChannel.queryPagedResult(DynamicPage.class,
-		// "listNameAndIdInSystem", params, 1, Integer.MAX_VALUE, null);
-
 		List<DynamicPage> list = queryChannel.queryPagedResult(DynamicPage.class, "listNameAndIdInSystem", params);
 		List<DynamicPageVO> resultVo = new ArrayList<DynamicPageVO>();
 		for (DynamicPage mm : list) {
@@ -1108,7 +1076,6 @@ public class FormdesignerServiceImpl implements FormdesignerService {
 		}
 		list.clear();
 		return resultVo;
-
 	}
 
 }

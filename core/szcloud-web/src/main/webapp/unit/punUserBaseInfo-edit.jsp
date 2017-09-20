@@ -62,9 +62,10 @@
 			            <label class="col-md-1 control-label required">用户名</label>
 			            <div class="col-md-4">
 			               <input type="hidden" name="userId" value="${vo.userId}"/>
+			               <input type="hidden" name="userName" value="${vo.userName}"/>
 			               <input type="hidden" name="groupId" value="${vo.groupId}"/>
 			               <input type="hidden" name="orgCode" value="${vo.orgCode}"/>
-			               <input name="userName" class="form-control" id="userName" type="text" placeholder="" value="${vo.userName}">		              
+			               <input name="userIdCardNumber" class="form-control" id="userIdCardNumber" type="text" placeholder="" value="${vo.userIdCardNumber}">		              
 			            </div>
 			            <label class="col-md-2 control-label required">姓名：</label>
 			            <div class="col-md-4">
@@ -163,15 +164,15 @@
 						 <div class="col-md-11 col-sm-11 radiodiv">
 						 	<c:forEach items="${roleVos}" var="vo">
 								<c:choose>
-									<c:when test="${fn:contains(selectedRole,vo.roleId)}">
+									<c:when test="${vo.roleId==selectedRole||(fn:contains(selectedRole,vo.roleId)&&vo.roleId!=1)}">
 										<label class="checkbox-inline"> <input name="roleList"
-											type="radio" value="${vo.roleId}" checked="checked">
+											type="checkbox" value="${vo.roleId}" checked="checked">
 											${vo.roleName}
 										</label>
 									</c:when>
 									<c:otherwise>
 										<label class="checkbox-inline"> <input name="roleList"
-											type="radio" value="${vo.roleId}"> ${vo.roleName}
+											type="checkbox" value="${vo.roleId}"> ${vo.roleName}
 										</label>
 									</c:otherwise>
 								</c:choose>
@@ -308,7 +309,7 @@
 				$("#userHouseholdRegist").formValidator({onShow:"请输入户籍地",}).inputValidator({max:255,onError:"最长255位"});
 				$("#userDomicile").formValidator({onShow:"请输入居住地",}).inputValidator({max:255,onError:"最长255位"});
 				$("#userOfficePhone").formValidator({empty:true,onShow:"请输入联系电话",onFocus:"格式例如：0755-81234567或81234567"}).regexValidator({regExp:"^(([0\\+]\\d{2,3}-)?(0\\d{2,3})-)?(\\d{7,8})(-(\\d{3,}))?$",onError:"格式不正确"});
-				$("#mobile").formValidator({empty:true,onShow:"请输入手机号码"}).inputValidator({min:11,max:11,onError:"手机号码必须是11位的,请确认"}).regexValidator({regExp:"mobile",dataType:"enum",onError:"你输入的手机号码格式不正确"});
+				$("#mobile").formValidator({empty:true,onShow:"请输入手机号码"}).inputValidator({min:11,max:11,onError:"手机号码必须是11位的,请确认"});
 				$("#userFax").formValidator({empty:true,onShow:"请输入传真号码",onFocus:"格式例如：0755-81234567或81234567"}).regexValidator({regExp:"^(([0\\+]\\d{2,3}-)?(0\\d{2,3})-)?(\\d{7,8})(-(\\d{3,}))?$",onError:"格式不正确"});
 				$("#userEmail").formValidator({empty:true,onShow:"请输入邮箱"}).inputValidator({min:6,max:128,onError:"邮箱长度非法,请确认"}).regexValidator({regExp:"^([\\w-.]+)@(([[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.)|(([\\w-]+.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(]?)$",onError:"邮箱格式不正确"});
 				$("#employeeId").formValidator({empty:true,onShow:"请输入工号"}).inputValidator({max:30,onError:"最长30位"});
@@ -319,6 +320,11 @@
 				
 		});
 		$("input[type='password']").attr("readonly", "readonly");	
+		$("input[type='password']").each(function(i,e){
+			if(!e.value){
+				e.value=791013;
+			}
+		})
 		$("#changePassword").click(function(){
 						
 						if($(this).is(':checked')) {

@@ -14,9 +14,9 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
@@ -36,7 +36,6 @@ import org.szcloud.framework.core.utils.constants.SessionContants;
 import org.szcloud.framework.metadesigner.application.DataSourceManageService;
 import org.szcloud.framework.metadesigner.application.MetaModelClassService;
 import org.szcloud.framework.metadesigner.application.MetaModelItemService;
-import org.szcloud.framework.metadesigner.application.MetaModelOperateService;
 import org.szcloud.framework.metadesigner.application.MetaModelService;
 import org.szcloud.framework.metadesigner.application.ModelRelationService;
 import org.szcloud.framework.metadesigner.util.ICreateTables;
@@ -51,6 +50,7 @@ import org.szcloud.framework.unit.service.SysSourceRelationService;
 import org.szcloud.framework.unit.vo.PunSystemVO;
 import org.szcloud.framework.unit.vo.SysDataSourceVO;
 
+import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.github.miemiedev.mybatis.paginator.domain.PageList;
@@ -78,9 +78,6 @@ public class MetaModelController extends BaseController {
 	private ModelRelationService modelRelationServiceImpl;
 
 	@Autowired
-	private MetaModelOperateService metaModelOperateServiceImpl;
-
-	@Autowired
 	private ICreateTables createTables;
 
 	@Autowired
@@ -96,6 +93,8 @@ public class MetaModelController extends BaseController {
 	SysSourceRelationService sysSourceRelationService;
 	@Autowired
 	private SqlSessionFactory sqlSessionFactory;
+	@Autowired
+	private DruidDataSource dataSource;
 
 	@ResponseBody
 	@RequestMapping(value = "/addByDb")
@@ -127,8 +126,17 @@ public class MetaModelController extends BaseController {
 			Connection conn = null;
 			Map<String, JSONObject> tmp = new HashMap<String, JSONObject>();
 			try {
-				Class.forName(vo.getSourceDriver());
-				conn = DriverManager.getConnection(vo.getSourceUrl(), vo.getUserName(), vo.getUserPwd());
+				// 如果数据源没有值，则使用系统的数据源
+				if (vo == null || vo.getSourceDriver() == null || vo.getSourceUrl() == null
+						|| vo.getUserName() == null) {
+					Class.forName(dataSource.getDriverClassName());
+					conn = DriverManager.getConnection(dataSource.getUrl(), dataSource.getUsername(),
+							dataSource.getPassword());
+
+				} else {
+					Class.forName(vo.getSourceDriver());
+					conn = DriverManager.getConnection(vo.getSourceUrl(), vo.getUserName(), vo.getUserPwd());
+				}
 				DatabaseMetaData metaData = conn.getMetaData();
 				for (int i = 0; i < tableNames.length; i++) {
 					JSONObject modelObject = new JSONObject();
@@ -169,10 +177,9 @@ public class MetaModelController extends BaseController {
 					/*
 					 * primaryKeyResultSet 结果集
 					 * 
-					 * TABLE_CAT String => 表类别（可为 null） TABLE_SCHEM String =>
-					 * 表模式（可为 null） TABLE_NAME String => 表名称 COLUMN_NAME String
-					 * => 列名称 KEY_SEQ short => 主键中的序列号（值 1 表示主键中的第一列，值 2
-					 * 表示主键中的第二列）。 PK_NAME String => 主键的名称（可为 null）
+					 * TABLE_CAT String => 表类别（可为 null） TABLE_SCHEM String => 表模式（可为 null）
+					 * TABLE_NAME String => 表名称 COLUMN_NAME String => 列名称 KEY_SEQ short => 主键中的序列号（值
+					 * 1 表示主键中的第一列，值 2 表示主键中的第二列）。 PK_NAME String => 主键的名称（可为 null）
 					 * 
 					 * 
 					 */
@@ -200,16 +207,13 @@ public class MetaModelController extends BaseController {
 					/*
 					 * foreignKeyResultSet 结果集
 					 * 
-					 * PKTABLE_CAT String => 被导入的主键表类别（可为 null） PKTABLE_SCHEM
-					 * String => 被导入的主键表模式（可为 null） PKTABLE_NAME String =>
-					 * 被导入的主键表名称 PKCOLUMN_NAME String => 被导入的主键列名称 FKTABLE_CAT
-					 * String => 外键表类别（可为 null） FKTABLE_SCHEM String => 外键表模式（可为
-					 * null） FKTABLE_NAME String => 外键表名称 FKCOLUMN_NAME String
-					 * => 外键列名称 KEY_SEQ short => 外键中的序列号（值 1 表示外键中的第一列，值 2
-					 * 表示外键中的第二列） UPDATE_RULE short => 更新主键时外键发生的变化 DELETE_RULE
-					 * short => 删除主键时外键发生的变化 PK_NAME String => 主键的名称（可为 null）
-					 * FK_NAME String => 外键的名称（可为 null） DEFERRABILITY short =>
-					 * 是否可以将对外键约束的评估延迟到提交时间
+					 * PKTABLE_CAT String => 被导入的主键表类别（可为 null） PKTABLE_SCHEM String => 被导入的主键表模式（可为
+					 * null） PKTABLE_NAME String => 被导入的主键表名称 PKCOLUMN_NAME String => 被导入的主键列名称
+					 * FKTABLE_CAT String => 外键表类别（可为 null） FKTABLE_SCHEM String => 外键表模式（可为 null）
+					 * FKTABLE_NAME String => 外键表名称 FKCOLUMN_NAME String => 外键列名称 KEY_SEQ short =>
+					 * 外键中的序列号（值 1 表示外键中的第一列，值 2 表示外键中的第二列） UPDATE_RULE short => 更新主键时外键发生的变化
+					 * DELETE_RULE short => 删除主键时外键发生的变化 PK_NAME String => 主键的名称（可为 null） FK_NAME
+					 * String => 外键的名称（可为 null） DEFERRABILITY short => 是否可以将对外键约束的评估延迟到提交时间
 					 * 
 					 * 
 					 */
@@ -331,10 +335,9 @@ public class MetaModelController extends BaseController {
 				/*
 				 * primaryKeyResultSet 结果集
 				 * 
-				 * TABLE_CAT String => 表类别（可为 null） TABLE_SCHEM String => 表模式（可为
-				 * null） TABLE_NAME String => 表名称 COLUMN_NAME String => 列名称
-				 * KEY_SEQ short => 主键中的序列号（值 1 表示主键中的第一列，值 2 表示主键中的第二列）。
-				 * PK_NAME String => 主键的名称（可为 null）
+				 * TABLE_CAT String => 表类别（可为 null） TABLE_SCHEM String => 表模式（可为 null）
+				 * TABLE_NAME String => 表名称 COLUMN_NAME String => 列名称 KEY_SEQ short => 主键中的序列号（值
+				 * 1 表示主键中的第一列，值 2 表示主键中的第二列）。 PK_NAME String => 主键的名称（可为 null）
 				 * 
 				 * 
 				 */
@@ -362,15 +365,13 @@ public class MetaModelController extends BaseController {
 				/*
 				 * foreignKeyResultSet 结果集
 				 * 
-				 * PKTABLE_CAT String => 被导入的主键表类别（可为 null） PKTABLE_SCHEM String
-				 * => 被导入的主键表模式（可为 null） PKTABLE_NAME String => 被导入的主键表名称
-				 * PKCOLUMN_NAME String => 被导入的主键列名称 FKTABLE_CAT String =>
-				 * 外键表类别（可为 null） FKTABLE_SCHEM String => 外键表模式（可为 null）
-				 * FKTABLE_NAME String => 外键表名称 FKCOLUMN_NAME String => 外键列名称
-				 * KEY_SEQ short => 外键中的序列号（值 1 表示外键中的第一列，值 2 表示外键中的第二列）
-				 * UPDATE_RULE short => 更新主键时外键发生的变化 DELETE_RULE short =>
-				 * 删除主键时外键发生的变化 PK_NAME String => 主键的名称（可为 null） FK_NAME String
-				 * => 外键的名称（可为 null） DEFERRABILITY short => 是否可以将对外键约束的评估延迟到提交时间
+				 * PKTABLE_CAT String => 被导入的主键表类别（可为 null） PKTABLE_SCHEM String => 被导入的主键表模式（可为
+				 * null） PKTABLE_NAME String => 被导入的主键表名称 PKCOLUMN_NAME String => 被导入的主键列名称
+				 * FKTABLE_CAT String => 外键表类别（可为 null） FKTABLE_SCHEM String => 外键表模式（可为 null）
+				 * FKTABLE_NAME String => 外键表名称 FKCOLUMN_NAME String => 外键列名称 KEY_SEQ short =>
+				 * 外键中的序列号（值 1 表示外键中的第一列，值 2 表示外键中的第二列） UPDATE_RULE short => 更新主键时外键发生的变化
+				 * DELETE_RULE short => 删除主键时外键发生的变化 PK_NAME String => 主键的名称（可为 null） FK_NAME
+				 * String => 外键的名称（可为 null） DEFERRABILITY short => 是否可以将对外键约束的评估延迟到提交时间
 				 * 
 				 * 
 				 */
@@ -1112,7 +1113,7 @@ public class MetaModelController extends BaseController {
 		if (currentPage == 0) {
 			currentPage = 1;
 		}
-		if (modelName != null && !model.equals("")) {
+		if (modelName != null) {
 			c.andLike("modelName", "%" + modelName + "%");
 		}
 		String modelCode = vo.getModelCode();

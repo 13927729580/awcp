@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -30,24 +29,23 @@ import com.github.miemiedev.mybatis.paginator.domain.PageList;
 public class PunMenuServiceImpl implements PunMenuService{
 	
 	private final static int TYPE_OF_MENU = 1;
+	
 	@Autowired
 	private QueryChannelService queryChannel;
+	
 	@Autowired
 	@Qualifier("punResourceServiceImpl")
 	private PunResourceService punResourceService;
 	
-	@Autowired
-	private SqlSessionFactory sqlSessionFactory;
-	
 	/**
 	 * 
-	* @Title: addOrUpdate 
-	* @Description: 保存
-	* @author ljw 
-	* @param @param vo
-	* @param @throws MRTException    
-	* @return void
-	* @throws
+	 * @Title: addOrUpdate 
+	 * @Description: 保存
+	 * @author ljw 
+	 * @param vo
+	 * @param @throws MRTException    
+	 * @return void
+	 * @throws
 	 */
 	public void addOrUpdate(PunMenuVO vo) throws MRTException{
 		PunMenu menu = BeanUtils.getNewInstance(vo, PunMenu.class);
@@ -59,8 +57,9 @@ public class PunMenuServiceImpl implements PunMenuService{
 		List<Long> ids = new ArrayList<Long>();
 		ids.add(vo.getMenuId());
 		List<PunResourceVO> resourceList = punResourceService.getResourceListByRelateIds(ids, TYPE_OF_MENU);
-		if(!resourceList.isEmpty())
+		if(!resourceList.isEmpty()){
 			return;//已存在，不必增加resource.
+		}
 		//保持冗余的resource数据表；
 		PunResourceVO resource = new PunResourceVO();
 		resource.setSysId(vo.getSysId());
@@ -69,17 +68,15 @@ public class PunMenuServiceImpl implements PunMenuService{
 		punResourceService.addOrUpdate(resource);
 	}
 	
-	
 	/**
 	 * 
-	* @Title: findById 
-	* @Description: 根据ID查找
-	* @author ljw 
-	* @param @param id
-	* @param @return
-	* @param @throws MRTException    
-	* @return PunMenuVO
-	* @throws
+	 * @Title: findById 
+	 * @Description: 根据ID查找
+	 * @author ljw 
+	 * @param id
+	 * @param @throws MRTException    
+	 * @return PunMenuVO
+	 * @throws
 	 */
 	public PunMenuVO findById(Long id) throws MRTException{
 		PunMenu user = PunMenu.get(PunMenu.class, id);
@@ -88,20 +85,17 @@ public class PunMenuServiceImpl implements PunMenuService{
 	
 	/**
 	 * 
-	* @Title: queryResult 
-	* @Description: 查询
-	* @author ljw 
-	* @param @param queryStr
-	* @param @param params 参数
-	* @param @return
-	* @param @throws MRTException    
-	* @return List<PunMenu>
-	* @throws
+	 * @Title: queryResult 
+	 * @Description: 查询
+	 * @author ljw 
+	 * @param queryStr
+	 * @param params 参数
+	 * @param @throws MRTException    
+	 * @return List<PunMenu>
+	 * @throws
 	 */
-	public List<PunMenuVO> queryResult(String queryStr,
-			Map<String, Object> params) throws MRTException {
-		List<PunMenu> resources = queryChannel.queryResult(
-				PunMenu.class, queryStr, params);
+	public List<PunMenuVO> queryResult(String queryStr,Map<String, Object> params) throws MRTException {
+		List<PunMenu> resources = queryChannel.queryResult(PunMenu.class, queryStr, params);
 		List<PunMenuVO> vos = new ArrayList<PunMenuVO>();
 		for (PunMenu resource : resources) {
 			vos.add(BeanUtils.getNewInstance(resource, PunMenuVO.class));
@@ -112,24 +106,22 @@ public class PunMenuServiceImpl implements PunMenuService{
  
 	/**
 	 * 
-	* @Title: queryResult 
-	* @Description: 分页查询
-	* @author ljw 
-	* @param @param queryStr
-	* @param @param params
-	* @param @param currentPage
-	* @param @param pageSize
-	* @param @param sortString
-	* @param @return    
-	* @return PageList<T>
-	* @throws
+	 * @Title: queryResult 
+	 * @Description: 分页查询
+	 * @author ljw 
+	 * @param queryStr
+	 * @param params
+	 * @param currentPage
+	 * @param pageSize
+	 * @param sortString
+	 * @param @return    
+	 * @return PageList<T>
+	 * @throws
 	 */
-	public PageList<PunMenuVO> queryPagedResult(String queryStr,
-			Map<String, Object> params, int currentPage, int pageSize,
-			String sortString) {
-		PageList<PunMenu> resources = queryChannel.queryPagedResult(
-				PunMenu.class, queryStr, params, currentPage, pageSize,
-				sortString);
+	public PageList<PunMenuVO> queryPagedResult(String queryStr,Map<String, Object> params, 
+			int currentPage, int pageSize,String sortString) {
+		PageList<PunMenu> resources = queryChannel.queryPagedResult(PunMenu.class, queryStr, params, 
+				currentPage, pageSize,sortString);
 		List<PunMenuVO> tmp = new ArrayList<PunMenuVO>();
 		for (PunMenu resource : resources) {
 			tmp.add(BeanUtils.getNewInstance(resource, PunMenuVO.class));
@@ -141,36 +133,32 @@ public class PunMenuServiceImpl implements PunMenuService{
 	
 	/**
 	 * 
-	* @Title: findAll 
-	* @Description: 查询全部
-	* @author ljw 
-	* @param @return
-	* @param @throws MRTException    
-	* @return List<PunMenuVO>
-	* @throws
+	 * @Title: findAll 
+	 * @Description: 查询全部
+	 * @author ljw 
+	 * @param @throws MRTException    
+	 * @return List<PunMenuVO>
+	 * @throws
 	 */
 	public List<PunMenuVO> findAll() throws MRTException{
 		List<PunMenu> result = PunMenu.findAll();
 		List<PunMenuVO> resultVo = new ArrayList<PunMenuVO>();
-		for(PunMenu mm : result)
-		{
+		for(PunMenu mm : result){
 			resultVo.add(BeanUtils.getNewInstance(mm, PunMenuVO.class));
 		}
 		result.clear();
 		return resultVo; 
-		
 	}
  
 	/**
 	 * 
-	* @Title: delete 
-	* @Description: 删除
-	* @author ljw 
-	* @param @param id
-	* @param @return
-	* @param @throws MRTException    
-	* @return String
-	* @throws
+	 * @Title: delete 
+	 * @Description: 删除
+	 * @author ljw 
+	 * @param id
+	 * @param @throws MRTException    
+	 * @return String
+	 * @throws
 	 */
 	public String delete(Long id) throws MRTException{
 		PunMenu resource = PunMenu.get(PunMenu.class, id);
@@ -226,25 +214,7 @@ public class PunMenuServiceImpl implements PunMenuService{
 		return vos;
 	}
 	
-/*	public List<PunMenuVO> getRoleAccessMenuVOByRoleId(Long roleId) throws MRTException{
-		PunRoleAccessVO praVO = new PunRoleAccessVO();
-		praVO.setRoleId(roleId);
-		List<PunRoleAccessVO> praList = punRoleAccessService.queryResultByExample(praVO);		
-		List<Long> resourceIds = new ArrayList<Long>();
-		for(int i = 0; i <praList.size(); i++){
-			resourceIds.add(praList.get(i).getResourceId());
-		}
-		List<PunResourceVO> resourceList = punResourceService.getPunResourceByIds(resourceIds);
-		List<Long> menuIds = new ArrayList<Long>();
-		for(int i= 0; i < resourceList.size(); i++){
-			menuIds.add(Long.parseLong(resourceList.get(i).getRelateResoId()));
-		}		
-		List<PunMenuVO> menuList = this.getPunMenuVOByMenuIds(menuIds);		
-		return menuList;
-	}*/
-	
 	public List<PunMenuVO> getPunMenuVOByMenuIds(List<Long> menuIds) throws MRTException{
-		
 		Map<String, Object> params = new HashMap<String, Object>();
 		String ids = IdentifierUtils.getLongIdStringForSql(menuIds);
 		params.put("ids", ids);
@@ -254,26 +224,13 @@ public class PunMenuServiceImpl implements PunMenuService{
 	public List<PunMenuVO> selectByExample(BaseExample example) throws MRTException{
 		List<PunMenu> result = PunMenu.selectByExample(PunMenu.class, example);
 		List<PunMenuVO> resultVo = new ArrayList<PunMenuVO>();
-		for(PunMenu mm : result)
-		{
+		for(PunMenu mm : result){
 			resultVo.add(BeanUtils.getNewInstance(mm, PunMenuVO.class));
 		}
 		result.clear();
 		return resultVo;
 		
 	}
-	
-	/**
-	 * 级联删除
-	 *//*
-	public void likeBatchDelete(String pid) {
-		SqlSession session = sqlSessionFactory.openSession();
-		try {
-			session.delete(PunMenuVO.class.getName()+".likeBatchDelete", pid);
-		} finally{
-			session.close();
-		}
-	}*/
 	
 	/**
 	 * 级联删除
@@ -313,7 +270,6 @@ public class PunMenuServiceImpl implements PunMenuService{
 		return resName;
 	}
 
-
 	@Override
 	public List<PunMenuVO> getPunMenuBySys(PunSystemVO svo) {
 		Map<String,Object> params = new HashMap<String, Object>();
@@ -324,7 +280,6 @@ public class PunMenuServiceImpl implements PunMenuService{
 		return vos;
 	}
 
-
 	@Override
 	public List<PunMenuVO> getPunMenuByEnd(Map<String, Object> params) {
 		List<PunMenuVO> vos = this.queryResult("getMenuListByEnd", params);
@@ -334,8 +289,6 @@ public class PunMenuServiceImpl implements PunMenuService{
 	public List<PunMenuVO> getPosterityPunMenuByPid(String pid) {
 		return getPosterityPunMenuByPid(pid, false);
 	}
-	
-
 	
 	public List<PunMenuVO> getChildrenPunMenuByPid(String pid) {
 		return getPosterityPunMenuByPid(pid, true);
@@ -353,7 +306,6 @@ public class PunMenuServiceImpl implements PunMenuService{
 		return this.queryResult("queryByPID", params);
 	}
 
-
 	@Override
 	public PageList<PunMenuVO> selectPagedByExample(BaseExample baseExample,
 			int currentPage, int pageSize, String sortString) {
@@ -365,6 +317,5 @@ public class PunMenuServiceImpl implements PunMenuService{
 		list.clear();
 		return rtn;
 	}
-	
 
 }

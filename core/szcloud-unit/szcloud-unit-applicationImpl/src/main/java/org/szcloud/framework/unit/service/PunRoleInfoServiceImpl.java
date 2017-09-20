@@ -12,11 +12,8 @@ import org.szcloud.framework.core.common.exception.MRTException;
 import org.szcloud.framework.core.domain.BaseExample;
 import org.szcloud.framework.core.domain.QueryChannelService;
 import org.szcloud.framework.core.utils.BeanUtils;
-import org.szcloud.framework.unit.core.domain.PunPosition;
 import org.szcloud.framework.unit.core.domain.PunRoleInfo;
-import org.szcloud.framework.unit.core.domain.PunUserBaseInfo;
 import org.szcloud.framework.unit.vo.PunRoleInfoVO;
-import org.szcloud.framework.unit.vo.PunUserBaseInfoVO;
 
 import com.github.miemiedev.mybatis.paginator.domain.PageList;
 
@@ -54,25 +51,22 @@ public class PunRoleInfoServiceImpl implements PunRoleInfoService{
 	
 	/**
 	 * 
-	* @Title: queryResult 
-	* @Description: 分页查询
-	* @author ljw 
-	* @param @param queryStr
-	* @param @param params
-	* @param @param currentPage
-	* @param @param pageSize
-	* @param @param sortString
-	* @param @return    
-	* @return PageList<T>
-	* @throws
+	 * @Title: queryResult 
+	 * @Description: 分页查询
+	 * @author ljw 
+	 * @param  queryStr
+	 * @param  params
+	 * @param  currentPage
+	 * @param  pageSize
+	 * @param  sortString
+	 * @return PageList<T>
+	 * @throws
 	 */
-	public PageList<PunRoleInfoVO> queryPagedResult(String queryStr,
-			Map<String, Object> params, int currentPage, int pageSize,
-			String sortString) {
+	public PageList<PunRoleInfoVO> queryPagedResult(String queryStr,Map<String, Object> params, 
+			int currentPage, int pageSize,String sortString) {
 		List<PunRoleInfoVO> tmp = new ArrayList<PunRoleInfoVO>();
-		PageList<PunRoleInfo> roles = queryChannel.queryPagedResult(
-				PunRoleInfo.class, queryStr, params, currentPage, pageSize,
-				sortString);
+		PageList<PunRoleInfo> roles = queryChannel.queryPagedResult(PunRoleInfo.class, queryStr, params, 
+				currentPage, pageSize,sortString);
 		for (PunRoleInfo role : roles) {
 			tmp.add(BeanUtils.getNewInstance(role, PunRoleInfoVO.class));
 		}
@@ -83,15 +77,14 @@ public class PunRoleInfoServiceImpl implements PunRoleInfoService{
  
 	/**
 	 * 
-	* @Title: queryResult 
-	* @Description: 查询
-	* @author ljw 
-	* @param @param queryStr
-	* @param @param params 参数
-	* @param @return
-	* @param @throws MRTException    
-	* @return List<PunRoleInfo>
-	* @throws
+	 * @Title: queryResult 
+	 * @Description: 查询
+	 * @author ljw 
+	 * @param  queryStr
+	 * @param  params 参数
+	 * @throws MRTException    
+	 * @return List<PunRoleInfo>
+	 * @throws
 	 */
 	public List<PunRoleInfoVO> queryResult(String queryStr,Map<String,Object> params) throws MRTException{
 		  List<PunRoleInfo> members = queryChannel.queryResult(PunRoleInfo.class, queryStr, params);
@@ -133,18 +126,14 @@ public class PunRoleInfoServiceImpl implements PunRoleInfoService{
 		}
 		result.clear();
 		return resultVo;
-		
 	}
-	@SuppressWarnings("unchecked")
+	
 	@Override
 	public PageList<PunRoleInfoVO> selectPagedByExample(BaseExample example,
 			int currentPage, int pageSize, String sortString) {
-		PageList<PunRoleInfo> list = queryChannel.selectPagedByExample
-
-(PunRoleInfo.class, example, currentPage, pageSize, sortString);
-		PageList<PunRoleInfoVO> vos = new PageList<PunRoleInfoVO>
-
-(list.getPaginator());
+		PageList<PunRoleInfo> list = queryChannel.selectPagedByExample(PunRoleInfo.class, example, 
+				currentPage, pageSize, sortString);
+		PageList<PunRoleInfoVO> vos = new PageList<PunRoleInfoVO>(list.getPaginator());
 		for (PunRoleInfo dp : list) {
 			vos.add(BeanUtils.getNewInstance(dp, PunRoleInfoVO.class));
 		}
@@ -164,7 +153,5 @@ public class PunRoleInfoServiceImpl implements PunRoleInfoService{
 		}
 		return results;
 	}
-
-	
 
 }

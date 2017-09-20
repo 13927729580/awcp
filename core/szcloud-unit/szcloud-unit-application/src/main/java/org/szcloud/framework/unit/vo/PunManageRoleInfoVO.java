@@ -1,11 +1,5 @@
 package org.szcloud.framework.unit.vo;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-import org.szcloud.framework.core.domain.BaseEntity;
-import java.util.*;
 public class PunManageRoleInfoVO{
 	private Long roleId;
 	private Long sysId;
@@ -25,6 +19,7 @@ public class PunManageRoleInfoVO{
 	public Long getRoleId() {
 		return this.roleId;
 	}
+	
 	public void setSysId(Long value) {
 		this.sysId = value;
 	}
@@ -32,12 +27,18 @@ public class PunManageRoleInfoVO{
 	public Long getSysId() {
 		return this.sysId;
 	}
+	
 	public void setRoleName(String value) {
 		this.roleName = value;
 	}
 	
 	public String getRoleName() {
 		return this.roleName;
+	}
+
+	@Override
+	public String toString() {
+		return "PunManageRoleInfoVO [roleId=" + roleId + ", sysId=" + sysId + ", roleName=" + roleName + "]";
 	}
 
 }

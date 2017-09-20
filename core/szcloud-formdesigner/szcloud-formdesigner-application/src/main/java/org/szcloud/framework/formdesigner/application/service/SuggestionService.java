@@ -17,9 +17,7 @@ public interface SuggestionService {
 	 * @return
 	 */
 	SuggestionVO findById(String id);
-	
-	
-	
+			
 	/**
 	 * 
 	 * 等值查询
@@ -30,9 +28,8 @@ public interface SuggestionService {
 	 * @param sortString
 	 * @return
 	 */
-	public PageList<SuggestionVO> queryPagedResult(String queryStr,
-			Map<String, Object> params, int currentPage, int pageSize,
-			String sortString);
+	public PageList<SuggestionVO> queryPagedResult(String queryStr,Map<String, Object> params, 
+			int currentPage, int pageSize,String sortString);
 
 	/**
 	 * 模糊查询分页显示

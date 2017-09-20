@@ -39,6 +39,5 @@ public interface MetaModelChartService {
 	 * @return
 	 */
 	public List<MetaModelChartVO> queryByClassId(long classId);
-	
-	
+		
 }

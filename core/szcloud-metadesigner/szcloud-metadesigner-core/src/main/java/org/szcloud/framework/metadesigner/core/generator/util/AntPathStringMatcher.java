@@ -1,4 +1,3 @@
-
 package org.szcloud.framework.metadesigner.core.generator.util;
 
 import java.util.LinkedList;

@@ -1,9 +1,7 @@
-
 package org.szcloud.framework.metadesigner.core.generator.util.sqlparse;
 
 import java.util.ArrayList;
 import java.util.List;
-
 
 public class ParsedSql {
 
@@ -123,7 +121,6 @@ public class ParsedSql {
 	public int getTotalParameterCount() {
 		return this.totalParameterCount;
 	}
-
 
 	/**
 	 * Exposes the original SQL String.

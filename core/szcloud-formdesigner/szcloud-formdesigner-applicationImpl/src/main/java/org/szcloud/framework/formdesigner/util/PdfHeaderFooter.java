@@ -71,11 +71,11 @@ public class PdfHeaderFooter extends PdfPageEventHelper {
 		this.bottomStr = map.get("bottomStr");
 		this.waterMark = map.get("waterMark");
 		this.showPage = map.get("showPage");
-		this.barCodePosX = map.get("barCodePosX");
-		this.barCodePosY = map.get("barCodePosY");
-		this.isGutter = map.get("isGutter");
-		this.gutterPosX = map.get("gutterPosX");
-		this.gutterPosY = map.get("gutterPosY");
+		this.setBarCodePosX(map.get("barCodePosX"));
+		this.setBarCodePosY(map.get("barCodePosY"));
+		this.setIsGutter(map.get("isGutter"));
+		this.setGutterPosX(map.get("gutterPosX"));
+		this.setGutterPosY(map.get("gutterPosY"));
 	}
 
 	public void onEndPage(PdfWriter writer, Document document) {
@@ -97,12 +97,10 @@ public class PdfHeaderFooter extends PdfPageEventHelper {
 				code128.setCode(waterMark);
 				code128.setSize(10);
 				Image image = code128.createImageWithBarcode(cb, null, null);
-				// image.setAbsolutePosition(60, 793);
 				image.setAbsolutePosition(70, 795);
 				try {
 					cb.addImage(image);
 				} catch (DocumentException e2) {
-					// TODO Auto-generated catch block
 					e2.printStackTrace();
 				}
 			}
@@ -113,8 +111,6 @@ public class PdfHeaderFooter extends PdfPageEventHelper {
 			ColumnText ct = new ColumnText(cb);
 			float[] left = { rect.getLeft(), rect.getBottom(), rect.getLeft(), rect.getBottom() - 18 };
 			float[] right = { rect.getRight(), rect.getTop(), rect.getRight(), rect.getTop() - 70 };
-			// float[] left = {72,800, 72,60};
-			// float[] right = {523,800, 523,700};
 			logger.debug("left" + left.toString());
 			logger.debug("right" + right.toString());
 
@@ -123,7 +119,6 @@ public class PdfHeaderFooter extends PdfPageEventHelper {
 			try {
 				ct.go();
 			} catch (DocumentException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 		}
@@ -131,18 +126,14 @@ public class PdfHeaderFooter extends PdfPageEventHelper {
 		try {
 			bfChinese = BaseFont.createFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED);
 		} catch (DocumentException e) {
-
 			e.printStackTrace();
 		} catch (IOException e) {
-
 			e.printStackTrace();
 		}
 		// 设置中文字体
 		Font headFont = new Font(bfChinese, 10f, Font.NORMAL);// 设置字体大小
 		Phrase p = new Phrase();
-
 		p.add(linebreak);
-
 		String finalHeader;
 		if (StringUtils.isNotEmpty(headerStr)) {
 			finalHeader = headerStr;
@@ -151,8 +142,6 @@ public class PdfHeaderFooter extends PdfPageEventHelper {
 		}
 
 		rect.setBorderColor(BaseColor.BLACK);
-		// rect.setBorderWidth(0.85f);
-		// rect.setBorderWidthBottom(0.85f);
 		ColumnText.showTextAligned(writer.getDirectContent(), Element.ALIGN_RIGHT, new Phrase(finalHeader, headFont),
 				rect.getRight(), rect.getTop() + 18, 0);
 
@@ -200,6 +189,46 @@ public class PdfHeaderFooter extends PdfPageEventHelper {
 
 	public void setShowPage(String showPage) {
 		this.showPage = showPage;
+	}
+
+	public String getBarCodePosX() {
+		return barCodePosX;
+	}
+
+	public void setBarCodePosX(String barCodePosX) {
+		this.barCodePosX = barCodePosX;
+	}
+
+	public String getBarCodePosY() {
+		return barCodePosY;
+	}
+
+	public void setBarCodePosY(String barCodePosY) {
+		this.barCodePosY = barCodePosY;
+	}
+
+	public String getIsGutter() {
+		return isGutter;
+	}
+
+	public void setIsGutter(String isGutter) {
+		this.isGutter = isGutter;
+	}
+
+	public String getGutterPosX() {
+		return gutterPosX;
+	}
+
+	public void setGutterPosX(String gutterPosX) {
+		this.gutterPosX = gutterPosX;
+	}
+
+	public String getGutterPosY() {
+		return gutterPosY;
+	}
+
+	public void setGutterPosY(String gutterPosY) {
+		this.gutterPosY = gutterPosY;
 	}
 
 }

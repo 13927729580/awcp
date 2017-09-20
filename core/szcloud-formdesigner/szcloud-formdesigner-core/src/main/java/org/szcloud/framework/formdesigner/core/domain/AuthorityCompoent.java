@@ -13,10 +13,6 @@ import org.szcloud.framework.core.utils.Springfactory;
 
 public class AuthorityCompoent implements Serializable{
 
-	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	
 	private String id;
@@ -46,6 +42,7 @@ public class AuthorityCompoent implements Serializable{
 	public String getAuthorityGroupId() {
 		return authorityGroupId;
 	}
+
 	public void setAuthorityGroupId(String authorityGroupId) {
 		this.authorityGroupId = authorityGroupId;
 	}
@@ -53,30 +50,39 @@ public class AuthorityCompoent implements Serializable{
 	public String getComponentId() {
 		return componentId;
 	}
+	
 	public void setComponentId(String componentId) {
 		this.componentId = componentId;
 	}
+	
 	public String getAuthorityValue() {
 		return authorityValue;
 	}
+	
 	public void setAuthorityValue(String authorityValue) {
 		this.authorityValue = authorityValue;
 	}
+	
 	public Long getCreater() {
 		return creater;
 	}
+	
 	public void setCreater(Long creater) {
 		this.creater = creater;
 	}
+	
 	public Date getCreateTime() {
 		return createTime;
 	}
+	
 	public void setCreateTime(Date createTime) {
 		this.createTime = createTime;
 	}
+	
 	public Date getLastUpdateTime() {
 		return lastUpdateTime;
 	}
+	
 	public void setLastUpdateTime(Date lastUpdateTime) {
 		this.lastUpdateTime = lastUpdateTime;
 	}
@@ -84,12 +90,10 @@ public class AuthorityCompoent implements Serializable{
 	public Long getLastUpdater() {
 		return lastUpdater;
 	}
+	
 	public void setLastUpdater(Long lastUpdater) {
 		this.lastUpdater = lastUpdater;
 	}
-
-
-
 
 	private static SqlSessionFactory sqlSessionFactory;
 
@@ -98,7 +102,6 @@ public class AuthorityCompoent implements Serializable{
 			sqlSessionFactory = Springfactory.getBean("sqlSessionFactory");
 		return AuthorityCompoent.sqlSessionFactory;
 	}
-	
 	
 	public String save() {
 		SqlSession session = getRepository().openSession();
@@ -115,6 +118,7 @@ public class AuthorityCompoent implements Serializable{
 		}
 		return this.id;
 	}
+
 	public void remove() {
 		SqlSession session = getRepository().openSession();
 		try {
@@ -154,8 +158,5 @@ public class AuthorityCompoent implements Serializable{
 			session.close();
 		}
 	}
-	
-	
-	
 	
 }

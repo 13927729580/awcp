@@ -13,9 +13,6 @@ import org.szcloud.framework.core.utils.Springfactory;
 
 public class AuthorityGroupWorkFlowNode implements Serializable{
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	
 	private String id;
@@ -33,50 +30,63 @@ public class AuthorityGroupWorkFlowNode implements Serializable{
 	public String getId() {
 		return id;
 	}
+	
 	public void setId(String id) {
 		this.id = id;
 	}
+	
 	public String getFlowNode() {
 		return flowNode;
 	}
+	
 	public void setFlowNode(String flowNode) {
 		this.flowNode = flowNode;
 	}
+	
 	public String getAuthorityGroup() {
 		return authorityGroup;
 	}
+	
 	public void setAuthorityGroup(String authorityGroup) {
 		this.authorityGroup = authorityGroup;
 	}
+	
 	public String getBakInfo() {
 		return bakInfo;
 	}
+	
 	public void setBakInfo(String bakInfo) {
 		this.bakInfo = bakInfo;
 	}
 
-
 	public Long getCreater() {
 		return creater;
 	}
+	
 	public void setCreater(Long creater) {
 		this.creater = creater;
 	}
+	
 	public Date getCreateTime() {
 		return createTime;
 	}
+	
 	public void setCreateTime(Date createTime) {
 		this.createTime = createTime;
 	}
+	
 	public Date getLastUpdateTime() {
 		return lastUpdateTime;
 	}
+	
 	public void setLastUpdateTime(Date lastUpdateTime) {
 		this.lastUpdateTime = lastUpdateTime;
 	}
+	
 	public Long getLastUpdater() {
 		return lastUpdater;
 	}
+	
 	public void setLastUpdater(Long lastUpdater) {
 		this.lastUpdater = lastUpdater;
 	}
@@ -84,11 +94,10 @@ public class AuthorityGroupWorkFlowNode implements Serializable{
 	public String getDynamicPageId() {
 		return dynamicPageId;
 	}
+	
 	public void setDynamicPageId(String dynamicPageId) {
 		this.dynamicPageId = dynamicPageId;
 	}
-
-
 
 	private static SqlSessionFactory sqlSessionFactory;
 
@@ -97,8 +106,7 @@ public class AuthorityGroupWorkFlowNode implements Serializable{
 			sqlSessionFactory = Springfactory.getBean("sqlSessionFactory");
 		return AuthorityGroupWorkFlowNode.sqlSessionFactory;
 	}
-	
-	
+		
 	public String save() {
 		SqlSession session = getRepository().openSession();
 		try {
@@ -114,6 +122,7 @@ public class AuthorityGroupWorkFlowNode implements Serializable{
 		}
 		return this.id;
 	}
+	
 	public void remove() {
 		SqlSession session = getRepository().openSession();
 		try {

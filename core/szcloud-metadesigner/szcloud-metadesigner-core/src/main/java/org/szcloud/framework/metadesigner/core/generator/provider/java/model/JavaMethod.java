@@ -1,4 +1,3 @@
-
 package org.szcloud.framework.metadesigner.core.generator.provider.java.model;
 
 import java.lang.annotation.Annotation;
@@ -11,15 +10,13 @@ import java.util.Set;
 import org.szcloud.framework.metadesigner.core.generator.util.StringHelper;
 import org.szcloud.framework.metadesigner.core.generator.util.typemapping.JavaImport;
 
-
 /**
  * 
  * @author caoyong
  */
 public class JavaMethod {
-	Method method;
+	private Method method;
 	private JavaClass clazz; //与method相关联的class
-	
 	
 	public JavaMethod(Method method, JavaClass clazz) {
 		super();
@@ -49,9 +46,13 @@ public class JavaMethod {
 		return method.isBridge();
 	}
 
+	public Method getMethod(){
+		return method;
+	}
+	
     public List<JavaClass> getExceptionTypes() {
-        List<JavaClass> result = new ArrayList();
-        for(Class c : method.getExceptionTypes()) {
+        List<JavaClass> result = new ArrayList<JavaClass>();
+        for(Class<?> c : method.getExceptionTypes()) {
             result.add(new JavaClass(c));
         }
         return result;
@@ -74,7 +75,7 @@ public class JavaMethod {
 	}
 	
 	public List<MethodParameter> getParameters() {
-		Class[] parameters  = method.getParameterTypes();
+		Class<?>[] parameters  = method.getParameterTypes();
 		List<MethodParameter> results = new ArrayList<MethodParameter>();
 		for(int i = 0; i < parameters.length; i++) {
 			results.add(new MethodParameter(i+1,this,new JavaClass(parameters[i])));

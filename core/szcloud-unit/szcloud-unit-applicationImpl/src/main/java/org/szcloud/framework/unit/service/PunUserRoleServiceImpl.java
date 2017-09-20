@@ -1,6 +1,4 @@
-
 package org.szcloud.framework.unit.service;
-
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,25 +7,20 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.szcloud.framework.core.common.exception.MRTException;
-import org.szcloud.framework.core.domain.QueryChannelService;
 import org.szcloud.framework.core.domain.BaseExample;
+import org.szcloud.framework.core.domain.QueryChannelService;
 import org.szcloud.framework.core.utils.BeanUtils;
 import org.szcloud.framework.core.utils.Springfactory;
+import org.szcloud.framework.unit.core.domain.PunUserRole;
 import org.szcloud.framework.unit.vo.PunRoleInfoVO;
 import org.szcloud.framework.unit.vo.PunUserRoleVO;
 
 import com.github.miemiedev.mybatis.paginator.domain.PageList;
-
-import org.szcloud.framework.unit.service.PunUserRoleService;
-import org.szcloud.framework.unit.core.domain.PdataDictionary;
-import org.szcloud.framework.unit.core.domain.PunUserRole;
-import org.apache.commons.lang3.StringUtils;
 
 @Service(value="punUserRoleServiceImpl")
 @Transactional
@@ -85,9 +78,11 @@ public class PunUserRoleServiceImpl implements PunUserRoleService{
 	}
 	
 	//参数：1.类名  2.mapper文件中对应的id  固定位queryList  3.根据条件来分页查询   4.当前页   5.取的记录他条数  6. 根据字段排序("name.asc")列子
-	public PageList queryPagedResult(Map<String, Object> params, int currentPage, int pageSize,String sortString) {
-		PageList resultVO = new PageList();
-		PageList result = queryChannel.queryPagedResult(PunUserRole.class,"queryList",params, currentPage, pageSize, sortString);
+	public PageList<PunUserRoleVO> queryPagedResult(Map<String, Object> params, 
+			int currentPage, int pageSize,String sortString) {
+		PageList<PunUserRoleVO> resultVO = new PageList<PunUserRoleVO>();
+		PageList<PunUserRole> result = queryChannel.queryPagedResult(PunUserRole.class,"queryList",params, 
+				currentPage, pageSize, sortString);
 		for (Object dd : result) {
 			resultVO.add(BeanUtils.getNewInstance(dd, PunUserRoleVO.class));			
 		}
@@ -104,10 +99,8 @@ public class PunUserRoleServiceImpl implements PunUserRoleService{
 		}
 	}
 	
-	public List<PunUserRoleVO> queryResult(String queryStr,Map<String, Object> params)
-	{
-		List<PunUserRole> result = queryChannel.queryResult(PunUserRole.class,
-				queryStr, params);
+	public List<PunUserRoleVO> queryResult(String queryStr,Map<String, Object> params){
+		List<PunUserRole> result = queryChannel.queryResult(PunUserRole.class,queryStr, params);
 		List<PunUserRoleVO> resultVO = new ArrayList<PunUserRoleVO>();
 		for (PunUserRole dd : result) {
 			resultVO.add(BeanUtils.getNewInstance(dd, PunUserRoleVO.class));			
@@ -117,8 +110,7 @@ public class PunUserRoleServiceImpl implements PunUserRoleService{
 	}
 	
 	public PageList<PunUserRoleVO> selectPagedByExample(BaseExample baseExample,
-			int currentPage, int pageSize,String sortString)
-	{
+			int currentPage, int pageSize,String sortString){
 		PageList<PunUserRoleVO> resultVO = new PageList<PunUserRoleVO>();
 		PageList<PunUserRole> result = queryChannel.selectPagedByExample(PunUserRole.class,
 				baseExample, currentPage, pageSize, sortString);
@@ -129,8 +121,7 @@ public class PunUserRoleServiceImpl implements PunUserRoleService{
 		return resultVO;
 	}
 	
-	public List<PunUserRoleVO> selectByExample(PunUserRoleVO vo)
-	{	
+	public List<PunUserRoleVO> selectByExample(PunUserRoleVO vo){	
 		String queryStr = "queryList";
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("userId", vo.getUserId());
@@ -150,6 +141,7 @@ public class PunUserRoleServiceImpl implements PunUserRoleService{
 		}
 		return true;
 	}
+	
 	/**
 	 * 
 	 * 角色与人员之间关联
@@ -191,23 +183,15 @@ public class PunUserRoleServiceImpl implements PunUserRoleService{
 		}
 		return flag;
 	}
+	
 	@Override
 	public void deletebyUserIdAndRoleIds(Long userId,List<PunRoleInfoVO> roles) throws MRTException {
-	/*	Map<String, Object> params = null;
-		String method = "deleteByRoleIdAndUserId";
-		for (PunRoleInfoVO punRoleInfoVO : roles) {
-			params = new HashMap<String, Object>();
-			params.put("roleId", punRoleInfoVO.getRoleId());
-			params.put("userId", userId);
-			queryChannel.excuteMethod(PunUserRole.class, method, params);
-		}*/	
 		JdbcTemplate template = Springfactory.getBean("jdbcTemplate");
 		for (PunRoleInfoVO punRoleInfoVO : roles) {
 			String sql = "delete from p_un_user_role where role_id="
 					+ punRoleInfoVO.getRoleId() + " and user_id=" + userId;
 			template.execute(sql);
 		}
-	
 	}
 
 }

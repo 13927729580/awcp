@@ -1,65 +1,20 @@
 package org.szcloud.framework.formdesigner.application.vo;
 
 public class ComponentVO {
-	
-	
-	/**
-	 * 组件类型
-	 * 	PageObjectType
-	 */
-	private Integer componentType;
-	
-	/**
-	 * 所属页面
-	 */
-	private String dynamicPageId;
-	/**
-	 * 组件的额外信息
-	 */
-	private String tittle;
-	/**
-	 * 激活元素的快捷键
-	 */
-	private String accessKey;
-	/**
-	 * 组件的tab键次序
-	 */
-	private String tabIndex;
-	
-	/**
-	 * 使用的语言--使用语言代码
-	 */
-	private String lang;
-	/**
-	 * 文字方向
-	 */
-	private String dir;
-	/**
-	 * 组件对应的数据字段
-	 */
-	private String dataItemCode;
-	
-	/**
-	 * 值类型
-	 */
-	private String valueType;
-	/**
-	 * 值格式
-	 */
-	private String formatString;
-	/**
-	 * 默认值的值脚本 
-	 */
-	private String defaultValueScript;
-	/**
-	 * 校验
-	 */
-	private String formValidator;
-	
-	/**
-	 * 多选控件的text选项；
-	 */
-	private String optionScript;
+		
+	private Integer componentType;	//组件类型
+	private String dynamicPageId;	// 所属页面
+	private String tittle;		//组件的额外信息
+	private String accessKey;	//激活元素的快捷键
+	private String tabIndex;	//组件的tab键次序
+	private String lang;		//使用的语言--使用语言代码
+	private String dir;			//文字方向
+	private String dataItemCode;//文字方向
+	private String valueType;	//值类型
+	private String formatString;//值格式
+	private String defaultValueScript;	//默认值的值脚本
+	private String formValidator;	//校验
+	private String optionScript;	//多选控件的text选项；
 
 	public Integer getComponentType() {
 		return componentType;

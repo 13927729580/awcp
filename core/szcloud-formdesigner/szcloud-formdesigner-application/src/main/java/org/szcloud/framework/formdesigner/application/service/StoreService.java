@@ -40,6 +40,7 @@ public interface StoreService {
 	 * 函数库类型的code前缀
 	 */
 	public static final String FUNC_CODE = "0.1.10.";
+	
 	/**
 	 * 
 	 * @Title: save
@@ -58,7 +59,6 @@ public interface StoreService {
 	 * @throws
 	 */
 	public boolean delete(StoreVO vo);
-
 	
 	/**
 	 * 
@@ -76,8 +76,7 @@ public interface StoreService {
 	 * @param code
 	 * @return boolean
 	 * @throws
-	 */
-	
+	 */	
 	public StoreVO findById(String id);
 	
 	/**
@@ -97,8 +96,7 @@ public interface StoreService {
 	 * @return
 	 */
 	public PageList<StoreVO> findByDyanamicPageId(Long dyanamicPageId);
-	
-	
+		
 	/**
 	 * 复制动态表单下的所有组件（包括Layout、Component和PageAct）到另外一个表单
 	 * 
@@ -142,6 +140,7 @@ public interface StoreService {
 	 */
 	public PageList<StoreVO> selectPagedByExample(BaseExample baseExample,
 			int currentPage, int pageSize, String sortString);
+	
 	/**
 	 * 
 	 * @Title: copy 
@@ -156,11 +155,12 @@ public interface StoreService {
 
 	boolean delete(String[] ids);
 	
-	public List queryComponentByLayoutId(String layoutID,Long systemId);
+	public List<StoreVO> queryComponentByLayoutId(String layoutID,Long systemId);
 
 	List<StoreVO> findByIds(List<String> ids);
 
 	boolean delete(List<String> ids);
+	
 	/**
 	 * 通过页面Id查找页面所有组件
 	 * @param dyanamicPageId
@@ -169,12 +169,14 @@ public interface StoreService {
 	PageList<JSONObject> findComponentByDyanamicPageId(Long dyanamicPageId);
 
 	PageList<JSONObject> findParentComponentByDyanamicPageId(Long dyanamicPageId);
+	
 	/**
 	 * 重置组件order
 	 * @param dynamicPageId
 	 * @return
 	 */
 	boolean freshComponentOrder(String dynamicPageId);
+	
 	/**
 	 * 重置布局Order
 	 * @param dynamicPageId

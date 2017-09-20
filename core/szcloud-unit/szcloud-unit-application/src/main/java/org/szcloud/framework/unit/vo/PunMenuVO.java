@@ -157,4 +157,13 @@ public class PunMenuVO {
 		return new EqualsBuilder().append(getMenuId(), other.getMenuId()).isEquals();
 	}
 
+	@Override
+	public String toString() {
+		return "PunMenuVO [menuId=" + menuId + ", parentMenuId=" + parentMenuId + ", menuType=" + menuType
+				+ ", menuName=" + menuName + ", menuIcon=" + menuIcon + ", menuAddress=" + menuAddress
+				+ ", dynamicPageId=" + dynamicPageId + ", menuSeq=" + menuSeq + ", pid=" + pid + ", operateType="
+				+ operateType + ", sysId=" + sysId + ", dynamicpageName=" + dynamicpageName + ", menuFlag=" + menuFlag
+				+ ", type=" + type + ", checked=" + checked + "]";
+	}
+
 }

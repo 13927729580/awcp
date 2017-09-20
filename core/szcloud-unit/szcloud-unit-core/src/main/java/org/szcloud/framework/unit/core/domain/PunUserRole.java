@@ -5,14 +5,21 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.szcloud.framework.core.domain.BaseEntity;
-import java.util.*;
 
+/**
+ * 用户角色实体类
+ * @author Administrator
+ *
+ */
 public class PunUserRole extends BaseEntity{
+
+	private static final long serialVersionUID = -4698751148111928244L;
 	private Long userRoleId;
 	private Long userId;
 	private Long roleId;
 
 	public PunUserRole(){
+		
 	}
 
 	public PunUserRole(Long userRoleId){
@@ -26,6 +33,7 @@ public class PunUserRole extends BaseEntity{
 	public Long getUserRoleId() {
 		return this.userRoleId;
 	}
+	
 	public void setUserId(Long value) {
 		this.userId = value;
 	}
@@ -33,6 +41,7 @@ public class PunUserRole extends BaseEntity{
 	public Long getUserId() {
 		return this.userId;
 	}
+	
 	public void setRoleId(Long value) {
 		this.roleId = value;
 	}

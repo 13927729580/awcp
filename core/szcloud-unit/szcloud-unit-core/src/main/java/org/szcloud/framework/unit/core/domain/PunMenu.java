@@ -9,10 +9,12 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import org.szcloud.framework.core.common.exception.MRTException;
 import org.szcloud.framework.core.domain.BaseEntity;
 
+/**
+ * 菜单实体类
+ * @author Administrator
+ *
+ */
 public class PunMenu extends BaseEntity {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 5676772407916526067L;
 	private Long menuId;
 	private Long parentMenuId;
@@ -22,12 +24,20 @@ public class PunMenu extends BaseEntity {
 	private Long dynamicPageId;
 	private String menuAddress;
 	private Integer menuSeq;
-
 	private String pid;
 	private Long sysId;
 	private int menuFlag;
 	private int type;
+	private Long id;
+	private PunMenu punMenu;
 
+	public PunMenu() {
+	}
+
+	public PunMenu(Long menuId) {
+		this.menuId = menuId;
+	}
+	
 	public int getMenuFlag() {
 		return menuFlag;
 	}
@@ -42,15 +52,6 @@ public class PunMenu extends BaseEntity {
 
 	public void setType(int type) {
 		this.type = type;
-	}
-
-	private Long id;
-
-	public PunMenu() {
-	}
-
-	public PunMenu(Long menuId) {
-		this.menuId = menuId;
 	}
 
 	public void setMenuId(Long value) {
@@ -125,8 +126,6 @@ public class PunMenu extends BaseEntity {
 		return this.menuSeq;
 	}
 
-	private PunMenu punMenu;
-
 	public void setPunMenu(PunMenu punMenu) {
 		this.punMenu = punMenu;
 	}
@@ -135,6 +134,22 @@ public class PunMenu extends BaseEntity {
 		return punMenu;
 	}
 
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getPid() {
+		return pid;
+	}
+
+	public void setPid(String pid) {
+		this.pid = pid;
+	}
+	
 	public String toString() {
 		return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE).append("MenuId", getMenuId())
 				.append("ParentMenuId", getMenuId()).append("MenuType", getMenuType()).append("MenuName", getMenuName())
@@ -165,22 +180,6 @@ public class PunMenu extends BaseEntity {
 
 	public static List<PunMenu> findAll() throws MRTException {
 		return PunMenu.getRepository().findAll(PunMenu.class);
-	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getPid() {
-		return pid;
-	}
-
-	public void setPid(String pid) {
-		this.pid = pid;
 	}
 
 }

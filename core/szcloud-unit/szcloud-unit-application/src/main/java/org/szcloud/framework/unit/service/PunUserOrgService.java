@@ -1,6 +1,4 @@
-
 package org.szcloud.framework.unit.service;
-
 
 import java.util.List;
 import java.util.Map;
@@ -23,6 +21,5 @@ public interface PunUserOrgService {
 	public PageList<PunUserOrgVO> selectPagedByExample(String queryStr, Map<String, Object> params, int currentPage, int pageSize,String sortString);
 	
 	public PunUserOrgVO get(Long id);
-		
 	
 }

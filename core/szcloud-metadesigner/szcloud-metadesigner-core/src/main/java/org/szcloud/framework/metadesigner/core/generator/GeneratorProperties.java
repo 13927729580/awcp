@@ -13,8 +13,6 @@ import org.szcloud.framework.metadesigner.core.generator.util.PropertyPlaceholde
 import org.szcloud.framework.metadesigner.core.generator.util.PropertyPlaceholderHelper.PropertyPlaceholderConfigurerResolver;
 import org.szcloud.framework.metadesigner.core.generator.util.typemapping.DatabaseTypeUtils;
 
-
-
 /**
  * 生成器配置类
  * 用于装载generator.properties,generator.xml文件
@@ -65,9 +63,6 @@ public class GeneratorProperties {
         Properties autoReplaceProperties = new Properties();
         for(Object key : getProperties().keySet()) {
             String dir_key = key.toString()+"_dir";
-//            if(props.entrySet().contains(dir_key)) {
-//                continue;
-//            }
             String value = props.getProperty(key.toString());
             String dir_value = value.toString().replace('.', '/');
             autoReplaceProperties.put(dir_key, dir_value);           
@@ -132,6 +127,7 @@ public class GeneratorProperties {
 		return helper.replacePlaceholders(v, propertyPlaceholderConfigurerResolver);
 	}
 	
+	@SuppressWarnings("rawtypes")
 	public static void setProperties(Properties inputProps) {
 		props = new PropertiesHelper(resolveProperties(inputProps),true);
         for(Iterator it = props.entrySet().iterator();it.hasNext();) {

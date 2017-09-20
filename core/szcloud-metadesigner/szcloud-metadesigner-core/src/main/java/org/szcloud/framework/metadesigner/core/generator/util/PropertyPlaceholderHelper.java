@@ -1,13 +1,10 @@
-
 package org.szcloud.framework.metadesigner.core.generator.util;
 
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
-
 public class PropertyPlaceholderHelper {
-
 
 	private final String placeholderPrefix;
 
@@ -16,7 +13,6 @@ public class PropertyPlaceholderHelper {
 	private final String valueSeparator;
 
 	private final boolean ignoreUnresolvablePlaceholders;
-
 
 	/**
 	 * Creates a new <code>PropertyPlaceholderHelper</code> that uses the supplied prefix and suffix.
@@ -44,7 +40,6 @@ public class PropertyPlaceholderHelper {
 		this.valueSeparator = valueSeparator;
 		this.ignoreUnresolvablePlaceholders = ignoreUnresolvablePlaceholders;
 	}
-
 
 	/**
 	 * Replaces all placeholders of format <code>${name}</code> with the corresponding property
@@ -76,7 +71,6 @@ public class PropertyPlaceholderHelper {
 
 	protected String parseStringValue(
 			String strVal, PlaceholderResolver placeholderResolver, Set<String> visitedPlaceholders) {
-
 		StringBuilder buf = new StringBuilder(strVal);
 
 		int startIndex = strVal.indexOf(this.placeholderPrefix);
@@ -105,8 +99,6 @@ public class PropertyPlaceholderHelper {
 					}
 				}
 				if (propVal != null) {
-					// Recursive invocation, parsing placeholders contained in the
-					// previously resolved placeholder value.
 					propVal = parseStringValue(propVal, placeholderResolver, visitedPlaceholders);
 					buf.replace(startIndex, endIndex + this.placeholderSuffix.length(), propVal);
 
@@ -115,20 +107,17 @@ public class PropertyPlaceholderHelper {
 					startIndex = buf.indexOf(this.placeholderPrefix, startIndex + propVal.length());
 				}
 				else if (this.ignoreUnresolvablePlaceholders) {
-					// Proceed with unprocessed value.
 					startIndex = buf.indexOf(this.placeholderPrefix, endIndex + this.placeholderSuffix.length());
 				}
 				else {
 					throw new IllegalArgumentException("Could not resolve placeholder '" + placeholder + "'");
 				}
-
 				visitedPlaceholders.remove(placeholder);
 			}
 			else {
 				startIndex = -1;
 			}
 		}
-
 		return buf.toString();
 	}
 
@@ -172,13 +161,10 @@ public class PropertyPlaceholderHelper {
 	}
 
 	public static class PropertyPlaceholderConfigurerResolver implements PlaceholderResolver {
-
 		private final Properties props;
-
 		public PropertyPlaceholderConfigurerResolver(Properties props) {
 			this.props = props;
 		}
-
 		public String resolvePlaceholder(String placeholderName) {
 			String value = props.getProperty(placeholderName);
 			if(value == null) {

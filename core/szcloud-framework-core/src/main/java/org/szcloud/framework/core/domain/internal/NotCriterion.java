@@ -1,27 +1,19 @@
-/*    */ package org.szcloud.framework.core.domain.internal;
-/*    */ 
-/*    */ import org.szcloud.framework.core.domain.QueryCriterion;
-/*    */ import org.szcloud.framework.core.domain.QueryException;
-/*    */ 
-/*    */ public class NotCriterion
-/*    */   implements QueryCriterion
-/*    */ {
-/*    */   private QueryCriterion criterion;
-/*    */ 
-/*    */   public NotCriterion(QueryCriterion criterion)
-/*    */   {
-/* 10 */     if (criterion == null) {
-/* 11 */       throw new QueryException("Query criterion is null!");
-/*    */     }
-/* 13 */     this.criterion = criterion;
-/*    */   }
-/*    */ 
-/*    */   public QueryCriterion getCriteron() {
-/* 17 */     return this.criterion;
-/*    */   }
-/*    */ }
+package org.szcloud.framework.core.domain.internal;
 
-/* Location:           C:\Users\Administrator\Desktop\dayatang-commons-domain-3.5.jar
- * Qualified Name:     org.szcloud.framework.core.domain.internal.NotCriterion
- * JD-Core Version:    0.6.2
- */
+import org.szcloud.framework.core.domain.QueryCriterion;
+import org.szcloud.framework.core.domain.QueryException;
+
+public class NotCriterion implements QueryCriterion{
+	private QueryCriterion criterion;
+
+	public NotCriterion(QueryCriterion criterion) {
+		if (criterion == null) {
+			throw new QueryException("Query criterion is null!");
+		}
+		this.criterion = criterion;
+	}
+
+	public QueryCriterion getCriteron() {
+		return this.criterion;
+	}
+}

@@ -29,6 +29,7 @@ public class MetaModelServiceImpl implements MetaModelService {
 	 * 日志对象
 	 */
 	private static final Logger logger = LoggerFactory.getLogger(MetaModelServiceImpl.class);
+	
 	@Resource(name = "queryChannel")
 	private QueryChannelService queryChannel;
 
@@ -72,11 +73,9 @@ public class MetaModelServiceImpl implements MetaModelService {
 		}
 		result.clear();
 		return resultVo;
-
 	}
 
-	public PageList<MetaModelVO> selectPagedByExample(BaseExample baseExample, int currentPage, int pageSize,
-			String sortString) {
+	public PageList<MetaModelVO> selectPagedByExample(BaseExample baseExample, int currentPage, int pageSize,String sortString) {
 		Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 		if (obj instanceof PunSystemVO) {
 			PunSystemVO system = (PunSystemVO) obj;
@@ -86,8 +85,8 @@ public class MetaModelServiceImpl implements MetaModelService {
 				baseExample.createCriteria().andEqualTo("SYSTEM_ID", system.getSysId());
 			}
 		}
-		PageList<MetaModel> result = queryChannel.selectPagedByExample(MetaModel.class, baseExample, currentPage,
-				pageSize, sortString);
+		PageList<MetaModel> result = queryChannel.selectPagedByExample(MetaModel.class, baseExample, 
+				currentPage,pageSize, sortString);
 		List<MetaModelVO> resultVO = new ArrayList<MetaModelVO>();
 		for (Object dd : result) {
 			resultVO.add(BeanUtils.getNewInstance(dd, MetaModelVO.class));
@@ -107,15 +106,15 @@ public class MetaModelServiceImpl implements MetaModelService {
 		return resultVo;
 	}
 
-	public PageList eqQueryPagedResult(MetaModelVO vo, int currentPage, int pageSize, String sortString) {
+	public PageList<MetaModelVO> eqQueryPagedResult(MetaModelVO vo, int currentPage, int pageSize, String sortString) {
 		MetaModel sm = BeanUtils.getNewInstance(vo, MetaModel.class);
-		PageList result = queryChannel.eqQueryPagedResult(MetaModel.class, sm, currentPage, pageSize, sortString);
+		PageList<MetaModel> result = queryChannel.eqQueryPagedResult(MetaModel.class, sm, currentPage, pageSize, sortString);
 		List<MetaModelVO> resultvo = new ArrayList<MetaModelVO>();
-		for (Object smm : result) {
+		for (MetaModel smm : result) {
 			resultvo.add(BeanUtils.getNewInstance(smm, MetaModelVO.class));
 		}
 		result.clear();
-		return new PageList(resultvo, result.getPaginator());
+		return new PageList<MetaModelVO>(resultvo, result.getPaginator());
 	}
 
 	public MetaModelVO get(Long id) {
@@ -127,30 +126,27 @@ public class MetaModelServiceImpl implements MetaModelService {
 		}
 	}
 
-	public PageList<MetaModelVO> queryResult(String queryStr, Map<String, Object> params, int currentPage, int pageSize,
-			String sortString) {
+	public PageList<MetaModelVO> queryResult(String queryStr, Map<String, Object> params, 
+			int currentPage, int pageSize,String sortString) {
 		Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 		if (obj instanceof PunSystemVO) {
 			PunSystemVO system = (PunSystemVO) obj;
 			params.put("systemId", system.getSysId());
 		}
-		PageList<MetaModel> pl = queryChannel.queryPagedResult(MetaModel.class, queryStr, params, currentPage, pageSize,
-				sortString);
-
+		PageList<MetaModel> pl = queryChannel.queryPagedResult(MetaModel.class, queryStr, params, 
+				currentPage, pageSize,sortString);
 		PageList<MetaModelVO> list = new PageList<MetaModelVO>(pl.getPaginator());
 		for (MetaModel m : pl) {
 			MetaModelVO vo = BeanUtils.getNewInstance(m, MetaModelVO.class);
 			list.add(vo);
 		}
-
 		return list;
-
 	}
 
 	public boolean tableIsExist(String tableName) {
 		try {
 			String sql = "select * from " + tableName;
-			return this.excuteSql(sql);
+			return excuteSql(sql);
 		} catch (Exception e) {
 			return false;
 		}
@@ -167,7 +163,7 @@ public class MetaModelServiceImpl implements MetaModelService {
 
 	public MetaModelVO load(long id) {
 		try {
-			MetaModel mm = new MetaModel().load(MetaModel.class, id);
+			MetaModel mm = MetaModel.load(MetaModel.class, id);
 			MetaModelVO mmo = BeanUtils.getNewInstance(mm, MetaModelVO.class);
 			logger.debug(mmo.getModelName());
 			return mmo;
@@ -237,7 +233,7 @@ public class MetaModelServiceImpl implements MetaModelService {
 				map.put("systemId", system.getSysId());
 			}
 		}
-		MetaModel mm = this.queryChannel.querySingleResult(MetaModel.class, "queryByModelCode", map);
+		MetaModel mm = queryChannel.querySingleResult(MetaModel.class, "queryByModelCode", map);
 		MetaModelVO vo = BeanUtils.getNewInstance(mm, MetaModelVO.class);
 		return vo;
 	}
@@ -246,20 +242,20 @@ public class MetaModelServiceImpl implements MetaModelService {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("modelCode", modelCode);
 		map.put("systemId", systemId);
-		MetaModel mm = this.queryChannel.querySingleResult(MetaModel.class, "queryByModelCode", map);
+		MetaModel mm = queryChannel.querySingleResult(MetaModel.class, "queryByModelCode", map);
 		MetaModelVO vo = BeanUtils.getNewInstance(mm, MetaModelVO.class);
 		return vo;
 	}
 
-	public PageList<MetaModelVO> queryPagedResult(Map<String, Object> params, int currentPage, int pageSize,
-			String sortString) {
+	public PageList<MetaModelVO> queryPagedResult(Map<String, Object> params, 
+			int currentPage, int pageSize,String sortString) {
 		Object obj = Tools.getObjectFromSession(SessionContants.CURRENT_SYSTEM);
 		if (obj instanceof PunSystemVO) {
 			PunSystemVO system = (PunSystemVO) obj;
 			params.put("systemId", system.getSysId());
 		}
-		PageList<MetaModel> result = queryChannel.queryPagedResult(MetaModel.class, "eqQueryList", params, currentPage,
-				pageSize, sortString);
+		PageList<MetaModel> result = queryChannel.queryPagedResult(MetaModel.class, "eqQueryList", params, 
+				currentPage,pageSize, sortString);
 		List<MetaModelVO> tmp = new ArrayList<MetaModelVO>();
 		for (MetaModel model : result) {
 			tmp.add(BeanUtils.getNewInstance(model, MetaModelVO.class));
@@ -267,7 +263,6 @@ public class MetaModelServiceImpl implements MetaModelService {
 		PageList<MetaModelVO> resultVO = new PageList<MetaModelVO>(tmp, result.getPaginator());
 		result.clear();
 		return resultVO;
-
 	}
 
 }

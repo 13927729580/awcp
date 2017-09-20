@@ -1,10 +1,8 @@
-
 package org.szcloud.framework.metadesigner.core.generator.util.paranamer;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-
 
 public interface Paranamer {
 

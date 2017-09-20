@@ -1,9 +1,13 @@
 package org.szcloud.framework.formdesigner.core.domain;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.szcloud.framework.core.domain.BaseExample;
@@ -40,6 +44,16 @@ public class Attachment implements Serializable {
 	private Date createTime;
 	// 更新时间
 	private Date updateTime;
+	
+	private int type;
+
+	public int getType() {
+		return type;
+	}
+
+	public void setType(int type) {
+		this.type = type;
+	}
 
 	public String getId() {
 		return id;
@@ -142,6 +156,9 @@ public class Attachment implements Serializable {
 		this.updateTime = new Date();
 		SqlSession session = getRepository().openSession();
 		try {
+			// TODO by ayesd
+			// this.setId(UUID.randomUUID().toString());
+
 			session.insert(Attachment.class.getName() + ".update", this);
 			session.commit();
 		} finally {
@@ -177,6 +194,29 @@ public class Attachment implements Serializable {
 		} finally {
 			session.close();
 		}
+	}
+
+	public static Attachment getByStorage(String storage) {
+		SqlSession session = getRepository().openSession();
+		try {
+			Attachment t = session.selectOne(Attachment.class.getName() + ".getByStorage", storage);
+			return t;
+		} finally {
+			session.close();
+		}
+	}
+
+	public InputStream getInputStreamByFolder() {
+		FileInputStream is = null;
+		if (this != null && StringUtils.isNotBlank(this.getStorageId())) {
+			try {
+				is = new FileInputStream(this.getStorageId());
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return is;
 	}
 
 }

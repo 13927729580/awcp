@@ -23,7 +23,6 @@ public interface PunSystemDictService {
 	
 	public List<PunSystemDictVO> queryResult(String queryStr,Map<String, Object> params);
 	
-	public PageList<PunSystemDictVO> queryPagedResult(String queryStr,
-			Map<String, Object> params, int currentPage, int pageSize,
-			String sortString);
+	public PageList<PunSystemDictVO> queryPagedResult(String queryStr,Map<String, Object> params, 
+			int currentPage, int pageSize,String sortString);
 }

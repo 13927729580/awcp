@@ -31,6 +31,5 @@ public class ProjectManageVO {
 	public void setProjectCode(String projectCode) {
 		this.projectCode = projectCode;
 	}
-	
-	
+		
 }

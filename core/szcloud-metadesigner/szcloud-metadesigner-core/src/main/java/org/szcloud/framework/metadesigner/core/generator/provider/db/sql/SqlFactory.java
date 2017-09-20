@@ -58,8 +58,6 @@ public class SqlFactory {
     public Sql parseSql(String sourceSql) {
     	if(StringHelper.isBlank(sourceSql)) throw new IllegalArgumentException("sourceSql must be not empty");
     	String beforeProcessedSql = beforeParseSql(sourceSql);
-    	
-//    	String unscapedSourceSql = StringHelper.unescapeXml(beforeProcessedSql);
     	String namedSql = SqlParseHelper.convert2NamedParametersSql(beforeProcessedSql,":","");
         ParsedSql parsedSql = NamedParameterUtils.parseSqlStatement(namedSql);
         String executeSql = new BasicSqlFormatter().format(NamedParameterUtils.substituteNamedParameters(parsedSql));
@@ -125,10 +123,11 @@ public class SqlFactory {
 	}
 	
     public class SelectColumnsParser {
-    
 		private LinkedHashSet<Column> convert2Columns(Sql sql,ResultSetMetaData metadata) throws SQLException, Exception {
-			if(metadata == null) return new LinkedHashSet();
-			LinkedHashSet<Column> columns = new LinkedHashSet();
+			if(metadata == null) {
+				return new LinkedHashSet<Column>();
+			}
+			LinkedHashSet<Column> columns = new LinkedHashSet<Column>();
 	        for(int i = 1; i <= metadata.getColumnCount(); i++) {
 	        	Column c = convert2Column(sql,metadata, i);
 	        	if(c == null) throw new IllegalStateException("column must be not null");
@@ -140,7 +139,7 @@ public class SqlFactory {
         private Column convert2Column(Sql sql,ResultSetMetaData metadata, int i) throws SQLException, Exception {
 			ResultSetMetaDataHolder m = new ResultSetMetaDataHolder(metadata, i);
 			if(StringHelper.isNotBlank(m.getTableName())) {
-				//FIXME 如果表有别名,将会找不到表,如 inner join user_info t1, tableName将为t1,应该转换为user_info
+				// 如果表有别名,将会找不到表,如 inner join user_info t1, tableName将为t1,应该转换为user_info
 				Table table = foundTableByTableNameOrTableAlias(sql, m.getTableName());
 				if(table == null) {
 					return newColumn(null,m);
@@ -214,14 +213,15 @@ public class SqlFactory {
 				if(column == null) {
 					column = specialParametersMapping.get(paramName);
 					if(column == null) {
-						//FIXME 不能猜测的column类型
+						// 不能猜测的column类型
 						column = new Column(null,JdbcType.UNDEFINED.TYPE_CODE,"UNDEFINED",paramName,0,0,false,false,false,false,null,null);
 					}
 				}
 				SqlParameter param = new SqlParameter(column);
 				
 				param.setParamName(paramName);
-				if(isMatchListParam(sql.getSourceSql(), paramName)) { //FIXME 只考虑(:username)未考虑(#inUsernames#) and (#{inPassword}),并且可以使用 #inUsername[]#
+				if(isMatchListParam(sql.getSourceSql(), paramName)) { 
+					// 只考虑(:username)未考虑(#inUsernames#) and (#{inPassword}),并且可以使用 #inUsername[]#
 					param.setListParam(true);
 				}
 				result.add(param);			
@@ -246,7 +246,7 @@ public class SqlFactory {
 		    }
 			Column column = sql.getColumnByName(paramName);
 			if(column == null) {
-				//FIXME 还未处理 t.username = :username的t前缀问题
+				// 还未处理 t.username = :username的t前缀问题
 				column = findColumnByParseSql(parsedSql, SqlParseHelper.getColumnNameByRightCondition(parsedSql.toString(), paramName) );
 			}
 			if(column == null) {
@@ -269,25 +269,5 @@ public class SqlFactory {
 			return null;
 		}
 	}
-    
-    public static void main(String[] args) throws Exception {
-    	// ? parameters
-//    	SelectSqlMetaData t1 = new SqlQueryFactory().getByQuery("select * from user_info");
-//    	SelectSqlMetaData t2 = new SqlQueryFactory().getByQuery("select user_info.username,password pwd from user_info where username=? and password =?");
-//    	SelectSqlMetaData t3 = new SqlQueryFactory().getByQuery("select username,password,role.role_name,role_desc from user_info,role where user_info.user_id = role.user_id and username=? and password =?");
-//    	SelectSqlMetaData t4 = new SqlQueryFactory().getByQuery("select count(*) cnt from user_info,role where user_info.user_id = role.user_id and username=? and password =?");
-//    	SelectSqlMetaData t5 = new SqlQueryFactory().getByQuery("select sum(age) from user_info,role where user_info.user_id = role.user_id and username=? and password =?");
-//    	SelectSqlMetaData t6 = new SqlQueryFactory().getByQuery("select username,password,role_desc from user_info,role where user_info.user_id = role.user_id and username=? and password =? limit ?,?");
-//    	SelectSqlMetaData t7 = new SqlQueryFactory().getByQuery("select username,password,count(role_desc) role_desc_cnt from user_info,role where user_info.user_id = role.user_id group by username");
-//    
-    	Sql n2 = new SqlFactory().parseSql("select user_info.username,password pwd from user_info where username=:username and password =:password");
-    	Sql n3 = new SqlFactory().parseSql("select username,password,role.role_name,role_desc from user_info,role where user_info.user_id = role.user_id and username=:username and password =:password");
-    	Sql n4 = new SqlFactory().parseSql("select count(*) cnt from user_info,role where user_info.user_id = role.user_id and username=:username and password =:password");
-    	Sql n5 = new SqlFactory().parseSql("select sum(age) from user_info,role where user_info.user_id = role.user_id and username=:username and password =:password");
-    	Sql n7 = new SqlFactory().parseSql("select username,password,count(role_desc) role_desc_cnt from user_info,role where user_info.user_id = role.user_id group by username");
-    	Sql n8 = new SqlFactory().parseSql("select username,password,count(role_desc) role_desc_cnt from user_info,role where user_info.user_id = :userId group by username");
-    	new SqlFactory().parseSql("select username,password,role_desc from user_info,role where user_info.user_id = role.user_id and username=:username and password =:password and birth_date between :birthDateBegin and :birthDateEnd");
-    	new SqlFactory().parseSql("select username,password,role_desc from user_info,role where user_info.user_id = role.user_id and username=:username and password =:password and birth_date between :birthDateBegin and :birthDateEnd limit :offset,:limit");
-    }
     
 }

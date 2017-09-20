@@ -66,7 +66,7 @@
 					var data;
 					//查找是否是动态语句查找
 					if(option.indexOf("=")==-1){
-						data=Comm.getData(that.option.url,{APIId:option},true);
+						data=Comm.getData(that.option.url,{APIId:option});
 					}else{
 						var options=option.split(";");
 						data=[];

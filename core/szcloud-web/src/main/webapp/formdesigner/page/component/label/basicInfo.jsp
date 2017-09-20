@@ -23,7 +23,8 @@
 	<label class="col-md-2 control-label required">是否必须</label>
 	<div class="col-md-4">
 		<select name="isRequired" class="form-control" id="isRequired">			
-			<option value="2">否</option>
+			<option value="2">否居右</option>
+			<option value="3">否居中</option>
 			<option value="1">是</option>
 		</select>
 	</div>

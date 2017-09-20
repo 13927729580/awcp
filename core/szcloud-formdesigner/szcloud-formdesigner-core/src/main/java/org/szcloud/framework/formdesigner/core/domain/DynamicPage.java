@@ -94,33 +94,44 @@ public class DynamicPage extends PageObject {
 	private String reverseNumMode;
 	//序号列排序方式，1降序，0升序
 	private String reverseSortord;
+	private Long modular;	//所属模块
+	
 	public Integer getShowTotalCount() {
 		return showTotalCount;
 	}
+	
 	public void setShowTotalCount(Integer showTotalCount) {
 		this.showTotalCount = showTotalCount;
 	}
+	
 	public Integer getIsLimitPage() {
 		return isLimitPage;
 	}
+	
 	public void setIsLimitPage(Integer isLimitPage) {
 		this.isLimitPage = isLimitPage;
 	}
+	
 	public Long getPageSize() {
 		return pageSize;
 	}
+	
 	public void setPageSize(Long pageSize) {
 		this.pageSize = pageSize;
 	}
+	
 	public Integer getShowReverseNum() {
 		return showReverseNum;
 	}
+	
 	public void setShowReverseNum(Integer showReverseNum) {
 		this.showReverseNum = showReverseNum;
 	}
+	
 	public String getReverseNumMode() {
 		return reverseNumMode;
 	}
+	
 	public void setReverseNumMode(String reverseNumMode) {
 		this.reverseNumMode = reverseNumMode;
 	}
@@ -128,60 +139,79 @@ public class DynamicPage extends PageObject {
 	public Long getSystemId() {
 		return systemId;
 	}
+	
 	public void setSystemId(Long systemId) {
 		this.systemId = systemId;
 	}
+	
 	public int getPageType() {
 		return pageType;
 	}
+	
 	public void setPageType(int pageType) {
 		this.pageType = pageType;
 	}
+	
 	public String getIsLog() {
 		return isLog;
 	}
+	
 	public void setIsLog(String isLog) {
 		this.isLog = isLog;
 	}
+	
 	public String getDataJson() {
 		return dataJson;
 	}
+	
 	public void setDataJson(String dataJson) {
 		this.dataJson = dataJson;
 	}
+	
 	public String getPreLoadScript() {
 		return preLoadScript;
 	}
+	
 	public void setPreLoadScript(String preLoadScript) {
 		this.preLoadScript = preLoadScript;
 	}
+	
 	public String getAfterLoadScript() {
 		return afterLoadScript;
 	}
+	
 	public void setAfterLoadScript(String afterLoadScript) {
 		this.afterLoadScript = afterLoadScript;
 	}
+	
 	public Date getCreated() {
 		return created;
 	}
+	
 	public void setCreated(Date created) {
 		this.created = created;
 	}
+	
 	public Date getUpdated() {
 		return updated;
 	}
+	
 	public void setUpdated(Date updated) {
 		this.updated = updated;
 	}
+	
 	public String getWorkflowNodeInfo() {
 		return workflowNodeInfo;
 	}
+	
 	public void setWorkflowNodeInfo(String workflowNodeInfo) {
 		this.workflowNodeInfo = workflowNodeInfo;
 	}
+	
 	public String getTemplateContext() {
 		return templateContext;
 	}
+	
 	public void setTemplateContext(String templateContext) {
 		this.templateContext = templateContext;
 	}
@@ -189,70 +219,92 @@ public class DynamicPage extends PageObject {
 	public String getStores() {
 		return stores;
 	}
+	
 	public void setStores(String stores) {
 		this.stores = stores;
 	}
+	
 	public Long getTemplateId() {
 		return templateId;
 	}
+	
 	public void setTemplateId(Long templateId) {
 		this.templateId = templateId;
 	}
-	//自定义函数区
+	
+	//自定义函数区	
 	public Map<String, Component> getComponents(boolean refresh) {
 		return null;
 	}
+	
 	public Map<String, PageAct> getActs(boolean refresh) {
 		return null;
 	}
+	
 	public Map<String, DataDefine> getDatas(boolean refresh) {
 		return null;
 	}
+	
 	public String getLineHeight() {
 		return lineHeight;
 	}
+	
 	public void setLineHeight(String lineHeight) {
 		this.lineHeight = lineHeight;
 	}
+	
 	public String getMinLineCount() {
 		return minLineCount;
 	}
+	
 	public void setMinLineCount(String minLineCount) {
 		this.minLineCount = minLineCount;
 	}
+	
 	public String getMaxLineCount() {
 		return maxLineCount;
 	}
+	
 	public void setMaxLineCount(String maxLineCount) {
 		this.maxLineCount = maxLineCount;
 	}
+	
 	public Long getPdfTemplatePage() {
 		return pdfTemplatePage;
 	}
+	
 	public void setPdfTemplatePage(Long pdfTemplatePage) {
 		this.pdfTemplatePage = pdfTemplatePage;
 	}
+	
 	public String getLineHeightType() {
 		return lineHeightType;
 	}
+	
 	public void setLineHeightType(String lineHeightType) {
 		this.lineHeightType = lineHeightType;
 	}
+	
 	public Integer getIsCheckOut() {
 		return isCheckOut;
 	}
+	
 	public void setIsCheckOut(Integer isCheckOut) {
 		this.isCheckOut = isCheckOut;
 	}
+	
 	public String getCheckOutUser() {
 		return checkOutUser;
 	}
+	
 	public void setCheckOutUser(String checkOutUser) {
 		this.checkOutUser = checkOutUser;
 	}
+	
 	public String getCreatedUser() {
 		return createdUser;
 	}
+	
 	public void setCreatedUser(String createdUser) {
 		this.createdUser = createdUser;
 	}
@@ -260,15 +312,25 @@ public class DynamicPage extends PageObject {
 	public String getUpdatedUser() {
 		return updatedUser;
 	}
+	
 	public void setUpdatedUser(String updatedUser) {
 		this.updatedUser = updatedUser;
 	}
+	
 	public String getReverseSortord() {
 		return reverseSortord;
 	}
+	
 	public void setReverseSortord(String reverseSortord) {
 		this.reverseSortord = reverseSortord;
 	}
-	
-	
+
+	public Long getModular() {
+		return modular;
+	}
+
+	public void setModular(Long modular) {
+		this.modular = modular;
+	}
+		
 }	

@@ -7,7 +7,6 @@ import org.szcloud.framework.metadesigner.vo.DataSourceManageVO;
 
 import com.github.miemiedev.mybatis.paginator.domain.PageList;
 
-
 public interface DataSourceManageService {
 	
 	/**
@@ -57,9 +56,8 @@ public interface DataSourceManageService {
 	 * @param sortString
 	 * @return
 	 */
-	public PageList<DataSourceManageVO> selectPagedByExample(
-			BaseExample baseExample, int currentPage, int pageSize,
-			String sortString);
+	public PageList<DataSourceManageVO> selectPagedByExample(BaseExample baseExample, 
+			int currentPage, int pageSize,String sortString);
 	
 	public DataSourceManageVO queryDataSourceByNameAndSystemId(String name,Long systemId);
 }

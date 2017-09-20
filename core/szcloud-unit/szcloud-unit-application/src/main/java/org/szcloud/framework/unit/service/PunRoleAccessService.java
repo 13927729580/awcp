@@ -19,32 +19,29 @@ public interface PunRoleAccessService {
 	
 	public String delete(Long id);
 	
-	public PageList<PunRoleAccessVO> queryPagedResult(String queryStr,
-			Map<String, Object> params, int currentPage, int pageSize,
-			String sortString);
+	public PageList<PunRoleAccessVO> queryPagedResult(String queryStr,Map<String, Object> params, 
+			int currentPage, int pageSize,String sortString);
 	
 	/**
 	 * 
-	* @Title: batchSave 
-	* @Description: 批量保存或更新
-	* @author ljw 
-	* @param @param vo
-	* @param @return    
-	* @return String
-	* @throws
+	 * @Title: batchSave 
+	 * @Description: 批量保存或更新
+	 * @author ljw 
+	 * @param  vo
+	 * @return String
+	 * @throws
 	 */
 	public String batchSave(List<PunRoleAccessVO> list);
 	
 	/**
 	 * 
-	* @Title: queryResult 
-	* @Description: 查询列表
-	* @author ljw 
-	* @param @param queryStr
-	* @param @param params
-	* @param @return    
-	* @return List<PunGroupVO>
-	* @throws
+	 * @Title: queryResult 
+	 * @Description: 查询列表
+	 * @author ljw 
+	 * @param  queryStr
+	 * @param  params
+	 * @return List<PunGroupVO>
+	 * @throws
 	 */
 	public List<PunRoleAccessVO> queryResult(String queryStr,Map<String, Object> params);
 

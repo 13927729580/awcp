@@ -1,15 +1,18 @@
 package BP.WF;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import BP.DA.AtPara;
 import BP.DA.DBAccess;
 import BP.DA.DataColumn;
 import BP.DA.DataRow;
+import BP.DA.DataRowCollection;
 import BP.DA.DataSet;
 import BP.DA.DataTable;
 import BP.DA.DataType;
@@ -31,11 +34,13 @@ import BP.Sys.Frm.MapDtl;
 import BP.Sys.Frm.MapDtls;
 import BP.Sys.Frm.MapExt;
 import BP.Sys.Frm.MapExtAttr;
+import BP.Tools.DateUtils;
 import BP.Tools.StringHelper;
 import BP.WF.Data.GERpt;
 import BP.WF.Data.GERptAttr;
 import BP.WF.Data.NDXRptBaseAttr;
 import BP.WF.Entity.FrmWorkCheck;
+import BP.WF.Entity.GenerFHAttr;
 import BP.WF.Entity.GenerWorkFlow;
 import BP.WF.Entity.GenerWorkFlowAttr;
 import BP.WF.Entity.GenerWorkFlows;
@@ -456,8 +461,8 @@ public class Dev2Interface {
 
 	/**
 	 * 自动执行开始节点数据 说明:根据自动执行的流程设置，自动启动发起的流程。
-	 * 比如：您根据ccflow的自动启动流程的设置，自动启动该流程，不使用ccflow的提供的服务程序，您需要按如下步骤去做。 1,
-	 * 写一个自动调度的程序。 2，根据自己的时间需要调用这个接口。
+	 * 比如：您根据ccflow的自动启动流程的设置，自动启动该流程，不使用ccflow的提供的服务程序，您需要按如下步骤去做。 1, 写一个自动调度的程序。
+	 * 2，根据自己的时间需要调用这个接口。
 	 * 
 	 * @param fl
 	 *            流程实体,您可以 new Flow(flowNo); 来传入.
@@ -3516,8 +3521,8 @@ public class Dev2Interface {
 	}
 
 	/**
-	 * 删除流程并写入日志 清除的内容如下: 1, 流程引擎中的数据. 2, 节点数据,NDxxRpt数据. 并作如下处理: 1, 保留track数据.
-	 * 2, 写入流程删除记录表.
+	 * 删除流程并写入日志 清除的内容如下: 1, 流程引擎中的数据. 2, 节点数据,NDxxRpt数据. 并作如下处理: 1, 保留track数据. 2,
+	 * 写入流程删除记录表.
 	 * 
 	 * @param flowNo
 	 *            流程编号
@@ -3692,6 +3697,125 @@ public class Dev2Interface {
 			s = "流程已经成功结束.";
 		}
 		return s;
+	}
+
+	/**
+	 * 执行流程结束:强制的流程结束.
+	 * 
+	 * @param flowNo
+	 *            流程编号
+	 * @param flowNo
+	 *            当前节点编号
+	 * @param workID
+	 *            工作ID
+	 * @param fid
+	 *            工作ID
+	 * @param state
+	 *            流程状态
+	 * @return 执行强制结束流程
+	 */
+	public static void Flow_DoFlowOverByCoercion(String flowNo, int nodeid, long workID, long fid, WFState state) {
+		// 转化成编号.
+		WorkFlow wf = new WorkFlow(flowNo, workID);
+
+		Node currNode = new Node(nodeid);
+
+		// 处理明细数据的copy问题。 首先检查：当前节点（最后节点）是否有明细表。
+		MapDtls dtls = currNode.getMapData().getMapDtls(); // new MapDtls("ND" +
+		int i = 0;
+		for (MapDtl dtl : MapDtls.convertMapDtls(dtls)) {
+			i++;
+			// 查询出该明细表中的数据。
+			GEDtls dtlDatas = new GEDtls(dtl.getNo());
+			dtlDatas.Retrieve(GEDtlAttr.RefPK, wf.getWorkID());
+
+			GEDtl geDtl = null;
+			try {
+				// 创建一个Rpt对象。
+				geDtl = new GEDtl(
+						"ND" + Integer.parseInt(wf.getHisFlow().getNo()) + "RptDtl" + (new Integer(i)).toString());
+				geDtl.ResetDefaultVal();
+			} catch (java.lang.Exception e) {
+				/// #warning 此处需要修复。
+				continue;
+			}
+		}
+		wf._IsComplete = 1;
+		/// #endregion 处理明细表的汇总.
+
+		/// #region 处理后续的业务.
+
+		String dbstr = BP.Sys.SystemConfig.getAppCenterDBVarStr();
+		Paras ps = new Paras();
+		ps.SQL = "DELETE FROM WF_GenerFH WHERE FID=" + dbstr + "FID";
+		ps.Add(GenerFHAttr.FID, wf.getWorkID());
+		DBAccess.RunSQL(ps);
+
+		// 求出参与人,以方便已经完成的工作查询.
+		ps = new Paras();
+		ps.SQL = "SELECT EmpFrom FROM ND" + Integer.parseInt(wf.getHisFlow().getNo()) + "Track WHERE WorkID=" + dbstr
+				+ "WorkID OR FID=" + dbstr + "FID ";
+		ps.Add("WorkID", wf.getWorkID());
+		ps.Add("FID", wf.getWorkID());
+		DataTable dt = BP.DA.DBAccess.RunSQLReturnTable(ps);
+		String emps = "";
+		for (DataRow dr : dt.Rows) {
+			if (emps.contains("@" + dr.getValue(0).toString()) == true) {
+				continue;
+			}
+			emps += "@" + dr.getValue(0).toString();
+		}
+		emps = emps + "@";
+
+		// 更新流程注册信息.
+		ps = new Paras();
+		ps.SQL = "UPDATE WF_GenerWorkFlow SET WFState=" + dbstr + "WFState,WFSta=" + dbstr + "WFSta,Emps=" + dbstr
+				+ "Emps,MyNum=1 WHERE WorkID=" + dbstr + "WorkID ";
+		ps.Add("WFState", state.getValue());
+		ps.Add("WFSta", WFSta.Complete.getValue());
+		ps.Add("Emps", emps);
+		ps.Add("WorkID", wf.getWorkID());
+		DBAccess.RunSQL(ps);
+
+		// 清除工作者.
+		ps = new Paras();
+		ps.SQL = "DELETE FROM WF_GenerWorkerlist WHERE WorkID=" + dbstr + "WorkID1 OR FID=" + dbstr + "WorkID2 ";
+		ps.Add("WorkID1", wf.getWorkID());
+		ps.Add("WorkID2", wf.getWorkID());
+		DBAccess.RunSQL(ps);
+
+		// 设置流程完成状态.
+		ps = new Paras();
+		ps.SQL = "UPDATE " + wf.getHisFlow().getPTable() + " SET WFState=" + dbstr + "WFState WHERE OID=" + dbstr
+				+ "OID";
+		ps.Add("WFState", WFState.Complete.getValue());
+		ps.Add("OID", wf.getWorkID());
+		DBAccess.RunSQL(ps);
+
+		// 加入轨迹.
+		WorkNode wn = new WorkNode(wf.getWorkID(), wf.getHisGenerWorkFlow().getFK_Node());
+		wn.AddToTrack(ActionType.FlowOverByCoercion, WebUser.getNo(), WebUser.getName(), wn.getHisNode().getNodeID(),
+				wn.getHisNode().getName(), "");
+
+		/// #endregion 处理后续的业务.
+
+		// string dbstr = BP.Sys.SystemConfig.AppCenterDBVarStr;
+
+		/// #region 处理审核问题,更新审核组件插入的审核意见中的 到节点，到人员。
+		ps = new Paras();
+		ps.SQL = "UPDATE ND" + Integer.parseInt(currNode.getFK_Flow()) + "Track SET NDTo=" + dbstr + "NDTo,NDToT="
+				+ dbstr + "NDToT,EmpTo=" + dbstr + "EmpTo,EmpToT=" + dbstr + "EmpToT WHERE NDFrom=" + dbstr
+				+ "NDFrom AND EmpFrom=" + dbstr + "EmpFrom AND WorkID=" + dbstr + "WorkID AND ActionType="
+				+ ActionType.WorkCheck.getValue();
+		ps.Add(TrackAttr.NDTo, currNode.getNodeID());
+		ps.Add(TrackAttr.NDToT, "");
+		ps.Add(TrackAttr.EmpTo, "");
+		ps.Add(TrackAttr.EmpToT, "");
+
+		ps.Add(TrackAttr.NDFrom, currNode.getNodeID());
+		ps.Add(TrackAttr.EmpFrom, WebUser.getNo());
+		ps.Add(TrackAttr.WorkID, wf.getWorkID());
+		BP.DA.DBAccess.RunSQL(ps);
 	}
 
 	/**
@@ -3931,8 +4055,6 @@ public class Dev2Interface {
 		// C# TO JAVA CONVERTER
 		/// #endregion 判断是否是开始节点.
 
-		String dbstr = SystemConfig.getAppCenterDBVarStr();
-		Paras ps = new Paras();
 		String sql = "SELECT c.RunModel, a.TaskSta, a.WFState, IsPass FROM WF_GenerWorkFlow a , WF_GenerWorkerlist b, WF_Node c WHERE a.FK_Node='"
 				+ nodeID + "'  AND b.FK_Node=c.NodeID AND a.WorkID=b.WorkID AND a.FK_Node=b.FK_Node  AND b.FK_Emp='"
 				+ userNo + "' AND b.IsEnable=1 AND a.workid='" + workID + "'";
@@ -3940,13 +4062,7 @@ public class Dev2Interface {
 		if (dt.Rows.size() == 0) {
 			return false;
 		}
-
-		// 判断是否是待办.
-		int isPass = Integer.parseInt(dt.Rows.get(0).getValue("IsPass").toString());
-		if (isPass != 0) {
-			return false;
-		}
-
+		// 检查流程状态是否已经结束
 		WFState wfsta = WFState.forValue(Integer.parseInt(dt.Rows.get(0).getValue(2).toString()));
 		if (wfsta == WFState.Complete) {
 			return false;
@@ -3955,10 +4071,22 @@ public class Dev2Interface {
 			return false;
 		}
 
+		// 判断是否是待办.
+		DataRowCollection rows = dt.Rows;
+		boolean canDeal = false;
+		for (DataRow row : rows) {
+			int isPass = Integer.parseInt(row.getValue("IsPass").toString());
+			// 如果当前环节有多个待办，只要有一个可以处理即可
+			if (isPass == 0) {
+				canDeal = true;
+				break;
+			}
+		}
+		if (!canDeal) {
+			return false;
+		}
+
 		int i = Integer.parseInt(dt.Rows.get(0).getValue(0).toString());
-		// TaskSta TaskStai = (TaskSta)int.Parse(dt.Rows[0][1].ToString());
-		// if (TaskStai == TaskSta.Sharing)
-		// return false; /*如果是共享状态，没有申请下来，就不能审批.*/
 
 		RunModel rm = RunModel.forValue(i);
 		switch (rm) {
@@ -4330,7 +4458,8 @@ public class Dev2Interface {
 		// 执行更新.
 		GenerWorkerLists gwls = new GenerWorkerLists(workid);
 		GenerWorkerList gwl = (GenerWorkerList) ((gwls.get(gwls.size() - 1) instanceof GenerWorkerList)
-				? gwls.get(gwls.size() - 1) : null); // 获得最后一个。
+				? gwls.get(gwls.size() - 1)
+				: null); // 获得最后一个。
 		gwl.setRDT(DataType.getCurrentDataTimess());
 		gwl.setWorkID(workid);
 		gwl.setFK_Node(toNodeID);
@@ -5233,8 +5362,7 @@ public class Dev2Interface {
 	 * @param toNodeID
 	 *            到达的节点，如果是0表示让ccflow自动寻找，否则就按照该参数发送。
 	 * @param nextWorkers
-	 *            下一步的接受人，如果多个人员用逗号分开，比如:zhangsan,lisi,
-	 *            如果为空，则标识让ccflow按照节点访问规则自动寻找。
+	 *            下一步的接受人，如果多个人员用逗号分开，比如:zhangsan,lisi, 如果为空，则标识让ccflow按照节点访问规则自动寻找。
 	 * @return 执行信息
 	 */
 	public static SendReturnObjs Node_SendWork(String fk_flow, long workID, java.util.Hashtable htWork,
@@ -5258,8 +5386,7 @@ public class Dev2Interface {
 	 * @param toNodeID
 	 *            到达的节点，如果是0表示让ccflow自动寻找，否则就按照该参数发送。
 	 * @param nextWorkers
-	 *            下一步的接受人，如果多个人员用逗号分开，比如:zhangsan,lisi,
-	 *            如果为空，则标识让ccflow按照节点访问规则自动寻找。
+	 *            下一步的接受人，如果多个人员用逗号分开，比如:zhangsan,lisi, 如果为空，则标识让ccflow按照节点访问规则自动寻找。
 	 * @param execUserNo
 	 *            执行人编号
 	 * @param execUserName
@@ -6480,7 +6607,7 @@ public class Dev2Interface {
 	}
 
 	/**
-	 * 执行加签(手动插入待办)
+	 * 执行加签(手动插入待办) modify by venson 20170822
 	 * 
 	 * @param workid
 	 *            工作ID
@@ -6495,33 +6622,23 @@ public class Dev2Interface {
 	public static String Node_Askfor(long workid, AskforHelpSta askforSta, String askForEmp, String askForNote) {
 
 		GenerWorkFlow gwf = new GenerWorkFlow(workid);
-		// throw new Exception("@该工作属于抢办工作，您不能执行加签。");
-
-		if (Flow_IsCanDoCurrentWork(gwf.getFK_Node(), gwf.getWorkID(), WebUser.getNo()) == false) {
-			throw new RuntimeException("@当前的工作已经被别人处理或者您没有处理该工作的权限.");
-		}
-
-		// gwf.setWFState(WFState.Askfor); // 更新流程为加签状态.
-		// gwf.Update();
+		int nd = gwf.getFK_Node();
 
 		// 设置当前状态为 2 表示加签状态.
 		String msg = null;
+		String userNo = WebUser.getNo();
+		GenerWorkerLists gwls = new GenerWorkerLists(workid, nd, userNo);
+		ArrayList<GenerWorkerList> wls = GenerWorkerLists.convertGenerWorkerLists(gwls);
 
-		GenerWorkerLists gwls = new GenerWorkerLists(workid, gwf.getFK_Node(), WebUser.getNo());
-		if (gwls.Contains(GenerWorkerListAttr.FK_Emp, askForEmp, GenerWorkerListAttr.IsEnable, 0) == true) {
-			throw new RuntimeException("加签失败，您选择的加签人可以处理当前的工作。");
-		}
 		StringBuilder mesg = new StringBuilder();
-		if (GenerWorkerLists.convertGenerWorkerLists(gwls) != null
-				&& GenerWorkerLists.convertGenerWorkerLists(gwls).size() > 0) {
+		if (wls != null && wls.size() > 0) {
 
 			try {
-				GenerWorkerList generWorkerList = GenerWorkerLists.convertGenerWorkerLists(gwls).get(0);
+				GenerWorkerList generWorkerList = wls.get(0);
 				// 如果加签后由我直接发送
 				if (askforSta == AskforHelpSta.AfterDealSend) {
 					generWorkerList.setIsPassInt(1);
 					generWorkerList.Update();
-					generWorkerList.setIsPassInt(0);
 				}
 				String[] users;
 				if (askForEmp.contains(",")) {
@@ -6529,22 +6646,75 @@ public class Dev2Interface {
 				} else {
 					users = new String[] { askForEmp };
 				}
+				Node ndNode = new Node(nd);
+				// 判断处理模式是否属于队列模式
+				boolean isOrder = TodolistModel.Order == ndNode.getTodolistModel() ? true : false;
+				// 新插入的ispass值默认从52开始计数
+				int ispass = 52;
+				int len = users.length;
+				// 所有待办
+				ArrayList<GenerWorkerList> allls = GenerWorkerLists
+						.convertGenerWorkerLists(new GenerWorkerLists(workid, nd));
+				Date now = new Date();
+				String date = DateUtils.format(now,
+						DateUtils.YEAR_MONTH_DAY_PATTERN_MIDLINE + " " + DateUtils.HOUR_MINUTE_SECOND_PATTERN);
+				String todoEmps = gwf.getTodoEmps();
+				int empsNum = gwf.getTodoEmpsNum();
+				StringBuffer buffer = new StringBuffer();
+				for (int i = 0; i < len; i++) {
+					String user = users[i];
+					if (StringUtils.isNotBlank(user)) {
+						Emp emp = new Emp(user);
+						boolean hasRecord = false;
+						for (GenerWorkerList agwl : allls) {
+							// 查找是否已经存在
+							if (agwl.getFK_Emp().equals(user)) {
+								agwl.setIsPassInt(0);
+								agwl.setRDT(date);
+								agwl.setCDT(date);
+								agwl.Update();
+								hasRecord = true;
+								break;
+							}
+						}
+						if (!hasRecord) {
+							generWorkerList.setSender(WebUser.getNo() + "," + WebUser.getName());
+							generWorkerList.setFK_Emp(emp.getNo());
+							generWorkerList.setFK_Dept(emp.getFK_Dept());
+							generWorkerList.setFK_EmpText(emp.getName());
+							generWorkerList.setRDT(date);
+							generWorkerList.setCDT(date);
+							generWorkerList.setIsPassInt(0);
+							// 如果是队列模式并且有多位处理人时，将从第二位处理人的ispass值设置为节点累加值
+							if (isOrder && i >= 1) {
+								generWorkerList.setIsPassInt(ispass);
+								ispass++;
+							}
+							// 将当前处理人加入到处理记录中
+							if (!todoEmps.contains(emp.getNo())) {
+								buffer.append(emp.getNo() + "," + emp.getName() + ";");
+								empsNum++;
+							}
+							generWorkerList.Insert();
+						}
 
-				for (String user : users) {
-					Emp emp = new Emp(user);
-					generWorkerList.setSender(WebUser.getNo() + "," + WebUser.getName());
-					generWorkerList.setFK_Emp(emp.getNo());
-					generWorkerList.setFK_Dept(emp.getFK_Dept());
-					generWorkerList.setFK_EmpText(emp.getName());
-					generWorkerList.Insert();
-					mesg.append(emp.getNo() + " " + emp.getName() + ",");
+						mesg.append(emp.getNo() + " " + emp.getName() + ",");
+					}
+
+				}
+				if (buffer.length() > 0) {
+					gwf.setTodoEmps(todoEmps + buffer.toString());
+					gwf.setTodoEmpsNum(empsNum);
+					gwf.Update();
 				}
 
 			} catch (Exception e) {
 				msg = "您加签的成员已经存在！！！！";
 			}
 		}
-		msg = "您的工作已经提交给(" + mesg.delete(mesg.length() - 1, mesg.length()) + ")加签了。";
+		if (mesg.length() > 3) {
+			msg = "您的工作已经提交给(" + mesg.delete(mesg.length() - 1, mesg.length()) + ")加签了。";
+		}
 
 		return msg;
 	}

@@ -15,9 +15,10 @@
 		<result property="size" jdbcType="BIGINT" column="size"/> 
 		<result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
 		<result column="UPDATE_TIME" property="updateTime" jdbcType="TIMESTAMP" />
+		<result property="type" jdbcType="INTEGER" column="TYPE"/> 
 	</resultMap>
 	<sql id="Base_Column_List">
-		ID,storage_id,file_Name,user_Id,user_Name,content_Type,system_Id,size,CREATE_TIME,UPDATE_TIME
+		ID,storage_id,file_Name,user_Id,user_Name,content_Type,system_Id,size,CREATE_TIME,UPDATE_TIME,TYPE
 	</sql>
 
 	
@@ -33,7 +34,8 @@
 			system_Id,
 			size,
 			CREATE_TIME,
-			UPDATE_TIME
+			UPDATE_TIME,
+			TYPE
 			
 		) VALUES (
 			#{id},
@@ -45,7 +47,8 @@
 			#{systemId},
 			#{size},
 			#{createTime},
-			#{updateTime}
+			#{updateTime},
+			#{type}
 		)
 	</insert>
 	 <!-- 更新 -->
@@ -58,7 +61,8 @@
 			content_Type=#{contentType},
 			system_Id=#{systemId},
 			size=#{size},
-			UPDATE_TIME=#{updateTime}
+			UPDATE_TIME=#{updateTime},
+			TYPE=#{type}
 			WHERE
 			id = #{id}
 	</insert>

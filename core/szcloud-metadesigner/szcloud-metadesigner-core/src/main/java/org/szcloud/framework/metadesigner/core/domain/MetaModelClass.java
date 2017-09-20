@@ -7,17 +7,13 @@ import org.szcloud.framework.core.domain.BaseEntity;
 
 public class MetaModelClass extends BaseEntity{
 
-	
-	
 	private static final long serialVersionUID = 1L;
-	
 	
 	private String name;
 	
 	private String classCode;
 	
 	private Long sysId;
-
 
 	public String getName() {
 		return name;
@@ -35,7 +31,6 @@ public class MetaModelClass extends BaseEntity{
 		this.classCode = classCode;
 	}
 
-
 	public Long getSysId() {
 		return sysId;
 	}
@@ -44,11 +39,10 @@ public class MetaModelClass extends BaseEntity{
 		this.sysId = sysId;
 	}
 
-	public static List<MetaModelClass>   findAll() throws MRTException
-	{
+	public static List<MetaModelClass>   findAll() throws MRTException{
 		List<MetaModelClass> treeMenuList = null;
 		try {
-			treeMenuList =  MetaModelClass.findAll(MetaModelClass.class);
+			treeMenuList =  findAll(MetaModelClass.class);
 		} catch (Exception e) {
 			throw new  MRTException(e.getMessage(),e);
 		}

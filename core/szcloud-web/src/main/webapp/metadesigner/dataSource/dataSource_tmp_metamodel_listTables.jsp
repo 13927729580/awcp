@@ -44,7 +44,7 @@
 					</div>
 					<div class="form-group"><!-- 表单提交按钮区域 -->
 			            <div class="col-md-offset-2 col-md-10">
-			              	<a href="<%=basePath %>dataSourceManage/selectPage.do" class="btn" id="undoBtn"><i class="icon-undo"></i>返回</a>
+			              	<a href="<%=basePath %>metaModel/selectPage.do" class="btn" id="undoBtn"><i class="icon-undo"></i>返回</a>
 			              	<button type="button" class="btn btn-success" id="saveBtn"><i class="icon-save"></i>创建元数据</button>
 			            </div>
 			        </div>

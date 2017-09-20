@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.szcloud.framework.core.common.exception.MRTException;
 import org.szcloud.framework.core.domain.BaseExample;
-import org.szcloud.framework.core.domain.EntityRepository;
 import org.szcloud.framework.core.domain.QueryChannelService;
 import org.szcloud.framework.core.utils.BeanUtils;
 import org.szcloud.framework.unit.core.domain.PdataDictionary;
@@ -26,9 +25,6 @@ public class PdataDictionaryServiceImpl implements PdataDictionaryService{
 	private QueryChannelService queryChannel;
 	
 	@Autowired
-	private EntityRepository entityRepository;
-	
-	@Autowired
 	private SqlSessionFactory sqlSessionFactory;
 	
 	//0为保存初始状态，1为逻辑删除
@@ -37,14 +33,12 @@ public class PdataDictionaryServiceImpl implements PdataDictionaryService{
 	
 	@Override
 	public void addOrUpdate(PdataDictionaryVO vo) throws MRTException{
-
 		PdataDictionary dataDict = BeanUtils.getNewInstance(vo, PdataDictionary.class);
 		if (vo.getId() != null) {
 			dataDict.setId(vo.getId());			
 		}
 		dataDict.setDictStatus(DATA_DICT_SAVE);
 		dataDict.save();
-		
 	}
 
 	@Override
@@ -65,12 +59,14 @@ public class PdataDictionaryServiceImpl implements PdataDictionaryService{
 	public PdataDictionaryVO findByCode(String code){
 		BaseExample baseExample = new BaseExample();
 		String dc = code;
-		if(!dc.endsWith(","))
+		if(!dc.endsWith(",")){
 			dc += ",";
+		}
 		baseExample.createCriteria().andEqualTo("CODE", dc);
 		List<PdataDictionaryVO> list = this.selectByExample(baseExample);
-		if(list.isEmpty())			
+		if(list.isEmpty()){	
 			return null;
+		}
 		return list.get(0);
 	}
 	
@@ -81,11 +77,13 @@ public class PdataDictionaryServiceImpl implements PdataDictionaryService{
 			return null;
 		Long level = parentVO.getLevel() + 1;
 		BaseExample baseExample = new BaseExample();
-		baseExample.createCriteria().andLike("CODE", parentVO.getCode() + "%")
-		.andEqualTo("LEVEL", level)
-		.andEqualTo("DICT_STATUS", new Long(0));
+		baseExample.createCriteria()
+				   .andLike("CODE", parentVO.getCode() + "%")
+				   .andEqualTo("LEVEL", level)
+				   .andEqualTo("DICT_STATUS", new Long(0));
 		return selectPagedByExample(baseExample, 1, Integer.MAX_VALUE," DATA_ORDER ASC");
 	}
+	
 	@Override
 	public List<PdataDictionaryVO> findAll() throws MRTException{
 		List<PdataDictionary> result = PdataDictionary.findAll();
@@ -101,8 +99,7 @@ public class PdataDictionaryServiceImpl implements PdataDictionaryService{
 	@Override
 	public List<PdataDictionaryVO> queryResult(String queryStr,
 			Map<String, Object> params) {
-		List<PdataDictionary> result = queryChannel.queryResult(PdataDictionary.class,
-				queryStr, params);
+		List<PdataDictionary> result = queryChannel.queryResult(PdataDictionary.class,queryStr, params);
 		List<PdataDictionaryVO> resultVO = new ArrayList<PdataDictionaryVO>();
 		for (PdataDictionary dd : result) {
 			if (!dd.getDictStatus().equals(DATA_DICT_LOGIC_DEL))
@@ -114,8 +111,7 @@ public class PdataDictionaryServiceImpl implements PdataDictionaryService{
 
 	@Override
 	public PageList<PdataDictionaryVO> queryPagedResult(String queryStr,
-			Map<String, Object> params, int currentPage, int pageSize,
-			String sortString) {
+			Map<String, Object> params, int currentPage, int pageSize,String sortString) {
 		PageList<PdataDictionary> result = queryChannel.queryPagedResult(PdataDictionary.class,
 				queryStr, params, currentPage, pageSize, sortString);
 		List<PdataDictionaryVO> tmp = new ArrayList<PdataDictionaryVO>();
@@ -173,14 +169,11 @@ public class PdataDictionaryServiceImpl implements PdataDictionaryService{
 		return null;
 	}
 	
-	
-	@SuppressWarnings("unchecked")
 	@Override
-	public PageList<PdataDictionaryVO> selectPagedByExample(
-			BaseExample baseExample, int currentPage, int pageSize,
-			String sortString) {
-		PageList<PdataDictionary> result = queryChannel.selectPagedByExample(PdataDictionary.class,
-				baseExample, currentPage, pageSize, sortString);
+	public PageList<PdataDictionaryVO> selectPagedByExample(BaseExample baseExample, 
+			int currentPage, int pageSize,String sortString) {
+		PageList<PdataDictionary> result = queryChannel.selectPagedByExample(PdataDictionary.class,baseExample, 
+				currentPage, pageSize, sortString);
 		PageList<PdataDictionaryVO> resultVO = new PageList<PdataDictionaryVO>(result.getPaginator());
 		for (PdataDictionary dd : result) {
 			//过滤已作逻辑删除的结果
@@ -192,9 +185,8 @@ public class PdataDictionaryServiceImpl implements PdataDictionaryService{
 	}
 
 	@Override
-		
-public List<PdataDictionaryVO> selectByExample(BaseExample baseExample) {
-	return selectPagedByExample(baseExample, 1, Integer.MAX_VALUE," ID DESC");
-}
+	public List<PdataDictionaryVO> selectByExample(BaseExample baseExample) {
+		return selectPagedByExample(baseExample, 1, Integer.MAX_VALUE," ID DESC");
+	}
 
 }

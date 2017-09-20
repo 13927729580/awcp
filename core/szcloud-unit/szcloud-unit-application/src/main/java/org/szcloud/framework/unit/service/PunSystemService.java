@@ -24,7 +24,6 @@ public interface PunSystemService {
 	public PageList<PunSystemVO> queryPagedResult(String queryStr, Map<String, Object> params, int currentPage,
 			int pageSize, String sortString);
 
-	// public List<PunSystemVO> selectByExample(BaseExample example);
 	public PageList<PunSystemVO> selectPagedByExample(BaseExample baseExample, int currentPage, int pageSize,
 			String sortString);
 

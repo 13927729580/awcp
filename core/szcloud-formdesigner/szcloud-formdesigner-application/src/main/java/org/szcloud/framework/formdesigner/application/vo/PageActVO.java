@@ -4,119 +4,49 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PageActVO {
-	/**
-	 * 动作id
-	 */
-	private String pageId;
-	/**
-	 * 排序
-	 */
-	private Integer order;
-	/**
-	 * 名称
-	 */
-	private String name;
-
-	/**
-	 * 动作类型
-	 */
-	private Integer actType;
-
-	/**
-	 * 图标
-	 */
-	private String icon;
-	/**
-	 * 编码，表示类型
-	 */
-	private String code;
-	/**
-	 * 描述
-	 */
-	private String description;
-
-	/**
-	 * 客户端脚本
-	 */
-	private String clientScript;
-	/**
-	 * 服务器端脚本
-	 */
-	private String serverScript;
+	private String pageId; // 动作id
+	private Integer order; // 排序
+	private String name; // 名称
+	private Integer actType;// 动作类型
+	private String icon; // 图标
+	private String code; // 编码，表示类型
+	private String description; // 描述
+	private String clientScript;// 客户端脚本
+	private String serverScript;// 服务器端脚本
 	private String paramScript;
-	/**
-	 * 选择项脚本
-	 */
-	private String chooseScript;
-	
-	private boolean hiddenStatus=false;
-	
-	
-	/**
-	 * 隐藏脚本
-	 */
-	private String hiddenScript;
-
-	/**
-	 * 是否操作前提示
-	 */
-	private boolean confirm;
-	/**
-	 * 是否对选择项进行校验
-	 */
-	private boolean chooseValidate;
-
-	/**
-	 * 所属页面id
-	 */
-	private Long dynamicPageId;
-	/**
-	 * 所属按钮组
-	 */
-	private Integer buttonGroup;
-	
-
-	/**
-	 * 提示内容类型 *1 = 自定义提示内容是文本，允许有html标签 *2 = 静态页面提示内容是完整的链接地址,如
-	 * http://www.baidu.com *3 = 动态页面提示内容是"文档的id,表单id",两者不可以都为空
+	private String chooseScript;// 选择项脚本
+	private boolean hiddenStatus = false;
+	private String hiddenScript;// 隐藏脚本
+	private boolean confirm; // 是否操作前提示
+	private boolean chooseValidate; // 是否对选择项进行校验
+	private Long dynamicPageId; // 所属页面id
+	private Integer buttonGroup;// 所属按钮组
+	/*
+	 * 提示内容类型 *1 = 自定义提示内容是文本，允许有html标签 *2 = 静态页面提示内容是完整的链接地址,如 http://www.baidu.com
+	 * *3 = 动态页面提示内容是"文档的id,表单id",两者不可以都为空
 	 */
 	private Integer contentType;
-	/**
-	 * 提示框内容
-	 */
-	private String content;
-	/**
-	 * 提示框标题
-	 */
-	private String tittle;
-	/**
-	 * 提示框宽度
-	 */
-	private Integer width;
-	/**
-	 * 提示框高度
-	 */
-	private Integer height;
-	/**
-	 * 提示框按钮 1,0= 确定按钮+取消按钮都要显示。
-	 */
-	private String buttons;
-	/**
-	 * 扩展按钮属性
-	 */
-	private Map<String, String> extbute = new HashMap<String, String>();
-	/**
-	 * 1--不允许增删流程节点 2--仅允许修改操作人 3--仅允许修改抄送人
-	 */
-	private String authority;
+	private String content; // 提示框内容
+	private String tittle; // 提示框标题
+	private Integer width; // 提示框宽度
+	private Integer height; // 提示框高度
+	private String buttons; // 提示框按钮 1,0= 确定按钮+取消按钮都要显示。
+	private Map<String, String> extbute = new HashMap<String, String>(); // 扩展按钮属性
+	private String authority; // 1--不允许增删流程节点 2--仅允许修改操作人 3--仅允许修改抄送人
 	private String dynamicPageName;
 	private String color;
 	private String target;
-	/**
-	 * 系统Id
-	 */
-	private Long systemId;
-	
+	private Long systemId; // 系统Id
+	private String enName;
+
+	public String getEnName() {
+		return enName;
+	}
+
+	public void setEnName(String enName) {
+		this.enName = enName;
+	}
+
 	public Long getSystemId() {
 		return systemId;
 	}
@@ -233,7 +163,6 @@ public class PageActVO {
 		this.confirm = confirm;
 	}
 
-
 	public String getClientScript() {
 		return clientScript;
 	}
@@ -349,5 +278,5 @@ public class PageActVO {
 	public void setChooseValidate(boolean chooseValidate) {
 		this.chooseValidate = chooseValidate;
 	}
-	
+
 }

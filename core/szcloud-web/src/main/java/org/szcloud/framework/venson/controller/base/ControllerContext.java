@@ -4,10 +4,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.szcloud.framework.formdesigner.application.vo.DocumentVO;
+import org.szcloud.framework.formdesigner.application.vo.DynamicPageVO;
+
 public final class ControllerContext {
 
 	private static final ThreadLocal<HttpServletRequest> request_threadLocal = new ThreadLocal<HttpServletRequest>();
 	private static final ThreadLocal<HttpServletResponse> reponse_threadLocal = new ThreadLocal<HttpServletResponse>();
+	private static final ThreadLocal<DynamicPageVO> page_threadLocal = new ThreadLocal<DynamicPageVO>();
+	private static final ThreadLocal<DocumentVO> doc_threadLocal = new ThreadLocal<DocumentVO>();
 
 	public static void setRequest(HttpServletRequest request) {
 		request_threadLocal.set(request);
@@ -36,4 +41,21 @@ public final class ControllerContext {
 	public static void removeResponse() {
 		reponse_threadLocal.remove();
 	}
+
+	public static void setDoc(DocumentVO docVO) {
+		doc_threadLocal.set(docVO);
+	}
+
+	public static DocumentVO getDoc() {
+		return doc_threadLocal.get();
+	}
+
+	public static void setPage(DynamicPageVO pageVO) {
+		page_threadLocal.set(pageVO);
+	}
+
+	public static DynamicPageVO getPage() {
+		return page_threadLocal.get();
+	}
+
 }

@@ -28,7 +28,6 @@ public class CustomValidator extends MyCustomValidator{
 
 	@Override
 	public String toServerScriptString() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

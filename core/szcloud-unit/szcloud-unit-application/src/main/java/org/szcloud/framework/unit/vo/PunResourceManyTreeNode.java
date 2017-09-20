@@ -39,7 +39,5 @@ public class PunResourceManyTreeNode {
 	public void setChildList(List<PunResourceManyTreeNode> childList) {
 		this.childList = childList;
 	}
-	
-	
 
 }

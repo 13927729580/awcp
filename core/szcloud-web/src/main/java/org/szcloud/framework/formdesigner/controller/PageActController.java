@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.szcloud.framework.base.BaseController;
 import org.szcloud.framework.core.domain.BaseExample;
+import org.szcloud.framework.core.domain.Criteria;
 import org.szcloud.framework.core.utils.BeanUtils;
 import org.szcloud.framework.core.utils.Tools;
 import org.szcloud.framework.core.utils.constants.ResourceTypeEnum;
@@ -27,6 +28,7 @@ import org.szcloud.framework.formdesigner.application.vo.StoreVO;
 import org.szcloud.framework.unit.service.PunResourceService;
 import org.szcloud.framework.unit.vo.PunResourceVO;
 import org.szcloud.framework.unit.vo.PunSystemVO;
+import org.szcloud.framework.venson.controller.base.ControllerHelper;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -108,7 +110,10 @@ public class PageActController extends BaseController {
 			currentPage = 1;
 		}
 		ModelAndView mv = new ModelAndView();
-		baseExample.createCriteria().andLike("code", StoreService.PAGEACT_CODE + "%");
+		Criteria criteria = baseExample.createCriteria();
+		// 只能查看当前用户创建的组件
+		criteria.andEqualTo("CREATED_USER", ControllerHelper.getUser().getName());
+		criteria.andLike("code", StoreService.PAGEACT_CODE + "%");
 		if (StringUtils.isNoneBlank(name)) {
 			baseExample.getOredCriteria().get(0).andLike("name", "%" + name + "%");
 		}
@@ -231,7 +236,7 @@ public class PageActController extends BaseController {
 		List<DynamicPageVO> pages = formdesignerService.listNameAndIdInSystem(systemId, null);
 		mv.addObject("pages", pages);
 		// 加入当前动态页面的类型
-		if (dynamicPageId != null && !dynamicPageId.equals("")) {
+		if (dynamicPageId != null) {
 			DynamicPageVO dynamicPageVO = formdesignerService.findById(dynamicPageId);
 			int pageType = dynamicPageVO.getPageType();
 			mv.addObject("pageType", pageType);
@@ -338,8 +343,8 @@ public class PageActController extends BaseController {
 	}
 
 	/**
-	 * @Title: getByAjaxAndPageId @Description: 根据pageId查找act 数据 @param
-	 *         id @return List<PageActVO> json字符串 @throws
+	 * @Title: getByAjaxAndPageId @Description: 根据pageId查找act 数据 @param id @return
+	 *         List<PageActVO> json字符串 @throws
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/getByPageId")

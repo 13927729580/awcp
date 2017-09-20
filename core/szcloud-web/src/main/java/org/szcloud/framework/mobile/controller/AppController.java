@@ -108,7 +108,7 @@ public class AppController {
 		String dept_sql = "SELECT\n" + "	p_un_group.GROUP_ID,\n" + "	p_un_group.GROUP_CH_NAME\n" + "FROM\n"
 				+ "	p_un_common_group,\n" + "	p_un_group\n" + "WHERE\n"
 				+ "	p_un_common_group.group_id = p_un_group.GROUP_ID\n" + "AND p_un_common_group.user_id = '"
-				+ ((PunUserBaseInfoVO) DocumentUtils.getUser()).getUserId() + "'\n" + "GROUP BY\n"
+				+ ((PunUserBaseInfoVO) DocumentUtils.getIntance().getUser()).getUserId() + "'\n" + "GROUP BY\n"
 				+ "	p_un_group.GROUP_ID\n" + "ORDER BY\n" + "	click_number DESC\n" + "LIMIT 15";
 
 		List<Map<String, Object>> deptlist = this.metaModelOperateServiceImpl.search(dept_sql, null);

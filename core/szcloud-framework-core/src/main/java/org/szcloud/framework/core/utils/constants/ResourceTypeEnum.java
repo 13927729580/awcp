@@ -23,8 +23,7 @@ public enum ResourceTypeEnum {
 	 */
 	RESO_BUTTON("3","按钮")
 	;
-	
-	
+		
 	private String key = "";
 	private String value = "";
 	
@@ -32,9 +31,11 @@ public enum ResourceTypeEnum {
 		this.key = key;
 		this.value = value;
 	}
+	
 	public String getkey() {
 		return key;
 	}
+	
 	public String getvalue() {
 		return value;
 	}

@@ -3,10 +3,8 @@ package org.szcloud.framework.unit.service;
 import java.util.List;
 import java.util.Map;
 
-import org.szcloud.framework.core.common.exception.MRTException;
 import org.szcloud.framework.core.domain.BaseExample;
 import org.szcloud.framework.unit.vo.PunGroupVO;
-import org.szcloud.framework.unit.vo.PunManageGroupVO;
 
 import com.github.miemiedev.mybatis.paginator.domain.PageList;
 
@@ -25,6 +23,7 @@ public interface PunGroupService {
 	public PageList<PunGroupVO> queryPagedResult(String queryStr,
 			Map<String, Object> params, int currentPage, int pageSize,
 			String sortString);
+	
 	/**
 	 * 根据根组织的组织机构代码获取组织信息；
 	 * @param orgCode
@@ -78,7 +77,6 @@ public interface PunGroupService {
 	 */
 	public PageList<PunGroupVO> selectPagedByExample2(BaseExample baseExample,int currentPage, int pageSize,String sortString);
 	
-	
 	/**
 	 * 查询指定用户的所有组
 	 * @param userId
@@ -88,8 +86,5 @@ public interface PunGroupService {
 	 * @return null if userId is null
 	 */
 	public PageList<PunGroupVO> queryGroupByUserId(Long userId,int currentPage, int pageSize,String sortString);
-	
-	
-	
 	
 }

@@ -60,7 +60,7 @@ public class XMLHelper {
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		dbf.setIgnoringElementContentWhitespace(false);
 		dbf.setValidating(false);
-		dbf.setCoalescing(false); // convert CDATA nodes to Text FIXME
+		dbf.setCoalescing(false); // convert CDATA nodes to Text 
 									// 该节点与if(elm.getNodeType() ==
 									// Node.CDATA_SECTION_NODE)
 		dbf.setIgnoringComments(false); // 为false时与CDATA冲突
@@ -99,16 +99,16 @@ public class XMLHelper {
 		}
 
 		public Map<String, String> nodeNameAsAttributes(String nodeNameKey) {
-			Map map = new HashMap();
+			Map<String, String> map = new HashMap<String, String>();
 			map.putAll(attributes);
 			map.put(nodeNameKey, nodeName);
 			return map;
 		}
 
 		public List<Map<String, String>> childsAsListMap() {
-			List<Map<String, String>> result = new ArrayList();
+			List<Map<String, String>> result = new ArrayList<Map<String, String>>();
 			for (NodeData c : childs) {
-				Map map = new LinkedHashMap();
+				Map<String,String> map = new LinkedHashMap<String,String>();
 				map.put(c.nodeName, c.nodeValue);
 				result.add(map);
 			}
@@ -123,11 +123,7 @@ public class XMLHelper {
 		nodeData.childs = new ArrayList<NodeData>();
 		nodeData.innerXML = childsAsText(elm, new StringBuffer(), true).toString();
 		nodeData.outerXML = nodeAsText(elm, new StringBuffer(), true).toString();
-		nodeData.nodeValue = getNodeValue(elm);
-		// nodeData.innerText = childsAsText(elm, new
-		// StringBuffer(),false).toString();
-		// nodeData.outerText = nodeAsText(elm,new
-		// StringBuffer(),false).toString();
+		nodeData.nodeValue = getNodeValue(elm);;
 		NodeList childs = elm.getChildNodes();
 		for (int i = 0; i < childs.getLength(); i++) {
 			Node node = childs.item(i);
@@ -311,7 +307,7 @@ public class XMLHelper {
 	 * @return
 	 */
 	public static Map<String, String> parse2Attributes(String attributes) {
-		Map result = new HashMap();
+		Map<String,String> result = new HashMap<String,String>();
 		Pattern p = Pattern.compile("(\\w+?)=['\"](.*?)['\"]");
 		Matcher m = p.matcher(attributes);
 		while (m.find()) {
@@ -324,11 +320,10 @@ public class XMLHelper {
 		String file = "D:/dev/workspaces/alipay/ali-generator/generator/src/table_test.xml";
 		NodeData nd = new XMLHelper().parseXML(new FileInputStream(new File(file)));
 
-		Map table = nd.attributes;
-		List columns = nd.childs;
+		Map<String,String> table = nd.attributes;
+		List<NodeData> columns = nd.childs;
 		logger.debug(table + "");
 		logger.debug(columns + "");
-		// logger.debug(nd);
 	}
 
 }

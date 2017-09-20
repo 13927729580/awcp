@@ -12,7 +12,6 @@ import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.MappedJdbcTypes;
 
-
 @MappedJdbcTypes(JdbcType.BLOB)
 public class MyBlobTypeHandler extends BaseTypeHandler<String> {  
     //###指定字符集  
@@ -62,12 +61,11 @@ public class MyBlobTypeHandler extends BaseTypeHandler<String> {
             throw new RuntimeException("Blob Encoding Error!");  
         }  
     }
+    
 	@Override
 	public String getNullableResult(ResultSet arg0, int arg1)
 			throws SQLException {
-		// TODO Auto-generated method stub
 		return null;
 	}
-
 	
 }  

@@ -10,10 +10,8 @@ public class Springfactory implements BeanFactoryAware {
 
 	private static BeanFactory beanFactory;
 
-	// private static ApplicationContext context;
-
 	public void setBeanFactory(BeanFactory factory) throws BeansException {
-		this.beanFactory = factory;
+		beanFactory = factory;
 	}
 
 	/**
@@ -22,6 +20,7 @@ public class Springfactory implements BeanFactoryAware {
 	 * @param beanName
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public static <T> T getBean(String beanName) {
 		if (null != beanFactory) {
 			return (T) beanFactory.getBean(beanName);

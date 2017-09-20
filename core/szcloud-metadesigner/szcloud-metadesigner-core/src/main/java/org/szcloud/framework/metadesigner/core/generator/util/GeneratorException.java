@@ -7,8 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GeneratorException extends RuntimeException{
-	
-	public List<Exception> exceptions = new ArrayList();
+
+	private static final long serialVersionUID = -1835513891693817455L;
+	public List<Exception> exceptions = new ArrayList<Exception>();
 	
 	public GeneratorException() {
 		super();
@@ -74,7 +75,4 @@ public class GeneratorException extends RuntimeException{
 		}
 		return out.toString();
 	}
-	
-	
-	
 }

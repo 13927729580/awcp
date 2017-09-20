@@ -9,17 +9,22 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import org.szcloud.framework.core.common.exception.MRTException;
 import org.szcloud.framework.core.domain.BaseEntity;
 
+/**
+ * 角色访问
+ * @author Administrator
+ *
+ */
 public class PunRoleAccess extends BaseEntity{
-	/**
-	 * 
-	 */
+	
 	private static final long serialVersionUID = 5847966723236793625L;
 	private Long roleAccId;
 	private Long roleId;
 	private Long resourceId;
 	private Long operType;
-
+	private PunRoleInfo punRoleInfo;
+	
 	public PunRoleAccess(){
+		
 	}
 
 	public PunRoleAccess(Long roleAccId,Long roleId,Long resourceId,Long operType){
@@ -36,6 +41,7 @@ public class PunRoleAccess extends BaseEntity{
 	public Long getRoleId() {
 		return this.roleId;
 	}
+	
 	public void setResourceId(Long value) {
 		this.resourceId = value;
 	}
@@ -59,12 +65,6 @@ public class PunRoleAccess extends BaseEntity{
 	public void setOperType(Long operType) {
 		this.operType = operType;
 	}
-
-	public static long getSerialversionuid() {
-		return serialVersionUID;
-	}
-	
-	private PunRoleInfo punRoleInfo;
 	
 	public void setPunRoleInfo(PunRoleInfo punRoleInfo){
 		this.punRoleInfo = punRoleInfo;

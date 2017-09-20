@@ -3,10 +3,7 @@ package org.szcloud.framework.metadesigner.core.domain;
 import org.szcloud.framework.core.domain.BaseEntity;
 
 public class MetaModelType extends BaseEntity{
-	
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 1L;
 
 	private String typeName;
@@ -28,6 +25,5 @@ public class MetaModelType extends BaseEntity{
 	public void setTypeCode(String typeCode) {
 		this.typeCode = typeCode;
 	}
-	
 	
 }

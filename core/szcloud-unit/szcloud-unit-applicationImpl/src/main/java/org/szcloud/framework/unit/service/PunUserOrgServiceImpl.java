@@ -1,8 +1,6 @@
 package org.szcloud.framework.unit.service;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -56,7 +54,7 @@ public class PunUserOrgServiceImpl implements PunUserOrgService {
 	public PageList<PunUserOrgVO> selectPagedByExample(String queryStr, Map<String, Object> params, int currentPage,
 			int pageSize, String sortString) {
 		PageList<PunUserOrgVO> resultVO = new PageList<PunUserOrgVO>();
-		PageList result = queryChannel.queryPagedResult(PunUserOrg.class, queryStr,params, currentPage, pageSize, sortString);
+		PageList<PunUserOrg> result = queryChannel.queryPagedResult(PunUserOrg.class, queryStr,params, currentPage, pageSize, sortString);
 		for (Object dd : result) {
 			resultVO.add(BeanUtils.getNewInstance(dd, PunUserOrgVO.class));			
 		}
@@ -73,32 +71,5 @@ public class PunUserOrgServiceImpl implements PunUserOrgService {
 			throw new RuntimeException("错误信息", e);
 		}
 	}
-
-
-//	private Map<String, Object> getValueMap(Object obj) {
-//		Map<String, Object> map = new HashMap<String, Object>();
-//		// 获取f对象对应类中的所有属性域
-//		try {
-//			for (Field fidld : obj.getClass().getDeclaredFields()) {
-//				String varName = fidld.getName();
-//				// 获取原来的访问控制权限
-//				boolean accessFlag = fidld.isAccessible();
-//				// 修改访问控制权限
-//				fidld.setAccessible(true);
-//				// 获取在对象f中属性fields[i]对应的对象中的变量
-//				Object o = fidld.get(obj);
-//				if (o != null)
-//					map.put(varName, o);
-//				// 恢复访问控制权限
-//				fidld.setAccessible(accessFlag);
-//			}
-//		} catch (IllegalArgumentException ex) {
-//			ex.printStackTrace();
-//		} catch (IllegalAccessException ex) {
-//			ex.printStackTrace();
-//		}
-//		return map;
-//
-//	}
 
 }

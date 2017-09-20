@@ -1,50 +1,39 @@
-/*    */ package org.szcloud.framework.core.domain.internal;
-/*    */ 
-/*    */ import org.szcloud.framework.core.domain.QueryCriterion;
-/*    */ import org.szcloud.framework.core.domain.QueryException;
-/*    */ import org.apache.commons.lang3.StringUtils;
-/*    */ import org.apache.commons.lang3.builder.EqualsBuilder;
-/*    */ import org.apache.commons.lang3.builder.HashCodeBuilder;
-/*    */ 
-/*    */ public class NotEmptyCriterion
-/*    */   implements QueryCriterion
-/*    */ {
-/*    */   private String propName;
-/*    */ 
-/*    */   public NotEmptyCriterion(String propName)
-/*    */   {
-/* 16 */     if (StringUtils.isEmpty(propName)) {
-/* 17 */       throw new QueryException("Property name is null!");
-/*    */     }
-/* 19 */     this.propName = propName;
-/*    */   }
-/*    */ 
-/*    */   public String getPropName() {
-/* 23 */     return this.propName;
-/*    */   }
-/*    */ 
-/*    */   public boolean equals(Object other)
-/*    */   {
-/* 28 */     if (this == other)
-/* 29 */       return true;
-/* 30 */     if (!(other instanceof NotEmptyCriterion))
-/* 31 */       return false;
-/* 32 */     NotEmptyCriterion castOther = (NotEmptyCriterion)other;
-/* 33 */     return new EqualsBuilder().append(getPropName(), castOther.getPropName()).isEquals();
-/*    */   }
-/*    */ 
-/*    */   public int hashCode()
-/*    */   {
-/* 40 */     return new HashCodeBuilder(17, 37).append(getPropName()).toHashCode();
-/*    */   }
-/*    */ 
-/*    */   public String toString()
-/*    */   {
-/* 45 */     return getPropName() + " is not empty";
-/*    */   }
-/*    */ }
+package org.szcloud.framework.core.domain.internal;
 
-/* Location:           C:\Users\Administrator\Desktop\dayatang-commons-domain-3.5.jar
- * Qualified Name:     org.szcloud.framework.core.domain.internal.NotEmptyCriterion
- * JD-Core Version:    0.6.2
- */
+import org.szcloud.framework.core.domain.QueryCriterion;
+import org.szcloud.framework.core.domain.QueryException;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
+public class NotEmptyCriterion implements QueryCriterion{
+	private String propName;
+
+	public NotEmptyCriterion(String propName) {
+		if (StringUtils.isEmpty(propName)) {
+			throw new QueryException("Property name is null!");
+		}
+		this.propName = propName;
+	}
+
+	public String getPropName() {
+		return this.propName;
+	}
+
+	public boolean equals(Object other){    
+		if (this == other)
+			return true;
+		if (!(other instanceof NotEmptyCriterion))
+			return false;
+		NotEmptyCriterion castOther = (NotEmptyCriterion)other;
+		return new EqualsBuilder().append(getPropName(), castOther.getPropName()).isEquals();
+	}
+
+	public int hashCode() {
+		return new HashCodeBuilder(17, 37).append(getPropName()).toHashCode();
+	}
+
+	public String toString() {
+		return getPropName() + " is not empty";
+	}
+}

@@ -18,9 +18,9 @@ public class DBUtil {
 	protected static final Log logger = LogFactory.getLog(DBUtil.class);
 	private static ThreadLocal<Connection> connLocal = new ThreadLocal<Connection>();
 	private static final String user = "root";
-	private static final String password = "123456";
+	private static final String password = "root";
 	private static final String driverClass = "com.mysql.jdbc.Driver";
-	private static final String jdbcUrl = "jdbc:mysql://192.168.0.44:3306/platformcloud_jf?useUnicode=true&amp;characterEncoding=utf8&amp;zeroDateTimeBehavior=convertToNull&amp;transformedBitIsBoolean=true&amp;useOldAliasMetadataBehavior=true";
+	private static final String jdbcUrl = "jdbc:mysql://localhost:3306/awcp?useUnicode=true&amp;characterEncoding=utf8&amp;zeroDateTimeBehavior=convertToNull&amp;transformedBitIsBoolean=true&amp;useOldAliasMetadataBehavior=true";
 
 	private DBUtil() {
 	}
@@ -87,14 +87,24 @@ public class DBUtil {
 			ResultSet rs = DBUtil.getConnection().createStatement().executeQuery("show tables;");
 			while (rs.next()) {
 				String table = rs.getString(1);
-				try {
-					DBUtil.getConnection().createStatement()
-							.execute("ALTER TABLE " + table + " DROP COLUMN BWSX,DROP COLUMN JJCD,DROP COLUMN XTBH;");
-				} catch (Exception e) {
-					System.out.println(table);
+				// 如果不是组织表，则重置所有组ID
+				// if (!table.equalsIgnoreCase("p_un_group")) {
+				// ResultSet rs1 = DBUtil.getConnection().createStatement().executeQuery("desc "
+				// + table + ";");
+				// while (rs1.next()) {
+				// String colName = rs1.getString(1);
+				// if (colName.equalsIgnoreCase("GROUP_ID")) {
+				// System.out.println(table + "," + colName);
+				// DBUtil.getConnection().createStatement().execute("update " + table + " set
+				// GROUP_ID=1;");
+				// }
+				// }
+				// }
+				if (table.startsWith("nd")) {
+					System.out.print("drop table " + table + ";\n");
 				}
 			}
-
+			DBUtil.commit();
 		} catch (Exception e) {
 			DBUtil.rollback();
 			logger.info("ERROR", e);

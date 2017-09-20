@@ -5,15 +5,16 @@ import java.util.Map;
 
 public class VirtualRequest {
 	
-	
 	Map<String,String> map ;
 	
 	public VirtualRequest(Map<String,String> map){
 		this.map = map;
 	}
+	
 	public VirtualRequest(){
 		this.map = new HashMap<String,String>();
 	}
+	
 	public String getParameter(String args){
 		return map.get(args);
 	}

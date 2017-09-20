@@ -8,6 +8,7 @@
 	<resultMap id="BaseResultMap"
 		type="org.szcloud.framework.formdesigner.core.domain.DynamicPage">
 		<id column="id" property="id" jdbcType="BIGINT" />
+		<result column="modular" property="modular" jdbcType="BIGINT" />
 		<result column="version" property="version" jdbcType="VARCHAR" />
 		<result column="name" property="name" jdbcType="VARCHAR" />
 		<result column="description" property="description" jdbcType="VARCHAR" />
@@ -48,7 +49,7 @@
 	</resultMap>
 
 	<sql id="Base_Column_List">
-		ID,VERSION,NAME,DESCRIPTION,PAGE_TYPE,ORDERNUM,CSS,STYLE,
+		ID,modular,VERSION,NAME,DESCRIPTION,PAGE_TYPE,ORDERNUM,CSS,STYLE,
 		HIDDEN_SCRIPT,DISABLED_SCRIPT,READONLY_SCRIPT,MODEL_XML,
 		IS_LOG,PRELOAD_SCRIPT,AFTERLOAD_SCRIPT,CREATED,UPDATED,
 		WORKFLOW_NODE_INFO,STYLE_ID,templateContext,template_id,
@@ -97,6 +98,9 @@
 			<if test="id != null and id != ''">
 				and id = #{id}
 			</if>
+			<if test="modular != null and modular != ''">
+				and modular = #{modular}
+			</if>		
 			<if test="version != null and version != ''">
 				and version = #{version}
 			</if>
@@ -181,7 +185,7 @@
 		</selectKey>
 		INSERT INTO p_fm_dynamicpage
 		(
-		ID,VERSION,NAME,DESCRIPTION,PAGE_TYPE,ORDERNUM,CSS,STYLE,
+		ID,modular,VERSION,NAME,DESCRIPTION,PAGE_TYPE,ORDERNUM,CSS,STYLE,
 		HIDDEN_SCRIPT,DISABLED_SCRIPT,READONLY_SCRIPT,MODEL_XML,
 		IS_LOG,PRELOAD_SCRIPT,AFTERLOAD_SCRIPT,CREATED,UPDATED,
 		WORKFLOW_NODE_INFO,STYLE_ID,templateContext,template_id,
@@ -191,7 +195,7 @@
 		)
 		VALUES
 		(
-		#{id},#{version},#{name},#{description},#{pageType},#{order},#{css},#{style},
+		#{id},#{modular},#{version},#{name},#{description},#{pageType},#{order},#{css},#{style},
 		#{hiddenScript},#{disabledScript},#{readonlyScript},#{dataJson},
 		#{isLog},#{preLoadScript},#{afterLoadScript},#{updated},#{created}
 		,#{workflowNodeInfo},#{styleId},#{templateContext},#{templateId},
@@ -208,6 +212,7 @@
 		SET
 		name = #{name},
 		version = #{version},
+		modular = #{modular},
 		description=#{description},
 		page_type=#{pageType},
 		ordernum=#{order},

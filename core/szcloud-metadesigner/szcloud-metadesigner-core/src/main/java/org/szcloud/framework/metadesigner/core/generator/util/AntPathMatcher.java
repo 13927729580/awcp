@@ -4,8 +4,6 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-
-
 public class AntPathMatcher  {
 
 	/** Default path separator: "/" */

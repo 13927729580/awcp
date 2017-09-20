@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
+import org.szcloud.framework.core.domain.SzcloudJdbcTemplate;
 import org.szcloud.framework.core.utils.SessionUtils;
 import org.szcloud.framework.core.utils.constants.ResourceTypeEnum;
 import org.szcloud.framework.core.utils.constants.SessionContants;
@@ -86,6 +87,9 @@ public class PunAccessRelationController {
 	@Autowired
 	private FormdesignerService formdesignerServiceImpl;
 
+	@Autowired
+	private SzcloudJdbcTemplate jdbcTemplate;
+	
 	/**
 	 * 岗位关联人员
 	 * 
@@ -130,7 +134,7 @@ public class PunAccessRelationController {
 	 * @修改记录（修改时间、作者、原因）：
 	 */
 	@RequestMapping(value = "punRoleMenuAccessEdit")
-	public ModelAndView punRoleMenuAccessEdit(Long roleId) {
+	public ModelAndView punRoleMenuAccessEdit(Long roleId,String moduleId) {
 		PunSystemVO sysVO = (PunSystemVO) SessionUtils.getObjectFromSession(SessionContants.CURRENT_SYSTEM);
 		Long sysId = sysVO.getSysId();
 		ModelAndView mv = new ModelAndView();
@@ -142,7 +146,8 @@ public class PunAccessRelationController {
 				PunRoleInfoVO vo = new PunRoleInfoVO();
 				vo.setRoleId(roleId);
 				vo.setSysId(sysId);
-
+				mv.addObject("roleName", jdbcTemplate.queryForObject(
+						"select ROLE_NAME from p_un_role_info where ROLE_ID=" + roleId, String.class));
 				mv.addObject("vo", vo);
 				accVOS = menuService.getByRoleAndSys(vo, sysVO);
 			}
@@ -161,10 +166,22 @@ public class PunAccessRelationController {
 			JsonFactory factory = new JsonFactory();
 			mv.addObject("menuJson", factory.encode2Json(resultMap));
 
+			String sql = "";
+			if(StringUtils.isNoneBlank(moduleId)){
+				sql = "select id from p_fm_dynamicpage where modular=" + moduleId;
+			}
+			else{
+				sql = "select id from p_fm_dynamicpage where modular=(select ID from p_fm_modular limit 1)";
+			}
+			List<Long> dynamicPageIds =	jdbcTemplate.queryForList(sql,Long.class);
+			sql = "select ID,modularName from p_fm_modular order by ID ";
+			mv.addObject("modules", jdbcTemplate.queryForList(sql));
+			mv.addObject("moduleId",moduleId);
+			
 			// 1、查找当前系统的所有按钮，按动态表单名分类
 			// 2、查找资源，格式为Map<relateResoId,Resource>
 			// 3、查找已授权的资源
-			Map<String, List<StoreVO>> buttonMap = formdesignerServiceImpl.getSystemActs();
+			Map<String, List<StoreVO>> buttonMap = formdesignerServiceImpl.getSystemActs(dynamicPageIds);
 
 			Map<String, Object> params = new HashMap<String, Object>();
 			params.put("sysId", sysId);
@@ -179,7 +196,7 @@ public class PunAccessRelationController {
 				List<StoreVO> storeVOs = buttonMap.get(s);
 				for (StoreVO storeVO : storeVOs) {
 					// 如果resouce中有按钮ID
-					if (buttonResos.containsKey(storeVO.getId())) {// 濡傛灉璧勬簮琛ㄤ腑鏈夎鎸夐挳
+					if (buttonResos.containsKey(storeVO.getId())) {
 						if (resultsMap.containsKey(s)) {
 							List<PunResourceVO> newVos = resultsMap.get(s);
 							newVos.add(buttonResos.get(storeVO.getId()));
@@ -345,9 +362,12 @@ public class PunAccessRelationController {
 	@RequestMapping(value = "/saveRole", method = RequestMethod.POST)
 	public boolean saveRole(String roleId, String userIds) {
 		boolean flag = false;
-		if (StringUtils.isNoneBlank(roleId) && StringUtils.isNoneBlank(userIds)) {
+		if (StringUtils.isNoneBlank(roleId)) {
 			String roleIdstrString = roleId.split(",")[0];
 			flag = userRoleService.excuteRoleAndUser(roleIdstrString, userIds);
+		}
+		if (StringUtils.isBlank(userIds)){
+			flag = true;
 		}
 		return flag;
 	}

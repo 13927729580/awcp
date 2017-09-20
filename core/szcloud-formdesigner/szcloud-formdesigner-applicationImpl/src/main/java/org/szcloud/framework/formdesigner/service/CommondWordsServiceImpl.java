@@ -2,10 +2,7 @@ package org.szcloud.framework.formdesigner.service;
 
 import java.util.List;
 
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.szcloud.framework.core.domain.QueryChannelService;
 import org.szcloud.framework.core.utils.BeanUtils;
 import org.szcloud.framework.formdesigner.application.service.CommondWordsService;
 import org.szcloud.framework.formdesigner.application.vo.CommondWordsVO;
@@ -20,11 +17,6 @@ import org.szcloud.framework.formdesigner.core.domain.CommondWords;
 @Service(value = "commondWordsServiceImpl")
 public class CommondWordsServiceImpl implements CommondWordsService{
 
-	@Autowired
-	private QueryChannelService queryChannel;
-	@Autowired
-	private SqlSessionFactory sqlSessionFactory;
-	
 	@Override
 	public String save(CommondWordsVO vo) {
 		CommondWords word = BeanUtils.getNewInstance(vo, CommondWords.class);

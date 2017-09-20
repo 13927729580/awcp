@@ -14,7 +14,12 @@
 		 </div>
 	</div>
 </div>	
-
+<div class="form-group">
+	<label class="col-md-2 control-label required">显示文本</label>
+	<div class="col-md-4">
+		<input name="title" class="form-control" id="title" type="text" value="">
+	</div>
+</div>
 <div class="form-group"><!-- 显示1列数据 -->
 	<!-- 自己输入or下拉选择(dataname.itemcode) -->
 	<label class="col-md-offset-1 col-md-1 control-label required">数据源</label>

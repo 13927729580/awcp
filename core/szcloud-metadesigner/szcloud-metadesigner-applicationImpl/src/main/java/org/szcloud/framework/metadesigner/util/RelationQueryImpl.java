@@ -3,8 +3,6 @@ package org.szcloud.framework.metadesigner.util;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.szcloud.framework.core.domain.EntityRepositoryJDBC;
@@ -17,10 +15,7 @@ import org.szcloud.framework.metadesigner.vo.ModelRelationVO;
 
 @Service(value = "relationQueryImpl")
 public class RelationQueryImpl implements RelationQuery {
-	/**
-	 * 日志对象
-	 */
-	private static final Logger logger = LoggerFactory.getLogger(RelationQueryImpl.class);
+
 	@Autowired
 	private EntityRepositoryJDBC jdbcRepository;
 
@@ -31,14 +26,11 @@ public class RelationQueryImpl implements RelationQuery {
 	private MetaModelService metaModelServiceImpl;
 
 	@Autowired
-	private DataConvert dataConvertImpl;
-
-	@Autowired
 	private ModelRelationService modelRelationServiceImpl;
 
 	public List<Map<String, Object>> queryRoot(String modelCode) {
-		MetaModelVO mm = this.metaModelServiceImpl.queryByModelCode(modelCode);
-		List<MetaModelItemsVO> ls = this.metaModelItemsServiceImpl.queryResult("queryResult", mm.getId());
+		MetaModelVO mm = metaModelServiceImpl.queryByModelCode(modelCode);
+		List<MetaModelItemsVO> ls = metaModelItemsServiceImpl.queryResult("queryResult", mm.getId());
 		StringBuffer sb = new StringBuffer("select ");
 		for (MetaModelItemsVO mmi : ls) {
 			sb.append(mmi.getItemCode());
@@ -47,16 +39,16 @@ public class RelationQueryImpl implements RelationQuery {
 		sb.deleteCharAt(sb.length() - 1);
 		sb.append(" from ");
 		sb.append(mm.getTableName());
-		List<Map<String, Object>> list = this.jdbcRepository.find(sb.toString(), null);
+		List<Map<String, Object>> list = jdbcRepository.find(sb.toString());
 		return list;
 	}
 
 	public List<Map<String, Object>> queryChild(String modelCode1, String modelCode2, Object id) {
-		MetaModelVO m1 = this.metaModelServiceImpl.queryByModelCode(modelCode1);
-		List<MetaModelItemsVO> lss = this.metaModelItemsServiceImpl.queryResult("queryResult", m1.getId());
-		MetaModelVO m2 = this.metaModelServiceImpl.queryByModelCode(modelCode2);
-		List<MetaModelItemsVO> ls = this.metaModelItemsServiceImpl.queryResult("queryResult", m2.getId());
-		List<ModelRelationVO> mrls = this.modelRelationServiceImpl.queryByModelId(m1.getId());
+		MetaModelVO m1 = metaModelServiceImpl.queryByModelCode(modelCode1);
+		List<MetaModelItemsVO> lss = metaModelItemsServiceImpl.queryResult("queryResult", m1.getId());
+		MetaModelVO m2 = metaModelServiceImpl.queryByModelCode(modelCode2);
+		List<MetaModelItemsVO> ls = metaModelItemsServiceImpl.queryResult("queryResult", m2.getId());
+		List<ModelRelationVO> mrls = modelRelationServiceImpl.queryByModelId(m1.getId());
 		// 获取外键列的名称
 		String fk = "";
 		for (ModelRelationVO m : mrls) {
@@ -93,12 +85,12 @@ public class RelationQueryImpl implements RelationQuery {
 		sb.append(" where t1.");
 		sb.append(fk);
 		sb.append("=?");
-		List<Map<String, Object>> l = this.jdbcRepository.find(sb.toString(), new Object[] { id });
+		List<Map<String, Object>> l = jdbcRepository.find(sb.toString(), new Object[] { id });
 		return l;
 	}
 
 	public Map<String, Object> queryOne(String modelCode1, String modelCode2, Object id) {
-		List<Map<String, Object>> l = this.queryChild(modelCode1, modelCode2, id);
+		List<Map<String, Object>> l = queryChild(modelCode1, modelCode2, id);
 		if (l.size() > 0) {
 			return l.get(0);
 		}
@@ -106,11 +98,11 @@ public class RelationQueryImpl implements RelationQuery {
 	}
 
 	public Map<String, Object> queryManyToOne(String modelCode1, String modelCode2, Object id) {
-		MetaModelVO m1 = this.metaModelServiceImpl.queryByModelCode(modelCode1);
-		List<MetaModelItemsVO> lss = this.metaModelItemsServiceImpl.queryResult("queryResult", m1.getId());
-		MetaModelVO m2 = this.metaModelServiceImpl.queryByModelCode(modelCode2);
-		List<MetaModelItemsVO> ls = this.metaModelItemsServiceImpl.queryResult("queryResult", m2.getId());
-		List<ModelRelationVO> mrls = this.modelRelationServiceImpl.queryByModelId(m1.getId());
+		MetaModelVO m1 = metaModelServiceImpl.queryByModelCode(modelCode1);
+		List<MetaModelItemsVO> lss = metaModelItemsServiceImpl.queryResult("queryResult", m1.getId());
+		MetaModelVO m2 = metaModelServiceImpl.queryByModelCode(modelCode2);
+		List<MetaModelItemsVO> ls = metaModelItemsServiceImpl.queryResult("queryResult", m2.getId());
+		List<ModelRelationVO> mrls = modelRelationServiceImpl.queryByModelId(m1.getId());
 		// 获取外键列的名称
 		String fk = "";
 		for (ModelRelationVO m : mrls) {
@@ -134,7 +126,7 @@ public class RelationQueryImpl implements RelationQuery {
 		sb.append(pk2);
 		sb.append("=");
 		sb.append(id);
-		Map<String, Object> ma = this.jdbcRepository.findOne(sb.toString(), null);
+		Map<String, Object> ma = jdbcRepository.findOne(sb.toString());
 		StringBuffer s = new StringBuffer("select ");
 		String pk1 = "";
 		for (MetaModelItemsVO mm : lss) {
@@ -152,7 +144,7 @@ public class RelationQueryImpl implements RelationQuery {
 		s.append("=");
 		if (ma != null) {
 			s.append(ma.values().toArray()[0]);
-			Map<String, Object> m = this.jdbcRepository.findOne(s.toString(), null);
+			Map<String, Object> m = jdbcRepository.findOne(s.toString());
 			return m;
 		}
 		return null;

@@ -2,12 +2,13 @@ package org.szcloud.framework.venson.util;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
+import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -62,13 +63,31 @@ public class MD5Util {
 	 * 功能：得到文件的md5值。
 	 * 
 	 */
-	public static String getFileMD5String(File file) throws IOException {
-		FileInputStream in = new FileInputStream(file);
-		FileChannel ch = in.getChannel();
-		MappedByteBuffer byteBuffer = ch.map(FileChannel.MapMode.READ_ONLY, 0, file.length());
-		messagedigest.update(byteBuffer);
-		in.close();
-		return bufferToHex(messagedigest.digest());
+	public static String getFileMD5String(File file) {
+		try {
+			return getFileMD5String(new FileInputStream(file));
+		} catch (FileNotFoundException e) {
+			return null;
+		}
+	}
+
+	/**
+	 * 功能：得到文件的md5值。
+	 * 
+	 */
+	public static String getFileMD5String(InputStream file) {
+		if (file == null) {
+			return null;
+		}
+		try {
+			messagedigest.update(IOUtils.toByteArray(file));
+			return bufferToHex(messagedigest.digest());
+		} catch (IOException e) {
+			return null;
+		} finally {
+			IOUtils.closeQuietly(file);
+		}
+
 	}
 
 	/**

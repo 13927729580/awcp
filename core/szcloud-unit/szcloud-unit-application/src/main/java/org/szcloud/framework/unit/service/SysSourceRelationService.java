@@ -10,11 +10,13 @@ import com.github.miemiedev.mybatis.paginator.domain.PageList;
 public interface SysSourceRelationService {
 	
 	SysDataSourceVO get(Long id);
+	
 	List<SysDataSourceVO> findAll();
+	
 	void remove(SysDataSourceVO vo);
-	 SysDataSourceVO saveOrUpdate(SysDataSourceVO vo);
-	 PageList<SysDataSourceVO> selectPagedByExample(
-			BaseExample baseExample, int currentPage, int pageSize,
-			String sortString) ;
+	 
+	SysDataSourceVO saveOrUpdate(SysDataSourceVO vo);
+	 
+	PageList<SysDataSourceVO> selectPagedByExample(BaseExample baseExample, int currentPage, int pageSize,String sortString) ;
 	
 }

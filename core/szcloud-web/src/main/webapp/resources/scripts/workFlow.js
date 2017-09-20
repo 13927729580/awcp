@@ -21,10 +21,10 @@ function returnButton(){
  * 公文中的“状态”按钮脚本
  */
 function taskStatus(){
-	var WorkID = parent.frames["main"].$("#WorkID").val();
-	var NodeID = parent.frames["main"].$("#FK_Node").val();
-	var FlowNo = parent.frames["main"].$("#workflowId").val();
-	var FID = parent.frames["main"].$("#FID").val();
+	var WorkID = $(top.document).find("iframe")[index].contentWindow.$("#WorkID").val();
+	var NodeID = $(top.document).find("iframe")[index].contentWindow.$("#FK_Node").val();
+	var FlowNo = $(top.document).find("iframe")[index].contentWindow.$("#workflowId").val();
+	var FID = $(top.document).find("iframe")[index].contentWindow.$("#FID").val();
 	top.dialog({
 		id : 'edit-dialog' + Math.ceil(Math.random() * 10000),
 		title : '状态列表',
@@ -63,10 +63,10 @@ function nodeShift(actId,masterDataSource){
  * 工作挂起
  */
 function hungUp(){
-	var WorkID = parent.frames["main"].$("#WorkID").val();
-	var NodeID = parent.frames["main"].$("#FK_Node").val();
-	var FlowNo = parent.frames["main"].$("#workflowId").val();
-	var FID = parent.frames["main"].$("#FID").val();
+	var WorkID = $(top.document).find("iframe")[index].contentWindow.$("#WorkID").val();
+	var NodeID = $(top.document).find("iframe")[index].contentWindow.$("#FK_Node").val();
+	var FlowNo = $(top.document).find("iframe")[index].contentWindow.$("#workflowId").val();
+	var FID = $(top.document).find("iframe")[index].contentWindow.$("#FID").val();
 	top.dialog({
 		id : 'edit-dialog' + Math.ceil(Math.random() * 10000),
 		title : '工作挂起',
@@ -96,9 +96,9 @@ function taskStatusMobile(){
  * 公文中的“状态”按钮脚本
  */
 function flowChart(){
-	var workID=parent.frames["main"].document.getElementById("WorkID").value;
-	var flowID=parent.frames["main"].document.getElementById("workflowId").value;
-	var nodeID=parent.frames["main"].document.getElementById("FK_Node").value;
+	var workID=$(top.document).find("iframe")[index].contentWindow.document.getElementById("WorkID").value;
+	var flowID=$(top.document).find("iframe")[index].contentWindow.document.getElementById("workflowId").value;
+	var nodeID=$(top.document).find("iframe")[index].contentWindow.document.getElementById("FK_Node").value;
 
 	top.dialog({
 		id : 'edit-dialog' + Math.ceil(Math.random() * 10000),
@@ -292,14 +292,14 @@ function sendFlowByWork(actId, name, master, comment,userId){
 			
 		   else if(result.length == 1){
 		   
-		        parent.frames["main"].document.getElementById("actId").value =actId;
-		        parent.frames["main"].document.getElementById("masterDataSource").value =master;
+		        $(top.document).find("iframe")[index].contentWindow.document.getElementById("actId").value =actId;
+		        $(top.document).find("iframe")[index].contentWindow.document.getElementById("masterDataSource").value =master;
 				var nameJson= eval("({\"name\":\"name\",\"value\":\"" +name+ "\"})");
 				var commentJson= eval("({\"name\":\"comment\",\"value\":\"" +comment+ "\"})");
 				var activityJson= eval("[{\"name\":\"activity" +result+ "\",\"value\":\"" + userId + "\"}]");
 				activityJson.push(nameJson);
 				activityJson.push(commentJson);
-				parent.frames["main"].document.getElementById("slectsUserIds").value = JSON.stringify(activityJson);
+				$(top.document).find("iframe")[index].contentWindow.document.getElementById("slectsUserIds").value = JSON.stringify(activityJson);
 				AJAX(2);
 			}
 			
@@ -459,7 +459,7 @@ function copyToFlows(actId, name, master, comment){
 		$("#masterDataSource").val(master);
 	var form = document.getElementById("groupForm");
 	if(form == null)
-	    form = parent.frames["main"].document.getElementById("groupForm");
+	    form = $(top.document).find("iframe")[index].contentWindow.document.getElementById("groupForm");
 	var nameJson= eval("({\"name\":\"name\",\"value\":\"" + name + "\"})");
 	var commentJson= eval("({\"name\":\"comment\",\"value\":\"" + comment + "\"})");
 	var json = $(form).serializeArray();
@@ -472,7 +472,7 @@ function copyToFlows(actId, name, master, comment){
 		data: $(form).serialize(),
 		async : false,
 		success: function(data){
-			parent.frames["main"].location.href = basePath + "workflow/wf/listPersonalTasks.do";
+			$(top.document).find("iframe")[index].contentWindow.location.href = basePath + "workflow/wf/listPersonalTasks.do";
 		}
 	});
 }
@@ -494,7 +494,7 @@ function copyToMobileFlows(actId, name, master, comment){
 	}
 	var form = document.getElementById("groupForm");
 	if(form == null)
-	    form = parent.frames["main"].document.getElementById("groupForm");
+	    form = $(top.document).find("iframe")[index].contentWindow.document.getElementById("groupForm");
 	var nameJson= eval("({\"name\":\"name\",\"value\":\"" + name + "\"})");
 	var commentJson= eval("({\"name\":\"comment\",\"value\":\"" + comment + "\"})");
 	var json = $(form).serializeArray();
@@ -813,7 +813,7 @@ function goBack(){
 		else
 			href = "/oa/deskTop/selectPersonCalendar.do";
 	}
-	parent.frames["main"].location.href = basePath + href;
+	$(top.document).find("iframe")[index].contentWindow.location.href = basePath + href;
 	
 	//var box = window.parent.document.getElementById("CloudMenu");
 	//$(box).find("a.curSelectedNode").attr("href");
@@ -843,7 +843,7 @@ function popFlowInfoDialog(data,type)
 							if(type==2)
 								location.href = basePath +"workflow/wf/listPersonalTasks.do";
 							else if(type==3)
-							    parent.frames["main"].location.href = basePath +"workflow/wf/listPersonalTasks.do";
+							    $(top.document).find("iframe")[index].contentWindow.location.href = basePath +"workflow/wf/listPersonalTasks.do";
 						}
 					}
 				]
@@ -868,12 +868,14 @@ function popFlowInfoDialog(data,type)
 				});
 				d.showModal();
 			}
-
+var tab = top.$('#tabs-panel').tabs('getSelected');
+var index = top.$('#tabs-panel').tabs('getTabIndex',tab);
 
 function AJAX(type){
 	var form = document.getElementById("groupForm");
+	
 	if(form == null)
-	    form = parent.frames["main"].document.getElementById("groupForm");
+	    form = $(top.document).find("iframe")[index].contentWindow.document.getElementById("groupForm");
 	$.ajax({
 		type: "POST",
 		url: basePath + "workflow/wf/excute.do",
@@ -906,12 +908,12 @@ function AJAX(type){
 							//保存正文数据
 							saveMainText(dataJson.docId,type);
 							//parent.frames["main"].location.href = basePath + "workflow/wf/openTask.do?WorkItemID=" + dataJson.WorkItemID + "&EntryID=" + dataJson.EntryID + "&flowTaskType=1&workType=1";
-							location.reload();
+							//location.reload();
 							return true;
 						}else if(type == 2){
 							saveText(dataJson,type);
 							saveMainText(dataJson.docId,type);
-							parent.frames["main"].location.href = basePath + "workflow/wf/listHistoryTasks.do";
+							//parent.frames["main"].location.href = basePath + "workflow/wf/listHistoryTasks.do";
 							//parent.frames["main"].location.reload();
 							return true;
 						}
@@ -1028,7 +1030,7 @@ function clientCirculationButton(DataSource, commentId,element) {
 		var nowStr = now.format("yyyy-MM-dd");
 		var name = "创标 _" + nowStr;
 		if (commentId != null && commentId != "") {
-			var comment = parent.frames["main"].document.getElementById(commentId).value;
+			var comment = $(top.document).find("iframe")[index].contentWindow.document.getElementById(commentId).value;
 			circulationFlow(actId, name, DataSource, comment);
 		}else{
 			circulationFlow(actId, name, DataSource);
@@ -1045,7 +1047,7 @@ function clientGobackButton(DataSource, commentId, element) {
 	var now = new Date();
 	var nowStr = now.format("yyyy-MM-dd");
 	if (commentId != null && commentId != "") {
-		var comment = parent.frames["main"].document.getElementById(commentId).value;
+		var comment = $(top.document).find("iframe")[index].contentWindow.document.getElementById(commentId).value;
 		gobackFlow(actId, DataSource, comment);
 	}else{
 		gobackFlow(actId, DataSource);
@@ -1062,7 +1064,7 @@ function clientFinishButton(DataSource, commentId, element) {
 	var nowStr = now.format("yyyy-MM-dd");
 	var name = "开发规划 _" + nowStr;
 	if (commentId != null && commentId != "") {
-		var comment = parent.frames["main"].document.getElementById(commentId).value;
+		var comment = $(top.document).find("iframe")[index].contentWindow.document.getElementById(commentId).value;
 		finishFlow(actId, name, DataSource, comment);
 	}else{
 		finishFlow(actId, name, DataSource);
@@ -1079,7 +1081,7 @@ function clientAskForButton(DataSource, commentId, element) {
 	var nowStr = now.format("yyyy-MM-dd");
 	var name = "划拨申请_" + nowStr;
 	if (commentId != null && commentId != "") {
-		var comment = parent.frames["main"].document.getElementById(commentId).value;
+		var comment = $(top.document).find("iframe")[index].contentWindow.document.getElementById(commentId).value;
 		askForFlow(actId, name, DataSource, comment);
 	} else {
 		askForFlow(actId, name, DataSource);

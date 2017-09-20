@@ -1,13 +1,10 @@
 package org.szcloud.framework.formdesigner.core.domain;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import org.szcloud.framework.core.domain.BaseEntity;
-import java.util.*;
 
 public class PfmTemplate extends BaseEntity{
+
+	private static final long serialVersionUID = -1794175594345864020L;
 	private Long id;
 	private String fileName;
 	private Long sysId;
@@ -28,6 +25,7 @@ public class PfmTemplate extends BaseEntity{
 	public Long getId() {
 		return this.id;
 	}
+	
 	public void setFileName(String value) {
 		this.fileName = value;
 	}
@@ -35,6 +33,7 @@ public class PfmTemplate extends BaseEntity{
 	public String getFileName() {
 		return this.fileName;
 	}
+	
 	public void setSysId(Long value) {
 		this.sysId = value;
 	}
@@ -42,6 +41,7 @@ public class PfmTemplate extends BaseEntity{
 	public Long getSysId() {
 		return this.sysId;
 	}
+	
 	public void setDescription(String value) {
 		this.description = value;
 	}
@@ -49,6 +49,7 @@ public class PfmTemplate extends BaseEntity{
 	public String getDescription() {
 		return this.description;
 	}
+	
 	public void setFileLocation(String value) {
 		this.fileLocation = value;
 	}
@@ -64,7 +65,6 @@ public class PfmTemplate extends BaseEntity{
 	public void setContent(String content) {
 		this.content = content;
 	}
-
 	
 }
 

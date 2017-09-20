@@ -1,15 +1,11 @@
 package org.szcloud.framework.formdesigner.core.parse.html;
 
-
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.szcloud.framework.formdesigner.core.constants.FormDesignerGlobal;
-import org.szcloud.framework.formdesigner.core.domain.Document;
 import org.szcloud.framework.formdesigner.core.domain.design.context.act.PageAct;
-import org.szcloud.framework.formdesigner.core.utils.HTMLUtils;
 
 public class PageActHtmlWorker {
-	
 	
 	public static String convertDialog(PageAct pageAct){
 		StringBuilder sb = new StringBuilder();

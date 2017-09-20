@@ -5,9 +5,14 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.szcloud.framework.core.domain.BaseEntity;
-import java.util.*;
 
+/**
+ * 用户组实体类
+ * @author Administrator
+ *
+ */
 public class PunUserGroup extends BaseEntity{
+	private static final long serialVersionUID = 7188014221776696057L;
 	private Long userGruopId;
 	private Long userId;
 	private Long groupId;
@@ -15,6 +20,7 @@ public class PunUserGroup extends BaseEntity{
 	private Boolean isManager;
 
 	public PunUserGroup(){
+		
 	}
 
 	public PunUserGroup(Long userGruopId){
@@ -28,6 +34,7 @@ public class PunUserGroup extends BaseEntity{
 	public Long getUserGruopId() {
 		return this.userGruopId;
 	}
+	
 	public void setUserId(Long value) {
 		this.userId = value;
 	}
@@ -35,6 +42,7 @@ public class PunUserGroup extends BaseEntity{
 	public Long getUserId() {
 		return this.userId;
 	}
+	
 	public void setGroupId(Long value) {
 		this.groupId = value;
 	}
@@ -42,6 +50,7 @@ public class PunUserGroup extends BaseEntity{
 	public Long getGroupId() {
 		return this.groupId;
 	}
+	
 	public void setPositionId(Long value) {
 		this.positionId = value;
 	}
@@ -49,6 +58,7 @@ public class PunUserGroup extends BaseEntity{
 	public Long getPositionId() {
 		return this.positionId;
 	}
+	
 	public void setIsManager(Boolean value) {
 		this.isManager = value;
 	}

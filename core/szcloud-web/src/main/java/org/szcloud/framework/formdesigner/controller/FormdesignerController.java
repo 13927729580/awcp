@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.annotation.Resource;
 
@@ -26,7 +27,7 @@ import org.szcloud.framework.formdesigner.application.service.StoreService;
 import org.szcloud.framework.formdesigner.application.vo.DynamicPageVO;
 import org.szcloud.framework.formdesigner.application.vo.PageActVO;
 import org.szcloud.framework.formdesigner.application.vo.StoreVO;
-import org.szcloud.framework.formdesigner.constrants.FormDesignGlobal;
+import org.szcloud.framework.formdesigner.core.constants.FormDesignGlobal;
 import org.szcloud.framework.metadesigner.application.MetaModelOperateService;
 import org.szcloud.framework.unit.service.PunResourceService;
 import org.szcloud.framework.unit.service.PunSystemService;
@@ -75,8 +76,8 @@ public class FormdesignerController extends BaseController {
 	 * @return
 	 */
 	@RequestMapping(value = "/list")
-	public ModelAndView list(String name, String pageType, String templateId, String menuId, String tips,
-			@RequestParam(required = false, defaultValue = "1") int currentPage,
+	public ModelAndView list(String name, String modular, String pageType, String templateId, String menuId,
+			String tips, @RequestParam(required = false, defaultValue = "1") int currentPage,
 			@RequestParam(required = false, defaultValue = "10") int pageSize) {
 		ModelAndView mv = new ModelAndView();
 		if (pageSize < 10) {
@@ -96,6 +97,9 @@ public class FormdesignerController extends BaseController {
 					criteria.andLike("name", "%" + name + "%");
 				}
 			}
+			if (StringUtils.isNotBlank(modular)) {
+				criteria.andEqualTo("modular", modular);
+			}
 			if (StringUtils.isNotBlank(pageType)) {
 				criteria.andEqualTo("page_type", pageType);
 			}
@@ -105,6 +109,8 @@ public class FormdesignerController extends BaseController {
 			if (StringUtils.isNotBlank(menuId)) {
 				criteria.andEqualTo("id", menuId);
 			}
+			// 只能查看当前用户创建的表单
+			criteria.andEqualTo("CREATED_USER", ControllerHelper.getUser().getName());
 			PageList<DynamicPageVO> vos = formdesignerServiceImpl.selectPagedByExample(example, currentPage, pageSize,
 					"ID desc");
 			mv.addObject("vos", vos);
@@ -115,10 +121,12 @@ public class FormdesignerController extends BaseController {
 		mv.addObject("currentPage", currentPage);
 		mv.addObject("templateId", templateId);
 		mv.addObject("menuId", menuId);
+		mv.addObject("modular", modular);
 		mv.addObject("templates", meta.search(
-				"SELECT  DISTINCT b.id,b.file_name as text FROM p_fm_dynamicpage a LEFT JOIN p_fm_template b ON a.template_id=b.id"));
+				"SELECT DISTINCT b.id,b.file_name as text FROM p_fm_dynamicpage a LEFT JOIN p_fm_template b ON a.template_id=b.id"));
 		mv.addObject("menus", meta
 				.search("SELECT dynamicpage_id id,menu_name text FROM p_un_menu a WHERE LENGTH(a.dynamicpage_id)>0"));
+		mv.addObject("modulars", meta.search("select ID,modularName from p_fm_modular"));
 		mv.setViewName("formdesigner/page/dynamicPage-list");
 		return mv;
 	}
@@ -162,7 +170,8 @@ public class FormdesignerController extends BaseController {
 			}
 			mv.addObject("vo", vo);
 		}
-		mv.addObject("_COMPOENT_TYPE_NAME", FormDesignGlobal.COMPOENT_TYPE_NAME);
+		mv.addObject("modulars", meta.search("select ID,modularName from p_fm_modular"));
+		mv.addObject("_COMPOENT_TYPE_NAME", new TreeMap<>(FormDesignGlobal.COMPOENT_TYPE_NAME));
 		return mv;
 	}
 

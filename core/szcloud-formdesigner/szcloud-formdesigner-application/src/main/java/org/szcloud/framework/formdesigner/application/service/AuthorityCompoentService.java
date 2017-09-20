@@ -6,10 +6,8 @@ import java.util.Map;
 import org.szcloud.framework.core.common.exception.MRTException;
 import org.szcloud.framework.formdesigner.application.vo.AuthorityCompoentVO;
 
-
 public interface AuthorityCompoentService {
 	
-
 	public AuthorityCompoentVO findById(String id);
 	
 	public AuthorityCompoentVO findByComponent(String componentId);

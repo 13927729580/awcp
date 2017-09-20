@@ -817,7 +817,13 @@ function loadCommonComponentData(storeObject){
 		if(componentObject.pageId)	$("#pageId").val(componentObject.pageId);
 		if(componentObject.name)	$("#name").val(componentObject.name);
 		$("#name").attr("readonly","true");
+		/**新增属性by venson 2017-07-28*/
 		if(componentObject.title)	$("#title").val(componentObject.title);
+		if(componentObject.placeholder)	$("#placeholder").val(componentObject.placeholder);
+		if(componentObject.required)	$("#required").val(componentObject.required);
+		if(componentObject.extra)	$("#extra").val(componentObject.extra);
+		if(componentObject.funType) $("#funType").val(componentObject.funType);
+		/**新增属性 end*/
 		if(componentObject.description) 	$("#description").val(componentObject.description);
 		if(componentObject.order) 	$("#order").val(componentObject.order);
 		if(componentObject.style) 	$("#style").val(componentObject.style);

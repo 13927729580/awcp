@@ -12,6 +12,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -38,6 +39,8 @@ import org.szcloud.framework.unit.vo.PunGroupVO;
 import org.szcloud.framework.unit.vo.PunResourceTreeNode;
 import org.szcloud.framework.unit.vo.PunUserBaseInfoVO;
 
+import com.alibaba.fastjson.JSON;
+
 @Controller
 @RequestMapping("/unit")
 public class PunGroupController {
@@ -60,7 +63,8 @@ public class PunGroupController {
 	@Autowired
 	@Qualifier("punUserBaseInfoServiceImpl")
 	PunUserBaseInfoService userService;// 用户Service
-
+	@Resource
+	private JdbcTemplate jdbcTemplate;
 	@Resource(name = "punUserGroupServiceImpl")
 	private PunUserGroupService punUserGroupService;
 
@@ -71,8 +75,8 @@ public class PunGroupController {
 
 	/**
 	 * 
-	 * @Title: intoPunGroup @Description: 进入组编辑页面 @author
-	 *         ljw @param @return @return ModelAndView @throws
+	 * @Title: intoPunGroup @Description: 进入组编辑页面 @author ljw @param @return @return
+	 *         ModelAndView @throws
 	 */
 	@RequestMapping(value = "/intoPunGroup", method = RequestMethod.GET)
 	public ModelAndView intoPunGroup(Model model) {
@@ -178,25 +182,9 @@ public class PunGroupController {
 		mv.setViewName("/unit/punGroupTree-edit");
 		try {
 			PunGroupVO vo = groupService.findById(boxs[0]);
-			String pid = vo.getPid();
-			if (pid == null) {
-				pid = "";
-			}
-			pid = pid + vo.getGroupId().toString() + ",";
-			List<PunGroupVO> posterityGroups = groupService.getGroupListByPid(pid);
-			posterityGroups.add(vo);
-			GroupTreeUtils rtu = new GroupTreeUtils();
-			List<PunGroupVO[]> list = rtu.generateTreeView(posterityGroups);
-			Map<Integer, List<PunResourceTreeNode>> resultMap = new HashMap<Integer, List<PunResourceTreeNode>>();
-			Integer index = 1;
-			for (PunGroupVO[] prvo : list) {
-				// 以目录根节点的index为key，以manyNodeTree为value
-				List<PunResourceTreeNode> manyNodeTree = GroupTreeUtils.getPlainZNodes(prvo);
-				resultMap.put(index, manyNodeTree);
-				index++;
-			}
-			JsonFactory factory = new JsonFactory();
-			mv.addObject("groupJson", factory.encode2Json(resultMap));
+			List<Map<String, Object>> data = jdbcTemplate.queryForList(
+					"select group_id id,parent_group_id pId,group_ch_name name,number,group_type groupType from p_un_group");
+			mv.addObject("groupJson", JSON.toJSON(data));
 			mv.addObject("vo", vo);
 		} catch (Exception e) {
 			logger.info("ERROR", e);
@@ -411,7 +399,7 @@ public class PunGroupController {
 			if (users != null) {
 				for (int i = 0; i < users.size(); i++) {
 					PunUserBaseInfoVO pvo = users.get(i);
-					List<PunGroupVO> group = DocumentUtils.listGroupByUser(pvo.getUserId());
+					List<PunGroupVO> group = DocumentUtils.getIntance().listGroupByUser(pvo.getUserId());
 					if (null != group && group.size() > 0) {
 						PunGroupVO pun = group.get(0);
 						pvo.setDeptName(pun.getGroupChName());

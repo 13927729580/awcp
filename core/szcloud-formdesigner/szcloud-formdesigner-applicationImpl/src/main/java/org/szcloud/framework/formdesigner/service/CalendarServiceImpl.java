@@ -53,7 +53,6 @@ public class CalendarServiceImpl implements CalendarService {
 	public List<CalendarVO> findByUserId(Long userId) {
 		BaseExample example = new BaseExample();
 		example.createCriteria().andEqualTo("user_id", userId);
-		@SuppressWarnings("unchecked")
 		List<Calendar> calendarList = queryChannel.selectPagedByExample(Calendar.class, example, 1, Integer.MAX_VALUE, "start");
 		List<CalendarVO> voList = new ArrayList<CalendarVO>();
 		for(Calendar c:calendarList){
@@ -76,8 +75,8 @@ public class CalendarServiceImpl implements CalendarService {
 	@Override
 	public PageList<CalendarVO> queryPagedResult(Map<String, Object> params,
 			int currentPage, int pageSize, String sortString) {
-		@SuppressWarnings("unchecked")
-		PageList<Calendar> result = queryChannel.selectMapByPage(Calendar.class, "eqQueryList", params, currentPage, pageSize, sortString);
+		PageList<Calendar> result = queryChannel.selectMapByPage(Calendar.class, "eqQueryList", params, 
+				currentPage, pageSize, sortString);
 		List<CalendarVO> tem = new ArrayList<CalendarVO>();
 		for(Calendar calendar:result){
 			CalendarVO vo = new CalendarVO();
@@ -91,8 +90,8 @@ public class CalendarServiceImpl implements CalendarService {
 	@Override 
 	public PageList<CalendarVO> selectPagedByExample(BaseExample baseExample,
 			int currentPage, int pageSize, String sortString) {
-		@SuppressWarnings("unchecked")
-		PageList<Calendar> result = queryChannel.selectPagedByExample(Calendar.class, baseExample, currentPage, pageSize, sortString);
+		PageList<Calendar> result = queryChannel.selectPagedByExample(Calendar.class, baseExample, 
+				currentPage, pageSize, sortString);
 		List<CalendarVO> tem = new ArrayList<CalendarVO>();
 		for(Calendar calendar:result){
 			CalendarVO vo = new CalendarVO();
@@ -139,6 +138,5 @@ public class CalendarServiceImpl implements CalendarService {
 			return false;
 		}
 	}
-
 	
 }

@@ -37,11 +37,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.szcloud.framework.metadesigner.core.generator.GeneratorMain;
 
-/*
- * Author@fuqiang
- * 
- */
 public class GeneratorUI extends JFrame {
+	private static final long serialVersionUID = 4639733782232677081L;
 	/**
 	 * 日志对象
 	 */
@@ -87,11 +84,7 @@ public class GeneratorUI extends JFrame {
 		this.setVisible(true);
 	}
 
-	public static void main(String[] args) {
-		GeneratorUI auto = new GeneratorUI();
-	}
-
-	private Map map = new HashMap();
+	private Map<String,Object> map = new HashMap<String,Object>();
 	private JLabel jlabelDataBase = new JLabel("数据库连接:");
 	private JLabel jlabelRootOut = new JLabel("生成路径:");
 	private JLabel jlabelChooseSrc = new JLabel("模板文件夹:");
@@ -120,9 +113,7 @@ public class GeneratorUI extends JFrame {
 		jrbDefault.setSelected(true);
 		jrbDefault.setFont(new Font("宋体", Font.BOLD, 15));
 		jrbDefault.addActionListener(new ActionListener() {
-
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
 				jrbDefault.setSelected(true);
 				jrbGeneratorUI.setSelected(false);
 				jlabelChooseSrc.setEnabled(false);
@@ -137,9 +128,7 @@ public class GeneratorUI extends JFrame {
 		jrbGeneratorUI.setBounds(270, 420, 100, 30);
 		jrbGeneratorUI.setFont(new Font("宋体", Font.BOLD, 15));
 		jrbGeneratorUI.addActionListener(new ActionListener() {
-
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
 				jrbDefault.setSelected(false);
 				jlabelChooseSrc.setEnabled(true);
 				jtextfiledClass.setEditable(true);
@@ -219,12 +208,12 @@ public class GeneratorUI extends JFrame {
 		jbuttonTableName.setBounds(440, 370, 60, 30);
 		jbuttonTableName.addActionListener(new ActionListener() {
 
+			@SuppressWarnings("deprecation")
 			public void actionPerformed(ActionEvent e) {
 				if (conn != null) {
 					try {
 						conn.close();
 					} catch (SQLException e1) {
-						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
 				}
@@ -291,7 +280,7 @@ public class GeneratorUI extends JFrame {
 
 							} else {
 								table.removeAll();
-								List list = new ArrayList();
+								List<String> list = new ArrayList<String>();
 								for (int i = 0; i < array.length; i++) {
 									if (array[i].contains(jttable.getText().trim().toString())) {
 										list.add(array[i]);
@@ -328,7 +317,7 @@ public class GeneratorUI extends JFrame {
 								jtextfiledTableName.setText("");
 								conn.close();
 							} catch (Exception e2) {
-								// TODO: handle exception
+						
 							}
 							for (int i = 0; i < table.getRowCount(); i++) {
 								if ((Boolean) table.getValueAt(i, 0)) {
@@ -392,9 +381,7 @@ public class GeneratorUI extends JFrame {
 		jbuttonTempleteSrc.setBounds(440, 470, 60, 30);
 		jbuttonTempleteSrc.setEnabled(false);
 		jbuttonTempleteSrc.addActionListener(new ActionListener() {
-
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
 				if (e.getSource().equals(jbuttonTempleteSrc)) {// 判断触发方法的按钮是哪个
 					jfc.setFileSelectionMode(1);// 设定只能选择到文件
 					int state = jfc.showOpenDialog(null);// 此句是打开文件选择器界面的触发语句
@@ -414,9 +401,7 @@ public class GeneratorUI extends JFrame {
 		jfc.setCurrentDirectory(new File("d:\\"));// 文件选择器的初始目录定为d盘
 		jbuttonRootOut.setBounds(440, 320, 60, 30);
 		jbuttonRootOut.addActionListener(new ActionListener() {
-
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
 				if (e.getSource().equals(jbuttonRootOut)) {// 判断触发方法的按钮是哪个
 					jfc.setFileSelectionMode(1);// 设定只能选择到文件夹
 					int state = jfc.showOpenDialog(null);// 此句是打开文件选择器界面的触发语句
@@ -503,6 +488,7 @@ public class GeneratorUI extends JFrame {
 		jbuttonSubmit.setFont(new Font("宋体", Font.BOLD, 15));
 		jbuttonSubmit.addActionListener(new ActionListener() {
 
+			@SuppressWarnings("deprecation")
 			public void actionPerformed(ActionEvent e) {
 				if (conn == null) {
 					JOptionPane.showMessageDialog(rootPane, "请打开数据库连接！");
@@ -598,7 +584,6 @@ public class GeneratorUI extends JFrame {
 		jbuttonReset.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
 				jtextDataBase.setText("");
 				jtextfiledTableName.setText("");
 				jtextfiledCreatePath.setText("");

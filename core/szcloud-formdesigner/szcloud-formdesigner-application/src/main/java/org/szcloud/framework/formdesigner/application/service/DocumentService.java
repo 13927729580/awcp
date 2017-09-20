@@ -48,7 +48,6 @@ public interface DocumentService {
 	 * @param pageVO
 	 * @return
 	 */
-
 	String getTemplateString(DynamicPageVO pageVO);
 
 	/**
@@ -63,16 +62,7 @@ public interface DocumentService {
 	 * 删除元数据table 表中的一条数据
 	 */
 	Boolean deleteModelData(DynamicPageVO page, String recordId);
-	/**
-	 * 根据传递的文档和动态页面，即数据和模版，展示模版和数据
-	 * 
-	 * @param pageVO
-	 * @param docVo
-	 * @return
-	 */
-	// String view(DynamicPageVO pageVO, DocumentVO docVo, Object... objects)
-	// throws Exception ;
-
+	
 	/**
 	 * 处理request带来的数据
 	 * 
@@ -90,18 +80,6 @@ public interface DocumentService {
 	 * @param pageVo
 	 * @return
 	 */
-	// Map<String,List<Map<String,String>>> initDocumentData(Integer
-	// currentPage, Integer pageSize,Map<String,String>params, DynamicPageVO
-	// pageVo);
-	/**
-	 * 初始化文档数据 读取数据库中数据放入DocumentVO.ListParams中
-	 * 
-	 * @param currentPage
-	 * @param pageSize
-	 * @param docVo
-	 * @param pageVo
-	 * @return
-	 */
 	public Map<String, List<Map<String, String>>> initDocumentData(Integer currentPage, Integer pageSize,
 			DocumentVO docVo, ScriptEngine engine, DynamicPageVO pageVo);
 
@@ -110,8 +88,7 @@ public interface DocumentService {
 
 	String print(String docId);
 
-	PageList<DocumentVO> selectPagedByExample(BaseExample baseExample, int currentPage, int pageSize,
-			String sortString);
+	PageList<DocumentVO> selectPagedByExample(BaseExample baseExample, int currentPage, int pageSize,String sortString);
 
 	public void excuteUpdate(String sql);
 
@@ -119,7 +96,7 @@ public interface DocumentService {
 
 	public void excuteUpdate(String sql, String dsName);
 
-	public Map excuteQuery(String sql, String dsName);
+	public Map<String,Object> excuteQuery(String sql, String dsName);
 
 	public List<Map<String, Object>> excuteQueryForList(String sql, String dsName);
 
@@ -161,8 +138,7 @@ public interface DocumentService {
 	 */
 	String saveModelData(DynamicPageVO pageVO, DocumentVO vo, String datadefineName);
 
-	@SuppressWarnings("rawtypes")
-	Map saveModelDataFlow(DynamicPageVO pageVO, DocumentVO vo, String datadefineName, boolean masterDateSource)
+	Map<String,Object> saveModelDataFlow(DynamicPageVO pageVO, DocumentVO vo, String datadefineName, boolean masterDateSource)
 			throws Exception;
 
 	/**

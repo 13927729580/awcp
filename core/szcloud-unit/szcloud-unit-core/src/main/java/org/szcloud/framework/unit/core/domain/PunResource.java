@@ -11,20 +11,26 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import org.szcloud.framework.core.common.exception.MRTException;
 import org.szcloud.framework.core.domain.BaseEntity;
 
+/**
+ * 资源实体类
+ * @author Administrator
+ *
+ */
 public class PunResource extends BaseEntity{
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 5676772407916526067L;
 	private Long resourceId;
 	private Long sysId;
 	private String resouType;
 	private String relateResoId;
 	private String whichEnd;
-	private String resourceName;
-	
+	private String resourceName;	
 	private Long id;
+	private Set<PunResource> punResources = new HashSet<PunResource>();
+	private PunSystem punSystem;
+	private PunResource punResource;
+	
 	public PunResource(){
+		
 	}
 
 	public PunResource(Long resourceId){
@@ -46,6 +52,7 @@ public class PunResource extends BaseEntity{
 	public Long getSysId() {
 		return this.sysId;
 	}
+	
 	public void setResouType(String value) {
 		this.resouType = value;
 	}
@@ -62,7 +69,6 @@ public class PunResource extends BaseEntity{
 		this.relateResoId = relateResoId;
 	}
 	
-	private Set punResources = new HashSet(0);
 	public void setPunResources(Set<PunResource> punResource){
 		this.punResources = punResource;
 	}
@@ -70,8 +76,6 @@ public class PunResource extends BaseEntity{
 	public Set<PunResource> getPunResources() {
 		return punResources;
 	}
-	
-	private PunSystem punSystem;
 	
 	public void setPunSystem(PunSystem punSystem){
 		this.punSystem = punSystem;
@@ -81,14 +85,36 @@ public class PunResource extends BaseEntity{
 		return punSystem;
 	}
 	
-	private PunResource punResource;
-	
 	public void setPunResource(PunResource punResource){
 		this.punResource = punResource;
 	}
 	
 	public PunResource getPunResource() {
 		return punResource;
+	}
+	
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getWhichEnd() {
+		return whichEnd;
+	}
+
+	public void setWhichEnd(String whichEnd) {
+		this.whichEnd = whichEnd;
+	}
+
+	public String getResourceName() {
+		return resourceName;
+	}
+
+	public void setResourceName(String resourceName) {
+		this.resourceName = resourceName;
 	}
 
 	public String toString() {
@@ -128,30 +154,5 @@ public class PunResource extends BaseEntity{
 		return PunResource.getRepository().findAll(PunResource.class);
 	}
 
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getWhichEnd() {
-		return whichEnd;
-	}
-
-	public void setWhichEnd(String whichEnd) {
-		this.whichEnd = whichEnd;
-	}
-
-	public String getResourceName() {
-		return resourceName;
-	}
-
-	public void setResourceName(String resourceName) {
-		this.resourceName = resourceName;
-	}
-	
-	
 }
 

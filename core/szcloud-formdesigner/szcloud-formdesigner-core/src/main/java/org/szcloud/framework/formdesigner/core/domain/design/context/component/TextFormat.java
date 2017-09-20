@@ -3,13 +3,14 @@ package org.szcloud.framework.formdesigner.core.domain.design.context.component;
 import java.util.Map;
 
 public class TextFormat extends SimpleComponent {
-	
+
+	private static final long serialVersionUID = -5394811149123704691L;
 
 	@Override
 	public String getKeyString() {
-		// TODO Auto-generated method stub
 		return null;
 	}
+	
 	/**
 	 * 文本
 	 */
@@ -300,8 +301,5 @@ public class TextFormat extends SimpleComponent {
 	public void setIns(Map<String, Object> ins) {
 		this.ins = ins;
 	}
-
-	
-	
 	
 }

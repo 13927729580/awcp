@@ -28,8 +28,6 @@ import org.szcloud.framework.core.domain.Criteria;
 import org.szcloud.framework.core.utils.Tools;
 import org.szcloud.framework.core.utils.constants.SessionContants;
 import org.szcloud.framework.metadesigner.application.DataSourceManageService;
-import org.szcloud.framework.metadesigner.application.MetaModelItemService;
-import org.szcloud.framework.metadesigner.application.MetaModelOperateService;
 import org.szcloud.framework.metadesigner.application.MetaModelService;
 import org.szcloud.framework.metadesigner.vo.DataSourceManageVO;
 import org.szcloud.framework.metadesigner.vo.MetaModelVO;
@@ -40,6 +38,7 @@ import org.szcloud.framework.unit.vo.PunUserBaseInfoVO;
 import org.szcloud.framework.unit.vo.SysDataSourceVO;
 import org.szcloud.framework.venson.controller.base.ControllerHelper;
 
+import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.fastjson.JSON;
 import com.github.miemiedev.mybatis.paginator.domain.PageList;
 
@@ -52,10 +51,6 @@ public class DataSourceManageController extends BaseController {
 	@Autowired
 	private MetaModelService metaModelServiceImpl;
 	@Autowired
-	private MetaModelItemService metaModelItemsServiceImpl;
-	@Autowired
-	private MetaModelOperateService metaModelOperateServiceImpl;
-	@Autowired
 	@Qualifier("sysSourceRelationServiceImpl")
 	SysSourceRelationService sysSourceRelationService;
 	@Autowired
@@ -65,6 +60,9 @@ public class DataSourceManageController extends BaseController {
 	@Autowired
 	@Qualifier("dataSourceManageServiceImpl")
 	DataSourceManageService dataSourceService;
+
+	@Autowired
+	private DruidDataSource dataSource;
 
 	/**
 	 * 显示该单位下的所有数据源
@@ -325,23 +323,19 @@ public class DataSourceManageController extends BaseController {
 		map.put("modelSynchronization", true);
 		PageList<MetaModelVO> pl = metaModelServiceImpl.queryResult(queryStr, map, 1, Integer.MAX_VALUE, "id.desc");
 		mv.addObject("tables", pl);
-		StringBuilder sb = new StringBuilder("select ");
 		/*
-		 * if (pl != null && pl.size() > 0) { MetaModelVO metaModelVO = null;
-		 * for (MetaModelVO modelVo : pl) { if
-		 * (modelVo.getModelSynchronization()) { metaModelVO = modelVo; break; }
-		 * } if (metaModelVO != null) { List<MetaModelItemsVO> itemVOs =
-		 * metaModelItemsServiceImpl.queryResult("queryResult",
-		 * metaModelVO.getId()); if (itemVOs != null && itemVOs.size() > 0) {
-		 * mv.addObject("items", itemVOs); for (MetaModelItemsVO vo : itemVOs) {
-		 * sb.append(vo.getItemCode() + ", "); } int index =
-		 * sb.lastIndexOf(","); if (index > 0) { sb.substring(0, index - 1); }
+		 * if (pl != null && pl.size() > 0) { MetaModelVO metaModelVO = null; for
+		 * (MetaModelVO modelVo : pl) { if (modelVo.getModelSynchronization()) {
+		 * metaModelVO = modelVo; break; } } if (metaModelVO != null) {
+		 * List<MetaModelItemsVO> itemVOs =
+		 * metaModelItemsServiceImpl.queryResult("queryResult", metaModelVO.getId()); if
+		 * (itemVOs != null && itemVOs.size() > 0) { mv.addObject("items", itemVOs); for
+		 * (MetaModelItemsVO vo : itemVOs) { sb.append(vo.getItemCode() + ", "); } int
+		 * index = sb.lastIndexOf(","); if (index > 0) { sb.substring(0, index - 1); }
 		 * sb.append(" from " + metaModelVO.getTableName() + ";");
-		 * mv.addObject("sqlScript", sb.toString()); List<Map<String, String>>
-		 * maps =
-		 * metaModelOperateServiceImpl.queryPageResult(metaModelVO.getModelCode(
-		 * )); mv.addObject("maps", maps); } } else { mv.addObject("noneItem",
-		 * "暂无属性！"); } }
+		 * mv.addObject("sqlScript", sb.toString()); List<Map<String, String>> maps =
+		 * metaModelOperateServiceImpl.queryPageResult(metaModelVO.getModelCode( ));
+		 * mv.addObject("maps", maps); } } else { mv.addObject("noneItem", "暂无属性！"); } }
 		 */
 		mv.setViewName("metadesigner/dataSource/table_edit");
 		return mv;
@@ -421,8 +415,17 @@ public class DataSourceManageController extends BaseController {
 		mv.setViewName("metadesigner/dataSource/dataSource_tmp_metamodel_listTables");
 		Connection conn = null;
 		try {
-			Class.forName(vo.getSourceDriver());
-			conn = DriverManager.getConnection(vo.getSourceUrl(), vo.getUserName(), vo.getUserPwd());
+			// 如果数据源没有值，则使用系统的数据源
+			if (vo == null || vo.getSourceDriver() == null || vo.getSourceUrl() == null || vo.getUserName() == null) {
+				Class.forName(dataSource.getDriverClassName());
+				conn = DriverManager.getConnection(dataSource.getUrl(), dataSource.getUsername(),
+						dataSource.getPassword());
+
+			} else {
+				Class.forName(vo.getSourceDriver());
+				conn = DriverManager.getConnection(vo.getSourceUrl(), vo.getUserName(), vo.getUserPwd());
+			}
+
 			DatabaseMetaData metaData = conn.getMetaData();
 			ResultSet tableRet = metaData.getTables(null, "%", "%", new String[] { "TABLE" });
 			List<String> tableNames = new ArrayList<String>();

@@ -23,7 +23,11 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.subject.Subject;
 import org.springframework.util.ReflectionUtils;
+import org.szcloud.framework.core.utils.Security;
 import org.szcloud.framework.core.utils.SessionUtils;
 import org.szcloud.framework.core.utils.Springfactory;
 import org.szcloud.framework.core.utils.constants.SessionContants;
@@ -31,12 +35,19 @@ import org.szcloud.framework.formdesigner.utils.DocumentUtils;
 import org.szcloud.framework.unit.service.PunGroupService;
 import org.szcloud.framework.unit.service.PunRoleInfoService;
 import org.szcloud.framework.unit.service.PunSystemService;
+import org.szcloud.framework.unit.service.PunUserBaseInfoService;
+import org.szcloud.framework.unit.shiro.ShiroDbRealm;
+import org.szcloud.framework.unit.utils.WhichEndEnum;
 import org.szcloud.framework.unit.vo.PunGroupVO;
 import org.szcloud.framework.unit.vo.PunRoleInfoVO;
 import org.szcloud.framework.unit.vo.PunSystemVO;
 import org.szcloud.framework.unit.vo.PunUserBaseInfoVO;
 import org.szcloud.framework.venson.common.SC;
+import org.szcloud.framework.venson.util.CookieUtil;
+import org.szcloud.framework.venson.util.HttpUtils;
+import org.szcloud.framework.venson.util.MD5Util;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
 import BP.Port.Emp;
@@ -85,12 +96,19 @@ public final class ControllerHelper {
 	 * @return 键对应的值
 	 */
 	public static String getMessage(String key) {
-		Locale locale = ControllerContext.getRequest().getLocale();
-		ResourceBundle resourceBundle = ResourceBundle.getBundle("message", locale);
+		ResourceBundle resourceBundle = ResourceBundle.getBundle("messages/message", getLang());
 		String msg = resourceBundle.getString(key);
 		if (msg != null)
 			return msg;
 		return null;
+	}
+
+	public static Locale getLang() {
+		String lang = CookieUtil.findCookie("Lang");
+		if (Locale.ENGLISH.getLanguage().equals(lang))
+			return Locale.ENGLISH;
+		return Locale.SIMPLIFIED_CHINESE;
+
 	}
 
 	public static String getUploadPath() {
@@ -325,7 +343,65 @@ public final class ControllerHelper {
 	}
 
 	public static PunUserBaseInfoVO getUser() {
-		return (PunUserBaseInfoVO) DocumentUtils.getUser();
+		return (PunUserBaseInfoVO) DocumentUtils.getIntance().getUser();
+	}
+
+	public static boolean loginByCookie() {
+		HttpServletRequest request = ControllerContext.getRequest();
+		// 尝试从参数中获取
+		String secretKey = request.getParameter("uid");
+		String userAccount = request.getParameter("key");
+		// 如果为空则从cookie中获取
+		if (secretKey == null || userAccount == null) {
+			String secretKeyCookie = CookieUtil.findCookie(SC.SECRET_KEY);
+			String userAccountCookie = CookieUtil.findCookie(SC.USER_ACCOUNT);
+			if (secretKeyCookie != null && userAccountCookie != null) {
+				secretKey = secretKeyCookie;
+				userAccount = userAccountCookie;
+			}
+		}
+		if (secretKey != null && userAccount != null) {
+			// 如果不为空则进行校验key值得合法性
+			Map<String, String> parameters = new HashMap<String, String>();
+			parameters.put("uid", userAccount);
+			parameters.put("key", secretKey);
+			parameters.put("APIId", "validSSO");
+			String body = HttpUtils.sendGet("http://www.tongyuanmeng.com/awcp/api/executeAPI.do", parameters);
+			// 若返回值不为空则为合法操作
+			if (body != null && userAccount.equals(JSON.parseObject(body).getString("data"))) {
+				return toLogin(userAccount, false) != null;
+			}
+		}
+		return false;
+	}
+
+	public static PunUserBaseInfoVO toLogin(String userAccount, boolean isRemember) {
+		Map<String, Object> m = new HashMap<String, Object>();
+		m.put("userIdCardNumber", userAccount);
+		PunUserBaseInfoService userService = Springfactory.getBean("punUserBaseInfoServiceImpl");
+		List<PunUserBaseInfoVO> pvis = userService.queryResult("eqQueryList", m);
+		if (!pvis.isEmpty()) {
+			PunUserBaseInfoVO pvi = pvis.get(0);
+			// 用户状态禁用或未审核
+			if (SC.USER_STATUS_AUDIT.equals(pvi.getUserStatus())
+					|| SC.USER_STATUS_DISABLED.equals(pvi.getUserStatus())) {
+				return null;
+			}
+			Subject subject = SecurityUtils.getSubject();
+			String plainToke = pvi.getOrgCode() + ShiroDbRealm.SPLIT + pvi.getUserIdCardNumber() + ShiroDbRealm.SPLIT
+					+ WhichEndEnum.FRONT_END.getCode() + ShiroDbRealm.SPLIT + pvi.getUserPwd();
+			UsernamePasswordToken token = new UsernamePasswordToken(plainToke,
+					pvi.getUserPwd() == null ? "" : Security.decryptPassword(pvi.getUserPwd()));
+			subject.login(token);
+			ControllerHelper.doLoginSuccess(pvi);
+			CookieUtil.addCookie(SC.USER_ACCOUNT, pvi.getUserId() + "");
+			if (isRemember) {
+				CookieUtil.addCookie(SC.SECRET_KEY, MD5Util.getMD5StringWithSalt(pvi.getUserIdCardNumber(), SC.SALT));
+				CookieUtil.addCookie(SC.USER_ACCOUNT, pvi.getUserIdCardNumber());
+			}
+			return pvi;
+		}
+		return null;
 	}
 
 	public static Long getUserId() {

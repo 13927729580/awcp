@@ -12,11 +12,6 @@ import org.szcloud.framework.metadesigner.core.domain.MetaModelChart;
  */
 public class MetaModelChartVO {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 	private Long id;
 	
 	private String chartContext;
@@ -67,11 +62,10 @@ public class MetaModelChartVO {
 		this.classId = classId;
 	}
 	
-	public static List<MetaModelChart>  findAll() throws MRTException
-	{
+	public static List<MetaModelChart> findAll() throws MRTException{
 		List<MetaModelChart> treeMenuList = null;
 		try {
-			treeMenuList =  MetaModelChart.findAll(MetaModelChart.class);
+			treeMenuList = MetaModelChart.findAll(MetaModelChart.class);
 		} catch (Exception e) {
 			throw new  MRTException(e.getMessage(),e);
 		}

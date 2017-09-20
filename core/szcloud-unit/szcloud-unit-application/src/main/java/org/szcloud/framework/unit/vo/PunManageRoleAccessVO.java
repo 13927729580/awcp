@@ -1,5 +1,6 @@
 package org.szcloud.framework.unit.vo;
 
+import java.util.Arrays;
 
 public class PunManageRoleAccessVO{
 	/**
@@ -49,6 +50,12 @@ public class PunManageRoleAccessVO{
 
 	public void setResIDs(Long[] resIDs) {
 		this.resIDs = resIDs;
+	}
+
+	@Override
+	public String toString() {
+		return "PunManageRoleAccessVO [roleAccId=" + roleAccId + ", roleId=" + roleId + ", resourceId=" + resourceId
+				+ ", operType=" + operType + ", resIDs=" + Arrays.toString(resIDs) + "]";
 	}
 	
 }

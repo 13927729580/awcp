@@ -19,12 +19,18 @@
          memoryStoreEvictionPolicy="LFU"> 
   </cache>
   <cache name="document" 
-         maxElementsInMemory="5000" 
-         eternal="false"
-         timeToIdleSeconds="120000"
-         timeToLiveSeconds="120000"
-         overflowToDisk="true"
-         diskPersistent="false"
+         maxElementsInMemory="1" 
+         eternal="false" 
+         timeToIdleSeconds="1" 
+         timeToLiveSeconds="0" 
          memoryStoreEvictionPolicy="LFU">
+  </cache>
+  <cache name="api" 
+         maxElementsInMemory="1000" 
+         eternal="false"
+         overflowToDisk="true" 
+         timeToIdleSeconds="7200" 
+         timeToLiveSeconds="7200" 
+         memoryStoreEvictionPolicy="LFU"> 
   </cache>
 </ehcache>

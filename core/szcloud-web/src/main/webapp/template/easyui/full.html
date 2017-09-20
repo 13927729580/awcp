@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title>首页</title>
+		<link rel="stylesheet" type="text/css" href="css/easyui.css">
+		<link rel="stylesheet" type="text/css" href="css/icon.css">
+		<link rel="stylesheet" type="text/css" href="css/demo.css">
+		<link rel="stylesheet" type="text/css" href="css/ui-dialog.css" />
+		<link rel="stylesheet" type="text/css" href="css/jquery-accordion-menu.css" />
+		<link rel="stylesheet" type="text/css" href="css/font-awesome.css" />
+		<script type="text/javascript" src="js/jquery.min.js"></script>
+		<script type="text/javascript" src="js/jquery.easyui.min.js"></script>
+		<script src="js/jquery-accordion-menu.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/dialog-plus-min.js" type="text/javascript" charset="utf-8"></script>
+		<style type="text/css">
+			* {
+				box-sizing: border-box;
+				-moz-box-sizing: border-box;
+				-webkit-box-sizing: border-box;
+			}
+			
+			body {
+				background: #f0f0f0;
+			}
+			
+			.content {
+				width: 100%;
+				/*margin: 20px auto;*/
+			}
+			
+			.filterinput {
+				background-color: rgba(249, 244, 244, 0);
+				border-radius: 15px;
+				width: 90%;
+				height: 30px;
+				border: thin solid #FFF;
+				text-indent: 0.5em;
+				font-weight: bold;
+				color: #FFF;
+			}
+			
+			#demo-list a {
+				overflow: hidden;
+				text-overflow: ellipsis;
+				-o-text-overflow: ellipsis;
+				white-space: nowrap;
+				width: 100%;
+			}
+			
+			.form-horizontal .form-group {
+				margin-right: -15px;
+				margin-left: -15px;
+				height: 50px;
+			}
+			
+			.col-md-3 {
+				width: 25%;
+				float: left;
+				position: relative;
+				min-height: 1px;
+				padding-right: 15px;
+				padding-left: 15px;
+				font-weight: 700;
+			}
+			
+			.form-control,
+			.single-line {
+				background-color: #FFF;
+				background-image: none;
+				border: 1px solid #e5e6e7;
+				border-radius: 1px;
+				color: inherit;
+				display: block;
+				padding: 6px 12px;
+				-webkit-transition: border-color .15s ease-in-out 0s, box-shadow .15s ease-in-out 0s;
+				transition: border-color .15s ease-in-out 0s, box-shadow .15s ease-in-out 0s;
+				width: 100%;
+				font-size: 14px;
+			}
+			
+			.col-md-9 {
+				width: 75%;
+				float: left;
+				position: relative;
+				min-height: 1px;
+				padding-right: 15px;
+				padding-left: 15px;
+			}
+			
+			.label {
+				display: inline-block;
+				max-width: 100%;
+				font-weight: 700;
+			}
+			
+			.form-horizontal .control-label {
+				padding-top: 7px;
+				margin-bottom: 0;
+				text-align: right;
+			}
+		</style>
+
+		<script type="text/javascript">
+			$(function() {
+				var baseUrl = window.location.protocol + "//" + window.location.host + "/awcp/";
+				//顶部导航切换
+				$("#demo-list li").click(function() {
+					$("#demo-list li.active").removeClass("active")
+					$(this).addClass("active");
+				})
+				$("#logOut").click(function() {
+					$.get(baseUrl + "logout.do", function() {
+						location.href = baseUrl + "login.html";
+					});
+				})
+				//修改密码
+				$('#allchecker').bind("click", function() {
+					var content = '<div class="form-horizontal">' +
+						'<div class="form-group">' +
+						'<label class="col-md-3 control-label required">原密码</label>' +
+						'<div class="col-md-9"><input id="oldPwd" name="oldPwd" type="password" class="form-control"  placeholder="原密码"></div>' +
+						'</div><div class="form-group">' +
+						'<label class="col-md-3 control-label required">新密码</label>' +
+						'<div class="col-md-9"><input id="newPwd" name="newPwd" type="password" class="form-control"  placeholder="新密码"></div>' +
+						'</div><div class="form-group">' +
+						'<label class="col-md-3 control-label required">重复密码</label>' +
+						'<div class="col-md-9"><input id="newPwd2" name="newPwd2" type="password" class="form-control"  placeholder="重复新密码"></div>' +
+						'</div></div>';
+					var d = dialog({
+						title: '修改密码',
+						content: content,
+						okValue: '确定',
+						ok: function() {
+							var oldPwd = $("#oldPwd").val();
+							var newPwd = $("#newPwd").val();
+							var newPwd2 = $("#newPwd2").val();
+							if(oldPwd == "") {
+								alert("原密码必填");
+								return false;
+							}
+							if(newPwd == "") {
+								alert("新密码必填");
+								return false;
+							}
+							if(newPwd2 == "") {
+								alert("重复密码必填");
+								return false;
+							}
+							if(newPwd == oldPwd) {
+								alert("新密码不能和原密码一样");
+								return false;
+							}
+							if(newPwd != newPwd2) {
+								alert("新密码和重复密码输入不一致");
+								return false;
+							}
+							if(!window.confirm("确定修改")) {
+								return false;
+							}
+							//修改密码
+							$.ajax({
+								type: "POST",
+								url: baseUrl + "unit/updatePwd.do",
+								data: "oldPwd=" + oldPwd +
+									"&newPwd=" + newPwd,
+								success: function(data) {
+									if(data.status == 0) {
+										alert(data.message);
+										//alertMessage("修改成功");
+									} else {
+										alert(data.message);
+										//alertMessage(data.message);
+									}
+								}
+							})
+
+							return true;
+
+						},
+						cancelValue: '取消',
+						cancel: function() {}
+					});
+					d.width(450).showModal();
+					return false;
+				});
+
+				$.ajax({
+					type: "get",
+					url: "http://localhost/awcp/getUserMenu.do",
+					async: true,
+					success: function(res) {
+						console.log(res)
+						var root = "#demo-list";
+						creatMent(res.data.children, root);
+						jQuery("#jquery-accordion-menu").jqueryAccordionMenu();
+					}
+				});
+
+				var ele;
+
+				function creatMent(domArray, root) {
+					$.each(domArray, function(index, item) {
+						if(item.children.length > 0) {
+							ele = $("<ul class='submenu'></ul>");
+							var li = $("<li></li>");
+							li.append("<a href='javascript:void(0)'><i ><img style='width:18px;height:16px' src='" + item.icon + "'/></i>" + item.name + "<span class='submenu-indicator'>+</span></a>");
+							li.append(ele);
+							$(root).append(li)
+							creatMent(item.children, ele);
+						} else {
+							var li = $("<li><a href='javascript:void(0)'>" + item.name + "</a></li>");
+							$(ele).append(li);
+							li.on('click', function() {
+								addTab(item.name, item.url)
+							})
+						}
+					});
+				}
+				addTab("首页", "http://localhost/awcp/workflow/wf/listPersonalTasks.do", true)
+
+				function addTab(title, url, noClose) {
+					if(noClose) {
+						noClose = false;
+					} else {
+						noClose = true;
+					}
+					if($("#tabs-panel").tabs("exists", title)) {
+						$("#tabs-panel").tabs("select", title)
+					} else {
+						var content = '<iframe scrolling="no" frameborder="0"  src="' + url + '" style="width:100%;height:99%;"></iframe>';
+						$("#tabs-panel").tabs("add", {
+							title: title,
+							content: content,
+							closable: noClose
+						})
+					}
+				}
+			})
+		</script>
+	</head>
+
+	<body class="easyui-layout">
+		<!-----------------------------------------头部------------------------------------------------------------------------>
+		<div data-options="region:'north',border:false" style="max-height:56px;background-image: url(images/logorighttop.png);  background-size: 100%;   overflow: hidden;">
+			<div class="header-left" style="width: 15%;float: left;">
+				<div style="margin-left: 40px; font-size: 16px;float: left;">
+					<img src="images/logo1.png" style=" height: 45px;margin-top: 7px;">
+				</div>
+				<div style="color: #0497F5;margin-left: 5px;float: left;color: white;">
+					<p>全栈配置云开发平台</p>
+					<p>AWCP</p>
+				</div>
+
+			</div>
+			<div style="float: left; width:85%;">
+				<a href="#" id="logOut" style="text-decoration: none; float: right;line-height: 60px;color: black;font-size: 16px;margin-right: 40px;">
+					<img src="images/quit.png" style="vertical-align:middle" /> 退出
+				</a>
+				<a href="#" id="allchecker" style="text-decoration: none;float: right; line-height: 60px;color: black;font-size: 16px;margin-right: 40px;" id="allchecker">
+					<img src="images/me.png" style="vertical-align:middle" /> 修改密码
+				</a>
+			</div>
+
+			<!----------------------------------------------------头部结束---------------------------------------------------------------->
+		</div>
+		<!---------------------------------------------左边菜单----------------------------------------------------->
+		<div data-options="region:'west',split:true,title:'系统管理软件'" style="width:15%;">
+			<div class="content">
+				<div id="jquery-accordion-menu" class="jquery-accordion-menu red">
+					<!-- <div class="jquery-accordion-menu-header" id="form"></div> -->
+					<ul id="demo-list">
+
+					</ul>
+				</div>
+			</div>
+
+			<script type="text/javascript">
+			</script>
+
+		</div>
+		<!---------------------------------------------左边菜单结束----------------------------------------------------->
+		<div id="tabs-panel" data-options="region:'center',title:''" class="easyui-tabs">
+		</div>
+	</body>
+
+</html>

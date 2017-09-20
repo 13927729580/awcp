@@ -31,21 +31,24 @@
 			<div class="row" id="buttons">
 				<!-- <button type="button" class="btn btn-success" id="addBtn"><i class="icon-plus-sign"></i>新增</button> -->
 				<div class="btn-group">
-				<button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown">
+				<!-- <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown">
 					<i class="icon-plus-sign"></i>新增  <span class="caret"></span> 
 				</button>
 	            <ul class="dropdown-menu" role="menu">
 	                <li><a href="#" id="addBtn">新增</a></li>
 	                <li><a href="#" id="addbydb">已有数据源创建</a></li>
-	            </ul>
+	            </ul> -->
+	            <button id="addbydb" class="btn btn-success">
+					新增
+				</button>
 	            </div>
 				<!-- <button type="button" class="btn btn-info" id="deleteBtn"><i class="icon-trash"></i>删除元数据及表</button> -->
 				<button type="button" class="btn btn-info" id="deleteOnly"><i class="icon-trash"></i>仅删除元数据</button>
 				<button type="button" class="btn btn-warning" id="updateBtn"><i class="icon-edit"></i>修改</button>
 				<button type="button" class="btn btn-warning" id="relationBtn"><i class="icon-edit"></i>关联属性</button>
-				<button type="button" class="btn btn-info" id="releaseBtn"><i class="icon-trash">发布</i></button>
+				<!-- <button type="button" class="btn btn-info" id="releaseBtn"><i class="icon-trash">发布</i></button> -->
 				<button type="button" class="btn btn-info" id="createTableBtn"><i class="icon-trash">生成数据库表</i></button>
-				<button type="button" class="btn btn-info" id="batchUpdateDs"><i class="icon-trash">批量修改数据源</i></button>
+				<!-- <button type="button" class="btn btn-info" id="batchUpdateDs"><i class="icon-trash">批量修改数据源</i></button> -->
 				<button type="button" class="btn btn-info" id="synMetaBtn"><i class="icon-trash">同步</i></button>
 				<button type="button" class="btn btn-info" id="searchBtn" data-toggle="collapse" data-target="#collapseButton"><i class="icon-search"></i></button>
 			</div>
@@ -163,7 +166,8 @@
           	
       		$("#addbydb").click(function(){
       			//alert(1);
-      			var url = "<%=basePath %>dataSourceManage/edit-ds-info-temp.do";
+      			//var url = "<%=basePath %>dataSourceManage/edit-ds-info-temp.do";
+      			var url = "<%=basePath %>dataSourceManage/listTables.do";
       			location.href = url;
       			return false;
       		});

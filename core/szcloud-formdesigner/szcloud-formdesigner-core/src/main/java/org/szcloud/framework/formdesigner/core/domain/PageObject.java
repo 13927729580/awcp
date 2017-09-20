@@ -62,60 +62,79 @@ public class PageObject extends BaseEntity implements Comparator<PageObject> {
 	public String getPageId() {
 		return pageId;
 	}
+	
 	public void setPageId(String pageId) {
 		this.pageId = pageId;
 	}
+	
 	public String getVersion() {
 		return version;
 	}
+	
 	public void setVersion(String version) {
 		this.version = version;
 	}
+	
 	public String getName() {
 		return name;
 	}
+	
 	public void setName(String name) {
 		this.name = name;
 	}
+	
 	public String getDescription() {
 		return description;
 	}
+	
 	public void setDescription(String description) {
 		this.description = description;
 	}
+	
 	public int getOrder() {
 		return order;
 	}
+	
 	public void setOrder(int order) {
 		this.order = order;
 	}
+	
 	public String getCss() {
 		return css;
 	}
+	
 	public void setCss(String css) {
 		this.css = css;
 	}
+	
 	public String getStyle() {
 		return style;
 	}
+	
 	public void setStyle(String style) {
 		this.style = style;
 	}
+	
 	public String getHiddenScript() {
 		return hiddenScript;
 	}
+	
 	public void setHiddenScript(String hiddenScript) {
 		this.hiddenScript = hiddenScript;
 	}
+	
 	public String getDisabledScript() {
 		return disabledScript;
 	}
+	
 	public void setDisabledScript(String disabledScript) {
 		this.disabledScript = disabledScript;
 	}
+	
 	public String getReadonlyScript() {
 		return readonlyScript;
 	}
+	
 	public void setReadonlyScript(String readonlyScript) {
 		this.readonlyScript = readonlyScript;
 	}
@@ -124,6 +143,5 @@ public class PageObject extends BaseEntity implements Comparator<PageObject> {
 	public int compare(PageObject o1, PageObject o2) {
 		return o1.getOrder() - o2.getOrder();
 	}
-	
 	
 }

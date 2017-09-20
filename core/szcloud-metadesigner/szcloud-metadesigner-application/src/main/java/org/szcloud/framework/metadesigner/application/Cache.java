@@ -7,10 +7,9 @@ import java.util.Map;
  * 缓存接口
  *
  */
-
-
 public interface Cache {
-    /**
+    
+	/**
      * 根据指定key，从缓存中获取对象
      *
      * @param key 对象的key
@@ -42,6 +41,7 @@ public interface Cache {
      * @param expiry 缓存过期日期
      */
     void put(String key, Object value, Date expiry);
+  
     /**
      * 把对象以key的形式放入缓存（同名key覆盖）
      *
@@ -58,6 +58,7 @@ public interface Cache {
      * @return true=成功，false=失败
      */
     boolean remove(String key);
+   
     /**
      * 判断key是否已经已存在
      *

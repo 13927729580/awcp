@@ -1,12 +1,5 @@
 package org.szcloud.framework.unit.vo;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-import org.szcloud.framework.core.domain.BaseEntity;
-
-import java.util.*;
 public class PunManageMenuVO{
 	private Long menuId;
 	private Long pumenuId;
@@ -38,6 +31,7 @@ public class PunManageMenuVO{
 	public Long getMenuId() {
 		return this.menuId;
 	}
+	
 	public void setPumenuId(Long value) {
 		this.pumenuId = value;
 	}
@@ -45,6 +39,7 @@ public class PunManageMenuVO{
 	public Long getPumenuId() {
 		return this.pumenuId;
 	}
+	
 	public void setParentMenuId(Long value) {
 		this.parentMenuId = value;
 	}
@@ -52,6 +47,7 @@ public class PunManageMenuVO{
 	public Long getParentMenuId() {
 		return this.parentMenuId;
 	}
+	
 	public void setMenuName(String value) {
 		this.menuName = value;
 	}
@@ -59,6 +55,7 @@ public class PunManageMenuVO{
 	public String getMenuName() {
 		return this.menuName;
 	}
+	
 	public void setMenuAddress(String value) {
 		this.menuAddress = value;
 	}
@@ -66,6 +63,7 @@ public class PunManageMenuVO{
 	public String getMenuAddress() {
 		return this.menuAddress;
 	}
+	
 	public void setMenuSeq(Integer value) {
 		this.menuSeq = value;
 	}
@@ -73,6 +71,7 @@ public class PunManageMenuVO{
 	public Integer getMenuSeq() {
 		return this.menuSeq;
 	}
+	
 	public void setPid(String value) {
 		this.pid = value;
 	}
@@ -80,6 +79,7 @@ public class PunManageMenuVO{
 	public String getPid() {
 		return this.pid;
 	}
+	
 	public void setMenuType(String value) {
 		this.menuType = value;
 	}
@@ -87,6 +87,7 @@ public class PunManageMenuVO{
 	public String getMenuType() {
 		return this.menuType;
 	}
+	
 	public void setMenuNote(String value) {
 		this.menuNote = value;
 	}
@@ -119,6 +120,13 @@ public class PunManageMenuVO{
 		this.operateType = operateType;
 	}
 
+	@Override
+	public String toString() {
+		return "PunManageMenuVO [menuId=" + menuId + ", pumenuId=" + pumenuId + ", parentMenuId=" + parentMenuId
+				+ ", menuName=" + menuName + ", menuAddress=" + menuAddress + ", menuSeq=" + menuSeq + ", pid=" + pid
+				+ ", menuType=" + menuType + ", operateType=" + operateType + ", menuNote=" + menuNote + ", sysId="
+				+ sysId + ", checked=" + checked + "]";
+	}
 	
 }
 

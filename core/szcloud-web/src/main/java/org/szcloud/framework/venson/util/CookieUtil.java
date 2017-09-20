@@ -5,8 +5,8 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 
 import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+
+import org.szcloud.framework.venson.controller.base.ControllerContext;
 
 /**
  * cookie操作类 <br>
@@ -20,44 +20,47 @@ public class CookieUtil {
 	}
 
 	// 设置age
-	public static void addCookie(String name, String value, HttpServletResponse response, int age)
-			throws UnsupportedEncodingException {
-
-		Cookie cookie = new Cookie(name, URLEncoder.encode(value, "utf-8"));
+	public static void addCookie(String name, String value, int age) {
+		try {
+			value = URLEncoder.encode(value, "utf-8");
+		} catch (UnsupportedEncodingException e) {
+		}
+		Cookie cookie = new Cookie(name, value);
 		cookie.setMaxAge(age);
 		cookie.setPath(default_path);
-		response.addCookie(cookie);
+		ControllerContext.getResponse().addCookie(cookie);
 
 	}
 
 	// 默认的
-	public static void addCookie(String name, String value, HttpServletResponse response)
-			throws UnsupportedEncodingException {
-		addCookie(name, value, response, default_age);
+	public static void addCookie(String name, String value) {
+		addCookie(name, value, default_age);
 
 	}
 
-	public static String findCookie(String name, HttpServletRequest request) throws UnsupportedEncodingException {
-		String value = null;
-		Cookie[] cookies = request.getCookies();
+	public static String findCookie(String name) {
+		Cookie[] cookies = ControllerContext.getRequest().getCookies();
 		if (cookies != null) {
 			for (int i = 0; i < cookies.length; i++) {
 				Cookie cookie = cookies[i];
 				if (cookie.getName().equals(name)) {
-					value = URLDecoder.decode(cookie.getValue(), "utf-8");
+					try {
+						return URLDecoder.decode(cookie.getValue(), "utf-8");
+					} catch (UnsupportedEncodingException e) {
+					}
 
 				}
 			}
 		}
-		return value;
+		return null;
 
 	}
 
-	public static void deleteCookie(String name, HttpServletResponse response) {
+	public static void deleteCookie(String name) {
 		Cookie cookie = new Cookie(name, "");
 		cookie.setMaxAge(0);
 		cookie.setPath(default_path);
-		response.addCookie(cookie);
+		ControllerContext.getResponse().addCookie(cookie);
 
 	}
 

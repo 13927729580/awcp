@@ -1,17 +1,8 @@
 package org.szcloud.framework.metadesigner.util;
 
 import org.szcloud.framework.metadesigner.vo.MetaModelItemsVO;
-/**
- * 鍒涘缓姣忓垪鐨凷ql璇彞
- * 
- * 渚� name varchar(20) not null defalut(20);
- * 
- * @author Administrator
- *
- */
 
 public class CheckIsNull {
-	
 	
 	public static String checkElement(MetaModelItemsVO vo){
 		StringBuffer s=new StringBuffer(vo.getItemCode());

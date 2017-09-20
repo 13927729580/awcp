@@ -1,6 +1,5 @@
 package org.szcloud.framework.core.utils.constants;
 
-
 /**
  * 操作类型枚举
  * @author ljw
@@ -30,8 +29,7 @@ public enum OperTypeEnum {
 	 * 所有权限：11111
 	 */
 	OPER_ALL(11111L,"所有权限");
-	
-	
+		
 	private Long key;
 	private String value = "";
 	

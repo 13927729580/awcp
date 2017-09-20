@@ -17,10 +17,10 @@ import org.szcloud.framework.metadesigner.core.generator.util.typemapping.Action
 import org.szcloud.framework.metadesigner.core.generator.util.typemapping.JavaImport;
 import org.szcloud.framework.metadesigner.core.generator.util.typemapping.JavaPrimitiveTypeMapping;
 
-
 public class JavaClass {
-	private Class clazz;
-	public JavaClass(Class clazz) {
+	private Class<?> clazz;
+	
+	public JavaClass(Class<?> clazz) {
 		this.clazz = clazz;
 	}
 	
@@ -43,7 +43,7 @@ public class JavaClass {
 	public boolean isHasDefaultConstructor() {
 	    if(clazz.isInterface() || clazz.isAnnotation() || clazz.isEnum() || Modifier.isAbstract(clazz.getModifiers()))
 	        return false;
-	    for(Constructor c : clazz.getConstructors()) {
+	    for(Constructor<?> c : clazz.getConstructors()) {
 	        if(Modifier.isPublic(c.getModifiers())) {
 	            if(c.getParameterTypes().length == 0) {
 	                return true;
@@ -57,20 +57,20 @@ public class JavaClass {
 	public Set<JavaClass> getImportClasses() {
 	    Set<JavaClass> set = new LinkedHashSet<JavaClass>();
 	    for(Method m :clazz.getMethods()) {
-	        Class[] clazzes = { m.getReturnType() };
+	        Class<?>[] clazzes = { m.getReturnType() };
             JavaImport.addImportClass(set,clazzes);
 	        JavaImport.addImportClass(set,m.getParameterTypes());
 	        JavaImport.addImportClass(set,m.getExceptionTypes());
 	    }
 	    if(clazz.isMemberClass()) {
-	        Class[] clazzes = { clazz };
+	        Class<?>[] clazzes = { clazz };
             JavaImport.addImportClass(set,clazzes);
 	    }
 	    for(Field f :clazz.getFields()) {
-            Class[] clazzes = { f.getType() };
+            Class<?>[] clazzes = { f.getType() };
             JavaImport.addImportClass(set,clazzes);
         }
-	    for(Constructor c : clazz.getConstructors()) {
+	    for(Constructor<?> c : clazz.getConstructors()) {
 	    	JavaImport.addImportClass(set,c.getExceptionTypes());
 	    	JavaImport.addImportClass(set,c.getParameterTypes());
 	    }
@@ -112,7 +112,7 @@ public class JavaClass {
 	}
 
 	public JavaProperty[] getReadProperties() throws Exception {
-		List result = new ArrayList();
+		List<JavaProperty> result = new ArrayList<JavaProperty>();
 		for(JavaProperty p : getProperties()) {
 			if(p.isHasReadMethod()) {
 				result.add(p);
@@ -122,7 +122,7 @@ public class JavaClass {
 	}
 
 	public JavaProperty[] getWriteProperties() throws Exception {
-		List result = new ArrayList();
+		List<JavaProperty> result = new ArrayList<JavaProperty>();
 		for(JavaProperty p : getProperties()) {
 			if(p.isHasWriteMethod()) {
 				result.add(p);
@@ -145,7 +145,7 @@ public class JavaClass {
 	
 	public List<JavaField> getFields() {
 		Field[] fields = clazz.getDeclaredFields();
-		List result = new ArrayList();
+		List<JavaField> result = new ArrayList<JavaField>();
 		for(Field f : fields) {
 			result.add(new JavaField(f,this));
 		}
@@ -282,7 +282,7 @@ public class JavaClass {
 		return clazz.isSynthetic();
 	}
 
-	public Class getClazz() {
+	public Class<?> getClazz() {
 	    return clazz;
 	}
 	

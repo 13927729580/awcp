@@ -54,7 +54,7 @@ public class ExcelUtil<T> {
 	 *            如果有时间数据，设定输出格式。默认为"yyy-MM-dd"
 	 */
 
-	@SuppressWarnings({ "unchecked", "deprecation" })
+	@SuppressWarnings({ "unchecked", "deprecation", "resource", "rawtypes" })
 	public void exportExcel(String title, String[] headers,
 			Collection<T> dataset, OutputStream out, String pattern) {
 		// 声明一个工作薄
@@ -114,8 +114,7 @@ public class ExcelUtil<T> {
 			cell.setCellValue(text);
 		}
 		
-		int size=headers.length;
-		
+		int size=headers.length;	
 		// 遍历集合数据，产生数据行
 		Iterator<T> it = dataset.iterator();
 		int index = 0;
@@ -127,11 +126,9 @@ public class ExcelUtil<T> {
 			Field[] fields = t.getClass().getDeclaredFields();
 			int length=0;
 			for (short i = 0; i < fields.length; i++) {
-				length++;
-				
+				length++;			
 				//超过标题长度，不显示
-				if(length>size)
-				{
+				if(length>size){
 					break;
 				}
 				HSSFCell cell = row.createCell(i);
@@ -139,13 +136,10 @@ public class ExcelUtil<T> {
 				Field field = fields[i];
 				field.setAccessible(true);
 				String fieldName = field.getName();
-				String getMethodName = "get"
-						+ fieldName.substring(0, 1).toUpperCase()
-						+ fieldName.substring(1);
+				String getMethodName = "get" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
 				try {
 					Class tCls = t.getClass();
-					Method getMethod = tCls.getMethod(getMethodName,
-							new Class[] {});
+					Method getMethod = tCls.getMethod(getMethodName,new Class[] {});
 					Object value = getMethod.invoke(t, new Object[] {});
 					// 判断值的类型后进行强制类型转换
 					String textValue = "";
@@ -167,13 +161,9 @@ public class ExcelUtil<T> {
 							sheet.setColumnWidth(i, (short) (35.7 * 80));
 							// sheet.autoSizeColumn(i);
 							byte[] bsValue = (byte[]) value;
-							HSSFClientAnchor anchor = new HSSFClientAnchor(0,
-									0, 1023, 255, (short) 6, index, (short) 6,
-									index);
+							HSSFClientAnchor anchor = new HSSFClientAnchor(0,0, 1023, 255, (short) 6, index, (short) 6,index);
 							anchor.setAnchorType(2);
-							patriarch.createPicture(anchor, workbook
-									.addPicture(bsValue,
-											HSSFWorkbook.PICTURE_TYPE_JPEG));
+							patriarch.createPicture(anchor, workbook.addPicture(bsValue,HSSFWorkbook.PICTURE_TYPE_JPEG));
 						} else {
 							// 其它数据类型都当作字符串简单处理
 							textValue = value.toString();
@@ -186,8 +176,7 @@ public class ExcelUtil<T> {
 						if (matcher.matches()) {
 							cell.setCellValue(Double.parseDouble(textValue));
 						} else {
-							HSSFRichTextString richString = new HSSFRichTextString(
-									textValue);
+							HSSFRichTextString richString = new HSSFRichTextString(textValue);
 							HSSFFont font3 = workbook.createFont();
 							font3.setColor(HSSFColor.BLUE.index);
 							richString.applyFont(font3);
@@ -207,26 +196,14 @@ public class ExcelUtil<T> {
 				} finally {
 					// 清理资源
 				}
-
 			}
-
 		}
-
 		try {
-
 			workbook.write(out);
-
 		} catch (IOException e) {
-
 			e.printStackTrace();
-
 		}
-
 	}
-	
-	
-
-
 
 	/**
 	 * 一个简单的，使用反射填充EXCEL表格方法，为springEXCEL框架定制
@@ -236,6 +213,7 @@ public class ExcelUtil<T> {
 	 * @param dataset 数据集
 	 * @return
 	 */
+	@SuppressWarnings("deprecation")
 	public static HSSFWorkbook  simExportExcel(HSSFWorkbook workbook,String sheetName,
 			List<ExcelUtil.EXCELHeaders> headers,List<Object> dataset) {		
 		/* 生成一个表格*/
@@ -275,8 +253,7 @@ public class ExcelUtil<T> {
 		
 		// 产生表格标题行	
 		HSSFRow row = sheet.createRow(0);
-		for(int i = 0; i < headers.size(); i++)
-		{
+		for(int i = 0; i < headers.size(); i++){
 			HSSFCell cell = row.createCell(i);
 			cell.setCellStyle(style);
 			HSSFRichTextString text = new HSSFRichTextString((String) headers.get(i).getHeaderName());
@@ -286,23 +263,19 @@ public class ExcelUtil<T> {
 		// 遍历集合数据，产生数据行
 		for (int i= 0; i < dataset.size(); i++) {						
 			row = sheet.createRow(i+1);
-			Object o = dataset.get(i);
-			
+			Object o = dataset.get(i);		
 			for (int j = 0; j < headers.size(); j++){
 				HSSFCell cell = row.createCell(j);
 				cell.setCellStyle(style2);
 				String fname = headers.get(j).fieldName;
 				//获取GET参数方法名
-				String getMethodName  = "get"
-					+ fname.substring(0, 1).toUpperCase()
-					+ fname.substring(1);					
+				String getMethodName  = "get" + fname.substring(0, 1).toUpperCase() + fname.substring(1);					
 				Method getMethod = null;
 				Object textValue = null;
 				try {
 					getMethod = o.getClass().getMethod(getMethodName, new Class[] {});
 					textValue = getMethod.invoke(o, new Object[]{});
-					if(textValue != null)
-					{
+					if(textValue != null){
 						cell.setCellValue(textValue.toString());
 					}
 				} catch (Exception e) {
@@ -311,8 +284,7 @@ public class ExcelUtil<T> {
 			}
 		}
 		/*调整表格列宽*/
-		for(int i = 0 ;i < headers.size() ; i++)
-		{
+		for(int i = 0 ;i < headers.size() ; i++){
 			if(headers.get(i).getColumnWidth() > 0){
 				sheet.setColumnWidth(i, headers.get(i).getColumnWidth());	
 			}else{
@@ -322,30 +294,29 @@ public class ExcelUtil<T> {
 		return workbook;
 	}
 	
-	public static class EXCELHeaders
-	{
+	public static class EXCELHeaders{
 		private String fieldName;
 		private String headerName;
 		private int columnWidth;
+		
 		/**
 		 * 自定义表格列宽
 		 * @param fieldName 属性名  
 		 * @param headerName 表格头
 		 * @param columnWidth  列宽
 		 */
-		public EXCELHeaders(String fieldName, String headerName, int columnWidth )
-		{
+		public EXCELHeaders(String fieldName, String headerName, int columnWidth ){
 			this.fieldName = fieldName;
 			this.headerName = headerName;
 			this.columnWidth = columnWidth;
 		}
+		
 		/**
 		 * 自动设置表格列宽
 		 * @param fieldName 属性名
 		 * @param headerName 表格头
 		 */
-		public EXCELHeaders(String fieldName, String headerName)
-		{
+		public EXCELHeaders(String fieldName, String headerName){
 			this.fieldName = fieldName;
 			this.headerName = headerName;
 		}
@@ -353,22 +324,25 @@ public class ExcelUtil<T> {
 		public String getFieldName() {
 			return fieldName;
 		}
+		
 		public void setFieldName(String fieldName) {
 			this.fieldName = fieldName;
 		}
+		
 		public String getHeaderName() {
 			return headerName;
 		}
+		
 		public void setHeaderName(String headerName) {
 			this.headerName = headerName;
 		}
+		
 		public int getColumnWidth() {
 			return columnWidth;
 		}
+		
 		public void setColumnWidth(int columnWidth) {
 			this.columnWidth = columnWidth;
-		}
-		
-		
+		}	
 	}
 }

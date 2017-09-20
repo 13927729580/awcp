@@ -5,84 +5,75 @@ import java.util.Date;
 import org.szcloud.framework.formdesigner.core.domain.Calendar;
 
 public class CalendarVO {
-	/**
-	 * id
-	 */
 	private String id;
+	private String title;	//日程事件标题
+	private String desc;	//日程事件内容
+	private String calendar;//日程事件重要程度
+	private boolean allDay;	//是否是整天，0否，1是
+	private Date start;		//事件开始时间
+	private Date end;		//事件结束时间
+	private Long userId;	//日程的用户
 	
-	/**
-	 * 日程事件标题
-	 */
-	private String title;
-	/**
-	 * 日程事件内容
-	 */
-	private String desc;
-	/**
-	 * 日程事件重要程度
-	 */
-	private String calendar;
-	/**
-	 * 是否是整天，0否，1是
-	 */
-	private boolean allDay;
-	/**
-	 * 事件开始时间
-	 */
-	private Date start;
-	/**
-	 * 事件结束时间
-	 */
-	private Date end;
-	/**
-	 * 日程的用户
-	 */
-	private Long userId;
 	public String getId() {
 		return id;
 	}
+	
 	public void setId(String id) {
 		this.id = id;
 	}
+	
 	public String getTitle() {
 		return title;
 	}
+	
 	public void setTitle(String title) {
 		this.title = title;
 	}
+	
 	public String getDesc() {
 		return desc;
 	}
+	
 	public void setDesc(String desc) {
 		this.desc = desc;
 	}
+	
 	public String getCalendar() {
 		return calendar;
 	}
+	
 	public void setCalendar(String calendar) {
 		this.calendar = calendar;
 	}
+	
 	public boolean getAllDay() {
 		return allDay;
 	}
+	
 	public void setAllDay(boolean allDay) {
 		this.allDay = allDay;
 	}
+	
 	public Date getStart() {
 		return start;
 	}
+	
 	public void setStart(Date start) {
 		this.start = start;
 	}
+	
 	public Date getEnd() {
 		return end;
 	}
+	
 	public void setEnd(Date end) {
 		this.end = end;
 	}
+	
 	public Long getUserId() {
 		return userId;
 	}
+
 	public void setUserId(Long userId) {
 		this.userId = userId;
 	}
@@ -109,8 +100,7 @@ public class CalendarVO {
 		ca.setStart(this.getStart());
 		ca.setEnd(this.getEnd());
 		ca.setUserId(this.getUserId());
-		return ca;
-		
+		return ca;		
 	}
 	
 }

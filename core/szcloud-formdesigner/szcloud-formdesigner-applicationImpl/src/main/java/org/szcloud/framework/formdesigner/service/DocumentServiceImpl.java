@@ -81,9 +81,6 @@ public class DocumentServiceImpl implements DocumentService {
 	@Autowired
 	private MetaModelService metaModelServiceImpl;
 
-	// @Autowired
-	// private EntityRepositoryJDBC jdbcRepository;
-	//
 	@Autowired
 	@Qualifier("jdbcTemplate")
 	private JdbcTemplate jdbcTemplate;
@@ -118,11 +115,8 @@ public class DocumentServiceImpl implements DocumentService {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public List<DocumentVO> findPageByExample(BaseExample baseExample, int currentPage, int pageSize,
-			String sortString) {
-		PageList<Document> list = queryChannel.selectPagedByExample(Document.class, baseExample, currentPage, pageSize,
-				sortString);
+	public List<DocumentVO> findPageByExample(BaseExample baseExample, int currentPage, int pageSize,String sortString) {
+		PageList<Document> list = queryChannel.selectPagedByExample(Document.class, baseExample, currentPage, pageSize,sortString);
 		PageList<DocumentVO> ret = new PageList<DocumentVO>(list.getPaginator());
 		if (list != null && list.size() > 0) {
 			for (Document vo : list) {
@@ -150,36 +144,20 @@ public class DocumentServiceImpl implements DocumentService {
 			DocumentVO docVo, ScriptEngine engine, DynamicPageVO pageVo) {
 		logger.debug("start initDocumentData ");
 		Map<String, List<Map<String, String>>> listParams = null;
-		// TODO 缓存机制 待完善
-		// if (pageVo != null && pageVo.getId() != null) {
-		// String cacheKey = CACHE_KEY_PREFIX + pageVo.getId();
-		// Cache documentCache = cacheManager.getCache("document");
-		// if (documentCache != null) {
-		// Element tmp = documentCache.get(cacheKey);
-		// if (tmp != null) {
-		// listParams = (Map<String, List<Map<String, String>>>)
-		// tmp.getObjectValue();
-		// logger.debug("end initDocumentData with cache");
-		// return listParams;
-		// }
-		// }
-		// }
 		listParams = new HashMap<String, List<Map<String, String>>>();
 		Map<String, DataDefine> map = PageDataBeanWorker
-				.convertConfToDataDefines(StringEscapeUtils.unescapeHtml4(pageVo.getDataJson()));
+						.convertConfToDataDefines(StringEscapeUtils.unescapeHtml4(pageVo.getDataJson()));
 		List<DataDefine> datas = new ArrayList<DataDefine>(map.values());
 		docVo.setListParams(listParams);
 		String allowOrderBy = docVo.getAllowOrderBy();
-		String orderByList = docVo.getOrderBy();// ebaseinfo.id,desc;ebaseinfo.name,desc;
+		String orderByList = docVo.getOrderBy();
 		logger.debug("start find data in datajson");
 		for (DataDefine dd : datas) {
 			try {
 				if (!StringUtils.isNumeric(allowOrderBy) || Integer.parseInt(allowOrderBy) != 1) {
 					orderByList = "";
 				}
-
-				PageList<Map<String, String>> pageList = getDataListByDataDefine(dd, engine, currentPage, pageSize,
-						orderByList);
+				PageList<Map<String, String>> pageList = getDataListByDataDefine(dd, engine, currentPage, pageSize,orderByList);
 				if (pageList != null) {
 					listParams.put(dd.getName() + "_list", pageList);
 				}
@@ -188,15 +166,6 @@ public class DocumentServiceImpl implements DocumentService {
 			}
 		}
 		logger.debug("end find data in datajson");
-		// put data in cache
-		// if (pageVo != null && pageVo.getId() != null) {
-		// String cacheKey = CACHE_KEY_PREFIX + pageVo.getId();
-		// Cache documentCache = cacheManager.getCache("document");
-		// if (documentCache != null) {
-		// Element element = new Element(cacheKey, listParams);
-		// documentCache.put(element);
-		// }
-		// }
 		logger.debug("end initDocumentData with no cache");
 		return listParams;
 	}
@@ -206,20 +175,6 @@ public class DocumentServiceImpl implements DocumentService {
 			DocumentVO docVo, ScriptEngine engine, DynamicPageVO pageVo) {
 		logger.debug("start initDocumentData ");
 		Map<String, List<Map<String, String>>> listParams = null;
-		// TODO 缓存机制
-		// if (pageVo != null && pageVo.getId() != null) {
-		// String cacheKey = CACHE_KEY_PREFIX + pageVo.getId();
-		// Cache documentCache = cacheManager.getCache("document");
-		// if (documentCache != null) {
-		// Element tmp = documentCache.get(cacheKey);
-		// if (tmp != null) {
-		// listParams = (Map<String, List<Map<String, String>>>)
-		// tmp.getObjectValue();
-		// logger.debug("end initDocumentDataFlow with cache");
-		// return listParams;
-		// }
-		// }
-		// }
 		listParams = new HashMap<String, List<Map<String, String>>>();
 		Map<String, DataDefine> map = PageDataBeanWorker
 				.convertConfToDataDefines(StringEscapeUtils.unescapeHtml4(pageVo.getDataJson()));
@@ -268,15 +223,6 @@ public class DocumentServiceImpl implements DocumentService {
 			}
 		}
 		logger.debug("end find data in datajson");
-		// put data in cache
-		// if (pageVo != null && pageVo.getId() != null) {
-		// String cacheKey = CACHE_KEY_PREFIX + pageVo.getId();
-		// Cache documentCache = cacheManager.getCache("document");
-		// if (documentCache != null) {
-		// Element element = new Element(cacheKey, listParams);
-		// documentCache.put(element);
-		// }
-		// }
 		logger.debug("end initDocumentData with no cache");
 		return listParams;
 	}
@@ -297,11 +243,6 @@ public class DocumentServiceImpl implements DocumentService {
 	 */
 	public PageList<Map<String, String>> getDataListByDataDefine(DataDefine dd, ScriptEngine engine,
 			Integer currentPage, Integer pageSize, String orderBy) throws ScriptException {
-
-		// Long dataSourceId = getDataSourceIdByModelCode(dd,systemId);
-		// EntityRepositoryJDBC jdbcRepository =
-		// DataSourceFactory.getEntityRepositoryJDBCById(dataSourceId);
-
 		logger.debug("start find {} ", dd.getName());
 		List<Map<String, String>> list = new ArrayList<Map<String, String>>();
 		String script = dd.getSqlScript();
@@ -345,7 +286,7 @@ public class DocumentServiceImpl implements DocumentService {
 					logger.debug("datasource[{}] : sql is mutiple and should be paged ", dd.getName());
 					StringBuilder countSql = new StringBuilder();
 					countSql.append("select count(*) from (").append(sql).append(") temp");
-					// TODO 修改成具名参数
+					// 修改成具名参数
 					// totalCount
 					// =jdbcTemplate.queryForInt(countSql.toString());
 					totalCount = namedParameterJdbcTemplate.queryForObject(countSql.toString(), param, Integer.class);
@@ -370,7 +311,7 @@ public class DocumentServiceImpl implements DocumentService {
 			}
 			sql += " limit " + paginator.getOffset() + "," + paginator.getLimit();
 			logger.debug("datasource[{}] : actualSql is {} ", dd.getName(), sql);
-			// TODO 修改成具名参数
+			// 修改成具名参数
 			// List<Map<String, Object>> retList =
 			// jdbcTemplate.queryForList(sql, new Object[] {});
 			List<Map<String, Object>> retList = namedParameterJdbcTemplate.queryForList(sql, param);
@@ -615,6 +556,7 @@ public class DocumentServiceImpl implements DocumentService {
 		return false;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public boolean updateModelData(DynamicPageVO pageVO, DocumentVO vo, String datadefineName) {
 		Map<String, List<Map<String, String>>> listParams = null;
@@ -813,7 +755,7 @@ public class DocumentServiceImpl implements DocumentService {
 	}
 
 	@Override
-	public Map excuteQuery(String sql, String dsName) {
+	public Map<String,Object> excuteQuery(String sql, String dsName) {
 		Map<String, Object> resultMap = new HashMap<String, Object>();
 		try {
 			resultMap = jdbcTemplate.queryForMap(sql);
@@ -887,11 +829,10 @@ public class DocumentServiceImpl implements DocumentService {
 	}
 
 	@Override
-	public PageList<DocumentVO> selectPagedByExample(BaseExample baseExample, int currentPage, int pageSize,
-			String sortString) {
-		@SuppressWarnings("unchecked")
-		PageList<Document> result = queryChannel.selectPagedByExample(Document.class, baseExample, currentPage,
-				pageSize, sortString);
+	public PageList<DocumentVO> selectPagedByExample(BaseExample baseExample, 
+			int currentPage, int pageSize,String sortString) {
+		PageList<Document> result = queryChannel.selectPagedByExample(Document.class, baseExample, 
+				currentPage,pageSize, sortString);
 		PageList<DocumentVO> resultVO = new PageList<DocumentVO>(result.getPaginator());
 		for (Document doc : result) {
 			resultVO.add(BeanUtils.getNewInstance(doc, DocumentVO.class));
@@ -910,30 +851,17 @@ public class DocumentServiceImpl implements DocumentService {
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
-
 		}
 		return false;
-
 	}
 
 	@Override // 计划废弃
 	public Long findWorkId(String definationId) {
-		// String sql = "select id from bpm_conf_base where
-		// PROCESS_DEFINITION_ID =?";
-		// @SuppressWarnings("deprecation")
-		// Long id = jdbcTemplate.queryForLong(sql, definationId);
-		// return id;
 		return 0L;
 	}
 
 	@Override // 计划废弃
 	public Long findNodeId(String taskDefinationKey, Long workId) {
-		// String sql =" select id from bpm_conf_node where code=? and
-		// conf_base_id=?";
-		// @SuppressWarnings("deprecation")
-		// Long nodeId = jdbcTemplate.queryForLong(sql,
-		// taskDefinationKey,workId);
-		// return nodeId;
 		return 0L;
 	}
 

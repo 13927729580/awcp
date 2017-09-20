@@ -20,7 +20,10 @@ public class SimpleJdbcTemplate {
 	
 	protected final Log logger = LogFactory.getLog(getClass());
 	
+	@SuppressWarnings("deprecation")
 	protected org.springframework.jdbc.core.simple.SimpleJdbcTemplate jdbcTemplate;
+
+	@SuppressWarnings("deprecation")
 	public SimpleJdbcTemplate(DataSource dataSource){
 		jdbcTemplate=new org.springframework.jdbc.core.simple.SimpleJdbcTemplate(dataSource);
 	}
@@ -32,6 +35,7 @@ public class SimpleJdbcTemplate {
 	 * @param parameters参数集合(key为参数名，value为参数值)
 	 * @return bean对象集合
 	 */
+	@SuppressWarnings({ "rawtypes", "deprecation" })
 	public List find(final String sql,Class clazz,Map parameters){
 		try{
 			Assert.hasText(sql,"sql语句不正确!");
@@ -53,6 +57,7 @@ public class SimpleJdbcTemplate {
 	 * @param parameters参数集合(key为参数名，value为参数值)
 	 * @return bean对象
 	 */
+	@SuppressWarnings({ "rawtypes", "deprecation" })
 	public Object findForObject(final String sql,Class clazz,Map parameters){
 		try{
 			Assert.hasText(sql,"sql语句不正确!");
@@ -73,6 +78,7 @@ public class SimpleJdbcTemplate {
 	 * @param parameters参数集合(key为参数名，value为参数值)
 	 * @return bean对象
 	 */
+	@SuppressWarnings({ "rawtypes", "deprecation" })
 	public long findForLong(final String sql,Map parameters){
 		try{
 			Assert.hasText(sql,"sql语句不正确!");
@@ -92,6 +98,7 @@ public class SimpleJdbcTemplate {
 	 * @param parameters参数集合(key为参数名，value为参数值)
 	 * @return bean对象
 	 */
+	@SuppressWarnings({ "rawtypes", "deprecation" })
 	public Map findForMap(final String sql,Map parameters){
 		try{
 			Assert.hasText(sql,"sql语句不正确!");
@@ -112,6 +119,7 @@ public class SimpleJdbcTemplate {
 	 * @param parameters参数集合(key为参数名，value为参数值)
 	 * @return bean对象
 	 */
+	@SuppressWarnings({ "deprecation", "rawtypes" })
 	public List<Map<String,Object>> findForListMap(final String sql,Map parameters){
 		try{
 			Assert.hasText(sql,"sql语句不正确!");
@@ -132,6 +140,7 @@ public class SimpleJdbcTemplate {
 	 * @param sql
 	 * @param bean
 	 */
+	@SuppressWarnings( "deprecation")
 	public int executeForObject(final String sql,Object bean){
 		Assert.hasText(sql,"sql语句不正确!");
 		if(bean!=null){
@@ -148,6 +157,7 @@ public class SimpleJdbcTemplate {
 	 * @param sql
 	 * @param parameters
 	 */
+	@SuppressWarnings({ "deprecation", "rawtypes" })
 	public int executeForMap(final String sql,Map parameters){
 		Assert.hasText(sql,"sql语句不正确!");
 		if(parameters!=null){
@@ -157,26 +167,18 @@ public class SimpleJdbcTemplate {
 		}
 	}
 	
-	/*public long executeForObjectReturnPk(final String sql,Object bean){
-		Assert.hasText(sql,"sql语句不正确!");
-		if(bean!=null){
-			return jdbcTemplate.update(sql, paramBeanMapper(bean));
-		}else{
-			return jdbcTemplate.update(sql);
-		}
-	}*/
-	
 	/*
 	 * 批量处理操作
 	 * 例如：update t_actor set first_name = :firstName, last_name = :lastName where id = :id
 	 * 参数用冒号
 	 */
+	@SuppressWarnings("deprecation")
 	public int[] batchUpdate(final String sql,List<Object[]> batch ){
         int[] updateCounts = jdbcTemplate.batchUpdate(sql,batch);
         return updateCounts;
 	}
-	
-	
+		
+	@SuppressWarnings("rawtypes")
 	protected ParameterizedBeanPropertyRowMapper resultBeanMapper(Class clazz) {
 		return ParameterizedBeanPropertyRowMapper.newInstance(clazz);
 	}

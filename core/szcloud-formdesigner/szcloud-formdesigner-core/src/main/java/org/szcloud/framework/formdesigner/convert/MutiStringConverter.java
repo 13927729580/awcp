@@ -10,6 +10,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 
 public class MutiStringConverter implements Converter {
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public boolean canConvert(Class clazz) {
 		return (String.class).equals(clazz);

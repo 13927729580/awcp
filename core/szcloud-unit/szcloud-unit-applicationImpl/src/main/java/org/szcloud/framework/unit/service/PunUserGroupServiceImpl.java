@@ -1,6 +1,4 @@
-
 package org.szcloud.framework.unit.service;
-
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,7 +16,6 @@ import org.szcloud.framework.core.utils.BeanUtils;
 import org.szcloud.framework.unit.core.domain.PunUserGroup;
 import org.szcloud.framework.unit.utils.PunGroupUtils;
 import org.szcloud.framework.unit.vo.PunGroupVO;
-import org.szcloud.framework.unit.vo.PunRoleInfoVO;
 import org.szcloud.framework.unit.vo.PunUserBaseInfoVO;
 import org.szcloud.framework.unit.vo.PunUserGroupVO;
 
@@ -30,9 +27,11 @@ public class PunUserGroupServiceImpl implements PunUserGroupService{
 
 	@Resource(name="queryChannel")
 	private QueryChannelService queryChannel;
+	
 	@Autowired
 	@Qualifier("workflowSyncServiceImpl")
 	private WorkflowSyncService workflowSyncService;
+	
 	@Autowired
 	@Qualifier("punGroupServiceImpl")
 	private PunGroupService punGroupService;
@@ -55,8 +54,8 @@ public class PunUserGroupServiceImpl implements PunUserGroupService{
 	private static final Long WORKFLOW_POSITION_TYPE = new Long(5);
 	
 	public List<PunUserGroupVO> findAll() {
-		List<PunUserGroup> list=PunUserGroup.findAll(PunUserGroup.class);
-		List<PunUserGroupVO> ls=new ArrayList<PunUserGroupVO>();
+		List<PunUserGroup> list = PunUserGroup.findAll(PunUserGroup.class);
+		List<PunUserGroupVO> ls = new ArrayList<PunUserGroupVO>();
 		for(PunUserGroup mm:list){
 			ls.add(BeanUtils.getNewInstance(mm, PunUserGroupVO.class));
 		}
@@ -68,9 +67,9 @@ public class PunUserGroupServiceImpl implements PunUserGroupService{
 			Map<String, Object> paramMap = new HashMap<String,Object>();
 			paramMap.put("userId", vo.getUserId());
 			paramMap.put("groupId", vo.getGroupId());
-			PageList voList = this.selectPagedByExample("queryList",paramMap,0,99999,null);
+			PageList<PunUserGroupVO> voList = selectPagedByExample("queryList",paramMap,0,99999,null);
 			//根据userid和groupId删除user－group-position的管理关系
-			PunUserGroup mm=BeanUtils.getNewInstance(vo, PunUserGroup.class);			
+			PunUserGroup mm = BeanUtils.getNewInstance(vo, PunUserGroup.class);			
 			PunUserGroup.getRepository().remove(mm);
 			//删除人员－岗位的关系;
 			ArrayList<Long> positionIdList = new ArrayList<Long>();
@@ -106,7 +105,6 @@ public class PunUserGroupServiceImpl implements PunUserGroupService{
 							WORKFLOW_POSITION_TYPE, WORKFLOW_EXECUTE_RELATION);
 				}
 			}
-			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -121,7 +119,6 @@ public class PunUserGroupServiceImpl implements PunUserGroupService{
 			map.put("positionId",vo.getPositionId());
 			map.put("isManager",vo.getIsManager());
 			PunUserGroup.getRepository().executeUpdate(queryStr, map, PunUserGroup.class);
-			
 			workflowSyncService.createRelation(vo.getPositionId(), WORKFLOW_POSITION_TYPE, 
 					vo.getUserGruopId(),WORKFLOW_PERSON_TYPE , WORKFLOW_EXECUTE_RELATION, vo.getIsManager());
 			
@@ -137,7 +134,7 @@ public class PunUserGroupServiceImpl implements PunUserGroupService{
 			paramMap.put("userId", vo.getUserId());
 			paramMap.put("groupId", vo.getGroupId());
 			paramMap.put("positionId", vo.getPositionId());
-			PageList voList = this.selectPagedByExample("queryList",paramMap,0,99999,null);
+			PageList<PunUserGroupVO> voList = selectPagedByExample("queryList",paramMap,0,99999,null);
 			if(voList.size() > 0){
 				vo.setUserGruopId(((PunUserGroupVO)voList.get(0)).getUserGruopId());
 				this.update(vo, "updateSelective");
@@ -177,7 +174,7 @@ public class PunUserGroupServiceImpl implements PunUserGroupService{
 			paramMap = new HashMap<String,Object>();
 			paramMap.put("position", mmc.getPositionId());
 			paramMap.put("groupId", mmc.getGroupId());
-			voList = this.selectPagedByExample("queryList",paramMap,0,99999,null);
+			voList = selectPagedByExample("queryList",paramMap,0,99999,null);
 			hasOtherPosition = false;for(int i = 0; i < voList.size(); i++){
 				PunUserGroupVO userGroup = (PunUserGroupVO) voList.get(i);
 				if(userGroup.getUserId().longValue() != mmc.getUserId().longValue()){
@@ -195,9 +192,11 @@ public class PunUserGroupServiceImpl implements PunUserGroupService{
 	}
 	
 	//参数：1.类名  2.mapper文件中对应的id  固定位queryList  3.根据条件来分页查询   4.当前页   5.取的记录他条数  6. 根据字段排序("name.asc")列子
-	public PageList selectPagedByExample(String queryStr, Map<String, Object> params, int currentPage, int pageSize,String sortString) {		
-		PageList resultVO = new PageList();
-		PageList result = queryChannel.queryPagedResult(PunUserGroup.class, queryStr,params, currentPage, pageSize, sortString);
+	public PageList<PunUserGroupVO> selectPagedByExample(String queryStr, Map<String, Object> params, 
+			int currentPage, int pageSize,String sortString) {		
+		PageList<PunUserGroupVO> resultVO = new PageList<PunUserGroupVO>();
+		PageList<PunUserGroup> result = queryChannel.queryPagedResult(PunUserGroup.class, queryStr,params, 
+				currentPage, pageSize, sortString);
 		for (Object dd : result) {
 			resultVO.add(BeanUtils.getNewInstance(dd, PunUserGroupVO.class));			
 		}
@@ -220,11 +219,9 @@ public class PunUserGroupServiceImpl implements PunUserGroupService{
 	 */
 	@Override
 	public PageList<PunUserBaseInfoVO> queryUserListByGroupId(Long groupId) {
-		
 		Map<String,Object> map = new HashMap<String,Object>();
 		map.put("groupId", groupId);
-		PageList<Object> result = queryChannel.queryPagedResult(PunUserGroup.class,"queryUserListByGroupId",map, 0, 99999, null);
-		
+		PageList<PunUserGroup> result = queryChannel.queryPagedResult(PunUserGroup.class,"queryUserListByGroupId",map, 0, 99999, null);
 		PageList<PunUserBaseInfoVO> userGroupVOs = new PageList<PunUserBaseInfoVO>(result.getPaginator());
 		for (Object dd : result) {
 			userGroupVOs.add(BeanUtils.getNewInstance(dd, PunUserBaseInfoVO.class));			
@@ -234,13 +231,13 @@ public class PunUserGroupServiceImpl implements PunUserGroupService{
 	}
 	
 	@Override
-	public PageList queryUserByUserIdAndGroupId(Long groupId,Long userId) {
-		
-		PageList resultVO = new PageList();
-		Map map = new HashMap();
+	public PageList<PunUserBaseInfoVO> queryUserByUserIdAndGroupId(Long groupId,Long userId) {
+		PageList<PunUserBaseInfoVO> resultVO = new PageList<PunUserBaseInfoVO>();
+		Map<String,Object> map = new HashMap<String,Object>();
 		map.put("groupId", groupId);
 		map.put("userId", userId);
-		PageList result = queryChannel.queryPagedResult(PunUserGroup.class,"queryUserByUserIdAndGroupId",map, 0, 99999, null);
+		PageList<PunUserGroup> result = queryChannel.queryPagedResult(PunUserGroup.class,"queryUserByUserIdAndGroupId",map, 
+				0, 99999, null);
 		for (Object dd : result) {
 			resultVO.add(BeanUtils.getNewInstance(dd, PunUserBaseInfoVO.class));			
 		}
@@ -249,17 +246,14 @@ public class PunUserGroupServiceImpl implements PunUserGroupService{
 	}
 
 	@Override
-	public List<PunUserGroupVO> queryResult(String queryStr,
-			Map<String, Object> params) {
-		List<PunUserGroup> members = queryChannel.queryResult(
-				PunUserGroup.class, queryStr, params);
+	public List<PunUserGroupVO> queryResult(String queryStr,Map<String, Object> params) {
+		List<PunUserGroup> members = queryChannel.queryResult(PunUserGroup.class, queryStr, params);
 		List<PunUserGroupVO> vos = new ArrayList<PunUserGroupVO>();
 		for (PunUserGroup member : members) {
 			vos.add(BeanUtils.getNewInstance(member, PunUserGroupVO.class));
 		}
 		members.clear();
 		return vos;
-
 	}
 	
 	@Override
@@ -267,21 +261,18 @@ public class PunUserGroupServiceImpl implements PunUserGroupService{
 		return queryManager("queryDirectManager",userId);
 	}
 	
-	
 	/*
 	 * 查找本组织上级领导名单，仅查找上一级的名单；，不作递归查找;
 	 * @see org.szcloud.framework.unit.service.PunUserGroupService#queryParentManager(java.lang.Long)
 	 */
 	@Override
 	public List<PunUserGroupVO> queryParentManager(Long userId){
-
 		return queryManager("queryParentManager",userId);
 	}
 	
 	private List<PunUserGroupVO> queryManager(String query, Long userId){	
 		List<PunUserGroupVO> resultList = new ArrayList<PunUserGroupVO>();
-		PageList resultVO = new PageList();
-		Map map = new HashMap();
+		Map<String,Object> map = new HashMap<String,Object>();
 		map.put("userId", userId);
 		List<PunUserGroup> list = queryChannel.queryResult(PunUserGroup.class, query, map);
 		for (Object dd : list) {

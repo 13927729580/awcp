@@ -20,8 +20,7 @@ public class PunResourceManyNodeTree {
 	public PunResourceManyNodeTree createTree(List<PunResourceTreeNode> plainZNodes,PunResourceManyTreeNode root) {		
 		if (plainZNodes == null || plainZNodes.size() == 0) 
 			return null;		
-		PunResourceManyNodeTree manyNodeTree = new PunResourceManyNodeTree();
-		
+		PunResourceManyNodeTree manyNodeTree = new PunResourceManyNodeTree();	
 		//将所有节点添加到多叉树中  
 		for (PunResourceTreeNode treeNode : plainZNodes) {
 			if (treeNode.getpId() == null || treeNode.getpId() == 0L) {
@@ -30,10 +29,8 @@ public class PunResourceManyNodeTree {
 			}
 			else {
 				addChild(manyNodeTree.getRoot(), treeNode);
-			}
-			
-		}
-		
+			}		
+		}	
 		return manyNodeTree;
 	}
 	
@@ -42,8 +39,7 @@ public class PunResourceManyNodeTree {
 	 * @param manyTreeNode
 	 * @param child
 	 */
-	public void addChild(PunResourceManyTreeNode manyTreeNode,
-			PunResourceTreeNode child) {
+	public void addChild(PunResourceManyTreeNode manyTreeNode,PunResourceTreeNode child) {
 		for (PunResourceManyTreeNode item : manyTreeNode.getChildList()) {
 			if (item.getData().getId() == child.getpId()) {
 				//找到child对应的父节点
@@ -54,8 +50,7 @@ public class PunResourceManyNodeTree {
 					addChild(item, child);
 				}
 			}
-		}
-		
+		}		
 	}
 	
 	/**
@@ -65,8 +60,7 @@ public class PunResourceManyNodeTree {
 	 */
 	public String traverseTree(PunResourceManyTreeNode manyTreeNode) {
 		StringBuilder buffer = new StringBuilder();
-		buffer.append("\n");
-		
+		buffer.append("\n");	
 		if (manyTreeNode != null) {
 			for (PunResourceManyTreeNode index : manyTreeNode.getChildList()) {
 				buffer.append(index.getData().getId()+ ",");
@@ -74,12 +68,9 @@ public class PunResourceManyNodeTree {
 					buffer.append(traverseTree(index));
 				}
 			}
-		}
-		
-		buffer.append("\n");
-		
-		return buffer.toString();
-						
+		}		
+		buffer.append("\n");		
+		return buffer.toString();						
 	}
 
 	public PunResourceManyTreeNode getRoot() {
@@ -89,8 +80,5 @@ public class PunResourceManyNodeTree {
 	public void setRoot(PunResourceManyTreeNode root) {
 		this.root = root;
 	}
-	
-	
-	
 
 }

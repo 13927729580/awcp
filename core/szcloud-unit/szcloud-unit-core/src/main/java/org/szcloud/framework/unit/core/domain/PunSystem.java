@@ -1,5 +1,6 @@
 package org.szcloud.framework.unit.core.domain;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -12,10 +13,12 @@ import org.szcloud.framework.core.common.exception.MRTException;
 import org.szcloud.framework.core.domain.BaseEntity;
 import org.szcloud.framework.core.domain.BaseExample;
 
+/**
+ * 系统实体类
+ * @author Administrator
+ *
+ */
 public class PunSystem extends BaseEntity{
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -140072828961558627L;
 	private Long sysId;
 	private String sysAddress;
@@ -24,11 +27,14 @@ public class PunSystem extends BaseEntity{
 	private String sysCreater;
 	private String sysCreateGroup;
 	private String sysStatus;
-	private java.util.Date sysCreateTime;
-	
+	private Date sysCreateTime;	
 	private Long groupId;
+	private Set<PunGroupSys> punGroupSyss = new HashSet<PunGroupSys>();
+	private Set<PunResource> punResources = new HashSet<PunResource>();
+	private Set<PunRoleInfo> punRoleInfos = new HashSet<PunRoleInfo>();
 	
 	public PunSystem(){
+		
 	}
 
 	public PunSystem(Long sysId){
@@ -42,6 +48,7 @@ public class PunSystem extends BaseEntity{
 	public Long getSysId() {
 		return this.sysId;
 	}
+	
 	public void setSysAddress(String value) {
 		this.sysAddress = value;
 	}
@@ -49,6 +56,7 @@ public class PunSystem extends BaseEntity{
 	public String getSysAddress() {
 		return this.sysAddress;
 	}
+	
 	public void setSysName(String value) {
 		this.sysName = value;
 	}
@@ -56,6 +64,7 @@ public class PunSystem extends BaseEntity{
 	public String getSysName() {
 		return this.sysName;
 	}
+	
 	public void setSysShortName(String value) {
 		this.sysShortName = value;
 	}
@@ -63,6 +72,7 @@ public class PunSystem extends BaseEntity{
 	public String getSysShortName() {
 		return this.sysShortName;
 	}
+	
 	public void setSysCreater(String value) {
 		this.sysCreater = value;
 	}
@@ -71,15 +81,14 @@ public class PunSystem extends BaseEntity{
 		return this.sysCreater;
 	}
 
-	public void setSysCreateTime(java.util.Date value) {
+	public void setSysCreateTime(Date value) {
 		this.sysCreateTime = value;
 	}
 	
-	public java.util.Date getSysCreateTime() {
+	public Date getSysCreateTime() {
 		return this.sysCreateTime;
 	}
 	
-	private Set punGroupSyss = new HashSet(0);
 	public void setPunGroupSyss(Set<PunGroupSys> punGroupSys){
 		this.punGroupSyss = punGroupSys;
 	}
@@ -88,7 +97,6 @@ public class PunSystem extends BaseEntity{
 		return punGroupSyss;
 	}
 	
-	private Set punResources = new HashSet(0);
 	public void setPunResources(Set<PunResource> punResource){
 		this.punResources = punResource;
 	}
@@ -97,7 +105,6 @@ public class PunSystem extends BaseEntity{
 		return punResources;
 	}
 	
-	private Set punRoleInfos = new HashSet(0);
 	public void setPunRoleInfos(Set<PunRoleInfo> punRoleInfo){
 		this.punRoleInfos = punRoleInfo;
 	}
@@ -106,7 +113,6 @@ public class PunSystem extends BaseEntity{
 		return punRoleInfos;
 	}
 
-	
 	public String getSysCreateGroup() {
 		return sysCreateGroup;
 	}
@@ -123,6 +129,14 @@ public class PunSystem extends BaseEntity{
 		this.sysStatus = sysStatus;
 	}
 
+	public Long getGroupId() {
+		return groupId;
+	}
+
+	public void setGroupId(Long groupId) {
+		this.groupId = groupId;
+	}
+	
 	public String toString() {
 		return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
 			.append("SysId",getSysId())
@@ -168,13 +182,5 @@ public class PunSystem extends BaseEntity{
 		return PunSystem.getRepository().selectByExample(PunSystem.class, example);
 	}
 
-	public Long getGroupId() {
-		return groupId;
-	}
-
-	public void setGroupId(Long groupId) {
-		this.groupId = groupId;
-	}
-	
 }
 

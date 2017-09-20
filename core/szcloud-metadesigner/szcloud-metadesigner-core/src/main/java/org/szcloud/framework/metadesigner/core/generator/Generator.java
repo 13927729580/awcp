@@ -60,12 +60,12 @@ public class Generator {
 		GeneratorProperties.setProperty("persistence", persistence);
 	}
 
-	public static void getMap(Map map) {
+	public static void getMap(Map<String,Object> map) {
 
 	}
 
 	private static final String GENERATOR_INSERT_LOCATION = "generator-insert-location";
-	private List templateRootDirs = new ArrayList();
+	private List<File> templateRootDirs = new ArrayList<File>();
 	private String outRootDir;
 	private boolean ignoreTemplateGenerateException = true;
 	private String removeExtensions = System.getProperty("generator.removeExtensions", ".ftl,.vm");
@@ -168,7 +168,7 @@ public class Generator {
 	 *            文件路径可以引用的变量
 	 * @throws Exception
 	 */
-	public Generator generateBy(Map templateModel, Map filePathModel) throws Exception {
+	public Generator generateBy(Map<String,Object> templateModel, Map<String,Object> filePathModel) throws Exception {
 		processTemplateRootDirs(templateModel, filePathModel, false);
 		return this;
 	}
@@ -183,12 +183,13 @@ public class Generator {
 	 * @return
 	 * @throws Exception
 	 */
-	public Generator deleteBy(Map templateModel, Map filePathModel) throws Exception {
+	public Generator deleteBy(Map<String,Object> templateModel, Map<String,Object> filePathModel) throws Exception {
 		processTemplateRootDirs(templateModel, filePathModel, true);
 		return this;
 	}
 
-	private void processTemplateRootDirs(Map templateModel, Map filePathModel, boolean isDelete) throws Exception {
+	private void processTemplateRootDirs(Map<String,Object> templateModel, Map<String,Object> filePathModel, boolean isDelete) 
+			throws Exception {
 		if (StringHelper.isBlank(getOutRootDir()))
 			throw new IllegalStateException("'outRootDir' property must be not null.");
 		if (templateRootDirs.size() == 0)
@@ -205,16 +206,15 @@ public class Generator {
 			throw ge;
 	}
 
-	private List<Exception> scanTemplatesAndProcess(File templateRootDir, Map templateModel, Map filePathModel,
+	private List<Exception> scanTemplatesAndProcess(File templateRootDir, 
+			Map<String,Object> templateModel, Map<String,Object> filePathModel,
 			boolean isDelete) throws Exception {
 		if (templateRootDir == null)
 			throw new IllegalStateException("'templateRootDir' must be not null");
 		GLogger.println("-------------------load template from templateRootDir = '" + templateRootDir.getAbsolutePath()
 				+ "' outRootDir:" + new File(outRootDir).getAbsolutePath());
-
-		List srcFiles = FileHelper.searchAllNotIgnoreFile(templateRootDir);
-
-		List<Exception> exceptions = new ArrayList();
+		List<File> srcFiles = FileHelper.searchAllNotIgnoreFile(templateRootDir);
+		List<Exception> exceptions = new ArrayList<Exception>();
 		for (int i = 0; i < srcFiles.size(); i++) {
 			File srcFile = (File) srcFiles.get(i);
 			try {
@@ -238,7 +238,8 @@ public class Generator {
 	private class TemplateProcessor {
 		private GeneratorControl gg = new GeneratorControl();
 
-		private void executeGenerate(File templateRootDir, Map templateModel, Map filePathModel, File srcFile)
+		private void executeGenerate(File templateRootDir, 
+				Map<String,Object> templateModel, Map<String,Object> filePathModel, File srcFile)
 				throws SQLException, IOException, TemplateException {
 			String templateFile = FileHelper.getRelativePath(templateRootDir, srcFile);
 			if (GeneratorHelper.isIgnoreTemplateProcess(srcFile, templateFile, includes, excludes)) {
@@ -274,7 +275,8 @@ public class Generator {
 			}
 		}
 
-		private void executeDelete(File templateRootDir, Map templateModel, Map filePathModel, File srcFile)
+		private void executeDelete(File templateRootDir, 
+				Map<String,Object> templateModel, Map<String,Object> filePathModel, File srcFile)
 				throws SQLException, IOException, TemplateException {
 			String templateFile = FileHelper.getRelativePath(templateRootDir, srcFile);
 			if (GeneratorHelper.isIgnoreTemplateProcess(srcFile, templateFile, includes, excludes)) {
@@ -299,7 +301,7 @@ public class Generator {
 			gg.setOutputFile(outputFile);
 		}
 
-		private void processTemplateForGeneratorControl(Map templateModel, String templateFile)
+		private void processTemplateForGeneratorControl(Map<String,Object> templateModel, String templateFile)
 				throws IOException, TemplateException {
 			templateModel.put("gg", gg);
 			Template template = getFreeMarkerTemplate(templateFile);
@@ -307,10 +309,10 @@ public class Generator {
 		}
 
 		/** 处理文件路径的变量变成输出路径 */
-		private String proceeForOutputFilepath(Map filePathModel, String templateFile) throws IOException {
+		private String proceeForOutputFilepath(Map<String,Object> filePathModel, String templateFile) throws IOException {
 			String outputFilePath = templateFile;
 
-			// TODO 删除兼容性的@testExpression
+			//  删除兼容性的@testExpression
 			int testExpressionIndex = -1;
 			if ((testExpressionIndex = templateFile.indexOf('@')) != -1) {
 				outputFilePath = templateFile.substring(0, testExpressionIndex);
@@ -344,7 +346,8 @@ public class Generator {
 					.getTemplate(templateName);
 		}
 
-		private void generateNewFileOrInsertIntoFile(String templateFile, String outputFilepath, Map templateModel)
+		private void generateNewFileOrInsertIntoFile(String templateFile, String outputFilepath, 
+				Map<String,Object> templateModel)
 				throws Exception {
 			Template template = getFreeMarkerTemplate(templateFile);
 			template.setOutputEncoding(gg.getOutputEncoding());
@@ -397,13 +400,14 @@ public class Generator {
 			return true;
 		}
 
-		private static boolean isFoundInsertLocation(GeneratorControl gg, Template template, Map model, File outputFile,
+		private static boolean isFoundInsertLocation(GeneratorControl gg, Template template, 
+				Map<String,Object> model, File outputFile,
 				StringWriter newFileContent) throws IOException, TemplateException {
 			LineNumberReader reader = new LineNumberReader(new FileReader(outputFile));
 			String line = null;
 			boolean isFoundInsertLocation = false;
 
-			// FIXME 持续性的重复生成会导致out of memory
+			//  持续性的重复生成会导致out of memory
 			PrintWriter writer = new PrintWriter(newFileContent);
 			while ((line = reader.readLine()) != null) {
 				writer.println(line);
@@ -468,10 +472,12 @@ public class Generator {
 	}
 
 	public static class GeneratorModel implements java.io.Serializable {
-		public Map filePathModel;
-		public Map templateModel;
 
-		public GeneratorModel(Map templateModel, Map filePathModel) {
+		private static final long serialVersionUID = -5684251606260589812L;
+		public Map<String,Object> filePathModel;
+		public Map<String,Object> templateModel;
+
+		public GeneratorModel(Map<String,Object> templateModel, Map<String,Object> filePathModel) {
 			this.templateModel = templateModel;
 			this.filePathModel = filePathModel;
 		}

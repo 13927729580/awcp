@@ -33,6 +33,15 @@ public class QueryServiceImpl implements QueryService {
 	// 流程超时设置值：上线值设定为：DAY，测试值设定为：MINUTE
 	private static final String FLOW_OVERTIME_VALUE = "DAY";
 
+	/** 在办件 */
+	private static final String UNTREATED = "0";
+	/** 在办件 */
+	private static final String HANDLED = "1";
+	/** 在办件 */
+	private static final String COMPILE = "2";
+	/** 退回件 */
+	private static final String RETURN = "3";
+
 	public Map<String, Object> getUntreatedData(int limit, int offset, String FK_Flow, String workItemName,
 			String userName, boolean hasReturn) {
 		Map<String, Object> result = new HashMap<String, Object>();
@@ -44,9 +53,8 @@ public class QueryServiceImpl implements QueryService {
 			wfSql += " OR a.WFState=" + WFState.ReturnSta.getValue();
 		}
 		StringBuilder builder = new StringBuilder();
-		builder.append(
-				"SELECT a.FK_Flow,a.FlowName,a.StarterName,a.FK_Node,a.FID,(CASE a.WFState WHEN 5 THEN 3  ELSE 0 END) WFState ,"
-						+ "a.WorkID,a.title,a.nodeName,a.RDT  FROM WF_EmpWorks a ");
+		builder.append("SELECT a.FK_Flow,a.FlowName,a.StarterName,a.FK_Node,a.FID,(CASE a.WFState WHEN 5 THEN " + RETURN
+				+ "  ELSE " + UNTREATED + " END) WFState ," + "a.WorkID,a.title,a.nodeName,a.RDT  FROM WF_EmpWorks a ");
 		builder.append("  WHERE (" + wfSql + ") ");
 		// 包含授权
 		includeAuth(userName, builder, params);
@@ -144,8 +152,8 @@ public class QueryServiceImpl implements QueryService {
 		Map<String, Object> result = new HashMap<String, Object>();
 		Map<String, Object> params = new HashMap<>();
 		StringBuilder builder = new StringBuilder();
-		builder.append(
-				"SELECT a.FK_Flow,a.FlowName,a.StarterName,a.FK_Node,a.FID,3 WFState ,a.WorkID,a.title,a.nodeName,a.RDT  FROM WF_EmpWorks a  WHERE a.WFState=5 ");
+		builder.append("SELECT a.FK_Flow,a.FlowName,a.StarterName,a.FK_Node,a.FID," + RETURN
+				+ " WFState ,a.WorkID,a.title,a.nodeName,a.RDT  FROM WF_EmpWorks a  WHERE a.WFState=5 ");
 		// 包含授权
 		includeAuth(userName, builder, params);
 		if (StringUtils.isNotBlank(FK_Flow)) {
@@ -179,20 +187,20 @@ public class QueryServiceImpl implements QueryService {
 
 		builder.append("select * , COUNT(DISTINCT d.workid) from ( ");
 
-		builder.append(
-				"(SELECT a.FK_Flow,a.FlowName,a.StarterName,a.FK_Node,a.FID,a.WorkID,1 as WFState,a.title,a.nodeName,a.RDT,concat(a.EMPS,B.FK_Emp) as userName"
-						+ ",( CASE WHEN NOW()>DATE_ADD(a.RDT, INTERVAL ( SELECT DeductDays FROM wf_node WHERE nodeid=a.FK_Node) "
-						+ FLOW_OVERTIME_VALUE + ") THEN 1 ELSE 0 END) isovertime "
-						+ " FROM WF_GenerWorkFlow A left join WF_GenerWorkerlist B on A.WorkID=B.WorkID  where  B.IsEnable=1 AND B.IsPass=1 ) ");
+		builder.append("(SELECT a.FK_Flow,a.FlowName,a.StarterName,a.FK_Node,a.FID,a.WorkID," + HANDLED
+				+ " as WFState,a.title,a.nodeName,a.RDT,concat(a.todoemps,B.FK_Emp) as userName"
+				+ ",( CASE WHEN NOW()>DATE_ADD(a.RDT, INTERVAL ( SELECT DeductDays FROM wf_node WHERE nodeid=a.FK_Node) "
+				+ FLOW_OVERTIME_VALUE + ") THEN 1 ELSE 0 END) isovertime "
+				+ " FROM WF_GenerWorkFlow A left join WF_GenerWorkerlist B on A.WorkID=B.WorkID  where  B.IsEnable=1 AND B.IsPass=1 ) ");
 
 		builder.append(" union ");
 
 		// 加入抄送的已处理件
-		builder.append(
-				"(SELECT b.FK_Flow,b.FlowName,b.StarterName,b.FK_Node,b.FID,b.WorkID,1 as WFState,b.title,b.nodeName,b.RDT,a.CCTo as userName,"
-						+ "( CASE WHEN NOW()>DATE_ADD(b.RDT, INTERVAL ( SELECT DeductDays FROM wf_node WHERE nodeid=b.FK_Node) "
-						+ FLOW_OVERTIME_VALUE + ") THEN 1 ELSE 0 END)  isovertime"
-						+ "   FROM wf_cclist a left join wf_generworkflow b on a.WorkID=b.WorkID where a.Sta!=0 AND b.WFSta=0 )");
+		builder.append("(SELECT b.FK_Flow,b.FlowName,b.StarterName,b.FK_Node,b.FID,b.WorkID," + HANDLED
+				+ " as WFState,b.title,b.nodeName,b.RDT,a.CCTo as userName,"
+				+ "( CASE WHEN NOW()>DATE_ADD(b.RDT, INTERVAL ( SELECT DeductDays FROM wf_node WHERE nodeid=b.FK_Node) "
+				+ FLOW_OVERTIME_VALUE + ") THEN 1 ELSE 0 END)  isovertime"
+				+ "   FROM wf_cclist a left join wf_generworkflow b on a.WorkID=b.WorkID where a.Sta!=0 AND b.WFSta=0 )");
 		builder.append("  ) d  where WFState<>3   ");
 		if (StringUtils.isNotBlank(FK_Flow)) {
 			params.put("FK_Flow", FK_Flow);
@@ -228,16 +236,16 @@ public class QueryServiceImpl implements QueryService {
 		StringBuilder builder = new StringBuilder();
 
 		builder.append("select * , COUNT(DISTINCT d.workid) from ( ");
-		builder.append(
-				"(select a.FK_Flow,a.FlowName,a.StarterName,a.FK_Node,a.FID,a.WorkID,2 as WFState,a.title,a.nodeName,a.RDT,concat(a.EMPS,a.TodoEmps) as userName,a.WFSta as state from wf_generworkflow a  where a.WFSta=1 )  ");
+		builder.append("(select a.FK_Flow,a.FlowName,a.StarterName,a.FK_Node,a.FID,a.WorkID," + COMPILE
+				+ " as WFState,a.title,a.nodeName,a.RDT,concat(a.EMPS,a.TodoEmps) as userName,a.WFSta as state from wf_generworkflow a  where a.WFSta=1 )  ");
 
 		builder.append(" union ");
 
 		// 加入抄送的办结件
-		builder.append(
-				"(SELECT b.FK_Flow,b.FlowName,b.StarterName,b.FK_Node,a.FID,b.WorkID,2 as WFState,b.title,b.nodeName,b.RDT,"
-						+ "a.CCTo as userName,a.Sta as state FROM wf_cclist a left join wf_generworkflow b on a.WorkID=b.WorkID  "
-						+ " where a.Sta!=0 AND b.WFSta=1 )");
+		builder.append("(SELECT b.FK_Flow,b.FlowName,b.StarterName,b.FK_Node,a.FID,b.WorkID," + COMPILE
+				+ " as WFState,b.title,b.nodeName,b.RDT,"
+				+ "a.CCTo as userName,a.Sta as state FROM wf_cclist a left join wf_generworkflow b on a.WorkID=b.WorkID  "
+				+ " where a.Sta!=0 AND b.WFSta=1 )");
 
 		builder.append(" ) d  where 1=1 ");
 		if (StringUtils.isNotBlank(FK_Flow)) {
@@ -278,30 +286,33 @@ public class QueryServiceImpl implements QueryService {
 				+ "  OR a.WFState=" + WFState.Fix.getValue() + " OR a.WFState=" + WFState.ReturnSta.getValue();
 		// 在办件
 		builder.append(
-				" (SELECT a.FK_Flow,a.FlowName,a.StarterName,a.FK_Node,a.FID,a.WorkID,(CASE a.WFState WHEN 5 THEN 3  ELSE 0 END) WFState ,"
+				" (SELECT a.FK_Flow,a.FlowName,a.StarterName,a.FK_Node,a.FID,a.WorkID,(CASE a.WFState WHEN 5 THEN "
+						+ RETURN + "  ELSE " + UNTREATED + " END) WFState ,"
 						+ "a.title,a.nodeName,a.RDT,a.FK_Emp as userName,'0' isovertime  FROM WF_EmpWorks a  WHERE ("
 						+ wfSql + "))");
 		builder.append(" union ");
 		// 办结件
-		builder.append(
-				"(select a.FK_Flow,a.FlowName ,a.StarterName,a.FK_Node,a.FID,a.WorkID,2 as WFState,a.title,a.nodeName,a.RDT,"
-						+ "concat(a.EMPS,a.TodoEmps) as userName,'0' isovertime from wf_generworkflow a where a.WFSta=1 ) ");
+		builder.append("(select a.FK_Flow,a.FlowName ,a.StarterName,a.FK_Node,a.FID,a.WorkID," + COMPILE
+				+ " as WFState,a.title,a.nodeName,a.RDT,"
+				+ "concat(a.EMPS,a.TodoEmps) as userName,'0' isovertime from wf_generworkflow a where a.WFSta=1 ) ");
 
 		builder.append(" union ");
 
 		// 抄送件
 		builder.append(
-				"(SELECT b.FK_Flow,b.FlowName,b.StarterName,0 as FK_Node,a.FID,b.WorkID,(CASE  WHEN a.sta=2 and b.WFState=3 THEN 2 WHEN a.sta=2 THEN 1 ELSE 0 END) as WFState,b.title,b.nodeName,b.RDT,"
+				"(SELECT b.FK_Flow,b.FlowName,b.StarterName,0 as FK_Node,a.FID,b.WorkID,(CASE  WHEN a.sta=2 and b.WFState=3 THEN "
+						+ COMPILE + " WHEN a.sta=2 THEN " + HANDLED + " ELSE " + UNTREATED
+						+ " END) as WFState,b.title,b.nodeName,b.RDT,"
 						+ "a.CCTo as userName,'0' isovertime FROM wf_cclist a left join wf_generworkflow b on a.WorkID=b.WorkID )");
 
 		builder.append(" union ");
 
 		// 已办件
-		builder.append(
-				"(SELECT a.FK_Flow,a.FlowName ,a.StarterName,a.FK_Node,a.FID,a.WorkID,1 as WFState,a.title,a.nodeName,a.RDT,b.FK_Emp as userName,"
-						+ "( CASE WHEN NOW()>DATE_ADD(a.RDT, INTERVAL ( SELECT DeductDays FROM wf_node WHERE nodeid=a.FK_Node) "
-						+ FLOW_OVERTIME_VALUE + ") THEN 1 ELSE 0 END) isovertime "
-						+ "FROM WF_GenerWorkerlist B LEFT JOIN WF_GenerWorkFlow a ON A.WorkID=B.WorkID where  B.IsEnable=1 AND B.IsPass=1 and a.wfsta=0 )  ");
+		builder.append("(SELECT a.FK_Flow,a.FlowName ,a.StarterName,a.FK_Node,a.FID,a.WorkID," + HANDLED
+				+ " as WFState,a.title,a.nodeName,a.RDT,b.FK_Emp as userName,"
+				+ "( CASE WHEN NOW()>DATE_ADD(a.RDT, INTERVAL ( SELECT DeductDays FROM wf_node WHERE nodeid=a.FK_Node) "
+				+ FLOW_OVERTIME_VALUE + ") THEN 1 ELSE 0 END) isovertime "
+				+ "FROM WF_GenerWorkerlist B LEFT JOIN WF_GenerWorkFlow a ON A.WorkID=B.WorkID where  B.IsEnable=1 AND B.IsPass=1 and a.wfsta=0 )  ");
 		builder.append(" ) d  where 1=1 ");
 		if (StringUtils.isNotBlank(FK_Flow)) {
 			params.put("FK_Flow", FK_Flow);

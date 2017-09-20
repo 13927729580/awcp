@@ -64,11 +64,11 @@
 	   		};
          var tNodes1 =[
 				{ id:1, pId:0, name:"系统信息编辑",url:"<%=basePath%>dev/punSystemGet.do?boxs=${sysId}",target:"sysEditFrame"},
-				{ id:2, pId:0, name:"系统数据源管理",url:"<%=basePath%>dataSys/config.do?id=${sysId}",target:"sysEditFrame"},
+				//{ id:2, pId:0, name:"系统数据源管理",url:"<%=basePath%>dataSys/config.do?id=${sysId}",target:"sysEditFrame"},
 				{ id:3, pId:0, name:"菜单管理",url:"<%=basePath%>dev/punSysMenuEdit.do?sysId=${sysId}",target:"sysEditFrame"},
 				{ id:4, pId:0, name:"角色管理",url:"<%=basePath%>unit/listRolesInSys.do?boxs=${sysId}",target:"sysEditFrame"},
 				{ id:5, pId:0, name:"元数据管理",url:"<%=basePath%>metaModel/selectPage.do",target:"sysEditFrame"},
-				{ id:6, pId:0, name:"数据源管理",url:"<%=basePath%>dataSourceManage/selectPage.do",target:"sysEditFrame"},
+				//{ id:6, pId:0, name:"数据源管理",url:"<%=basePath%>dataSourceManage/selectPage.do",target:"sysEditFrame"},
 				{ id:7, pId:0, name:"动态页面管理",url:"<%=basePath%>fd/list.do",target:"sysEditFrame",open:true},
 				{ id:71, pId:7, name:"样式库管理",url:"<%=basePath%>fd/style/list.do",target:"sysEditFrame"},
 				{ id:72, pId:7, name:"页面动作库管理",url:"<%=basePath%>fd/act/list.do",target:"sysEditFrame"},
@@ -78,15 +78,15 @@
 				{ id:75, pId:7, name:"函数库管理",url:"<%=basePath%>func/list.do",target:"sysEditFrame"},
 				{ id:91, pId:7, name:"页面绑定管理",url:"<%=basePath%>/common/user/list-bind.do",target:"sysEditFrame"},
 				{ id:92, pId:7, name:"页面接口管理",url:"<%=basePath%>/document/view.do?dynamicPageId=1",target:"sysEditFrame"},
+				{ id:93, pId:7, name:"页面模块管理",url:"<%=basePath%>/document/view.do?dynamicPageId=4",target:"sysEditFrame"},
 				{ id:8, pId:0, name:"流程管理",url:null,target:"sysEditFrame",open:true},
 				{ id:81, pId:8, name:"流程设计器",url:"<%=basePath%>WF/Admin/xap/Designer.jsp",target:"_blank",open:true},
 				{ id:9, pId:0, name:"调试日志",url:"<%=basePath%>debug/view.do",target:"sysEditFrame"}
 				//{ id:81, pId:8, name:"流程分类",url:"<%=basePath%>workflow/bpm/bpm-category-list.do",target:"sysEditFrame"},
 				//{ id:82, pId:8, name:"自动委托",url:"<%=basePath%>workflow/bpm/delegate-listMyDelegateInfo.do",target:"sysEditFrame"},
-			//  { id:85, pId:8, name:"流程管理旧",url:"<%=basePath%>workflow/bpm/console-listProcessDefinitions-old.do",target:"sysEditFrame"},
-			//{ id:73, pId:7, name:"流程管理",url:"<%=basePath%>workflow/bpm/bpm-process-list.do",target:"sysEditFrame"},
+				//{ id:85, pId:8, name:"流程管理旧",url:"<%=basePath%>workflow/bpm/console-listProcessDefinitions-old.do",target:"sysEditFrame"},
+				//{ id:73, pId:7, name:"流程管理",url:"<%=basePath%>workflow/bpm/bpm-process-list.do",target:"sysEditFrame"},
 				//{ id:84, pId:8, name:"运行管理",url:"<%=basePath%>workflow/bpm/console-listProcessInstances.do",target:"sysEditFrame"},
-				//
     	];
         var myLayout;
         $(function(){

@@ -5,7 +5,6 @@ import java.lang.reflect.Field;
 
 import org.szcloud.framework.metadesigner.core.generator.util.typemapping.ActionScriptDataTypesUtils;
 
-
 public class JavaField {
 	private Field field;
 	private JavaClass clazz; //与field相关联的class

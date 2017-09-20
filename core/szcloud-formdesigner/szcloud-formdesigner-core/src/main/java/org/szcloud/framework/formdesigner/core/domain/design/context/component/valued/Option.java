@@ -21,24 +21,31 @@ public class Option {
 	public String getText() {
 		return text;
 	}
+	
 	public void setText(String text) {
 		this.text = text;
 	}
+	
 	public String getValue() {
 		return value;
 	}
+	
 	public void setValue(String value) {
 		this.value = value;
 	}
+	
 	public boolean isDef() {
 		return def;
 	}
+	
 	public void setDef(boolean def) {
 		this.def = def;
 	}
+	
 	public int getOrder() {
 		return order;
 	}
+	
 	public void setOrder(int order) {
 		this.order = order;
 	}

@@ -53,36 +53,30 @@ public class PunRoleAccessServiceImpl implements PunRoleAccessService{
 	public List<PunRoleAccessVO> findAll() throws MRTException{
 		List<PunRoleAccess> result = PunRoleAccess.findAll();
 		List<PunRoleAccessVO> resultVo = new ArrayList<PunRoleAccessVO>();
-		for(PunRoleAccess mm : result)
-		{
+		for(PunRoleAccess mm : result){
 			resultVo.add(BeanUtils.getNewInstance(mm, PunRoleAccessVO.class));
 		}
 		result.clear();
 		return resultVo; 
-		
 	}
 	
 	/**
 	 * 
-	* @Title: queryResult 
-	* @Description: 分页查询
-	* @author ljw 
-	* @param @param queryStr
-	* @param @param params
-	* @param @param currentPage
-	* @param @param pageSize
-	* @param @param sortString
-	* @param @return    
-	* @return PageList<T>
-	* @throws
+	 * @Title: queryResult 
+	 * @Description: 分页查询
+	 * @author ljw 
+	 * @param  queryStr
+	 * @param  params
+	 * @param  currentPage
+	 * @param  pageSize
+	 * @param  sortString
+	 * @return PageList<T>
+	 * @throws
 	 */
-	public PageList<PunRoleAccessVO> queryPagedResult(String queryStr,
-			Map<String, Object> params, int currentPage, int pageSize,
-			String sortString) {
-	
-		PageList<PunRoleAccess> roles = queryChannel.queryPagedResult(
-				PunRoleAccess.class, queryStr, params, currentPage, pageSize,
-				sortString);
+	public PageList<PunRoleAccessVO> queryPagedResult(String queryStr,Map<String, Object> params, 
+			int currentPage, int pageSize,String sortString) {
+		PageList<PunRoleAccess> roles = queryChannel.queryPagedResult(PunRoleAccess.class, queryStr, params, 
+				currentPage, pageSize,sortString);
 		List<PunRoleAccessVO> tmp = new ArrayList<PunRoleAccessVO>();
 		for (PunRoleAccess role : roles) {
 			tmp.add(BeanUtils.getNewInstance(role, PunRoleAccessVO.class));
@@ -111,26 +105,23 @@ public class PunRoleAccessServiceImpl implements PunRoleAccessService{
 				count++;
 			}
 		}
-		
 		return "完成"+ count +"条记录的操作";
 	}
 
-	public List<PunRoleAccessVO> queryResult(String queryStr,
-			Map<String, Object> params) throws MRTException{
+	public List<PunRoleAccessVO> queryResult(String queryStr,Map<String, Object> params) throws MRTException{
 		List<PunRoleAccess> members = queryChannel.queryResult(PunRoleAccess.class, queryStr, params);
-		  List<PunRoleAccessVO> vos = new ArrayList<PunRoleAccessVO>();
-		  for(PunRoleAccess member : members){
-			  vos.add(BeanUtils.getNewInstance(member, PunRoleAccessVO.class));
-		  }
-		  members.clear();
-		  return vos;
+		List<PunRoleAccessVO> vos = new ArrayList<PunRoleAccessVO>();
+		for(PunRoleAccess member : members){
+			vos.add(BeanUtils.getNewInstance(member, PunRoleAccessVO.class));
+		}
+		members.clear();
+		return vos;
 	}
 	
 	public List<PunRoleAccessVO> queryResultByExample(PunRoleAccessVO example) throws MRTException{
 		Map<String, Object> params = getParams(example);			
 		return queryResult("eqQueryList", params);
 	}
-	
 	
 	private Map<String, Object> getParams(PunRoleAccessVO example){
 		Map<String, Object> params = new HashMap<String, Object>();		
@@ -164,8 +155,8 @@ public class PunRoleAccessServiceImpl implements PunRoleAccessService{
 			//处理子孙结点
 			List<PunMenuVO> menuVos =punMenuService.getPosterityPunMenuByPid(pid);
 			for(int i = 0 ; i < menuVos.size(); i++){
-					menuIds.add(menuVos.get(i).getMenuId());
-				}
+				menuIds.add(menuVos.get(i).getMenuId());
+			}
 			String[] predecessorIds = pid.split(",");
 			for(int i = 0; i < predecessorIds.length; i++){
 				if(predecessorIds[i].length() > 0){
@@ -224,8 +215,8 @@ public class PunRoleAccessServiceImpl implements PunRoleAccessService{
 			//处理子孙结点
 			List<PunMenuVO> menuVos =punMenuService.getPosterityPunMenuByPid(pid);
 			for(int i = 0 ; i < menuVos.size(); i++){
-					menuIds.add(menuVos.get(i).getMenuId());
-				}
+				menuIds.add(menuVos.get(i).getMenuId());
+			}
 		}
 		List<PunRoleAccessVO> roleAccessVos = new ArrayList<PunRoleAccessVO>();
 		List<PunResourceVO> resourceVos = punResourceService.getResourceListByRelateIds(menuIds, 1);
@@ -248,8 +239,7 @@ public class PunRoleAccessServiceImpl implements PunRoleAccessService{
 	public List<PunRoleAccessVO> selectByExample(BaseExample baseExample) {
 		List<PunRoleAccess> result = PunRoleAccess.selectByExample(PunRoleAccess.class, baseExample);
 		List<PunRoleAccessVO> resultVo = new ArrayList<PunRoleAccessVO>();
-		for(PunRoleAccess mm : result)
-		{
+		for(PunRoleAccess mm : result){
 			resultVo.add(BeanUtils.getNewInstance(mm, PunRoleAccessVO.class));
 		}
 		result.clear();
@@ -260,7 +250,5 @@ public class PunRoleAccessServiceImpl implements PunRoleAccessService{
 	public void resoAuthorDel(Map<String, Object> params) {
 		queryChannel.excuteMethod(PunRoleAccess.class, "delByRoleIdAndResoId", params);
 	}
-	
-	
 
 }

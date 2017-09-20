@@ -20,8 +20,9 @@ import freemarker.template.TemplateException;
 
 public class FreemarkerHelper {
 
+	@SuppressWarnings("rawtypes")
 	public static List<String> getAvailableAutoInclude(Configuration conf,List<String> autoIncludes) {
-		List<String> results = new ArrayList();
+		List<String> results = new ArrayList<String>();
 		for(String autoInclude : autoIncludes) {
 			try {
 				Template t = new Template("__auto_include_test__",new StringReader("1"),conf);
@@ -34,12 +35,15 @@ public class FreemarkerHelper {
 		return results;
 	}
 	
-	public static void processTemplate(Template template, Map model, File outputFile,String encoding) throws IOException, TemplateException {
+	@SuppressWarnings("rawtypes")
+	public static void processTemplate(Template template, Map model, File outputFile,String encoding) 
+			throws IOException, TemplateException {
 		Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFile),encoding));
 		template.process(model,out);
 		out.close();
 	}
 	
+	@SuppressWarnings("rawtypes")
 	public static String processTemplateString(String templateString,Map model,Configuration conf) {
 		StringWriter out = new StringWriter();
 		try {

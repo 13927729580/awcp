@@ -5,8 +5,10 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.szcloud.framework.core.domain.BaseEntity;
-import java.util.*;
+
 public class PunUserGroupVO extends BaseEntity{
+
+	private static final long serialVersionUID = -159069381025032124L;
 	private Long userGruopId;
 	private Long userId;
 	private Long groupId;
@@ -27,6 +29,7 @@ public class PunUserGroupVO extends BaseEntity{
 	public Long getUserGruopId() {
 		return this.userGruopId;
 	}
+	
 	public void setUserId(Long value) {
 		this.userId = value;
 	}
@@ -34,6 +37,7 @@ public class PunUserGroupVO extends BaseEntity{
 	public Long getUserId() {
 		return this.userId;
 	}
+	
 	public void setGroupId(Long value) {
 		this.groupId = value;
 	}
@@ -41,6 +45,7 @@ public class PunUserGroupVO extends BaseEntity{
 	public Long getGroupId() {
 		return this.groupId;
 	}
+	
 	public void setPositionId(Long value) {
 		this.positionId = value;
 	}
@@ -48,6 +53,7 @@ public class PunUserGroupVO extends BaseEntity{
 	public Long getPositionId() {
 		return this.positionId;
 	}
+	
 	public void setIsManager(Boolean value) {
 		this.isManager = value;
 	}

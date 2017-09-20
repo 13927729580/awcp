@@ -64,4 +64,11 @@ public class OaWorkVO {
     public void setRemark(String remark) {
         this.remark = remark;
     }
+
+	@Override
+	public String toString() {
+		return "OaWorkVO [id=" + id + ", workId=" + workId + ", fid=" + fid + ", content=" + content + ", json=" + json
+				+ ", remark=" + remark + "]";
+	}
+    
 }

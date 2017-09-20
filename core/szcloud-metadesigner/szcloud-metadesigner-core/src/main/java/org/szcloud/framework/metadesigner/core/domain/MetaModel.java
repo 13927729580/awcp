@@ -34,51 +34,67 @@ public class MetaModel extends BaseEntity{
 	public Long getSystemId() {
 		return systemId;
 	}
+	
 	public void setSystemId(Long systemId) {
 		this.systemId = systemId;
 	}
+	
 	public Long getModelClassId() {
 		return modelClassId;
 	}
+	
 	public void setModelClassId(Long modelClassId) {
 		this.modelClassId = modelClassId;
 	}
+	
 	public String getModelName() {
 		return modelName;
 	}
+	
 	public void setModelName(String modelName) {
 		this.modelName = modelName;
 	}
+	
 	public String getModelCode() {
 		return modelCode;
 	}
+	
 	public void setModelCode(String modelCode) {
 		this.modelCode = modelCode;
 	}
+	
 	public String getModelDesc() {
 		return modelDesc;
 	}
+	
 	public void setModelDesc(String modelDesc) {
 		this.modelDesc = modelDesc;
 	}
+	
 	public String getTableName() {
 		return tableName;
 	}
+	
 	public void setTableName(String tableName) {
 		this.tableName = tableName;
 	}
+	
 	public String getProjectName() {
 		return projectName;
 	}
+	
 	public void setProjectName(String projectName) {
 		this.projectName = projectName;
 	}
+	
 	public Integer getModelType() {
 		return modelType;
 	}
+	
 	public void setModelType(Integer modelType) {
 		this.modelType = modelType;
 	}
+	
 	public Boolean getModelSynchronization() {
 		return modelSynchronization;
 	}
@@ -95,19 +111,20 @@ public class MetaModel extends BaseEntity{
 		this.modelValid = modelValid;
 	}
 	
-	public static List<MetaModel>   findAll() throws MRTException
-	{
+	public static List<MetaModel>  findAll() throws MRTException{
 		List<MetaModel> treeMenuList = null;
 		try {
-			treeMenuList =  MetaModel.findAll(MetaModel.class);
+			treeMenuList = findAll(MetaModel.class);
 		} catch (Exception e) {
 			throw new  MRTException(e.getMessage(),e);
 		}
 		return treeMenuList;
 	}
+	
 	public Long getDataSourceId() {
 		return dataSourceId;
 	}
+	
 	public void setDataSourceId(Long dataSourceId) {
 		this.dataSourceId = dataSourceId;
 	}

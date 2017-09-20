@@ -55,13 +55,11 @@ public class MetaModelOperateServiceImpl implements MetaModelOperateService {
 	 * 保存
 	 */
 	public boolean save(Map<String, String> map, String modelCode) throws Exception {
-
 		// 查询
-		MetaModelVO mm = this.metaModelServiceImpl.queryByModelCode(modelCode.trim());
-
+		MetaModelVO mm = metaModelServiceImpl.queryByModelCode(modelCode.trim());
 		StringBuffer sb = new StringBuffer("insert into ").append(mm.getTableName()).append(" (");
 		StringBuilder values = new StringBuilder();
-		List<MetaModelItemsVO> mmi = this.metaModelItemsServiceImpl.queryResult("queryResult", mm.getId());
+		List<MetaModelItemsVO> mmi = metaModelItemsServiceImpl.queryResult("queryResult", mm.getId());
 		Map<String, MetaModelItemsVO> map2 = new HashMap<String, MetaModelItemsVO>();
 		Map<String, Object> maps = new HashMap<String, Object>();
 		for (MetaModelItemsVO tmp : mmi) {
@@ -72,14 +70,11 @@ public class MetaModelOperateServiceImpl implements MetaModelOperateService {
 			if (tmp != null) {
 				Object o = this.dataConvertImpl.stringToObject(map.get(s), tmp.getItemType());
 				maps.put(s, o);
-
 				sb.append(s);
 				sb.append(",");
-
 				values.append(":");
 				values.append(s);
 				values.append(",");
-
 			}
 		}
 		try {
@@ -105,10 +100,9 @@ public class MetaModelOperateServiceImpl implements MetaModelOperateService {
 	 * 根据modelCode删除
 	 */
 	public boolean delete(Object id, String modelCode) {
-
 		MetaModelVO mm = this.metaModelServiceImpl.queryByModelCode(modelCode);
 		StringBuffer sb = new StringBuffer("delete from ").append(mm.getTableName()).append(" where ");
-		List<MetaModelItemsVO> lss = this.metaModelItemsServiceImpl.queryResult("queryResult", mm.getId());
+		List<MetaModelItemsVO> lss = metaModelItemsServiceImpl.queryResult("queryResult", mm.getId());
 		for (MetaModelItemsVO vo : lss) {
 			if (vo.getUsePrimaryKey() != null && (vo.getUsePrimaryKey() == 1)) {
 				sb.append(vo.getItemCode());
@@ -116,13 +110,13 @@ public class MetaModelOperateServiceImpl implements MetaModelOperateService {
 		}
 		sb.append("=?");
 		// 查询是否有外键
-		List<ModelRelationVO> list = this.modelRelationServiceImpl.queryByModelId(mm.getId());
+		List<ModelRelationVO> list = modelRelationServiceImpl.queryByModelId(mm.getId());
 		if (list.size() > 0) {
 			for (ModelRelationVO ls : list) {
 				// 查询外键列
-				MetaModelItemsVO mmi = this.metaModelItemsServiceImpl.get(ls.getItemId());
+				MetaModelItemsVO mmi = metaModelItemsServiceImpl.get(ls.getItemId());
 				// 查询对应的外键表
-				MetaModelVO mmv = this.metaModelServiceImpl.get(mmi.getModelId());
+				MetaModelVO mmv = metaModelServiceImpl.get(mmi.getModelId());
 				StringBuffer sbb = new StringBuffer("delete from ");
 				sbb.append(mmv.getTableName());
 				sbb.append(" where ");
@@ -151,9 +145,8 @@ public class MetaModelOperateServiceImpl implements MetaModelOperateService {
 	 * @param :modelCode
 	 */
 	public boolean deleteByParams(Map<String, String> map, String modelCode) throws ParseException {
-
 		StringBuffer sb = new StringBuffer("delete from ");
-		MetaModelVO mm = this.metaModelServiceImpl.queryByModelCode(modelCode);
+		MetaModelVO mm = metaModelServiceImpl.queryByModelCode(modelCode);
 		sb.append(mm.getTableName());
 		sb.append(" where 1=1");
 		if (map != null && map.size() > 0) {
@@ -165,7 +158,6 @@ public class MetaModelOperateServiceImpl implements MetaModelOperateService {
 				sb.append(s);
 			}
 		}
-
 		try {
 			NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
 			namedParameterJdbcTemplate.update(sb.toString(), map);
@@ -182,13 +174,12 @@ public class MetaModelOperateServiceImpl implements MetaModelOperateService {
 	 * @param :modelCode
 	 */
 	public boolean update(Map<String, String> map, String modelCode) throws ParseException {
-
 		// 根据modelcode查出模型
-		MetaModelVO mm = this.metaModelServiceImpl.queryByModelCode(modelCode.trim());
+		MetaModelVO mm = metaModelServiceImpl.queryByModelCode(modelCode.trim());
 		StringBuffer sb = new StringBuffer("update ").append(mm.getTableName()).append(" set ");
 		StringBuilder where = new StringBuilder(" where ");
 		// 根据modelid找到所有的属性
-		List<MetaModelItemsVO> lss = this.metaModelItemsServiceImpl.queryResult("queryResult", mm.getId());
+		List<MetaModelItemsVO> lss = metaModelItemsServiceImpl.queryResult("queryResult", mm.getId());
 		Map<String, MetaModelItemsVO> map2 = new HashMap<String, MetaModelItemsVO>();
 		// 将查出的list转换成map，key为属性code
 		for (MetaModelItemsVO tmp : lss) {
@@ -207,8 +198,7 @@ public class MetaModelOperateServiceImpl implements MetaModelOperateService {
 				// 如果模型属性是主键，则特殊处理，否则写成itemcode=:itemcode的形式
 				if (tmp.getUsePrimaryKey() != null && (tmp.getUsePrimaryKey() == 1)) {
 					if (tmp.getItemType().equalsIgnoreCase("varchar") || tmp.getItemType().equalsIgnoreCase("char")) {
-						where.append(tmp.getItemCode()).append("=").append("'").append(map.get(tmp.getItemCode()))
-								.append("'");
+						where.append(tmp.getItemCode()).append("=").append("'").append(map.get(tmp.getItemCode())).append("'");
 					} else {
 						where.append(tmp.getItemCode());
 						where.append("=");
@@ -222,12 +212,9 @@ public class MetaModelOperateServiceImpl implements MetaModelOperateService {
 					sb.append(",");
 					size++;
 				}
-
 			}
 		}
-
 		sb.deleteCharAt(sb.length() - 1).append(where);
-
 		try {
 			if (size > 0) {// 如果要更新的字段数大于0，则更新
 				NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
@@ -246,10 +233,9 @@ public class MetaModelOperateServiceImpl implements MetaModelOperateService {
 	 * @param :modelCode
 	 */
 	public List<Map<String, String>> findAll(String modelCode) {
-
-		MetaModelVO mm = this.metaModelServiceImpl.queryByModelCode(modelCode);
+		MetaModelVO mm = metaModelServiceImpl.queryByModelCode(modelCode);
 		StringBuffer sb = new StringBuffer("select ");
-		List<MetaModelItemsVO> lss = this.metaModelItemsServiceImpl.queryResult("queryResult", mm.getId());
+		List<MetaModelItemsVO> lss = metaModelItemsServiceImpl.queryResult("queryResult", mm.getId());
 		for (MetaModelItemsVO vo : lss) {
 			sb.append(vo.getItemCode());
 			sb.append(",");
@@ -274,11 +260,11 @@ public class MetaModelOperateServiceImpl implements MetaModelOperateService {
 	 * 
 	 * @param :modelCode
 	 */
+	@SuppressWarnings("unchecked")
 	public Map<String, Object> get(Object id, String modelCode) {
-
-		MetaModelVO mms = this.metaModelServiceImpl.queryByModelCode(modelCode);
+		MetaModelVO mms = metaModelServiceImpl.queryByModelCode(modelCode);
 		StringBuffer sb = new StringBuffer("select ");
-		List<MetaModelItemsVO> ls = this.metaModelItemsServiceImpl.queryResult("queryResult", mms.getId());
+		List<MetaModelItemsVO> ls = metaModelItemsServiceImpl.queryResult("queryResult", mms.getId());
 		String name = "";
 		for (MetaModelItemsVO mm : ls) {
 			String itemCode = mm.getItemCode();
@@ -289,14 +275,13 @@ public class MetaModelOperateServiceImpl implements MetaModelOperateService {
 				sb.append(itemCode);
 				sb.append(",");
 			}
-
 			if ((mm.getUsePrimaryKey() != null) && (mm.getUsePrimaryKey() == 1)) {
 				name = mm.getItemCode();
 			}
 		}
 		sb.deleteCharAt(sb.length() - 1);
 		sb.append(" from ");
-		MetaModelVO mmv = this.metaModelServiceImpl.get(mms.getId());
+		MetaModelVO mmv = metaModelServiceImpl.get(mms.getId());
 		sb.append(mmv.getTableName());
 		sb.append(" where ");
 		sb.append(name);
@@ -310,7 +295,6 @@ public class MetaModelOperateServiceImpl implements MetaModelOperateService {
 	}
 
 	public String markCheck(String str) {
-
 		String s = str.substring(0, 3);
 		if (s.equals("lk_")) {
 			return " like ";
@@ -368,8 +352,7 @@ public class MetaModelOperateServiceImpl implements MetaModelOperateService {
 			}
 			BaseExample base = new BaseExample();
 			base.createCriteria().andEqualTo("SYSTEM_ID", system.getSysId()).andEqualTo("ISDEFAULT", true);
-			PageList<SysDataSourceVO> dataVos = sysSourceRelationService.selectPagedByExample(base, 1,
-					Integer.MAX_VALUE, null);
+			PageList<SysDataSourceVO> dataVos = sysSourceRelationService.selectPagedByExample(base, 1,Integer.MAX_VALUE, null);
 			if (dataVos != null && dataVos.size() > 0) {
 				return dataVos.get(0).getDataSourceId();
 			}

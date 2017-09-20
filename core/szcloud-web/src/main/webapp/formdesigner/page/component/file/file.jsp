@@ -3,6 +3,7 @@
  <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %> 
  <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%> 
  <%@ taglib prefix="sc" uri="szcloud" %>
+ <%@ page import="org.szcloud.framework.venson.util.PlatfromProp" %>
  <%@page isELIgnored="false"%> 
  <%
 	String path = request.getContextPath();
@@ -56,15 +57,16 @@
 		<script type="text/javascript">	
 		var basePath = "<%=basePath%>";
 		$('document').ready(function(){
+			$("#uploadType").val('<%=PlatfromProp.getValue("default_upload_type")%>')
 			$("#uploadType").on("change",function(){
-				if(this.value==2){
+				if(this.value==1){
 					$("#filePathDiv").show();
 				}else{
 					$("#filePathDiv").hide();
 				}
 			})
 			initializeDocument("${componentType}","${_ComponentTypeName[componentType]}");
-			if($("#uploadType").val()==2){
+			if($("#uploadType").val()==1){
 				$("#filePathDiv").show();
 			}else{
 				$("#filePathDiv").hide();

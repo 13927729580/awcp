@@ -4,13 +4,15 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
-
+@SuppressWarnings({ "serial", "rawtypes" })
 public class ListHashtable extends Hashtable {
 	protected List orderedKeys = new ArrayList();
 	public synchronized void clear() {
 		super.clear();
 		orderedKeys = new ArrayList();
 	}
+	
+	@SuppressWarnings("unchecked")
 	public synchronized Object put(Object aKey, Object aValue) {
 		if (orderedKeys.contains(aKey)) {
 			int pos = orderedKeys.indexOf(aKey);
@@ -31,6 +33,7 @@ public class ListHashtable extends Hashtable {
 		}
 		return super.put(aKey, aValue);
 	}
+	
 	/**
 	 * @param aKey
 	 * @returns 
@@ -53,6 +56,7 @@ public class ListHashtable extends Hashtable {
 			pos = -1;
 		return pos;
 	}
+	
 	public synchronized Object remove(Object aKey) {
 		if (orderedKeys.contains(aKey)) {
 			int pos = orderedKeys.indexOf(aKey);
@@ -60,11 +64,13 @@ public class ListHashtable extends Hashtable {
 		}
 		return super.remove(aKey);
 	}
+	
 	/**
 	 *  This method reorders the ListHashtable only if the keys 
 	 *  used are integer keys.
 	 * 
 	 */
+	@SuppressWarnings("unchecked")
 	public void reorderIntegerKeys() {
 		List keys = getOrderedKeys();
 		int numKeys = keys.size();
@@ -103,6 +109,7 @@ public class ListHashtable extends Hashtable {
 			put(newKeys.get(l),newValues.get(l));
 		}
 	}
+	
 	public String toString() {
 		StringBuffer x = new StringBuffer();
 		x.append("Ordered Keys: ");
@@ -122,6 +129,7 @@ public class ListHashtable extends Hashtable {
 		x.append("]\n");
 		return x.toString();
 	}
+	
 	public void merge(ListHashtable newTable) {
 		// This merges the newtable with the current one
 		int num = newTable.size();
@@ -131,15 +139,18 @@ public class ListHashtable extends Hashtable {
 			this.put(aKey, aVal);
 		}
 	}
+	
 	/**
 	 * @return Returns the orderedKeys.
 	 */
 	public List getOrderedKeys() {
 		return orderedKeys;
 	}
+	
 	public Object getOrderedKey(int i) {
 		return getOrderedKeys().get(i);
 	}
+	
 	/**
 	 * This method looks through the list of values and returns the key
 	 * associated with the value.. Otherwise if not found, null is returned
@@ -156,6 +167,8 @@ public class ListHashtable extends Hashtable {
 		}
 		return null;
 	}
+	
+	@SuppressWarnings("unchecked")
 	public List getOrderedValues() {
 		List values = new ArrayList();
 		int numKeys = orderedKeys.size();
@@ -164,6 +177,7 @@ public class ListHashtable extends Hashtable {
 		}
 		return values;
 	}
+	
 	public Object getOrderedValue(int i) {
 		return get(getOrderedKey(i));
 	}

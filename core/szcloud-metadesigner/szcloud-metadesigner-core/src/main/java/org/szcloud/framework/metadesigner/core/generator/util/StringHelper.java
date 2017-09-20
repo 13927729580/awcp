@@ -11,8 +11,6 @@ import java.util.regex.Pattern;
 
 import org.szcloud.framework.metadesigner.core.generator.provider.db.table.model.Column.EnumMetaDada;
 
-
-
 public class StringHelper {
 	
 	public static String removeCrlf(String str) {
@@ -270,16 +268,15 @@ public class StringHelper {
 		// remember to append any characters to the right of a match
 		return sbuf.toString();
 	}
-	/**����ĸ��copy from spring*/
+
 	public static String capitalize(String str) {
 		return changeFirstCharacterCase(str, true);
 	}
 	
-	/**����ĸСдcopy from spring*/
 	public static String uncapitalize(String str) {
 		return changeFirstCharacterCase(str, false);
 	}
-	/**copy from spring*/
+
 	private static String changeFirstCharacterCase(String str, boolean capitalize) {
 		if (str == null || str.length() == 0) {
 			return str;
@@ -432,10 +429,10 @@ public class StringHelper {
 	static Pattern three = Pattern.compile("(.*)\\((.*),(.*)\\)");
 	static Pattern two = Pattern.compile("(.*)\\((.*)\\)");
 	public static List<EnumMetaDada> string2EnumMetaData(String data) {
-		if(data == null || data.trim().length() == 0) return new ArrayList();
+		if(data == null || data.trim().length() == 0) return new ArrayList<EnumMetaDada>();
 		//enumAlias(enumKey,enumDesc),enumAlias(enumDesc)
 		
-		List<EnumMetaDada> list = new ArrayList();
+		List<EnumMetaDada> list = new ArrayList<EnumMetaDada>();
 		Pattern p = Pattern.compile("\\w+\\(.*?\\)");
 		Matcher m = p.matcher(data);
 		while (m.find()) {
@@ -475,7 +472,7 @@ public class StringHelper {
 	public static String[] tokenizeToStringArray(String str,String seperators) {
 		if(str == null) return new String[0];
 		StringTokenizer tokenlizer = new StringTokenizer(str,seperators);
-		List result = new ArrayList();
+		List<Object> result = new ArrayList<Object>();
 		
 		while(tokenlizer.hasMoreElements()) {
 			Object s = tokenlizer.nextElement();
@@ -483,7 +480,7 @@ public class StringHelper {
 		}
 		return (String[])result.toArray(new String[result.size()]);
 	}
-    public static String join(List list, String seperator) {
+    public static String join(List<Object> list, String seperator) {
         return join(list.toArray(new Object[0]),seperator);
     }
     

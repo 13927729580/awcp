@@ -65,17 +65,20 @@ public class PunSystemServiceImpl implements PunSystemService {
 		}
 		result.clear();
 		return resultVo;
-
 	}
 
 	/**
 	 * 
-	 * @Title: queryResult @Description: 分页查询 @author ljw @param @param
-	 * queryStr @param @param params @param @param currentPage @param @param
-	 * pageSize @param @param sortString @param @return @return
-	 * PageList<T> @throws
+	 * @Title: queryResult 
+	 * @Description: 分页查询
+	 * @author ljw 
+	 * @param  queryStr 
+	 * @param  params 
+	 * @param  currentPage 
+	 * @param  pageSize  
+	 * @param  sortString   
+	 * @return PageList<T> 
 	 */
-	@SuppressWarnings("unchecked")
 	public PageList<PunSystemVO> queryPagedResult(String queryStr, Map<String, Object> params, int currentPage,
 			int pageSize, String sortString) {
 		PageList<PunSystem> systems = queryChannel.queryPagedResult(PunSystem.class, queryStr, params, currentPage,
@@ -115,7 +118,6 @@ public class PunSystemServiceImpl implements PunSystemService {
 		if (sys == null) {
 			return null;
 		}
-		// String sysName = sys.getSysName();
 		removeRelations(sys);
 		sys.delete();
 		return null;
@@ -137,25 +139,14 @@ public class PunSystemServiceImpl implements PunSystemService {
 		queryChannel.excuteMethod(PunPosition.class, "removeResource", params);
 	}
 
-	/*
-	 * public List<PunSystemVO> selectByExample(BaseExample example) throws
-	 * MRTException{ List<PunSystem> result =
-	 * PunPosition.selectByExample(PunSystem.class, example); List<PunSystemVO>
-	 * resultVo = new ArrayList<PunSystemVO>(); for(PunSystem mm : result) {
-	 * resultVo.add(BeanUtils.getNewInstance(mm, PunSystemVO.class)); }
-	 * result.clear(); return resultVo;
-	 * 
-	 * }
-	 */
 	/**
 	 * @Description 根据example模糊查询数据
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
-	public PageList<PunSystemVO> selectPagedByExample(BaseExample example, int currentPage, int pageSize,
-			String sortString) {
-		PageList<PunSystem> list = queryChannel.selectPagedByExample(PunSystem.class, example, currentPage, pageSize,
-				sortString);
+	public PageList<PunSystemVO> selectPagedByExample(BaseExample example, 
+			int currentPage, int pageSize,String sortString) {
+		PageList<PunSystem> list = queryChannel.selectPagedByExample(PunSystem.class, example, 
+				currentPage, pageSize,sortString);
 		PageList<PunSystemVO> vos = new PageList<PunSystemVO>(list.getPaginator());
 		for (PunSystem dp : list) {
 			vos.add(BeanUtils.getNewInstance(dp, PunSystemVO.class));
@@ -163,18 +154,6 @@ public class PunSystemServiceImpl implements PunSystemService {
 		list.clear();
 		return vos;
 	}
-
-	/**
-	 * 系统级联删除
-	 * 
-	 * @param id
-	 * @return
-	 * @throws MRTException
-	 */
-	/*
-	 * public String sysCascadeDelete(Long id) throws MRTException{ return null;
-	 * }
-	 */
 
 	@Override
 	public List<SysDataSourceVO> getSystemDataSource(Long systemId) {
@@ -189,7 +168,6 @@ public class PunSystemServiceImpl implements PunSystemService {
 			}
 		}
 		return vos;
-
 	}
 
 }

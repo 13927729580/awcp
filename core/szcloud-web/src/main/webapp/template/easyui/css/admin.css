@@ -1,0 +1,133 @@
+@charset "utf-8";
+/* CSS Document */
+* {
+	margin: 0px;
+	padding: 0px;
+}
+
+body {
+	overflow-x: hidden;
+	font-family: "微软雅黑", "新宋体", "方正等线", "Times New Roman",
+}
+
+img {
+	border: 0px;
+}
+
+a {
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.flex {
+	display: -webkit-flex;
+	-webkit-flex-direction: column;
+	display: -moz-flex;
+	-moz-flex-direction: column;
+	display: -ms-flex;
+	-ms-flex-direction: column;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	-webkit-justify-content: center;
+	width: 100%;
+	height: 100%;
+}
+
+.actdiv {
+	height: 356px;
+	width: 100%;
+	display: -webkit-flex;
+	-webkit-flex-direction: row;
+	display: -moz-flex;
+	-moz-flex-direction: row;
+	display: -ms-flex;
+	-ms-flex-direction: row;
+	display: flex;
+	flex-direction: row;
+	-webkit-justify-content: space-around;
+	justify-content: space-around;
+	align-items: center;
+	-webkit-align-items: center;
+}
+/**
+ * 替换actdiv该css上述css为IE不兼容
+ */
+.mainbodycss {
+	height : 100%;
+	width : 100%;
+	position: absolute;
+	left: 50px;
+
+}
+.contentbg1,.contentbg2,.contentbg3{
+	float: left;
+		margin-right: 15%;
+}
+.contentbg1 {
+	background-image: url(../images/contentbg4.png);
+	background-repeat: no-repeat;
+	background-position: center center;
+	width: 300px;
+	height: 356px;
+}
+
+.contentbg2 {
+	background-image: url(../images/contentbg5.png);
+	background-repeat: no-repeat;
+	background-position: center center;
+	width: 300px;
+	height: 356px;
+}
+
+.contentbg3 {
+	background-image: url(../images/contentbg6.png);
+	background-repeat: no-repeat;
+	background-position: center center;
+	width: 300px;
+	height: 356px;
+}
+
+.contentli {
+	background-image: url(../images/divide.png);
+	background-repeat: no-repeat;
+	background-position: right bottom;
+	min-height: 42px;
+	/*margin-bottom: 16px;*/
+	border-bottom: 1px solid rgba(240, 240, 240, 0);
+}
+
+.title {
+	font-weight: bold;
+	font-size: 12px;
+	color: black;
+	margin-bottom: 6px;
+	margin-left: 10px;
+}
+
+.fontstyle {
+	font-size: 11px;
+	font-weight: 300;
+	color: #afaeae;
+	text-overflow: ellipsis;
+	-webkit-line-clamp: 1;
+	line-clamp: 1;
+	word-break: break-all;
+	margin-bottom: 6px;
+	margin-left: 10px;
+}
+
+.cimg {
+	margin-bottom: 3px;
+	margin-left: 208px;
+}
+
+.contentposition {
+	margin-top: 168px;
+	margin-left: 22px;
+	margin-bottom: 10px;
+	width: 278px;
+	height: 189px;
+	padding-top: 168px;
+}
+

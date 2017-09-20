@@ -63,7 +63,6 @@ public class AuthorityGroup implements Serializable{
 		return AuthorityGroup.sqlSessionFactory;
 	}
 	
-	
 	public String save() {
 		SqlSession session = getRepository().openSession();
 		try {
@@ -79,6 +78,7 @@ public class AuthorityGroup implements Serializable{
 		}
 		return this.id;
 	}
+	
 	public void remove() {
 		SqlSession session = getRepository().openSession();
 		try {
@@ -109,101 +109,81 @@ public class AuthorityGroup implements Serializable{
 		}
 	}
 
-
 	public String getId() {
 		return id;
 	}
-
 
 	public void setId(String id) {
 		this.id = id;
 	}
 
-
 	public String getName() {
 		return name;
 	}
-
 
 	public void setName(String name) {
 		this.name = name;
 	}
 
-
 	public Long getDynamicPageId() {
 		return dynamicPageId;
 	}
-
 
 	public void setDynamicPageId(Long dynamicPageId) {
 		this.dynamicPageId = dynamicPageId;
 	}
 
-
 	public Long getSystemId() {
 		return systemId;
 	}
-
 
 	public void setSystemId(Long systemId) {
 		this.systemId = systemId;
 	}
 
-
 	public Long getCreater() {
 		return creater;
 	}
-
 
 	public void setCreater(Long creater) {
 		this.creater = creater;
 	}
 
-
 	public Date getCreateTime() {
 		return createTime;
 	}
-
 
 	public void setCreateTime(Date createTime) {
 		this.createTime = createTime;
 	}
 
-
 	public Long getLastupdater() {
 		return lastupdater;
 	}
-
 
 	public void setLastupdater(Long lastupdater) {
 		this.lastupdater = lastupdater;
 	}
 
-
 	public Date getLastupdateTime() {
 		return lastupdateTime;
 	}
-
 
 	public void setLastupdateTime(Date lastupdateTime) {
 		this.lastupdateTime = lastupdateTime;
 	}
 
-
 	public String getOrder() {
 		return order;
 	}
-
 
 	public void setOrder(String order) {
 		this.order = order;
 	}
 
-
 	public String getDescription() {
 		return description;
 	}
-
 
 	public void setDescription(String description) {
 		this.description = description;

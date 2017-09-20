@@ -1,56 +1,45 @@
-/*    */ package org.szcloud.framework.core.domain.internal;
-/*    */ 
-/*    */ import org.szcloud.framework.core.domain.QueryCriterion;
-/*    */ import org.szcloud.framework.core.domain.QueryException;
-/*    */ import org.apache.commons.lang3.StringUtils;
-/*    */ import org.apache.commons.lang3.builder.EqualsBuilder;
-/*    */ import org.apache.commons.lang3.builder.HashCodeBuilder;
-/*    */ 
-/*    */ public class LeCriterion
-/*    */   implements QueryCriterion
-/*    */ {
-/*    */   private String propName;
-/*    */   private Comparable<?> value;
-/*    */ 
-/*    */   public LeCriterion(String propName, Comparable<?> value)
-/*    */   {
-/* 18 */     if (StringUtils.isEmpty(propName)) {
-/* 19 */       throw new QueryException("Property name is null!");
-/*    */     }
-/* 21 */     this.propName = propName;
-/* 22 */     this.value = value;
-/*    */   }
-/*    */ 
-/*    */   public String getPropName() {
-/* 26 */     return this.propName;
-/*    */   }
-/*    */ 
-/*    */   public Comparable<?> getValue() {
-/* 30 */     return this.value;
-/*    */   }
-/*    */ 
-/*    */   public boolean equals(Object other)
-/*    */   {
-/* 35 */     if (this == other)
-/* 36 */       return true;
-/* 37 */     if (!(other instanceof LeCriterion))
-/* 38 */       return false;
-/* 39 */     LeCriterion castOther = (LeCriterion)other;
-/* 40 */     return new EqualsBuilder().append(getPropName(), castOther.getPropName()).append(this.value, castOther.value).isEquals();
-/*    */   }
-/*    */ 
-/*    */   public int hashCode()
-/*    */   {
-/* 47 */     return new HashCodeBuilder(17, 37).append(getPropName()).append(this.value).toHashCode();
-/*    */   }
-/*    */ 
-/*    */   public String toString()
-/*    */   {
-/* 52 */     return getPropName() + " <= " + this.value;
-/*    */   }
-/*    */ }
+package org.szcloud.framework.core.domain.internal;
 
-/* Location:           C:\Users\Administrator\Desktop\dayatang-commons-domain-3.5.jar
- * Qualified Name:     org.szcloud.framework.core.domain.internal.LeCriterion
- * JD-Core Version:    0.6.2
- */
+import org.szcloud.framework.core.domain.QueryCriterion;
+import org.szcloud.framework.core.domain.QueryException;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
+public class LeCriterion implements QueryCriterion{
+	private String propName;
+	private Comparable<?> value;
+
+	public LeCriterion(String propName, Comparable<?> value){
+		if (StringUtils.isEmpty(propName)) {
+			throw new QueryException("Property name is null!");
+		}
+		this.propName = propName;
+		this.value = value;
+	}
+
+	public String getPropName() {
+		return this.propName;
+	}
+
+	public Comparable<?> getValue() {
+		return this.value;
+	}
+
+	public boolean equals(Object other) {
+		if (this == other)
+			return true;
+		if (!(other instanceof LeCriterion))
+			return false;
+		LeCriterion castOther = (LeCriterion)other;
+		return new EqualsBuilder().append(getPropName(), castOther.getPropName()).append(this.value, castOther.value).isEquals();
+	}
+
+	public int hashCode(){
+		return new HashCodeBuilder(17, 37).append(getPropName()).append(this.value).toHashCode();
+	}
+
+	public String toString(){
+		return getPropName() + " <= " + this.value;
+	}
+}

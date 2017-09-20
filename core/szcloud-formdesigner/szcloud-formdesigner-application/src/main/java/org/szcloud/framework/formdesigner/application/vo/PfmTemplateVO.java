@@ -7,6 +7,7 @@ public class PfmTemplateVO{
 	private String description;
 	private String fileLocation;
 	private String content;
+	
 	public PfmTemplateVO(){
 	}
 
@@ -21,6 +22,7 @@ public class PfmTemplateVO{
 	public Long getId() {
 		return this.id;
 	}
+	
 	public void setFileName(String value) {
 		this.fileName = value;
 	}
@@ -28,6 +30,7 @@ public class PfmTemplateVO{
 	public String getFileName() {
 		return this.fileName;
 	}
+	
 	public void setSysId(Long value) {
 		this.sysId = value;
 	}
@@ -35,6 +38,7 @@ public class PfmTemplateVO{
 	public Long getSysId() {
 		return this.sysId;
 	}
+	
 	public void setDescription(String value) {
 		this.description = value;
 	}
@@ -42,6 +46,7 @@ public class PfmTemplateVO{
 	public String getDescription() {
 		return this.description;
 	}
+	
 	public void setFileLocation(String value) {
 		this.fileLocation = value;
 	}
@@ -57,7 +62,6 @@ public class PfmTemplateVO{
 	public void setContent(String content) {
 		this.content = content;
 	}
-
 	
 }
 

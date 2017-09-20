@@ -13,7 +13,6 @@ import java.util.Map.Entry;
 
 import org.szcloud.framework.metadesigner.core.generator.GeneratorProperties;
 
-
 public class PropertiesHelper {
 	boolean isSearchSystemProperty = false;
 	Properties p;
@@ -116,6 +115,7 @@ public class PropertiesHelper {
 	}
 	
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static String[] loadAllPropertiesFromClassLoader(Properties properties,String... resourceNames) throws IOException {
 		List successLoadProperties = new ArrayList();
 		for(String resourceName : resourceNames) {

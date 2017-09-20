@@ -7,9 +7,11 @@ import org.szcloud.framework.metadesigner.core.generator.util.ListHashtable;
  * 
  */
 public class ForeignKeys  implements java.io.Serializable{
-	
+
+	private static final long serialVersionUID = 3809613363362536582L;
 	protected Table parentTable;  //宿主表
 	protected ListHashtable associatedTables;
+	
 	/**
 	 * Constructor for Foreign Keys
 	 */
@@ -18,6 +20,7 @@ public class ForeignKeys  implements java.io.Serializable{
 		parentTable      = aTable;
 		associatedTables = new ListHashtable();
 	}
+	
 	/**
 	 * @param tableName
 	 * @param columnName
@@ -39,7 +42,6 @@ public class ForeignKeys  implements java.io.Serializable{
 		 
 		tbl.addColumn(columnName, parentColumn, seq);
 	}
-	
 
 	/**
 	 * @return Returns the associatedTables.
@@ -47,9 +49,11 @@ public class ForeignKeys  implements java.io.Serializable{
 	public ListHashtable getAssociatedTables() {
 		return associatedTables;
 	}
+	
 	public int getSize() {
 		return getAssociatedTables().size();
 	}
+	
 	public boolean getHasImportedKeyColumn(String aColumn) {
 		boolean isFound = false;
 		int numKeys = getAssociatedTables().size();
@@ -62,6 +66,7 @@ public class ForeignKeys  implements java.io.Serializable{
 		}
 		return isFound;
 	}
+	
 	public ForeignKey getAssociatedTable(String name) {
 		Object fkey = getAssociatedTables().get(name);
 		if (fkey != null) {
@@ -69,12 +74,14 @@ public class ForeignKeys  implements java.io.Serializable{
 		}
 		else return null;
 	}
+	
 	/**
 	 * @return Returns the parentTable.
 	 */
 	public Table getParentTable() {
 		return parentTable;
 	}
+	
 	public boolean getHasImportedKeyParentColumn(String aColumn) {
 		boolean isFound = false;
 		int numKeys = getAssociatedTables().size();
@@ -87,6 +94,7 @@ public class ForeignKeys  implements java.io.Serializable{
 		}
 		return isFound;
 	}
+	
 	public ForeignKey getImportedKeyParentColumn(String aColumn) {
 		ForeignKey aKey = null;
 		int numKeys = getAssociatedTables().size();

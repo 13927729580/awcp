@@ -6,10 +6,10 @@ import java.lang.reflect.Method;
 import org.szcloud.framework.metadesigner.core.generator.util.typemapping.ActionScriptDataTypesUtils;
 import org.szcloud.framework.metadesigner.core.generator.util.typemapping.JavaPrimitiveTypeMapping;
 
-
 public class JavaProperty {
-	PropertyDescriptor propertyDescriptor;
-	JavaClass clazz; //与property相关联的class
+	private PropertyDescriptor propertyDescriptor;
+	private JavaClass clazz; //与property相关联的class
+	
 	public JavaProperty(PropertyDescriptor pd, JavaClass javaClass) {
 		this.propertyDescriptor = pd;
 		this.clazz = javaClass;
@@ -77,7 +77,8 @@ public class JavaProperty {
             }
         }
 
-        public static boolean isPk(Method readMethod) {
+        @SuppressWarnings("unchecked")
+		public static boolean isPk(Method readMethod) {
             if (isJPAClassAvaiable) {
                 if (readMethod != null && readMethod.isAnnotationPresent(classForName("javax.persistence.Id"))) {
                     return true;
@@ -86,7 +87,8 @@ public class JavaProperty {
             return false;
         }
 
-        private static Class classForName(String clazz)  {
+        @SuppressWarnings("rawtypes")
+		private static Class classForName(String clazz)  {
             try {
                 return Class.forName(clazz);
             } catch (ClassNotFoundException e) {

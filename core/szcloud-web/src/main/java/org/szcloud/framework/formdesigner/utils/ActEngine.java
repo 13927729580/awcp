@@ -172,24 +172,17 @@ public class ActEngine {
 						/*
 						 * ResultVO resultVO = null; try { resultVO =
 						 * workflowProcessService.startProcessInstancebyUser(
-						 * user.getUserId().toString(), processDefinationId,
-						 * workflowParams); if(resultVO.isSuccess){
-						 * processInstanceId = resultVO.errorDescription;
+						 * user.getUserId().toString(), processDefinationId, workflowParams);
+						 * if(resultVO.isSuccess){ processInstanceId = resultVO.errorDescription;
 						 * docVo.setInstanceId(processInstanceId);
-						 * docVo.setLastmodifier(String.valueOf(user.getUserId()
-						 * ));
-						 * docVo.setAuditUser(String.valueOf(user.getUserId()));
-						 * List<Task> task =
-						 * workflowProcessService.findTasksByInstanceId(
-						 * processInstanceId); if (task != null && task.size() >
-						 * 0) { // 设置nodeId
+						 * docVo.setLastmodifier(String.valueOf(user.getUserId() ));
+						 * docVo.setAuditUser(String.valueOf(user.getUserId())); List<Task> task =
+						 * workflowProcessService.findTasksByInstanceId( processInstanceId); if (task !=
+						 * null && task.size() > 0) { // 设置nodeId
 						 * docVo.setNodeId(task.get(0).getTaskDefinitionKey());
-						 * docVo.setTaskId(task.get(0).getId());
-						 * docVo.setWorkflowId(task.get(0).
-						 * getProcessDefinitionId()); } // 设置doc 记录为草稿状态
-						 * docVo.setState("草稿"); // 最后修改时间
-						 * docVo.setLastmodified(new
-						 * Date(System.currentTimeMillis())); } } catch
+						 * docVo.setTaskId(task.get(0).getId()); docVo.setWorkflowId(task.get(0).
+						 * getProcessDefinitionId()); } // 设置doc 记录为草稿状态 docVo.setState("草稿"); // 最后修改时间
+						 * docVo.setLastmodified(new Date(System.currentTimeMillis())); } } catch
 						 * (Exception e) { logger.info("ERROR", e); }
 						 */
 					}
@@ -215,8 +208,7 @@ public class ActEngine {
 
 	/**
 	 * 
-	 * @Title: executeDelete @Description: 执行删除动作的默认操作 @return String
-	 *         执行结果 @throws
+	 * @Title: executeDelete @Description: 执行删除动作的默认操作 @return String 执行结果 @throws
 	 */
 	public void delete() {
 		PunUserBaseInfoVO user = (PunUserBaseInfoVO) Tools.getObjectFromSession(SessionContants.CURRENT_USER);
@@ -258,7 +250,7 @@ public class ActEngine {
 	 *         String @throws
 	 */
 	public String executeSaveWithWorkflow() {
-		DocumentUtils docUtil = new DocumentUtils(docVo, pageVO);
+		DocumentUtils docUtil = DocumentUtils.getIntance();
 		/*
 		 * for(Iterator<String> it = doc.getParams().keySet().iterator();
 		 * it.hasNext();){ docUtil.saveData(it.next()); }

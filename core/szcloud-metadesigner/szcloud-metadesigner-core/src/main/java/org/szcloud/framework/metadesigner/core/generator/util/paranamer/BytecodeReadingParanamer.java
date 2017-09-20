@@ -1,4 +1,3 @@
-
 package org.szcloud.framework.metadesigner.core.generator.util.paranamer;
 
 import java.io.IOException;
@@ -10,12 +9,12 @@ import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 
-
-
 public class BytecodeReadingParanamer implements Paranamer {
 
     private static final Map<String, String> primitives = new HashMap<String, String>() {
-        {
+		private static final long serialVersionUID = 5533935117234175293L;
+
+		{
             put("int","I");
             put("boolean","Z");
             put("char","C");
@@ -476,7 +475,8 @@ public class BytecodeReadingParanamer implements Paranamer {
          *
          * @param classVisitor the visitor that must visit this class.
          */
-        private void accept(final TypeCollector classVisitor) {
+        @SuppressWarnings("unused")
+		private void accept(final TypeCollector classVisitor) {
             char[] c = new char[maxStringLength]; // buffer used to read strings
             int i, j, k; // loop variables
             int u, v, w; // indexes in b

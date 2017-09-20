@@ -1,4 +1,3 @@
-
 package org.szcloud.framework.metadesigner.core.generator.util.paranamer;
 
 import java.lang.reflect.Constructor;
@@ -6,7 +5,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.AccessibleObject;
-
 
 public class DefaultParanamer implements Paranamer {
 
@@ -84,11 +82,6 @@ public class DefaultParanamer implements Paranamer {
     private static String getParameterListResource(Class<?> declaringClass) {
         try {
             Field field = declaringClass.getDeclaredField("__PARANAMER_DATA");
-            // TODO create acc test which finds field?
-            // TODO create acc test which does not find field?
-            // TODO create acc test what to do with private? access anyway?
-            // TODO create acc test with non static field?
-            // TODO create acc test with another type of field?
             if(!Modifier.isStatic(field.getModifiers()) || !field.getType().equals(String.class)) {
                 return null;
             }

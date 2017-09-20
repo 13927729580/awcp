@@ -4,13 +4,11 @@
  */
 package org.szcloud.framework.metadesigner.core.generator.provider.db.table.model;
 
-
 import java.util.List;
 
 import org.szcloud.framework.metadesigner.core.generator.provider.db.table.TableFactory;
 import org.szcloud.framework.metadesigner.core.generator.util.ListHashtable;
 import org.szcloud.framework.metadesigner.core.generator.util.StringHelper;
-
 
 /**
  * @author caoyong
@@ -18,7 +16,7 @@ import org.szcloud.framework.metadesigner.core.generator.util.StringHelper;
  */
 public class ForeignKey implements java.io.Serializable{
 
-	
+	private static final long serialVersionUID = -3320309703881680351L;
 	protected String   relationShip   = null;
 	protected String   firstRelation  = null;
 	protected String   secondRelation = null;
@@ -59,6 +57,7 @@ public class ForeignKey implements java.io.Serializable{
 	public String getTableName() {
 		return tableName;
 	}
+	
 	public String getParentTableName() {
 		return parentTable.getSqlName();
 	}
@@ -70,22 +69,22 @@ public class ForeignKey implements java.io.Serializable{
 		columns.put(seq, col);
 		parentColumns.put(seq,parentCol);
 	}
+	
 	public String getColumn(String parentCol) {
 		// return the associated column given the parent column
 		Object key = parentColumns.getKeyForValue(parentCol);
 		String col = (String) columns.get(key);
-		//logger.debug("get Column for" +parentCol);
-		//logger.debug("key = "+key);
-		//logger.debug("col="+col);
-		//logger.debug("ParentColumns = "+parentColumns.toString());
 		return col;
 	}
+	
 	public ListHashtable getColumns() {
 		return columns;
 	}
+	
 	/**
 	 * 
 	 */
+	@SuppressWarnings("deprecation")
 	private void initRelationship() {
 		firstRelation   = "";
 		secondRelation  = "";
@@ -95,8 +94,8 @@ public class ForeignKey implements java.io.Serializable{
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		List parentPrimaryKeys    = parentTable.getPrimaryKeyColumns();
-		List foreignPrimaryKeys   = foreignTable.getPrimaryKeyColumns();
+		List<Column> parentPrimaryKeys  = parentTable.getPrimaryKeyColumns();
+		List<Column> foreignPrimaryKeys = foreignTable.getPrimaryKeyColumns();
 		
 		if (hasAllPrimaryKeys(parentPrimaryKeys,parentColumns))
 			firstRelation = "one";
@@ -111,7 +110,8 @@ public class ForeignKey implements java.io.Serializable{
 		relationShip = firstRelation + "-to-" + secondRelation;
 		 
 	}
-	private boolean hasAllPrimaryKeys(List pkeys, ListHashtable cols) {
+	
+	private boolean hasAllPrimaryKeys(List<Column> pkeys, ListHashtable cols) {
 		boolean hasAll = true;
 		// if size is not equal then false
 		int numKeys = pkeys.size();
@@ -119,7 +119,7 @@ public class ForeignKey implements java.io.Serializable{
 			return false;
 		
 		for (int i=0;i<numKeys;i++) {
-			Column col = (Column) pkeys.get(i);
+			Column col = pkeys.get(i);
 			String colname = col.getColumnName();
 			if (!cols.contains(colname))
 				return false;
@@ -127,9 +127,9 @@ public class ForeignKey implements java.io.Serializable{
 		
 		return hasAll;
 	}
+	
 	public boolean isParentColumnsFromPrimaryKey() {
 		boolean isFrom = true;
-		List keys = parentTable.getPrimaryKeyColumns();
 		int numKeys = getParentColumns().size();
 		for (int i=0;i<numKeys;i++) {
 			String pcol = (String) getParentColumns().getOrderedValue(i);
@@ -140,6 +140,8 @@ public class ForeignKey implements java.io.Serializable{
 		}
 		return  isFrom;
 	}
+	
+	@SuppressWarnings("deprecation")
 	private boolean primaryKeyHasColumn(String aColumn) {
 		boolean isFound = false;
 		int numKeys = parentTable.getPrimaryKeyColumns().size();
@@ -153,12 +155,14 @@ public class ForeignKey implements java.io.Serializable{
 		}
 		return isFound;
 	}
+	
+	@SuppressWarnings("unchecked")
 	public boolean getHasImportedKeyColumn(String aColumn) {
 		boolean isFound = false;
-		List cols = getColumns().getOrderedValues();
+		List<String> cols = getColumns().getOrderedValues();
 		int numCols = cols.size();
 		for (int i=0;i<numCols;i++) {
-			String col = (String) cols.get(i);
+			String col = cols.get(i);
 			if (col.equals(aColumn)) {
 				isFound = true;
 				break;
@@ -166,6 +170,7 @@ public class ForeignKey implements java.io.Serializable{
 		}
 		return  isFound;
 	}
+	
 	/**
 	 * @return Returns the firstRelation.
 	 */
@@ -174,6 +179,7 @@ public class ForeignKey implements java.io.Serializable{
 			initRelationship();
 		return firstRelation;
 	}
+	
 	public Table getSqlTable() {
 		Table table = null;
 		try {
@@ -183,12 +189,14 @@ public class ForeignKey implements java.io.Serializable{
 		}
 		return table;
 	}
+	
 	/**
 	 * @return Returns the parentTable.
 	 */
 	public Table getParentTable() {
 		return parentTable;
 	}
+	
 	/**
 	 * @return Returns the relationShip.
 	 */
@@ -197,6 +205,7 @@ public class ForeignKey implements java.io.Serializable{
 			initRelationship();
 		return relationShip;
 	}
+	
 	/**
 	 * @return Returns the secondRelation.
 	 */
@@ -205,6 +214,7 @@ public class ForeignKey implements java.io.Serializable{
 			initRelationship();
 		return secondRelation;
 	}
+	
 	/**
 	 * @return Returns the parentColumns.
 	 */
@@ -212,10 +222,10 @@ public class ForeignKey implements java.io.Serializable{
 		return parentColumns;
 	}
 
-	public boolean getHasImportedKeyParentColumn(String aColumn) {
-		
+	@SuppressWarnings("unchecked")
+	public boolean getHasImportedKeyParentColumn(String aColumn) {		
 		boolean isFound = false;
-		List cols = getParentColumns().getOrderedValues();
+		List<String> cols = getParentColumns().getOrderedValues();
 		int numCols = cols.size();
 		for (int i=0;i<numCols;i++) {
 			String col = (String) cols.get(i);
@@ -233,6 +243,7 @@ public class ForeignKey implements java.io.Serializable{
 	 *
 	 */
 	public static class ReferenceKey implements java.io.Serializable{
+		private static final long serialVersionUID = -7628502300682445877L;
 		public String schemaName;
 		public String tableName;
 		public String columnSqlName;

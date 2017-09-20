@@ -4,7 +4,6 @@ import org.szcloud.framework.formdesigner.core.domain.design.context.component.S
 
 public class ColumnComponent extends SimpleComponent{
 
-	
 	/**
 	 * 
 	 */
@@ -17,20 +16,13 @@ public class ColumnComponent extends SimpleComponent{
 	//脚本：脚本框
 	//操作：操作名称、操作类型
 	//图标：选择图标
-	
 	private int valueType;  //值类型  1：真实值  2： 显示值 (列类型为1数据时才用)
-	
 	private String scriptStr; //值脚本  (列类型为2脚本时才用)
-	
 	private String operationName; //操作名称		(列类型为3操作时才用)
-	private int operationType; //操作类型 (1:删除 2：提交流程 3：模板表单)
-	
-	private int listLength;
-	
+	private int operationType; //操作类型 (1:删除 2：提交流程 3：模板表单)	
+	private int listLength;	
 	private String iconLoc;   //图标路径
-	
 	private int orderType;  //排序方式 1：不排序     2：升序      3：降序
-	
 //	private boolean isProReturn;    //流程回退标识
 //	private boolean isSum;			//是否汇总
 	private int listAll; 		//是否显示所有	1：显示所有 2：显示部分
@@ -38,7 +30,6 @@ public class ColumnComponent extends SimpleComponent{
 	private int isVisible;		//是否可见 //TODO 待定 1为可见 为空则不可见
 	private Integer order;
 	
-
 	public Long getColumnType() {
 		return columnType;
 	}
@@ -47,13 +38,10 @@ public class ColumnComponent extends SimpleComponent{
 		this.columnType = columnType;
 	}
 
-
 	@Override
 	public String getKeyString() {
-		// TODO Auto-generated method stub
 		return null;
 	}
-
 
 	public String getWidth() {
 		return width;
@@ -150,7 +138,13 @@ public class ColumnComponent extends SimpleComponent{
 	public void setOrder(Integer order) {
 		this.order = order;
 	}
-	
-	
+
+	@Override
+	public String toString() {
+		return "ColumnComponent [width=" + width + ", columnType=" + columnType + ", valueType=" + valueType
+				+ ", scriptStr=" + scriptStr + ", operationName=" + operationName + ", operationType=" + operationType
+				+ ", listLength=" + listLength + ", iconLoc=" + iconLoc + ", orderType=" + orderType + ", listAll="
+				+ listAll + ", isTitle=" + isTitle + ", isVisible=" + isVisible + ", order=" + order + "]";
+	}
 
 }

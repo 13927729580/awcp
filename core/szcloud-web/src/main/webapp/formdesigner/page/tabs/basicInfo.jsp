@@ -158,6 +158,16 @@
 	</div>
 </div>	
 <div class="form-group">
+	<label class="col-md-1 control-label">所属模块</label>
+    <div class='col-md-4'> 
+    	<select name='modular' id='modular' class='form-control'>
+    		<c:forEach var="modular"   items="${modulars }">
+    			<option value="${modular.ID }">${modular.modularName }</option>
+    		</c:forEach>
+    	</select>   
+	</div>
+</div>
+<div class="form-group">
 	<label class="col-md-1 control-label">pdf打印最小条数</label>
        <div class="col-md-4">
 		<input type='text' name='minLineCount' id='minLineCount' value="${vo.minLineCount}"	class='form-control' />

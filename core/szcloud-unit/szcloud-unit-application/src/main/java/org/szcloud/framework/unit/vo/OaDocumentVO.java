@@ -241,4 +241,15 @@ public class OaDocumentVO{
     public void setRemark(String remark) {
         this.remark = remark;
     }
+
+	@Override
+	public String toString() {
+		return "OaDocumentVO [id=" + id + ", type=" + type + ", title=" + title + ", degree=" + degree + ", level="
+				+ level + ", wordSize=" + wordSize + ", kind=" + kind + ", mainSend=" + mainSend + ", copyTo=" + copyTo
+				+ ", body=" + body + ", attachment=" + attachment + ", theme=" + theme + ", makeNum=" + makeNum
+				+ ", content=" + content + ", printNum=" + printNum + ", auditor=" + auditor + ", comment=" + comment
+				+ ", createDate=" + createDate + ", modifyDate=" + modifyDate + ", creator=" + creator + ", modifier="
+				+ modifier + ", remark=" + remark + "]";
+	}
+    
 }

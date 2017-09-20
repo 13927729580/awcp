@@ -18,9 +18,9 @@ import org.szcloud.framework.metadesigner.core.generator.util.StringHelper;
  * @author caoyong
  */
 public class Table implements java.io.Serializable, Cloneable {
-	/**
-	 * 日志对象
-	 */
+
+	private static final long serialVersionUID = 6644411674522810669L;
+	//日志对象
 	private static final Logger logger = LoggerFactory.getLogger(Table.class);
 	String sqlName;
 	String remarks;
@@ -130,10 +130,6 @@ public class Table implements java.io.Serializable, Cloneable {
 	public String getClassName() {
 		if (StringHelper.isBlank(className)) {
 			String removedPrefixSqlName = removeTableSqlNamePrefix(sqlName);
-			// String[] temp = removedPrefixSqlName.split("_");
-			// String newClassName = temp[temp.length -1];
-			// return
-			// StringHelper.makeAllWordFirstLetterUpperCase(StringHelper.toUnderscoreName(newClassName));
 			return StringHelper.makeAllWordFirstLetterUpperCase(StringHelper.toUnderscoreName(removedPrefixSqlName));
 		} else {
 			return className;
@@ -185,7 +181,6 @@ public class Table implements java.io.Serializable, Cloneable {
 	 */
 	public String getClassNameBo() {
 		String _className = getClassName();
-
 		for (int i = 1; i < _className.length(); i++) {
 			char c = _className.charAt(i);
 			if (Character.isUpperCase(c)) {
@@ -254,7 +249,7 @@ public class Table implements java.io.Serializable, Cloneable {
 	 * 
 	 * @deprecated
 	 */
-	public List getCompositeIdColumns() {
+	public List<Column> getCompositeIdColumns() {
 		return getPkColumns();
 	}
 
@@ -264,10 +259,11 @@ public class Table implements java.io.Serializable, Cloneable {
 	 * @return
 	 */
 	public List<Column> getPkColumns() {
-		List results = new ArrayList();
+		List<Column> results = new ArrayList<Column>();
 		for (Column c : getColumns()) {
-			if (c.isPk())
+			if (c.isPk()){
 				results.add(c);
+			}
 		}
 		return results;
 	}
@@ -278,10 +274,11 @@ public class Table implements java.io.Serializable, Cloneable {
 	 * @return
 	 */
 	public List<Column> getNotPkColumns() {
-		List results = new ArrayList();
+		List<Column> results = new ArrayList<Column>();
 		for (Column c : getColumns()) {
-			if (!c.isPk())
+			if (!c.isPk()){
 				results.add(c);
+			}
 		}
 		return results;
 	}
@@ -301,10 +298,11 @@ public class Table implements java.io.Serializable, Cloneable {
 	}
 
 	public List<Column> getEnumColumns() {
-		List results = new ArrayList();
+		List<Column> results = new ArrayList<Column>();
 		for (Column c : getColumns()) {
-			if (!c.isEnumColumn())
+			if (!c.isEnumColumn()){
 				results.add(c);
+			}
 		}
 		return results;
 	}
@@ -341,7 +339,7 @@ public class Table implements java.io.Serializable, Cloneable {
 	 * @return
 	 */
 	public List<Column> getIgnoreKeywordsColumns(String ignoreKeywords) {
-		List results = new ArrayList();
+		List<Column> results = new ArrayList<Column>();
 		for (Column c : getColumns()) {
 			String sqlname = c.getSqlName().toLowerCase();
 			if (StringHelper.contains(sqlname, ignoreKeywords.split(","))) {
@@ -356,15 +354,10 @@ public class Table implements java.io.Serializable, Cloneable {
 	 * This method was created in VisualAge.
 	 */
 	public void initImportedKeys(DatabaseMetaData dbmd) throws java.sql.SQLException {
-
-		// get imported keys a
-
 		ResultSet fkeys = dbmd.getImportedKeys(catalog, schema, this.sqlName);
-
 		while (fkeys.next()) {
 			String pktable = fkeys.getString(PKTABLE_NAME);
 			String pkcol = fkeys.getString(PKCOLUMN_NAME);
-			String fktable = fkeys.getString(FKTABLE_NAME);
 			String fkcol = fkeys.getString(FKCOLUMN_NAME);
 			String seq = fkeys.getString(KEY_SEQ);
 			Integer iseq = new Integer(seq);
@@ -377,12 +370,8 @@ public class Table implements java.io.Serializable, Cloneable {
 	 * This method was created in VisualAge.
 	 */
 	public void initExportedKeys(DatabaseMetaData dbmd) throws java.sql.SQLException {
-		// get Exported keys
-
 		ResultSet fkeys = dbmd.getExportedKeys(catalog, schema, this.sqlName);
-
 		while (fkeys.next()) {
-			String pktable = fkeys.getString(PKTABLE_NAME);
 			String pkcol = fkeys.getString(PKCOLUMN_NAME);
 			String fktable = fkeys.getString(FKTABLE_NAME);
 			String fkcol = fkeys.getString(FKCOLUMN_NAME);

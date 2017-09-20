@@ -6,9 +6,7 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.sql.Date;
 import java.text.DecimalFormat;
-import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
@@ -56,13 +54,13 @@ import org.szcloud.framework.formdesigner.application.vo.DynamicPageVO;
 import org.szcloud.framework.formdesigner.application.vo.PageActVO;
 import org.szcloud.framework.formdesigner.application.vo.StoreVO;
 import org.szcloud.framework.formdesigner.core.domain.DynamicPage;
-import org.szcloud.framework.formdesigner.core.domain.design.context.act.PageAct;
 import org.szcloud.framework.formdesigner.core.domain.design.context.data.DataDefine;
 import org.szcloud.framework.formdesigner.core.engine.FreeMarkers;
 import org.szcloud.framework.formdesigner.core.parse.bean.PageDataBeanWorker;
 import org.szcloud.framework.formdesigner.engine.util.VirtualRequest;
 import org.szcloud.framework.formdesigner.utils.DocUtils;
 import org.szcloud.framework.formdesigner.utils.DocumentUtils;
+import org.szcloud.framework.formdesigner.utils.PageBindUtil;
 import org.szcloud.framework.formdesigner.utils.ScriptEngineUtils;
 import org.szcloud.framework.metadesigner.application.MetaModelOperateService;
 import org.szcloud.framework.unit.vo.PunUserBaseInfoVO;
@@ -124,8 +122,8 @@ public class DocumentController extends BaseController {
 	/**
 	 *
 	 * 读取参数，如dynamicPageId、recordId等（SpringMVC已经帮忙做了） 校验参数 收集额外参数到Map中
-	 * 根据参数Map和脚本环境，解析出sql语句，根据sql语句查询数据 根据数据初始化各组件的状态(各个脚本包括选项脚本) 读取模版 模版+数据+状态
-	 * = 输出 只针对单数据源的？
+	 * 根据参数Map和脚本环境，解析出sql语句，根据sql语句查询数据 根据数据初始化各组件的状态(各个脚本包括选项脚本) 读取模版 模版+数据+状态 =
+	 * 输出 只针对单数据源的？
 	 *
 	 * @param id
 	 * @param dynamicPageId
@@ -199,12 +197,9 @@ public class DocumentController extends BaseController {
 			}
 			logger.debug("start init request parameters ");
 			Map<String, String> map = new HashMap<String, String>();
-			Enumeration enumeration = request.getParameterNames();
-			for (; enumeration.hasMoreElements();) {
-				Object o = enumeration.nextElement();
-				String name = o.toString();
-				String[] values = request.getParameterValues(name);
-				map.put(o.toString(), StringUtils.join(values, ";"));
+			Map<String, String[]> parameterMap = request.getParameterMap();
+			for (String key : parameterMap.keySet()) {
+				map.put(key, StringUtils.join(parameterMap.get(key), ";"));
 			}
 			logger.debug("end init request parameters ");
 			docVo.setRequestParams(map);
@@ -223,25 +218,11 @@ public class DocumentController extends BaseController {
 			if (StringUtils.isNotBlank(request.getParameter("currentPage"))) {
 				currentPage = Integer.parseInt(request.getParameter("currentPage"));
 			}
-			/*
-			 * if(StringUtils.isNotBlank(request.getParameter("pageSize"))){
-			 * pageSize =Integer.parseInt(request.getParameter("pageSize")); }
-			 */
-			// 对用户配置的是否分页，以及每页记录条数进行解析
 			if (StringUtils.isNotBlank(request.getParameter("pageSize"))) {
-				// 如果request中有pageSize则用该pageSize
 				pageSize = Integer.parseInt(request.getParameter("pageSize"));
-			} else if (docVo.getPageSize() != null && !docVo.getPageSize().equals("")) {
-				// 否则用用户配置的默认pageSize
-				if (docVo.getIsLimitPage() != null && docVo.getIsLimitPage() == 1) {
-					pageSize = Integer.parseInt(docVo.getPageSize().toString());
-				} else {
-					// 不分页处理,则限制在1000条
-					pageSize = 1000;
-				}
 			}
-			String orderBy = docVo.getRequestParams().get("orderBy");
-			String allowOrderBy = docVo.getRequestParams().get("allowOrderBy");
+			String orderBy = map.get("orderBy");
+			String allowOrderBy = map.get("allowOrderBy");
 			docVo.setAllowOrderBy(allowOrderBy);
 			docVo.setOrderBy(orderBy);
 
@@ -255,7 +236,6 @@ public class DocumentController extends BaseController {
 					docVo, engine, pageVO);
 			logger.debug("end init engine ");
 			docVo.setListParams(dataMap);
-			engine.put("DocumentUtils", new DocumentUtils(docVo, pageVO));
 
 			/**
 			 * key: componentId value: component 相关信息
@@ -271,170 +251,16 @@ public class DocumentController extends BaseController {
 			logger.debug("end find components the size is " + components.size());
 			logger.debug("start init components status");
 			logger.debug("components : " + JSON.toJSONString(components, true));
-			if (components != null && components.size() > 0) {
-				for (int i = 0; i < components.size(); i++) {
-					JSONObject component = components.get(i);
-					logger.debug("component :  " + JSON.toJSONString(component));
-					if (component != null) {
-
-						JSONObject o = new JSONObject();
-
-						String value = DocUtils.getComponentValue(component, dataMap, engine);
-						int type = component.getIntValue("componentType");
-
-						String optionsText = null;
-						switch (type) {
-						case 1010: // 计算值、禁用
-							o.put("disabled",
-									String.valueOf(computeStatus(component.getString("disabledScript"), engine)));
-							break;
-						case 1008:// 列框
-							// if(pageVO.getPageType() == 1003) {
-							String showScript = component.getString("showScript");
-							if (StringUtils.isNotBlank(showScript)) {
-								engine.eval(showScript);
-							}
-							// }
-							// 计算列框的disabled值
-							o.put("disabled",
-									String.valueOf(computeStatus(component.getString("disabledScript"), engine)));
-							// 下面三个 计算值、隐藏
-						case 1014:
-						case 1015:
-						case 1009:
-							o.put("hidden", String.valueOf(computeStatus(component.getString("hiddenScript"), engine)));
-							o.put("isRequired", component.getString("isRequired"));
-							break;
-						case 1017:
-							o.put("hidden", String.valueOf(computeStatus(component.getString("hiddenScript"), engine)));
-							o.put("disabled",
-									String.valueOf(computeStatus(component.getString("disabledScript"), engine)));
-							break;
-						case 1006:
-							o.put("hidden", String.valueOf(computeStatus(component.getString("hiddenScript"), engine)));
-							o.put("readonly",
-									String.valueOf(computeStatus(component.getString("readonlyScript"), engine)));
-							o.put("disabled",
-									String.valueOf(computeStatus(component.getString("disabledScript"), engine)));
-							String script = component.getString("optionScript");
-							String ret = "";
-							String markerText = "";
-							if (StringUtils.isNotBlank(script)) {
-								ret = (String) engine.eval(script);
-							}
-							markerText = "<option value=\"{0}\" {1}>{2}</option>";
-							optionsText = getOptionText(ret, value, markerText);
-							// o.put("optionText", optionsText);
-							others.put(component.getString("name"), optionsText);
-							break;
-						case 1003:
-							ret = "";
-							o.put("hidden", String.valueOf(computeStatus(component.getString("hiddenScript"), engine)));
-							o.put("readonly",
-									String.valueOf(computeStatus(component.getString("readonlyScript"), engine)));
-							o.put("disabled",
-									String.valueOf(computeStatus(component.getString("disabledScript"), engine)));
-							script = component.getString("optionScript");
-							if (StringUtils.isNotBlank(script)) {
-								ret = (String) engine.eval(script);
-							}
-							markerText = "<label class='radio-inline'><input type='checkbox' name='"
-									+ component.getString("name") + "' value=\"{0}\" {1}>{2}</label>";
-							optionsText = getOptionText(ret, value, markerText);
-							// o.put("optionText", optionsText);
-							others.put(component.getString("name"), optionsText);
-							break;
-						case 1004:
-							ret = "";
-							o.put("hidden", String.valueOf(computeStatus(component.getString("hiddenScript"), engine)));
-							o.put("readonly",
-									String.valueOf(computeStatus(component.getString("readonlyScript"), engine)));
-							o.put("disabled",
-									String.valueOf(computeStatus(component.getString("disabledScript"), engine)));
-							script = component.getString("optionScript");
-							if (StringUtils.isNotBlank(script)) {
-								ret = (String) engine.eval(script);
-							}
-							markerText = "<label class='radio-inline'><input type='radio' name='"
-									+ component.getString("name") + "' value=\"{0}\" {1}>{2}</label>";
-							optionsText = getOptionText(ret, value, markerText);
-							// o.put("optionText", optionsText);
-							others.put(component.getString("name"), optionsText);
-							break;
-						case 1034:
-							o.put("hidden", String.valueOf(computeStatus(component.getString("hiddenScript"), engine)));
-							o.put("readonly",
-									String.valueOf(computeStatus(component.getString("readonlyScript"), engine)));
-							o.put("disabled",
-									String.valueOf(computeStatus(component.getString("disabledScript"), engine)));
-							script = component.getString("tab_url");
-							Object val = (String) engine.eval(script);
-							others.put(component.getString("name"), val + "");
-							break;
-						// 下面几种，只需执行同一段代码，所以没有break;计算值、隐藏、只读、禁用
-						case 1001:
-						case 1002:
-						case 1005:
-						case 1007:
-						case 1011:
-						case 1012:
-						case 1013:
-						case 1016:
-						case 1020:
-						case 1019:
-						case 1029:
-						case 1030:
-						case 1031:
-						case 1032:
-						case 1033:
-						case 1035:
-						case 1036:
-						case 1037:
-							o.put("hidden", String.valueOf(computeStatus(component.getString("hiddenScript"), engine)));
-							o.put("readonly",
-									String.valueOf(computeStatus(component.getString("readonlyScript"), engine)));
-							o.put("disabled",
-									String.valueOf(computeStatus(component.getString("disabledScript"), engine)));
-						default:
-							break;
-						}
-
-						status.put(component.getString("name"), o);
-						logger.debug(" status " + JSON.toJSONString(status.get(component.getString("name")))
-								+ "\n others " + others.get(component.getString("name")));
-
-					}
-				}
-			}
+			DocUtils.calculateCompents(docVo, others, status, components, dataMap, engine);
 			logger.debug("end init components status");
 			logger.debug("start init pageacts status");
+
 			BaseExample actExample = new BaseExample();
 			actExample.createCriteria().andEqualTo("dynamicPage_id", pageVO.getId()).andLike("code",
 					StoreService.PAGEACT_CODE + "%");
 			List<StoreVO> stores = storeServiceImpl.selectPagedByExample(actExample, 1, Integer.MAX_VALUE, null);
 			Map<String, Map<String, Object>> pageActStatus = new HashMap<String, Map<String, Object>>();
-			if (stores != null && stores.size() > 0) {
-				for (StoreVO store : stores) {
-					Map<String, Object> actState = new HashMap<String, Object>();
-					PageAct act = JSON.parseObject(store.getContent(), PageAct.class);
-					String hiddenScript = StringEscapeUtils.unescapeHtml4(act.getHiddenScript());
-					Boolean chooseValidate = act.isChooseValidate();
-					String chooseScript = StringEscapeUtils.unescapeHtml4(act.getChooseScript());
-					if (act.getActType() == 2002) {// 初始化返回按钮的返回页面ID
-						actState.put("backId", map.get("backId"));
-					}
-					// 执行隐藏脚本
-					Boolean hiddenStatus = (Boolean) engine.eval(hiddenScript);
-					actState.put("chooseValidate", chooseValidate);
-					if (chooseValidate != null && !chooseValidate.equals("")) {
-						Double chooseNum = (Double) engine.eval(chooseScript);
-						actState.put("chooseNum", chooseNum);
-					}
-
-					actState.put("hidden", hiddenStatus);
-					pageActStatus.put(act.getPageId(), actState);
-				}
-			}
+			DocUtils.calculateStores(map, stores, pageActStatus, engine, others);
 			logger.debug("end init pageacts status");
 
 			root.put("pageActStatus", pageActStatus);
@@ -459,8 +285,6 @@ public class DocumentController extends BaseController {
 					}
 				}
 			}
-			DocumentUtils docUtils = (DocumentUtils) engine.get("DocumentUtils");
-			docVo = docUtils.getCurrentDocument();
 			logger.debug("start find template");
 			String templateString = documentServiceImpl.getTemplateString(pageVO);
 			logger.debug("end find template");
@@ -479,7 +303,7 @@ public class DocumentController extends BaseController {
 			logger.debug(
 					"----------------------------------------------此处超强分割线end---------------------------------------------------");
 			Map<String, Object> sessionMap = new HashMap<String, Object>();
-			Enumeration sessionEnumeration = request.getSession().getAttributeNames();
+			Enumeration<String> sessionEnumeration = request.getSession().getAttributeNames();
 			for (; sessionEnumeration.hasMoreElements();) {
 				Object o = sessionEnumeration.nextElement();
 				String sessionName = o.toString();
@@ -502,69 +326,6 @@ public class DocumentController extends BaseController {
 		return null;
 	}
 
-	/**
-	 * 计算状态脚本
-	 * 
-	 * @param script
-	 * @param engine
-	 * @return
-	 */
-	private boolean computeStatus(String script, ScriptEngine engine) {
-		if (StringUtils.isNotBlank(script)) {
-			script = StringEscapeUtils.unescapeHtml4(script);
-			Boolean status = null;
-			try {
-				status = (Boolean) engine.eval(script);
-			} catch (ScriptException e) {
-				logger.info("ERROR", e);
-			}
-			if (status != null)
-				return status;
-		}
-		return false;
-	}
-
-	/**
-	 * 根据选项脚本和值，得到选项的html代码
-	 *
-	 * @param ret
-	 * @param value
-	 * @param markerText
-	 * @return
-	 */
-	private String getOptionText(String ret, String value, String markerText) {
-		StringBuilder sb = new StringBuilder("");
-		if (markerText != null && markerText.contains("<option")) {
-			sb.append(MessageFormat.format(markerText, "", "", ""));
-		}
-
-		if (StringUtils.isBlank(value)) {
-			value = "";
-		}
-		String[] optionStr = null;
-		if (StringUtils.isNotBlank(ret)) {
-			optionStr = ret.split("\\;");
-		}
-		String[] values = value.split(";");
-		if (optionStr != null && optionStr.length > 0) {
-			for (String str : optionStr) {
-				String[] entry = str.split("\\=");
-				if (entry != null && entry.length == 2) {
-					if (Arrays.binarySearch(values, entry[0]) > -1) {
-						sb.append(MessageFormat.format(markerText, entry[0],
-								"checked=\"checked\" selected=\"selected\"", entry[1]));
-					} else {
-						logger.debug(str);
-						sb.append(MessageFormat.format(markerText, entry[0], "", entry[1]));
-					}
-				}
-			}
-			return sb.toString();
-		} else {
-			return sb.toString();
-		}
-	}
-
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@RequestMapping(value = "/excute")
 	public ModelAndView excuteAct(HttpServletRequest request, HttpServletResponse response) throws DocumentException {
@@ -580,6 +341,7 @@ public class DocumentController extends BaseController {
 			mv.addObject("docId", docId);
 			mv.setViewName("redirect:/document/view.do");
 		}
+		DocumentUtils utils = DocumentUtils.getIntance();
 		DynamicPageVO pageVO = null;
 		if (StringUtils.isNotBlank(pageId)) {
 			pageVO = formdesignerServiceImpl.findById(Long.parseLong(pageId));
@@ -598,7 +360,7 @@ public class DocumentController extends BaseController {
 			docVo.setDynamicPageName(pageVO.getName());
 		} else if (1003 == pageVO.getPageType()) { // 列表页面
 			// 要返回的页面ID
-			DocumentUtils.putThingIntoSession("backId", pageVO.getId());
+			utils.putThingIntoSession("backId", pageVO.getId());
 		}
 
 		Map<String, String> map = new HashMap<String, String>();
@@ -645,7 +407,6 @@ public class DocumentController extends BaseController {
 			}
 		} else {
 			// 校验文档
-			DocumentUtils utils = new DocumentUtils(docVo, pageVO);
 			Integer actType = act.getActType();
 			// 根据actType 执行其默认操作
 			switch (actType) {
@@ -686,7 +447,7 @@ public class DocumentController extends BaseController {
 			case 2002:
 				// TODO 返回按钮实现
 				Long backId = null;
-				Object obt = DocumentUtils.getThingFromSession("backId");
+				Object obt = utils.getThingFromSession("backId");
 				if (obt != null) {
 					backId = (Long) obt;
 				} else {
@@ -928,7 +689,7 @@ public class DocumentController extends BaseController {
 					utils.saveDocument();
 				}
 				backId = null;
-				obt = DocumentUtils.getThingFromSession("backId");
+				obt = utils.getThingFromSession("backId");
 				if (obt != null) {
 					backId = (Long) obt;
 				} else {
@@ -973,7 +734,6 @@ public class DocumentController extends BaseController {
 				if (StringUtils.isNotBlank(script)) {
 					ScriptEngine engine = ScriptEngineUtils.getScriptEngine();
 					engine.put("request", request);
-					engine.put("DocumentUtils", new DocumentUtils());
 					String ret = null;
 					try {
 						ret = (String) engine.eval(script);
@@ -1082,13 +842,6 @@ public class DocumentController extends BaseController {
 
 	}
 
-	@RequestMapping("/getList")
-	@ResponseBody
-	public String getList(String code, String level, String value) {
-		String ret = DocumentUtils.getOptions(code, level, value);
-		return ret;
-	}
-
 	// 对于内嵌列表页面，处理ajax请求
 	@SuppressWarnings("rawtypes")
 	@ResponseBody
@@ -1171,7 +924,7 @@ public class DocumentController extends BaseController {
 			}
 		} else {
 			// 校验文档
-			DocumentUtils utils = new DocumentUtils(docVo, pageVO);
+			DocumentUtils utils = DocumentUtils.getIntance();
 			Integer actType = act.getActType();
 			// 根据actType 执行其默认操作
 			switch (actType) {
@@ -1250,18 +1003,6 @@ public class DocumentController extends BaseController {
 		return null;
 	}
 
-	public String appendURLParam(String key, Object value, String url) {
-		StringBuilder sb = new StringBuilder();
-		sb.append(url);
-		if (url.endsWith(".do")) {
-			sb.append("?");
-		} else {
-			sb.append("&");
-		}
-		sb.append(key).append("=").append(value);
-		return sb.toString();
-	}
-
 	/**
 	 * 打印
 	 * 
@@ -1329,7 +1070,6 @@ public class DocumentController extends BaseController {
 		Map<String, List<Map<String, String>>> dataMap = documentServiceImpl.initDocumentData(currentPage, pageSize,
 				docVo, engine, pageVO);
 		docVo.setListParams(dataMap);
-		engine.put("DocumentUtils", new DocumentUtils(docVo, pageVO));
 
 		JSONObject jcon = new JSONObject();
 		jcon.put("relatePageId", pageVO.getId());
@@ -1492,8 +1232,6 @@ public class DocumentController extends BaseController {
 		} else {// 导出excel动作中的sql脚本为空，则根据列表页面的数据源来导出
 			dataMap = documentServiceImpl.initDocumentData(1, MAX_EXCEL_PAGE_SIZE, docVo, engine, pageVO);
 		}
-
-		engine.put("DocumentUtils", new DocumentUtils(docVo, pageVO));
 
 		List<JSONObject> columns = new ArrayList<JSONObject>();
 		if (!StringUtils.isNotBlank(templateFileId)) {// 如果没有模板，则根据执行下面代找到所有列框，然后根据列框来导出数据
@@ -1676,7 +1414,7 @@ public class DocumentController extends BaseController {
 			}
 			Long pageId = s.getDynamicPageId();
 			DynamicPageVO pageVO = formdesignerServiceImpl.findById(pageId);
-			DocumentUtils utils = new DocumentUtils(null, pageVO);
+			DocumentUtils utils = DocumentUtils.getIntance();
 			if (_selects != null && _selects.length >= 1) {
 				for (String select : _selects) {
 					utils.deleteData(pageVO, select);
@@ -1723,7 +1461,6 @@ public class DocumentController extends BaseController {
 			ScriptEngine engine = ScriptEngineUtils.getScriptEngine();
 			DocumentVO docVo = new DocumentVO();
 			engine.put("request", request);
-			engine.put("DocumentUtils", new DocumentUtils(docVo, pageVo));
 			try {
 				PageList<Map<String, String>> pageList = documentServiceImpl.getDataListByDataDefine(dd, engine,
 						currentPage, pageSize, null);
@@ -1766,32 +1503,6 @@ public class DocumentController extends BaseController {
 				logger.info("ERROR", e);
 			}
 		}
-		return null;
-	}
-
-	@ResponseBody
-	@RequestMapping("/excuteByAjax")
-	public String excuteActByAjax(HttpServletRequest request, HttpServletResponse response) {
-		String docId = request.getParameter("docId");
-		String id = request.getParameter("id");
-		String pageId = request.getParameter("dynamicPageId");
-		String workflowId = request.getParameter("workflowId");
-		String instanceId = request.getParameter("instanceId");
-		String taskId = request.getParameter("taskId");
-		String actId = request.getParameter("actId");
-		String update = request.getParameter("update");
-		String[] _selects = request.getParameterValues("_selects");// 列表页面才能使用
-		String staticHtmlId = request.getParameter("staticHtmlId");// 用于页面静态化
-		if (StringUtils.isBlank(actId)) {
-
-		}
-		DynamicPageVO pageVO = null;
-		if (StringUtils.isNotBlank(pageId)) {
-			pageVO = formdesignerServiceImpl.findById(Long.parseLong(pageId));
-		} else {
-
-		}
-
 		return null;
 	}
 
@@ -1984,7 +1695,7 @@ public class DocumentController extends BaseController {
 
 	}
 
-	public static int getChineseNum(String context) { // /统计context中是汉字的个数
+	private int getChineseNum(String context) { // /统计context中是汉字的个数
 		int lenOfChinese = 0;
 		Pattern p = Pattern.compile("[\u4e00-\u9fa5]"); // 汉字的Unicode编码范围
 		Matcher m = p.matcher(context);
@@ -2061,23 +1772,12 @@ public class DocumentController extends BaseController {
 			Map<String, List<Map<String, String>>> dataMap = documentServiceImpl.initDocumentData(1, 10, docVo, engine,
 					pageVO);
 			docVo.setListParams(dataMap);
-			engine.put("DocumentUtils", new DocumentUtils(docVo, pageVO));
 
 			JSONObject jcon = new JSONObject();
 			jcon.put("relatePageId", pageVO.getId());
 			jcon.put("componentType", "");
 			List<JSONObject> components = formdesignerServiceImpl.getComponentByContainerWithColumn(jcon);
 			componentsList.add(components);
-			if (components != null && components.size() > 0) {
-				for (int k = 0; k < components.size(); k++) {
-					JSONObject component = components.get(k);
-					logger.debug("component : " + JSON.toJSONString(component));
-					if (component != null) {
-						JSONObject o = new JSONObject();
-						String value = DocUtils.getComponentValue(component, dataMap, engine);
-					}
-				}
-			}
 
 			// 对表格组件进行处理，将真实值转换为显示值；比如一些 日期格式化、code转对应value等；
 			if (dataMap != null && !dataMap.isEmpty()) {
@@ -2316,8 +2016,8 @@ public class DocumentController extends BaseController {
 				currentPage = Integer.parseInt(request.getParameter("currentPage"));
 			}
 			/*
-			 * if(StringUtils.isNotBlank(request.getParameter("pageSize"))){
-			 * pageSize =Integer.parseInt(request.getParameter("pageSize")); }
+			 * if(StringUtils.isNotBlank(request.getParameter("pageSize"))){ pageSize
+			 * =Integer.parseInt(request.getParameter("pageSize")); }
 			 */
 			// 对用户配置的是否分页，以及每页记录条数进行解析
 			if (StringUtils.isNotBlank(request.getParameter("pageSize"))) {
@@ -2351,7 +2051,6 @@ public class DocumentController extends BaseController {
 			dataMap.put("totalPages", dataList);
 			logger.debug("end init engine ");
 			docVo.setListParams(dataMap);
-			engine.put("DocumentUtils", new DocumentUtils(docVo, pageVO));
 			String append = "";
 			for (String str : dataMap.keySet()) {
 				List<Map<String, String>> appList = dataMap.get(str);
@@ -2456,8 +2155,8 @@ public class DocumentController extends BaseController {
 				currentPage = Integer.parseInt(request.getParameter("currentPage"));
 			}
 			/*
-			 * if(StringUtils.isNotBlank(request.getParameter("pageSize"))){
-			 * pageSize =Integer.parseInt(request.getParameter("pageSize")); }
+			 * if(StringUtils.isNotBlank(request.getParameter("pageSize"))){ pageSize
+			 * =Integer.parseInt(request.getParameter("pageSize")); }
 			 */
 			// 对用户配置的是否分页，以及每页记录条数进行解析
 			if (StringUtils.isNotBlank(request.getParameter("pageSize"))) {
@@ -2484,7 +2183,6 @@ public class DocumentController extends BaseController {
 					+ path + "/";
 			logger.debug("end init engine ");
 			docVo.setListParams(dataMap);
-			engine.put("DocumentUtils", new DocumentUtils(docVo, pageVO));
 			String append = "";
 			for (String str : dataMap.keySet()) {
 				List<Map<String, String>> appList = dataMap.get(str);
@@ -2498,7 +2196,8 @@ public class DocumentController extends BaseController {
 					append += "<a href='#' id='" + ID + "' class='ui-btn delete-btn' onclick='listDel(this.id)'>删除</a>";
 					append += "</div>";
 					append += "<a href=\"javascript:location.href='" + basePath + "document/view.do?id=" + ID
-							+ "&dynamicPageId=" + DocumentUtils.getMPageIdByMListPageId(dynamicPageId) + "'\" id='" + ID
+							+ "&dynamicPageId=" + PageBindUtil.getInstance().getMPageIdByMListPageId(dynamicPageId)
+							+ "'\" id='" + ID
 							+ "' class='ui-btn ui-nodisc-icon ui-alt-icon ui-btn-icon-right ui-icon-carat-r'>";
 					append += "<h3>" + field1 + "</h3>";
 					append += "<p><span>" + field2 + "</span>&emsp;";
@@ -2598,8 +2297,8 @@ public class DocumentController extends BaseController {
 				currentPage = Integer.parseInt(request.getParameter("currentPage"));
 			}
 			/*
-			 * if(StringUtils.isNotBlank(request.getParameter("pageSize"))){
-			 * pageSize =Integer.parseInt(request.getParameter("pageSize")); }
+			 * if(StringUtils.isNotBlank(request.getParameter("pageSize"))){ pageSize
+			 * =Integer.parseInt(request.getParameter("pageSize")); }
 			 */
 			// 对用户配置的是否分页，以及每页记录条数进行解析
 			if (StringUtils.isNotBlank(request.getParameter("pageSize"))) {
@@ -2662,7 +2361,6 @@ public class DocumentController extends BaseController {
 			dataMap.put("totalPages", dataList);
 			logger.debug("end init engine ");
 			docVo.setListParams(dataMap);
-			engine.put("DocumentUtils", new DocumentUtils(docVo, pageVO));
 			String append = "";
 			for (String str : dataMap.keySet()) {
 				List<Map<String, String>> appList = dataMap.get(str);
@@ -2676,7 +2374,8 @@ public class DocumentController extends BaseController {
 					append += "<a href='#' id='" + ID + "' class='ui-btn delete-btn' onclick='listDel(this.id)'>删除</a>";
 					append += "</div>";
 					append += "<a href=\"javascript:location.href='" + basePath + "document/view.do?id=" + ID
-							+ "&dynamicPageId=" + DocumentUtils.getMPageIdByMListPageId(dynamicPageId) + "'\" id='" + ID
+							+ "&dynamicPageId=" + PageBindUtil.getInstance().getMPageIdByMListPageId(dynamicPageId)
+							+ "'\" id='" + ID
 							+ "' class='ui-btn ui-nodisc-icon ui-alt-icon ui-btn-icon-right ui-icon-carat-r'>";
 					append += "<h3>" + field1 + "</h3>";
 					append += "<p><span>" + field2 + "</span>&nbsp;";
@@ -2691,7 +2390,4 @@ public class DocumentController extends BaseController {
 		return null;
 	}
 
-	public String getFormIdByPageId(String pageId) {
-		return "1405";
-	}
 }
