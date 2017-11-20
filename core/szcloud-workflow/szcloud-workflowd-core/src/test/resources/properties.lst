@@ -1,3 +1,0 @@
-classpath:/application.mysql.properties
-classpath:/application.local.properties
-classpath:/application.server.properties
