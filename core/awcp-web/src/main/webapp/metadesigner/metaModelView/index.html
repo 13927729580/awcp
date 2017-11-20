@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>领域建模工具</title>
+		
+		<!-- 本项目less -->
+		<link rel="stylesheet/less" href="../css/base.less" />
+		<link rel="stylesheet/less" href="../css/umlCanvas.less" />
+		<link rel="stylesheet/less" href="../css/edit_dialog.less" />
+		<link rel="stylesheet/less" href="../css/index.less" />
+		<script type="text/javascript" src="../lib/less-1.7.1.min.js"></script>
+		
+		<!-- 插件css -->
+		<link rel="stylesheet" href="../lib/zTree_v3/css/zTreeStyle/zTreeStyle.css" type="text/css">
+		<link rel="stylesheet" href="../lib/dialog/style.css" type="text/css">
+		<link rel="stylesheet" href="../lib/tab/css/style.css" type="text/css"/>
+		<link rel="stylesheet" href="../lib/comboBox/css/style.css" type="text/css"/>
+ 		<style>
+			.label{
+				display:inline-block;
+				width:70px;
+			}
+			.enumitems .enumItem{
+				margin:2px 0;
+				padding:2px;
+			}
+			.not_null{
+				background-position: right -688px!important;
+				box-shadow: 1px 1px 15px rgba(255,167,155,0.8)!important;
+				border-color: rgba(255,167,155,0.8)!important;
+			}
+			
+			/*弹窗内表单的样式*/
+			.dialog_form label{
+				padding-right:10px;
+			}
+			
+			.dialog_form input{
+				width:250px;
+			}
+			.dialog_buttons{
+				text-align:right;
+				padding:5px 0px;
+			}
+			.dialog_buttons button{
+				outline:none;
+				padding:5px 10px;
+				font-size:14px;
+				border:0;
+				cursor:pointer;
+			}
+			.dialog_buttons button:hover{
+				background:#A0C1FF;
+			}
+			.dialog_buttons button:active{
+				background:#5A94FF;
+			}
+			.option_list div{
+				cursor:pointer;
+				text-align:center;
+			}
+			
+			.option_list div:hover{
+				background:#ffebbf;
+			}
+			
+			.option_list .selected{
+				background:#ccc;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="wrapper">
+			<div id="header">
+				<div class="logo">
+					<img style="float:left;" src="images/logo.png" />
+					<div style="font-size:25px;height:80px;line-height:80px;">领域建模工具</div>
+				</div>
+			</div>
+			<div id="container">
+				<div class="left">
+					<!-- 工程窗口 -->
+					<div class="project_tree project_explorer" id="projectExplorer">
+						<div class="panel-heading">
+							<span>项目列表</span>
+							<button id="add_project">添加项目</button>
+							<button id="add_chart" style="display:none;">添加图</button>
+						</div>
+						<ul id="projectTree" class="ztree"></ul>
+					</div>
+					
+					<!-- 编辑对话框 -->
+					<div class="dialog_container" id="dialog_container">
+						<div class="dialog entity_dialog interface_dialog edit_entity">
+							<div class="tabs">
+								<div class="tab active entity_tab" for="entity_panel">实体</div>
+								<div class="tab active interface_tab" for="interface_panel">实体</div>
+								<div class="tab property_tab" for="property_panel">属性</div>
+							</div>
+							<div class="panels">
+								<!-- 实体面板 -->
+								<div class="panel entity_panel active">
+									<div>
+										<span class="label">名称(中)</span>
+										<input type="hidden" id="id">
+										<input class="name" id="modelName" type="text" oninput="var thiz=$(this),dialog=thiz.parents('.dialog'); updateModelName(dialog.data('data'), thiz, dialog.data('canvas'))"/>
+									</div>
+									<div>
+										<span class="label">名称(英)</span>
+										<input class="name" id="modelCode" type="text"/>
+									</div>
+									<div>
+										<span class="label">表名</span>
+										<input class="name" id="tableName" type="text"/>
+									</div>
+									<div>
+										<span class="label">类型</span>
+										<input class="name" id="modelType" type="text"/>
+									</div>
+									
+									<div>
+										<span class="label" style="vertical-align:top;">描述</span>
+										<textarea class="desc" id="modelDesc" style="height:100px;margin-top:2px;" onchange="updateDescription($(this).parents('.dialog').data('data'),$(this).val())"></textarea>
+									</div>
+									<div class="add_element add_property" id="addModel">添加模型</div>
+								</div>
+								<!-- 属性面板 -->
+								<div class="panel property_panel">
+									<form class="property_form" id="editPropertyDetailForm">
+										<div>
+											<span class="label">名称(中)</span>
+											<input type="hidden" id="modelId">
+											<input type="text" class="propertyName" id="itemName" 
+												oninput="updatePropertyName($(this).parents('form:first').data('data'),$(this).val());"
+												onchange=""/><!-- 检查属性名 @TODO -->
+										</div>
+										<div>
+											<span class="label">名称(英)</span>
+											<input name="name" type="text" id="itemCode"/>
+										</div>
+										<div>
+											<span class="label">类型</span>
+											<input type="text" class="propertyType" id="itemType" list="property_type_tip" 
+												oninput="updatePropertyType($(this).parents('form:first').data('data'), $(this).val(), $(this).parents('form:first'));"/>
+										</div>
+										<div>
+											<span class="label">长度</span>
+											<input id="itemLength" type="text"/>
+										</div>
+										<div class="genericity_input">
+											<span class="label">备注</span>
+											<input type="text" class="propertyGenericity" id="remark" 
+												oninput="updatePropertyGenericity($(this).parents('form:first').data('data'),$(this).val());"/>
+										</div>
+									</form>
+									<fieldset class="properties_set" style="margin-top:10px;">
+										<legend>属性列表</legend>
+										<div class="properties" id="dialogPropertySet"></div>
+										<div class="add_element add_property" id="addItem">+添加属性</div>
+									</fieldset>
+								</div>
+								<!-- 行为面板 -->
+								<div class="panel action_panel">
+									<fieldset class="action_list" id="dialogActionList">
+										<legend style="font-size:14px;">方法列表</legend>
+										<div class="action_set" id="dialogActionSet"></div>
+										<div class="add_element add_action">+添加方法</div>
+									</fieldset>
+									<div class="edit_action_detail" id="editActionDetailForm">
+										<div><a href="javascript:void(0);" class="back_to_actionlist" title="放回方法列表">返回</a></div>
+										<div><label>方法名:</label><input name="action_name" type="text" oninput="updateActionName($(this).parents('.edit_action_detail:first').data('data'),$(this).val());"/></div>
+										<div><label>返回值:</label><input name="action_returntype" type="text" oninput="updateActionReturnType($(this).parents('.edit_action_detail:first').data('data'),$(this).val())"/></div>
+										<div>
+											<label>作用域:</label><select name="action_modifier" onchange="updateActionModifier($(this).parents('.edit_action_detail:first').data('data'),$(this).val())">
+												<option value="PUBLIC">public</option>
+												<option value="PRIVATE">private</option>
+												<option value="PROTECTED">protected</option>
+											</select>
+										</div>
+										<div>
+											<table>
+												<tr>
+													<td><input type="checkbox" onclick="$(this).parents('.edit_action_detail:first').data('data').final = $(this).is(':checked')"/>final</td>
+													<td><input type="checkbox" onclick="$(this).parents('.edit_action_detail:first').data('data').static = $(this).is(':checked')"/>static</td>
+													<td><input type="checkbox" onclick="$(this).parents('.edit_action_detail:first').data('data').abstract = $(this).is(':checked')"/>abstract</td>
+												</tr>
+											</table>
+										</div>
+										<fieldset class="action_argument_set" style="margin-top:10px;">
+											<legend style="font-size:14px;">参数列表</legend>
+											<div class="argument_set" id="dialogArgumentSet"></div>
+											<div class="add_element add_argument">+添加参数</div>
+										</fieldset>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="border_bottom"></div>
+				</div>
+				<div class="right">
+					<div class="main_panel">
+						<div class="tabs">
+							<div class="tab active" for="index"><span class="title">主页</span></div>
+						</div>
+						<div class="panels">
+							<div class="panel index active" style="text-align:center;">
+								<h1>欢迎使用领域建模工具</h1>
+								<p class="welcome">
+									Here is your dashboard, you can <strong>create</strong> a new project or <strong>clone</strong> the examples. Invite your teammates to work (in real-time) on yours models using the share settings.  For any help, write in the<a class="gwt-Anchor">feedback area</a>, we gladly help you out. Enjoy collaborative modeling!
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div id="footer">Copyright @koala, All rights reserved.</div>
+		</div>
+		
+		<!-- 一些共用模板 -->
+		<div id="template" style="display: none;">
+			<!-- 线条模板 -->
+			<svg id="line-template">
+				<!-- 继承关系连线模板 -->
+				<g class="line extends templine" relationType="extends">
+					<polyline points="0,0 0,0" style="marker-end:url(#arrow1)"></polyline>
+				</g>
+				
+				<!-- 实现关系连线模板 -->
+				<g class="line implements templine" relationType="implements">
+					<polyline points="0,0 0,0" style="marker-end:url(#arrow1);stroke-dasharray:5"></polyline>
+				</g>
+				
+				<!-- 聚合关系连线模板 -->
+				<g class="line aggregate templine" relationType="aggregate">
+					<foreignobject>
+						<div class="start line_info">
+							<div class="multiplicity">
+								<span class="multiplicity_type">1</span>
+							</div>
+						</div>
+						<div class="end line_info">
+							<div class="multiplicity">
+								<span class="multiplicity_type">1</span>
+							</div>
+						</div>
+					</foreignobject>
+					<polyline points="0,0 0,0"></polyline>
+				</g>
+				
+				<!-- 组合关系连线模板  -->
+				<g class="line compose templine" relationType="compose">
+					<foreignobject>
+						<div class="start line_info">
+							<div class="multiplicity">
+								<span class="multiplicity_type">1</span>
+							</div>
+						</div>
+						<div class="end line_info">
+							<div class="multiplicity">
+								<span class="multiplicity_type">1</span>
+							</div>
+						</div>
+					</foreignobject>
+					<polyline points="0,0 0,0"></polyline>
+				</g>
+				
+				<!--关联关系连线模板-->
+				<g class="line associate templine" relationType="associate">
+					<foreignobject>
+						<div class="start line_info">
+							<div class="multiplicity">
+								<span class="multiplicity_type">1</span>
+							</div>
+						</div>
+						<div class="end line_info">
+							<div class="multiplicity">
+								<span class="multiplicity_type">1</span>
+							</div>
+						</div>
+					</foreignobject>
+					<polyline points="0,0 0,0"></polyline>
+				</g>
+			</svg>
+			
+			<!-- 节点模板 -->
+			<div id="node-template">
+				<!-- 实体模板 -->
+				<div class="node entity">
+					<div class="header">
+						<span class="entityType node_type">ENTITY</span>
+						<div class="name">Entity</div>
+					</div>
+					<div class="properties"></div>
+					<div class="actions"></div>
+				</div>
+				
+				
+				<!-- 属性模板  -->
+				<div class="property private">
+					<span class="propertyName"></span>
+					<span class="property_type">
+						<span class="propertyType"></span>
+						<span class="genericity">?</span>
+					</span>
+				</div>
+			</div>
+			
+			<div id="dialog_template">
+				<!-- -->
+				<div class="action_item">
+					<div class="action_detail">
+						<span class="action_name public"></span>
+						<span class="action_arguments"></span>
+						<span class="action_returnType"></span>
+					</div>
+					<div  class="edit_option">
+						<a href="javascript:void(0);" class="edit_action">编辑</a>
+						<a href="javascript:void(0);" class="delete_action">删除</a>
+					</div>
+				</div>
+				<!-- span内不允许输入英文和数字以外的字符 -->
+				<script>
+					function checkKey(event){
+						var keyCode = event.keyCode; 
+						if(keyCode == 46 || keyCode==8){
+							return true; 
+						} else { 
+							return /^[A-Za-z0-9_]\b$/.test(String.fromCharCode(keyCode));
+						}
+					}
+				</script>
+				<div class="argument_item">
+					<div class="argument_detail">
+					 	<span class="argument_name" contenteditable="true" onkeydown="return checkKey(event);" onblur='$(this).attr("title",$(this).text());updateActionArgumentName($(this).parents(".argument_item:first").data("data"), $(this).text());'></span>
+					 	<span style="padding:2px">:</span>
+					 	<span class="argument_type" contenteditable="true" onkeydown="return checkKey(event);" oninput='$(this).attr("title",$(this).text());updateActionArgumentType($(this).parents(".argument_item:first").data("data"), $(this));'></span>
+					 	<span class="genericity" contenteditable="true" onkeydown="return checkKey(event);" onblur='$(this).attr("title",$(this).text());updateActionArgumentGenericity($(this).parents(".argument_item:first").data("data"), $(this));' style="display:none;">?</span>
+					</div>
+					<div class="argument_detail_option">
+						<a href="javascript:void(0);" class="delete_argument" >删除</a>
+					</div>
+				</div>
+				
+				<!-- 编辑枚举项 -->
+				<div class="enum_item">
+					<div class="enum_name"></div>
+					<div class="delete_enum_item">删除</div>
+				</div>
+			</div>			
+		</div>
+		<!-- 以下内在多个画板时的情况下可以共用 ，包括图形的模板、右键菜单等元素-->
+		<!-- uml元素模板 -->
+		<svg style="height:0;position:absolute;">
+			<defs>
+				<!-- 空心三角形 -->
+				<marker id="arrow1" markerWidth="100" markerHeight="100" refx="16" refy="13" orient="auto">
+					<path d="M10,10 L16,13 L10,16 z" style="fill:#e8e8e8;stroke:#5890c1;stroke-dasharray:0;stroke-width:1;"></path>
+				</marker>
+			    <!-- 空心菱形 -->
+			  	<marker id="arrow2" markerWidth="100" markerHeight="100" refx="10" refy="13" orient="auto">
+			    	<path d="M10,13 L16,10 L22,13 L16,16 L10,13 z" style="fill:#e8e8e8;stroke:#5890c1;stroke-dasharray:0;stroke-width:1;"></path>
+			    </marker>
+			    <!-- 实心菱形 -->
+			    <marker id="arrow3" markerWidth="100" markerHeight="100" refx="10" refy="13" orient="auto">
+			    	<path d="M10,13 L16,10 L22,13 L16,16 L10,13 z" style="fill:#5890c1;stroke-dasharray:0;stroke-width:1;"></path>
+			    </marker>
+			</defs>
+		</svg>
+		<!-- 各种右键编辑菜单 -->
+		<div id="edit_contextmenus">
+			<!-- 添加节点成员的右键菜单 -->
+			<div id="add_members" class="contextmenu" tabindex="1">
+				<div class="contextmenu_item add_property"><div>添加属性</div></div>
+				<div class="contextmenu_item add_action"><div>添加行为</div></div>
+				<div class="contextmenu_item add_enumItem"><div>添加枚举项</div></div>
+				<div class="contextmenu_item delete"><div>删除</div></div>
+			</div>
+			
+			
+			<!-- 编辑线条的右键菜单  -->
+			<div id="edit_lines" class="contextmenu" tabindex="3">
+				<div class="contextmenu_item line_of_centers"><div>连心线</div></div>
+				<div class="contextmenu_item delete"><div>删除</div></div>
+			</div>
+		</div>
+		
+		<datalist id="property_type_tip">
+			<option value="String">String</option>
+			<option value="Set">Set</option>
+			<option value="List">List</option>
+			<option value="Date">Date</option>
+			<option value="Long">Long</option>
+			<option value="Integer">Integer</option>
+		</datalist>
+		<!-- 插件js -->
+		<script type="text/javascript" src="../../resources/JqEdition/jquery-1.10.2.js" ></script>
+		<script type="text/javascript" src="../lib/dialog/dialog.js"></script>
+		<script type="text/javascript" src="../lib/tab/tab.js"></script>
+		<script type="text/javascript" src="../lib/zTree_v3/js/jquery.ztree.core-3.5.min.js"></script>
+		<script type="text/javascript" src="../lib/comboBox/comboBox.js"></script>
+		<!-- 项目js -->
+		<script type="text/javascript" src="../js/user-defind/jqueryUmlCanvas.js" ></script>
+		<script type="text/javascript" src="../js/user-defind/editDialog.js"></script>
+		<script type="text/javascript" src="../js/user-defind/tool.js" ></script>
+		<script type="text/javascript" src="../js/user-defind/edit.js" ></script>
+		<script type="text/javascript" src="../js/user-defind/index.js" ></script>
+	</body>
+</html>

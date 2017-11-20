@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="cn.org.awcp.metadesigner.core.domain.ProjectManage">
+	<resultMap id="rm" type="cn.org.awcp.metadesigner.core.domain.ProjectManage">
+		<id property="id" jdbcType="BIGINT" column="id"/>
+		<result property="projectName" jdbcType="VARCHAR" column="projectName"/>
+		<result property="projectType" jdbcType="VARCHAR" column="projectCode"/>
+	</resultMap>
+	<sql id="Base_Column_List">
+		id,projectName,projectCode
+	</sql>
+	
+	<select id="getAll" resultMap="rm">
+		select <include refid="Base_Column_List"/> from fw_mm_projectManage
+	</select>
+	
+	<insert id="insert" parameterType="Object">
+		<selectKey resultType="java.lang.Long" order="AFTER"
+			keyProperty="id">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+		insert into fw_mm_projectManage(projectName,projectCode)
+		value(#{projectName},#{projectCode})
+	</insert>
+	
+	
+	
+	<update id="update" parameterType="cn.org.awcp.metadesigner.core.domain.ProjectManage">
+		UPDATE fw_mm_projectManage SET
+			projectName=#{projectName},
+			projectCode=#{projectCode}
+		WHERE 
+			id = #{id} 
+	</update>
+	
+	<select id="get" parameterType="Object" resultMap="rm">
+		select <include refid="Base_Column_List"/> from fw_mm_projectManage where id=#{id}
+	</select>
+	
+</mapper>
+

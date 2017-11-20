@@ -1,0 +1,23 @@
+[
+    "resize.js",
+    "string.js",
+    "unities.js",
+    "device.js",
+    "transition.js",
+    "alert.js",
+    "button.js",
+    "carousel.js",
+    "collapse.js",
+    "dropdown.js",
+    "modal.js",
+    "tooltip.js",
+    "popover.js",
+    "image.ready.js",
+    "modal.trigger.js",
+    "lightbox.js",
+    "bootbox.js",
+    "messager.js",
+    "color.js",
+    "droppable.js",
+    "sortable.js"
+]

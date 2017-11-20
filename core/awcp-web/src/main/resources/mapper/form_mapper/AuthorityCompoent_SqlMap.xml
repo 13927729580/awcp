@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="cn.org.awcp.formdesigner.core.domain.AuthorityCompoent">
+     <!-- <cache type="org.mybatis.caches.memcached.LoggingMemcachedCache" /> -->
+	<resultMap id="rm" type="cn.org.awcp.formdesigner.core.domain.AuthorityCompoent">
+		<id property="id" jdbcType="VARCHAR" column="ID"/>
+		<result property="authorityGroupId" jdbcType="BIGINT" column="AUTHORITY_GROUP_ID"/>
+		<result property="componentId" jdbcType="BIGINT" column="COMPONENT_ID"/> 
+		<result property="authorityValue" jdbcType="BIGINT" column="AUTHORITY_VALUE"/> 
+		<result property="creater" jdbcType="BIGINT" column="CREATER"/> 
+		<result property="createTime" jdbcType="TIMESTAMP" column="CREATE_TIME"/> 
+		<result property="lastUpdateTime" jdbcType="TIMESTAMP" column="LASTUPDATE_TIME"/> 
+		<result property="lastUpdater" jdbcType="BIGINT" column="LASTUPDATER"/>
+		<result property="includeComponent" jdbcType="BIGINT" column="INCLUDE_COMPONENT"/>
+	
+	</resultMap>
+	
+	 <!-- 插入 -->
+	<insert id="insert" keyProperty="id" flushCache="true">
+		INSERT INTO p_fm_authoritygroup_component (
+			ID,AUTHORITY_GROUP_ID,COMPONENT_ID,AUTHORITY_VALUE,CREATER,CREATE_TIME,LASTUPDATE_TIME,LASTUPDATER,INCLUDE_COMPONENT
+		 ) VALUES (
+			#{id},
+			#{authorityGroupId},
+			#{componentId},
+			#{authorityValue},
+			#{creater},
+			#{createTime},
+			#{lastUpdateTime},
+			#{lastUpdater},
+			#{includeComponent}		
+		)
+	</insert>
+	
+	<update id="update" parameterType="cn.org.awcp.formdesigner.core.domain.AuthorityCompoent">
+		UPDATE p_fm_authoritygroup_component SET
+			AUTHORITY_VALUE = #{authorityValue},
+			<!-- DYNAMICPAGE_ID = #{dynamicPageId},
+			SYSTEM_ID = #{systemId},
+			CREATER = #{creater},
+			CREATE_TIME = #{createTime}, -->
+			LASTUPDATE_TIME = #{lastUpdateTime},
+			LASTUPDATER = #{lastUpdater}
+		WHERE 
+			ID = #{id}
+	</update>
+	
+	<!-- 按Id删除 -->
+	<delete id="remove" parameterType="String">
+		DELETE FROM p_fm_authoritygroup_component
+		WHERE
+		ID = #{id} 
+	</delete>
+	
+	<select id="get" parameterType="String" resultMap="rm">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM p_fm_authoritygroup_component
+		WHERE
+		ID = #{id} 
+	</select>
+	
+	<select id="getByComponent" parameterType="String" resultMap="rm">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM p_fm_authoritygroup_component
+		WHERE
+		COMPONENT_ID = #{componentId}
+	</select>
+	
+	<sql id="Base_Column_List">
+		ID,AUTHORITY_GROUP_ID,COMPONENT_ID,AUTHORITY_VALUE,CREATER,CREATE_TIME,LASTUPDATE_TIME,LASTUPDATER,INCLUDE_COMPONENT
+	</sql>
+
+	<sql id="Select_Example_Where_Clause">
+		<where>
+			<foreach collection="oredCriteria" item="criteria" separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" suffix=")" prefixOverrides="and">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition} #{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition} #{criterion.value}
+									and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach collection="criterion.value" item="listItem"
+										open="(" close=")" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+
+	<!-- 查询条件 -->
+	<sql id="EQ_Where_Clause">
+		where 1=1
+		<trim suffixOverrides=",">
+			<if test="id != null and id != ''">
+				and ID = #{id}
+			</if>
+			<if test="authorityGroupId != null and authorityGroupId != ''">
+				and AUTHORITY_GROUP_ID = #{authorityGroupId}
+			</if>
+			<if test="componentId != null and componentId != ''">
+				and COMPONENT_ID = #{componentId}
+			</if>
+			<if test="authorityValue != null and authorityValue != ''">
+				and AUTHORITY_VALUE = #{authorityValue}
+			</if> 
+			<if test="creater != null and creater != ''">
+				and CREATER = #{creater}
+			</if> 
+			<if test="createTime != null and createTime != ''">
+				and CREATE_TIME = #{createTime}
+			</if> 
+			<if test="lastUpdateTime != null and lastUpdateTime != ''">
+				and LASTUPDATE_TIME = #{lastUpdateTime}
+			</if> 
+			<if test="lastUpdater != null and lastUpdater != ''">
+				and LASTUPDATER = #{lastUpdater}
+			</if>
+			<if test="includeComponent != null and includeComponent != ''">
+				and INCLUDE_COMPONENT = #{includeComponent}
+			</if>
+		</trim>
+	</sql>
+	
+	<select id="eqQueryList" resultMap="rm" parameterType="Object">
+		select
+		<include refid="Base_Column_List" />
+		from p_fm_authoritygroup_component
+		<include refid="EQ_Where_Clause" />
+	</select>
+	
+	<select id="queryCountByExample" resultType="INTEGER" 
+		parameterType="cn.org.awcp.core.domain.BaseExample">
+		select count(*) as C from (
+		select
+		<if test="distinct">
+			distinct
+		</if>
+		<include refid="Base_Column_List" />
+		from p_fm_authoritygroup_component
+		<if test="_parameter != null">
+			<include refid="Select_Example_Where_Clause" />
+		</if>
+		) tmpcount
+		
+	</select>
+	<select id="selectByExample" resultMap="rm"
+		parameterType="cn.org.awcp.core.domain.BaseExample">
+		select
+		<if test="distinct">
+			distinct
+		</if>
+		<include refid="Base_Column_List" />
+		from p_fm_authoritygroup_component
+		<if test="_parameter != null">
+			<include refid="Select_Example_Where_Clause" />
+		</if>
+		<if test="orderByClause != null">
+			order by ${orderByClause}
+		</if>
+		<if test="start !=0 or limit!=0">
+			limit #{start},#{limit}
+		</if>
+		
+	</select>		
+	
+</mapper>
+

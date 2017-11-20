@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="cn.org.awcp.unit.core.domain.PunUserRole">
+	<resultMap id="BaseResultMap" type="cn.org.awcp.unit.core.domain.PunUserRole">
+		<result property="userRoleId" jdbcType="BIGINT" column="USER_ROLE_ID"/>
+		<result property="userId" jdbcType="BIGINT" column="USER_ID"/>
+		<result property="roleId" jdbcType="BIGINT" column="ROLE_ID"/>
+	</resultMap>
+	<sql id="Base_Column_List">
+		USER_ROLE_ID,
+		USER_ID,
+		ROLE_ID
+	</sql>
+	
+	<select id="queryList" resultMap="BaseResultMap" parameterType="Object">
+		select
+		<include refid="Base_Column_List" />
+		from p_un_user_role
+		<include refid="EQ_Where_Clause" />
+	</select>
+	
+	<sql id="EQ_Where_Clause">
+		where 1=1
+		<if test="user!=null">
+			AND USER_ID = #{userId}
+		</if>
+		<if test="roleId!=null">
+			AND ROLE_ID = #{roleId}
+		</if>
+	</sql>
+	
+	<select id="get" parameterType="java.lang.Long" resultMap="BaseResultMap">
+		SELECT 
+			<include refid="Base_Column_List" />
+		FROM p_un_user_role 
+		WHERE 
+			USER_ROLE_ID = #{id} 
+	</select>
+	<!-- 查询所有的ID -->
+	<select id="findAllIds" resultType="java.lang.Long">
+		SELECT USER_ROLE_ID FROM p_un_user_role
+	</select>
+
+	<!-- 按Id删除 -->
+	<delete id="remove" parameterType="java.lang.Long">
+		DELETE FROM p_un_user_role WHERE
+		USER_ROLE_ID = #{id} 
+	</delete>
+	 <!-- 插入 -->
+	<insert id="insert" useGeneratedKeys="true" keyProperty="userRoleId">
+		INSERT INTO p_un_user_role (
+			USER_ROLE_ID,
+			USER_ID,
+			ROLE_ID
+		) VALUES (
+			#{userRoleId},
+			#{userId},
+			#{roleId}
+		)
+	</insert>
+	
+	<select id="countAll" resultType="java.lang.Integer">
+		SELECT count(USER_ROLE_ID) FROM p_un_user_role	
+	</select>
+	
+	<select id="getAll" resultMap="BaseResultMap">
+		SELECT 
+			<include refid="Base_Column_List" />
+		FROM p_un_user_role
+	</select>
+	
+	<!-- 更新 -->
+	<update id="updateSelective" parameterType="cn.org.awcp.unit.core.domain.PunUserRole">
+		UPDATE p_un_user_role 
+			<set>
+				<if test="userId!=null">
+				USER_ID = #{userId},
+				</if>
+				<if test="roleId!=null">
+				ROLE_ID = #{roleId}
+				</if>
+			</set>
+		WHERE 
+			USER_ROLE_ID = #{userRoleId}
+	</update>
+	
+	<update id="update" parameterType="cn.org.awcp.unit.core.domain.PunUserRole">
+		UPDATE p_un_user_role SET
+			USER_ID = #{userId},
+			ROLE_ID = #{roleId}
+		WHERE 
+			USER_ROLE_ID = #{userRoleId} 
+	</update>
+	
+<!-- 	根据userID和roleID删除 -->
+	<delete id="deleteByRoleIdAndUserId" parameterType="java.lang.Long">
+		DELETE FROM p_un_user_role WHERE
+		USER_ID = #{userId}
+		and
+		ROLE_ID = #{roleId}
+	</delete>
+<!-- 	根据roleID删除 -->
+	<delete id="deleteByRoleId" parameterType="java.lang.Long">
+		DELETE FROM p_un_user_role WHERE
+		ROLE_ID = #{roleId}
+	</delete>
+	
+</mapper>
+

@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="cn.org.awcp.unit.core.domain.PdataDictionary">
+	
+	<resultMap id="rm" type="cn.org.awcp.unit.core.domain.PdataDictionary">
+		<result property="id" jdbcType="BIGINT" column="ID"/>
+		<result property="code" jdbcType="VARCHAR" column="CODE"/>
+		<result property="dataKey" jdbcType="VARCHAR" column="DATA_KEY"/>
+		<result property="dataValue" jdbcType="VARCHAR" column="DATA_VALUE"/>
+		<result property="dataOrder" jdbcType="INTEGER" column="DATA_ORDER"/>
+		<result property="dictRemark" jdbcType="VARCHAR" column="DICT_REMARK"/>
+		<result property="dictStatus" jdbcType="VARCHAR" column="DICT_STATUS"/>
+		<result property="level" jdbcType="BIGINT" column="LEVEL"/>
+	</resultMap>
+	<sql id="Base_Column_List">
+		ID,
+		CODE,
+		DATA_KEY,
+		DATA_VALUE,
+		DATA_ORDER,
+		DICT_REMARK,
+		DICT_STATUS,
+		LEVEL
+	</sql>
+	<select id="load" parameterType="java.lang.Long" resultMap="rm">
+		SELECT 
+			<include refid="Base_Column_List" />
+		FROM p_data_dictionary 
+		WHERE 
+			ID = #{id} 
+	</select>
+	<!-- 查询所有的ID -->
+	<select id="findAllIds" resultType="java.lang.Long">
+		SELECT ID FROM p_data_dictionary
+	</select>
+
+	<!-- 按Id物理删除 -->
+	<delete id="delete" parameterType="java.lang.Long">
+		DELETE FROM p_data_dictionary WHERE
+		ID = #{id} 
+	</delete>
+	
+	<!-- 按Id逻辑删除 -->
+	<update id="logicDelete" parameterType="String">
+		UPDATE p_data_dictionary SET
+			DICT_STATUS = #{dictStatus}
+		WHERE 
+			ID = #{id}  
+	</update>
+	
+	<!-- 按Id物理删除 -->
+	<delete id="remove" parameterType="java.lang.Long">
+		DELETE FROM p_data_dictionary
+		WHERE
+		ID =
+		#{id} 
+	</delete>
+	
+	<!-- 按code模糊物理删除 -->
+	<delete id="deleteLikeCode" parameterType="String">
+		DELETE FROM p_data_dictionary WHERE
+		CODE like #{code}"%" 
+	</delete>
+	
+	<!-- 按code模糊逻辑删除 -->
+	<update id="logicDeleteLikeCode" parameterType="String">
+		UPDATE p_data_dictionary SET
+			DICT_STATUS = #{dictStatus}
+		WHERE 
+			CODE like #{code}"%"  
+	</update>
+	
+	 <!-- 插入 -->
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO p_data_dictionary (
+			ID,
+			CODE,
+			DATA_KEY,
+			DATA_VALUE,
+			DATA_ORDER,
+			DICT_REMARK,
+			DICT_STATUS,
+			LEVEL
+		) VALUES (
+			#{id},
+			#{code},
+			#{dataKey},
+			#{dataValue},
+			#{dataOrder},
+			#{dictRemark},
+			#{dictStatus},
+			#{level}
+		)
+	</insert>
+	
+	<select id="countAll" resultType="java.lang.Integer">
+		SELECT count(ID) FROM p_data_dictionary	
+	</select>
+	
+	<select id="findAll" resultMap="rm">
+		SELECT 
+			<include refid="Base_Column_List" />
+		FROM p_data_dictionary
+	</select>
+	
+	<select id="get" parameterType="java.lang.Long" resultMap="rm">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM p_data_dictionary
+		WHERE
+		ID = #{id} 
+	</select>
+	
+	<select id="getAll" resultMap="rm">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM p_data_dictionary
+	</select>
+	
+	<select id="eqQueryList" resultMap="rm" parameterType="Object">
+		select
+		<include refid="Base_Column_List" />
+		from p_data_dictionary
+		<include refid="EQ_Where_Clause" />
+	</select>
+	<select id="queryCountByExample" resultType="INTEGER" 
+		parameterType="cn.org.awcp.core.domain.BaseExample">
+		select count(*) as C from (
+		select
+		<if test="distinct">
+			distinct
+		</if>
+		<include refid="Base_Column_List" />
+		from p_data_dictionary
+		<if test="_parameter != null">
+			<include refid="Select_Example_Where_Clause" />
+		</if>
+		) tmpcount
+		
+	</select>
+	<select id="selectByExample" resultMap="rm"
+		parameterType="cn.org.awcp.core.domain.BaseExample">
+		select
+		<if test="distinct">
+			distinct
+		</if>
+		<include refid="Base_Column_List" />
+		from p_data_dictionary
+		<if test="_parameter != null">
+			<include refid="Select_Example_Where_Clause" />
+		</if>
+		<if test="orderByClause != null">
+			order by ${orderByClause}
+		</if>
+		<if test="start !=0 or limit!=0">
+			limit #{start},#{limit}
+		</if>
+		
+	</select>
+	
+	 <!-- 复杂条件的查询-->
+	<sql id="Select_Example_Where_Clause">
+		<where>
+			<foreach collection="oredCriteria" item="criteria" separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" suffix=")" prefixOverrides="and">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition}
+									#{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition}
+									#{criterion.value}
+									and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach collection="criterion.value" item="listItem"
+										open="(" close=")" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+	
+	<!-- 所有字段等于的查询条件 -->
+	<sql id="EQ_Where_Clause">
+		where DICT_STATUS != '1' 
+		<trim suffixOverrides=",">
+			<if test="code != null and code != ''">
+				AND CODE = #{code}
+			</if>
+
+			<if test="dataKey != null and dataKey != ''">
+				AND DATA_Key = #{dataKey}
+			</if>
+
+			<if test="dataValue != null and dataValue != ''">
+				AND DATA_VALUE = #{dataValue}
+			</if>
+
+			<if test="dataOrder != null and dataOrder != ''">
+				AND DATA_ORDER = #{dataOrder}
+			</if>
+
+			<if test="dictRemark != null and dictRemark != ''">
+				AND DICT_REMARK = #{dictRemark}
+			</if>
+
+			<if test="dictStatus != null and dictStatus != ''">
+				AND DICT_STATUS = #{dictStatus}
+			</if>
+			
+			<if test="id != null">
+				AND ID = #{id}
+			</if>
+			
+			<if test="level != null">
+				AND LEVEL = #{level}
+			</if>
+
+		</trim>
+	</sql>
+	
+	<!-- 更新 -->
+	<update id="updateSelective" parameterType="cn.org.awcp.unit.core.domain.PdataDictionary">
+		UPDATE p_data_dictionary 
+			<set>
+				<if test="code!=null">
+				CODE = #{code},
+				</if>
+				<if test="dataKey!=null">
+				DATA_KEY = #{dataKey},
+				</if>
+				<if test="dataValue!=null">
+				DATA_VALUE = #{dataValue},
+				</if>
+				<if test="dataOrder!=null">
+				DATA_ORDER = #{dataOrder},
+				</if>
+				<if test="dictRemark!=null">
+				DICT_REMARK = #{dictRemark}
+				</if>
+				<if test="dictStatus!=null">
+				DICT_STATUS = #{dictStatus}
+				</if>
+				<if test="level!=null">
+				LEVEL = #{level}
+				</if>
+			</set>
+		WHERE 
+			ID = #{id}
+	</update>
+	
+	<update id="update" parameterType="cn.org.awcp.unit.core.domain.PdataDictionary">
+		UPDATE p_data_dictionary SET
+			CODE = #{code},
+			DATA_KEY = #{dataKey},
+			DATA_VALUE = #{dataValue},
+			DATA_ORDER = #{dataOrder},
+			DICT_REMARK = #{dictRemark},
+			DICT_STATUS = #{dictStatus},
+			LEVEL = #{level}
+		WHERE 
+			ID = #{id} 
+	</update>		
+	
+</mapper>
+

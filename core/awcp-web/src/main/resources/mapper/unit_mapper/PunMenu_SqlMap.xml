@@ -1,0 +1,441 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="cn.org.awcp.unit.core.domain.PunMenu">
+	<resultMap id="rm" type="cn.org.awcp.unit.core.domain.PunMenu">
+		<result property="menuId" jdbcType="BIGINT" column="MENU_ID" />
+		<result property="parentMenuId" jdbcType="BIGINT" column="PARENT_MENU_ID" />
+		<result property="menuType" jdbcType="VARCHAR" column="MENU_TYPE" />
+		<result property="menuName" jdbcType="VARCHAR" column="MENU_NAME" />
+		<result property="menuIcon" jdbcType="VARCHAR" column="MENU_ICON" />
+		<result property="dynamicPageId" jdbcType="CHAR" column="DYNAMICPAGE_ID" />
+		<result property="menuAddress" jdbcType="VARCHAR" column="MENU_ADDRESS" />
+		<result property="pid" jdbcType="VARCHAR" column="PID" />
+		<result property="menuSeq" jdbcType="INTEGER" column="MENU_SEQ" />
+		<result property="sysId" jdbcType="BIGINT" column="SYSTEM_ID" />
+		<result property="menuFlag" jdbcType="INTEGER" column="MENU_FLAG" />
+		<result property="type" jdbcType="INTEGER" column="TYPE" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		MENU_ID,
+		PARENT_MENU_ID,
+		MENU_TYPE,
+		MENU_NAME,
+		MENU_ICON,
+		MENU_ADDRESS,
+		PID,
+		MENU_SEQ,
+		SYSTEM_ID,
+		DYNAMICPAGE_ID,
+		MENU_FLAG,
+		TYPE
+	</sql>
+
+   <!-- 复杂条件的查询-->
+	<sql id="Select_Example_Where_Clause">
+		<where>
+			<foreach collection="oredCriteria" item="criteria" separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" suffix=")" prefixOverrides="and">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition}
+									#{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition}
+									#{criterion.value}
+									and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach collection="criterion.value" item="listItem"
+										open="(" close=")" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+	
+	<select id="queryCountByExample" resultType="INTEGER" 
+		parameterType="cn.org.awcp.core.domain.BaseExample">
+		select count(*) as C from (
+		select
+		<if test="distinct">
+			distinct
+		</if>
+		<include refid="Base_Column_List" />
+		from p_un_menu
+		<if test="_parameter != null">
+			<include refid="Select_Example_Where_Clause" />
+		</if>
+		) tmpcount
+		
+	</select>
+	
+	<!-- 所有字段等于的查询条件 -->
+	<sql id="EQ_Where_Clause">
+		 <trim prefix="where" prefixOverrides="and|or" >
+	      	<if test="parentMenuId != null and parentMenuId != ''">
+				AND PARENT_MENU_ID = #{parentMenuId}
+			</if>
+
+			<if test="menuType != null and menuType != ''">
+				AND MENU_TYPE = #{menuType}
+			</if>
+
+			<if test="menuName != null and menuName != ''">
+				AND MENU_NAME = #{menuName}
+			</if>
+			<if test="type != null">
+				AND TYPE = #{type}
+			</if>
+			<if test="menuIcon != null and menuIcon != ''">
+				AND MENU_ICON = #{menuIcon}
+			</if>
+
+			<if test="menuAddress != null and menuAddress != ''">
+				AND MENU_ADDRESS = #{menuAddress}
+			</if>
+
+			<if test="menuSeq != null">
+				AND MENU_SQP = #{menuSeq}
+			</if>
+
+			<if test="sysId != null">
+				AND SYSTEM_ID =#{sysId}
+			</if>
+			<if test="dynamicPageId != null">
+				AND DYNAMICPAGE_ID =#{dynamicPageId}
+			</if>
+	    </trim>
+	</sql>
+	<select id="get" parameterType="java.lang.Long" resultMap="rm">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM p_un_menu
+		WHERE
+		MENU_ID = #{menuId} 
+	</select>
+	<!-- 根据UserId,组ID和角色ID查询资源 -->
+	<select id="getPunMenuUserRoleAndSys" parameterType="Object" resultMap="rm">
+		SELECT d.* FROM p_un_role_info a
+		INNER JOIN p_un_role_access b ON a.ROLE_ID = b.ROLE_ID
+		INNER JOIN p_un_resource c ON b.RESOURCE_ID = c.RESOURCE_ID
+		INNER JOIN p_un_menu d ON c.RELATE_RESO_ID = d.MENU_ID
+		INNER JOIN p_un_user_role e ON e.ROLE_ID = a.ROLE_ID
+		WHERE c.RESOURCE_TYPE =1 and d.type!=1 and d.type!=3 
+		<if test="userId != null" >	
+			AND e.USER_ID = #{userId}
+		</if>
+		<if test="roleId != null">			
+			AND a.ROLE_ID = #{roleId} 
+		</if>
+		<if test="sysId != null">			
+			AND c.SYS_ID = #{sysId} 
+		</if>
+		<if test="whichEnd != null">			
+			AND c.WHICH_END = #{whichEnd} 
+		</if>
+		ORDER BY d.PARENT_MENU_ID, d.MENU_SEQ  	 
+	</select>
+	<!-- 根据UserId查询常用资源 -->
+	<select id="getPunMenuUser" parameterType="Object" resultMap="rm">
+		SELECT d.* FROM p_un_general_menu a
+		INNER JOIN p_un_menu d ON a.MENU_ID = d.MENU_ID
+		WHERE 1 = 1
+		<if test="userId != null" >	
+			AND a.USER_ID = #{userId}
+		</if>
+	</select>
+	<!-- 根据UserId查询排名资源 -->
+	<select id="getPunMenuUserDesc" parameterType="Object" resultMap="rm">
+		SELECT d.* FROM p_un_menu d
+		WHERE d.MENU_ID IN(
+			select a.menu_id from (
+				select count(menu_id) as menuNum, menu_id from p_un_menu_count where user_id=#{userId} 
+				and SYSDATE() > clickdate and clickdate > date_add(SYSDATE(), interval -7 day) 
+				<if test="ids != null">			
+					and menu_id not in (${ids})
+				</if>		
+				GROUP BY menu_id ORDER BY menuNum DESC limit #{lit}) a)
+	</select>
+	<!-- 根据UserId查询排名资源 -->
+	<select id="getPunMenuUserAsc" parameterType="Object" resultMap="rm">
+		SELECT d.* FROM p_un_menu d
+		WHERE d.MENU_ID IN(
+			select a.menu_id from (
+			select count(menu_id) as menuNum, menu_id from p_un_menu_count where user_id=#{userId} 
+			and SYSDATE() > clickdate and clickdate > date_add(SYSDATE(), interval -7 day) 
+			<if test="ids != null">	
+				and menu_id not in (${ids})
+			</if>		
+			GROUP BY menu_id ORDER BY menuNum asc limit #{lit}) a)
+	</select>
+	
+	
+	<!-- <select id="getMenuListByMembership" parameterType="Object" resultMap="rm">
+		SELECT d.* FROM P_UN_MEMBERSHIP a
+		INNER JOIN P_UN_ROLE_ACCESS b ON a.ROLE_ID = b.ROLE_ID
+		INNER JOIN P_UN_RESOURCE c ON b.RESOURCE_ID = c.RESOURCE_ID
+		INNER JOIN P_UN_MENU d ON c.RELATE_RESO_ID = d.MENU_ID
+		WHERE 1 = 1
+		<if test="userId != null" >	
+			AND a.USER_ID = #{userId}
+		</if>
+		<if test="groupId != null">	
+			AND a.GROUP_ID = #{groupId}
+		</if>
+		<if test="roleId != null">			
+			AND a.ROLE_ID = #{roleId} 
+		</if>
+		<if test="sysId != null">			
+			AND c.SYS_ID = #{sysId} 
+		</if>
+		<if test="whichEnd != null">			
+			AND c.WHICH_END = #{whichEnd} 
+		</if>		 
+	</select> -->
+	<!-- 根据角色RoleId,系统SysID查询资源 -->
+	<select id="getMenuListByRoleAndSys" parameterType="Object" resultMap="rm">		
+		SELECT d.* FROM p_un_role_info a
+		INNER JOIN p_un_role_access b ON a.ROLE_ID = b.ROLE_ID
+		INNER JOIN p_un_resource c ON b.RESOURCE_ID = c.RESOURCE_ID
+		INNER JOIN p_un_menu d ON c.RELATE_RESO_ID = d.MENU_ID
+		WHERE  c.RESOURCE_TYPE =1 and d.type!=1 and d.type!=3 
+		<if test="roleId != null">			
+			AND a.ROLE_ID = #{roleId} 
+		</if>
+		<if test="sysId != null">			
+			AND c.SYS_ID = #{sysId} 
+		</if>	 
+	</select>
+	<!-- 根据SystemId查询资源 -->
+	<select id="getMenuListBySystem" parameterType="Object" resultMap="rm">		
+	    SELECT b.* FROM p_un_resource a
+	    INNER JOIN p_un_menu b ON a.RELATE_RESO_ID = b.MENU_ID
+		WHERE a.RESOURCE_TYPE =1  AND a.SYS_ID = #{sysId} 	 
+	</select>
+	<!-- 根据菜单IDS查找菜单列表 -->
+	<select id="getMenuListByIds" parameterType="Object" resultMap="rm">
+		SELECT * FROM P_UN_MENU 
+		WHERE MENU_ID IN (${ids})
+	</select>
+	
+	<!-- 根据菜单IDS查找菜单列表 -->
+	<select id="getMenuListByResourceIds" parameterType="Object" resultMap="rm">
+		SELECT a.* FROM P_UN_MENU a
+		INNER JOIN P_UN_RESOURCE b ON a.MENU_ID = b.RELATE_RESO_ID
+		WHERE b.RESOURCE_TYPE = 1 b.RESOURCE_ID IN (${resourceIds})
+	</select>
+	
+	<!-- 查询所有的ID -->
+	<select id="findAllIds" resultType="java.lang.Long">
+		SELECT
+		MENU_ID FROM p_un_menu
+	</select>
+
+	<!-- 按Id删除 -->
+	<delete id="remove" parameterType="java.lang.Long">
+		DELETE FROM p_un_menu
+		WHERE
+		MENU_ID =
+		#{menuId} 
+	</delete>
+	
+	<!-- 按MenuId删除RoleAccess -->
+	<delete id="removeRoleAccessByResource" parameterType="java.lang.Long">
+		DELETE FROM p_un_role_access
+		WHERE RESOURCE_ID IN(
+		SELECT RESOURCE_ID FROM p_un_resource  
+		WHERE 
+		RELATE_RESO_ID = #{relateResoId} AND RESOURCE_TYPE=#{resourceType})
+	</delete>
+	<!-- 按MenuId删除资源 -->
+	<delete id="removeResource" parameterType="java.lang.Long">
+		DELETE FROM p_un_resource
+		WHERE 
+		RELATE_RESO_ID =		#{relateResoId} 
+		AND  RESOURCE_TYPE=#{resourceType}
+	</delete>
+	
+	<!-- 根据模糊条件批量删除 -->
+	<delete id="likeBatchDelete" parameterType="String">
+		DELETE FROM p_un_menu
+		WHERE
+		PID like #{pid}"%"
+	</delete>
+	
+	<!-- 插入 -->
+	<insert id="insert" useGeneratedKeys="true"
+		keyProperty="menuId">
+		<selectKey resultType="java.lang.Long" order="AFTER"
+			keyProperty="menuId">
+			SELECT LAST_INSERT_ID()
+		</selectKey>	 
+		INSERT INTO p_un_menu (
+		MENU_ID,
+		PARENT_MENU_ID,
+		MENU_TYPE,
+		MENU_NAME,
+		MENU_ICON,
+		MENU_ADDRESS,
+		MENU_SEQ,
+		PID,
+		SYSTEM_ID,
+		DYNAMICPAGE_ID,
+		MENU_FLAG,
+		TYPE
+		) VALUES (
+		#{menuId},
+		#{parentMenuId},
+		#{menuType},
+		#{menuName},
+		#{menuIcon},
+		#{menuAddress},
+		#{menuSeq},
+		#{pid},
+		#{sysId},
+		#{dynamicPageId},
+		#{menuFlag},
+		#{type}
+		)
+	</insert>
+
+	<select id="countAll" resultType="java.lang.Integer">
+		SELECT
+		count(MENU_ID) FROM p_un_menu
+	</select>
+
+	<select id="getAll" resultMap="rm">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM p_un_menu
+	</select>
+
+	<!-- 更新 -->
+	<update id="updateSelective" parameterType="cn.org.awcp.unit.core.domain.PunMenu">
+		UPDATE p_un_menu
+		<set>
+			<if test="parentMenuId!=null">
+				PARENT_MENU_ID = #{parentMenuId},
+			</if>
+			<if test="menuType!=null">
+				MENU_TYPE = #{menuType},
+			</if>
+			<if test="menuName!=null">
+				MENURCE_NAME = #{menuName},
+			</if>
+			<if test="menuIcon!=null">
+				MENURCE_ICON = #{menIcon},
+			</if>
+			<if test="menuAddress!=null">
+				MENU_ADDRESS = #{menuAddress},
+			</if>
+			<if test="pid!=null">
+				PID = #{pid},
+			</if>
+			<if test="menuSeq!=null">
+				MENU_SEQ = #{menuSeq},
+			</if>
+			<if test="sysId!=null">
+				SYSTEM_ID = #{sysId},
+			</if>
+			<if test="dynamicPageId !=null">
+				DYNAMICPAGE_ID = #{dynamicPageId}
+			</if>
+			<if test="menuFlag !=null">
+				MENU_FLAG = #{menuFlag}
+			</if>
+			<if test="type !=null">
+				TYPE = #{type}
+			</if>
+		</set>
+		WHERE
+		MENU_ID = #{menuId}	</update>
+
+	<update id="update" parameterType="cn.org.awcp.unit.core.domain.PunMenu">
+		UPDATE p_un_menu SET
+		PARENT_MENU_ID = #{parentMenuId},
+		MENU_TYPE = #{menuType},
+		MENU_NAME = #{menuName},
+		MENU_ICON = #{menuIcon},
+		MENU_ADDRESS = #{menuAddress},
+		MENU_SEQ = #{menuSeq},
+		SYSTEM_ID = #{sysId},
+		DYNAMICPAGE_ID = #{dynamicPageId},
+		PID = #{pid},
+		MENU_FLAG = #{menuFlag},
+		TYPE = #{type}
+		WHERE
+		MENU_ID = #{menuId} 	</update>
+
+
+	
+	<select id="selectByExample" resultMap="rm"
+		parameterType="cn.org.awcp.core.domain.BaseExample">
+		select
+		<if test="distinct">
+			distinct
+		</if>
+		<include refid="Base_Column_List" />
+		from p_un_menu
+		<if test="_parameter != null">
+			<include refid="Select_Example_Where_Clause" />
+		</if>
+		<if test="orderByClause != null">
+			order by ${orderByClause}
+		</if>
+		<if test="start !=0 or limit!=0">
+			limit #{start},#{limit}
+		</if>
+	</select>
+	<select id="eqQueryList" resultMap="rm" parameterType="Object">
+		select
+		<include refid="Base_Column_List" />
+		from p_un_menu
+		<include refid="EQ_Where_Clause" />
+	</select>
+	<!-- 获取所有父资源 -->
+	<select id="queryByPID"  parameterType="Object" resultMap="rm">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM p_un_menu
+		WHERE PID LIKE #{pid}
+	</select>
+		
+	<!-- 根据sysId和whichEnd查询资源 -->
+	<select id="getMenuListByEnd" parameterType="Object" resultMap="rm">		
+	    SELECT m.* FROM p_un_resource r
+	    INNER JOIN p_un_menu m ON r.RELATE_RESO_ID = m.MENU_ID
+	    WHERE 1 = 1 AND r.RESOURCE_TYPE =1 
+	    <if test="sysId != null">			
+			AND r.SYS_ID = #{sysId} 
+		</if>
+		<if test="whichEnd != null">			
+			AND r.WHICH_END = #{whichEnd} 
+		</if>			
+	</select>	
+		
+	<!-- 根据pid查询子孙资源 -->
+	<select id="getPosterityMenuListByPid" parameterType="Object" resultMap="rm">
+		select
+		<include refid="Base_Column_List" />
+		from p_un_menu
+		WHERE PID LIKE '${pid}%'		
+	</select>		
+  	
+  	
+  	
+</mapper>
+

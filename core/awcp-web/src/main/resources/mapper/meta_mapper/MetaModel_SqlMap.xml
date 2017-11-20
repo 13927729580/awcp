@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.org.awcp.metadesigner.core.domain.MetaModel">
+	<!-- <cache type="org.mybatis.caches.memcached.LoggingMemcachedCache" />  -->
+	<resultMap id="BaseResultMap"
+		type="cn.org.awcp.metadesigner.core.domain.MetaModel">
+		<id column="id" property="id" jdbcType="BIGINT" />
+		<result column="modelClassId" property="modelClassId" jdbcType="BIGINT" />
+		<result column="modelName" property="modelName" jdbcType="VARCHAR" />
+		<result column="modelCode" property="modelCode" jdbcType="VARCHAR" />
+		<result column="modelDesc" property="modelDesc" jdbcType="VARCHAR" />
+		<result column="tableName" property="tableName" jdbcType="VARCHAR" />
+		<result column="projectName" property="projectName" jdbcType="VARCHAR" />
+		<result column="modelType" property="modelType" jdbcType="INTEGER" />
+		<result column="modelSynchronization" property="modelSynchronization"
+			jdbcType="INTEGER" />
+		<result column="modelValid" property="modelValid" jdbcType="INTEGER" />
+		<result column="SYSTEM_ID" property="systemId" jdbcType="BIGINT" />
+		<result column="DATASOURCE_ID" property="dataSourceId" jdbcType="BIGINT" />
+	</resultMap>
+	<!-- 
+	<parameterMap type="cn.org.awcp.metadesigner.core.domain.MetaModel" id="BaseParamsMap">
+		<parameter property="id" resultMap="id"/>
+		<parameter property="modelClassId" resultMap="modelClassId"/>
+		<parameter property="modelName" resultMap="modelName"/>
+		<parameter property="modelCode" resultMap="modelCode"/>
+		<parameter property="modelDesc" resultMap="modelDesc"/>
+		<parameter property="tableName" resultMap="tableName"/>
+		<parameter property="projectName" resultMap="projectName"/>
+		<parameter property="modelType" resultMap="modelType"/>
+		<parameter property="modelSynchronization" resultMap="modelSynchronization"/>
+		<parameter property="modelValid" resultMap="modelValid"/>
+	</parameterMap>
+	
+	ORACLE
+	< select   id = "ibatorgenerated_selectByExample"       resultMap = "ibatorgenerated_BaseResultMap"   
+         parameterClass = "com.demo.ibatis.beans.UserExample" >   
+        [b]  < isNotNull   property = "limitClauseStart" >   
+            select* from(select rownum tid,user.* FROM (   
+                   </ isNotNull > [/b]   
+                   select * from user   
+     < isParameterPresent >   
+         < include   refid = "user.ibatorgenerated_Example_Where_Clause"   />   
+             < isNotNull   property = "orderByClause" >   
+                order by $orderByClause$                 
+                         </ isNotNull >   
+                        [b]   < isNotNull   property = "limitClauseStart" >   
+                    <![[CDATA )user where where rownum<$limitClauseCount$+$limitClauseStart$+1) where tid>$limitClauseStart$;]]>  
+                  </ isNotNull > [/b]   
+     </ isParameterPresent >   
+     
+     SQLSERVER
+     < select   id = "ibatorgenerated_selectByExample"   resultMap = "ibatorgenerated_BaseResultMap"   
+         parameterClass = "com.demo.ibatis.beans.UserExample" >   
+        [b]  < isNotNull   property = "limitClauseStart" >   
+            SELETE TOP $limitClauseCount$ * FROM user where (ID NOT IN    
+                       (SELECT TOP $limitClauseStart$ ID    
+                   </ isNotNull > [/b]   
+                    < isNull   property = "limitClauseStart" >   
+            SELETE *    
+           </ isNull >   
+                    FROM user    
+        from user   
+     < isParameterPresent >   
+         < include   refid = "user.ibatorgenerated_Example_Where_Clause"   />   
+             < isNotNull   property = "orderByClause" >   
+                order by $orderByClause$   
+                               [b]   < isNotNull   property = "limitClauseStart" >   
+                     ))order by $orderByClause$   
+                     </ isNotNull > [/b]   
+                         </ isNotNull >   
+     </ isParameterPresent >   
+</ select >  
+</ select >   
+	 -->
+	 <!--++++++++++++++++++++++++++++系统默认XML配置++++++++++++++++++++++++++++++++ -->
+	<sql id="Base_Column_List">
+		id, modelClassId, modelName, modelCode, modelDesc,
+		tableName,
+		projectName, modelType,
+		modelSynchronization, modelValid,SYSTEM_ID,DATASOURCE_ID
+	</sql>
+	<sql id="EQ_Where_Clause">
+		where 1=1
+		<trim  suffixOverrides=",">
+			<if test="modelName!=null and modelName!=''">
+				AND modelName = #{modelName}
+			</if>
+
+			<if test="modelCode!=null and modelCode!=''">
+				AND modelCode = #{modelCode}
+			</if>
+			
+			<if test="tableName!=null and tableName!=''">
+				AND tableName=#{tableName}
+			</if>
+			
+			<if test="projectName!=null and projectName!=''">
+				AND projectName=#{projectName}
+			</if>
+			 <if test="systemId!=null and systemId!=''">
+				AND SYSTEM_ID=#{systemId}
+			</if> 
+			 <if test="modelSynchronization!=null and modelSynchronization!=''">
+				AND modelSynchronization=#{modelSynchronization}
+			</if> 
+		</trim>
+	</sql>
+	
+	
+	
+		<sql id="Select_Example_Where_Clause">
+		<where>
+			<foreach collection="oredCriteria" item="criteria" separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" suffix=")" prefixOverrides="and">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition} #{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition} #{criterion.value}
+									and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach collection="criterion.value" item="listItem"
+										open="(" close=")" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+
+	<!-- 查询条件 
+	<sql id="EQ_Where_Clause">
+		where 1=1
+		<trim suffixOverrides=",">
+			<if test="id != null and id != ''">
+				and id = #{id}
+			</if>
+			<if test="modelClassId != null and modelClassId != ''">
+				and modelClassId = #{modelClassId}
+			</if>
+			<if test="modelName != null and modelName != ''">
+				and modelName = #{modelName}
+			</if>
+			<if test="modelCode != null and modelCode != ''">
+				and modelCode = #{modelCode}
+			</if>
+			<if test="modelDesc != null and modelDesc != ''">
+				and modelDesc = #{modelDesc}
+			</if>
+			<if test="tableName != null and tableName != ''">
+				and tableName = #{tableName}
+			</if>
+			<if test="projectName != null and projectName != ''">
+				and projectName = #{projectName}
+			</if>
+			<if test="modelType != null and modelType != ''">
+				and modelType = #{modelType}
+			</if>
+			<if test="modelSynchronization != null and modelSynchronization != ''">
+				and modelSynchronization = #{modelSynchronization}
+			</if>
+			<if test="modelValid != null and modelValid != ''">
+				and modelValid = #{modelValid}
+			</if>
+		</trim>
+	</sql>-->
+	
+	
+	<!-- 查询记录总数 -->
+	<select id="queryCountByExample" resultType="INTEGER" 
+		parameterType="cn.org.awcp.core.domain.BaseExample">
+		select count(*) as C from (
+		select
+		<if test="distinct">
+			distinct
+		</if>
+		<include refid="Base_Column_List" />
+		from fw_mm_metamodel
+		<if test="_parameter != null">
+			<include refid="Select_Example_Where_Clause" />
+		</if>
+		) tmpcount
+		
+	</select>
+
+	<!-- 查询所有 -->
+	<select id="getAll" resultMap="BaseResultMap">
+		select * from fw_mm_metamodel and SYSTEM_ID=#{systemId}
+	</select>
+	
+	<!-- 模糊查询 -->
+	<select id="selectByExample" resultMap="BaseResultMap"
+		parameterType="cn.org.awcp.core.domain.BaseExample">
+		select
+		<if test="distinct">
+			distinct
+		</if>
+		<include refid="Base_Column_List" />
+		from fw_mm_metamodel
+		<if test="_parameter != null">
+			<include refid="Select_Example_Where_Clause" />
+		</if>
+		<if test="orderByClause != null">
+			order by ${orderByClause}
+		</if>
+		<if test="start !=0 or limit!=0">
+			limit #{start},#{limit}
+		</if>
+	</select>
+
+	<!-- 增加记录 -->
+	<insert id="insert" parameterType="Object">
+		<selectKey resultType="java.lang.Long" order="AFTER"
+			keyProperty="id">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+		INSERT INTO fw_mm_metamodel
+		(
+		SYSTEM_ID,
+		modelClassId,
+		modelName,
+		modelCode,
+		modelDesc,
+		tableName,
+		projectName,
+		modelType,
+		modelSynchronization,
+		modelValid,
+		DATASOURCE_ID
+		)
+		VALUES
+		(
+		#{systemId},
+		#{modelClassId},
+		#{modelName},
+		#{modelCode},
+		#{modelDesc},
+		#{tableName},
+		#{projectName},
+		#{modelType},
+		#{modelSynchronization},
+		#{modelValid},
+		#{dataSourceId}
+		);
+
+	</insert>
+
+	<!-- 根据id，修改记录 -->
+	<update id="update" parameterType="Object">
+		UPDATE fw_mm_metamodel
+		SET
+		modelClassId = #{modelClassId},
+		modelName = #{modelName},
+		modelCode =
+		#{modelCode},
+		modelDesc = #{modelDesc},
+		tableName = #{tableName},
+		projectName = #{projectName},
+		modelType = #{modelType},
+		modelSynchronization = #{modelSynchronization},
+		modelValid =#{modelValid},
+		SYSTEM_ID =#{systemId},
+		DATASOURCE_ID=#{dataSourceId}
+		WHERE id = #{id};
+	</update>
+	
+	<!-- 根据id，修改记录 -->
+	<update id="updateDataSourceById" parameterType="Object">
+		UPDATE fw_mm_metamodel
+		SET
+		DATASOURCE_ID=#{dataSourceId}
+		WHERE id = #{id};
+	</update>
+
+	<!-- 删除记录 -->
+	<delete id="remove" parameterType="Object">
+		delete from fw_mm_metamodel
+		where id = #{id}
+	</delete>
+
+	<!-- 根据id查询元数据模型 -->
+	<select id="get" resultMap="BaseResultMap" parameterType="Object">
+		select
+		<include refid="Base_Column_List" />
+		from fw_mm_metamodel where id = #{id}
+	</select>
+	
+	<!-- 动态Sql -->
+	<update id="executeSql" parameterType="Object">
+		${sql}
+	</update>
+	
+	<!-- ++++++++++++++++++++++++自定义++++++++++++++++++++++++++++ -->
+
+	<!-- 判断表是否存在 -->
+	<select id="tableIsExist" parameterType="map" resultType="boolean">
+	 	select * from ${tableName} and SYSTEM_ID=#{systemId}
+	</select>
+	
+	<!-- 条件查询 -->
+	<select id="queryByModelCode" parameterType="Object" resultMap="BaseResultMap">
+		select <include refid="Base_Column_List"/> 
+		from 
+		fw_mm_metamodel 
+		<include refid="EQ_Where_Clause" />
+	</select>
+	
+	<!-- 根据表名查询 -->
+	<select id="queryTable" resultMap="BaseResultMap" parameterType="Object">
+		select <include refid="Base_Column_List"/> 
+		from fw_mm_metamodel where
+		 tableName=#{tabelName} and SYSTEM_ID=#{systemId}
+	</select>
+	
+	
+	<!-- 条件查询 -->
+	<select id="queryMetaModel" resultMap="BaseResultMap" parameterType="Object">
+		select <include refid="Base_Column_List"/>
+		 from fw_mm_metaModel 
+		 where 
+		( modelCode=#{modelCode} 
+		 or tableName=#{tableName}
+		 or projectName=#{projectName}) and SYSTEM_ID=#{systemId}
+	</select>
+	
+	<!-- 条件查询 -->
+	<select id="queryList" resultMap="BaseResultMap" parameterType="Object">
+		select
+		<include refid="Base_Column_List" />
+		from fw_mm_metamodel
+		<include refid="EQ_Where_Clause" />
+	</select>
+	
+	<select id="eqQueryList" resultMap="BaseResultMap" parameterType="Object">
+		select
+		<include refid="Base_Column_List" />
+		from fw_mm_metamodel
+		<include refid="EQ_Where_Clause" />
+	</select>
+</mapper>

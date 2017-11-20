@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="cn.org.awcp.unit.core.domain.PunGroupSys">
+	<resultMap id="rm" type="cn.org.awcp.unit.core.domain.PunGroupSys">
+		<result property="groupSysId" jdbcType="BIGINT" 
+		column="GROUP_SYS_ID"/>
+		<result property="groupId" jdbcType="BIGINT"
+			column="GROUP_ID" />
+		<result property="sysId" jdbcType="BIGINT"
+			column="SYS_ID" />
+	</resultMap>
+	<sql id="Base_Column_List">
+	    GROUP_SYS_ID,
+		GROUP_ID,
+		SYS_ID
+	</sql>
+
+   <!-- 复杂条件的查询-->
+	<sql id="Select_Example_Where_Clause">
+		<where>
+			<foreach collection="oredCriteria" item="criteria" separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" suffix=")" prefixOverrides="and">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition}
+									#{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition}
+									#{criterion.value}
+									and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach collection="criterion.value" item="listItem"
+										open="(" close=")" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+	<!-- 所有字段等于的查询条件 -->
+	<sql id="EQ_Where_Clause">
+		where 1=1
+		<trim suffixOverrides=",">
+			<if test="groupSysId != null and groupSysId != ''">
+				AND GROUP_SYS_ID = #{groupSysId}
+			</if>
+			<if test="groupId != null and groupId != ''">
+				AND GROUP_ID = #{groupId}
+			</if>
+
+			<if test="sysId != null and sysId != ''">
+				AND SYS_ID = #{sysId}
+			</if>
+		</trim>
+	</sql>
+	<select id="get" parameterType="java.lang.Long" resultMap="rm">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM p_un_group_sys
+		WHERE
+		GROUP_SYS_ID = #{groupSysId}
+	</select>
+	<!-- 查询所有的ID -->
+	<select id="findAllIds" resultType="java.lang.Long">
+		SELECT
+		GROUP_ID FROM p_un_group_sys
+	</select>
+	<!-- 按Id删除 -->
+	<delete id="remove" parameterType="java.lang.Long">
+		DELETE FROM p_un_group_sys
+		WHERE
+		GROUP_SYS_ID = #{groupSysId}
+	</delete>
+	
+	<!-- 根据groupID批量删除 -->
+	<delete id="batchDeleteByGroupId" parameterType="String">
+		DELETE FROM p_un_group_sys
+		WHERE 
+		GROUP_ID = #{groupId}
+	</delete>
+	
+	<delete id="deleteBySysAndGroup" parameterType="String">
+		DELETE FROM p_un_group_sys
+		WHERE 
+		<if test="groupId != null">
+			GROUP_ID = #{groupId}
+		</if>
+		<if test="sysId != null">
+			SYS_ID = #{sysId}
+		</if>
+	</delete>
+	
+	<!-- 插入 -->
+	<insert id="insert" useGeneratedKeys="true"
+		keyProperty="groupSysId">
+		INSERT INTO p_un_group_sys (
+		GROUP_SYS_ID,
+		GROUP_ID,
+		SYS_ID
+		) VALUES (
+		#{groupSysId},
+		#{groupId},
+		#{sysId}
+		)
+	</insert>
+
+	<select id="countAll" resultType="java.lang.Integer">
+		SELECT
+		count(GROUP_ID) FROM p_un_group_sys
+	</select>
+
+	<select id="getAll" resultMap="rm">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM p_un_group_sys
+	</select>
+
+	<!-- 更新 -->
+	<update id="updateSelective" parameterType="cn.org.awcp.unit.core.domain.PunGroupSys">
+		UPDATE p_un_group_sys
+		<set>
+			<if test="groupId!=null">
+				GROUP_ID = #{groupId},
+			</if>
+			<if test="sysId != null">
+				SYS_ID = #{sysId}
+			</if>
+		</set>
+		WHERE
+		GROUP_SYS_ID = ${groupSysId}	
+		</update>
+
+	<update id="update" parameterType="cn.org.awcp.unit.core.domain.PunGroupSys">
+		UPDATE p_un_group_sys SET
+		GROUP_ID = #{groupId},
+		SYS_ID = #{sysId}
+		WHERE
+		GROUP_SYS_ID = #{groupSysId} 	
+	</update>
+
+
+	
+	<select id="selectByExample" resultMap="rm"
+		parameterType="cn.org.awcp.core.domain.BaseExample">
+		select
+		<if test="distinct">
+			distinct
+		</if>
+		<include refid="Base_Column_List" />
+		from p_un_group_sys
+		<if test="_parameter != null">
+			<include refid="Select_Example_Where_Clause" />
+		</if>
+		<if test="orderByClause != null">
+			order by ${orderByClause}
+		</if>
+		<if test="start !=0 or limit!=0">
+			limit #{start},#{limit}
+		</if>
+	</select>
+	<select id="eqQueryList" resultMap="rm" parameterType="Object">
+		select
+		<include refid="Base_Column_List" />
+		from p_un_group_sys
+		<include refid="EQ_Where_Clause" />
+	</select>
+			
+    		
+</mapper>
+

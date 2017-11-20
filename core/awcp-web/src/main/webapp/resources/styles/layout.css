@@ -1,0 +1,49 @@
+/***表单 rebuild css***/
+body,html{background:#f1f1f1;}
+.container{position:relative;background:#fff;min-width:920px;padding-top:10px;}
+.icons li > i {display: inline-block;width: 20px;}
+form[role='customForm'],#buttons{width:900px;margin:0 auto;}
+#buttons button{margin-bottom:5px;}
+@media (max-width: 900px){
+	.container{min-width:720px;}
+	form[role='customForm'],#buttons{width:700px}
+	form[role='customForm'] .form-group{display:table;width:100%;margin-left:0;margin-right:0;}
+	form[role='customForm'] .form-group [class^=col-]{display:table-cell; float:none;vertical-align:middle; overflow:hidden;}
+	/* form[role='customForm'] .form-group .col-xs-12{padding:0;} */
+}
+form[role='customForm'] .form-control {/* display:inline-block; width:auto; */}
+/* form[role='customForm'] .width-auto{width:auto;}
+form[role='customForm'] .width-full{width:100%;} */
+form[role='customForm'] .control-label{font-weight:normal;text-align:left}
+form[role='customForm'] .form-group{/* display:table;width:100%;  */}
+form[role='customForm'] .form-group [class^=col-]{/* display:table-cell; float:none;vertical-align:middle; */overflow:hidden;}
+ form[role='customForm'] .radio-inline+.radio-inline, form[role='customForm'] .checkbox-inline+.checkbox-inline{margin-left:0;margin-right:10px;}
+/*form[role='customForm'] .radio-inline,form[role='customForm'] .checkbox-inline{padding-left:0;} */
+
+/* #buttons{left:20px;top:30px;right:100%;} */
+#buttons.fixed-buttons{background: rgba(233,233,233,0.8);text-align:center;}
+.toTop{position:fixed;bottom:0;right:20px;z-index:1030;display:none;color:#333;background:#efefef;padding:10px 5px;text-align:center;}
+.toTop:hover,.toTop:focus{text-decoration:none;background-color:#108BF1;color:#fff;}
+.scrollMenu{width:120px;margin-top:20px;padding:10px 0;background-color:#f1f1f1;opacity:0.8}
+.scrollMenu a{display:block;padding:0 5px;margin:5px 0;color:#333;}
+.scrollMenu a:hover{color:#06c}
+.scrollMenu a:hover,.scrollMenu a:focus{text-decoration:none;}
+.scrollMenu .icon{margin:0 5px;color:#ccc;cursor:pointer;}
+.scrollMenu .con{max-height:200px;overflow:auto;}
+/*缩进样式*/
+.indent20{text-indent:20px;}/*一级缩进*/
+.indent40{text-indent:40px;}/*二级缩进*/
+.indent60{text-indent:60px;}/*三级缩进*/
+/*标题样式*/
+.form-group [class^=col-] .lTitle{width: 100%;font-weight: bolder;font-size: 20px;}/*大标题*/
+.form-group [class^=col-] .mTitle{width: 100%;font-weight: bolder;font-size: 16px;}/*中标题*/
+.form-group [class^=col-] .input-group .mTitle{width:auto;}
+.form-group [class^=col-] .sTitle{width: 100%;font-weight: bolder;font-size: 12px;}/*小标题*/
+.lTitle i,.mTitle i,.sTitle i{font-weight:normal;font-style:normal;font-weight:14px;}
+/*文本位置*/
+.form-group [class^=col-] .textLeft{width: 100%;text-align: left;}/*文本居左*/
+.form-group [class^=col-] .textRight{width: 100%;text-align: right;}/*文本居右*/
+.form-group [class^=col-] .textCenter{width: 100%;text-align: center;}/*文本居中*/
+@media print {
+	#buttons{visibility: hidden;display:none;}
+}

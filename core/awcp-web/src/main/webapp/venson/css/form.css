@@ -1,0 +1,29 @@
+#uploading div{
+    display: inline-block;
+}
+#uploading ul li{
+    list-style: none;
+    float: left;
+    position: relative;
+    width: 10%;
+    overflow: hidden;
+    margin: .2rem;
+}
+#uploading .upload_img{
+    height:46px;position: relative;width: 100%;
+}
+#uploading .upload_name{
+    font-size: 1rem;line-height: 1.5rem;position:absolute;bottom: 0;left: 0;text-align: center;width: 100%;
+}
+#file_input{
+    opacity: 0;height: 3.5rem;cursor: pointer;position: relative;width: 100%;
+}
+textarea{
+    height: 45px;
+    !important;
+}
+.file_imgs{
+    width: 100%;height:46px;position: absolute;
+}
+.select_select2_main{margin: 5px;padding: 5px;}
+.select_select2_main label{margin: 5px;}

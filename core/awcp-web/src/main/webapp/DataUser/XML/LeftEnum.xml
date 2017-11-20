@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <!-- 经典模式的左边菜单 -->
+  <ClassicMenu No="Start" CH="发起流程"  Url="WF/App/Classic/Start.jsp" Img="WF/App/Classic/Port/Img/Menu/Start.png" Enable="1" Title="发起我能够发起的流程" />
+  <ClassicMenu No="EmpWorks" CH="待办" Url="WF/App/Classic/Todolist.jsp" Img="WF/App/Classic/Port/Img/Menu/EmpWorks.png" Enable="1" Title="等待我处理的工作。" />
+  <ClassicMenu No="CH" CH="时效考核" Url="WF/CH/FlowCH.jsp" Img="WF/App/Classic/Port/Img/Menu/EmpWorks.png" Enable="1" Title="等待我处理的工作。" />
+  <ClassicMenu No="Batch" CH="批处理" Url="WF/Batch.jsp" Img="WF/App/Classic/Port/Img/Menu/Batch.png" Enable="1" Title="等待我处理的工作。" />
+  <ClassicMenu No="Sharing" CH="任务池" Url="WF/TaskPoolSharing.jsp" Img="WF/App/Classic/Port/Img/Menu/Sharing.png" Enable="1" Title="等待我处理的工作。" />
+  <ClassicMenu No="Runing" CH="在途工作"   Url="WF/App/Classic/Runing.jsp" Img="WF/App/Classic/Port/Img/Menu/Ruing.png" Enable="1" Title="我参与的工作，没有完成。" />
+  <ClassicMenu No="Search" CH="流程查询"  Url="WF/App/Classic/Search.jsp"  Img="WF/App/Classic/Port/Img/Menu/Search.png" Enable="1" Title="流程查询。" />
+  <ClassicMenu No="HungUpList" CH="挂起"    Url="WF/HungUpList.jsp" Img="WF/App/Classic/Port/Img/Menu/HungUp.png" Enable="1" Title="等待我处理的工作。" />
+  <ClassicMenu No="CC" CH="抄送"  Url="WF/CC.jsp" Img="WF/App/Classic/Port/Img/Menu/CC.png" Enable="1" Title="抄送给我的工作。" />
+  <ClassicMenu No="GetTask" CH="取回审批"  Url="WF/GetTask.jsp" Img="WF/App/Classic/Port/Img/Menu/GetTask.png" Enable="1" Title="抄送给我的工作。" />
+  <ClassicMenu No="Calendar" CH="日历"  Url="WF/Calendar.jsp" Img="WF/App/Classic/Port/Img/Menu/Rili.jpg" Enable="0" Title="查看自己每天都做了什么" />
+  <ClassicMenu No="Tools" CH="设置"   Url="WF/Tools.jsp" Img="WF/App/Classic/Port/Img/Menu/Setting.png" Enable="1" Title="工具栏" />
+  <ClassicMenu No="Emps"  CH="通讯录"   Url="WF/Emps.jsp" Img="WF/App/Classic/Port/Img/Menu/Emps.png" Enable="1" Title="员工通讯录。" />
+  <ClassicMenu No="Login" CH="切换"   Url="WF/Login.jsp" Img="WF/App/Classic/Port/Img/Menu/Switch.png" Enable="1" Title="切换用户。" />
+</NewDataSet>

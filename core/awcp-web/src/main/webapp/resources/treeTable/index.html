@@ -1,0 +1,106 @@
+<#include "templates/parseFunction.ftl">
+<#include "templates/pagerParserFunction.ftl">
+<#noparse>
+<#assign path = request.getContextPath()>
+<#assign basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/">
+<!DOCTYPE html>
+<HTML>
+
+	<HEAD>
+		<TITLE>表格树</TITLE>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" href="${basePath}resources/treetable/css/jquery.treetable.css" type="text/css">
+		<script type="text/javascript" src="${basePath}resources/JqEdition/jquery-1.10.2.js"></script>
+		<script type="text/javascript" src="${basePath}resources/treetable/js/jquery.treetable.js"></script>
+	</HEAD>
+<BODY>
+				<table id='treetable'>
+				<thead>
+				<th>Filename</th>
+				<th>Size</th>
+				</thead>
+	
+</#noparse>
+					<#if components?? >
+						<#list components?sort_by("order") as c>
+							<#if c['componentType']=='1036'>
+								<@convertAddSearch c />
+							</#if>
+						</#list>
+					</#if>
+					<#if components?? >
+						 <#list components?sort_by("order") as c>
+							<#if c['componentType']!='1013'&&c['componentType']!='1036' >
+								<@parseColumn c />
+							</#if>
+						</#list>
+					</#if>
+<#noparse>
+						</tr>
+					</thead>
+					<tbody id="dataList">
+		            	<#if </#noparse>${dataAlias[0]}<#noparse>_list?? && </#noparse>${dataAlias[0]}<#noparse>_list?size gte 1>	
+		            	 	<#list
+</#noparse>
+		            	 		${dataAlias[0]}_list as ${dataAlias[0]}>
+<#noparse> 
+							<tr>
+								<td class="hidden formData"><input id="boxs" type="hidden"
+								value="${</#noparse>${dataAlias[0]}<#noparse>.ID!''}"></td> 	
+</#noparse>				
+						<td><#noparse>${(</#noparse>${dataAlias[0]}_list_paginator.getPage() * ${dataAlias[0]}_list_paginator.getLimit() - ${dataAlias[0]}_list_paginator.getLimit() + ${dataAlias[0]}_index + 1<#noparse>)?string('0000')}</#noparse></td>
+						<#if components?? >
+							 <#list components?sort_by("order") as c>
+								<#if c['componentType']!='1013'&&c['componentType']!='1036' >
+									<@parseColumnData c />
+								</#if>
+							</#list>
+						</#if>
+<#noparse>				
+							</tr>
+							</#list>
+						</#if>
+					</tbody>
+				</table>
+			</div>
+		</div>
+</#noparse>	
+
+<#noparse>	
+
+	<SCRIPT type="text/javascript">
+		var option = {
+			theme:'vsStyle',
+			expandLevel : 2,
+			beforeExpand : '',
+			onSelect : function($treeTable, id) {
+				window.console && console.log('onSelect:' + id);
+			}
+		},
+		$('#treetable').treetable();
+		$('#treetablet tbody').on('mousedown','tr',function(){
+		  $('.selected').not(this).removeClass('selected');
+		  $(this).toggleClass('selected');
+		});
+		
+		
+</#noparse>
+		<#if page??>
+				<#if page.getAfterLoadScript()??>
+					${page.getAfterLoadScript()}
+				</#if>
+		</#if>
+		
+		<#list pageActs?sort_by("order") as act>
+			<#if true>
+				<@convertScript act />
+			</#if>
+		</#list>  
+<#noparse>
+		});
+  
+		
+	</script>
+</body>
+</html>
+</#noparse>		

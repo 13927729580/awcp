@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="cn.org.awcp.formdesigner.core.domain.PfmTemplate">
+	<!-- <cache type="org.mybatis.caches.memcached.LoggingMemcachedCache" /> --> 
+	<resultMap id="BaseResultMap" type="cn.org.awcp.formdesigner.core.domain.PfmTemplate">
+		<result property="id" jdbcType="CHAR"
+			column="id" />
+		<result property="fileName" jdbcType="VARCHAR"
+			column="file_name" />
+		<result property="sysId" jdbcType="BIGINT"
+			column="sys_id" />
+		<result property="description" jdbcType="VARCHAR"
+			column="description" />
+		<result property="fileLocation" jdbcType="VARCHAR"
+			column="file_location" />
+		<result property="content" jdbcType="BLOB" column="CONTENT"/>
+	</resultMap>
+
+
+	<select id="selectByExample" resultMap="BaseResultMap"
+		parameterType="cn.org.awcp.core.domain.BaseExample">
+		select
+		<if test="distinct">
+			distinct
+		</if>
+		<include refid="Base_Column_List" />
+		from p_fm_template
+		<if test="_parameter != null">
+			<include refid="Select_Example_Where_Clause" />
+		</if>
+		<if test="orderByClause != null">
+			order by ${orderByClause}
+		</if>
+		<if test="start !=0 or limit!=0">
+			limit #{start},#{limit}
+		</if>
+	</select>
+	
+	 <!-- 复杂条件的查询-->
+	<sql id="Select_Example_Where_Clause">
+		<where>
+			<foreach collection="oredCriteria" item="criteria" separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" suffix=")" prefixOverrides="and">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition} #{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition} #{criterion.value}
+									and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach collection="criterion.value" item="listItem"
+										open="(" close=")" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+	
+
+
+	<sql id="Base_Column_List">
+		id,
+		file_name,
+		sys_id,
+		description,
+		file_location,
+		content
+	</sql>
+
+	<select id="queryList" resultMap="BaseResultMap" parameterType="Object">
+		select
+		<include refid="Base_Column_List" />
+		from p_fm_template
+		<include refid="EQ_Where_Clause" />
+	</select>
+
+	<sql id="EQ_Where_Clause">
+		where 1=1
+		<trim suffixOverrides=",">
+			<if test="fileName !=null">
+				AND file_name = #{fileName}			</if>
+			<if test="sysId !=null">
+				AND sys_id = #{sysId}			</if>
+			<if test="description !=null">
+				AND description = #{description}			</if>
+			<if test="fileLocation !=null">
+				AND file_location = #{fileLocation}			</if>
+			<if test="content !=null">
+				AND content = #{content}			</if>
+		</trim>
+	</sql>
+
+	<select id="get" parameterType="java.lang.String" resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM p_fm_template
+		WHERE
+		id = #{id} 	</select>
+	<!-- 查询所有的ID -->
+	<select id="findAllIds" resultType="Object">
+		SELECT
+		id FROM p_fm_template
+	</select>
+
+	<!-- 按Id删除 -->
+	<delete id="remove" parameterType="Object">
+		DELETE FROM p_fm_template
+		WHERE
+		id =
+		#{id} 
+	</delete>
+	<!-- 插入 -->
+	<insert id="insert">
+		INSERT INTO p_fm_template (
+		id,
+		file_name,
+		sys_id,
+		description,
+		file_location,
+		content
+		) VALUES (
+#{id},
+#{fileName},
+#{sysId},
+#{description},
+#{fileLocation},
+#{content}
+		)
+	</insert>
+
+	<select id="countAll" resultType="java.lang.Integer">
+		SELECT
+		count(id) FROM p_fm_template
+	</select>
+
+	<select id="getAll" resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM p_fm_template
+	</select>
+
+	<!-- 更新 -->
+	<update id="updateSelective" parameterType="cn.org.awcp.formdesigner.core.domain.PfmTemplate">
+		UPDATE p_fm_template
+		<set>
+			<if test="fileName!=null">
+				file_name = #{fileName},
+			</if>
+			<if test="sysId!=null">
+				sys_id = #{sysId},
+			</if>
+			<if test="description!=null">
+				description = #{description},
+			</if>
+			<if test="fileLocation!=null">
+				file_location = #{fileLocation},
+			</if>
+			<if test="content!=null">
+				content = #{content}
+			</if>
+		</set>
+		WHERE
+		id =
+		#{id}	</update>
+
+	<update id="update" parameterType="cn.org.awcp.formdesigner.core.domain.PfmTemplate">
+		UPDATE p_fm_template SET
+		<if test="fileName!=null">
+		file_name = #{fileName},</if>
+		<if test="sysId!=null">
+		sys_id = #{sysId},</if>
+		<if test="description!=null">
+		description = #{description},</if>
+		<if test="fileLocation!=null">
+		file_location = #{fileLocation},</if>
+		<if test="content!=null">
+		content = #{content}
+		</if>
+		WHERE
+		id = #{id} 	</update>
+		
+	<select id="queryCountByExample" resultType="INTEGER" 
+		parameterType="cn.org.awcp.core.domain.BaseExample">
+		select count(*) as C from (
+		select
+		<if test="distinct">
+			distinct
+		</if>
+		<include refid="Base_Column_List" />
+		from p_fm_template
+		<if test="_parameter != null">
+			<include refid="Select_Example_Where_Clause" />
+		</if>
+		) tmpcount
+	</select>
+
+</mapper>
+

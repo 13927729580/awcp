@@ -1,0 +1,53 @@
+.datagrid-header{
+	height: 36px !important;
+	background-color:#f1f1f1;
+	border-bottom:1px solid #ddd;
+	transition:box-shadow 0.2s ease 0s;
+}
+.datagrid-htable{
+	height: 36px !important;
+}
+.datagrid-header .datagrid-cell span{
+	font-size:12px !important;
+	font-weight:bold;
+}
+.datagrid-cell, .datagrid-cell-group, .datagrid-header-rownumber, .datagrid-cell-rownumber{
+	height:36px !important;
+	line-height:36px !important;
+	font-size:12px !important;
+}
+.datagrid-header td, .datagrid-body td, .datagrid-footer td{
+	border-style:solid !important;
+}
+.datagrid-header-row, .datagrid-row{
+	height: 36px !important;
+}
+.datagrid-header td.datagrid-header-over{
+	background-color:#e2e2e2;
+}
+.datagrid-header-mouseover{
+	background-color:#e2e2e2;
+}
+.datagrid-body-mouseover{
+	background-color:#e6f0f6;
+}
+.datagrid-row-selected{
+	background-color:#ffebcc;
+}
+.datagrid-group{
+	height: 32px !important;
+}
+.datagrid-group .datagrid-group-title{
+	height: 32px !important;
+	line-height: 32px !important;
+}
+.datagrid-row-expander{
+	height:32px !important;
+	margin:0px !important;
+}
+.tree-expanded, .tree-collapsed, .tree-folder, .tree-file, .tree-checkbox, .tree-indent{
+	vertical-align:middle !important;
+}
+.tree-title{
+	vertical-align:middle !important;
+}

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration scan="false" scanPeriod="3600 seconds" debug="false">
+
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<Target>System.out</Target>
+		<Encoding>UTF-8</Encoding>
+		<encoder>
+			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="logDirfile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<Encoding>UTF-8</Encoding>
+		<Prudent>true</Prudent>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<FileNamePattern>${catalina.base}/logs/szcloud-%d{yyyy-MM-dd}.log</FileNamePattern>
+			<maxHistory>30</maxHistory>
+		</rollingPolicy>
+		
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</Pattern>
+		</layout>
+	</appender>
+	
+	<root level="${log.level}">
+		<appender-ref ref="STDOUT" />
+		<appender-ref ref="logDirfile" />
+	</root>
+</configuration>

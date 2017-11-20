@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="cn.org.awcp.metadesigner.core.domain.MetaModelItems">
+	<!-- <cache type="org.mybatis.caches.memcached.LoggingMemcachedCache" />  -->
+	<resultMap id="rm" type="cn.org.awcp.metadesigner.core.domain.MetaModelItems">
+		<result column="id" jdbcType="BIGINT" property="id"/>
+		<result property="modelId" jdbcType="BIGINT" column="modelId"/>
+		<result property="itemName" jdbcType="VARCHAR" column="itemName"/>
+		<result property="itemCode" jdbcType="VARCHAR" column="itemCode"/>
+		<result property="itemType" jdbcType="VARCHAR" column="itemType"/>
+		<result property="itemLength" jdbcType="VARCHAR" column="itemLength"/>
+		<result property="usePrimaryKey" jdbcType="INTEGER" column="usePrimaryKey"/>
+		<result property="useIndex" jdbcType="INTEGER" column="useIndex"/>
+		<result property="useNull" jdbcType="INTEGER" column="useNull"/>
+		<result property="itemValid" jdbcType="INTEGER" column="itemValid"/>
+		<result property="defaultValue" jdbcType="VARCHAR" column="defaultValue"/>
+		<result property="remark" jdbcType="VARCHAR" column="remark"/>
+	</resultMap>
+	
+	<sql id="EQ_Where_Clause">
+		where 1=1
+		<trim  suffixOverrides=",">
+			<if test="modelId!=null and modelId!=''">
+				AND modelId=#{modelId}
+			</if>
+			
+			<if test="itemName!=null and itemName!=''">
+				AND itemName = #{itemName}
+			</if>
+
+			<if test="itemCode!=null and itemCode!=''">
+				AND itemCode = #{itemCode}
+			</if>
+			
+			<if test="itemType!=null and itemType!=''">
+				AND itemType=#{itemType}
+			</if>
+			
+			<if test="defaultValue!=null and defaultValue!=''">
+				AND defaultValue=#{defaultValue}
+			</if>
+		</trim>
+	</sql>
+	
+	
+	<sql id="Base_Column_List">
+		id,
+		modelId,
+		itemName,
+		itemCode,
+		itemType,
+		itemLength,
+		usePrimaryKey,
+		useIndex,
+		useNull,
+		itemValid,
+		defaultValue,
+		remark
+	</sql>
+	
+			<sql id="Select_Example_Where_Clause">
+		<where>
+			<foreach collection="oredCriteria" item="criteria" separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" suffix=")" prefixOverrides="and">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition} #{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition} #{criterion.value}
+									and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach collection="criterion.value" item="listItem"
+										open="(" close=")" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+	
+	<!-- 查询记录总数 -->
+	<select id="queryCountByExample" resultType="INTEGER" 
+		parameterType="cn.org.awcp.core.domain.BaseExample">
+		select count(*) as C from (
+		select
+		<if test="distinct">
+			distinct
+		</if>
+		<include refid="Base_Column_List" />
+		from fw_mm_metamodelItems
+		<if test="_parameter != null">
+			<include refid="Select_Example_Where_Clause" />
+		</if>
+		) tmpcount
+		
+	</select>
+	
+	<!-- 模糊查询 -->
+	<select id="selectByExample" resultMap="rm"
+		parameterType="cn.org.awcp.core.domain.BaseExample">
+		select
+		<if test="distinct">
+			distinct
+		</if>
+		<include refid="Base_Column_List" />
+		from fw_mm_metamodelItems
+		<if test="_parameter != null">
+			<include refid="Select_Example_Where_Clause" />
+		</if>
+		<if test="orderByClause != null">
+			order by ${orderByClause}
+		</if>
+		<if test="start !=0 or limit!=0">
+			limit #{start},#{limit}
+		</if>
+	</select>
+	
+	<select id="get" parameterType="java.lang.Long" resultMap="rm">
+		SELECT 
+			<include refid="Base_Column_List" />
+		FROM fw_mm_metamodelitems 
+		WHERE 
+			id = #{id} 
+	</select>
+	<!-- 查询所有的ID -->
+	<select id="findAllIds" resultType="java.lang.Long">
+		SELECT id FROM fw_mm_metamodelitems
+	</select>
+
+	<!-- 按Id删除 -->
+	<delete id="remove" parameterType="long">
+		DELETE FROM fw_mm_metamodelitems WHERE
+		id = #{id} 
+	</delete>
+	 <!-- 插入 -->
+	<insert id="insert" parameterType="Object">
+		<selectKey resultType="java.lang.Long" order="AFTER"
+			keyProperty="id">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+		INSERT INTO fw_mm_metamodelitems (
+			modelId,
+			itemName,
+			itemCode,
+			itemType,
+			itemLength,
+			usePrimaryKey,
+			useIndex,
+			useNull,
+			itemValid,
+			defaultValue,
+			remark
+		) VALUES (
+			#{modelId},
+			#{itemName},
+			#{itemCode},
+			#{itemType},
+			#{itemLength},
+			#{usePrimaryKey},
+			#{useIndex},
+			#{useNull},
+			#{itemValid},
+			#{defaultValue},
+			#{remark}
+		)
+	</insert>
+	
+	<select id="countAll" resultType="java.lang.Integer">
+		SELECT count(id) FROM fw_mm_metamodelitems	
+	</select>
+	
+	<select id="findAll" resultMap="rm">
+		SELECT 
+			<include refid="Base_Column_List" />
+		FROM fw_mm_metamodelitems
+	</select>
+	
+	<!-- 更新 -->
+	<update id="updateSelective" parameterType="cn.org.awcp.metadesigner.core.domain.MetaModelItems">
+		UPDATE fw_mm_metamodelitems 
+			<set>
+				<if test="modelId!=null">
+				modelId = #{modelId},
+				</if>
+				<if test="itemName!=null">
+				itemName = #{itemName},
+				</if>
+				<if test="itemCode!=null">
+				itemCode = #{itemCode},
+				</if>
+				<if test="itemType!=null">
+				itemType = #{itemType},
+				</if>
+				<if test="itemLength!=null">
+				itemLength = #{itemLength},
+				</if>
+				<if test="usePrimaryKey!=null">
+				usePrimaryKey = #{usePrimaryKey},
+				</if>
+				<if test="useIndex!=null">
+				useIndex = #{useIndex},
+				</if>
+				<if test="useNull!=null">
+				useNull = #{useNull},
+				</if>
+				<if test="itemValid!=null">
+				itemValid = #{itemValid},
+				</if>
+				<if test="defaultValue!=null">
+				defaultValue = #{defaultValue},
+				</if>
+				<if test="remark!=null">
+				remark = #{remark}
+				</if>
+			</set>
+		WHERE 
+			id = #{id}
+	</update>
+	
+	<update id="update" parameterType="cn.org.awcp.metadesigner.core.domain.MetaModelItems">
+		UPDATE fw_mm_metamodelitems SET
+			modelId = #{modelId},
+			itemName = #{itemName},
+			itemCode = #{itemCode},
+			itemType = #{itemType},
+			itemLength = #{itemLength},
+			usePrimaryKey = #{usePrimaryKey},
+			useIndex = #{useIndex},
+			useNull = #{useNull},
+			itemValid = #{itemValid},
+			defaultValue = #{defaultValue},
+			remark = #{remark}
+		WHERE 
+			id = #{id} 
+	</update>
+	
+	<delete id="removeByFK" parameterType="Object">
+		delete from fw_mm_metamodelItems where modelId=#{fkId}
+	</delete>
+	
+	
+	<select id="queryByState" resultMap="rm" parameterType="Object">
+	select 
+	<include refid="Base_Column_List"/>
+	from fw_mm_metamodelitems where itemValid=0 and modelId=#{modelId} 
+	</select>
+	
+	<select id="queryColumn" resultMap="rm" parameterType="Object">
+		select <include refid="Base_Column_List"/> from fw_mm_metamodelitems where modelId=#{modelId} and itemCode=#{itemCode}
+	</select>
+	
+	<!-- 根据条件查询 -->
+
+	<select id="queryResult" resultMap="rm" parameterType="Object">
+	select 
+	<include refid="Base_Column_List"/>
+	from fw_mm_metamodelitems where modelId=${modelId} 
+	</select>
+
+	<select id="columnIsExist" parameterType="map" resultType="boolean"> 
+		select #{itemName} from #{tableName} 
+	</select>
+
+	<!-- 查询数据库表的所有字段名 -->
+	<select id="queryTableName" resultMap="rm" parameterType="Object">
+		 select COLUMN_NAME as itemName from information_schema.COLUMNS where table_name =#{params} 
+	</select>
+	
+	<!-- 查询出最大的编号 -->
+	<select id="maxId" resultMap="rm">
+		select max(id) as id from fw_mm_metamodelItems where modelId=#{modelId}
+	</select>	
+	
+	<select id="queryList" resultMap="rm" parameterType="Object">
+		select
+		<include refid="Base_Column_List" />
+		from fw_mm_metamodelitems
+		<include refid="EQ_Where_Clause" />
+	</select>
+</mapper>
+

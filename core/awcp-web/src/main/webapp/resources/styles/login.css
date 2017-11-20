@@ -1,0 +1,205 @@
+@charset "utf-8";
+/* CSS Document */
+/*common style attibution below*/
+html{color:#000;background:#FFF; }
+body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,input,button,textarea,p,blockquote,th,td{margin:0;padding:0;}
+table{border-collapse:collapse;border-spacing:0;}
+fieldset,img{border:0;}
+address,caption,cite,code,dfn,em,strong,th,var,optgroup{font-style:inherit;font-weight:inherit;}
+del,ins{text-decoration:none;}
+li{list-style:none;}
+caption,th{text-align:left;}
+input,button,select,textarea{outline:none}
+textarea{resize:none}
+q:before,q:after{content:'';}
+a { color:#666; text-decoration:none;} 
+a:hover { text-decoration:none; cursor:pointer;}
+abbr,acronym{border:0;font-variant:normal;}
+sup{vertical-align:baseline;}
+sub{vertical-align:baseline;} 
+input,button,textarea,select,optgroup,option{font-family:inherit;font-size:inherit;font-style:inherit;font-weight:inherit;}
+input,button,textarea,select{*font-size:100%;}
+input,select{vertical-align:middle;}
+body{font:12px/1.231 arial,helvetica,clean,sans-serif;}
+select,input,button,textarea,button{font:99% arial,helvetica,clean,sans-serif;}
+table{font-size:inherit;font:100%; border-collapse:collapse;}
+pre,code,kbd,samp,tt{font-family:monospace;*font-size:108%;line-height:100%;}
+section, article, aside, header, footer, nav, dialog, figure { display:block; }
+.wrap{ width:1000px; height:auto; margin:0 auto;}
+a,a:hover{ text-decoration:none;cursor:pointer;} 
+a:focus{outline:0;} 
+
+.tr { text-align:right;}
+.tl { text-align:left;}
+.tc { text-align:center;}
+
+.fl { float:left;}
+.fr { float:right;}
+
+.pa{ position:absolute;}
+.pr{ position:relative}
+.prz{ position:relative; zoom:1;}
+
+.dn{ display:none;}
+.db{ display:block;}
+.di{ display:inline;}
+.dib{{display:inline-block;*display:inline;*zoom:1;}
+
+.clear{clear:both;line-height:0; font-size:0;}
+.fixed:after { content: "."; display: block; clear: both; height: 0;width:0;font-size:0; visibility: hidden; }
+.fixed {zoom:1;}
+_html .fixed { height: 1%; }
+.vam { vertical-align:middle;}
+
+/*text*/
+.f-fa{ font-family: Arial;}
+.f-fm{font-family: "Microsoft YaHei";}
+.f-fwn{font-weight:normal;}
+.f-fwb{font-weight:bold;}
+.f-oh{overflow:hidden;}
+.fw{ font-family:"Microsoft YaHei";}
+.fw12{font:normal 12px "Microsoft YaHei";}
+.fw14{font:normal 14px "Microsoft YaHei";}
+.fw16{font:normal 16px "Microsoft YaHei";}
+.fw18{font:normal 18px "Microsoft YaHei";}}
+
+.btn-success {
+  color: #fff;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, .2);
+  background-color: #229f24;
+  border-color: #176d19;
+}
+.btn-success:hover,
+.btn-success:focus,
+.btn-success:active {
+  color: #fff;
+  background-color: #1b7d1c;
+  border-color: #135814;
+  -webkit-box-shadow: 0 2px 1px rgba(0, 0, 0, .1);
+          box-shadow: 0 2px 1px rgba(0, 0, 0, .1);
+}
+.btn-primary {
+  color: #fff;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, .2);
+  background-color: #3280fc;
+  border-color: #035eed;
+}
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+  color: #fff;
+  background-color: #0a67fb;
+  border-color: #0354d4;
+  -webkit-box-shadow: 0 2px 1px rgba(0, 0, 0, .1);
+          box-shadow: 0 2px 1px rgba(0, 0, 0, .1);
+}
+.btn {
+  display: inline-block;
+  padding: 5px 10px;
+  margin-bottom: 0;
+  font:normal 16px "Microsoft YaHei";
+  line-height: 1.53846154;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  cursor: pointer;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+  background-image: none;
+  border: 1px solid transparent;
+  -webkit-transition: all .8s cubic-bezier(.175, .885, .32, 1);
+       -o-transition: all .8s cubic-bezier(.175, .885, .32, 1);
+          transition: all .8s cubic-bezier(.175, .885, .32, 1);
+}
+
+body{ width:100%;height:100%; overflow-x:hidden; overflow-y:auto; margin:0px; padding:0px; font-family:"Microsoft YaHei";border:none;}
+.bodyContainer{width:100%;height:100%; background:#fff; position:absolute; border:none;} /*外围框*/
+.clearfix:after {content: ".";display: block;height: 0;clear: both;visibility: hidden;}
+*html .clearfix {height: 1%;}/*清除浮动*/
+
+.szC-logoBar{ height:44px; background-color:#333;}
+.szC-logoBar .fLink ,.szC-logoBar .copyText{padding:0 20px;}
+.szC-L-logo{height:38px; margin:0 auto; width:100%; background-color:#333;}/*logo样式*/
+.szC-L-logo .szC-logo{ width:100%; margin:auto; vertical-align:middle;padding-left:20px;}
+.szC-L-logo span{position:relative; margin-top:3px; display:block; width:216px; height:38px; background:url(../images/szCloudlogo_mobile.png) left top no-repeat;}
+.szC-L-logo span label{position:absolute;top:0;right:-50px;cursor:pointer}
+@media (min-width: 767px) {
+	.szC-logoBar{ height:80px; background-color:#fafafa;}
+	.szC-L-logo{height:80px; background-color:#fafafa;}/*logo样式*/
+	.szC-L-logo .szC-logo{ width:100%; margin:auto; vertical-align:middle;}
+	.szC-L-logo span{position:relative; margin-top:10px; display:block; width:320px; height:60px; background:url(../images/szCloudlogo_b.png) left top no-repeat;}
+}
+
+.styleGroup{display:none;}
+#checkstyle li{float:left; width:48px; height:36px; line-height:32px; padding:2px;  margin-left:10px; border:1px solid #fff; text-align:center; color:#fff; cursor:pointer;font-size:14px;} 
+#checkstyle li.cur{border:none;} 
+#checkstyle li#green{background-color:#169804;} 
+#checkstyle li#red{background-color:#e02d2d} 
+#checkstyle li#blue{background-color:#3280fc}
+@media (min-width: 767px) {
+	.styleGroup{width: 220px; display:block;}
+	#checkstyle{} /*登录页切换按钮*/
+	#checkstyle li{float:left; width:60px; height:40px; line-height:36px; padding:2px;  margin-left:10px; border:1px solid #fff; text-align:center; color:#fff; cursor:pointer;font-size:16px;} 
+}
+
+
+
+.login-bg{margin:0 auto;}/*登录校验提示*/
+.login-tip{ display:inline-block; float:left; width:190px; height:230px; margin-top:60px; margin-left:-40px; }
+.login-tip dl{ margin-left:-10px; margin-top:-10px;}
+.login-tip dd{ height:48px; line-height:48px; margin-bottom:10px;}
+.errorTip{width: 180px; height: 30px; line-height: 30px;color:red }
+
+
+.login_box{margin-left:auto; margin-right:auto; padding-top:0px; }
+.temp-pic{ width:16%;}
+.login_form{display:inline-block;}/*登录表单*/
+.login_form h1{ font:normal 18px "Microsoft YaHei";}
+.login_form .rem,.login_form .forg{ font-size:14px; line-height:36px; font-weight:normal;}
+.login_box ul{margin-left:40px; margin-right:40px; margin-bottom:16px; height:100%;}
+.login_box li{ list-style:none;vertical-align:middle; line-height:24px;margin-bottom:8px;}
+.login_box li input{  height:36px; font-size:14px; line-height:24px; color:#999;padding:0 5px;}
+.h48{height:36px; line-height:24px;}
+.w150{width:142px;}
+@media (min-width: 400px) {.w150{width:140px;}}
+@media (min-width: 560px) {.w150{width:142px;}}
+@media (min-width: 600px) {.w150{width:142px;}}
+@media (min-width: 767px) {.w150{width:146px;}}
+
+@media (min-width: 992px) {
+	.w150{width:146px;}
+	.login_box{padding-top:28px; }
+	.login_temp{ display:inline-block; width:550px; height:408px; background:url(../images/loginTemp_g.jpg) left top no-repeat;}/*宽度小于767隐藏图片*/
+	.admin .login_temp{background-image:url(../images/loginManage_g.jpg)}
+	.login_box li{ list-style:none;vertical-align:middle; line-height:36px;}
+	.login_box li input{  height:48px; font-size:16px; line-height:36px; color:#999;}
+	.h48{height:48px; line-height:36px;}
+}
+
+@media (min-width: 1200px) {.w150{width:148px;}}
+
+.w300{width:300px;}/*公共宽度*/
+.w180{width:180px;}
+.w160{width:160px;}
+
+.w140{width:140px;}
+.w120{width:120px;}
+.h36{height:36px; line-height:36px;}/*文本高度*/
+
+.fon{ font-size:16px;}
+
+.szC-L-right{background-color:#fafafa; width:100%;;height:10%;margin:0 auto;}/*版权文字样式*/
+.szC-L-right .szC-copy{margin:auto;height:100%;}
+.szC-L-right .Flink{ font-size:14px;float:left;height:100%;vertical-align:middle;line-height:36px;}
+.szC-L-right .Flink a,.szC-L-right .Flink a:visited{ font-size:14px; color:#333; text-decoration:none; display:inline-block; height:100%; margin-left:16px;}
+.szC-L-right .Flink a:hover{color:#f00; text-decoration:none;}
+.copyText{ display:none;}
+
+@media (min-width: 560px) {
+	.szC-L-right .Flink{ font-size:14px;float:left;height:100%;vertical-align:middle;line-height:80px;}
+	.copyText{ display:block; float:right;font-size:14px; color:#999;height:100%;*vertical-align:50%; line-height:36px;}
+}
+@media (min-width: 767px) {.copyText{ display:block; float:right;font-size:14px; color:#999;height:100%;*vertical-align:50%; line-height:80px;}
+}

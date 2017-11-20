@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="cn.org.awcp.formdesigner.core.domain.Attachment">
+ <!-- <cache type="org.mybatis.caches.ehcache.LoggingEhcache"/> --> 
+ 	<!-- <cache type="org.mybatis.caches.memcached.LoggingMemcachedCache" />  -->
+	<resultMap id="rm" type="cn.org.awcp.formdesigner.core.domain.Attachment">
+		<id property="id" jdbcType="VARCHAR" column="ID"/>
+		<result property="storageId" jdbcType="VARCHAR" column="storage_id"/>
+		<result property="fileName" jdbcType="VARCHAR" column="file_Name"/>
+		<result property="userId" jdbcType="BIGINT" column="user_Id"/>
+		<result property="userName" jdbcType="VARCHAR" column="user_Name"/>
+		<result property="contentType" jdbcType="VARCHAR" column="content_Type"/>
+		 <result property="systemId" jdbcType="BIGINT" column="system_Id"/> 
+		<result property="size" jdbcType="BIGINT" column="size"/> 
+		<result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
+		<result column="UPDATE_TIME" property="updateTime" jdbcType="TIMESTAMP" />
+		<result property="type" jdbcType="INTEGER" column="TYPE"/> 
+	</resultMap>
+	<sql id="Base_Column_List">
+		ID,storage_id,file_Name,user_Id,user_Name,content_Type,system_Id,size,CREATE_TIME,UPDATE_TIME,TYPE
+	</sql>
+
+	
+	 <!-- 插入 -->
+	<insert id="insert" keyProperty="id">
+		INSERT INTO p_fm_attachment (
+			ID,
+			storage_id,
+			file_Name,
+			user_Id,
+			user_Name,
+			content_Type,
+			system_Id,
+			size,
+			CREATE_TIME,
+			UPDATE_TIME,
+			TYPE
+			
+		) VALUES (
+			#{id},
+			#{storageId},
+			#{fileName},
+			#{userId},
+			#{userName},
+			#{contentType},
+			#{systemId},
+			#{size},
+			#{createTime},
+			#{updateTime},
+			#{type}
+		)
+	</insert>
+	 <!-- 更新 -->
+	<insert id="update" keyProperty="id">
+		update  p_fm_attachment set 
+			storage_id=#{storageId},
+			file_Name=#{fileName},
+			user_Id=#{userId},
+			user_Name=#{userName},
+			content_Type=#{contentType},
+			system_Id=#{systemId},
+			size=#{size},
+			UPDATE_TIME=#{updateTime},
+			TYPE=#{type}
+			WHERE
+			id = #{id}
+	</insert>
+	
+	<!-- 按Id删除 -->
+	<delete  id="delete" parameterType="String" flushCache="true">
+		DELETE FROM p_fm_attachment WHERE
+		ID = #{id} 
+	</delete>
+	<!-- 按Id删除 -->
+	<delete  id="remove" parameterType="String" flushCache="true">
+		DELETE FROM p_fm_attachment
+		WHERE
+		ID =
+		#{id} 
+	</delete>
+	
+	<select id="get" parameterType="String" resultMap="rm">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM p_fm_attachment
+		WHERE
+		ID = #{id} 
+	</select>
+	
+		
+	
+</mapper>
+
