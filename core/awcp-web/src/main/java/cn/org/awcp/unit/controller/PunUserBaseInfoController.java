@@ -60,32 +60,37 @@ import cn.org.awcp.venson.controller.base.ReturnResult;
 import cn.org.awcp.venson.controller.base.StatusCode;
 import cn.org.awcp.venson.service.FileService;
 
+/**
+ * 用户管理Controller
+ */
 @Controller
 @RequestMapping("/unit")
 public class PunUserBaseInfoController extends BaseController {
 
 	@Autowired
 	@Qualifier("punUserBaseInfoServiceImpl")
-	PunUserBaseInfoService userService;// 用户Service
+	PunUserBaseInfoService userService;//用户Service
 
 	@Autowired
 	@Qualifier("punUserRoleServiceImpl")
-	PunUserRoleService userRoleService;// 用户角色关联Service
+	PunUserRoleService userRoleService;//用户角色关联Service
 
 	@Autowired
 	@Qualifier("punRoleInfoServiceImpl")
-	PunRoleInfoService roleService;// 角色Service
+	PunRoleInfoService roleService;//角色Service
 
 	@Autowired
 	@Qualifier("punUserGroupServiceImpl")
-	PunUserGroupService userGroupService;// 用户组关联Service
+	PunUserGroupService userGroupService;//用户部门关联Service
 
 	@Resource(name = "punPositionServiceImpl")
-	private PunPositionService punPositionService;
+	private PunPositionService punPositionService;//职位Service
+	
 	@Resource(name = "punGroupServiceImpl")
-	private PunGroupService punGroupService;
+	private PunGroupService punGroupService;//部门Service
+	
 	@Autowired
-	private MetaModelOperateService metaModelOperateServiceImpl;
+	private MetaModelOperateService metaModelOperateServiceImpl;//元数据操作Service
 
 	/**
 	 * 获取当前系统角色
@@ -227,9 +232,12 @@ public class PunUserBaseInfoController extends BaseController {
 	}
 
 	/**
-	 * 
-	 * @Title: punUserBaseInfoList @Description: 分页查询并以列表的形式显示 @author
-	 *         ljw @param @return @return ModelAndView @throws
+	 * 用户列表
+	 * @param vo	查询参数
+	 * @param model			
+	 * @param currentPage	当前页数
+	 * @param pageSize		每页记录条数
+	 * @return
 	 */
 	@RequestMapping(value = "punUserBaseInfoList")
 	public ModelAndView punUserBaseInfoList(@ModelAttribute PunUserBaseInfoVO vo, Model model,
@@ -242,15 +250,13 @@ public class PunUserBaseInfoController extends BaseController {
 			if (currentPage < 1) {
 				currentPage = 1;
 			}
-			// String sortString = "p_un_user_base_info.USER_ID desc";
+			String sortString = "p_un_user_base_info.number";
 			BaseExample example = new BaseExample();
 			Criteria criteria = example.createCriteria();
 			String query_deptName = vo.getDeptName();// 部门名称
 			String query_name = vo.getName();// 姓名
-
 			String query_username = vo.getUserName();// 用户名
 			String query_mobile = vo.getMobile();// 手机号
-
 			String query_userIdCardNumber = vo.getUserIdCardNumber();// 身份证号
 			String query_userTitle = vo.getUserTitle();// 职称
 			PunGroupVO groupVO = (PunGroupVO) SessionUtils.getObjectFromSession(SessionContants.CURRENT_USER_GROUP);
@@ -275,8 +281,7 @@ public class PunUserBaseInfoController extends BaseController {
 			if (null != groupVO.getGroupId()) {
 				criteria.andEqualTo("p_un_user_base_info.GROUP_ID", groupVO.getGroupId());
 			}
-			PageList<PunUserBaseInfoVO> vos = userService.selectByExample_UserList(example, currentPage, pageSize,
-					"p_un_user_base_info.number");
+			PageList<PunUserBaseInfoVO> vos = userService.selectByExample_UserList(example, currentPage, pageSize,sortString);
 			model.addAttribute("currentPage", currentPage);
 			model.addAttribute("vos", vos);
 			model.addAttribute("vo", vo);

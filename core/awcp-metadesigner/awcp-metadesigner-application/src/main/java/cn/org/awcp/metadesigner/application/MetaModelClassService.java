@@ -16,7 +16,7 @@ public interface MetaModelClassService {
 	 * 
 	 * @return
 	 */
-	public List<MetaModelClassVO> findAll(long projectId);
+	public List<MetaModelClassVO> findAll();
 
 	/**
 	 * 删除
@@ -46,7 +46,7 @@ public interface MetaModelClassService {
 	 * @param id
 	 * @return
 	 */
-	public MetaModelClassVO get(Long id);
+	public MetaModelClassVO get(String id);
 
 	/**
 	 * 根据项目Id查询
@@ -54,6 +54,6 @@ public interface MetaModelClassService {
 	 * @param sysId
 	 * @return
 	 */
-	public List<MetaModelClassVO> queryByProjectId(long sysId);
+	public List<MetaModelClassVO> queryBySystemId(long sysId);
 
 }

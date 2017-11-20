@@ -28,7 +28,6 @@ import cn.org.awcp.core.domain.Criteria;
 import cn.org.awcp.core.domain.SzcloudJdbcTemplate;
 import cn.org.awcp.core.utils.SessionUtils;
 import cn.org.awcp.core.utils.Springfactory;
-import cn.org.awcp.core.utils.Tools;
 import cn.org.awcp.core.utils.constants.SessionContants;
 import cn.org.awcp.formdesigner.application.service.FormdesignerService;
 import cn.org.awcp.formdesigner.application.service.StoreService;
@@ -89,7 +88,7 @@ public class FormdesignerController extends BaseController {
 		if (currentPage <= 0) {
 			currentPage = 1;
 		}
-		Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+		Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 		BaseExample example = new BaseExample();
 		Criteria criteria = example.createCriteria();
 		if (obj instanceof PunSystemVO) {
@@ -512,7 +511,7 @@ public class FormdesignerController extends BaseController {
 		if (currentPage <= 0) {
 			currentPage = 1;
 		}
-		Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+		Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 		if (obj instanceof PunSystemVO) {
 			BaseExample example = new BaseExample();
 			if (StringUtils.isNotBlank(name)) {
@@ -557,7 +556,7 @@ public class FormdesignerController extends BaseController {
 		if (currentPage <= 0) {
 			currentPage = 1;
 		}
-		Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+		Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 		if (obj instanceof PunSystemVO) {
 			BaseExample example = new BaseExample();
 			if (StringUtils.isNotBlank(name)) {
@@ -586,7 +585,7 @@ public class FormdesignerController extends BaseController {
 	@RequestMapping(value = "/listJson")
 	public String listJson(@RequestParam(required = false) String name) {
 		Long systemId = -1L;
-		Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+		Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 		if (obj instanceof PunSystemVO) {
 			PunSystemVO system = (PunSystemVO) obj;
 			systemId = system.getSysId();

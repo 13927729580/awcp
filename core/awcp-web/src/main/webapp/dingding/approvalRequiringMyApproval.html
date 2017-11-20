@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title data-id="title_requiringMyApproval"></title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<meta name="format-detection" content="telephone=no">
+	<link rel="stylesheet" href="css/approvalList.css">
+</head>
+<body>
+	<div id="MF_APP">
+		<div>
+			<div class="dealed has-tabs overflow-hidden-tab">
+				<div class="tabWrapper">
+					<div class="tabs" style="position: fixed;">
+						<!-- 待我审批的 -->
+						<div class="tab active">
+							<span data-id="myApproval"></span><span>(</span><span id="total">0</span><span>)</span>
+						</div>
+						<!-- 我审批过的 -->
+						<div class="tab" data-id="approvedByMe"></div>
+						<span class="line" style="width: 50%; left: 0%;"></span>
+					</div>
+					<div class="tabContents">
+						<div class="tabContent active">
+							<span> </span>
+							<div>
+								<div>
+									<div class="filterbar-content " style="top: 10%;">
+										<div class="filterbar-btn">
+											<img class="filterbar-img" src="img/filter.png">
+											<span class="filterbar-btn-name" data-id="filter"></span>
+										</div>
+									</div>
+								</div>
+								<div class="infiniteScroll">
+									<div class="list list-upcomming" offset="120">
+										<div class="dealed-list" ></div>
+										<div></div>
+										<div></div>
+									</div>
+								</div>
+								<div class="modalWrapper">
+									<div class="modal"></div>
+								</div>
+							</div>
+							<span> </span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script src="js/jquery.js" charset="utf-8"></script>
+	<script src="js/dingtalk.js" charset="utf-8"></script>
+	<script src="../venson/js/common.js"></script>
+	<script src="js/resource.js"></script>
+	<script>
+		//tab点击事件
+		$(".tabs").find(".tab").click(function(){
+			$(".tabs").find(".tab").removeClass("active");
+			$(this).addClass("active");
+			if($(".tabs").find(".tab").eq(1).hasClass("active")){
+				$(".line").css("left","50%");
+			}
+			else{
+				$(".line").css("left","0%");
+			}
+			getData({});
+		});
+	
+		//进入搜索页面
+		$(".filterbar-btn").click(function(){
+			var page = "requiringMyApproval";
+			if($(".tabs").find(".tab").eq(1).hasClass("active")){
+				page = "approvedByMe";
+			}
+			location.href = baseUrl + "dingding/approvalSearchPage.html?page=" + page;
+		});
+	
+		var wfStatus = Comm.getUrlParam("wfStatus");
+		var ddAppid = Comm.getUrlParam("ddAppid");		
+		var obj = {};
+		if(wfStatus!=null && wfStatus!="all"){
+			obj.wfStatus = wfStatus;
+		}
+		if(ddAppid!=null && ddAppid!="all"){
+			obj.ddAppid = ddAppid;
+		}	
+		console.log(obj); 
+		
+		if(wfStatus != null){
+			$(".tabs").find(".tab").eq(0).removeClass("active");
+			$(".tabs").find(".tab").eq(1).addClass("active");			
+			$(".line").css("left","50%");		
+		}
+		
+		getData(obj);
+	
+		function getData(params){
+			var data = [];
+			if($(".tabs").find(".tab").eq(0).hasClass("active")){
+				data = Comm.getData("api/execute/getRequiringMyApproval",params);
+				$("#total").text(data.length);
+			}
+			else{
+				data = Comm.getData("api/execute/getApprovedByMe",params);
+			}
+			var html = "";
+			for(var i=0;i<data.length;i++){
+				var url = data[i].url;
+				html += '<div class="list-item tTap" data-url="' + url + '"><span></span>';
+				var img = data[i].img;
+				var name = data[i].name;
+				if(img){
+					html += '<img class="item-avatar" src="' + img + '" />';
+				}
+				else{
+					html += '<div class="item-avatar" style="background: #8A8A8A;">' + Comm.handleName(name) + '</div>';
+				}
+				var title = data[i].title;
+				var wfState = data[i].WFState;
+				if(wfState==3){
+					wfState = '<span style="color: #17C295;">' + dd_res.WF_Approved + '</span>';
+				} else if(wfState==12){
+					wfState = '<span style="color: #ccc;">' + dd_res.WF_Cancel + '</span>';
+				} else if(wfState==13){
+					wfState = '<span style="color: #c23e17;">' + dd_res.WF_Reject + '</span>';
+				} else{
+					wfState = '<span style="color: #17C295;">' + dd_res.WF_Pending + '</span>';
+				}
+				html += '<div class="item-content"><div class="item-title-name tOmit">' + title + '</div>' +
+						'<div class="item-status-running">' + wfState + '</div></div>';
+				var date = data[i].RDT;
+				html += '<div class="item-right"><small>' + date + '</small></div><span></span></div>';	
+			}			
+			$(".dealed-list").html(html);		
+			$(".list-item").click(function(){
+				var url = $(this).attr("data-url").replace("workflow","dingding");
+				location.href = url;
+			});
+		}
+	</script>
+</body>
+</html>

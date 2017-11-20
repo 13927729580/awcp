@@ -23,25 +23,25 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
-import cn.org.awcp.base.BaseController;
-import cn.org.awcp.core.domain.BaseExample;
-import cn.org.awcp.core.domain.Criteria;
-import cn.org.awcp.core.utils.Tools;
-import cn.org.awcp.core.utils.constants.SessionContants;
-import cn.org.awcp.metadesigner.application.DataSourceManageService;
-import cn.org.awcp.metadesigner.application.MetaModelService;
-import cn.org.awcp.metadesigner.vo.DataSourceManageVO;
-import cn.org.awcp.metadesigner.vo.MetaModelVO;
-import cn.org.awcp.unit.service.PunSystemService;
-import cn.org.awcp.unit.service.SysSourceRelationService;
-import cn.org.awcp.unit.vo.PunSystemVO;
-import cn.org.awcp.unit.vo.PunUserBaseInfoVO;
-import cn.org.awcp.unit.vo.SysDataSourceVO;
-import cn.org.awcp.venson.controller.base.ControllerHelper;
-
 import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.fastjson.JSON;
 import com.github.miemiedev.mybatis.paginator.domain.PageList;
+
+import cn.org.awcp.base.BaseController;
+import cn.org.awcp.core.domain.BaseExample;
+import cn.org.awcp.core.domain.Criteria;
+import cn.org.awcp.core.utils.SessionUtils;
+import cn.org.awcp.core.utils.constants.SessionContants;
+import cn.org.awcp.metadesigner.application.DataSourceManageService;
+import cn.org.awcp.metadesigner.application.MetaModelService;
+import cn.org.awcp.metadesigner.application.SysSourceRelationService;
+import cn.org.awcp.metadesigner.vo.DataSourceManageVO;
+import cn.org.awcp.metadesigner.vo.MetaModelVO;
+import cn.org.awcp.metadesigner.vo.SysDataSourceVO;
+import cn.org.awcp.unit.service.PunSystemService;
+import cn.org.awcp.unit.vo.PunSystemVO;
+import cn.org.awcp.unit.vo.PunUserBaseInfoVO;
+import cn.org.awcp.venson.controller.base.ControllerHelper;
 
 @Controller
 @RequestMapping(value = "/dataSourceManage")
@@ -212,7 +212,7 @@ public class DataSourceManageController extends BaseController {
 	 */
 	// @ResponseBody
 	@RequestMapping(value = "/remove")
-	public String remove(Long id) {
+	public String remove(String id) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		DataSourceManageVO dsmv = this.dataSourceManageServiceImpl.get(id);
 
@@ -262,8 +262,8 @@ public class DataSourceManageController extends BaseController {
 	 */
 	// @ResponseBody
 	@RequestMapping(value = "/get")
-	public String get(Long id, Model model) {
-		if (id != null) {
+	public String get(String id, Model model) {
+		if (StringUtils.isNotBlank(id)) {
 			DataSourceManageVO dsm = this.dataSourceManageServiceImpl.get(id);
 			model.addAttribute("vo", dsm);
 			if ("local".equals(dsm.getDomain())) {
@@ -376,16 +376,16 @@ public class DataSourceManageController extends BaseController {
 			vo = dataSourceManageServiceImpl.get(vo.getId());
 			mv.addObject("vo", vo);
 		}
-		Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+		Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 		PunSystemVO system = null;
 		if (obj instanceof PunSystemVO) {
 			system = (PunSystemVO) obj;
 		}
-		List<SysDataSourceVO> sysDataRela = sysService.getSystemDataSource(system.getSysId());
+		List<SysDataSourceVO> sysDataRela = sysSourceRelationService.getSystemDataSource(system.getSysId());
 		List<DataSourceManageVO> dataS = new ArrayList<DataSourceManageVO>();
 		if (sysDataRela != null && sysDataRela.size() > 0) {
 			for (SysDataSourceVO dataVo : sysDataRela) {
-				Long sourceId = dataVo.getDataSourceId();
+				String sourceId = dataVo.getDataSourceId();
 				DataSourceManageVO datasource = dataSourceService.get(sourceId);
 				dataS.add(datasource);
 

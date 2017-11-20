@@ -49,9 +49,6 @@ var pageConstant = {
 			this.type.put("1026", "动态选择框");
 			this.type.put("1027", "树形");
 //			this.type.put("1028", "角色选择框");
-//			this.type.put("1029", "单人选择框");
-//			this.type.put("1030", "下级用户选择框");
-//			this.type.put("1031", "sql用户选择框");
 			this.type.put("1032", "数字文本输入框");
 			this.type.put("1033", "级联下拉框");
 			this.type.put("1034", "tab切换");
@@ -64,6 +61,7 @@ var pageConstant = {
             this.type.put("1041","easyUI嵌套表格");
             this.type.put("1042","表格組件-easyUI");
             this.type.put("1101","事件控件");
+            this.type.put("1102","手机省市县控件");
             // this.type.put("1101","钉钉文本输入框");
            // this.type.put("1102","钉钉时间选择框");
            // this.type.put("1103","钉钉多行输入框");

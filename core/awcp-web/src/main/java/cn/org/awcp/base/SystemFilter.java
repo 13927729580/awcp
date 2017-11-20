@@ -11,7 +11,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import TL.ContextHolderUtils;
+import cn.org.awcp.core.utils.ContextContentUtils;
 import cn.org.awcp.venson.controller.base.ControllerContext;
 import cn.org.awcp.venson.controller.base.ReturnResult;
 
@@ -46,7 +46,8 @@ public class SystemFilter implements Filter {
 		ControllerContext.setRequest(httpRequest);
 		ControllerContext.setResponse(httpResponse);
 		ControllerContext.setResult(new ReturnResult());
-		ContextHolderUtils.setResponse(httpResponse);
+		ContextContentUtils.setRequest(httpRequest);
+		ContextContentUtils.setResponse(httpResponse);
 		/**************** 结束 ****************/
 		/*************** 设置字符编码 *****************/
 		httpRequest.setCharacterEncoding(encoding);

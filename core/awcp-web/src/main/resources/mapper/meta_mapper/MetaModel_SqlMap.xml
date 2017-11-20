@@ -6,8 +6,8 @@
 	<!-- <cache type="org.mybatis.caches.memcached.LoggingMemcachedCache" />  -->
 	<resultMap id="BaseResultMap"
 		type="cn.org.awcp.metadesigner.core.domain.MetaModel">
-		<id column="id" property="id" jdbcType="BIGINT" />
-		<result column="modelClassId" property="modelClassId" jdbcType="BIGINT" />
+		<id column="id" property="id" jdbcType="CHAR" />
+		<result column="modelClassId" property="modelClassId" jdbcType="CHAR" />
 		<result column="modelName" property="modelName" jdbcType="VARCHAR" />
 		<result column="modelCode" property="modelCode" jdbcType="VARCHAR" />
 		<result column="modelDesc" property="modelDesc" jdbcType="VARCHAR" />
@@ -226,12 +226,9 @@
 
 	<!-- 增加记录 -->
 	<insert id="insert" parameterType="Object">
-		<selectKey resultType="java.lang.Long" order="AFTER"
-			keyProperty="id">
-			SELECT LAST_INSERT_ID()
-		</selectKey>
 		INSERT INTO fw_mm_metamodel
 		(
+		id,
 		SYSTEM_ID,
 		modelClassId,
 		modelName,
@@ -246,6 +243,7 @@
 		)
 		VALUES
 		(
+		#{id},
 		#{systemId},
 		#{modelClassId},
 		#{modelName},

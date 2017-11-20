@@ -91,6 +91,11 @@
             /logout.do = anon
             /anon/*.do =anon
             /logsso.do =anon
+            <!-- 钉钉模块免校验 begin -->
+            /dingding/config.do =anon
+            /dingding/sso.do =anon
+            /dingding/eventChangeReceive.do =anon
+            <!-- 钉钉模块免校验 end-->
             /common/file/download.do =anon
             /common/file/get.do =anon
             /common/file/showPicture.do =anon

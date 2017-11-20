@@ -24,7 +24,7 @@ public class MetaModelClassServiceImpl implements MetaModelClassService {
 	/**
 	 * 查询所有
 	 */
-	public List<MetaModelClassVO> findAll(long projectId) {
+	public List<MetaModelClassVO> findAll() {
 		List<MetaModelClass> list = MetaModelClass.findAll();
 		List<MetaModelClassVO> ls = new ArrayList<MetaModelClassVO>();
 		for (MetaModelClass mm : list) {
@@ -64,7 +64,7 @@ public class MetaModelClassServiceImpl implements MetaModelClassService {
 		}
 	}
 
-	public MetaModelClassVO get(Long id) {
+	public MetaModelClassVO get(String id) {
 		try {
 			MetaModelClass mmc = MetaModelClass.get(MetaModelClass.class, id);
 			return BeanUtils.getNewInstance(mmc, MetaModelClassVO.class);
@@ -74,7 +74,7 @@ public class MetaModelClassServiceImpl implements MetaModelClassService {
 		}
 	}
 
-	public List<MetaModelClassVO> queryByProjectId(long sysId) {
+	public List<MetaModelClassVO> queryBySystemId(long sysId) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("sysId", sysId);
 		List<MetaModelClass> ls = queryChannel.queryResult(MetaModelClass.class, "queryByProjectId", map);

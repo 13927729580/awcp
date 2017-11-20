@@ -19,18 +19,22 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.github.miemiedev.mybatis.paginator.domain.PageList;
+
 import cn.org.awcp.core.domain.BaseExample;
 import cn.org.awcp.core.domain.Criteria;
 import cn.org.awcp.core.utils.SessionUtils;
 import cn.org.awcp.core.utils.constants.SessionContants;
 import cn.org.awcp.metadesigner.application.DataSourceManageService;
+import cn.org.awcp.metadesigner.application.SysSourceRelationService;
+import cn.org.awcp.metadesigner.core.domain.SysDataSource;
 import cn.org.awcp.metadesigner.vo.DataSourceManageVO;
-import cn.org.awcp.unit.core.domain.SysDataSource;
+import cn.org.awcp.metadesigner.vo.SysDataSourceVO;
 import cn.org.awcp.unit.service.PunMenuService;
 import cn.org.awcp.unit.service.PunRoleAccessService;
 import cn.org.awcp.unit.service.PunRoleInfoService;
 import cn.org.awcp.unit.service.PunSystemService;
-import cn.org.awcp.unit.service.SysSourceRelationService;
 import cn.org.awcp.unit.utils.JsonFactory;
 import cn.org.awcp.unit.utils.PermissionException;
 import cn.org.awcp.unit.utils.ResourceTreeUtils;
@@ -40,10 +44,7 @@ import cn.org.awcp.unit.vo.PunResourceTreeNode;
 import cn.org.awcp.unit.vo.PunResourceVO;
 import cn.org.awcp.unit.vo.PunSystemVO;
 import cn.org.awcp.unit.vo.PunUserBaseInfoVO;
-import cn.org.awcp.unit.vo.SysDataSourceVO;
 import cn.org.awcp.venson.controller.base.ControllerHelper;
-
-import com.github.miemiedev.mybatis.paginator.domain.PageList;
 
 @Controller
 @RequestMapping("/dev")
@@ -87,10 +88,9 @@ public class PunDevUserSystemController {
 			PunSystemVO vo = sysService.findById(boxs[0]);
 			// TODO 暂时不作限制，发布状态的系统不能进行修改
 			/*
-			 * if(vo.getSysStatus().equals(PunSysStatusConstants.
-			 * SYS_STATUS_ONLINE)){ rAttributes.addFlashAttribute("result",
-			 * "已发布系统不能修改！"); mv.setViewName("redirect:punSystemList.do");
-			 * return mv; }
+			 * if(vo.getSysStatus().equals(PunSysStatusConstants. SYS_STATUS_ONLINE)){
+			 * rAttributes.addFlashAttribute("result", "已发布系统不能修改！");
+			 * mv.setViewName("redirect:punSystemList.do"); return mv; }
 			 */
 			SessionUtils.addObjectToSession(SessionContants.TARGET_SYSTEM, vo);
 			mv.addObject("vo", vo);
@@ -123,7 +123,7 @@ public class PunDevUserSystemController {
 	 * @return
 	 */
 	@RequestMapping(value = "/punSystemSave")
-	public ModelAndView punSystemSave(PunSystemVO vo, Long defaultDataSource, Model model, RedirectAttributes ra) {
+	public ModelAndView punSystemSave(PunSystemVO vo, String defaultDataSource, Model model, RedirectAttributes ra) {
 		ModelAndView mv = new ModelAndView();
 		try {
 			/*
@@ -186,11 +186,11 @@ public class PunDevUserSystemController {
 		mv.setViewName("unit/dev/punDevSystem-edit");
 		try {
 			PunSystemVO vo = sysService.findById(boxs[0]);
-			List<SysDataSourceVO> sysDataRela = sysService.getSystemDataSource(vo.getSysId());
+			List<SysDataSourceVO> sysDataRela = sysSourceRelationService.getSystemDataSource(vo.getSysId());
 			List<DataSourceManageVO> dataS = new ArrayList<DataSourceManageVO>();
 			if (sysDataRela != null && sysDataRela.size() > 0) {
 				for (SysDataSourceVO dataVo : sysDataRela) {
-					Long sourceId = dataVo.getDataSourceId();
+					String sourceId = dataVo.getDataSourceId();
 					DataSourceManageVO datasource = dataSourceService.get(sourceId);
 					dataS.add(datasource);
 					if (dataVo.getIsDefault()) {
@@ -274,9 +274,8 @@ public class PunDevUserSystemController {
 			String sortString = "SYS_ID desc";
 			/*
 			 * if(BackEndUserUtils.isDeveloper()){//若登陆用户为开发人员 UserVO user =
-			 * (UserVO)SessionUtils.getObjectFromSession(SessionContants.
-			 * CURRENT_USER); criteria.andEqualTo("SYS_CREATER", user.getId());
-			 * }
+			 * (UserVO)SessionUtils.getObjectFromSession(SessionContants. CURRENT_USER);
+			 * criteria.andEqualTo("SYS_CREATER", user.getId()); }
 			 */
 
 			PageList<PunSystemVO> vos = sysService.selectPagedByExample(example, currentPage, pageSize, sortString);

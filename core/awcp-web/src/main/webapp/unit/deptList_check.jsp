@@ -91,7 +91,7 @@
         $(function(){
         	$.ajax({
                 type:"post",
-                url:"<%=basePath%>taskManagement/persons.do?type=simple",
+                url:"<%=basePath%>queryDeptTreeData.do?type=simple",
                 data:"",
                 async: false,
                 datatype:"json",

@@ -49,7 +49,6 @@ import cn.org.awcp.core.utils.BeanUtils;
 import cn.org.awcp.core.utils.DateUtils;
 import cn.org.awcp.core.utils.SessionUtils;
 import cn.org.awcp.core.utils.Springfactory;
-import cn.org.awcp.core.utils.Tools;
 import cn.org.awcp.core.utils.constants.SessionContants;
 import cn.org.awcp.formdesigner.application.service.DocumentService;
 import cn.org.awcp.formdesigner.application.service.FormdesignerService;
@@ -96,10 +95,10 @@ public class DocumentController extends BaseController {
 	 */
 	protected static final Log logger = LogFactory.getLog(DocumentController.class);
 	private static final int MAX_EXCEL_PAGE_SIZE = 64000;
-	
+
 	@Autowired
 	private FormdesignerService formdesignerServiceImpl;
-	
+
 	@Autowired
 	private DocumentService documentServiceImpl;
 
@@ -134,12 +133,12 @@ public class DocumentController extends BaseController {
 	public String view(String id, String dynamicPageId, String docId, HttpServletResponse response,
 			HttpServletRequest request) throws Exception {
 		/*
-		 *  校验必要参数，查询模版， 渲染模版
+		 * 校验必要参数，查询模版， 渲染模版
 		 */
 		logger.debug(" view.do start");
 		// 新增：id为空时，为新增，获取dp，解析成HTML返回
 		if (StringUtils.isBlank(id) && StringUtils.isBlank(dynamicPageId)) {
-			throw new PlatformException("动态页面ID不存在"); 
+			throw new PlatformException("动态页面ID不存在");
 		} else {
 			DocumentVO docVo = null;
 			DynamicPageVO pageVO = null;
@@ -187,7 +186,7 @@ public class DocumentController extends BaseController {
 			}
 			logger.debug("end init document and dynamicpage");
 			if (docVo == null || pageVO == null) {
-				throw new PlatformException("动态页面初始化失败"); 
+				throw new PlatformException("动态页面初始化失败");
 			}
 			logger.debug("start init request parameters ");
 			Map<String, String> map = new HashMap<String, String>();
@@ -221,7 +220,8 @@ public class DocumentController extends BaseController {
 			docVo.setOrderBy(orderBy);
 
 			// 查找是否存在app页面绑定
-			Object applist = meta.queryObject("select PAGEID_APP from p_un_page_binding where PAGEID_APP_LIST=?",pageVO.getId());
+			Object applist = meta.queryObject("select PAGEID_APP from p_un_page_binding where PAGEID_APP_LIST=?",
+					pageVO.getId());
 			docVo.setAppListPageId(applist.toString());
 
 			logger.debug("start init dataMap ");
@@ -372,7 +372,7 @@ public class DocumentController extends BaseController {
 		docVo = documentServiceImpl.processParams(docVo);
 		StoreVO store = storeServiceImpl.findById(actId);
 		PageActVO act = JSON.parseObject(store.getContent(), PageActVO.class);
-		PunUserBaseInfoVO user = (PunUserBaseInfoVO) Tools.getObjectFromSession(SessionContants.CURRENT_USER);
+		PunUserBaseInfoVO user = (PunUserBaseInfoVO) SessionUtils.getObjectFromSession(SessionContants.CURRENT_USER);
 		// 初始化脚本解释执行器,加载全局工具类
 		ScriptEngine engine = ScriptEngineUtils.getScriptEngine(docVo, pageVO);
 		engine.put("request", request);

@@ -17,10 +17,7 @@ import cn.org.awcp.core.domain.QueryChannelService;
 import cn.org.awcp.core.utils.BeanUtils;
 import cn.org.awcp.unit.core.domain.PunPosition;
 import cn.org.awcp.unit.core.domain.PunSystem;
-import cn.org.awcp.unit.core.domain.SysDataSource;
-import cn.org.awcp.unit.service.PunSystemService;
 import cn.org.awcp.unit.vo.PunSystemVO;
-import cn.org.awcp.unit.vo.SysDataSourceVO;
 
 @Transactional
 @Service("punSystemServiceImpl")
@@ -32,7 +29,7 @@ public class PunSystemServiceImpl implements PunSystemService {
 	/**
 	 * 
 	 * @Title: addOrUpdate @Description: 新增或修改 @author ljw @param @param
-	 * vo @param @throws MRTException @return void @throws
+	 *         vo @param @throws MRTException @return void @throws
 	 */
 	public void addOrUpdate(PunSystemVO vo) throws MRTException {
 		PunSystem sys = BeanUtils.getNewInstance(vo, PunSystem.class);
@@ -46,7 +43,8 @@ public class PunSystemServiceImpl implements PunSystemService {
 	/**
 	 * 
 	 * @Title: findById @Description: 根据ID查找 @author ljw @param @param
-	 * id @param @return @param @throws MRTException @return PunSystemVO @throws
+	 *         id @param @return @param @throws MRTException @return
+	 *         PunSystemVO @throws
 	 */
 	public PunSystemVO findById(Long id) throws MRTException {
 		PunSystem system = PunSystem.get(PunSystem.class, id);
@@ -56,8 +54,8 @@ public class PunSystemServiceImpl implements PunSystemService {
 	/**
 	 * 
 	 * @Title: findAll @Description: 查询全部记录 @author
-	 * ljw @param @return @param @throws MRTException @return
-	 * List<PunSystemVO> @throws
+	 *         ljw @param @return @param @throws MRTException @return
+	 *         List<PunSystemVO> @throws
 	 */
 	public List<PunSystemVO> findAll() throws MRTException {
 		List<PunSystem> result = PunSystem.findAll();
@@ -71,15 +69,15 @@ public class PunSystemServiceImpl implements PunSystemService {
 
 	/**
 	 * 
-	 * @Title: queryResult 
+	 * @Title: queryResult
 	 * @Description: 分页查询
-	 * @author ljw 
-	 * @param  queryStr 
-	 * @param  params 
-	 * @param  currentPage 
-	 * @param  pageSize  
-	 * @param  sortString   
-	 * @return PageList<T> 
+	 * @author ljw
+	 * @param queryStr
+	 * @param params
+	 * @param currentPage
+	 * @param pageSize
+	 * @param sortString
+	 * @return PageList<T>
 	 */
 	public PageList<PunSystemVO> queryPagedResult(String queryStr, Map<String, Object> params, int currentPage,
 			int pageSize, String sortString) {
@@ -97,8 +95,8 @@ public class PunSystemServiceImpl implements PunSystemService {
 	/**
 	 * 
 	 * @Title: queryResult @Description: 查询 @author ljw @param @param
-	 * queryStr @param @param params 查询条件 @param @return @return
-	 * List<PunSystemVO> @throws
+	 *         queryStr @param @param params 查询条件 @param @return @return
+	 *         List<PunSystemVO> @throws
 	 */
 	public List<PunSystemVO> queryResult(String queryStr, Map<String, Object> params) {
 		List<PunSystem> systems = queryChannel.queryResult(PunSystem.class, queryStr, params);
@@ -113,7 +111,7 @@ public class PunSystemServiceImpl implements PunSystemService {
 	/**
 	 * 
 	 * @Title: delete @Description: 删除，根据ID @author ljw @param @param
-	 * id @param @return @param @throws MRTException @return String @throws
+	 *         id @param @return @param @throws MRTException @return String @throws
 	 */
 	public String delete(Long id) throws MRTException {
 		PunSystem sys = PunSystem.get(PunSystem.class, id);
@@ -145,30 +143,15 @@ public class PunSystemServiceImpl implements PunSystemService {
 	 * @Description 根据example模糊查询数据
 	 */
 	@Override
-	public PageList<PunSystemVO> selectPagedByExample(BaseExample example, 
-			int currentPage, int pageSize,String sortString) {
-		PageList<PunSystem> list = queryChannel.selectPagedByExample(PunSystem.class, example, 
-				currentPage, pageSize,sortString);
+	public PageList<PunSystemVO> selectPagedByExample(BaseExample example, int currentPage, int pageSize,
+			String sortString) {
+		PageList<PunSystem> list = queryChannel.selectPagedByExample(PunSystem.class, example, currentPage, pageSize,
+				sortString);
 		PageList<PunSystemVO> vos = new PageList<PunSystemVO>(list.getPaginator());
 		for (PunSystem dp : list) {
 			vos.add(BeanUtils.getNewInstance(dp, PunSystemVO.class));
 		}
 		list.clear();
-		return vos;
-	}
-
-	@Override
-	public List<SysDataSourceVO> getSystemDataSource(Long systemId) {
-		BaseExample example = new BaseExample();
-		example.createCriteria().andEqualTo("SYSTEM_ID", systemId);
-		List<SysDataSourceVO> vos = new ArrayList<SysDataSourceVO>();
-		List<SysDataSource> systemDataSource = queryChannel.selectPagedByExample(SysDataSource.class, example, 1,
-				Integer.MAX_VALUE, null);
-		if (systemDataSource != null && systemDataSource.size() > 0) {
-			for (SysDataSource data : systemDataSource) {
-				vos.add(BeanUtils.getNewInstance(data, SysDataSourceVO.class));
-			}
-		}
 		return vos;
 	}
 

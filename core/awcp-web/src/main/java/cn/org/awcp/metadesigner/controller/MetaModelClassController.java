@@ -19,9 +19,9 @@ public class MetaModelClassController {
 
 	@ResponseBody
 	@RequestMapping(value = "/findAll")
-	public List<MetaModelClassVO> findAll(long id) {
+	public List<MetaModelClassVO> findAll(String id) {
 		try {
-			List<MetaModelClassVO> mmc = this.metaModelClassServiceImpl.findAll(id);
+			List<MetaModelClassVO> mmc = this.metaModelClassServiceImpl.findAll();
 			return mmc;
 		} catch (Exception e) {
 			return null;
@@ -29,7 +29,7 @@ public class MetaModelClassController {
 	}
 
 	@RequestMapping(value = "/remove")
-	public String remove(Long id) {
+	public String remove(String id) {
 		try {
 			MetaModelClassVO mmc = this.metaModelClassServiceImpl.get(id);
 			this.metaModelClassServiceImpl.remove(mmc);
@@ -38,12 +38,4 @@ public class MetaModelClassController {
 			return "error";
 		}
 	}
-
-	@ResponseBody
-	@RequestMapping(value = "/queryByProjectId")
-	public List<MetaModelClassVO> queryByProjectId(long projectId) {
-		List<MetaModelClassVO> ls = this.metaModelClassServiceImpl.queryByProjectId(projectId);
-		return ls;
-	}
-
 }

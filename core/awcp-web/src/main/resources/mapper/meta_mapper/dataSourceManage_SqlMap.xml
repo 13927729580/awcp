@@ -3,7 +3,7 @@
 
 <mapper namespace="cn.org.awcp.metadesigner.core.domain.DataSourceManage">
 	<resultMap id="rm" type="cn.org.awcp.metadesigner.core.domain.DataSourceManage">
-		<id property="id" jdbcType="BIGINT" column="ID"/>
+		<id property="id" jdbcType="CHAR" column="ID"/>
 		<result property="name" jdbcType="VARCHAR" column="NAME"/>
 		<result property="sourceType" jdbcType="VARCHAR" column="SOURCE_TYPE"/>
 		<result property="sourceUrl" jdbcType="VARCHAR" column="SOURCE_URL"/>
@@ -109,14 +109,10 @@
 	</delete>
 	
 	<insert id="insert" parameterType="Object">
-		<selectKey resultType="java.lang.Long" order="AFTER"
-			keyProperty="id">
-			SELECT LAST_INSERT_ID()
-		</selectKey>
-		insert into fw_mm_datasourcemanager(NAME,SOURCE_TYPE,SOURCE_URL,SOURCE_DRIVER,USERNAME,PASSWORD,SOURCE_ALIAS,MAXIMUM_ACTIVE_TIME,
+		insert into fw_mm_datasourcemanager(id,NAME,SOURCE_TYPE,SOURCE_URL,SOURCE_DRIVER,USERNAME,PASSWORD,SOURCE_ALIAS,MAXIMUM_ACTIVE_TIME,
 		PROTOTYPE_COUNT,MAXIMUM_CONNECTION_COUNT,MINIMUM_CONNECTION_COUNT,SIMULTANEOUS_BUILD_THROTTLE,TRACE,DOMAIN,
 		GROUP_ID,CREATE_TIME,CREATE_USER,LAST_MODIFY_TIME,LAST_MODIFIER)
-		value(#{name},#{sourceType},#{sourceUrl},#{sourceDriver},#{userName},#{userPwd},#{alias},#{maximumActiveTime},
+		value(#{id},#{name},#{sourceType},#{sourceUrl},#{sourceDriver},#{userName},#{userPwd},#{alias},#{maximumActiveTime},
 		#{prototypeCount},#{maximumConnectionCount},#{minimumConnectionCount},#{simultaneousBuildThrottle},#{trace},
 		#{domain},#{groupId},#{createTime},#{createUser},#{lastModifyTime},#{lastModifier})
 	</insert>

@@ -1,6 +1,7 @@
 package cn.org.awcp.formdesigner.utils;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -15,6 +16,8 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.jdbc.core.JdbcTemplate;
+
 import cn.org.awcp.core.utils.Springfactory;
 import cn.org.awcp.formdesigner.application.vo.AuthorityCompoentVO;
 import cn.org.awcp.formdesigner.application.vo.AuthorityGroupWorkFlowNodeVO;
@@ -331,6 +334,21 @@ public class DocUtils {
 		}
 	}
 
+	private static String getDataItem(String dataSource,Map<String, List<Map<String, String>>> dataMap){
+		if(StringUtils.isNotBlank(dataSource)){
+			String[] arr = dataSource.split("\\.");
+			if(arr.length==2){
+				String container = arr[0];
+				String item = arr[1];
+				List<Map<String, String>> list = dataMap.get(container + "_list");
+				if(list!=null && list.size()>0){
+					return list.get(0).get(item);
+				}
+			}
+		}
+		return "";
+	}
+	
 	public static void calculateCompents(DocumentVO docVo, Map<String, String> others, Map<String, JSONObject> status,
 			List<JSONObject> components, Map<String, List<Map<String, String>>> dataMap, ScriptEngine engine)
 			throws ScriptException {
@@ -477,6 +495,29 @@ public class DocUtils {
 						Object vale2 = (String) engine.eval(script);
 						others.put(component.getString("name"), vale2 + "");
 						break;
+					case 1102:
+						o.put("hidden",
+								String.valueOf(DocUtils.computeStatus(component.getString("hiddenScript"), engine)));
+						o.put("readonly",
+								String.valueOf(DocUtils.computeStatus(component.getString("readonlyScript"), engine)));
+						o.put("disabled",
+								String.valueOf(DocUtils.computeStatus(component.getString("disabledScript"), engine)));
+						String extra = component.getString("extra");
+						List<String> valueList = new ArrayList<String>();
+						List<String> nameList = new ArrayList<String>();
+						for(String str : extra.split(",")){
+							valueList.add(getDataItem(str,dataMap));
+						}
+						if(valueList.size()==3){
+							String sql = "select name from p_attr_province where code=? union all "
+									+ "select name from p_attr_city where code=? union all "
+									+ "select name from p_attr_area where code=?";
+							JdbcTemplate jdbcTemplate = Springfactory.getBean("jdbcTemplate");
+							nameList = jdbcTemplate.queryForList(sql, String.class, valueList.toArray());
+						}
+						others.put("pcaValue_" + component.getString("name"), getListStr(valueList));
+						others.put("pcaName_" + component.getString("name"), getListStr(nameList));
+						break;
 					// 下面几种，只需执行同一段代码，所以没有break;计算值、隐藏、只读、禁用
 					case 1001:
 					case 1002:
@@ -488,16 +529,12 @@ public class DocUtils {
 					case 1016:
 					case 1020:
 					case 1019:
-					case 1029:
-					case 1030:
-					case 1031:
 					case 1032:
 					case 1033:
 					case 1035:
 					case 1036:
 					case 1037:
 					case 1101:
-
 						o.put("hidden",
 								String.valueOf(DocUtils.computeStatus(component.getString("hiddenScript"), engine)));
 						o.put("readonly",
@@ -515,6 +552,19 @@ public class DocUtils {
 		}
 	}
 
+	private static String getListStr(List<String> list){
+		StringBuffer sb = new StringBuffer();
+		for(String str : list){
+			if(StringUtils.isNotBlank(str)){
+				sb.append(str + ",");
+			}
+		}
+		if(sb.length()>0){
+			sb.deleteCharAt(sb.length()-1);
+		}
+		return sb.toString();
+	}
+	
 	public static void calculateStores(Map<String, String> map, List<StoreVO> stores,
 			Map<String, Map<String, Object>> pageActStatus, ScriptEngine engine, Map<String, String> others)
 			throws ScriptException {

@@ -130,21 +130,17 @@ public class CommonUserController {
 
 	/**
 	 * 查询当前用户下常用联系人
-	 * 
 	 * @return
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/queryByUser")
+	@RequestMapping(value = "/queryCommonUser")
 	public List<PunUserBaseInfoVO> queryByUser() {
-
 		JdbcTemplate jdbcTemplate = Springfactory.getBean("jdbcTemplate");
-
-		PunUserBaseInfoVO userInfo = (PunUserBaseInfoVO) SessionUtils
-				.getObjectFromSession(SessionContants.CURRENT_USER);
-		String sql = "select * from (select * from p_un_common_user where user_id='" + userInfo.getUserId()
-				+ "' order by click_number desc limit 15) as t order by  case  when t.order_  is null or t.order_=''  then 0 end  ,  length(t.order_) asc, t.order_  asc";
+		PunUserBaseInfoVO userInfo = (PunUserBaseInfoVO) SessionUtils.getObjectFromSession(SessionContants.CURRENT_USER);
+		String sql = "select * from (select * from p_un_common_user where user_id='" + userInfo.getUserId() + 
+				"' order by click_number desc limit 15) as t " + 
+				"order by case when t.order_ is null or t.order_='' then 0 end , length(t.order_) asc, t.order_ asc";
 		List<Map<String, Object>> mapResult = jdbcTemplate.queryForList(sql);
-
 		List<PunUserBaseInfoVO> list = new ArrayList<PunUserBaseInfoVO>();
 		for (Map<String, Object> map : mapResult) {
 			PunUserBaseInfoVO pbi = DocumentUtils.getIntance().getUserById((Long) map.get("user"));

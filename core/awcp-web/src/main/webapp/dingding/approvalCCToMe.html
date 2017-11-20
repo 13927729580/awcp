@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title data-id="title_CCToMe"></title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<meta name="format-detection" content="telephone=no">
+	<link rel="stylesheet" href="css/approvalList.css">
+</head>
+<body>
+	<div id="MF_APP">
+		<div>
+			<div class="dealed">
+				<div>
+					<div class="filterbar-content " style="top: 0;">
+						<div class="filterbar-btn">
+							<img class="filterbar-img" src="img/filter.png">
+							<span class="filterbar-btn-name" data-id="filter"></span>
+						</div>
+					</div>
+				</div>
+				<div class="infiniteScroll">
+					<div class="list list-applied" offset="120" >
+						<div class="dealed-list"></div>
+						<div></div>
+						<div></div>
+					</div>
+				</div>
+				<div class="modalWrapper">
+					<div class="modal"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script src="js/jquery.js" charset="utf-8"></script>
+	<script src="js/dingtalk.js" charset="utf-8"></script>
+	<script src="../venson/js/common.js"></script>
+	<script src="js/resource.js"></script>
+	<script>
+		$(".filterbar-btn").click(function(){
+			location.href = baseUrl + "dingding/approvalSearchPage.html?page=ccToMe";
+		});
+		
+		var ddAppid = Comm.getUrlParam("ddAppid");		
+		var obj = {};
+		if(ddAppid!=null && ddAppid!="all"){
+			obj.ddAppid = ddAppid;
+		}	
+		var data = Comm.getData("api/execute/queryCCList",obj);
+		
+		var html = "";
+		for(var i=0;i<data.length;i++){
+			var url = data[i].url;
+			html += '<div class="list-item tTap" data-url="' + url + '"><span></span>';
+			var img = data[i].img;
+			var name = data[i].name;
+			if(img){
+				html += '<img class="item-avatar" src="' + img + '" />';
+			}
+			else{
+				html += '<div class="item-avatar" style="background: #8A8A8A;">' + Comm.handleName(name) + '</div>';
+			}
+			var title = data[i].title;
+			html += '<div class="item-content"><div class="item-title-name tOmit">' + title + '</div>' +
+					'<div class="item-status-running"><span style="color: #17C295;">' + dd_res.WF_Approved + '</span></div></div>';
+			var date = data[i].RDT;
+			html += '<div class="item-right"><small>' + date + '</small></div><span></span></div>';	
+		}
+		
+		$(".dealed-list").html(html);
+		$(".list-item").click(function(){
+			var url = $(this).attr("data-url").replace("workflow","dingding");
+			location.href = url;
+		});
+	</script>
+</body>
+</html>

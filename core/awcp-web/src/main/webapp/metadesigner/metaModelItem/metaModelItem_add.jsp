@@ -58,10 +58,10 @@
 				<div class="form-group">
 					<label class="col-md-2 control-label required">属性类型</label>
 					<div class="col-md-4">
-						<select data-placeholder="请选择属性类型..." id="itemType" class="chosen-select form-control" tabindex="2" name="itemType">
+						<select data-placeholder="请选择属性类型..." name="itemType" class="chosen-select form-control" tabindex="2">
 									<option value="int">int</option>
 									<option value="bigInt">bigInt</option>
-									<option value="varchar">varchar</option>
+									<option value="varchar" selected="selected">varchar</option>
 									<option value="bool">bool</option>
 									<option value="boolean">boolean</option>
 									<option value="float">float</option>
@@ -80,19 +80,18 @@
 				<div class="form-group">
 					<label class="col-md-2 control-label required">是否主键</label>
 					<div class="col-md-4">
-						<select data-placeholder="请选择是否主键..." id="usePrimaryKey" class="chosen-select form-control" tabindex="2" name="usePrimaryKey">
-							<option value="0" id="un1">NO</option>
-							<option value="1" id="un2">YES</option>
+						<select data-placeholder="请选择是否主键..." name="usePrimaryKey" id="usePrimaryKeys" class="chosen-select form-control" tabindex="2">
+							<option value="0" selected="selected">NO</option>
+							<option value="1">YES</option>
 						</select>
-						<c:if test="${type=='yes'}">
-							<input type="hidden" name="usePrimaryKey" value="0">
-						</c:if>
 					</div>
 					<label class="col-md-2 control-label required">是否索引</label>
 					<div class="col-md-4">
-						<select data-placeholder="请选择是否索引..." id="useIndex" class="chosen-select form-control" tabindex="2" name="useIndex">
-							<option value="0" id="un1">NO</option>
-							<option value="1" id="un2">YES</option>
+						<select data-placeholder="请选择是否索引..." name="useIndex" class="chosen-select form-control" tabindex="2">
+							<option value="0" selected="selected">无</option>
+							<option value="-1">主键</option>
+							<option value="1">唯一</option>
+							<option value="2">普通</option>
 						</select>
 					</div>
 				</div>
@@ -101,7 +100,7 @@
 					<div class="col-md-4">
 						<select data-placeholder="请选择是否为空..." id="useNull" class="chosen-select form-control" tabindex="2" name="useNull">
 							<option value="0" id="un1">NO</option>
-							<option value="1" id="un2">YES</option>
+							<option value="1" id="un2" selected="selected">YES</option>
 						</select>
 					</div>
 					<label class="col-md-2 control-label">默认值</label>
@@ -115,15 +114,6 @@
 					<div class="col-md-4">
 						<input name="remark" class="form-control" id="remark"
 							type="text" placeholder="">
-					</div>
-					<label class="col-md-2 control-label">关系表</label>
-					<div class="col-md-4">
-							<select data-placeholder="请选择关系表..." id="selectModel" class="chosen-select form-control" tabindex="2" name="modelIdss">
-								<option value="0">---请选择---</option>
-								<c:forEach items="${metaModel }" var="m">
-									<option value="${m.id }">${m.tableName }</option>
-								</c:forEach>
-							</select>
 					</div>
 				</div>
 				
@@ -141,9 +131,8 @@
 		<script type="text/javascript">
        		$(document).ready(function(){
        			var itemType=$("#itemType").val();
-       			var type=$("#type").val();
-       			if(type=='yes'){
-       				$("#usePrimaryKey").attr("disabled","false");
+       			if('${type}'=='yes'){
+       				$("#usePrimaryKeys").attr("disabled","true");
        			}
        			
        			$("#usePrimaryKey").change(function(){
@@ -155,14 +144,6 @@
        				}
        			});
        			
-       			$("#itemName").blur(function(){
-					if($(this).val()!=null){
-						$.get('<%=basePath%>metaModel/pinyin.do?str='+$("#itemName").val(),function(date){
-							$("#itemCode").attr("value",date.str);
-						});
-					}
-				});
-       			
        		});
 		
 		
@@ -171,14 +152,13 @@
 				$("#groupForm").submit();
 				  return false;
 		    },onError:function(){alert("请按提示正确填写内容");}});
-		  	$("#itemName").formValidator({empty:false,onShow:"请输入资源信息"}).inputValidator({min:1,max:225,onError:"请输入0-225长度的数据"}).regexValidator({regExp:"^[\u4E00-\u9FA5A-Za-z0-9_]+$",onError:"输入格式不正确"});
 		  	$("#itemCode").formValidator({empty:false,onShow:"请输入资源信息"}).inputValidator({min:1,max:225,onError:"请输入0-225长度的数据"}).regexValidator({regExp:"^[a-zA-Z][a-zA-Z0-9_]*$",onError:"输入格式不正确"}).ajaxValidator({
 		  		type:"get",
-		  		url:"metaModelItems/dataValidate.do?itemCode="+$("#itemCode").val()+"&modelId="+$("#modelId").val(),
+		  		url:"metaModelItems/dataValidate.do",
+		  		data:{"modelId":$("#modelId").val(),"id":$("#id").val()},
 		  		datatype:"json",
-		  		success:function(date){
-		  			var obj=eval('('+date+')');
-		  			if(obj.id=='0'){
+		  		success:function(data){
+		  			if(data==0){
 		  				return true;
 		  			}else{
 		  				return false;

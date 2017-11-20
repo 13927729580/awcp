@@ -22,7 +22,7 @@ import cn.org.awcp.base.BaseController;
 import cn.org.awcp.core.domain.BaseExample;
 import cn.org.awcp.core.domain.Criteria;
 import cn.org.awcp.core.utils.BeanUtils;
-import cn.org.awcp.core.utils.Tools;
+import cn.org.awcp.core.utils.SessionUtils;
 import cn.org.awcp.core.utils.constants.ResourceTypeEnum;
 import cn.org.awcp.core.utils.constants.SessionContants;
 import cn.org.awcp.formdesigner.application.service.FormdesignerService;
@@ -204,7 +204,7 @@ public class PageActController extends BaseController {
 			@RequestParam(value = "type", required = false, defaultValue = "0") Integer type) {
 		ModelAndView mv = new ModelAndView();
 		Long systemId = -1L;
-		Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+		Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 		if (obj instanceof PunSystemVO) {
 			PunSystemVO system = (PunSystemVO) obj;
 			systemId = system.getSysId();
@@ -270,7 +270,7 @@ public class PageActController extends BaseController {
 			@RequestParam(value = "dialog", required = false, defaultValue = "0") int dialog) {
 		ModelAndView mv = new ModelAndView();
 		if (validate(mv, vo)) {
-			Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+			Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 			if (obj instanceof PunSystemVO) {
 				PunSystemVO system = (PunSystemVO) obj;
 				vo.setSystemId(system.getSysId());
@@ -313,7 +313,7 @@ public class PageActController extends BaseController {
 		/**
 		 * TODO dynamicPageId 不能为空
 		 */
-		Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+		Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 		if (obj instanceof PunSystemVO) {
 			PunSystemVO system = (PunSystemVO) obj;
 			vo.setSystemId(system.getSysId());
@@ -481,86 +481,86 @@ public class PageActController extends BaseController {
 	private String getViewName(Integer type) {
 		StringBuilder viewName = new StringBuilder("formdesigner/page/act/");
 		switch (type) {
-			case 2000:
-				viewName.append("act");			//普通
-				break;
-			case 2009:
-				viewName.append("newAct");		//新增
-				break;
-			case 2010:
-				viewName.append("updateAct");	//编辑
-				break;
-			case 2003:
-				viewName.append("deleteAct");	//删除
-				break;
-			case 2001:
-				viewName.append("saveAct");		//保存
-				break;
-			case 2002:
-				viewName.append("backAct");		//返回
-				break;				
-			case 2004:
-				viewName.append("startWorkflowAct");
-				break;
-			case 2005:
-				viewName.append("rebuildWorkflowAct");
-				break;
-			case 2006:
-				viewName.append("backWorkflowAct");
-				break;
-			case 2007:
-				viewName.append("editApprovalAct");
-				break;
-			case 2008:
-				viewName.append("saveWithWorkflowAct");
-				break;		
-			case 2011:
-				viewName.append("compeleteWithWorkflowAct");
-				break;
-			case 2012:
-				viewName.append("openAct");
-				break;
-			case 2013:
-				viewName.append("auditAct");
-				break;
-			case 2014:
-				viewName.append("printPdfAct");
-				break;
-			case 2015:
-				viewName.append("saveActWithNoValidators");
-				break;
-			case 2016:
-				viewName.append("excelAct");
-				break;
-			case 2017:
-				viewName.append("saveAndReturnAct");
-				break;
-			case 2018:
-				viewName.append("forwardWithWorkflowAct");// 流程转发
-				break;
-			case 2019:
-				viewName.append("handRoundWithWorkflowAct");// 流程传阅
-				break;
-			case 2020:
-				viewName.append("diagramWithWorkflowAct");// 流传图
-				break;
-			case 2021:
-				viewName.append("filingWithWorkflowAct");// 流程归档
-				break;
-			case 2022:
-				viewName.append("finishedWorkflowAct");// 流程归档
-				break;
-			case 2023:
-				viewName.append("returnWorkflowAct");// 流程归档
-				break;
-			case 2024:
-				viewName.append("askFor");// 加签
-				break;
-			case 2025:
-				viewName.append("shift");// 加签
-				break;
-			default:
-				viewName.append("newAct");
+		case 2000:
+			viewName.append("act"); // 普通
+			break;
+		case 2009:
+			viewName.append("newAct"); // 新增
+			break;
+		case 2010:
+			viewName.append("updateAct"); // 编辑
+			break;
+		case 2003:
+			viewName.append("deleteAct"); // 删除
+			break;
+		case 2001:
+			viewName.append("saveAct"); // 保存
+			break;
+		case 2002:
+			viewName.append("backAct"); // 返回
+			break;
+		case 2004:
+			viewName.append("startWorkflowAct");
+			break;
+		case 2005:
+			viewName.append("rebuildWorkflowAct");
+			break;
+		case 2006:
+			viewName.append("backWorkflowAct");
+			break;
+		case 2007:
+			viewName.append("editApprovalAct");
+			break;
+		case 2008:
+			viewName.append("saveWithWorkflowAct");
+			break;
+		case 2011:
+			viewName.append("compeleteWithWorkflowAct");
+			break;
+		case 2012:
+			viewName.append("openAct");
+			break;
+		case 2013:
+			viewName.append("auditAct");
+			break;
+		case 2014:
+			viewName.append("printPdfAct");
+			break;
+		case 2015:
+			viewName.append("saveActWithNoValidators");
+			break;
+		case 2016:
+			viewName.append("excelAct");
+			break;
+		case 2017:
+			viewName.append("saveAndReturnAct");
+			break;
+		case 2018:
+			viewName.append("forwardWithWorkflowAct");// 流程转发
+			break;
+		case 2019:
+			viewName.append("handRoundWithWorkflowAct");// 流程传阅
+			break;
+		case 2020:
+			viewName.append("diagramWithWorkflowAct");// 流传图
+			break;
+		case 2021:
+			viewName.append("filingWithWorkflowAct");// 流程归档
+			break;
+		case 2022:
+			viewName.append("finishedWorkflowAct");// 流程归档
+			break;
+		case 2023:
+			viewName.append("returnWorkflowAct");// 流程归档
+			break;
+		case 2024:
+			viewName.append("askFor");// 加签
+			break;
+		case 2025:
+			viewName.append("shift");// 加签
+			break;
+		default:
+			viewName.append("newAct");
 		}
 		viewName.append("-edit");
 		return viewName.toString();

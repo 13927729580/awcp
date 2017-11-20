@@ -33,8 +33,9 @@ import com.github.miemiedev.mybatis.paginator.domain.Paginator;
 import cn.org.awcp.core.domain.BaseExample;
 import cn.org.awcp.core.domain.QueryChannelService;
 import cn.org.awcp.core.utils.BeanUtils;
+import cn.org.awcp.core.utils.ContextContentUtils;
 import cn.org.awcp.core.utils.DateUtils;
-import cn.org.awcp.core.utils.Tools;
+import cn.org.awcp.core.utils.SessionUtils;
 import cn.org.awcp.core.utils.constants.SessionContants;
 import cn.org.awcp.formdesigner.application.service.DocumentService;
 import cn.org.awcp.formdesigner.application.service.FormdesignerService;
@@ -47,10 +48,10 @@ import cn.org.awcp.formdesigner.core.domain.design.context.data.DataDefine;
 import cn.org.awcp.formdesigner.core.parse.bean.PageDataBeanWorker;
 import cn.org.awcp.metadesigner.application.MetaModelOperateService;
 import cn.org.awcp.metadesigner.application.MetaModelService;
+import cn.org.awcp.metadesigner.application.SysSourceRelationService;
 import cn.org.awcp.metadesigner.vo.MetaModelVO;
-import cn.org.awcp.unit.service.SysSourceRelationService;
+import cn.org.awcp.metadesigner.vo.SysDataSourceVO;
 import cn.org.awcp.unit.vo.PunSystemVO;
-import cn.org.awcp.unit.vo.SysDataSourceVO;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
@@ -87,9 +88,6 @@ public class DocumentServiceImpl implements DocumentService {
 
 	@Resource(name = "namedParameterJdbcTemplate")
 	private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
-
-	@Autowired
-	HttpServletRequest request; // 这里可以获取到request
 
 	public String save(DocumentVO vo) {
 		// 仅保存文档数据
@@ -274,6 +272,7 @@ public class DocumentServiceImpl implements DocumentService {
 				}
 				sql = sql.substring(0, index);
 			}
+			HttpServletRequest request = ContextContentUtils.getRequest();
 			// 增加
 			sql = addSQLParam(sql, request);
 			Map<String, Object> param = wrapMap(request.getParameterMap());
@@ -478,13 +477,13 @@ public class DocumentServiceImpl implements DocumentService {
 	/**
 	 * 根据元数据code获取到数据源ID，如果数据源没配置，则获取系统默认数据源Id
 	 */
-	public Long getDataSourceIdByModelCode(DataDefine dd) {
+	public String getDataSourceIdByModelCode(DataDefine dd) {
 		MetaModelVO mmv = metaModelServiceImpl.queryByModelCode(dd.getModelCode());
 		if (mmv != null && mmv.getDataSourceId() != null) { // 如果有配置数据源
 			return mmv.getDataSourceId();
 		} else {
 			// 系统默认数据源
-			Object obj = Tools.getObjectFromSession(SessionContants.CURRENT_SYSTEM);
+			Object obj = SessionUtils.getObjectFromSession(SessionContants.CURRENT_SYSTEM);
 			PunSystemVO system = null;
 			if (obj instanceof PunSystemVO) {
 				system = (PunSystemVO) obj;
@@ -503,7 +502,7 @@ public class DocumentServiceImpl implements DocumentService {
 	/**
 	 * 根据元数据code获取到数据源ID，如果数据源没配置，则获取系统默认数据源Id
 	 */
-	public Long getDataSourceIdByModelCode(DataDefine dd, Long systemId) {
+	public String getDataSourceIdByModelCode(DataDefine dd, Long systemId) {
 		MetaModelVO mmv = metaModelServiceImpl.queryByModelCode(dd.getModelCode(), systemId);
 		if (mmv != null && mmv.getDataSourceId() != null) { // 如果有配置数据源
 			return mmv.getDataSourceId();
@@ -522,8 +521,8 @@ public class DocumentServiceImpl implements DocumentService {
 	/**
 	 * 获取当前系统的默认数据源Id
 	 */
-	public Long getDataSourceIdByCurrentSystem() {
-		Object obj = Tools.getObjectFromSession(SessionContants.CURRENT_SYSTEM);
+	public String getDataSourceIdByCurrentSystem() {
+		Object obj = SessionUtils.getObjectFromSession(SessionContants.CURRENT_SYSTEM);
 		PunSystemVO system = null;
 		if (obj instanceof PunSystemVO) {
 			system = (PunSystemVO) obj;

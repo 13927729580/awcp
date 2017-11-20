@@ -1,9 +1,8 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-	pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <%@ taglib prefix="sc" uri="szcloud"%>
-<%@page isELIgnored="false"%>
+<%@ page isELIgnored="false"%>
 <%
 	String path = request.getContextPath();
 	String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
@@ -11,23 +10,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="renderer" content="webkit">
-<title>用户管理</title>
-<%-- <jsp:include page="" flush=”true”/> --%>
-<%@ include file="../resources/include/common_css.jsp"%><!-- 注意加载路径 -->
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="renderer" content="webkit">
+	<title>用户管理</title>
+	<%@ include file="../resources/include/common_css.jsp"%><!-- 注意加载路径 -->
 </head>
 <body id="main">
 	<div class="container-fluid">
-		<!--list页面整体布局结构 
-			<div class="row" id="breadcrumb">面包屑导航</div>
-			<div class="row" id="buttons">按钮区</div>
-			<div class="row" id="searchform">搜索区</div>
-			<div class="row" id="datatable">数据展示区</div>
-			<div class="row" id="pagers">分页</div>
-			-->
 		<div class="row" id="breadcrumb">
 			<ul class="breadcrumb">
 				<li><i class="icon-location-arrow icon-muted"></i></li>

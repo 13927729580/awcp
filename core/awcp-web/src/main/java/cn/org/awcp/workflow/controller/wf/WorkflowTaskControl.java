@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.annotation.Resource;
@@ -19,6 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -32,6 +35,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.miemiedev.mybatis.paginator.domain.PageList;
 import com.github.miemiedev.mybatis.paginator.domain.Paginator;
 
+import BP.Port.Emp;
 import BP.Port.WebUser;
 import BP.Sys.Frm.MapData;
 import BP.WF.Dev2Interface;
@@ -68,6 +72,7 @@ import cn.org.awcp.venson.controller.base.ControllerContext;
 import cn.org.awcp.venson.controller.base.ControllerHelper;
 import cn.org.awcp.venson.controller.base.ReturnResult;
 import cn.org.awcp.venson.controller.base.StatusCode;
+import cn.org.awcp.venson.dingding.controller.DdUtil;
 import cn.org.awcp.venson.service.QueryService;
 import cn.org.awcp.workflow.controller.util.HttpRequestDeviceUtils;
 
@@ -405,6 +410,7 @@ public class WorkflowTaskControl extends BaseController {
 		String masterDataSource = request.getParameter("masterDataSource");
 		// json格式的对话框参数
 		String slectsUserIds = request.getParameter("slectsUserIds");
+		String CC_slectsUserIds = request.getParameter("CC_slectsUserIds");
 		String acte = request.getParameter("actType");
 
 		Integer actType = 0;
@@ -481,6 +487,15 @@ public class WorkflowTaskControl extends BaseController {
 			utils = (DocumentUtils) engine.get("DocumentUtils");
 			if (StringUtils.isNotEmpty(docVo.getRecordId()))
 				utils.setDataItem(masterDataSource, "ID", docVo.getRecordId());
+			if (preset.equals(docVo.getFlowTempleteId())) {
+				boolean isCH = ControllerHelper.getLang() == Locale.SIMPLIFIED_CHINESE;
+				String field = isCH ? "title" : "enTitle";
+				String sql = "select " + field + " from dd_apps where dynamicPageId=?";
+				Object value = DocumentUtils.getIntance().excuteQueryForObject(sql, docVo.getDynamicPageId());
+				String title = user.getName() + (isCH ? "的" : "'s ")
+						+ (value instanceof String ? (String) value : ControllerHelper.getMessage("wf_approval"));
+				utils.setDataItem(masterDataSource, "title", title);
+			}
 			// 判断是否有权限处理
 			if (!"2026".equals(acte) && isNewWork == false) {
 				if (Dev2Interface.Flow_IsCanDoCurrentWork(flowTempleteId, Integer.parseInt(entryId),
@@ -489,6 +504,20 @@ public class WorkflowTaskControl extends BaseController {
 					resultMap.put("message", ControllerHelper.getMessage("wf_not_can_do"));
 					jdbcTemplate1.commit();
 					return resultMap;
+				}
+			}
+			if (preset.equals(flowTempleteId)) {
+				// ------------------------流程预设 modify by venson------------------------
+				if (act.getActType() == 2019 || act.getActType() == 2024) {
+					perSetWorkFlow(request, pageId, flowTempleteId, workItemId, isNewWork, entryId, slectsUserIds);
+					// 抄送预设
+					presetCC(pageId, flowTempleteId, workItemId, CC_slectsUserIds, isNewWork);
+					if (request.getAttribute("slectsUserIds") != null) {
+						slectsUserIds = (String) request.getAttribute("slectsUserIds");
+					}
+					if (request.getAttribute("acte") != null) {
+						acte = (String) request.getAttribute("acte");
+					}
 				}
 			}
 			// ------------------------流程预设 end------------------------
@@ -527,6 +556,7 @@ public class WorkflowTaskControl extends BaseController {
 				break;
 			case 2026:// 流程撤销
 				// 状态撤销
+				request.setAttribute("state", 3);
 				JFlowAdapter.Flow_DoFlowOverByCoercion(resultMap, flowTempleteId, Integer.valueOf(entryId),
 						Long.valueOf(workItemId), Long.valueOf(fid), WFState.Undo);
 				insertIntoLogs(docVo, user.getUserIdCardNumber(),
@@ -534,6 +564,7 @@ public class WorkflowTaskControl extends BaseController {
 				break;
 			case 2027:// 流程拒绝
 				// 状态拒绝
+				request.setAttribute("state", 1);
 				JFlowAdapter.Flow_DoFlowOverByCoercion(resultMap, flowTempleteId, Integer.valueOf(entryId),
 						Long.valueOf(workItemId), Long.valueOf(fid), WFState.Reject);
 				afterExecuteFlow(docVo, masterDataSource, jdbcTemplate1, resultMap);
@@ -603,6 +634,158 @@ public class WorkflowTaskControl extends BaseController {
 	}
 
 	/**
+	 * 抄送预设
+	 * 
+	 * @param pageId
+	 * @param flowTempleteId
+	 * @param workItemId
+	 * @param CC_slectsUserIds
+	 */
+	private void presetCC(String pageId, String flowTempleteId, String workItemId, String CC_slectsUserIds,
+			boolean isNewWork) {
+		// 查看是否属于预置流程并且是新建流程
+		if (isNewWork) {
+			// 如果没有选择抄送人则取数据库查找
+			if (StringUtils.isBlank(CC_slectsUserIds)) {
+				// 去数据库取默认预置人员
+				String sql = "select JSON from p_fm_cc_flow where PAGE_ID=?";
+				CC_slectsUserIds = (String) DocumentUtils.getIntance().excuteQueryForObject(sql, pageId);
+			}
+			// 如果存在抄送人
+			if (StringUtils.isNotBlank(CC_slectsUserIds)) {
+				com.alibaba.fastjson.JSONArray jsonArr = JSON.parseArray(CC_slectsUserIds);
+				// 插入抄送记录
+				int len = jsonArr.size();
+				for (int i = 0; i < len; i++) {
+					Emp emp = new Emp(jsonArr.getString(i));
+					Dev2Interface.Node_CC(flowTempleteId, 999, Long.parseLong(workItemId), emp.getNo(), emp.getName(),
+							null, null, null, 0);
+				}
+			}
+		}
+	}
+
+	/**
+	 * 流程预设
+	 * 
+	 * @param request
+	 * @param pageId
+	 * @param flowTempleteId
+	 * @param workItemId
+	 * @param isNewWork
+	 * @param entryId
+	 * @param slectsUserIds
+	 */
+	private void perSetWorkFlow(final HttpServletRequest request, String pageId, String flowTempleteId,
+			String workItemId, boolean isNewWork, String entryId, String slectsUserIds) {
+		String currentUserID = ControllerHelper.getUser().getUserIdCardNumber();
+		// 流程新建立
+		if (isNewWork) {
+			// 查看是否有选择流程人员
+			if (StringUtils.isBlank(slectsUserIds)) {
+				// 去数据库取默认预置人员
+				String sql = "select JSON from p_fm_flow where PAGE_ID=?";
+				slectsUserIds = (String) DocumentUtils.getIntance().excuteQueryForObject(sql, pageId);
+				if (slectsUserIds == null) {
+					return;
+				}
+			}
+			com.alibaba.fastjson.JSONArray jsonArr = JSON.parseArray(slectsUserIds);
+			// 将人员数据保存
+			String sql = " insert into p_fm_work(JSON,CREATOR,WORK_ID,FLOW_ID,NODE_ID,CURRENT_NODE,PAGE_ID) values(?,?,?,?,?,?,?)";
+			this.jdbcTemplate.update(sql, slectsUserIds, currentUserID, workItemId, preset, entryId, 0, pageId);
+			// 将人员记录到流程日志表中
+			final String insertSql = "insert into p_fm_work_logs(WORK_ID,PAGE_ID,CREATOR,CURRENT_NODE) values(?,?,?,?)";
+			this.jdbcTemplate.update(insertSql, workItemId, pageId, currentUserID, 0);
+			int len = jsonArr.size();
+			for (int i = 0; i < len; i++) {
+				String v = jsonArr.getString(i);
+				String[] arr = v.split(",");
+				for (String str : arr) {
+					if (StringUtils.isNotBlank(str)) {
+						this.jdbcTemplate.update(insertSql, workItemId, pageId, str, i);
+					}
+				}
+			}
+			// 取出第一步人员
+			slectsUserIds = jsonArr.getString(0);
+			// 让getToUsers方法直接返回人员
+			request.setAttribute("direct", true);
+			// 设置下一节点人员
+			request.setAttribute("slectsUserIds", slectsUserIds);
+			// 第一步走转发
+			request.setAttribute("acte", "2011");
+			// 设置当前节点
+			request.setAttribute("CURRENT_NODE", 0);
+			// 状态设置为同意
+			request.setAttribute("state", 0);
+		} else {
+			// 去数据库取默认预置人员
+			String sql = "select ID,JSON,CURRENT_NODE from p_fm_work where PAGE_ID=? and WORK_ID=? limit 0,1";
+			Map<String, Object> map = this.jdbcTemplate.queryForMap(sql, pageId, workItemId);
+			int CURRENT_NODE = (int) map.get("CURRENT_NODE");
+			// 如果存在选择的人员则属于加签，否则是属于传阅
+			if (StringUtils.isNotBlank(slectsUserIds)) {
+				// 如果是加签，则将加签人员添加到人员记录表中(未实现)sql = "update p_fm_work set JSON=? where ID=?";
+				// 将加签人保存到流程日志表
+				final String insertSql = "insert into p_fm_work_logs(WORK_ID,PAGE_ID,CREATOR,CURRENT_NODE) values(?,?,?,?)";
+				String[] arr = slectsUserIds.split(",");
+				for (String str : arr) {
+					if (StringUtils.isNotBlank(str)) {
+						// 如果当前节点不存在相同处理人则插入
+						if (this.jdbcTemplate.queryForObject(
+								"select count(1) from p_fm_work_logs where WORK_ID=? and CREATOR=? and CURRENT_NODE=? and send_time is null",
+								Integer.class, workItemId, str, CURRENT_NODE) == 0) {
+							this.jdbcTemplate.update(insertSql, workItemId, pageId, str, CURRENT_NODE);
+						}
+					}
+				}
+				// 设置下一节点人员
+				request.setAttribute("slectsUserIds", slectsUserIds);
+				// 将流程动作类型改为加签
+				request.setAttribute("acte", "2024");
+				// 状态移交
+				request.setAttribute("state", 3);
+			} else {
+				String text = map.get("JSON") + "";
+				com.alibaba.fastjson.JSONArray jsonArr = JSON.parseArray(text);
+				int nextNode = CURRENT_NODE + 1;
+				int len = jsonArr.size();
+				// 查询是否还有下一节点人员
+				if (nextNode < len) {
+					// 查询当前节点所有人员是否已经处理完
+					sql = "select count(1) from wf_generworkerlist where workid=? and ispass=0 and fk_emp<>?";
+					int count = this.jdbcTemplate.queryForObject(sql, Integer.class, workItemId, currentUserID);
+					if (count == 0) {
+						Object ID = map.get("ID");
+						// 当前节点已经处理完就去获取定制的下一节点接收人
+						slectsUserIds = jsonArr.getString(nextNode);
+						// 更新当前节点到数据库
+						sql = "update p_fm_work set CURRENT_NODE=? where ID=?";
+						this.jdbcTemplate.update(sql, nextNode, ID);
+						// 让getToUsers方法直接返回人员
+						request.setAttribute("direct", true);
+						// 设置下一节点人员
+						request.setAttribute("slectsUserIds", slectsUserIds);
+						// 将流程动作类型改为加签
+						request.setAttribute("acte", "2024");
+					} else {
+						// 将流程动作类型改为传阅
+						request.setAttribute("acte", "2019");
+					}
+				} else {
+					// 将流程动作类型改为传阅
+					request.setAttribute("acte", "2019");
+				}
+			}
+			// 设置当前节点
+			request.setAttribute("CURRENT_NODE", CURRENT_NODE);
+			// 状态设置为同意
+			request.setAttribute("state", 0);
+		}
+	}
+
+	/**
 	 * 获取转发用户
 	 * 
 	 * @param request
@@ -611,7 +794,8 @@ public class WorkflowTaskControl extends BaseController {
 	 */
 	private String getToUsers(final HttpServletRequest request, String slectsUserIds) {
 		Object direct = request.getAttribute("direct");
-		if (HttpRequestDeviceUtils.isMobileDevice(request) || direct != null) {
+		if (HttpRequestDeviceUtils.isMobileDevice(request) || HttpRequestDeviceUtils.isDingDing(request)
+				|| direct != null) {
 			// List<Map<String, Object>> person = (List<Map<String, Object>>)
 			// JSON.parse(slectsUserIds);
 			// slectsUserIds = person.get(0).get("value").toString();
@@ -642,6 +826,39 @@ public class WorkflowTaskControl extends BaseController {
 	}
 
 	private void addLogs(DocumentVO docVo) {
+		// 查看是否属于预置流程
+		if (preset.equals(docVo.getFlowTempleteId())) {
+
+			String userId = ControllerHelper.getUser().getUserIdCardNumber();
+			HttpServletRequest request = ControllerContext.getRequest();
+			String content = request.getParameter("work_logs_content");
+			Object CURRENT_NODE = request.getAttribute("CURRENT_NODE");
+			Object state = request.getAttribute("state");
+			int currentNode = 0;
+			if (CURRENT_NODE != null) {
+				// 先从流程预设中获取
+				currentNode = Integer.parseInt(CURRENT_NODE + "");
+			}
+			// 默认意见为同意。
+			if (StringUtils.isBlank(content)) {
+				content = ControllerHelper.getMessage(I18nKey.wf_agree);
+			}
+			if (state == null) {
+				state = 0;
+			}
+			String today = DocumentUtils.getIntance().today();
+			try {
+				// 取出发送时间为空，并且创建时间最早的那条记录ID
+				Integer id = this.jdbcTemplate.queryForObject(
+						"select ID from p_fm_work_logs where WORK_ID=? and creator=? and CURRENT_NODE=? and send_time is null order by create_time limit 0,1",
+						Integer.class, docVo.getWorkItemId(), userId, currentNode);
+				// 如果记录表已经存在该成员的日志则直接更新,没有则插入
+				String sql = "update p_fm_work_logs set send_time=?, content=?,state=? where id=?";
+				this.jdbcTemplate.update(sql, today, content, state, id);
+			} catch (DataAccessException e) {
+				insertIntoLogs(docVo, userId, content);
+			}
+		}
 	}
 
 	private void insertIntoLogs(DocumentVO docVo, String userId, String content) {
@@ -676,7 +893,91 @@ public class WorkflowTaskControl extends BaseController {
 	 * @param entryId
 	 */
 	private void addPush(DocumentVO vo, String masterDataSource, SzcloudJdbcTemplate jdbcTemplate1) {
+		String workItemId = vo.getWorkItemId();
+		String dynamicPageId = vo.getDynamicPageId();
+		String fid = vo.getFid();
+		if (fid != null && !fid.equals("0")) {
+			workItemId = fid;
+		}
+		String sql;
+		String wf_approval_result = ControllerHelper.getMessage(I18nKey.wf_approval_result);
+		String wf_approval_reject = ControllerHelper.getMessage(I18nKey.wf_approval_reject);
+		sql = "select starter FK_EMP,workid,FK_Node,RDT,FID,concat(title,(CASE wfstate WHEN 13 THEN '"
+				+ wf_approval_reject + "' ELSE  '" + wf_approval_result
+				+ "' END)) title from wf_generworkflow where wfstate<>12 and workid=? and wfsta=1";
+		List<Map<String, Object>> emps = this.jdbcTemplate.queryForList(sql, workItemId);
+		if (!emps.isEmpty()) {
+			if ((emps.get(0).get("title") + "").contains(wf_approval_result)) {
+				sql = "select a.CCTo FK_EMP,a.workid,a.FK_Node,a.RDT,a.FID,concat(b.title,'"
+						+ ControllerHelper.getMessage(I18nKey.wf_approval_CC)
+						+ "') title from wf_cclist a left join wf_generworkflow b on a.workid=b.workid where a.workid=?";
+				emps.addAll(this.jdbcTemplate.queryForList(sql, workItemId));
+			}
+		} else {
+			sql = "SELECT DISTINCT a.FID,a.FK_Node,a.workid,a.FK_EMP,a.RDT,b.title  FROM wf_generworkerlist a left join "
+					+ "wf_generworkflow b on a.workid=b.workid WHERE IsPass=0 AND (a.workid=? or a.FID=?) ";
+			emps = jdbcTemplate.queryForList(sql, workItemId, workItemId);
+		}
 
+		sql = "select optionStr,fieldName from dd_select_option "
+				+ "where dynamicPageId=(select dynamicPageId from dd_apps where pcDynamicPageId=? or dynamicPageId=?)";
+		List<Map<String, Object>> options = jdbcTemplate.queryForList(sql,dynamicPageId,dynamicPageId);
+		if (!emps.isEmpty()) {
+
+			Map<String, Object> data = jdbcTemplate.queryForMap("select * from " + vo.getTableName() + " where id=? ",
+					vo.getRecordId());
+			// 去app表中查找需要显示的字段
+			Object FIELDS = meta.queryObject("SELECT FIELDS FROM dd_apps WHERE dynamicPageId=? or pcDynamicPageId=?",
+					dynamicPageId,dynamicPageId);
+			Map<String, String> content = new LinkedHashMap<>();
+			boolean isEnglish = ControllerHelper.getLang() == Locale.ENGLISH;
+			if (FIELDS instanceof String) {
+				String[] fields = ((String) FIELDS).split(",");
+				for (String str : fields) {
+					if (StringUtils.isNotBlank(str)) {
+						String[] arr = str.split("=");
+						String key = arr[0];
+						Object v = data.get(key);
+						v = dealSelectVal(options, v + "", key);
+						if (v != null && !v.toString().isEmpty()) {
+							String name;
+							// 如果是英文默认取第三个，如果没配置则取键值
+							if (isEnglish) {
+								if (arr.length > 2) {
+									name = arr[2];
+								} else {
+									name = key;
+								}
+							} else {
+								name = arr[1];
+							}
+							content.put(name, v + "");
+						}
+					}
+				}
+			}
+			String baseUrl = ControllerHelper.getBasePath();
+			String gotoUrl;
+			for (Map<String, Object> map : emps) {
+				String user = map.get("FK_EMP") + "";
+				gotoUrl = baseUrl + "dingding/wf/openTask.do?FK_Flow=" + vo.getFlowTempleteId() + "&WorkID="
+						+ map.get("workid") + "&FID=" + map.get("FID") + "&FK_Node=" + map.get("FK_Node")
+						+ "&dynamicPageId=" + vo.getDynamicPageId();
+				content.put("validRepeat", map.get("RDT") + "");
+				String title = (String) map.get("title");
+				DocumentUtils.getIntance().sendMessage(gotoUrl, "0", content, title, user);
+			}
+		}
+	}
+
+	private String dealSelectVal(List<Map<String, Object>> options, String val, String field) {
+		for (int i = 0; i < options.size(); i++) {
+			if (field.equals(options.get(i).get("fieldName"))) {
+				String optionStr = (String) options.get(i).get("optionStr");
+				return DdUtil.getVal(val, optionStr);
+			}
+		}
+		return val;
 	}
 
 	/**
@@ -977,7 +1278,7 @@ public class WorkflowTaskControl extends BaseController {
 	@ResponseBody
 	@RequestMapping("doUnSend")
 	public Map doUnSend(HttpServletRequest request) {
-		cn.org.awcp.core.domain.SzcloudJdbcTemplate jdbcTemplate1 = Springfactory.getBean("jdbcTemplate");
+		SzcloudJdbcTemplate jdbcTemplate1 = Springfactory.getBean("jdbcTemplate");
 
 		Map resultMap = new HashMap();
 		String flowTempleteId = request.getParameter("FK_Flow");

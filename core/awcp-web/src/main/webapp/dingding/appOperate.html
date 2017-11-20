@@ -1,0 +1,128 @@
+<html lang="en">
+<head>
+    <title data-id="title_operateApp"></title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="stylesheet" href="css/appOperate.css">
+</head>
+<body>
+    <div id="dingapp">
+        <div class="adminCtl">
+            <div class="admin-prompt"><div data-id="adminPrompt"></div></div>
+        </div>
+        <div id="apps"></div>
+    </div>
+   	<script src="js/jquery.js" charset="utf-8"></script>
+   	<script src="js/dingtalk.js" charset="utf-8"></script>
+	<script src="../venson/js/common.js"></script>
+	<script src="js/resource.js"></script>
+    <script>
+    	dd.ready(function(){
+    		//添加微应用的html片段
+			var addHtml = '<div class="pure-u-1-4 pure-u-md-1-8 item appadd"><div class="forms">' + 
+						  '<div class="img" style="background-image: url(&quot;' + baseUrl + 
+						  'dingding/img/add.png&quot;);"></div></div>' + 
+						  '<div class="content"><div class="appTitle">' + dd_res.addButton + '</div></div></div>';
+			$.ajax({
+			   	type: "POST",
+			   	url: baseUrl + "dingding/getEnableDdApps.do",
+			   	async : false,
+			   	success: function(data){
+			   		var types = data.types;
+			   		var apps = data.apps;
+			   		var html = "";
+					for(typeID in types){
+						html += '<div class="andmiAppClassList"><div class="appClassContainer">' +
+								'<div class="appClassTitle pure-g" id="' + typeID + '">' + 
+				            	'<div class="eidtTitle pure-u-11-12"><span><label>' + types[typeID] + '</label>' +
+				            	'<i class="eidtTypeName"></i></span></div></div>' +
+				            	'<div class="appListContainer"><div class="pure-g">';					
+						var arr = apps[typeID];
+						if(arr){
+							for(var i=0;i<arr.length;i++){
+								var img = baseUrl + 'common/file/showPicture.do?id=' + arr[i].img;
+								var title = arr[i].title;
+								var id = arr[i].ID
+								html += '<div class="pure-u-1-4 pure-u-md-1-8 item" id="' + id + '">' +
+				                    	'<div class="forms">' + 
+				                        '<div class="img" style="background-image: url(&quot;' + img + '&quot;);"></div>' + 
+				                        '<i class="removeApp"></i></div>' +
+				                    	'<div class="content">' +
+				                        '<div class="appTitle">' + title + '</div><p class="range">' + dd_res.allVisible + 
+				                        '</p></div></div>';
+							}
+						}
+						html += addHtml + " </div></div></div></div>";
+					}				
+					$("#apps").html(html);
+			   	}
+			});
+			
+			//移除微应用
+			$(".removeApp").click(function(){
+	            var $div = $(this).parent().parent();
+	            var id = $div.attr("id");
+	            dd.device.notification.confirm({
+	        		message:dd_res.TIP1,
+	        		title:dd_res.deleteConfirm,
+	        		buttonLabels:[dd_res.cancelButton,dd_res.deleteButton],
+	        		onSuccess: function(data) {
+	        			if(data.buttonIndex==1){
+							$.ajax({
+				                type: "POST",
+				                url: baseUrl + "api/execute/disableApp?id=" + id,
+				                async : false,
+				                success: function(data){
+				                    if(data.data == "1"){
+				                    	$div.remove();
+				                    }
+				                }
+				            });
+						}
+	        	    }
+	        	});
+			});
+			
+			//修改微应用类型的名称
+			$(".eidtTypeName").click(function(){
+				var $label = $(this).prev();
+				var typeID = $(this).parent().parent().parent().attr("id");
+				dd.device.notification.prompt({
+					message:dd_res.TIP2,
+					title:"",
+					buttonLabels:[dd_res.cancelButton,dd_res.okButton],
+					onSuccess:function(data){
+						var typeName = data.value;
+						if(data.buttonIndex==1 && typeName){
+							$.ajax({
+				                type: "POST",
+				                url: baseUrl + "api/execute/editTypeName",
+				                data:{
+				                	typeName:typeName,
+				                	typeID:typeID
+				                },
+				                async : false,
+				                success: function(data){
+				                    if(data.data == "1"){
+				                    	$label.text(typeName);
+				                    }
+				                }
+				            });
+						}
+					}
+				})
+			});
+			
+			//添加微应用
+			$(".appadd").click(function(){
+				var typeID = $(this).parent().parent().prev().attr("id");
+				var typeName = encodeURIComponent($.trim($(this).parent().parent().prev().text()));
+				location.href = baseUrl + "dingding/appAdd.html?typeID=" + typeID + "&typeName=" + typeName;
+			});
+    	});
+    </script>
+</body>
+</html>

@@ -166,15 +166,6 @@
 			<#break>
 		<#case 1028>
 			<@convertRoleSelect c/>
-		<#case 1029>
-			<@convertuserSelectOne c/>
-			<#break>
-		<#case 1030>
-			<@convertSubUserSelect c/>
-			<#break>
-		<#case 1031>
-			<@convertSqlUserSelect c/>
-			<#break>
 		<#case 1032>
 			<@convertNumberInputText c/>
 			<#break>
@@ -1163,6 +1154,10 @@ var multilevelLinkage=function(option){
 
 	</#if>
 
+	<#if c['isSingle']?? >
+		data-isSingle='${c['isSingle']}'
+	</#if>
+	
 	<#if c['name']?? >
 		name='${c['name']}'
 	</#if>
@@ -1233,135 +1228,6 @@ var multilevelLinkage=function(option){
 </#macro>
 <#-------------------------------------------动态选择框组件end---------------------------------------->
 
-
-<#-------------------------------------------单人选择框begin---------------------------------------->
-<#macro convertuserSelectOne c >
-	<input type='text' class='
-	<#if c['css']?? && c['css']?length gt 0>
-		${c['css']}
-	<#else>
-		${"form-control"}
-	</#if>
-	<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['hidden'])?? && status['</#noparse>${c['name']}<#noparse>']['hidden'] == 'true'>hidden</#if></#noparse>
-	'data-input="selected"
-	<#if c['style']?? >
-		style='${c['style']}'
-
-	</#if>
-
-	<#if c['name']?? >
-		name='${c['name']}'
-	</#if>
-	<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['disabled'])?? && status['</#noparse>${c['name']}<#noparse>']['disabled'] == 'true'>disabled="disabled"</#if></#noparse>
-	<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['readonly'])?? && status['</#noparse>${c['name']}<#noparse>']['readonly'] == 'true'>readonly="readonly"</#if></#noparse>
-	<#if c['dataItemCode']?? && c['dataItemCode']?length gt 0 >
-
-			value="<#noparse>${(</#noparse>${c['dataItemCode']}<#noparse>)!''}</#noparse>"
-
-	</#if>
-	<#if c['others']??>
-		<#if c['others']['placeHolder']?? >
-			placeHolder='${c['others']['placeHolder']}'
-		</#if>
-	</#if>
-	id='${(c['pageId'])!""}'
-
-	<#if c['description']?? >
-		title='${c['description']}'
-	</#if>
-	/>
-	<input type='text' class='chosenNameOne text-ellipsis form-control
-	<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['hidden'])?? && status['</#noparse>${c['name']}<#noparse>']['hidden'] == 'true'>hidden</#if></#noparse>
-	'
-	<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['disabled'])?? && status['</#noparse>${c['name']}<#noparse>']['disabled'] == 'true'>disabled="disabled"</#if></#noparse>
-	<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['readonly'])?? && status['</#noparse>${c['name']}<#noparse>']['readonly'] == 'true'>readonly="readonly"</#if></#noparse>
-	style='cursor:text;position: relative;color:#999;height:auto;'>
-</#macro>
-<#-------------------------------------------单人选择框end---------------------------------------->
-
-<#-------------------------------------------选择下级用户begin---------------------------------------->
-<#macro convertSubUserSelect c >
-	<input type='text' class='
-	<#if c['css']?? && c['css']?length gt 0>
-		${c['css']}
-	<#else>
-		${"form-control"}
-	</#if>
-	<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['hidden'])?? && status['</#noparse>${c['name']}<#noparse>']['hidden'] == 'true'>hidden</#if></#noparse>
-	' data-input="chosenSubUser"	
-	<#if c['style']?? >
-		style='${c['style']}'
-	</#if>
-
-	<#if c['name']?? >
-		name='${c['name']}'
-	</#if>
-	<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['disabled'])?? && status['</#noparse>${c['name']}<#noparse>']['disabled'] == 'true'>disabled="disabled"</#if></#noparse>
-	<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['readonly'])?? && status['</#noparse>${c['name']}<#noparse>']['readonly'] == 'true'>readonly="readonly"</#if></#noparse>
-	<#if c['dataItemCode']?? && c['dataItemCode']?length gt 0 >
-			value="<#noparse>${(</#noparse>${c['dataItemCode']}<#noparse>)!''}</#noparse>"
-	</#if>
-	<#if c['others']??>
-		<#if c['others']['placeHolder']?? >
-			placeHolder='${c['others']['placeHolder']}'
-		</#if>
-	</#if>
-	id='${(c['pageId'])!""}'
-
-	<#if c['description']?? >
-		title='${c['description']}'
-	</#if>
-	/>
-	<input type='text' class='chosenSubUserName text-ellipsis form-control
-	<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['hidden'])?? && status['</#noparse>${c['name']}<#noparse>']['hidden'] == 'true'>hidden</#if></#noparse>
-	'
-	<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['disabled'])?? && status['</#noparse>${c['name']}<#noparse>']['disabled'] == 'true'>disabled="disabled"</#if></#noparse>
-	<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['readonly'])?? && status['</#noparse>${c['name']}<#noparse>']['readonly'] == 'true'>readonly="readonly"</#if></#noparse>
-	style='cursor:text;position: relative;color:#999;height:auto;'>
-</#macro>
-<#-------------------------------------------选择下级用户nd---------------------------------------->
-
-<#-------------------------------------------通过sql选择用户begin(sql放在description里,页面通过title中的属性值获得)---------------------------------------->
-<#macro convertSqlUserSelect c >
-	<input type='text' class='
-	<#if c['css']?? && c['css']?length gt 0>
-		${c['css']}
-	<#else>
-		${"form-control"}
-	</#if>
-	<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['hidden'])?? && status['</#noparse>${c['name']}<#noparse>']['hidden'] == 'true'>hidden</#if></#noparse>
-	' data-input="chosenSqlUser"	
-	<#if c['style']?? >
-		style='${c['style']}'
-	</#if>
-
-	<#if c['name']?? >
-		name='${c['name']}'
-	</#if>
-	<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['disabled'])?? && status['</#noparse>${c['name']}<#noparse>']['disabled'] == 'true'>disabled="disabled"</#if></#noparse>
-	<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['readonly'])?? && status['</#noparse>${c['name']}<#noparse>']['readonly'] == 'true'>readonly="readonly"</#if></#noparse>
-	<#if c['dataItemCode']?? && c['dataItemCode']?length gt 0 >
-			value="<#noparse>${(</#noparse>${c['dataItemCode']}<#noparse>)!''}</#noparse>"
-	</#if>
-	<#if c['others']??>
-		<#if c['others']['placeHolder']?? >
-			placeHolder='${c['others']['placeHolder']}'
-		</#if>
-	</#if>
-	id='${(c['pageId'])!""}'
-
-	<#if c['description']?? >
-		title='${c['description']}'
-	</#if>
-	/>
-	<input type='text' class='chosenSqlUserName text-ellipsis form-control
-	<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['hidden'])?? && status['</#noparse>${c['name']}<#noparse>']['hidden'] == 'true'>hidden</#if></#noparse>
-	'
-	<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['disabled'])?? && status['</#noparse>${c['name']}<#noparse>']['disabled'] == 'true'>disabled="disabled"</#if></#noparse>
-	<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['readonly'])?? && status['</#noparse>${c['name']}<#noparse>']['readonly'] == 'true'>readonly="readonly"</#if></#noparse>
-	style='cursor:text;position: relative;color:#999;height:auto;'>
-</#macro>
-<#-------------------------------------------通过sql选择用户end---------------------------------------->
 
 <#-------------------------------------------日期begin------------------------------------------>
 <#macro convertDatetime c>
@@ -2924,15 +2790,6 @@ $("#${c.getPageId()}").click(function(){
 			<#break>
 		<#case 1028>
 			<@convertRoleSelect c/>
-			<#break>
-		<#case 1029>
-			<@convertRoleSelectOne c/>
-			<#break>
-		<#case 1030>
-			<@convertSubUserSelect c/>
-			<#break>
-		<#case 1031>
-			<@convertSqlUserSelect c/>
 			<#break>
 		<#default>
 	</#switch>

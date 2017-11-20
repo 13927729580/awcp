@@ -7,10 +7,20 @@
 	<div class="col-md-4">
 		<input name="name" class="form-control" id="name" type="text" value="">
 		<div class="input-group-btn">
-             	<button class="btn btn-default" type="button" id="showKeywords">查看关键字</button>
-		    </div>
+   			<button class="btn btn-default" type="button" id="showKeywords">查看关键字</button>
+		</div>
 	</div>
 </div>	
+
+<div class="form-group">
+	<label class="col-md-2 control-label">是否只能选择一个用户</label>
+	<div class="col-md-4">
+		<select id="isSingle" class="chosen-select form-control" tabindex="2" name="isSingle">
+			<option value="N">否</option>
+			<option value="Y">是</option>
+		</select>
+	</div>
+</div>
 
 <div class="form-group"><!-- 显示1列数据 -->
 	<!-- 自己输入or下拉选择(dataname.itemcode) -->
@@ -19,13 +29,12 @@
 		<div class="input-group" id="selectInput">
             <input type="text" class="form-control sI_input" name="dataItemCode" id="dataItemCode">
             <div class="input-group-btn">
-              <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" tabindex="-1">
-                	<span class="caret"></span>
-              </button>
-              <ul class="dropdown-menu pull-right sI_select">
-              </ul>
-            </div>
-         </div>
+              	<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" tabindex="-1">
+              		<span class="caret"></span>
+              	</button>
+              	<ul class="dropdown-menu pull-right sI_select"></ul>
+        	</div>
+		</div>
 	</div>
 </div>
 
@@ -54,18 +63,6 @@
 		<input name="style" class="form-control" id="style" type="text" value="">
 	</div>
 </div>
-
-<!-- <div class="form-group">
-	<label class="col-md-2 control-label">文本类型</label>
-	<div class="col-md-4">
-		<select id="contentType" class="chosen-select form-control"
-			tabindex="2" name="contentType">
-			<option value=""></option>
-			<option value="1001">文本</option>
-			<option value="1002">数字</option>
-		</select>
-	</div>
-</div> -->
 
 <div class="form-group">
 	<label class="col-md-2 control-label required">布局</label>

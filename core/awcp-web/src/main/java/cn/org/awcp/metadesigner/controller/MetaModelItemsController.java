@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,22 +15,20 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.github.miemiedev.mybatis.paginator.domain.PageList;
+
 import cn.org.awcp.core.domain.BaseExample;
 import cn.org.awcp.core.domain.Criteria;
-import cn.org.awcp.core.utils.Tools;
+import cn.org.awcp.core.utils.SessionUtils;
 import cn.org.awcp.core.utils.constants.SessionContants;
 import cn.org.awcp.metadesigner.application.MetaModelItemService;
 import cn.org.awcp.metadesigner.application.MetaModelService;
-import cn.org.awcp.metadesigner.application.ModelRelationService;
-import cn.org.awcp.metadesigner.util.ICheckIsInt;
-import cn.org.awcp.metadesigner.util.ICreateTables;
+import cn.org.awcp.metadesigner.util.CreateTables;
 import cn.org.awcp.metadesigner.util.UpdateColumn;
 import cn.org.awcp.metadesigner.vo.MetaModelItemsVO;
 import cn.org.awcp.metadesigner.vo.MetaModelVO;
-import cn.org.awcp.metadesigner.vo.ModelRelationVO;
 import cn.org.awcp.unit.vo.PunSystemVO;
-
-import com.github.miemiedev.mybatis.paginator.domain.PageList;
 
 @Controller("metaModelItemsController")
 @RequestMapping(value = "/metaModelItems")
@@ -45,13 +44,7 @@ public class MetaModelItemsController {
 	private MetaModelItemService metaModelItemsServiceImpl;
 
 	@Autowired
-	private ModelRelationService modelRelationServiceImpl;
-
-	@Autowired
-	private ICreateTables createTables;
-
-	@Autowired
-	private ICheckIsInt checkIsInt;
+	private CreateTables createTables;
 
 	/**
 	 * 增加
@@ -62,50 +55,18 @@ public class MetaModelItemsController {
 	 * @return
 	 */
 	@RequestMapping(value = "/save")
-	public String save(@ModelAttribute MetaModelItemsVO vo, long modelIdss) {
-		try {
-			// 1.判断数据库是否已经存在这一属性
-			List<MetaModelItemsVO> ls = this.metaModelItemsServiceImpl.queryColumn("queryList", vo.getModelId(),
-					vo.getItemCode());
-			if (!(ls.size() > 0)) {
-				ModelRelationVO model = new ModelRelationVO();
-				if (checkIsInt.isInt(vo.getItemType())) {
-					long i = Integer.parseInt(vo.getItemType().toString());
-					if (vo.getItemType().equals("1")) {
-						model.setRelationName("一对一 ");
-						model.setRelationType("OneToOne");
-						vo.setItemType("一对一");
-					}
-					if (vo.getItemType().equals("2")) {
-						model.setRelationName("多对一");
-						model.setRelationType("ManyToOne");
-						vo.setItemType("多对一");
-					}
-					vo.setItemValid(0);
-					this.metaModelItemsServiceImpl.save(vo);
-					long maxId = 0;
-					vo.setItemValid(0);
-					List<MetaModelItemsVO> mmvo = this.metaModelItemsServiceImpl.queryResult("maxId", vo.getModelId());
-					if (mmvo.size() > 0) {
-						MetaModelItemsVO voss = mmvo.get(0);
-						maxId = voss.getId();
-					}
-					model.setItemId(maxId);
-					model.setModelId(modelIdss);
-					modelRelationServiceImpl.save(model);
-				} else {
-					vo.setItemValid(0);
-					this.metaModelItemsServiceImpl.save(vo);
-				}
-				return "redirect:queryResultByParams.do?id=" + vo.getModelId();
-			} else {
-				return "redirect:queryResultByParams.do?id=" + vo.getModelId();
-			}
-
-		} catch (Exception e) {
-			logger.info("ERROR", e);
-			return "error";
+	public String save(@ModelAttribute MetaModelItemsVO vo, String modelIdss) {
+		// 1.判断数据库是否已经存在这一属性
+		List<MetaModelItemsVO> ls = this.metaModelItemsServiceImpl.queryColumn("queryList", vo.getModelId(),
+				vo.getItemCode());
+		if (ls.isEmpty()) {
+			vo.setItemValid(0);
+			this.metaModelItemsServiceImpl.save(vo);
+			return "redirect:queryResultByParams.do?id=" + vo.getModelId();
+		} else {
+			return "redirect:queryResultByParams.do?id=" + vo.getModelId();
 		}
+
 	}
 
 	/**
@@ -120,50 +81,17 @@ public class MetaModelItemsController {
 	@RequestMapping(value = "/saves")
 	public Map<String, Object> saves(@ModelAttribute MetaModelItemsVO vo) {
 		Map<String, Object> map = new HashMap<String, Object>();
-		try {
-			// 1.判断数据库是否已经存在这一属性
-			List<MetaModelItemsVO> ls = this.metaModelItemsServiceImpl.queryColumn("queryList", vo.getModelId(),
-					vo.getItemCode());
-			if (!(ls.size() > 0)) {
-				ModelRelationVO model = new ModelRelationVO();
-				if (checkIsInt.isInt(vo.getItemType())) {
-					long i = Integer.parseInt(vo.getItemType().toString());
-					if (vo.getItemType().equals("1")) {
-						model.setRelationName("一对一 ");
-						model.setRelationType("OneToOne");
-						vo.setItemType("一对一");
-					}
-					if (vo.getItemType().equals("2")) {
-						model.setRelationName("多对一");
-						model.setRelationType("ManyToOne");
-						vo.setItemType("多对一");
-					}
-					vo.setItemValid(0);
-					this.metaModelItemsServiceImpl.save(vo);
-					long maxId = 0;
-					vo.setItemValid(0);
-					List<MetaModelItemsVO> mmvo = this.metaModelItemsServiceImpl.queryResult("maxId", vo.getModelId());
-					if (mmvo.size() > 0) {
-						MetaModelItemsVO voss = mmvo.get(0);
-						maxId = voss.getId();
-					}
-					model.setItemId(maxId);
-					modelRelationServiceImpl.save(model);
-				} else {
-					vo.setItemValid(0);
-					this.metaModelItemsServiceImpl.save(vo);
-				}
-				map.put("id", vo.getId());
-				return map;// "redirect:queryResultByParams.do?id="+vo.getModelId();
-			} else {
-				map.put("id", vo.getId());
-				return map;// "redirect:queryResultByParams.do?id="+vo.getModelId();
-			}
-
-		} catch (Exception e) {
-			logger.info("ERROR", e);
-			map.put("id", 0);
-			return map;// "error";
+		// 1.判断数据库是否已经存在这一属性
+		List<MetaModelItemsVO> ls = this.metaModelItemsServiceImpl.queryColumn("queryList", vo.getModelId(),
+				vo.getItemCode());
+		if (ls.isEmpty()) {
+			vo.setItemValid(0);
+			this.metaModelItemsServiceImpl.save(vo);
+			map.put("id", vo.getModelId());
+			return map;
+		} else {
+			map.put("id", vo.getModelId());
+			return map;
 		}
 	}
 
@@ -175,28 +103,8 @@ public class MetaModelItemsController {
 	 * @return
 	 */
 	@RequestMapping(value = "/remove")
-	public String remove(Long id) {
-
-		MetaModelItemsVO vo = this.metaModelItemsServiceImpl.get(id);
-		// MetaModelVO
-		// metaModelVO=this.metaModelServiceImpl.get(vo.getModelId());
-		// //1.判断属性是否有外键关系
-		// ModelRelationVO mr=this.modelRelationServiceImpl.queryByItem(id);
-		// try {
-		// long ids=mr.getId();
-		// //存在 删除关系
-		// this.modelRelationServiceImpl.remove(mr);
-		// //删除表
-		// String str="alter table "+metaModelVO.getTableName()+" drop foreign
-		// key fk_"+vo.getItemCode();
-		// this.metaModelServiceImpl.excuteSql(str);
-		// } catch (Exception e) {
-		// logger.debug("没有外键关系");
-		// }
+	public String remove(MetaModelItemsVO vo) {
 		this.metaModelItemsServiceImpl.remove(vo);
-		// String sql="alter table "+metaModelVO.getTableName()+" drop column
-		// "+vo.getItemCode();
-		// this.metaModelServiceImpl.excuteSql(sql);
 		return "redirect:queryResultByParams.do?id=" + vo.getModelId();
 
 	}
@@ -210,7 +118,7 @@ public class MetaModelItemsController {
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/gets")
-	public MetaModelItemsVO get(Long id, Model model) {
+	public MetaModelItemsVO get(String id, Model model) {
 		MetaModelItemsVO vo = this.metaModelItemsServiceImpl.get(id);
 		List<MetaModelVO> ms = new ArrayList<MetaModelVO>();
 		List<MetaModelVO> mm = this.metaModelServiceImpl.findAll();
@@ -228,21 +136,6 @@ public class MetaModelItemsController {
 	}
 
 	/**
-	 * 根据itemId查询ModelRelation
-	 * 
-	 * @param itemId
-	 * @return
-	 */
-	@ResponseBody
-	@RequestMapping(value = "queryRelation")
-	public MetaModelVO queryRelation(long itemId) {
-		ModelRelationVO modelRelation = this.modelRelationServiceImpl.queryByItem(itemId);
-		// 查询出对应的元数据
-		MetaModelVO mmvo = this.metaModelServiceImpl.get(modelRelation.getModelId());
-		return mmvo;
-	}
-
-	/**
 	 * 修改
 	 * 
 	 * @param vo
@@ -250,228 +143,8 @@ public class MetaModelItemsController {
 	 * @return
 	 */
 	@RequestMapping(value = "/update")
-	public String update(@ModelAttribute MetaModelItemsVO vo, long modelIdsss) {
-		MetaModelItemsVO mmiso = this.metaModelItemsServiceImpl.get(vo.getId());
+	public String update(@ModelAttribute MetaModelItemsVO vo) {
 		this.metaModelItemsServiceImpl.update("update", vo);
-		// 查询对应的表
-		// MetaModelVO vos=this.metaModelServiceImpl.get(vo.getModelId());
-		// if(this.metaModelServiceImpl.tableIsExist(vos.getTableName())){
-		// //1.判断是否有外键关系
-		// if(checkIsInt.isInt(vo.getItemType())){
-		// ModelRelationVO mro=new ModelRelationVO();
-		// //查询对应的关系表
-		// MetaModelVO mm=this.metaModelServiceImpl.get(modelIdsss);
-		// //2.判断关系类型
-		// if(vo.getItemType().equals("1")){
-		// mro.setRelationName("一对一");
-		// mro.setRelationType("OneToOne");
-		// vo.setItemType("一对一");
-		// }else{
-		// mro.setRelationName("多对一");
-		// mro.setRelationType("ManyToOne");
-		// vo.setItemType("多对一");
-		// }
-		// mro.setItemId(vo.getId());
-		// mro.setModelId(modelIdsss);
-		// //判断是否已有外键关系
-		// ModelRelationVO
-		// mrvo=this.modelRelationServiceImpl.queryByItem(vo.getId());
-		// try {
-		// //存在
-		// long id=mrvo.getId();
-		// //修改关系表
-		// mro.setId(mrvo.getId());
-		// this.modelRelationServiceImpl.executeUpdate(mro, "update");
-		// //删除外键
-		// StringBuffer sbr=new StringBuffer();
-		// sbr.append("alter table ");
-		// sbr.append(vos.getTableName());
-		// sbr.append(" drop foreign key fk_");
-		// sbr.append(mmiso.getItemCode());
-		// sbr.append("_");
-		// sbr.append(vos.getTableName());
-		// this.metaModelServiceImpl.excuteSql(sbr.toString());
-		// //修改列
-		// StringBuffer sbs=new StringBuffer("alter table
-		// ").append(vos.getTableName()).append(" change
-		// ").append(mmiso.getItemCode()).append(" ").append(vo.getItemCode());
-		// //String sj="alter table "+vos.getTableName()+" change
-		// "+mmiso.getItemCode()+" "+vo.getItemCode();
-		// List<MetaModelItemsVO>
-		// list=this.metaModelItemsServiceImpl.queryResult("queryResult",modelIdsss);
-		// for(MetaModelItemsVO mmi:list){
-		// if(mmi.getUsePrimaryKey()==1){
-		// sbs.append(" ");
-		// sbs.append(vo.getItemType());
-		// //sj+=mmi.getItemType();
-		// continue;
-		// }
-		// }
-		// this.metaModelServiceImpl.excuteSql(sbs.toString());
-		// //添加外键
-		// StringBuffer sb=new StringBuffer();
-		// sb.append("alter table ");
-		// sb.append(vos.getTableName());
-		// sb.append(" add constraint fk_");
-		// sb.append(vo.getItemCode());
-		// sb.append("_");
-		// sb.append(vos.getTableName());
-		// sb.append(" foreign key("+vo.getItemCode()+")");
-		// sb.append(" REFERENCES ");
-		// for(MetaModelItemsVO mmi:list){
-		// if(mmi.getUsePrimaryKey()==1){
-		// sb.append(mm.getTableName()+"("+mmi.getItemCode()+")");
-		// continue;
-		// }
-		// }
-		// this.metaModelServiceImpl.excuteSql(sb.toString());
-		// } catch (Exception e) {//不存在
-		// //添加外键关系
-		// this.modelRelationServiceImpl.save(mro);
-		// //修改列
-		// StringBuffer sjs=new StringBuffer("alter table
-		// ").append(vos.getTableName()).append(" change
-		// ").append(mmiso.getItemCode()).append(" ").append(vo.getItemCode());
-		// //String sj="alter table "+vos.getTableName()+" change
-		// "+mmiso.getItemCode()+" "+vo.getItemCode();
-		// List<MetaModelItemsVO>
-		// list=this.metaModelItemsServiceImpl.queryResult("queryResult",modelIdsss);
-		// for(MetaModelItemsVO mmi:list){
-		// if(mmi.getUsePrimaryKey()==1){
-		// sjs.append(" ");
-		// sjs.append(mmi.getItemType());
-		// //sj+=mmi.getItemType();
-		// continue;
-		// }
-		// }
-		// this.metaModelServiceImpl.excuteSql(sjs.toString());
-		// //添加外键
-		// StringBuffer sb=new StringBuffer();
-		// sb.append("alter table ");
-		// sb.append(vos.getTableName());
-		// sb.append(" add constraint fk_");
-		// sb.append(vo.getItemCode());
-		// sb.append("_");
-		// sb.append(vos.getTableName());
-		// sb.append(" foreign key("+vo.getItemCode()+")");
-		// sb.append(" REFERENCES ");
-		// for(MetaModelItemsVO mmi:list){
-		// if(mmi.getUsePrimaryKey()==1){
-		// sb.append(mm.getTableName()+"("+mmi.getItemCode()+")");
-		// continue;
-		// }
-		// }
-		// this.metaModelServiceImpl.excuteSql(sb.toString());
-		// }
-		// }else{ //没有外键
-		// //判断是否存在原有外键关系
-		// ModelRelationVO
-		// mrvo=this.modelRelationServiceImpl.queryByItem(vo.getId());
-		// try{
-		// //存在
-		// long id=mrvo.getId();
-		// //删除外键
-		// StringBuffer sbr=new StringBuffer();
-		// sbr.append("alter table ");
-		// sbr.append(vos.getTableName());
-		// sbr.append(" drop foreign key fk_");
-		// sbr.append(mmiso.getItemCode());
-		// sbr.append("_");
-		// sbr.append(vos.getTableName());
-		// this.metaModelServiceImpl.excuteSql(sbr.toString());
-		// //删除关系表中的关系
-		// ModelRelationVO
-		// mj=this.modelRelationServiceImpl.queryByItem(vo.getId());
-		// this.modelRelationServiceImpl.remove(mj);
-		// //修改列
-		// StringBuffer sjs=new StringBuffer("alter table
-		// ").append(vos.getTableName()).append(" change
-		// ").append(mmiso.getItemCode()).append(" ").append(vo.getItemCode());
-		// if(vo.getItemType().equals("varchar") ||
-		// vo.getItemType().equals("decimal")){
-		// sjs.append(" ");
-		// sjs.append(vo.getItemType());
-		// sjs.append("(");
-		// sjs.append(vo.getItemLength());
-		// sjs.append(")");
-		// }else{
-		// sjs.append(" ");
-		// sjs.append(vo.getItemType());
-		// }
-		// this.metaModelServiceImpl.excuteSql(sjs.toString());
-		// }catch(Exception e){//不存在
-		// //直接修改
-		// StringBuffer sjs=new StringBuffer("alter table
-		// ").append(vos.getTableName()).append(" change
-		// ").append(mmiso.getItemCode()).append("
-		// ").append(vo.getItemCode()).append(" ");
-		// if(vo.getItemType().equals("varchar") ||
-		// vo.getItemType().equals("decimal")){
-		// sjs.append(vo.getItemType());
-		// sjs.append("(");
-		// sjs.append(vo.getItemLength());
-		// sjs.append(")");
-		// }else{
-		// sjs.append(vo.getItemType());
-		// }
-		// logger.debug(sjs.toString());
-		// this.metaModelServiceImpl.excuteSql(sjs.toString());
-		// }
-		// }
-		// vo.setItemValid(1);
-		// this.metaModelItemsServiceImpl.update("update",vo);
-		// }
-		// else{
-		// //判断是否有外键
-		// if(checkIsInt.isInt(vo.getItemType())){
-		// ModelRelationVO mro=new ModelRelationVO();
-		// //2.判断关系类型
-		// if(vo.getItemType().equals("1")){
-		// mro.setRelationName("一对一");
-		// mro.setRelationType("OneToOne");
-		// vo.setItemType("一对一");
-		// }else{
-		// mro.setRelationName("多对一");
-		// mro.setRelationType("ManyToOne");
-		// vo.setItemType("多对一");
-		// }
-		// mro.setItemId(vo.getId());
-		// mro.setModelId(modelIdsss);
-		// //判断是否已经存在关系
-		// ModelRelationVO
-		// mrvo=this.modelRelationServiceImpl.queryByItem(vo.getId());
-		// try {
-		// //存在
-		// long id=mrvo.getId();
-		// //修改关系
-		// mro.setId(mrvo.getId());
-		// this.modelRelationServiceImpl.executeUpdate(mro, "update");
-		// vo.setItemValid(0);
-		// this.metaModelItemsServiceImpl.update("update", vo);;
-		// } catch (Exception e) {//不存在
-		// this.modelRelationServiceImpl.save(mro);
-		// vo.setItemValid(0);
-		// this.metaModelItemsServiceImpl.update("update",vo);
-		// }
-		// }else{
-		// //判断是否已经存在关系
-		// ModelRelationVO
-		// mrvo=this.modelRelationServiceImpl.queryByItem(vo.getId());
-		// try {
-		// //存在
-		// long id=mrvo.getId();
-		// //修改关系
-		// this.modelRelationServiceImpl.remove(mrvo);
-		// vo.setItemValid(0);
-		// this.metaModelItemsServiceImpl.update("update", vo);
-		// } catch (Exception e) {//不存在
-		// vo.setItemValid(0);
-		// this.metaModelItemsServiceImpl.update("update",vo);
-		// }
-		//
-		// }
-		// }
-
 		return "redirect:queryResultByParams.do?id=" + vo.getModelId();
 	}
 
@@ -483,10 +156,10 @@ public class MetaModelItemsController {
 	 * @return
 	 */
 	@RequestMapping(value = "/add_toggle")
-	public String addToggle(Model model, long modelId) {
+	public String addToggle(Model model, String modelId) {
 		List<MetaModelVO> ms = new ArrayList<MetaModelVO>();
 		BaseExample baseExample = new BaseExample();
-		Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+		Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 		if (obj instanceof PunSystemVO) {
 			PunSystemVO system = (PunSystemVO) obj;
 			baseExample.createCriteria().andEqualTo("SYSTEM_ID", system.getSysId());
@@ -494,7 +167,7 @@ public class MetaModelItemsController {
 		List<MetaModelVO> mm = this.metaModelServiceImpl.selectPagedByExample(baseExample, 1, 10, null);
 		for (MetaModelVO m : mm) {
 			if (this.metaModelServiceImpl.tableIsExist(m.getTableName())) {
-				if (m.getId() != modelId) {
+				if (!m.getId().equals(modelId)) {
 					ms.add(m);
 				}
 			}
@@ -520,17 +193,13 @@ public class MetaModelItemsController {
 	 * @return
 	 */
 	@RequestMapping(value = "/update_toggle")
-	public String updateToggle(Model model, long id) {
+	public String updateToggle(Model model, String id) {
 		MetaModelItemsVO vo = this.metaModelItemsServiceImpl.get(id);
 		model.addAttribute("vo", vo);
-		ModelRelationVO mro = this.modelRelationServiceImpl.queryByItem(id);
-		if (mro != null) {
-			model.addAttribute("mro", mro);
-		}
 		List<MetaModelVO> ms = new ArrayList<MetaModelVO>();
 
 		BaseExample baseExample = new BaseExample();
-		Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+		Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 		if (obj instanceof PunSystemVO) {
 			PunSystemVO system = (PunSystemVO) obj;
 			baseExample.createCriteria().andEqualTo("SYSTEM_ID", system.getSysId());
@@ -564,7 +233,7 @@ public class MetaModelItemsController {
 	 * @return
 	 */
 	@RequestMapping(value = "/queryResultByParams")
-	public String queryResult(@RequestParam(value = "id") long modelId,
+	public String queryResult(@RequestParam(value = "id") String modelId,
 			@RequestParam(required = false, defaultValue = "1") int currentPage, Model model) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		String queryStr = "queryList";
@@ -634,8 +303,8 @@ public class MetaModelItemsController {
 		if (defaultValue != null && !defaultValue.equals("")) {
 			c.andLike("defaultValue", "%" + defaultValue + "%");
 		}
-		long modelId = vo.getModelId();
-		if (modelId != 0) {
+		String modelId = vo.getModelId();
+		if (StringUtils.isNotBlank(modelId)) {
 			c.andEqualTo("modelId", modelId);
 			MetaModelVO m = metaModelServiceImpl.get(modelId);
 			model.addAttribute("vo", m);
@@ -649,64 +318,20 @@ public class MetaModelItemsController {
 	}
 
 	@RequestMapping(value = "/createTable")
-	public String createTable(@RequestParam(value = "modelId") long idss, Model model) {
+	public String createTable(@RequestParam(value = "modelId") String idss, Model model) {
 		MetaModelVO vo = this.metaModelServiceImpl.get(idss);
 		// 判断表是否存在
 		if (metaModelServiceImpl.tableIsExist(vo.getTableName())) {
-			long id = vo.getId();
 			List<MetaModelItemsVO> mmo = this.metaModelItemsServiceImpl.queryByState("queryByState", idss);
 			// 去查找数据库是否有这一列
 			for (MetaModelItemsVO mm : mmo) {
 				if (!metaModelItemsServiceImpl.columnIsExist("columnIsExist", vo.getTableName(), mm.getItemName())) {
-					// 需要判断是否有外键关系
-					if (mm.getItemType().equals("多对一") || mm.getItemType().equals("一对一")) {
-						StringBuffer sjs = new StringBuffer("alter table ").append(vo.getTableName())
-								.append(" add constraint fk_").append(mm.getItemCode()).append("_")
-								.append(vo.getTableName()).append(" foreign key(").append(mm.getItemCode())
-								.append(") references ");
-						// String sss="alter table "+vo.getTableName()+" add
-						// constraint fk_"+mm.getItemCode()+" foreign
-						// key("+mm.getItemCode()+") references ";
-						String type = null;
-						// 查询所对应的关系
-						ModelRelationVO mr = this.modelRelationServiceImpl.queryByItem(mm.getId());
-						// 查询所对应的表
-						MetaModelVO mmmro = this.metaModelServiceImpl.get(mr.getModelId());
-						sjs.append(mmmro.getTableName());
-						// sss+=mmmro.getTableName();
-						// 查询该表对应的主键列
-						List<MetaModelItemsVO> list = this.metaModelItemsServiceImpl.queryResult("queryResult",
-								mr.getModelId());
-						for (MetaModelItemsVO mmi : list) {
-							if (mmi.getUsePrimaryKey() == 1) {
-								sjs.append("(");
-								sjs.append(mmi.getItemCode());
-								sjs.append(")");
-								// sss+="("+mmi.getItemCode()+")";
-								type = mmi.getItemType();
-								continue;
-							}
-						}
-						// 添加列
-						StringBuffer str = new StringBuffer("alter table ").append(vo.getTableName())
-								.append(" add column ").append(mm.getItemCode()).append(" ").append(type).append(";");
-						// String strss="alter table "+vo.getTableName()+" add
-						// column "+mm.getItemCode()+" "+type+";";
-						sjs.append(";");
-						// sss+=";";
-						this.metaModelServiceImpl.excuteSql(str.toString());
-						// 修改状态
-						mm.setItemValid(1);
-						this.metaModelItemsServiceImpl.update("updateSelective", mm);
-						this.metaModelServiceImpl.excuteSql(sjs.toString());
-					} else {
-						String str = UpdateColumn.newAddColumn(mm, vo.getTableName());
-						// 修改状态
-						mm.setItemValid(1);
-						this.metaModelItemsServiceImpl.update("updateSelective", mm);
-						metaModelServiceImpl.excuteSql(str);
-						model.addAttribute("msg", 1);
-					}
+					String str = UpdateColumn.newAddColumn(mm, vo.getTableName());
+					// 修改状态
+					mm.setItemValid(1);
+					this.metaModelItemsServiceImpl.update("updateSelective", mm);
+					metaModelServiceImpl.excuteSql(str);
+					model.addAttribute("msg", 1);
 				}
 			}
 			vo.setModelSynchronization(true);
@@ -716,7 +341,7 @@ public class MetaModelItemsController {
 			try {
 				List<MetaModelItemsVO> pl = this.metaModelItemsServiceImpl.queryResult("queryResult", vo.getId());
 				String str = createTables.getSql(vo, pl);
-				boolean b = metaModelServiceImpl.excuteSql(str);
+				metaModelServiceImpl.excuteSql(str);
 				// 执行完之后，改变其状态为1
 				for (MetaModelItemsVO mmm : pl) {
 					mmm.setItemValid(1);
@@ -741,7 +366,7 @@ public class MetaModelItemsController {
 	 * @return
 	 */
 	@RequestMapping(value = "/release")
-	public String release(@RequestParam(value = "modelId") long idss, Model model,
+	public String release(@RequestParam(value = "modelId") String idss, Model model,
 			@RequestParam(required = false, defaultValue = "1") int currentPage) {
 		MetaModelVO vo = this.metaModelServiceImpl.get(idss);
 		vo.setModelSynchronization(true);
@@ -760,27 +385,21 @@ public class MetaModelItemsController {
 	 */
 	@ResponseBody
 	@RequestMapping(value = "dataValidate")
-	public String dataValidate(String itemCode, long modelId,
-			@RequestParam(required = false, defaultValue = "0") long id) {
+	public Object dataValidate(@RequestParam("itemCode") String itemCode, @RequestParam("modelId") String modelId,
+			@RequestParam(required = false, value = "id") String id) {
 		// 判断是增加时验证，还是修改时验证
-		if (id == 0) {
+		if (StringUtils.isBlank(id)) {
 			List<MetaModelItemsVO> ls = this.metaModelItemsServiceImpl.queryColumn("queryColumn", modelId, itemCode);
-			int count = ls.size();
-			String str = "{id:" + count + "}";
-			return str;
+			return ls.size();
 		} else {
-
 			MetaModelItemsVO mmi = this.metaModelItemsServiceImpl.get(id);
-
 			List<MetaModelItemsVO> ls = this.metaModelItemsServiceImpl.queryColumn("queryColumn", modelId, itemCode);
 			for (int i = 0; i < ls.size(); i++) {
-				if (ls.get(i).equals(mmi.getItemCode())) {
+				if (ls.get(i).getItemCode().equals(mmi.getItemCode())) {
 					ls.remove(i);
 				}
 			}
-			int count = ls.size();
-			String str = "{id:" + count + "}";
-			return str;
+			return ls.size();
 		}
 
 	}

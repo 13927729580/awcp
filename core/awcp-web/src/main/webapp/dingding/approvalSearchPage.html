@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title></title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<meta name="format-detection" content="telephone=no">
+	<link rel="stylesheet" href="css/approvalList.css">
+</head>
+<body>
+	<div id="MF_APP">
+		<div>
+			<div class="dealed">
+				<div class="category-bar" style="top: 0;">
+					<div class="category-content" >
+						<div class="category-title" >
+							<span class="status-tips-round-category"></span>
+							<span data-id="status"></span>
+						</div>
+						<div>
+							<ul class="status-option-ul" >
+								<li class="status-selected" data-id="all" data-value="all"></li>
+								<li class="" data-id="ended" data-value="3"></li>
+								<li class="" data-id="WF_Cancel" data-value="12"></li>
+								<li class="" data-id="WF_Reject" data-value="13"></li>	
+								<li class="" data-id="pending" data-value="0"></li>						
+							</ul>
+						</div>
+						<div class="category-title">
+							<span class="status-tips-round"></span>
+							<span data-id="type"></span>
+						</div>
+						<div>
+							<ul class="status-category-ul" >
+								<li class="form-selected" data-value="all" data-id="all"></li>															
+							</ul>
+						</div>
+					</div>
+					<div class="confirm-content" >
+						<button class="confirm-ok-btn" data-id="okButton"></button>
+					</div>
+				</div>				
+			</div>
+		</div>
+	</div>
+	<script src="js/jquery.js" charset="utf-8"></script>
+	<script src="js/dingtalk.js" charset="utf-8"></script>
+	<script src="../venson/js/common.js"></script>
+	<script src="js/resource.js"></script>
+	<script>
+		var page = Comm.getUrlParam("page");
+		if(page=="requiringMyApproval"){
+			$(".category-content").children().eq(0).hide();
+			$(".category-content").children().eq(1).hide();
+		}
+	
+		var data = Comm.getData("api/execute/getAppsByParentID?parentID=3");
+		var html = "";
+		for(var i=0;i<data.length;i++){
+			html += '<li class="" data-value="' + data[i].dynamicPageId + "," + data[i].pcDynamicPageId  + 
+					'">' + data[i].title + '</li>';
+		}
+		$(".status-category-ul").append(html);
+		
+		$(".status-category-ul").find("li").click(function(){
+			$(".status-category-ul").find("li").removeClass("form-selected");
+			$(this).addClass("form-selected");
+		});
+		
+		$(".status-option-ul").find("li").click(function(){
+			$(".status-option-ul").find("li").removeClass("status-selected");
+			$(this).addClass("status-selected");
+		});
+		
+		$(".confirm-ok-btn").click(function(){
+			var wfStatus = $(".status-selected").attr("data-value");
+			var ddAppid = $(".form-selected").attr("data-value")
+			if(page=="createByMe"){
+				location.href = baseUrl + "dingding/approvalCreateByMe.html?wfStatus=" + wfStatus + "&ddAppid=" + ddAppid;
+			}
+			if(page=="requiringMyApproval"){				
+				location.href = baseUrl + "dingding/approvalRequiringMyApproval.html?ddAppid=" + ddAppid;
+			}
+			if(page=="approvedByMe"){
+				location.href = baseUrl + "dingding/approvalRequiringMyApproval.html?wfStatus=" + wfStatus + "&ddAppid=" + ddAppid;
+			}
+			if(page=="ccToMe"){
+				location.href = baseUrl + "dingding/approvalCCToMe.html?wfStatus=" + wfStatus + "&ddAppid=" + ddAppid;
+			}
+		});
+	</script>
+</body>
+</html>

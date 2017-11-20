@@ -2,7 +2,7 @@ package cn.org.awcp.metadesigner.core.domain;
 
 import cn.org.awcp.core.domain.BaseEntity;
 
-public class MetaModelType extends BaseEntity<Long> {
+public class MetaModelType extends BaseEntity<String> {
 
 	private static final long serialVersionUID = 1L;
 

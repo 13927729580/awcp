@@ -23,10 +23,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.github.miemiedev.mybatis.paginator.domain.PageList;
+
 import cn.org.awcp.core.domain.BaseExample;
 import cn.org.awcp.core.domain.Criteria;
 import cn.org.awcp.core.domain.SzcloudJdbcTemplate;
-import cn.org.awcp.core.utils.Tools;
+import cn.org.awcp.core.utils.SessionUtils;
 import cn.org.awcp.core.utils.constants.ResourceTypeEnum;
 import cn.org.awcp.core.utils.constants.SessionContants;
 import cn.org.awcp.formdesigner.application.service.FormdesignerService;
@@ -44,8 +47,6 @@ import cn.org.awcp.unit.vo.PunResourceTreeNode;
 import cn.org.awcp.unit.vo.PunResourceVO;
 import cn.org.awcp.unit.vo.PunRoleInfoVO;
 import cn.org.awcp.unit.vo.PunSystemVO;
-
-import com.github.miemiedev.mybatis.paginator.domain.PageList;
 
 @Controller
 @RequestMapping("/unit")
@@ -74,7 +75,7 @@ public class PunRoleInfoController {
 
 	@Autowired
 	private SzcloudJdbcTemplate jdbcTemplate;
-	
+
 	private StringBuffer valMessage = null;// 校验信息
 
 	@RequestMapping("/listRolesInSys")
@@ -111,12 +112,11 @@ public class PunRoleInfoController {
 
 	@ResponseBody
 	@RequestMapping("/listRolesInSysByAjax")
-	public List<PunRoleInfoVO> listRolesInSysByAjax(@RequestParam(value="boxs") Long sysId,
-			PunRoleInfoVO vo,
-			@RequestParam(value="currentPage",required=false,defaultValue="1") int currentPage,
-			@RequestParam(value="pageSize",required=false,defaultValue="10") int pageSize){
+	public List<PunRoleInfoVO> listRolesInSysByAjax(@RequestParam(value = "boxs") Long sysId, PunRoleInfoVO vo,
+			@RequestParam(value = "currentPage", required = false, defaultValue = "1") int currentPage,
+			@RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize) {
 		ModelAndView mv = new ModelAndView();
-		
+
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("SYS_ID", sysId);
 
@@ -183,7 +183,7 @@ public class PunRoleInfoController {
 		try {
 			// PunSystemVO sysVO = (PunSystemVO)
 			// SessionUtils.getObjectFromSession(SessionContants.CURRENT_SYSTEM);
-			PunSystemVO sysVO = (PunSystemVO) Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+			PunSystemVO sysVO = (PunSystemVO) SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 			if (null != sysVO) {
 				PunRoleInfoVO vo = new PunRoleInfoVO();
 				vo.setSysId(sysVO.getSysId());
@@ -368,7 +368,7 @@ public class PunRoleInfoController {
 	 * @return
 	 */
 	@RequestMapping(value = "punRoleMenuAccessEdit")
-	public ModelAndView punRoleMenuAccessEdit(Long boxs, Long sysId,String moduleId) {
+	public ModelAndView punRoleMenuAccessEdit(Long boxs, Long sysId, String moduleId) {
 		PunSystemVO sysVO = punSystemService.findById(sysId);
 		ModelAndView mv = new ModelAndView();
 		mv.setViewName("unit/dev/accessAuthor");
@@ -379,8 +379,8 @@ public class PunRoleInfoController {
 				PunRoleInfoVO vo = new PunRoleInfoVO();
 				vo.setRoleId(boxs);
 				vo.setSysId(sysId);
-				mv.addObject("roleName", jdbcTemplate.queryForObject(
-						"select ROLE_NAME from p_un_role_info where ROLE_ID=" + boxs, String.class));
+				mv.addObject("roleName", jdbcTemplate
+						.queryForObject("select ROLE_NAME from p_un_role_info where ROLE_ID=" + boxs, String.class));
 				mv.addObject("vo", vo);
 				accVOS = menuService.getByRoleAndSys(vo, sysVO);
 			}
@@ -400,17 +400,16 @@ public class PunRoleInfoController {
 			mv.addObject("menuJson", factory.encode2Json(resultMap));
 
 			String sql = "";
-			if(StringUtils.isNoneBlank(moduleId)){
+			if (StringUtils.isNoneBlank(moduleId)) {
 				sql = "select id from p_fm_dynamicpage where modular=" + moduleId;
-			}
-			else{
+			} else {
 				sql = "select id from p_fm_dynamicpage where modular=(select ID from p_fm_modular limit 1)";
 			}
-			List<String> dynamicPageIds =	jdbcTemplate.queryForList(sql,String.class);
+			List<String> dynamicPageIds = jdbcTemplate.queryForList(sql, String.class);
 			sql = "select ID,modularName from p_fm_modular order by ID ";
 			mv.addObject("modules", jdbcTemplate.queryForList(sql));
-			mv.addObject("moduleId",moduleId);
-			
+			mv.addObject("moduleId", moduleId);
+
 			// 1、查找当前系统的所有按钮，按动态表单名分类
 			// 2、查找资源，格式为Map<relateResoId,Resource>
 			// 3、查找已授权的资源

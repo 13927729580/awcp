@@ -1,24 +1,17 @@
 package cn.org.awcp.metadesigner.controller;
 
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -28,33 +21,28 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.alibaba.fastjson.JSONObject;
+import com.github.miemiedev.mybatis.paginator.domain.PageList;
+
 import cn.org.awcp.base.BaseController;
 import cn.org.awcp.core.domain.BaseExample;
 import cn.org.awcp.core.domain.Criteria;
-import cn.org.awcp.core.domain.EntityRepositoryJDBC;
-import cn.org.awcp.core.utils.Tools;
+import cn.org.awcp.core.utils.SessionUtils;
 import cn.org.awcp.core.utils.constants.SessionContants;
 import cn.org.awcp.metadesigner.application.DataSourceManageService;
 import cn.org.awcp.metadesigner.application.MetaModelClassService;
 import cn.org.awcp.metadesigner.application.MetaModelItemService;
 import cn.org.awcp.metadesigner.application.MetaModelService;
-import cn.org.awcp.metadesigner.application.ModelRelationService;
-import cn.org.awcp.metadesigner.util.ICreateTables;
-import cn.org.awcp.metadesigner.util.UpdateColumn;
+import cn.org.awcp.metadesigner.application.SysSourceRelationService;
+import cn.org.awcp.metadesigner.util.CreateTables;
 import cn.org.awcp.metadesigner.vo.DataSourceManageVO;
 import cn.org.awcp.metadesigner.vo.MetaModelClassVO;
 import cn.org.awcp.metadesigner.vo.MetaModelItemsVO;
 import cn.org.awcp.metadesigner.vo.MetaModelVO;
-import cn.org.awcp.metadesigner.vo.ModelRelationVO;
+import cn.org.awcp.metadesigner.vo.SysDataSourceVO;
 import cn.org.awcp.unit.service.PunSystemService;
-import cn.org.awcp.unit.service.SysSourceRelationService;
 import cn.org.awcp.unit.vo.PunSystemVO;
-import cn.org.awcp.unit.vo.SysDataSourceVO;
-
-import com.alibaba.druid.pool.DruidDataSource;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.github.miemiedev.mybatis.paginator.domain.PageList;
+import cn.org.awcp.venson.controller.base.ControllerHelper;
 
 @Controller
 @RequestMapping("/metaModel")
@@ -63,8 +51,6 @@ public class MetaModelController extends BaseController {
 	 * 日志对象
 	 */
 	private Log logger = LogFactory.getLog(getClass());
-	@Autowired
-	private EntityRepositoryJDBC jdbcRepository;
 
 	@Autowired
 	private MetaModelService metaModelServiceImpl;
@@ -76,10 +62,7 @@ public class MetaModelController extends BaseController {
 	private MetaModelClassService metaModelClassServiceImpl;
 
 	@Autowired
-	private ModelRelationService modelRelationServiceImpl;
-
-	@Autowired
-	private ICreateTables createTables;
+	private CreateTables createTables;
 
 	@Autowired
 	@Qualifier("dataSourceManageServiceImpl")
@@ -93,333 +76,99 @@ public class MetaModelController extends BaseController {
 	@Qualifier("sysSourceRelationServiceImpl")
 	SysSourceRelationService sysSourceRelationService;
 	@Autowired
-	private SqlSessionFactory sqlSessionFactory;
-	@Autowired
-	private DruidDataSource dataSource;
+	private JdbcTemplate jdbcTemplate;
 
 	@ResponseBody
 	@RequestMapping(value = "/addByDb")
 	public String addByDb(String datasourceJson, String[] tableNames, Long systemId) {
 		JSONObject rtn = new JSONObject();
-
-		Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
-		PunSystemVO system = null;
-		if (obj instanceof PunSystemVO) {
-			system = (PunSystemVO) obj;
-		}
-
-		// compare tableNames is in metamodel (in system)
-		BaseExample baseExample = new BaseExample();
-		baseExample.createCriteria().andInStr("modelCode", Arrays.asList(tableNames));
-		List<MetaModelVO> list = metaModelServiceImpl.selectPagedByExample(baseExample, 1, Integer.MAX_VALUE, null);
-		if (list.size() > 0) {
-			rtn.put("result", "-1");
-			StringBuilder sb = new StringBuilder("以下table已经存在：");
-			for (MetaModelVO vo : list) {
-				sb.append(vo.getModelCode()).append(",");
-			}
-			sb.deleteCharAt(sb.length() - 1);
-			rtn.put("message", sb.toString());
-		} else {
-			// 获取数据库信息和用户选择的需要转换的table
-			DataSourceManageVO vo = JSON.parseObject(StringEscapeUtils.unescapeHtml4(datasourceJson),
-					DataSourceManageVO.class);
-			Connection conn = null;
-			Map<String, JSONObject> tmp = new HashMap<String, JSONObject>();
-			try {
-				// 如果数据源没有值，则使用系统的数据源
-				if (vo == null || vo.getSourceDriver() == null || vo.getSourceUrl() == null
-						|| vo.getUserName() == null) {
-					Class.forName(dataSource.getDriverClassName());
-					conn = DriverManager.getConnection(dataSource.getUrl(), dataSource.getUsername(),
-							dataSource.getPassword());
-
-				} else {
-					Class.forName(vo.getSourceDriver());
-					conn = DriverManager.getConnection(vo.getSourceUrl(), vo.getUserName(), vo.getUserPwd());
-				}
-				DatabaseMetaData metaData = conn.getMetaData();
-				for (int i = 0; i < tableNames.length; i++) {
-					JSONObject modelObject = new JSONObject();
-
-					MetaModelVO modelVO = new MetaModelVO();
+		try {
+			for (int i = 0; i < tableNames.length; i++) {
+				MetaModelVO modelVO = metaModelServiceImpl.queryByModelCode(tableNames[i]);
+				if (modelVO == null || StringUtils.isBlank(modelVO.getTableName())
+						|| StringUtils.isBlank(modelVO.getId())) {
 					modelVO.setModelCode(tableNames[i]);
 					modelVO.setModelName(tableNames[i]);
 					modelVO.setTableName(tableNames[i]);
-					modelObject.put("model", JSON.toJSONString(modelVO));
-					Map<String, MetaModelItemsVO> itemMap = new HashMap<String, MetaModelItemsVO>();
-
-					Map<String, JSONObject> fkMap = new HashMap<String, JSONObject>();
-					Map<String, String> uniqueMap = new HashMap<String, String>();
-					// 表的列数据
-					ResultSet colRet = metaData.getColumns(null, "%", tableNames[i], "%");
-					while (colRet.next()) {
-						// COLUMN_NAME就是字段的名字，
-						// TYPE_NAME就是数据类型，比如"int","int unsigned"等等，
-						// COLUMN_SIZE返回整数，就是字段的长度，比如定义的int(8)的字段，返回就是8，
-						// NULLABLE，返回1就表示可以是Null,而0就表示Not Null
-						String columnName = colRet.getString("COLUMN_NAME");
-						String columnType = colRet.getString("TYPE_NAME");
-						int datasize = colRet.getInt("COLUMN_SIZE");
-						int digits = colRet.getInt("DECIMAL_DIGITS");
-						int nullable = colRet.getInt("NULLABLE");
-						MetaModelItemsVO item = new MetaModelItemsVO();
-						item.setItemName(columnName);
-						item.setItemLength(String.valueOf(datasize));
-						item.setUseNull(nullable);
-						item.setItemCode(columnName);
-						item.setItemType(columnType);
-						item.setItemValid(1);
-						itemMap.put(columnName, item);
-
-						// logger.debug(columnName+" "+columnType+" "+datasize+"
-						// "+digits+" "+nullable);
-					}
-					/*
-					 * primaryKeyResultSet 结果集
-					 * 
-					 * TABLE_CAT String => 表类别（可为 null） TABLE_SCHEM String => 表模式（可为 null）
-					 * TABLE_NAME String => 表名称 COLUMN_NAME String => 列名称 KEY_SEQ short => 主键中的序列号（值
-					 * 1 表示主键中的第一列，值 2 表示主键中的第二列）。 PK_NAME String => 主键的名称（可为 null）
-					 * 
-					 * 
-					 */
-					ResultSet primaryKeyResultSet = metaData.getPrimaryKeys(null, "%", tableNames[i]);
-					while (primaryKeyResultSet.next()) {
-						String primaryKeyColumnName = primaryKeyResultSet.getString("COLUMN_NAME");
-						MetaModelItemsVO item = itemMap.get(primaryKeyColumnName);
-						if (item != null) {
-							item.setUsePrimaryKey(1);
-						}
-					}
-					modelObject.put("items", JSON.toJSONString(itemMap));
-
-					ResultSet indexSet = metaData.getIndexInfo(null, null, tableNames[i], true, false);
-					while (indexSet.next()) {
-						String columnName = indexSet.getString("COLUMN_NAME");
-						uniqueMap.put(columnName, columnName);
-						// int count = indexSet.getMetaData().getColumnCount();
-						// for(int i = 0; i < count; i++){
-						// logger.debug(indexSet.getMetaData().getColumnName(i));
-						// }
-					}
-					modelObject.put("indexs", JSON.toJSONString(uniqueMap));
-
-					/*
-					 * foreignKeyResultSet 结果集
-					 * 
-					 * PKTABLE_CAT String => 被导入的主键表类别（可为 null） PKTABLE_SCHEM String => 被导入的主键表模式（可为
-					 * null） PKTABLE_NAME String => 被导入的主键表名称 PKCOLUMN_NAME String => 被导入的主键列名称
-					 * FKTABLE_CAT String => 外键表类别（可为 null） FKTABLE_SCHEM String => 外键表模式（可为 null）
-					 * FKTABLE_NAME String => 外键表名称 FKCOLUMN_NAME String => 外键列名称 KEY_SEQ short =>
-					 * 外键中的序列号（值 1 表示外键中的第一列，值 2 表示外键中的第二列） UPDATE_RULE short => 更新主键时外键发生的变化
-					 * DELETE_RULE short => 删除主键时外键发生的变化 PK_NAME String => 主键的名称（可为 null） FK_NAME
-					 * String => 外键的名称（可为 null） DEFERRABILITY short => 是否可以将对外键约束的评估延迟到提交时间
-					 * 
-					 * 
-					 */
-					ResultSet foreignKeyResultSet = metaData.getImportedKeys(null, null, tableNames[i]);
-					while (foreignKeyResultSet.next()) {
-						String fkTableName = foreignKeyResultSet.getString("FKTABLE_NAME");
-						String fkColumnName = foreignKeyResultSet.getString("FKCOLUMN_NAME");
-						String pkTablenName = foreignKeyResultSet.getString("PKTABLE_NAME");
-						String pkColumnName = foreignKeyResultSet.getString("PKCOLUMN_NAME");
-						JSONObject o = new JSONObject();
-						o.put("FKTABLE_NAME", fkTableName);
-						o.put("FKCOLUMN_NAM", fkColumnName);
-						o.put("PKTABLE_NAME", pkTablenName);
-						o.put("PKCOLUMN_NAME", pkColumnName);
-						fkMap.put(pkColumnName, o);
-					}
-					modelObject.put("fks", JSON.toJSONString(fkMap));
-
-					tmp.put(tableNames[i], modelObject);
+					modelVO.setSystemId(ControllerHelper.getSystemId());
+					String id = metaModelServiceImpl.save(modelVO);
+					modelVO.setId(id);
+				} else {
+					this.metaModelItemsServiceImpl.removeByFk(modelVO.getId());
 				}
-			} catch (Exception e) {
-				logger.info("ERROR", e);
-			} finally {
-				if (conn != null) {
-					try {
-						conn.close();
-					} catch (SQLException e) {
-						logger.info("ERROR", e);
-					}
-				}
+				syncMeta(modelVO);
 			}
-
-			// 不带关联关系的导入
-			for (Iterator<String> it = tmp.keySet().iterator(); it.hasNext();) {
-				// 先判断是否有已经存在的table对应的元数据或者name为tableName的一样
-				String tableName = it.next();
-				JSONObject o = tmp.get(tableName);
-				// 通过外键和index判断是 一对多还是 一对一关系
-				// 通过外键和外键关联的表判断外键是否需要加入进来
-				MetaModelVO metaModelVO = JSON.parseObject(o.getString("model"), MetaModelVO.class);
-				metaModelVO.setSystemId(system.getSysId());
-				metaModelServiceImpl.save(metaModelVO);
-				JSONObject items = JSON.parseObject(o.getString("items"));
-				// JSONObject fks = o.getJSONObject("fks");
-				// JSONObject indexs = o.getJSONObject("index");
-
-				for (Iterator<String> it2 = items.keySet().iterator(); it2.hasNext();) {
-					String columName = it2.next();
-					MetaModelItemsVO itemsVO = items.getObject(columName, MetaModelItemsVO.class);
-					itemsVO.setModelId(metaModelVO.getId());
-					metaModelItemsServiceImpl.save(itemsVO);
-					// 判断是否为外键,且有用的外键（外键的关联的表存在）
-					// if(fks.containsKey(columName)){
-					// String fkTableName = fks.getString("FKTABLE_NAME");
-					// //应该在数据库中查询
-					// Map<String, Object> params = new HashMap<String,
-					// Object>();
-					// params.put("tableName", fkTableName);
-					// List<MetaModelVO> vos =
-					// metaModelServiceImpl.queryPagedResult(params, 1, 10,
-					// null);
-					//// String
-					//// if()
-					// }
-
-					// items.getObject("", clazz)
-				}
-			}
-
-			rtn.put("result", "1");
+		} catch (Exception e) {
+			rtn.put("result", "-1");
+			logger.info("ERROR", e);
 		}
+
+		rtn.put("result", "1");
 
 		return rtn.toJSONString();
 	}
 
 	@RequestMapping(value = "/synchronizedMeta")
-	public String synchronizedMeta(@RequestParam(value = "id") Long[] id) {
+	public String synchronizedMeta(@RequestParam(value = "id") String[] id) {
 		JSONObject rtn = new JSONObject();
-
-		Map<String, JSONObject> tmp = new HashMap<String, JSONObject>();
 		try {
-			DatabaseMetaData metaData = sqlSessionFactory.getConfiguration().getEnvironment().getDataSource()
-					.getConnection().getMetaData();
 			for (int i = 0; i < id.length; i++) {
-				JSONObject modelObject = new JSONObject();
-
 				this.metaModelItemsServiceImpl.removeByFk(id[i]);
-
 				MetaModelVO mmv = this.metaModelServiceImpl.get(id[i]);
-
-				Map<String, MetaModelItemsVO> itemMap = new HashMap<String, MetaModelItemsVO>();
-
-				Map<String, JSONObject> fkMap = new HashMap<String, JSONObject>();
-				Map<String, String> uniqueMap = new HashMap<String, String>();
-				// 表的列数据
-				ResultSet colRet = metaData.getColumns(null, "%", mmv.getTableName(), "%");
-				while (colRet.next()) {
-					// COLUMN_NAME就是字段的名字，
-					// TYPE_NAME就是数据类型，比如"int","int unsigned"等等，
-					// COLUMN_SIZE返回整数，就是字段的长度，比如定义的int(8)的字段，返回就是8，
-					// NULLABLE，返回1就表示可以是Null,而0就表示Not Null
-					String columnName = colRet.getString("COLUMN_NAME");
-					String columnType = colRet.getString("TYPE_NAME");
-					int datasize = colRet.getInt("COLUMN_SIZE");
-					int digits = colRet.getInt("DECIMAL_DIGITS");
-					int nullable = colRet.getInt("NULLABLE");
-					MetaModelItemsVO item = new MetaModelItemsVO();
-					item.setItemName(columnName);
-					item.setItemLength(String.valueOf(datasize));
-					item.setUseNull(nullable);
-					item.setItemCode(columnName);
-					item.setItemType(columnType);
-					item.setItemValid(1);
-					itemMap.put(columnName, item);
-
-					// logger.debug(columnName+" "+columnType+" "+datasize+"
-					// "+digits+" "+nullable);
-				}
-				/*
-				 * primaryKeyResultSet 结果集
-				 * 
-				 * TABLE_CAT String => 表类别（可为 null） TABLE_SCHEM String => 表模式（可为 null）
-				 * TABLE_NAME String => 表名称 COLUMN_NAME String => 列名称 KEY_SEQ short => 主键中的序列号（值
-				 * 1 表示主键中的第一列，值 2 表示主键中的第二列）。 PK_NAME String => 主键的名称（可为 null）
-				 * 
-				 * 
-				 */
-				ResultSet primaryKeyResultSet = metaData.getPrimaryKeys(null, "%", mmv.getTableName());
-				while (primaryKeyResultSet.next()) {
-					String primaryKeyColumnName = primaryKeyResultSet.getString("COLUMN_NAME");
-					MetaModelItemsVO item = itemMap.get(primaryKeyColumnName);
-					if (item != null) {
-						item.setUsePrimaryKey(1);
-					}
-				}
-				modelObject.put("items", JSON.toJSONString(itemMap));
-
-				ResultSet indexSet = metaData.getIndexInfo(null, null, mmv.getTableName(), true, false);
-				while (indexSet.next()) {
-					String columnName = indexSet.getString("COLUMN_NAME");
-					uniqueMap.put(columnName, columnName);
-					// int count = indexSet.getMetaData().getColumnCount();
-					// for(int i = 0; i < count; i++){
-					// logger.debug(indexSet.getMetaData().getColumnName(i));
-					// }
-				}
-				modelObject.put("indexs", JSON.toJSONString(uniqueMap));
-
-				/*
-				 * foreignKeyResultSet 结果集
-				 * 
-				 * PKTABLE_CAT String => 被导入的主键表类别（可为 null） PKTABLE_SCHEM String => 被导入的主键表模式（可为
-				 * null） PKTABLE_NAME String => 被导入的主键表名称 PKCOLUMN_NAME String => 被导入的主键列名称
-				 * FKTABLE_CAT String => 外键表类别（可为 null） FKTABLE_SCHEM String => 外键表模式（可为 null）
-				 * FKTABLE_NAME String => 外键表名称 FKCOLUMN_NAME String => 外键列名称 KEY_SEQ short =>
-				 * 外键中的序列号（值 1 表示外键中的第一列，值 2 表示外键中的第二列） UPDATE_RULE short => 更新主键时外键发生的变化
-				 * DELETE_RULE short => 删除主键时外键发生的变化 PK_NAME String => 主键的名称（可为 null） FK_NAME
-				 * String => 外键的名称（可为 null） DEFERRABILITY short => 是否可以将对外键约束的评估延迟到提交时间
-				 * 
-				 * 
-				 */
-				ResultSet foreignKeyResultSet = metaData.getImportedKeys(null, null, mmv.getTableName());
-				while (foreignKeyResultSet.next()) {
-					String fkTableName = foreignKeyResultSet.getString("FKTABLE_NAME");
-					String fkColumnName = foreignKeyResultSet.getString("FKCOLUMN_NAME");
-					String pkTablenName = foreignKeyResultSet.getString("PKTABLE_NAME");
-					String pkColumnName = foreignKeyResultSet.getString("PKCOLUMN_NAME");
-					JSONObject o = new JSONObject();
-					o.put("FKTABLE_NAME", fkTableName);
-					o.put("FKCOLUMN_NAM", fkColumnName);
-					o.put("PKTABLE_NAME", pkTablenName);
-					o.put("PKCOLUMN_NAME", pkColumnName);
-					fkMap.put(pkColumnName, o);
-				}
-				modelObject.put("fks", JSON.toJSONString(fkMap));
-
-				tmp.put(mmv.getTableName(), modelObject);
+				syncMeta(mmv);
 			}
 		} catch (Exception e) {
 			logger.info("ERROR", e);
+			rtn.put("result", "0");
 		}
-
-		// 不带关联关系的导入
-		for (Iterator<String> it = tmp.keySet().iterator(); it.hasNext();) {
-			// 先判断是否有已经存在的table对应的元数据或者name为tableName的一样
-			String tableName = it.next();
-			JSONObject o = tmp.get(tableName);
-			// 通过外键和index判断是 一对多还是 一对一关系
-			// 通过外键和外键关联的表判断外键是否需要加入进来
-			MetaModelVO metaModelVO = this.metaModelServiceImpl.queryByModelCode(tableName);
-
-			JSONObject items = JSON.parseObject(o.getString("items"));
-
-			for (Iterator<String> it2 = items.keySet().iterator(); it2.hasNext();) {
-				String columName = it2.next();
-				MetaModelItemsVO itemsVO = items.getObject(columName, MetaModelItemsVO.class);
-				itemsVO.setModelId(metaModelVO.getId());
-				metaModelItemsServiceImpl.save(itemsVO);
-
-			}
-		}
-
 		rtn.put("result", "1");
 
 		return "redirect:queryResult.do";
+	}
+
+	/**
+	 * 同步表到元数据
+	 */
+	private void syncMeta(MetaModelVO mmv) {
+		List<Map<String, Object>> list = jdbcTemplate.queryForList("SHOW FULL FIELDS FROM " + mmv.getTableName());
+		for (Map<String, Object> map : list) {
+			MetaModelItemsVO item = new MetaModelItemsVO();
+			String Field = (String) map.get("Field");
+			String Type = (String) map.get("Type");
+			String key = (String) map.get("Key");
+			String Null = (String) map.get("Null");
+			String Default = (String) map.get("Default");
+			String Comment = (String) map.get("Comment");
+			if ("PRI".equals(key)) {
+				item.setUsePrimaryKey(1);
+				item.setUseIndex(-1);
+			} else if ("UNI".equals(key)) {
+				item.setUseIndex(1);
+			} else if ("MUL".equals(key))
+				item.setUseIndex(2);
+			else {
+				item.setUseIndex(0);
+			}
+			int index = Type.indexOf("(");
+			if (index != -1) {
+				String length = Type.substring(index + 1, Type.length() - 1);
+				item.setItemLength(length);
+				Type = Type.replace("(" + length + ")", "");
+			}
+			if ("NO".equals(Null)) {
+				item.setUseNull(1);
+			} else {
+				item.setUseNull(0);
+			}
+			item.setRemark(Comment);
+			item.setModelId(mmv.getId());
+			item.setItemName(Field);
+			item.setItemCode(Field);
+			item.setItemType(Type);
+			item.setItemValid(1);
+			item.setDefaultValue(Default);
+			metaModelItemsServiceImpl.save(item);
+		}
 	}
 
 	/**
@@ -432,12 +181,12 @@ public class MetaModelController extends BaseController {
 	public ModelAndView copy(@RequestParam(value = "id") String[] _selects) {
 		for (int i = 0; i < _selects.length; i++) {
 			String id = _selects[i];
-			MetaModelVO vo = metaModelServiceImpl.get(Long.valueOf(id));
+			MetaModelVO vo = metaModelServiceImpl.get(id);
 			if (vo == null)
 				continue;
 			vo.setId(null);
 			vo.setModelName(vo.getModelName() + " - copy");
-			Long newId = metaModelServiceImpl.save(vo);
+			String newId = metaModelServiceImpl.save(vo);
 
 			BaseExample baseExample = new BaseExample();
 			Criteria criteria = baseExample.createCriteria();
@@ -465,18 +214,17 @@ public class MetaModelController extends BaseController {
 	@ResponseBody
 	@RequestMapping(value = "/copyToSys")
 	public String copyToSys(String[] _selects, String systemId) {
-		ModelAndView mv = new ModelAndView("redirect:queryResult.do");
 		JSONObject o = new JSONObject();
 		if (StringUtils.isNotBlank(systemId)) {
 			for (int i = 0; i < _selects.length; i++) {
 				String id = _selects[i];
-				MetaModelVO vo = metaModelServiceImpl.get(Long.valueOf(id));
+				MetaModelVO vo = metaModelServiceImpl.get(id);
 				if (vo == null)
 					continue;
 				vo.setId(null);
 				vo.setModelName(vo.getModelName() + " - copy");
 				vo.setSystemId(Long.valueOf(systemId));
-				Long newId = metaModelServiceImpl.save(vo);
+				String newId = metaModelServiceImpl.save(vo);
 
 				BaseExample baseExample = new BaseExample();
 				Criteria criteria = baseExample.createCriteria();
@@ -512,29 +260,18 @@ public class MetaModelController extends BaseController {
 	@RequestMapping(value = "/save")
 	public String save(@ModelAttribute MetaModelVO vo, Model model) {
 		// 判读元数据是否存在 存在不增加 不存在则增加
-		String str = "";
 		try {
 			List<MetaModelVO> mmo = this.metaModelServiceImpl.queryMetaModel("queryMetaModel", vo.getModelCode(),
 					vo.getTableName(), vo.getProjectName());
-			if (!(mmo.size() > 0)) {
-				Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
-				if (obj instanceof PunSystemVO) {
-					PunSystemVO system = (PunSystemVO) obj;
-					vo.setSystemId(system.getSysId());
-				}
+			if (mmo.isEmpty()) {
+				vo.setSystemId(ControllerHelper.getSystemId());
 				vo.setModelSynchronization(false);
 				vo.setModelValid(false);
-				Long id = this.metaModelServiceImpl.save(vo);
-				str = "{id:" + id + "}";
+				this.metaModelServiceImpl.save(vo);
 			} else {
-				// 存在返回0
-				Long id = 0L;
-				str = "{id:" + id + "}";
 				logger.debug("该元数据已经存在");
 			}
 		} catch (Exception e) {
-			Long id = 0L;
-			str = "{id:" + id + "}";
 			logger.info("ERROR", e);
 			return null;
 		}
@@ -554,19 +291,18 @@ public class MetaModelController extends BaseController {
 	public Map<String, Object> saves(@ModelAttribute MetaModelVO vo, Model model) {
 		// 判读元数据是否存在 存在不增加 不存在则增加
 		Map<String, Object> map = new HashMap<String, Object>();
-		String str = "";
 		try {
 			List<MetaModelVO> mmo = this.metaModelServiceImpl.queryMetaModel("queryMetaModel", vo.getModelCode(),
 					vo.getTableName(), vo.getProjectName());
 			if (!(mmo.size() > 0)) {
-				Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+				Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 				if (obj instanceof PunSystemVO) {
 					PunSystemVO system = (PunSystemVO) obj;
 					vo.setSystemId(system.getSysId());
 				}
 				vo.setModelSynchronization(false);
 				vo.setModelValid(false);
-				Long id = this.metaModelServiceImpl.save(vo);
+				String id = this.metaModelServiceImpl.save(vo);
 				map.put("id", id);
 			} else {
 				logger.debug("该元数据已经存在");
@@ -582,35 +318,22 @@ public class MetaModelController extends BaseController {
 	}
 
 	/**
-	 * ljw 2015-1-12 删除元数据
 	 * 
 	 * @param id
 	 * @param model
 	 * @return
 	 */
 	@RequestMapping(value = "/removeModel")
-	public String removeModel(Long[] id, Model model) {
+	public String removeModel(String[] id, Model model) {
 		try {
 			// 查询对应的关系
 			for (int i = 0; i < id.length; i++) {
-				List<ModelRelationVO> mro = this.modelRelationServiceImpl.queryByModelId(id[i]);
-				if (!(mro.size() > 0)) {
+				if (StringUtils.isNotBlank(id[i])) {
 					// 查询元数据
 					MetaModelVO mmo = this.metaModelServiceImpl.get(id[i]);
 					this.metaModelItemsServiceImpl.removeByFk(id[i]);
 					this.metaModelServiceImpl.remove(mmo);
-					// 删除关系表中的关系
-					List<MetaModelItemsVO> ls = this.metaModelItemsServiceImpl.queryResult("queryResult", id[i]);
-					for (MetaModelItemsVO mmi : ls) {
-						ModelRelationVO vo = this.modelRelationServiceImpl.queryByItem(mmi.getId());
-						if (vo != null) {
-							this.modelRelationServiceImpl.remove(vo);
-						}
-					}
-				} else {
-					logger.debug("对不起，该模型有外键关系，不能删除");
 				}
-
 			}
 			return "redirect:queryResult.do";
 		} catch (Exception e) {
@@ -629,35 +352,28 @@ public class MetaModelController extends BaseController {
 	 * @return
 	 */
 	@RequestMapping(value = "/remove")
-	public String remove(Long id, Model model) {
+	public String remove(String id, Model model) {
 		try {
-			// 查询对应的关系
-			List<ModelRelationVO> mro = this.modelRelationServiceImpl.queryByModelId(id);
-			if (!(mro.size() > 0)) {
+			if (StringUtils.isNotBlank(id)) {
 				// 查询元数据
 				MetaModelVO mmo = this.metaModelServiceImpl.get(id);
-				this.metaModelItemsServiceImpl.removeByFk(id);
-				this.metaModelServiceImpl.remove(mmo);
-				String sql = "drop table " + mmo.getTableName();
-				this.metaModelServiceImpl.excuteSql(sql);
-				// 删除关系表中的关系
-				List<MetaModelItemsVO> ls = this.metaModelItemsServiceImpl.queryResult("queryResult", id);
-				for (MetaModelItemsVO mmi : ls) {
-					ModelRelationVO vo = this.modelRelationServiceImpl.queryByItem(mmi.getId());
-					if (vo != null) {
-						this.modelRelationServiceImpl.remove(vo);
+				if (mmo != null) {
+					this.metaModelItemsServiceImpl.removeByFk(id);
+					this.metaModelServiceImpl.remove(mmo);
+					String sql = "drop table " + mmo.getTableName();
+					try {
+						this.jdbcTemplate.execute(sql);
+					} catch (Exception e) {
 					}
+					return "redirect:queryResult.do";
 				}
-			} else {
-				logger.debug("对不起，该模型有外键关系，不能删除");
 			}
-			return "redirect:queryResult.do";
+
 		} catch (Exception e) {
 			logger.info("ERROR", e);
-			int i = 1;
-			String str = "{id:" + i + "}";
-			return str;
 		}
+		String str = "{id:0}";
+		return str;
 	}
 
 	/**
@@ -668,91 +384,24 @@ public class MetaModelController extends BaseController {
 	 * @return
 	 */
 	@RequestMapping(value = "/createTable")
-	public String createTable(@RequestParam(value = "id") long idss, Model model) {
+	public String createTable(@RequestParam(value = "id") String idss, Model model) {
 		MetaModelVO vo = this.metaModelServiceImpl.get(idss);
 		// 判断表是否存在
 		if (metaModelServiceImpl.tableIsExist(vo.getTableName())) {
-			long id = vo.getId();
-			List<MetaModelItemsVO> mmo = this.metaModelItemsServiceImpl.queryByState("queryByState", idss);
-			// 去查找数据库是否有这一列
-			for (MetaModelItemsVO mm : mmo) {
-				if (!metaModelItemsServiceImpl.columnIsExist("columnIsExist", vo.getTableName(), mm.getItemName())) {
-					// 需要判断是否有外键关系
-					if (mm.getItemType().equals("多对一") || mm.getItemType().equals("一对一")) {
-						StringBuffer sjs = new StringBuffer("alter table ").append(vo.getTableName())
-								.append(" add constraint fk_").append(mm.getItemCode()).append("_")
-								.append(vo.getTableName()).append(" foreign key(").append(mm.getItemCode())
-								.append(") references ");
-						// String sss="alter table "+vo.getTableName()+" add
-						// constraint fk_"+mm.getItemCode()+" foreign
-						// key("+mm.getItemCode()+") references ";
-						String type = null;
-						// 查询所对应的关系
-						ModelRelationVO mr = this.modelRelationServiceImpl.queryByItem(mm.getId());
-						// 查询所对应的表
-						MetaModelVO mmmro = this.metaModelServiceImpl.get(mr.getModelId());
-						sjs.append(mmmro.getTableName());
-						// sss+=mmmro.getTableName();
-						// 查询该表对应的主键列
-						List<MetaModelItemsVO> list = this.metaModelItemsServiceImpl.queryResult("queryResult",
-								mr.getModelId());
-						for (MetaModelItemsVO mmi : list) {
-							if (mmi.getUsePrimaryKey() == 1) {
-								sjs.append("(");
-								sjs.append(mmi.getItemCode());
-								sjs.append(")");
-								// sss+="("+mmi.getItemCode()+")";
-								type = mmi.getItemType();
-								continue;
-							}
-						}
-						// 添加列
-						StringBuffer str = new StringBuffer("alter table ").append(vo.getTableName())
-								.append(" add column ").append(mm.getItemCode()).append(" ").append(type).append(";");
-						// String strss="alter table "+vo.getTableName()+" add
-						// column "+mm.getItemCode()+" "+type+";";
-						sjs.append(";");
-						// sss+=";";
-						this.metaModelServiceImpl.excuteSql(str.toString());
-						// 修改状态
-						mm.setItemValid(1);
-						this.metaModelItemsServiceImpl.update("updateSelective", mm);
-						this.metaModelServiceImpl.excuteSql(sjs.toString());
-					} else {
-						String str = UpdateColumn.newAddColumn(mm, vo.getTableName());
-						// 修改状态
-						logger.debug(str);
-						mm.setItemValid(1);
-						this.metaModelItemsServiceImpl.update("updateSelective", mm);
-						metaModelServiceImpl.excuteSql(str);
-						model.addAttribute("msg", 1);
-					}
-				}
-			}
-			vo.setModelSynchronization(true);
-			this.metaModelServiceImpl.update("update", vo);
-			return "redirect:../metaModel/queryResult.do?currentPage=" + 1;
-		} else {
-			try {
-				List<MetaModelItemsVO> pl = this.metaModelItemsServiceImpl.queryResult("queryResult", vo.getId());
-				String str = createTables.getSql(vo, pl);
-				logger.debug(str);
-				boolean b = metaModelServiceImpl.excuteSql(str);
-				// 执行完之后，改变其状态为1
-				for (MetaModelItemsVO mmm : pl) {
-					mmm.setItemValid(1);
-					this.metaModelItemsServiceImpl.update("updateSelective", mmm);
-				}
-				model.addAttribute("msg", 1);
-			} catch (Exception e) {
-				logger.info("ERROR", e);
-				model.addAttribute("msg", 0);
-			}
-
-			vo.setModelSynchronization(true);
-			this.metaModelServiceImpl.update("update", vo);
-			return "redirect:../metaModel/queryResult.do?currentPage=" + 1;
+			jdbcTemplate.update("drop table " + vo.getTableName());
 		}
+		try {
+			List<MetaModelItemsVO> pl = this.metaModelItemsServiceImpl.queryResult("queryResult", vo.getId());
+			String sql = createTables.getSql(vo, pl);
+			jdbcTemplate.update(sql);
+			model.addAttribute("msg", 1);
+		} catch (Exception e) {
+			logger.info("ERROR", e);
+			model.addAttribute("msg", 0);
+		}
+		vo.setModelSynchronization(true);
+		this.metaModelServiceImpl.update("update", vo);
+		return "redirect:../metaModel/queryResult.do?currentPage=" + 1;
 	}
 
 	/**
@@ -763,7 +412,7 @@ public class MetaModelController extends BaseController {
 	 * @return
 	 */
 	@RequestMapping(value = "/release")
-	public String release(@RequestParam(value = "id") long idss, Model model,
+	public String release(@RequestParam(value = "id") String idss, Model model,
 			@RequestParam(required = false, defaultValue = "1") int currentPage) {
 		MetaModelVO vo = this.metaModelServiceImpl.get(idss);
 		vo.setModelSynchronization(true);
@@ -780,46 +429,51 @@ public class MetaModelController extends BaseController {
 	 */
 	@RequestMapping("toggle")
 	public String toggle(Model model) {
-		try {
-			List<PunSystemVO> list = this.sysService.findAll();
-			model.addAttribute("project", list);
-			Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
-			PunSystemVO system = null;
-			if (obj instanceof PunSystemVO) {
-				system = (PunSystemVO) obj;
-				List<MetaModelClassVO> classVos = metaModelClassServiceImpl.queryByProjectId(system.getSysId());
-				model.addAttribute("classVos", classVos);
-			}
-			List<SysDataSourceVO> sysDataRela = sysService.getSystemDataSource(system.getSysId());
-			List<DataSourceManageVO> dataS = new ArrayList<DataSourceManageVO>();
-			if (sysDataRela != null && sysDataRela.size() > 0) {
-				for (SysDataSourceVO dataVo : sysDataRela) {
-					Long sourceId = dataVo.getDataSourceId();
-					DataSourceManageVO datasource = dataSourceService.get(sourceId);
-					dataS.add(datasource);
+		// try {
+		// List<PunSystemVO> list = this.sysService.findAll();
+		// model.addAttribute("project", list);
+		// Object obj =
+		// SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+		// PunSystemVO system = null;
+		// if (obj instanceof PunSystemVO) {
+		// system = (PunSystemVO) obj;
+		// List<MetaModelClassVO> classVos =
+		// metaModelClassServiceImpl.queryBySystemId(system.getSysId());
+		// model.addAttribute("classVos", classVos);
+		// }
+		// List<SysDataSourceVO> sysDataRela =
+		// sysSourceRelationService.getSystemDataSource(system.getSysId());
+		// List<DataSourceManageVO> dataS = new ArrayList<DataSourceManageVO>();
+		// if (sysDataRela != null && sysDataRela.size() > 0) {
+		// for (SysDataSourceVO dataVo : sysDataRela) {
+		// String sourceId = dataVo.getDataSourceId();
+		// DataSourceManageVO datasource = dataSourceService.get(sourceId);
+		// dataS.add(datasource);
+		//
+		// }
+		// model.addAttribute("dataSources", dataS);
+		// }
 
-				}
-				model.addAttribute("dataSources", dataS);
-			}
+		// 默认数据源
+		// BaseExample base = new BaseExample();
+		// base.createCriteria().andEqualTo("SYSTEM_ID",
+		// system.getSysId()).andEqualTo("ISDEFAULT", true);
+		// PageList<SysDataSourceVO> dataVos =
+		// sysSourceRelationService.selectPagedByExample(base, 1,
+		// Integer.MAX_VALUE, null);
+		// if (dataVos != null && dataVos.size() > 0) {
+		// model.addAttribute("defaultDataSourceId", dataVos.get(0).getDataSourceId());
+		// }
 
-			// 默认数据源
-			BaseExample base = new BaseExample();
-			base.createCriteria().andEqualTo("SYSTEM_ID", system.getSysId()).andEqualTo("ISDEFAULT", true);
-			PageList<SysDataSourceVO> dataVos = sysSourceRelationService.selectPagedByExample(base, 1,
-					Integer.MAX_VALUE, null);
-			if (dataVos != null && dataVos.size() > 0) {
-				model.addAttribute("defaultDataSourceId", dataVos.get(0).getDataSourceId());
-			}
-
-		} catch (Exception e) {
-			logger.info("ERROR", e);
-		}
+		// } catch (Exception e) {
+		// logger.info("ERROR", e);
+		// }
 		return "metadesigner/metaModel/metaModel_add";
 	}
 
 	@ResponseBody
 	@RequestMapping("getDataSourceManageVOById")
-	public DataSourceManageVO getDataSourceManageVOById(Long sourceId) {
+	public DataSourceManageVO getDataSourceManageVOById(String sourceId) {
 		DataSourceManageVO datasource = dataSourceService.get(sourceId);
 		return datasource;
 	}
@@ -835,7 +489,7 @@ public class MetaModelController extends BaseController {
 	@RequestMapping(value = "/findAll")
 	public String findAll(Model model) throws Exception {
 		try {
-			List<MetaModelClassVO> list = this.metaModelClassServiceImpl.findAll(23);
+			List<MetaModelClassVO> list = this.metaModelClassServiceImpl.findAll();
 			model.addAttribute("class", list);
 			List<MetaModelVO> result = this.metaModelServiceImpl.findAll();
 			logger.debug(result.size() + "");
@@ -855,41 +509,11 @@ public class MetaModelController extends BaseController {
 	 * @return
 	 */
 	@RequestMapping(value = "/get")
-	public String get(long id, Model model) {
+	public String get(String id, Model model) {
 		MetaModelVO mmo = new MetaModelVO();
 		try {
 			mmo = this.metaModelServiceImpl.get(id);
 			model.addAttribute("vo", mmo);
-			List<PunSystemVO> psv = this.sysService.findAll();
-			model.addAttribute("project", psv);
-			Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
-			PunSystemVO system = null;
-			if (obj instanceof PunSystemVO) {
-				system = (PunSystemVO) obj;
-				List<MetaModelClassVO> classVos = metaModelClassServiceImpl.queryByProjectId(system.getSysId());
-				model.addAttribute("classVos", classVos);
-			}
-			List<SysDataSourceVO> sysDataRela = sysService.getSystemDataSource(system.getSysId());
-			List<DataSourceManageVO> dataS = new ArrayList<DataSourceManageVO>();
-			if (sysDataRela != null && sysDataRela.size() > 0) {
-				for (SysDataSourceVO dataVo : sysDataRela) {
-					Long sourceId = dataVo.getDataSourceId();
-					DataSourceManageVO datasource = dataSourceService.get(sourceId);
-					dataS.add(datasource);
-
-				}
-				model.addAttribute("dataSources", dataS);
-			}
-
-			// 默认数据源
-			BaseExample base = new BaseExample();
-			base.createCriteria().andEqualTo("SYSTEM_ID", system.getSysId()).andEqualTo("ISDEFAULT", true);
-			PageList<SysDataSourceVO> dataVos = sysSourceRelationService.selectPagedByExample(base, 1,
-					Integer.MAX_VALUE, null);
-			if (dataVos != null && dataVos.size() > 0) {
-				model.addAttribute("defaultDataSourceId", dataVos.get(0).getDataSourceId());
-			}
-
 		} catch (Exception e) {
 			logger.info("ERROR", e);
 			return null;
@@ -905,19 +529,18 @@ public class MetaModelController extends BaseController {
 	 * @return
 	 */
 	@RequestMapping(value = "/getDataSource")
-	public String get(String _selects, Model model) {
-		MetaModelVO mmo = new MetaModelVO();
+	public String getDataSource(String _selects, Model model) {
 		try {
-			Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+			Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 			PunSystemVO system = null;
 			if (obj instanceof PunSystemVO) {
 				system = (PunSystemVO) obj;
 			}
-			List<SysDataSourceVO> sysDataRela = sysService.getSystemDataSource(system.getSysId());
+			List<SysDataSourceVO> sysDataRela = sysSourceRelationService.getSystemDataSource(system.getSysId());
 			List<DataSourceManageVO> dataS = new ArrayList<DataSourceManageVO>();
 			if (sysDataRela != null && sysDataRela.size() > 0) {
 				for (SysDataSourceVO dataVo : sysDataRela) {
-					Long sourceId = dataVo.getDataSourceId();
+					String sourceId = dataVo.getDataSourceId();
 					DataSourceManageVO datasource = dataSourceService.get(sourceId);
 					dataS.add(datasource);
 
@@ -961,7 +584,7 @@ public class MetaModelController extends BaseController {
 				currentPage = 1;
 			}
 			String sortString = "id.desc";
-			Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+			Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 			if (obj instanceof PunSystemVO) {
 				PunSystemVO system = (PunSystemVO) obj;
 				vo.setSystemId(system.getSysId());
@@ -1003,43 +626,7 @@ public class MetaModelController extends BaseController {
 				// 修改表名
 				StringBuffer sb = new StringBuffer("ALTER TABLE ").append(vvo.getTableName()).append(" RENAME TO ")
 						.append(vo.getTableName());
-				// String sql="ALTER TABLE "+vvo.getTableName()+" RENAME TO
-				// "+vo.getTableName();
 				this.metaModelServiceImpl.excuteSql(sb.toString());
-				// 查找列
-				List<MetaModelItemsVO> mm = this.metaModelItemsServiceImpl.queryResult("queryResult", vo.getId());
-				for (MetaModelItemsVO m : mm) {
-					if (m.getItemType().equals("一对一") || m.getItemType().equals("多对一")) {
-						// 修改外键名
-						StringBuffer ss = new StringBuffer("alter table ").append(vo.getTableName())
-								.append(" drop foreign key fk_").append(m.getItemCode()).append("_")
-								.append(vvo.getTableName()).append(";");
-						ss.append("alter table ");
-						ss.append(vo.getTableName());
-						ss.append(" add constraint fk_");
-						ss.append(m.getItemCode());
-						ss.append("_");
-						ss.append(vo.getTableName());
-						ss.append(" foreign key(");
-						ss.append(m.getItemCode());
-						ss.append(") references ");
-						// 查询关联表
-						ModelRelationVO mro = this.modelRelationServiceImpl.queryByItem(m.getId());
-						MetaModelVO mmvo = this.metaModelServiceImpl.get(mro.getModelId());
-						ss.append(mmvo.getTableName());
-						ss.append("(");
-						List<MetaModelItemsVO> ls = this.metaModelItemsServiceImpl.queryResult("queryResult",
-								mmvo.getId());
-						for (MetaModelItemsVO l : ls) {
-							if (l.getUsePrimaryKey() == 1) {
-								ss.append(l.getItemCode());
-								ss.append(");");
-								continue;
-							}
-						}
-						this.metaModelServiceImpl.excuteSql(ss.toString());
-					}
-				}
 			}
 		}
 		this.metaModelServiceImpl.update("update", vo);
@@ -1054,12 +641,12 @@ public class MetaModelController extends BaseController {
 	 */
 	@ResponseBody
 	@RequestMapping(value = "batchModifyDS")
-	public String batchModifyDS(@RequestParam(value = "_selects") String _selects, Long dataSourceId) {
+	public String batchModifyDS(@RequestParam(value = "_selects") String _selects, String dataSourceId) {
 		String[] ids = _selects.split(",");
 		for (int i = 0; i < ids.length; i++) {
 
 			MetaModelVO vo = new MetaModelVO();
-			vo.setId(Long.parseLong(ids[i]));
+			vo.setId(ids[i]);
 			vo.setDataSourceId(dataSourceId);
 			this.metaModelServiceImpl.update("updateDataSourceById", vo);
 		}
@@ -1084,23 +671,20 @@ public class MetaModelController extends BaseController {
 				"select modelClassId,modelCode,modelName,modelDesc,tableName,projectName,modelType,modelSynchronization,modelValid,id ,system_id from fw_mm_metaModel where 1=1");
 		Object[] objs = null;
 		if (modelCode != null && modelCode.equals("")) {
-			objs[1] = modelCode;
 			b.append(" and modelCode like %");
 			b.append(modelCode).append("%");
 
 		}
 		if (modelName != null && modelName.equals("")) {
-			objs[objs.length + 1] = modelName;
 			b.append(" and modelName like %");
 			b.append(modelName).append("%");
 		}
-		Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+		Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 		if (obj instanceof PunSystemVO) {
 			PunSystemVO system = (PunSystemVO) obj;
 			b.append(" and SYSTEM_ID=").append(system.getSysId());
 		}
-		int rows = 10;
-		List<Map<String, Object>> list = this.jdbcRepository.find(b.toString(), page, rows, objs);
+		List<Map<String, Object>> list = this.jdbcTemplate.queryForList(b.toString(), objs);
 		return list;
 
 	}
@@ -1129,7 +713,7 @@ public class MetaModelController extends BaseController {
 		if (projectName != null && !projectName.equals("")) {
 			c.andLike("projectName", "%" + projectName + "%");
 		}
-		Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+		Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 		if (obj instanceof PunSystemVO) {
 			PunSystemVO system = (PunSystemVO) obj;
 			c.andEqualTo("SYSTEM_ID", system.getSysId());
@@ -1206,17 +790,15 @@ public class MetaModelController extends BaseController {
 	 */
 	@ResponseBody
 	@RequestMapping(value = "dataValidate")
-	public String queryMetaModel(@RequestParam(required = false, defaultValue = "") String modelCode,
+	public Object queryMetaModel(@RequestParam(required = false, defaultValue = "") String modelCode,
 			@RequestParam(required = false, defaultValue = "") String tableName,
 			@RequestParam(required = false, defaultValue = "") String projectName,
-			@RequestParam(required = false, defaultValue = "0") long id) {
+			@RequestParam(required = false) String id) {
 		logger.debug(id + "");
-		if (id == 0) {
+		if (StringUtils.isBlank(id)) {
 			List<MetaModelVO> ls = this.metaModelServiceImpl.queryMetaModel("queryMetaModel", modelCode, tableName,
 					projectName);
-			int count = ls.size();
-			String str = "{id:" + count + "}";
-			return str;
+			return ls.size();
 		} else {
 			MetaModelVO mm = this.metaModelServiceImpl.get(id);
 			List<MetaModelVO> ls = this.metaModelServiceImpl.queryMetaModel("queryMetaModel", modelCode, tableName,
@@ -1229,9 +811,7 @@ public class MetaModelController extends BaseController {
 					ls.remove(i);
 				}
 			}
-			int count = ls.size();
-			String str = "{id:" + count + "}";
-			return str;
+			return ls.size();
 		}
 
 	}

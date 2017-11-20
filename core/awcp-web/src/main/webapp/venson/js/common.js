@@ -355,7 +355,7 @@ Comm.getData = function (url, params, cache) {
                          } else if(d.status === -4){
                              Comm.alert("您还未登录,请先登录！");
                              if(Comm.isMobile()){
-                             	location.href=baseUrl+"apps/login.html";
+                             	location.href=baseUrl+"dingding/index.html";
                              }else{
                              	location.href=baseUrl+"login.html";
                              }
@@ -397,7 +397,7 @@ Comm.getData = function (url, params, cache) {
                     }else if(d.status === -4){
                     	Comm.alert("您还未登录,请先登录！");
                         if(Comm.isMobile()){
-                        	location.href=baseUrl+"apps/login.html";
+                        	location.href=baseUrl+"dingding/index.html";
                         }else{
                         	location.href=baseUrl+"login.html";
                         }
@@ -783,20 +783,26 @@ Date.prototype.format = function(format)
  * */
 Comm.validDDParam=function(id){
 	//设置默认值
-	id=(id)?id:"#groupForm";
+	id = (id)?id:"#groupForm";
 	//获取所有需要校验的对象
-	var req=$(id+" .required");
-	var len=req.length;
+	var req = $(id+" .required");
+	var len = req.length;
 	for (var i=0;i<len;i++ ) {
 		//找到同级表单元素
-		var _dom=req.eq(i);
-		var label=$(_dom).parentsUntil(".input_control").parent().find(".colFirst").find("label");
+		var _dom = req.eq(i);
+		var label = "";
+		if(window.hasOwnProperty("DingTalkPC")){
+			label = $(_dom).parentsUntil(".colDiv").find("span").eq(0);
+		}
+		else{
+			label = $(_dom).parentsUntil(".input_control").parent().find(".colFirst").find("label");
+		}	
 		//如果为空则提示
 		if (!_dom.val()) {
 			dd.device.notification.toast({
 			    text: label.text()+dd_res.required_tips, //提示信息
 			    duration: 1
-			})
+			});
 			return false;
 		} 
 	}
@@ -973,19 +979,20 @@ Comm.ddConfig = function(){
 	    timeStamp : dd_config.timeStamp,	// 必填，生成签名的时间戳
 	    nonceStr : dd_config.nonceStr,		// 必填，生成签名的随机串
 	    signature : dd_config.signature,	// 必填，签名
-	    jsApiList : ["biz.contact.choose","biz.customContact.multipleChoose","biz.util.multiSelect","biz.util.uploadImage","biz.cspace.preview","biz.util.uploadImageFromCamera","biz.util.uploadAttachment","device.geolocation.get","biz.contact.departmentsPicker","runtime.permission.requestOperateAuthCode" ,"device.notification.confirm","device.notification.alert","device.notification.toast"]
+	    jsApiList : ["biz.chat.chooseConversation","biz.contact.choose","biz.customContact.multipleChoose","biz.util.multiSelect","biz.util.uploadImage","biz.cspace.preview","biz.util.uploadImageFromCamera","biz.util.uploadAttachment","device.geolocation.get","biz.contact.departmentsPicker","runtime.permission.requestOperateAuthCode" ,"device.notification.confirm","device.notification.alert","device.notification.toast"]
 	});
 
 	dd.error(function(error){	//dd.config验证失败会执行error函数
-	    if(error.errorCode==3){
+	    if(error.errorCode==3 || error.errorCode=="PC_1003"){
 	        Comm.getData("api/execute/clearLocalStorage",{"_method":"get"});
 	        location.href = location.href;
 	    }else{
-	        console("dd error: " + JSON.stringify(error));
+	        console.log("dd error: " + JSON.stringify(error));
 	    }
 	});
 }
 
+//对于html页面，如果是在钉钉中打开，且没有登录，则跳转到goto.html页面先做授权登录
 ;(function(){
 	var userAgentInfo = navigator.userAgent;
 	if(userAgentInfo.indexOf("DingTalk")!=-1 && location.href.indexOf("goto.html")==-1){

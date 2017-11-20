@@ -405,7 +405,6 @@ public final class ControllerHelper {
 					pvi.getUserPwd() == null ? "" : Security.decryptPassword(pvi.getUserPwd()));
 			subject.login(token);
 			ControllerHelper.doLoginSuccess(pvi);
-			CookieUtil.addCookie(SC.USER_ACCOUNT, pvi.getUserId() + "");
 			if (isRemember) {
 				CookieUtil.addCookie(SC.SECRET_KEY, MD5Util.getMD5StringWithSalt(pvi.getUserIdCardNumber(), SC.SALT));
 				CookieUtil.addCookie(SC.USER_ACCOUNT, pvi.getUserIdCardNumber());

@@ -65,8 +65,6 @@
 									<option value="float">float</option>
 									<option value="double">double</option>
 									<option value="date">date</option>
-									<option value="1">一对一</option>
-									<option value="2">多对一</option>
 								</select>
 							</div>
 						</div>
@@ -114,8 +112,14 @@
 										</c:if>
 									</td>
 									<td>
+										<c:if test="${k.useIndex==-1 }">
+											主键
+										</c:if>
 										<c:if test="${k.useIndex==1 }">
-											有
+											唯一
+										</c:if>
+										<c:if test="${k.useIndex==2 }">
+											其它
 										</c:if>
 										<c:if test="${k.useIndex==0 or empty k.useIndex}">
 											无

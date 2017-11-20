@@ -28,11 +28,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSON;
 
-import TL.ContextHolderUtils;
-import cn.org.awcp.core.domain.SzcloudJdbcTemplate;
 import cn.org.awcp.core.utils.Security;
 import cn.org.awcp.core.utils.SessionUtils;
-import cn.org.awcp.core.utils.Springfactory;
 import cn.org.awcp.core.utils.constants.SessionContants;
 import cn.org.awcp.metadesigner.application.MetaModelOperateService;
 import cn.org.awcp.unit.service.PunMenuService;
@@ -52,6 +49,9 @@ import cn.org.awcp.venson.util.CookieUtil;
 import cn.org.awcp.venson.util.HttpUtils;
 import cn.org.awcp.venson.util.MD5Util;
 
+/**
+ * 用户登录
+ */
 @Controller
 @RequestMapping("/")
 public class UnitBaseController {
@@ -63,19 +63,29 @@ public class UnitBaseController {
 
 	@Autowired
 	@Qualifier("punUserBaseInfoServiceImpl")
-	private PunUserBaseInfoService userService;// 用户Service
+	private PunUserBaseInfoService userService;	//用户Service
+	
 	@Autowired
 	@Qualifier("punMenuServiceImpl")
-	private PunMenuService resouService;// 资源Service
+	private PunMenuService resouService;	//资源Service
 
 	@Autowired
-	private MetaModelOperateService metaModelOperateServiceImpl;
+	private MetaModelOperateService metaModelOperateServiceImpl;	//元数据操作Service
 
+	/**
+	 * 登录
+	 * @param userPwd	用户密码
+	 * @param userName	USER_ID_CARD_NUMBER或者手机号
+	 * @param code
+	 * @param ALT
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
 	@ResponseBody
 	@RequestMapping(value = "/appLogin", method = RequestMethod.POST)
 	public ReturnResult appLogin(@RequestParam("userPwd") String userPwd, @RequestParam("userName") String userName,
 			@RequestParam(value = "code", defaultValue = "3", required = false) String code,
-			@RequestParam(value = "ALT", required = false) String ALT, String openid) {
+			@RequestParam(value = "ALT", required = false) String ALT) {
 		ReturnResult result = ReturnResult.get();
 		// 判断是否密码是经过base64加密
 		if (userPwd.contains("isAuth")) {
@@ -88,7 +98,7 @@ public class UnitBaseController {
 		m.put("userIdCardNumber", userName);
 		PunUserBaseInfoVO pvi = null;
 		try {
-			pvi = this.userService.queryResult("eqQueryList", m).get(0);
+			pvi = this.userService.queryResult("eqQueryList", m).get(0);	//查询用户
 		} catch (Exception e) {
 			return result.setStatus(StatusCode.FAIL.setMessage("登录失败，请核实登录信息"));
 		}
@@ -104,27 +114,21 @@ public class UnitBaseController {
 				return result.setStatus(StatusCode.FAIL.setMessage("用户审核中"));
 			}
 			ControllerHelper.doLoginSuccess(pvi);
-
-			// setUserOpenid(openid, pvi.getUserId());
-			List<PunRoleInfoVO> roles = (List<PunRoleInfoVO>) SessionUtils
-					.getObjectFromSession(SessionContants.CURRENT_ROLES);
+			List<PunRoleInfoVO> roles = (List<PunRoleInfoVO>) SessionUtils.getObjectFromSession(SessionContants.CURRENT_ROLES);
 			String targetUrl = SC.TARGET_URL[0];
 			for (PunRoleInfoVO role : roles) {
 				if (role.getRoleName().equals("超级后台管理员")) {
 					targetUrl = SC.TARGET_URL[1];
 					break;
 				}
-
 			}
 			result.setStatus(StatusCode.SUCCESS).setData(targetUrl);
 			if (StringUtils.isNotBlank(ALT)) {
-				String secretKey = CookieUtil.findCookie(SC.USER_ACCOUNT);
+				String secretKey = CookieUtil.findCookie(SC.SECRET_KEY);
 				if (secretKey == null || !secretKey.equals(pvi.getUserIdCardNumber())) {
-					CookieUtil.addCookie(SC.SECRET_KEY,
-							MD5Util.getMD5StringWithSalt(pvi.getUserIdCardNumber(), SC.SALT));
+					CookieUtil.addCookie(SC.SECRET_KEY,MD5Util.getMD5StringWithSalt(pvi.getUserIdCardNumber(), SC.SALT));
 					CookieUtil.addCookie(SC.USER_ACCOUNT, pvi.getUserIdCardNumber());
 				}
-
 			}
 			// 进入选择系统页面
 			return result;
@@ -134,18 +138,10 @@ public class UnitBaseController {
 		}
 	}
 
-	private void setUserOpenid(String openid, Long user_id) {
-		if (StringUtils.isNotBlank(openid)) {
-			SzcloudJdbcTemplate jdbcTemplate = Springfactory.getBean("jdbcTemplate");
-			String sql = "select ifnull(openid,'') as openid from awcp_user where user_id=?";
-			String dbOpenid = jdbcTemplate.queryForObject(sql, String.class, user_id);
-			if (StringUtils.isBlank(dbOpenid) || !dbOpenid.equals(openid)) {
-				sql = "update awcp_user set openid=? where user_id=?";
-				jdbcTemplate.update(sql, openid, user_id);
-			}
-		}
-	}
-
+	/**
+	 * 获取用户信息
+	 * @return
+	 */
 	@ResponseBody
 	@RequestMapping(value = "getUserInfo")
 	public ReturnResult getUserInfo() {
@@ -159,6 +155,11 @@ public class UnitBaseController {
 		return result;
 	}
 
+	/**
+	 * 获取PC端用户菜单
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
 	@ResponseBody
 	@RequestMapping(value = "getUserMenu")
 	public ReturnResult getUserMenu() {
@@ -167,12 +168,10 @@ public class UnitBaseController {
 		PunSystemVO system = (PunSystemVO) SessionUtils.getObjectFromSession(SessionContants.CURRENT_SYSTEM);
 		// 当前用户
 		PunUserBaseInfoVO user = (PunUserBaseInfoVO) SessionUtils.getObjectFromSession(SessionContants.CURRENT_USER);
-		List<PunRoleInfoVO> roles = (List<PunRoleInfoVO>) SessionUtils
-				.getObjectFromSession(SessionContants.CURRENT_ROLES);
+		List<PunRoleInfoVO> roles = (List<PunRoleInfoVO>) SessionUtils.getObjectFromSession(SessionContants.CURRENT_ROLES);
 
 		Long userId = user.getUserId();// 用户ID
 		Long sysId = system.getSysId();// 系统ID
-		// Long roleId = roles.get(0).getRoleId();
 		List<PunMenuVO> resoVOs1 = new ArrayList<PunMenuVO>();
 		for (PunRoleInfoVO role : roles) {
 			List<PunMenuVO> temp = resouService.getPunMenuUserRoleAndSys(userId, role.getRoleId(), sysId);
@@ -186,7 +185,6 @@ public class UnitBaseController {
 			if (punMenuVO.getType() == 2) {
 				it.remove();
 			}
-
 		}
 		// 查找所有的父Id
 		Set<Long> pids = new HashSet<Long>();
@@ -201,6 +199,11 @@ public class UnitBaseController {
 		return result;
 	}
 
+	/**
+	 * 获取App页面的菜单
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
 	@ResponseBody
 	@RequestMapping(value = "getAppMenu")
 	public ReturnResult getAppMenu() {
@@ -209,8 +212,7 @@ public class UnitBaseController {
 		PunSystemVO system = (PunSystemVO) SessionUtils.getObjectFromSession(SessionContants.CURRENT_SYSTEM);
 		// 当前用户
 		PunUserBaseInfoVO user = ControllerHelper.getUser();
-		List<PunRoleInfoVO> roles = (List<PunRoleInfoVO>) SessionUtils
-				.getObjectFromSession(SessionContants.CURRENT_ROLES);
+		List<PunRoleInfoVO> roles = (List<PunRoleInfoVO>) SessionUtils.getObjectFromSession(SessionContants.CURRENT_ROLES);
 
 		Long userId = user.getUserId();// 用户ID
 		Long sysId = system.getSysId();// 系统ID
@@ -248,12 +250,7 @@ public class UnitBaseController {
 		return result;
 	}
 
-	/**
-	 * 去除重复菜单项
-	 * 
-	 * @param list
-	 * @return
-	 */
+	//去除重复菜单项
 	private List<PunMenuVO> removeDuplicate(List<PunMenuVO> list) {
 		// 此处去重要使用LinkedHashSet，要保留原有顺序
 		HashSet<PunMenuVO> hashSet = new LinkedHashSet<PunMenuVO>(list);
@@ -263,14 +260,26 @@ public class UnitBaseController {
 		return list;
 	}
 
+	/**
+	 * 用户登出
+	 * @param request
+	 * @return
+	 */
 	@RequestMapping(value = "/logout", method = RequestMethod.GET)
 	public ModelAndView logout(HttpServletRequest request) {
 		Subject user = SecurityUtils.getSubject();
 		user.logout();
-		ContextHolderUtils.deleteCookie(SC.SECRET_KEY);
+		CookieUtil.deleteCookie(SC.SECRET_KEY);
 		return new ModelAndView("redirect:" + ControllerHelper.getBasePath());
 	}
 
+	/**
+	 * 用于单点登录
+	 * @param uid
+	 * @param key
+	 * @param url
+	 * @return
+	 */
 	@RequestMapping(value = "logsso")
 	public ModelAndView logsso(@RequestParam("uid") String uid, @RequestParam("key") String key,
 			@RequestParam(value = "url", required = false) String url) {
@@ -278,8 +287,7 @@ public class UnitBaseController {
 		ModelAndView mv = new ModelAndView("redirect:" + base + "login.html");
 		url = StringUtils.isBlank(url) ? base + "manage/index.html" : url;
 		// 判断是否已经存在登录用户
-		PunUserBaseInfoVO current_user = (PunUserBaseInfoVO) SessionUtils
-				.getObjectFromSession(SessionContants.CURRENT_USER);
+		PunUserBaseInfoVO current_user = (PunUserBaseInfoVO) SessionUtils.getObjectFromSession(SessionContants.CURRENT_USER);
 		if (current_user != null) {
 			// 判断当前已登录用户是否是指定的uid用户
 			if (current_user.getUserIdCardNumber().equals(uid))
@@ -298,8 +306,9 @@ public class UnitBaseController {
 		String body = HttpUtils.sendGet("http://www.tongyuanmeng.com/awcp/api/executeAPI.do", parameters);
 		// 若返回值不为空则为合法操作
 		if (body != null && uid.equals(JSON.parseObject(body).getString("data"))) {
-			if (ControllerHelper.toLogin(uid, false) != null)
+			if (ControllerHelper.toLogin(uid, false) != null){
 				return new ModelAndView("redirect:" + url);
+			}				
 		}
 		return mv;
 	}

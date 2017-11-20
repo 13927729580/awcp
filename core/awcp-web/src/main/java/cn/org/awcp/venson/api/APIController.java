@@ -31,6 +31,7 @@ import cn.org.awcp.venson.controller.base.ControllerHelper;
 import cn.org.awcp.venson.controller.base.ReturnResult;
 import cn.org.awcp.venson.controller.base.StatusCode;
 import cn.org.awcp.venson.interceptor.ExceptionHandler;
+import cn.org.awcp.venson.util.MySqlSmartCountUtil;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
@@ -207,12 +208,7 @@ public class APIController extends BaseController {
 				result.setData(ret);
 			} catch (Exception e) {
 				ExceptionHandler.handler(e, result);
-				logger.info("ERROR", e);
-				try {
-					jdbcTemplate1.rollback();
-				} catch (Exception e1) {
-					logger.info("ERROR", e1);
-				}
+				jdbcTemplate1.rollback();
 			}
 		}
 	}
@@ -247,8 +243,12 @@ public class APIController extends BaseController {
 		// 执行分页语句
 		List<Map<String, Object>> data = jdbcTemplate
 				.queryForList(sql + " limit " + (currentPage - 1) * pageSize + "," + pageSize, params);
+		if (data.isEmpty()) {
+			result.setData(data).setTotal(0);
+			return;
+		}
 		// 获取总数
-		Object count = jdbcTemplate.queryForObject("select count(1) from(" + sql + ") temp", params, Object.class);
+		Object count = jdbcTemplate.queryForObject(MySqlSmartCountUtil.getCountSql(sql, true), params, Object.class);
 		result.setData(data).setTotal(count);
 	}
 

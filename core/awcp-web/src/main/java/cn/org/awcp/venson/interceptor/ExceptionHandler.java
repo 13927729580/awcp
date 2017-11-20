@@ -51,6 +51,7 @@ public class ExceptionHandler implements HandlerExceptionResolver {
 		} else if (ex instanceof UncategorizedSQLException) {
 			result.setStatus(StatusCode.NO_ACCESS.setMessage("检测到非法字符，禁止访问"));
 		} else if (ex instanceof PlatformException) {
+			logger.debug(ex.getMessage());
 			result.setStatus(StatusCode.FAIL.setMessage(ex.getMessage()));
 		} else {
 			logger.debug("ERROR", ex);

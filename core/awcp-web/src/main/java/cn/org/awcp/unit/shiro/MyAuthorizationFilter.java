@@ -2,10 +2,12 @@ package cn.org.awcp.unit.shiro;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URLEncoder;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -19,6 +21,7 @@ import cn.org.awcp.venson.controller.base.ControllerHelper;
 import cn.org.awcp.venson.controller.base.ReturnResult;
 import cn.org.awcp.venson.controller.base.StatusCode;
 import cn.org.awcp.venson.util.CookieUtil;
+import cn.org.awcp.workflow.controller.util.HttpRequestDeviceUtils;
 
 public class MyAuthorizationFilter extends FormAuthenticationFilter {
 	private static final Log log = LogFactory.getLog(MyAuthorizationFilter.class);
@@ -46,6 +49,19 @@ public class MyAuthorizationFilter extends FormAuthenticationFilter {
 			}
 			if (ControllerHelper.loginByCookie()) {
 				return true;
+			} else {
+				// 判断请求是否来自于钉钉
+				HttpServletRequest req = (HttpServletRequest) request;
+				if (HttpRequestDeviceUtils.isDingDing(req)) {
+					HttpServletResponse res = (HttpServletResponse) response;
+					String query = req.getQueryString();
+					query = query == null ? "" : "?" + query;
+					String url = req.getRequestURI() + query;
+					url = URLEncoder.encode(url);
+					res.sendRedirect(ControllerHelper.getBasePath() + "dingding/goto.html?url=" + url);
+					return true;
+				}
+
 			}
 			CookieUtil.deleteCookie(SC.SECRET_KEY);
 			tologin(request, response);

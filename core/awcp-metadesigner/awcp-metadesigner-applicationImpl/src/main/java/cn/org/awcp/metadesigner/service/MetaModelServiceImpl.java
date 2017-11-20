@@ -17,7 +17,7 @@ import com.github.miemiedev.mybatis.paginator.domain.PageList;
 import cn.org.awcp.core.domain.BaseExample;
 import cn.org.awcp.core.domain.QueryChannelService;
 import cn.org.awcp.core.utils.BeanUtils;
-import cn.org.awcp.core.utils.Tools;
+import cn.org.awcp.core.utils.SessionUtils;
 import cn.org.awcp.core.utils.constants.SessionContants;
 import cn.org.awcp.metadesigner.application.MetaModelService;
 import cn.org.awcp.metadesigner.core.domain.MetaModel;
@@ -30,19 +30,15 @@ public class MetaModelServiceImpl implements MetaModelService {
 	 * 日志对象
 	 */
 	private static final Logger logger = LoggerFactory.getLogger(MetaModelServiceImpl.class);
-	
+
 	@Resource(name = "queryChannel")
 	private QueryChannelService queryChannel;
 
-	public Long save(MetaModelVO vo) {
-		try {
-			MetaModel model = BeanUtils.getNewInstance(vo, MetaModel.class);
-			model.save();
-			vo.setId(model.getId());
-			return model.getId();
-		} catch (Exception e) {
-			return null;
-		}
+	public String save(MetaModelVO vo) {
+		MetaModel model = BeanUtils.getNewInstance(vo, MetaModel.class);
+		model.save();
+		vo.setId(model.getId());
+		return model.getId();
 	}
 
 	public boolean remove(MetaModelVO vo) {
@@ -76,8 +72,9 @@ public class MetaModelServiceImpl implements MetaModelService {
 		return resultVo;
 	}
 
-	public PageList<MetaModelVO> selectPagedByExample(BaseExample baseExample, int currentPage, int pageSize,String sortString) {
-		Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+	public PageList<MetaModelVO> selectPagedByExample(BaseExample baseExample, int currentPage, int pageSize,
+			String sortString) {
+		Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 		if (obj instanceof PunSystemVO) {
 			PunSystemVO system = (PunSystemVO) obj;
 			if (baseExample.getOredCriteria().size() > 0) {
@@ -86,8 +83,8 @@ public class MetaModelServiceImpl implements MetaModelService {
 				baseExample.createCriteria().andEqualTo("SYSTEM_ID", system.getSysId());
 			}
 		}
-		PageList<MetaModel> result = queryChannel.selectPagedByExample(MetaModel.class, baseExample, 
-				currentPage,pageSize, sortString);
+		PageList<MetaModel> result = queryChannel.selectPagedByExample(MetaModel.class, baseExample, currentPage,
+				pageSize, sortString);
 		List<MetaModelVO> resultVO = new ArrayList<MetaModelVO>();
 		for (Object dd : result) {
 			resultVO.add(BeanUtils.getNewInstance(dd, MetaModelVO.class));
@@ -109,7 +106,8 @@ public class MetaModelServiceImpl implements MetaModelService {
 
 	public PageList<MetaModelVO> eqQueryPagedResult(MetaModelVO vo, int currentPage, int pageSize, String sortString) {
 		MetaModel sm = BeanUtils.getNewInstance(vo, MetaModel.class);
-		PageList<MetaModel> result = queryChannel.eqQueryPagedResult(MetaModel.class, sm, currentPage, pageSize, sortString);
+		PageList<MetaModel> result = queryChannel.eqQueryPagedResult(MetaModel.class, sm, currentPage, pageSize,
+				sortString);
 		List<MetaModelVO> resultvo = new ArrayList<MetaModelVO>();
 		for (MetaModel smm : result) {
 			resultvo.add(BeanUtils.getNewInstance(smm, MetaModelVO.class));
@@ -118,7 +116,7 @@ public class MetaModelServiceImpl implements MetaModelService {
 		return new PageList<MetaModelVO>(resultvo, result.getPaginator());
 	}
 
-	public MetaModelVO get(Long id) {
+	public MetaModelVO get(String id) {
 		try {
 			MetaModel model = MetaModel.get(MetaModel.class, id);
 			return BeanUtils.getNewInstance(model, MetaModelVO.class);
@@ -127,15 +125,15 @@ public class MetaModelServiceImpl implements MetaModelService {
 		}
 	}
 
-	public PageList<MetaModelVO> queryResult(String queryStr, Map<String, Object> params, 
-			int currentPage, int pageSize,String sortString) {
-		Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+	public PageList<MetaModelVO> queryResult(String queryStr, Map<String, Object> params, int currentPage, int pageSize,
+			String sortString) {
+		Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 		if (obj instanceof PunSystemVO) {
 			PunSystemVO system = (PunSystemVO) obj;
 			params.put("systemId", system.getSysId());
 		}
-		PageList<MetaModel> pl = queryChannel.queryPagedResult(MetaModel.class, queryStr, params, 
-				currentPage, pageSize,sortString);
+		PageList<MetaModel> pl = queryChannel.queryPagedResult(MetaModel.class, queryStr, params, currentPage, pageSize,
+				sortString);
 		PageList<MetaModelVO> list = new PageList<MetaModelVO>(pl.getPaginator());
 		for (MetaModel m : pl) {
 			MetaModelVO vo = BeanUtils.getNewInstance(m, MetaModelVO.class);
@@ -146,7 +144,7 @@ public class MetaModelServiceImpl implements MetaModelService {
 
 	public boolean tableIsExist(String tableName) {
 		try {
-			String sql = "select * from " + tableName;
+			String sql = "select id from " + tableName;
 			return excuteSql(sql);
 		} catch (Exception e) {
 			return false;
@@ -162,7 +160,7 @@ public class MetaModelServiceImpl implements MetaModelService {
 		}
 	}
 
-	public MetaModelVO load(long id) {
+	public MetaModelVO load(String id) {
 		try {
 			MetaModel mm = MetaModel.load(MetaModel.class, id);
 			MetaModelVO mmo = BeanUtils.getNewInstance(mm, MetaModelVO.class);
@@ -178,7 +176,7 @@ public class MetaModelServiceImpl implements MetaModelService {
 		List<MetaModelVO> ls = null;
 		try {
 			Map<String, Object> map = new HashMap<String, Object>();
-			Object obj = Tools.getObjectFromSession(SessionContants.CURRENT_SYSTEM);
+			Object obj = SessionUtils.getObjectFromSession(SessionContants.CURRENT_SYSTEM);
 			if (obj instanceof PunSystemVO) {
 				PunSystemVO system = (PunSystemVO) obj;
 				map.put("systemId", system.getSysId());
@@ -223,12 +221,12 @@ public class MetaModelServiceImpl implements MetaModelService {
 	public MetaModelVO queryByModelCode(String modelCode) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("modelCode", modelCode);
-		Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+		Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 		if (obj instanceof PunSystemVO) {
 			PunSystemVO system = (PunSystemVO) obj;
 			map.put("systemId", system.getSysId());
 		} else {
-			obj = Tools.getObjectFromSession(SessionContants.CURRENT_SYSTEM);
+			obj = SessionUtils.getObjectFromSession(SessionContants.CURRENT_SYSTEM);
 			if (obj instanceof PunSystemVO) {
 				PunSystemVO system = (PunSystemVO) obj;
 				map.put("systemId", system.getSysId());
@@ -248,15 +246,15 @@ public class MetaModelServiceImpl implements MetaModelService {
 		return vo;
 	}
 
-	public PageList<MetaModelVO> queryPagedResult(Map<String, Object> params, 
-			int currentPage, int pageSize,String sortString) {
-		Object obj = Tools.getObjectFromSession(SessionContants.CURRENT_SYSTEM);
+	public PageList<MetaModelVO> queryPagedResult(Map<String, Object> params, int currentPage, int pageSize,
+			String sortString) {
+		Object obj = SessionUtils.getObjectFromSession(SessionContants.CURRENT_SYSTEM);
 		if (obj instanceof PunSystemVO) {
 			PunSystemVO system = (PunSystemVO) obj;
 			params.put("systemId", system.getSysId());
 		}
-		PageList<MetaModel> result = queryChannel.queryPagedResult(MetaModel.class, "eqQueryList", params, 
-				currentPage,pageSize, sortString);
+		PageList<MetaModel> result = queryChannel.queryPagedResult(MetaModel.class, "eqQueryList", params, currentPage,
+				pageSize, sortString);
 		List<MetaModelVO> tmp = new ArrayList<MetaModelVO>();
 		for (MetaModel model : result) {
 			tmp.add(BeanUtils.getNewInstance(model, MetaModelVO.class));

@@ -31,89 +31,26 @@ actView.put("icon.2", "返回");
 actView.put("icon.3", "删除");
 
 $(document).ready(function() {		
-	var $btnSet = $("#js-btn-set"),
+	//按钮样式设置
+	var $btnSet = $("#js-btn-set"),					
 		$btnSetIcon = $btnSet.find("#btnIcon"),
-		$btnSetColor = $btnSet.find("#btnColor");
-	
-	$btnSet.find(".icon-menu a").click(function(){
+		$btnSetColor = $btnSet.find("#btnColor");	
+	$btnSet.find(".icon-menu a").click(function(){//修改按钮的图标
 		var icon = $(this).attr("class");
 		$btnSetIcon.find("i").attr("class",icon);
 		$btnSetIcon.find("input").val(icon);
-	});
-	
-	$btnSet.find(".color-menu span").click(function(){
-	var common = "label label-dot";
-    var color = $(this).data("color");
-    $btnSetColor.find("span").attr("class",common+" label-"+color);
+	});	
+	$btnSet.find(".color-menu span").click(function(){//修改按钮的颜色
+		var common = "label label-dot";
+		var color = $(this).data("color");
+		$btnSetColor.find("span").attr("class",common + " label-" + color);
 		$btnSetColor.find("input").val(color);
-	});
+	});	
 	
-	//选择项数目预设js
-	$.ajax({
-		type:"post",
-		url:"commondWords/findByTypeId.do",
-		async:false,
-		dataType:"json",
-		data:"typeId=1003",
-		success:function(data){
-			var option ='';
-			$.each(data,function(i, item){
-				option += '<li><a href="javascript:;" title="'+item.wordContent+'" id="'+item.id+'">'+item.wordContent+'<i class="icon-remove remove"></i></a></li>';
-			});
-			$(".option-select").find("ul").append(option);
-		}
-	});
-	
-	$(".option-select").on("click","a",function(){
-		var text = $(this).text();
-		$(this).parents(".option-select").siblings("textarea.option").val(text);
-	}).on("click","i.remove",function(){
-		var selectLi = $(this).parents("li");
-		var selectId = selectLi.find("a").attr("id");
-		top.dialog({
-			content:"确定删除？",
-			okValue:"确定",
-			ok:function(){
-				//delete todo
-				$.ajax({
-					type:"post",
-					url:"commondWords/delete.do",
-					data:"id="+selectId,
-					async:false,
-					dataType:"json",
-					success:function(data){
-						selectLi.remove();
-					}
-				}); 					
-			},
-			cancelValue:"取消",
-			cancel:function(){}
-		}).show();
-		return false;
-	});
-		
-	$("textarea.option").on("blur",function(){
-		var text = $(this).val();
-		var saveBtn = $(".option-select .saveBtn");
-		if(text!=""){
-			saveBtn.removeClass("hidden").on("click",function(){
-				$.ajax({
-					type:"post",
-					url:"commondWords/saveActChooseValidate.do",
-					data:"wordContent="+text,
-					async:false,
-					dataType:"json",
-					success:function(data){
-						var option = '<li><a href="javascript:;" title="'+data.wordContent+'" id="'+data.id+'">'+data.wordContent+'<i class="icon-remove remove"></i></a></li>';
-						$(".option-select").find("ul").append(option);
-						alertMessage("已保存至【常用选择项校验函数】");
-					}
-				});	
-			});
-		}else{
-			saveBtn.addClass("hidden");
-		}
-	});		
+	//显示按钮的类型
+	var actType = $("#actType").val();
+	var actName = actView.get("actType." + actType);
+	$("#selectActType").html("<option value='" + actType + "'>" + actName + "</option>")
 });
 
 // 从库中选择,添加到动态页面中
@@ -139,11 +76,9 @@ top.dialog({
 // 弹出新增页面动作页面
 function act_add(type) {
 	top.dialog({
-		id : 'add-dialog' + Math.ceil(Math.random() * 10000),
+		id : 'add-dialog' + $.uuid(),
 		title : '新增动作',
-		url : basePath
-				+ "fd/act/edit.do?dialog=1&dynamicPageId="
-				+ $("#id").val() + "&order=3&type="+type,
+		url : basePath + "fd/act/edit.do?dialog=1&dynamicPageId=" + $("#id").val() + "&order=3&type=" + type,
 		height : 540,
 		width : 1000,
 		onclose : function() {
@@ -151,7 +86,6 @@ function act_add(type) {
 				var ret = this.returnValue;
 				actMap.put(ret.pageId, ret);
 				freshActTable();
-
 			}
 		}
 	}).showModal();

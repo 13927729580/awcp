@@ -69,7 +69,7 @@ public interface EntityRepository {
 	 * 
 	 * @param fkId
 	 */
-	void removeByFK(Class<?> clazz, String queryStr, long fkId);
+	void removeByFK(Class<?> clazz, String queryStr, Object fkId);
 
 	/**
 	 * 条件删除

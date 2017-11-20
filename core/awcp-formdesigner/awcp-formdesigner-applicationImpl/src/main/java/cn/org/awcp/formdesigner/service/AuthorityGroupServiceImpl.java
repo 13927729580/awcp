@@ -14,7 +14,7 @@ import cn.org.awcp.core.common.exception.MRTException;
 import cn.org.awcp.core.domain.BaseExample;
 import cn.org.awcp.core.domain.QueryChannelService;
 import cn.org.awcp.core.utils.BeanUtils;
-import cn.org.awcp.core.utils.Tools;
+import cn.org.awcp.core.utils.SessionUtils;
 import cn.org.awcp.core.utils.constants.SessionContants;
 import cn.org.awcp.formdesigner.application.service.AuthorityGroupService;
 import cn.org.awcp.formdesigner.application.vo.AuthorityGroupVO;
@@ -49,7 +49,7 @@ public class AuthorityGroupServiceImpl implements AuthorityGroupService {
 	@Override
 	public PageList<AuthorityGroupVO> queryPagedResult(String queryStr, Map<String, Object> params, int currentPage,
 			int pageSize, String sortString) {
-		Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+		Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 		if (obj instanceof PunSystemVO) {
 			PunSystemVO system = (PunSystemVO) obj;
 			params.put("systemId", system.getSysId());
@@ -68,7 +68,7 @@ public class AuthorityGroupServiceImpl implements AuthorityGroupService {
 	@Override
 	public PageList<AuthorityGroupVO> selectPagedByExample(BaseExample example, int currentPage, int pageSize,
 			String sortString) {
-		Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+		Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 		if (obj instanceof AuthorityGroupVO) {
 			PunSystemVO system = (PunSystemVO) obj;
 			if (example.getOredCriteria().size() > 0) {

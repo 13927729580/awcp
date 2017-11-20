@@ -5,14 +5,14 @@ import java.util.List;
 import cn.org.awcp.core.common.exception.MRTException;
 import cn.org.awcp.core.domain.BaseEntity;
 
-public class MetaModel extends BaseEntity<Long> {
+public class MetaModel extends BaseEntity<String> {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
 	// 所属分类
-	private Long modelClassId;
+	private String modelClassId;
 	// 模型名称
 	private String modelName;
 	// 模型编号
@@ -30,7 +30,7 @@ public class MetaModel extends BaseEntity<Long> {
 	// 是否有效
 	private Boolean modelValid;
 	private Long systemId;
-	private Long dataSourceId;
+	private String dataSourceId;
 
 	public Long getSystemId() {
 		return systemId;
@@ -40,11 +40,11 @@ public class MetaModel extends BaseEntity<Long> {
 		this.systemId = systemId;
 	}
 
-	public Long getModelClassId() {
+	public String getModelClassId() {
 		return modelClassId;
 	}
 
-	public void setModelClassId(Long modelClassId) {
+	public void setModelClassId(String modelClassId) {
 		this.modelClassId = modelClassId;
 	}
 
@@ -122,11 +122,11 @@ public class MetaModel extends BaseEntity<Long> {
 		return treeMenuList;
 	}
 
-	public Long getDataSourceId() {
+	public String getDataSourceId() {
 		return dataSourceId;
 	}
 
-	public void setDataSourceId(Long dataSourceId) {
+	public void setDataSourceId(String dataSourceId) {
 		this.dataSourceId = dataSourceId;
 	}
 

@@ -2,29 +2,29 @@ package cn.org.awcp.metadesigner.vo;
 
 import java.sql.Date;
 
-public class DataSourceManageVO{
-	
-	private Long id;
-	private String name;	
-	private String sourceType;	
-	private String sourceUrl;	
+public class DataSourceManageVO {
+
+	private String id;
+	private String name;
+	private String sourceType;
+	private String sourceUrl;
 	private String sourceDriver;
-	private String alias;	// 数据库连接别名	
-	private String userName;	
+	private String alias; // 数据库连接别名
+	private String userName;
 	private String userPwd;
-	private Integer maximumActiveTime;	//最大活动时间
-	private Integer prototypeCount;	//连接池保持的最小空闲连接数
-	private Integer maximumConnectionCount;//最大连接数
-	private Integer minimumConnectionCount;//最小连接数
-	private Integer simultaneousBuildThrottle;//同时执行的最大连接数
-	private Boolean trace;//true:sql执行时log(debug level)
-	private String domain;//数据源领域
-	private Long groupId;//分组
-	private Date createTime;//创建时间
-	private String createUser;//创建人
-	private Date lastModifyTime;//最后修改时间
-	private String lastModifier;//最后修改时间
-	
+	private Integer maximumActiveTime; // 最大活动时间
+	private Integer prototypeCount; // 连接池保持的最小空闲连接数
+	private Integer maximumConnectionCount;// 最大连接数
+	private Integer minimumConnectionCount;// 最小连接数
+	private Integer simultaneousBuildThrottle;// 同时执行的最大连接数
+	private Boolean trace;// true:sql执行时log(debug level)
+	private String domain;// 数据源领域
+	private Long groupId;// 分组
+	private Date createTime;// 创建时间
+	private String createUser;// 创建人
+	private Date lastModifyTime;// 最后修改时间
+	private String lastModifier;// 最后修改时间
+
 	public Long getGroupId() {
 		return groupId;
 	}
@@ -129,11 +129,11 @@ public class DataSourceManageVO{
 		this.trace = trace;
 	}
 
-	public Long getId() {
+	public String getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 
@@ -195,5 +195,5 @@ public class DataSourceManageVO{
 				+ trace + ", domain=" + domain + ", groupId=" + groupId + ", createTime=" + createTime + ", createUser="
 				+ createUser + ", lastModifyTime=" + lastModifyTime + ", lastModifier=" + lastModifier + "]";
 	}
-	
+
 }

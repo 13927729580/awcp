@@ -1,0 +1,159 @@
+<html>
+<head>
+	<title data-id="title_approval"></title>
+	<meta charset="utf-8">
+	<meta name="description" content="microflow">
+	<meta name="HandheldFriendly" content="True">
+	<meta name="MobileOptimized" content="320">
+	<meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+	<meta http-equiv="cleartype" content="on">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<meta name="apple-mobile-web-app-title" content="">
+	<meta name="format-detection" content="telephone=no">
+	<meta name="format-detection" content="email=no">
+	<!-- 所有样式文件 -->
+	<link rel="stylesheet" href="//g.alicdn.com/SWH5/ding-flow-pc/2.2.3/bootstrap.css">
+	<link rel="stylesheet" href="//g.alicdn.com/SWH5/ding-flow-pc/2.2.3/app.css">
+</head>
+<body>
+	<div id="MF_APP">
+		<div>
+			<span> </span>
+			<div>
+				<div id="upcomedMask" class="fullscreen_mask"></div>
+				<div class="home-navigator" >
+					<div class="home-tab tFlexbox" >
+						<span data-url="pc_approval.html" class="content-text tFlex1">发起审批</span>
+						<span data-url="pc_approvalList.html?type=1" class="content-text tFlex1"><span>待我审批的</span><span></span></span>
+						<span data-url="pc_approvalList.html?type=2" class="content-text tFlex1">我已审批的</span>
+						<span data-url="pc_approvalList.html?type=3" class="content-text tFlex1">我发起的</span>
+						<span data-url="pc_approvalList.html?type=4" class="content-text tFlex1"><span>抄送我的</span><span></span></span>
+					</div>
+				</div>
+				<div id="listContainer" class="dealed" >
+					<div class="list-container-search">					
+						<div class="search-filter">
+							<span id="span1">
+								<span class="search-checkbox-tips">审批类型:</span>
+								<select class="search-select" id="form-select"></select>
+							</span>
+							<span id="span2">
+								<span> </span>
+								<a data-id="all" data-value="" class="search-category-selected"></a>
+								<a data-id="ended" data-value="3" class="search-category"></a>
+								<a data-id="WF_Cancel" data-value="12" class="search-category"></a>
+								<a data-id="WF_Reject" data-value="13" class="search-category"></a>
+								<a data-id="pending" data-value="0" class="search-category"></a>
+							</span>
+						</div>
+					</div>
+					<div class="dealed-list" >
+						<div></div>
+					</div>
+					<div class="EmptyNotify" style="display: none;">
+						<img src="https://img.alicdn.com/tps/TB1iF8ILpXXXXcjXFXXXXXXXXXX-163-163.png">
+						<p>没有审批</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script src="js/jquery.js" charset="utf-8"></script>
+	<script src="https://g.alicdn.com/dingding/dingtalk-pc-api/2.9.0/index.js" charset="utf-8"></script>
+	<script src="../venson/js/common.js"></script>
+	<script src="js/resource.js"></script>
+	<script type="text/javascript">
+		var type = Comm.getUrlParam("type");
+		$(".home-navigator").children().children("span").eq(type).addClass("tab-active");
+		if(type==1 || type==4){
+			$("#span2").hide();
+		}
+		
+		//tab点击事件
+		$(".home-navigator").children().children("span").click(function(){
+			if(!$(this).hasClass("tab-active")){
+				location.href = $(this).attr("data-url");
+			}
+			return false;
+		});
+			
+		var data = Comm.getData("api/execute/getAppsByParentID?parentID=3");
+		var options = "<option value=''>全部</option>";
+		for(var i=0;i<data.length;i++){
+			options += "<option value='" + data[i].dynamicPageId + "," + data[i].pcDynamicPageId + 
+					   "'>" + data[i].title + "</option>";
+		}
+		$("#form-select").html(options);
+				
+		$("#span2").find("a").click(function(){
+			$("#span2").find(".search-category-selected").removeClass("search-category-selected").addClass("search-category");
+			$(this).removeClass("search-category").addClass("search-category-selected");
+			getWorkData(getParams());
+		});
+		
+		$("#form-select").change(function(){
+			getWorkData(getParams());
+		});
+		
+		var apiUrl = ["","api/execute/getRequiringMyApproval","api/execute/getApprovedByMe",
+						 "api/execute/getCreateByMe","api/execute/queryCCList"];
+		
+		function getWorkData(params){
+			var list =  Comm.getData(apiUrl[type],params);	
+			var html = "";
+			if(list.length>0){
+				html += '<table class="table-result"><tr><th width="35%">审批标题</th><th width="20%">审批类型</th>' + 
+						'<th width="25%">发起时间</th><th width="20%">状态</th></tr>';
+				for(var i=0;i<list.length;i++){
+					var name = list[i].name;
+					var img = list[i].img;
+					var wfState = list[i].WFState;
+					var appName = '<td width="20%" class="table-td"><div class="table-cell">' + list[i].appName + '</div></td>';
+					var title = '<span class="item-title" ><span class="item-text-person">' + list[i].title + '</span></span>';			 
+					var date = '<td width="25%" class="table-td"><div class="table-cell">' + list[i].RDT + '</div></td>';
+					if(img){
+						img = '<img class="item-content-png" src="' + img + '">';
+					} else {
+						img = '<div class="item-content-png" style="background:#8A8A8A;">' + Comm.handleName(name) + '</div>';
+					}
+					if(wfState==3){
+						wfState = '<td width="20%" class="table-td"><div class="table-cell"><span class="align-center">' +
+								  '<span>审批完成</span><br><span>(同意)</span></span></div></td></tr>';
+					} else if(wfState==12){
+						wfState = '<td width="20%" class="table-td"><div class="table-cell"><span class="align-center">' +
+						  '<span>撤销</span><br><span></span></span></div></td></tr>';
+					} else if(wfState==13){
+						wfState = '<td width="20%" class="table-td"><div class="table-cell"><span class="align-center">' +
+						  '<span>审批完成</span><br><span>(拒绝)</span></span></div></td></tr>';
+					} else{
+						wfState = '<td width="20%" class="table-td"><div class="table-cell"><span class="align-center">' +
+						  '<span>审批处理中</span><br><span></span></span></div></td></tr>';
+					}			
+					html += '<tr data-url="' + list[i].url + '"><td width="35%" class="table-td">' + 
+							img + title + "</td>" + appName + date + wfState;				
+				}
+				html += "</table>";
+				$(".dealed-list").children().html(html);
+				$(".EmptyNotify").hide();
+				$(".dealed-list").show();
+				$(".table-result tr:gt(0)").bind("click",function(){
+					location.href = $(this).attr("data-url").replace("workflow","dingding");
+				});
+			} else{
+				$(".EmptyNotify").show();
+				$(".dealed-list").hide();
+			}			
+		}											
+	
+		function getParams(){
+			var params = {
+				ddAppid : $("#form-select").val(),
+				wfStatus : $.trim($("#span2").find(".search-category-selected").attr("data-value"))
+			}
+			return params;
+		}	
+		getWorkData(getParams());
+	</script>
+</body>
+</html>

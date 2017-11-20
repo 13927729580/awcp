@@ -12,7 +12,7 @@ import cn.org.awcp.core.domain.BaseEntity;
  * @author yqtao
  *
  */
-public class DataSourceManage extends BaseEntity<Long> {
+public class DataSourceManage extends BaseEntity<String> {
 
 	/**
 	 * 

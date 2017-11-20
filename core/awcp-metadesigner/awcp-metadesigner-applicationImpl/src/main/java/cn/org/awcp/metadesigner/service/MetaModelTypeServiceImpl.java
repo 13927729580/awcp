@@ -8,22 +8,18 @@ import cn.org.awcp.metadesigner.application.MetaModelTypeService;
 import cn.org.awcp.metadesigner.core.domain.MetaModelType;
 import cn.org.awcp.metadesigner.vo.MetaModelTypeVO;
 
-public class MetaModelTypeServiceImpl implements MetaModelTypeService{
+public class MetaModelTypeServiceImpl implements MetaModelTypeService {
 
-	public long save(MetaModelTypeVO vo) {
-		try {
-			MetaModelType mmt = BeanUtils.getNewInstance(vo,MetaModelType.class);
-			mmt.save();
-			vo.setId(mmt.getId());
-			return mmt.getId();
-		} catch (Exception e) {
-			return 0;
-		}
+	public String save(MetaModelTypeVO vo) {
+		MetaModelType mmt = BeanUtils.getNewInstance(vo, MetaModelType.class);
+		mmt.save();
+		vo.setId(mmt.getId());
+		return mmt.getId();
 	}
 
 	public boolean remove(MetaModelTypeVO vo) {
 		try {
-			MetaModelType mmt = BeanUtils.getNewInstance(vo,MetaModelType.class);
+			MetaModelType mmt = BeanUtils.getNewInstance(vo, MetaModelType.class);
 			mmt.remove();
 			return true;
 		} catch (Exception e) {
@@ -44,7 +40,7 @@ public class MetaModelTypeServiceImpl implements MetaModelTypeService{
 	public List<MetaModelTypeVO> findAll() {
 		List<MetaModelType> ls = MetaModelType.findAll(MetaModelType.class);
 		List<MetaModelTypeVO> list = new ArrayList<MetaModelTypeVO>();
-		for(MetaModelType mm:ls){
+		for (MetaModelType mm : ls) {
 			list.add(BeanUtils.getNewInstance(mm, MetaModelTypeVO.class));
 		}
 		return list;

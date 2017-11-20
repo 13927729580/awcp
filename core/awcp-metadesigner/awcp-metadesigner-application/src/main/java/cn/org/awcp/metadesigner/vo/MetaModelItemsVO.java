@@ -1,56 +1,56 @@
 package cn.org.awcp.metadesigner.vo;
 
 public class MetaModelItemsVO {
-	
-	//主键
-	private Long id;
-	
-	//模型编号
-	private Long modelId;
-	
-	//属性名称
+
+	// 主键
+	private String id;
+
+	// 模型编号
+	private String modelId;
+
+	// 属性名称
 	private String itemName;
-	
-	//属性编码
+
+	// 属性编码
 	private String itemCode;
-	
-	//属性类型
+
+	// 属性类型
 	private String itemType;
 
-	//属性编号
+	// 属性编号
 	private String itemLength;
-	
-	//用主键
+
+	// 用主键
 	private Integer usePrimaryKey;
-	
-	//用索引
+
+	// 用索引
 	private Integer useIndex;
-	
-	//是否为空
+
+	// 是否为空
 	private Integer useNull;
-	
-	//是否有效
+
+	// 是否有效
 	private Integer itemValid;
-	
-	//默认值
+
+	// 默认值
 	private String defaultValue;
-	
-	//备注
+
+	// 备注
 	private String remark;
 
-	public Long getId() {
+	public String getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 
-	public Long getModelId() {
+	public String getModelId() {
 		return modelId;
 	}
 
-	public void setModelId(Long modelId) {
+	public void setModelId(String modelId) {
 		this.modelId = modelId;
 	}
 
@@ -140,5 +140,5 @@ public class MetaModelItemsVO {
 				+ usePrimaryKey + ", useIndex=" + useIndex + ", useNull=" + useNull + ", itemValid=" + itemValid
 				+ ", defaultValue=" + defaultValue + ", remark=" + remark + "]";
 	}
-	
+
 }

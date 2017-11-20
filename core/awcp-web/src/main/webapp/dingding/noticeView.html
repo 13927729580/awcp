@@ -1,0 +1,61 @@
+<html>
+<head>
+    <title data-id="title_notice"></title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="icon" id="favicon" href="//g.alicdn.com/dingding/web/0.2.6/img/oldIcon.ico" type="image/x-icon">
+    <style type="text/css">body,html{margin:0;padding:0;font-family:"Helvetica Neue",Helvetica,"Hiragino Sans GB","Microsoft YaHei",Arial,sans-serif;background-color:#fff;-webkit-tap-highlight-color:transparent;word-wrap:break-word;word-break:break-all;width:100%;min-height:500px}body.private{-webkit-touch-callout:none;-webkit-user-select:none}body.error,html.error{height:100%;background-color:#fff}div,img,p,table{max-width:100%}ol,ul{margin:16px 0;padding:0 0 0 40px}.pp{height:2px;position:relative;overflow:hidden;display:none}.pp .progress{position:absolute;width:100%;height:2px;border-radius:1px;-webkit-border-radius:1px;box-shadow:inset 0 1px 1px rgba(0,0,0,.1);background-color:#a9a9a9}.pp .progress .progress-thumb{float:left;width:0;height:100%;font-size:10px;overflow:hidden;line-height:20px;color:#fff;text-align:center;background-color:#5cb85c;box-shadow:inset 0 -1px 0 rgba(0,0,0,.15);background-image:linear-gradient(to top right,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent);background-size:20px 20px}li{padding-bottom:5px}li a{text-decoration:none}.notice-detail-page{font-family:helvetica;padding:15px 12px;-webkit-overflow-scrolling:touch;overflow-scrolling:touch}.attachment-list li{list-style-type:none}.notice-title{font-weight:400;font-size:18px;color:#000;margin:0;font-family:helvetica}.notice-description{font-size:13px;color:#858e99;font-family:helvetica;margin:6px 0}.notice-content{font-size:13px;line-height:18px;color:#222;margin:10px 0;font-family:helvetica;text-align:justify;text-justify:inter-word}.notice-content table{border-collapse:collapse}.notice-content td{border:1px solid #000!important}.notice-content a:link,.notice-content a:visited{color:#1C70CC}.notice-content p{font-size:15px;line-height:19px;color:#222;margin:10px 0}.notice-content img,.notice-cover img{max-width:100%!important;float:none!important}.attachment-type-img{width:48px;height:48px;float:left;margin-right:10px}.notice-attachment{display:none;overflow:hidden;margin-top:15px;padding:17px 0 10px;font-family:helvetica;border-top:1px solid #c7c7cc}.notice-attachment li{height:60px;overflow:hidden}.attachment-detail{height:56px}.attachment-list{padding-left:0;margin-top:0}.attachment-title{font-size:12px;color:#333;margin:0;font-family:helvetica;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.attachment-size{font-size:12px;color:#999;margin:5px 5px 5px 0;float:left}.attachment-opt{display:none;float:right;text-align:right;font-size:12px;color:#1C70CC;cursor:pointer;margin:5px 0 5px 5px}.dingtalk-pc .attachment-opt{display:block}.attachment-opt a:link,.attachment-opt a:visited{text-decoration:none}.attachment-wrap{overflow:hidden}.attachment-header{font-size:14px;margin:0 0 10px}.error-page{display:none;background:#F0EEF4;width:100%;height:100%;text-align:center;padding-top:40%!important}.error-page img{width:110px;height:110px;margin-bottom:10px}.error-page p{text-align:center;font-size:15px;line-height:20px;color:#666;margin:0}.no-auth-page,.no-notice-page,.notice-delete-page,.sys-busy-page{display:none;width:100%;height:100%;text-align:center;padding-top:40%!important}.no-auth-page img,.no-notice-page img,.notice-delete-page img,.sys-busy-page img{width:110px;height:110px;margin-bottom:10px}.no-auth-page p,.no-notice-page p,.notice-delete-page p,.sys-busy-page p{text-align:center;font-size:15px;line-height:20px;color:#929292;margin:0}.read-status{font-size:13px;margin-top:0;color:#0080ff}.read-status.dd-not{color:#858e99}@media only screen and (min-device-width:375px) and (max-device-width:667px){li{padding-bottom:8px}.notice-title{font-size:21px}.notice-content{font-size:15px;line-height:24px}.notice-content p{font-size:17px;line-height:25px}.attachment-title{font-size:14px;color:#333;margin:0}.attachment-size{margin:5px 5px 5px 0}.attachment-header,.notice-description{font-size:16px}}</style>
+</head>
+<body>
+	<article class="notice-detail-page">
+        <section class="notice-header">
+            <h1 class="notice-title"></h1>
+            <p class="notice-description">
+                <span class="description-author"></span>&nbsp;
+                <span class="description-date"></span>
+            </p>
+            <p class="read-status"></p>
+        </section>
+        <section class="notice-cover">
+        </section>
+        <section class="notice-content">
+        	<p></p>
+        </section>
+    </article>
+    <script src="js/jquery.js" charset="utf-8"></script>
+	<script src="../venson/js/common.js"></script>
+	<script>		
+		if(Comm.isMobile()){
+			document.write("<script src='js/dingtalk.js' charset='utf-8'><\/script>");
+		}
+		else{
+			document.write("<script src='https://g.alicdn.com/dingding/dingtalk-pc-api/2.9.0/index.js' charset='utf-8'><\/script>");
+		}
+	</script>
+	<script src="js/resource.js"></script>
+	<script>
+		var id = Comm.getUrlParam("id");	//通知公告ID
+		var notice = Comm.getData("api/execute/getNoticeInfo",{"id":id});
+		if(notice){
+			$(".notice-title").text(notice.title);	//标题
+			$(".description-author").text(notice.Author?notice.Author:"AWCP_ZH");//作者
+			$(".description-date").text(notice.date);//时间
+			var status = "" + notice.hasRead + dd_res.hasReadPerson + "，" + notice.notRead + dd_res.notReadPerson;
+			$(".read-status").text(status);//已读信息
+			$(".notice-content").text(notice.content);//内容
+			var img = notice.img;//封面
+			if(img){
+				img = '<img class="J_preview_image" src="' + img + '">';
+				$(".notice-cover").html(img);
+			}
+		}
+		
+		$(".read-status").click(function(){
+			location.href = baseUrl + "dingding/noticeViewReadInfo.html?id=" + id;
+		})
+	</script>
+</body>
+</html>

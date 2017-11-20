@@ -1,6 +1,8 @@
 package cn.org.awcp.venson.api;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.DataAccessException;
@@ -8,6 +10,7 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 
 import cn.org.awcp.core.domain.SzcloudJdbcTemplate;
 import cn.org.awcp.core.utils.Springfactory;
+import cn.org.awcp.venson.util.PlatfromProp;
 
 /**
  * api接口实体类
@@ -140,6 +143,13 @@ public class PFMAPI {
 		APICache = aPICache;
 	}
 
+	private static final Map<String, PFMAPI> cache = new HashMap<>();
+
+	private static boolean isCache;
+	static {
+		isCache = Boolean.parseBoolean(PlatfromProp.getValue("API_SCRIPT_CACHE"));
+	}
+
 	/**
 	 * 根据Id获取API记录
 	 */
@@ -149,6 +159,18 @@ public class PFMAPI {
 		} else {
 			apiName = apiName.trim();
 		}
+		// 判断是否启用缓存
+		if (isCache) {
+			// 先去缓存中查找
+			if (cache.containsKey(apiName)) {
+				return cache.get(apiName);
+			}
+		} else {
+			// 删除缓存
+			if (cache.containsKey(apiName)) {
+				cache.remove(apiName);
+			}
+		}
 		SzcloudJdbcTemplate jdbcTemplate = Springfactory.getBean("jdbcTemplate");
 		String sql = "select API_ID as APIID,API_Name as APIName,API_SQL as APISQL,API_DESC as APIDesc,"
 				+ "API_State as APIState,API_Type as APIType,API_Table as APITable,API_IS_LOGIN as APIIsLogin,"
@@ -156,6 +178,9 @@ public class PFMAPI {
 		try {
 			PFMAPI result = jdbcTemplate.queryForObject(sql, new BeanPropertyRowMapper<PFMAPI>(PFMAPI.class), apiName);
 			result.setRules(APIRule.get(result.getAPIID(), jdbcTemplate));
+			if (isCache) {
+				cache.put(apiName, result);
+			}
 			return result;
 		} catch (DataAccessException e) {
 			return null;

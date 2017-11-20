@@ -777,6 +777,7 @@ function loadCommonComponentData(storeObject){
 		if(componentObject.placeholder)	$("#placeholder").val(componentObject.placeholder);
 		if(componentObject.required)	$("#required").val(componentObject.required);
 		if(componentObject.extra)	$("#extra").val(componentObject.extra);
+		if(componentObject.isSingle)$("#isSingle").val(componentObject.isSingle);
 		if(componentObject.funType) $("#funType").val(componentObject.funType);
 		/**新增属性 end*/
 		
@@ -937,21 +938,32 @@ function loadCommonComponentData(storeObject){
 		if(componentObject.hasPager) { $("#hasPager").val(componentObject.hasPager).trigger("change");}
 		if((componentObject.columns)){
 			var data = componentObject.columns;
+			
+			var sortFun = function(column1,column2){
+				if(column1.order-column2.order>0){
+					return 1;
+				} else{
+					return -1;
+				}
+			}
+			
+			data.sort(sortFun);
+			
 			var index=0;
 			$.each(data, function(index, item) {
 				
 				var str="<tr id=dataTr'"+index+"'>";
-				str+="<td><input name='columns[][columnTitle]' id='columnTitle-"+index+"' value='"+item.columnTitle+"' type=text" + "/>"+"</td>";
-				str+="<td><input name='columns[][columnField]' id='columnField-"+index+"' value='"+item.columnField+"' type=text" + "/>"+"</td>";
-				str+="<td><input name='columns[][columnWidth]' id='columnWidth-"+index+"' value='"+item.columnWidth+"' type=text" + "/>"+"</td>";
-				str+="<td><input name='columns[][order]' id='columnWidth-"+index+"' value='"+item.order+"' type=text" + "/>"+"</td>";
+				str+="<td><input style='width:100%' name='columns[][columnTitle]' id='columnTitle-"+index+"' value='"+item.columnTitle+"' type=text" + "/>"+"</td>";
+				str+="<td><input style='width:100%' name='columns[][columnField]' id='columnField-"+index+"' value='"+item.columnField+"' type=text" + "/>"+"</td>";
+				str+="<td><input style='width:100%' name='columns[][columnWidth]' id='columnWidth-"+index+"' value='"+item.columnWidth+"' type=text" + "/>"+"</td>";
+				str+="<td><input style='width:100%' name='columns[][order]' id='columnWidth-"+index+"' value='"+item.order+"' type=text" + "/>"+"</td>";
 				//var sortable = (item.sortable=='1')?true:false;
 				if(item.sortable=='1'){
-					str+="<td>"+"<input type='checkbox' name='columns[][sortable]' id='sortable-'"+ index +"' value='1' checked/></td>";
+					str+="<td style='text-align:center;'>"+"<input type='checkbox' name='columns[][sortable]' id='sortable-'"+ index +"' value='1' checked/></td>";
 				}else{
-					str+="<td>"+"<input type='checkbox' name='columns[][sortable]' id='sortable-'"+ index +"' value='1' /></td>";
+					str+="<td style='text-align:center;'>"+"<input type='checkbox' name='columns[][sortable]' id='sortable-'"+ index +"' value='1' /></td>";
 				}
-				str+="<td><a href='javascript:void(0)' class='removeTr'>删除</a>"+"</td>";
+				str+="<td style='text-align:center;'><a href='javascript:void(0)' class='removeTr'>删除</a>"+"</td>";
 				str+="</tr>";
 				index++;
 				$("#columnsBody").append(str);
@@ -964,17 +976,17 @@ function loadCommonComponentData(storeObject){
 			$.each(data, function(index, item) {
 				
 				var str="<tr id=dataTr'"+connIndex+"'>";
-				str+="<td><input name='connditions[][paramKey]' id='paramKey-"+connIndex+"' value='"+item.paramKey + "'type=text" + "/>"+"</td>";
-				str+="<td>---></td>";
+				str+="<td><input style='width:100%' name='connditions[][paramKey]' id='paramKey-"+connIndex+"' value='"+item.paramKey + "'type=text" + "/>"+"</td>";
+				str+="<td style='text-align:center;'>---></td>";
 				
-				str+="<td><input name='connditions[][paramValue]' id='paramValue-"+connIndex+"' value='"+item.paramValue + "' type=text" + "/>"+"</td>";
+				str+="<td><input style='width:100%' name='connditions[][paramValue]' id='paramValue-"+connIndex+"' value='"+item.paramValue + "' type=text" + "/>"+"</td>";
 				if(item.ifFinal=='1'){
-					str+="<td>"+"<input type='checkbox' name='connditions[][ifFinal]' id='sortable-'"+ connIndex +"' value='1' checked/></td>";
+					str+="<td style='text-align:center;'>"+"<input type='checkbox' name='connditions[][ifFinal]' id='sortable-'"+ connIndex +"' value='1' checked/></td>";
 				}else{
-					str+="<td>"+"<input type='checkbox' name='connditions[][ifFinal]' id='sortable-'"+ connIndex +"' value='1' /></td>";
+					str+="<td style='text-align:center;'>"+"<input type='checkbox' name='connditions[][ifFinal]' id='sortable-'"+ connIndex +"' value='1' /></td>";
 				}
 				
-				str+="<td><a href='javascript:void(0)' class='removeTr'>删除</a>"+"</td>";
+				str+="<td style='text-align:center;'><a href='javascript:void(0)' class='removeTr'>删除</a>"+"</td>";
 				str+="</tr>";
 				connIndex++;
 				$("#connditionBody").append(str);
@@ -1319,7 +1331,6 @@ function initializeLayout(){
 }
 
 function initializeDocument(componentType, typeName){
-	
 	$("#css").select2();
 	$("#componentType").val(componentType);
 	try {
@@ -1367,19 +1378,16 @@ function initializeDocument(componentType, typeName){
 		$("#layoutId").val("无法批量");
 		$("#layoutName").val("无法批量");
 	}else {
-	//	var timestamp = new Date().getTime();
-	//	if($("#name"))	$("#name").val("item"+timestamp);
 		var uuid = guidGenerator();
 		if($("#name"))	$("#name").val(uuid);
-		$("#name").attr("readonly","true");
-		
+		$("#name").attr("readonly","true");	
 	}
 
 	if(dialog != null){
 		setTimeout(function(){
 			dialog.title(typeName + "组件配置");
 			dialog.width(800);
-			dialog.height(540); 
+			dialog.height($(top).height()-93); 
 			dialog.reset();     // 重置对话框位置
 		},200);	
 	}
@@ -1432,19 +1440,17 @@ function initializeDocument(componentType, typeName){
 	
 	//查看关键字
 	$('#showKeywords').click(function(){
-				top.dialog({ 
-					id: 'keywords-dialog' + Math.ceil(Math.random()*1000000),
-					title: '系统关键字',
-					url: basePath + "formdesigner/page/component/keywords-list.jsp?operation=0",
-					height:500,
-					width:400,
-					onclose : function() {
-					}
-				}).show();
+		top.dialog({ 
+			id: 'keywords-dialog' + Math.ceil(Math.random()*1000000),
+			title: '系统关键字',
+			url: basePath + "formdesigner/page/component/keywords-list.jsp?operation=0",
+			height:500,
+			width:400,
+			onclose : function() {
+			}
+		}).show();
 	});
-	
-	
-	
+		
 	$('#labelLayoutSelect').click(function(){
 		if($("#dynamicPageId").val()){
 			$.ajax({
@@ -1473,23 +1479,15 @@ function initializeDocument(componentType, typeName){
 	
 	$("#saveComponent").click(function(){
 		var name = $("#name").val();
-		/*if(!validateKeywords(name)){
-			return false;
-		}*/
-		//validateKeywords(name);
-		if(!validateCheckOut($("#dynamicPageId").val())){	//校验是否已签出
-			
+		if(!validateCheckOut($("#dynamicPageId").val())){	//校验是否已签出		
 			return false;
 		}
-		if($.formValidator.pageIsValid('1')){
-			
-			
+		if($.formValidator.pageIsValid('1')){					
 			//ajax校验name是否会重复
 			$.ajax({
 				dataType : "json", 
 				async : false, 
 				url : basePath + "component/validateComponentNameInPage.do?dynamicPageId="+$("#dynamicPageId").val()+"&componentName="+$("#name").val()+"&componentId="+$("#pageId").val(),
-				
 				success :  function(data){    //name不会有重复，则提交保存
 					if(data==true){
 						var formJson=$("#componentForm").serializeJSON({useIntKeysAsArrayIndex: true});
@@ -1498,30 +1496,27 @@ function initializeDocument(componentType, typeName){
 							 textstyle += $(this).val() + ",";
 						});
 						textstyle = textstyle.substring(0,textstyle.length-1);
-						if(textstyle != "")
+						if(textstyle != ""){
 							formJson.textstyle = textstyle;
+						}						
 						var componentIds = $("#componentIds").val();
 						var componentId = $("#pageId").val();
 						var description =  $("#description").val();
 						var dynamicPageId=$("#dynamicPageId").val();
 						var sjContent = JSON.stringify(formJson);
-						var order = $("#order").val();
-						
-						var componentIds = "";
-						
+						var order = $("#order").val();						
+						var componentIds = "";						
 						try {
 							var dialog = top.dialog.get(window);
 							if(dialog != null){
 								data = dialog.data;
-								if(data != null && data._selects)
+								if(data != null && data._selects){
 									componentIds = data._selects;
+								}						
 							}
 						} catch (e) {
 							return;
-						}
-					
-						
-						
+						}						
 						$.ajax({
 							   type: "POST",
 							   url: basePath + "component/save.do",
@@ -1538,8 +1533,7 @@ function initializeDocument(componentType, typeName){
 							   async : false,
 							   success: function(data){
 									if(data != null){	
-										$("#componentId").val(data.id);
-										
+										$("#componentId").val(data.id);									
 										if(dialog != null){
 											dialog.close(data);
 											dialog.remove();
@@ -1554,18 +1548,14 @@ function initializeDocument(componentType, typeName){
 						alert("该名称不可用，请更换名称");
 						$("button").removeAttr("disabled");
 					}
-					//return data;
 				},
-			});
-			
-			
+			});					
 		}
 		return false;
 	});
 	
 	$("#saveQuickComponent").click(function(){
-		if(!validateCheckOut($("#id").val())){	//校验是否已签出
-			
+		if(!validateCheckOut($("#id").val())){	//校验是否已签出			
 			return false;
 		}
 		if($.formValidator.pageIsValid('1')){
@@ -1600,11 +1590,8 @@ function initializeDocument(componentType, typeName){
 	});
 	
 	$("#checkAll").click(function(){
-		//alert(1);
 		var v = $(this).prop("checked");
-		//alert(v);
 		$("#validatort input[type='checkbox'][name='validator']").each(function(){
-			//alert(2222);
 			$(this).prop("checked",v);
 		});
 	});

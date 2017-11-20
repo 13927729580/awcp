@@ -16,19 +16,17 @@ import org.springframework.stereotype.Service;
 import com.github.miemiedev.mybatis.paginator.domain.PageList;
 
 import cn.org.awcp.core.domain.BaseExample;
-import cn.org.awcp.core.utils.Tools;
+import cn.org.awcp.core.utils.SessionUtils;
 import cn.org.awcp.core.utils.constants.SessionContants;
 import cn.org.awcp.metadesigner.application.MetaModelItemService;
 import cn.org.awcp.metadesigner.application.MetaModelOperateService;
 import cn.org.awcp.metadesigner.application.MetaModelService;
-import cn.org.awcp.metadesigner.application.ModelRelationService;
+import cn.org.awcp.metadesigner.application.SysSourceRelationService;
 import cn.org.awcp.metadesigner.util.DataConvert;
 import cn.org.awcp.metadesigner.vo.MetaModelItemsVO;
 import cn.org.awcp.metadesigner.vo.MetaModelVO;
-import cn.org.awcp.metadesigner.vo.ModelRelationVO;
-import cn.org.awcp.unit.service.SysSourceRelationService;
+import cn.org.awcp.metadesigner.vo.SysDataSourceVO;
 import cn.org.awcp.unit.vo.PunSystemVO;
-import cn.org.awcp.unit.vo.SysDataSourceVO;
 
 @Service(value = "metaModelOperateServiceImpl")
 public class MetaModelOperateServiceImpl implements MetaModelOperateService {
@@ -44,9 +42,6 @@ public class MetaModelOperateServiceImpl implements MetaModelOperateService {
 
 	@Autowired
 	private DataConvert dataConvertImpl;
-
-	@Autowired
-	private ModelRelationService modelRelationServiceImpl;
 
 	@Autowired
 	@Qualifier("sysSourceRelationServiceImpl")
@@ -110,26 +105,6 @@ public class MetaModelOperateServiceImpl implements MetaModelOperateService {
 			}
 		}
 		sb.append("=?");
-		// 查询是否有外键
-		List<ModelRelationVO> list = modelRelationServiceImpl.queryByModelId(mm.getId());
-		if (list.size() > 0) {
-			for (ModelRelationVO ls : list) {
-				// 查询外键列
-				MetaModelItemsVO mmi = metaModelItemsServiceImpl.get(ls.getItemId());
-				// 查询对应的外键表
-				MetaModelVO mmv = metaModelServiceImpl.get(mmi.getModelId());
-				StringBuffer sbb = new StringBuffer("delete from ");
-				sbb.append(mmv.getTableName());
-				sbb.append(" where ");
-				sbb.append(mmi.getItemCode());
-				sbb.append("=?");
-				try {
-					jdbcTemplate.update(sbb.toString(), id);
-				} catch (Exception e) {
-					return false;
-				}
-			}
-		}
 		try {
 			jdbcTemplate.update(sb.toString(), id);
 			return true;
@@ -141,8 +116,8 @@ public class MetaModelOperateServiceImpl implements MetaModelOperateService {
 	/**
 	 * 根据条件删除
 	 * 
-	 * @params:map 条件：map中的键（key）需要有前缀 “=”--"et_" ">"--"gt_" "<"--"lt_"
-	 *             "!="--"nt_" "like"--"lt_"
+	 * @params:map 条件：map中的键（key）需要有前缀 “=”--"et_" ">"--"gt_" "<"--"lt_" "!="--"nt_"
+	 *             "like"--"lt_"
 	 * @param :modelCode
 	 */
 	public boolean deleteByParams(Map<String, String> map, String modelCode) throws ParseException {
@@ -199,7 +174,8 @@ public class MetaModelOperateServiceImpl implements MetaModelOperateService {
 				// 如果模型属性是主键，则特殊处理，否则写成itemcode=:itemcode的形式
 				if (tmp.getUsePrimaryKey() != null && (tmp.getUsePrimaryKey() == 1)) {
 					if (tmp.getItemType().equalsIgnoreCase("varchar") || tmp.getItemType().equalsIgnoreCase("char")) {
-						where.append(tmp.getItemCode()).append("=").append("'").append(map.get(tmp.getItemCode())).append("'");
+						where.append(tmp.getItemCode()).append("=").append("'").append(map.get(tmp.getItemCode()))
+								.append("'");
 					} else {
 						where.append(tmp.getItemCode());
 						where.append("=");
@@ -340,20 +316,21 @@ public class MetaModelOperateServiceImpl implements MetaModelOperateService {
 	/**
 	 * 根据元数据code获取到数据源ID，如果数据源没配置，则获取系统默认数据源Id
 	 */
-	public Long getDataSourceIdByModelCode(String modelCode) {
+	public String getDataSourceIdByModelCode(String modelCode) {
 		MetaModelVO mmv = metaModelServiceImpl.queryByModelCode(modelCode);
 		if (mmv != null && mmv.getDataSourceId() != null) { // 如果有配置数据源
 			return mmv.getDataSourceId();
 		} else {
 			// 系统默认数据源
-			Object obj = Tools.getObjectFromSession(SessionContants.CURRENT_SYSTEM);
+			Object obj = SessionUtils.getObjectFromSession(SessionContants.CURRENT_SYSTEM);
 			PunSystemVO system = null;
 			if (obj instanceof PunSystemVO) {
 				system = (PunSystemVO) obj;
 			}
 			BaseExample base = new BaseExample();
 			base.createCriteria().andEqualTo("SYSTEM_ID", system.getSysId()).andEqualTo("ISDEFAULT", true);
-			PageList<SysDataSourceVO> dataVos = sysSourceRelationService.selectPagedByExample(base, 1,Integer.MAX_VALUE, null);
+			PageList<SysDataSourceVO> dataVos = sysSourceRelationService.selectPagedByExample(base, 1,
+					Integer.MAX_VALUE, null);
 			if (dataVos != null && dataVos.size() > 0) {
 				return dataVos.get(0).getDataSourceId();
 			}

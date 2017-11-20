@@ -17,14 +17,14 @@ public class PageActHtmlWorker {
 		sb.append("mydialog = dialog({\n");
 		sb.append("id : dialogId,\n");
 		sb.append("title : '").append(pageAct.getTittle()).append("',\n");
-
-		if (pageAct.getContentType() != null && pageAct.getContentType() == 1) {
+		Integer contentType = pageAct.getContentType();
+		if (contentType != null && contentType == 1) {
 			// 自定义内容
 			sb.append("content : '").append(pageAct.getContent()).append("',\n");
-		} else if (pageAct.getContentType() != null && pageAct.getContentType() == 2) {
+		} else if (contentType != null && contentType == 2) {
 			// 静态页面
 			sb.append("url : '").append(pageAct.getContent()).append("',\n");
-		} else if (pageAct.getContentType() != null && pageAct.getContentType() == 3) {
+		} else if (contentType != null && contentType == 3) {
 			// 动态页面
 			String docId = pageAct.getContent().split(",")[0];
 			String pageId = pageAct.getContent().split(",")[1];

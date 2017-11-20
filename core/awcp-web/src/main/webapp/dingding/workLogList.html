@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title data-id="title_workLogList"></title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="stylesheet" href="css/workLog.css">
+    <style>
+    	.imgDiv1{
+    		text-align: center;
+		    border-radius: 50%;
+		    width: 36px;
+		    height: 36px;
+		    font-size: 14px;
+		    line-height: 36px;
+		    margin-left:12px;
+    	}
+    	.imgDiv2{
+    		text-align: center;
+		    border-radius: 50%;
+		    width: 40px;
+		    height: 40px;
+		    font-size: 14px;
+		    line-height: 40px;		    
+    	}
+    </style>
+</head>
+<body>
+    <div id="root">
+    	<div data-reactroot="" class="wrap" style="height: 100%; width: 100%;">
+	        <div style="height: 100%; width: 100%;">
+	            <div class="reportList">
+	            	<!-- tab -->
+	                <div class="tabGroup">
+	                    <div class="mext-tab tab mext-tab-type-capsule">
+	                        <div class="mext-tab-nav">
+	                            <div class="mext-tab-nav-item active" data-id="received" onclick="getReceivedList(this)"></div>
+	                            <div class="mext-tab-nav-item" data-id="sentByMe" onclick="getMyLogList(this)"></div>
+	                        </div>
+	                    </div>
+	                </div>
+	                
+	                <!-- 过滤按钮 -->
+	          		<div class="ui-box-border filter">
+	                    <div class="mext-btn-group">
+	                        <button onclick="getUnReadList(this);" data-id="unRead" class="mext-btn mext-btn-normal mext-btn-normal-normal mext-btn-small" style="margin-right: 40px;"></button>
+	                        <button onclick="showFilterPage(this);" class="mext-btn mext-btn-normal mext-btn-normal-normal mext-btn-small" >
+	                        	<span data-id="filtering"></span><i class="mext-icon mext-icon-arrow-down mext-icon-medium"></i>
+	                        </button>
+	                    </div>
+	                </div>
+	                
+	                <!-- 帅选页面 -->
+	                <div class="filterPage" style="display:none">
+						<div class="itemChoose ui-box-border" style="margin-bottom: 10px;">
+							<input type="hidden" value="" />
+							<div class="title mext-list-item-title" style="margin-bottom: 10px;" data-id="selectPerson"></div>
+							<div class="detail" style="overflow: hidden;">
+								<div id="selectPerson" style="float: left; text-align: center; width: 60px; height: 60px;">
+									<i class="mext-icon mext-icon-add mext-icon-large"
+										style="border: 1px dotted rgb(204, 204, 204); padding: 5px; color: rgb(204, 204, 204); border-radius: 50%;"></i>
+								</div>
+							</div>
+						</div>
+						<div class="mext-list">
+							<div class="mext-list-content">
+								<label class="mext-list-item mext-list-item-single mext-list-item-active getDate">
+									<div class="mext-list-item-mid">
+										<div class="mext-list-item-inner">
+											<div class="mext-list-item-title" data-id="startTime" data-value=""></div>
+										</div>
+										<div class="mext-list-item-suffix" data-id="pleaseSelect"></div>
+										<div class="mext-list-item-arrow">
+											<i class="mext-icon mext-icon-arrow-right mext-icon-medium"></i>
+										</div>
+									</div>
+								</label>
+								<label class="mext-list-item mext-list-item-single mext-list-item-active getDate">
+									<div class="mext-list-item-mid">
+										<div class="mext-list-item-inner">
+											<div class="mext-list-item-title" data-id="endTime" data-value=""></div>
+										</div>
+										<div class="mext-list-item-suffix" data-id="pleaseSelect"></div>
+										<div class="mext-list-item-arrow">
+											<i class="mext-icon mext-icon-arrow-right mext-icon-medium"></i>
+										</div>
+									</div>
+								</label>
+							</div>
+						</div>
+						<div style="margin-top: 10px;">
+							<div class="mext-list">
+								<div class="mext-list-content">
+									<label class="mext-list-item mext-list-item-single mext-list-item-active" id="filterByTemplate">
+										<div class="mext-list-item-mid">
+											<div class="mext-list-item-inner">
+												<div class="mext-list-item-title" data-id="filterByTemplate" data-value=""></div>
+											</div>
+											<div class="mext-list-item-suffix" data-id="pleaseSelect"></div>
+											<div class="mext-list-item-arrow">
+												<i class="mext-icon mext-icon-arrow-right mext-icon-medium"></i>
+											</div>
+										</div>
+									</label>
+								</div>
+							</div>
+						</div>
+						<div style="text-align: center;">
+							<button id="reset"
+								class="mext-btn mext-btn-normal mext-btn-normal-secondary mext-btn-medium"
+								style="margin: 30px auto auto; font-size: 15px; background-color: rgba(255, 255, 255, 0);" data-id="resetButton"></button>
+						</div>
+						<div class="mext-btn-group mext-btn-group-fixed" style="padding: 10px;">
+							<button id="search" class="mext-btn mext-btn-normal mext-btn-normal-primary mext-btn-large" data-id="okButton"></button>
+						</div>
+					</div>
+	                
+	                <!-- 日志列表 -->
+	                <div class="list"></div>
+	                
+	                <!-- 写日志与读日志切换 -->
+	                <div class="nav">
+	                    <ul>
+	                        <li class="icon-write "><icon></icon><span class="text" data-id="writeLog"></span></li>
+	                        <li class="icon-view on">
+	                        	<div class="mext-badge mext-badge-normal mext-badge-number">
+	                        		<div class="badge-block"><icon></icon><span class="text" data-id="readLog"></span></div>
+	                        		<span id="totalNotRead"></span>
+	                        	</div>
+	                        </li>
+	                    </ul>
+	                </div>
+	            </div>
+	        </div>
+	    </div>
+	</div>
+    <script src="js/jquery.js" charset="utf-8"></script>
+    <script src="js/dingtalk.js" charset="utf-8"></script>
+	<script src="../venson/js/common.js"></script>
+	<script src="js/resource.js"></script>
+	<script>
+		var parentID = Comm.getUrlParam("parentID");
+		
+		//钉钉jsapi授权
+		Comm.ddConfig();	
+        
+        //日志类表单所有类别
+        var template = Comm.getData("api/execute/getLogTypes",{"_method":"get"});
+        
+        dd.ready(function(){
+        	//选择日志类表单的类别
+        	$("#filterByTemplate").click(function(){
+        		var $div = $(this).find(".mext-list-item-suffix");
+        		var $valDiv = $(this).find(".mext-list-item-title");
+        		var val = $.trim($div.text());
+        		if(val == dd_res.pleaseSelect){
+        			val = template[0].key;
+        		}  		
+				dd.biz.util.chosen({
+					"source":template,
+					"selectedKey":val,
+					onSuccess: function(data) {
+						$div.text(data.key);
+						$valDiv.attr("data-value",data.value);
+				    },
+				    onFail: function(err) {
+				    	log.e(JSON.stringify(err));
+				    }
+				});
+			});
+        	
+        	//开始时间，结束时间选择
+        	$(".getDate").click(function(){
+        		var $div = $(this).find(".mext-list-item-suffix");
+        		var $valDiv = $(this).find(".mext-list-item-title");
+        		var val = $.trim($div.text());
+        		var date = new Date().format("yyyy-MM-dd");
+        		var reg = /\d{4}-\d{2}-\d{2}/;
+        		if(reg.test(val)){
+        			date = val;
+        		}
+        		dd.biz.util.datepicker({
+					"format":"yyyy-MM-dd",
+					"value":date,
+					onSuccess: function(data) {
+						$div.text(data.value);
+						$valDiv.attr("data-value",data.value);
+					}
+				}); 
+        	});
+        	
+        	//选择发送的人员
+        	$("#selectPerson").click(function(){
+				var personData = $(".itemChoose").children("input").eq(0).val();
+				var arr = [];
+				if(personData){
+					arr = personData.split(",");
+				}
+				var max = 50;
+				dd.biz.contact.choose({
+					"startWithDepartmentId":0,
+					"isNeedSearch":true,
+					"multiple":true,
+					"max":max,
+					"corpId":dd_res.corpId,
+					"users":arr,
+					"disabledUsers":[],
+					"title":dd_res.selectPerson,
+					"limitTips":dd_res.TIP3,
+					onSuccess: function(data) {
+						var html = "";
+						var selectPersons = [];
+						for(var i=0;i<data.length;i++){
+							var avatar = data[i].avatar;
+							var name = data[i].name;
+							var emplId = data[i].emplId;							
+							var img = "";
+							if(avatar){
+								img = '<img src="' + avatar + '" style="border-radius: 50%; width: 36px; height: 36px;">';
+							}
+							else{
+								img = getDivImg(name,"imgDiv1");
+							}
+							html += '<div data-emplId="' + emplId + '" style="float: left; text-align: center; ' + 
+									'width: 60px; height: 60px;">' +
+									'<div class="avatar" style="line-height: 0;">' + img + '</div>' +
+									'<div style="text-align: center; margin-top: 5px;"><span style="display: inline-block; ' + 
+									'overflow: hidden; word-break: break-all; white-space: nowrap; text-overflow: ellipsis; ' +
+									'font-size: 12px; color: rgb(153, 153, 153); width: 40px; line-height: 16px;">' + name + 
+									'</span></div></div>';
+							selectPersons.push(emplId);
+						}
+						$(".itemChoose").children().eq(0).val(selectPersons.join());
+						$("#selectPerson").prevAll().remove();
+						$("#selectPerson").before(html);
+						$("#selectPerson").prevAll().click(function(){
+							var emplId  = $(this).attr("data-emplId");
+							var persons = $(".itemChoose").children().eq(0).val();
+							if(persons){
+								persons = persons.replace(emplId + "," , "").replace("," + emplId , "").replace(emplId,"");
+								$(".itemChoose").children().eq(0).val(persons);
+							}
+							$(this).remove();
+						});
+					}
+				});				
+			});
+        });
+        
+        //当人员没有头像时的处理
+        function getDivImg(name,classStr){ 
+        	var img = "";
+			if(name){
+				img = '<div class="' + classStr + '" style="background-color: #00DB00;">' + Comm.handleName(name) + '</div>';
+			}
+			else{
+				img =  '<img src="img/anonymous.png" style="border-radius: 50%; width: 40px; height: 40px;">';
+			}
+			return img;
+        }
+        
+        //获取列表数据
+		function getWorkLogList(obj){
+			$.ajax({
+			   	type: "POST",
+			   	url: baseUrl + "dingding/getWorkLogList.do",
+			   	data:obj,
+			   	async : false,
+			   	success: function(data){
+			   		var html = "";
+			   		var totalNotRead = 0;
+			   		for(var i=0;i<data.length;i++){
+			   			var url = data[i].url.replace("document","dingding") + "&id=" + data[i].ID;
+			   			var title = data[i].title;
+			   			var name = data[i].Creatorname;
+			   			var date = data[i].Createtime;
+			   			var headImg = data[i].headImg;
+			   			var isRead = data[i].isRead;
+			   			var redSpot = '<div class="mext-badge mext-badge-normal mext-badge-dot mext-badge-standalone"><span></span></div>';
+			   			if(isRead == "Y" || !isRead){
+							redSpot = '<span class="report_status_tip">' + dd_res.hasRead +　'</span>';
+						}	
+						else{
+							totalNotRead++;
+						}
+			   			var img = "";
+			   			if(headImg){
+			   				img =  '<img src="' + headImg + '" style="border-radius: 50%; width: 40px; height: 40px;">';
+			   			}
+			   			else{
+			   				img = getDivImg(name,"imgDiv2");
+			   			}		   			
+			   			var dataObj = data[i].data;
+			   			html += '<div class="reportCard ui-box-border" data-url="' + url + '"><h3><div class="avatar">' + img +
+			   					'</div><div class="ct"><div class="username">' + name + '</div>' +
+			   					'<div class="detail"><div class="date">' + date + '</div></div></div>' + redSpot + '</h3>';
+						html += '<div class="bd"><div class="templateName">' + title + '</div>';
+			   			for(key in dataObj){
+							html += '<div><span class="title">' + key + ': </span><span class="value">' + dataObj[key] + '</span></div>';
+						}	
+			   			html += '</div></div>';
+			   		}
+			   		if(totalNotRead){
+			   			$("#totalNotRead").show().text(totalNotRead);
+			   		}
+			   		else{
+			   			$("#totalNotRead").hide();
+			   		}
+			   		$(".list").html(html);			   		
+			   		$(".reportCard").click(function(){
+						location.href = $(this).attr("data-url");
+					});
+			   	}
+			});
+		}
+		
+		getWorkLogList({});
+		
+		//查询按钮
+		$("#search").click(function(){
+			filterPageHide();
+			var obj = {
+				startTime:$("[data-id='startTime']").attr("data-value"),
+				endTime:$("[data-id='endTime']").attr("data-value"),
+				typeID:$("[data-id='filterByTemplate']").attr("data-value"),
+				creators:$(".itemChoose").children().eq(0).val()
+			}
+			getWorkLogList(obj);
+		});
+		
+		//重置按钮
+		$("#reset").click(function(){
+			$("[data-id='startTime']").attr("data-value","");
+			$("[data-id='endTime']").attr("data-value","");
+			$("[data-id='filterByTemplate']").attr("data-value","");
+			$(".itemChoose").children().eq(0).val("");
+			$(".mext-list-item-suffix").text(dd_res.pleaseSelect)
+			$("#selectPerson").prevAll().remove();
+		});
+		
+		//写日志页面
+		$(".icon-write").click(function(){
+			location.href = baseUrl + "dingding/workLog.html?parentID=" + parentID;
+		});
+		
+		//查询页面按钮事件
+		function showFilterPage(obj){
+			var bool = $(obj).find("i").hasClass("mext-icon-arrow-down");
+			if(bool){
+				filterPageShow();
+			}
+			else{
+				filterPageHide();
+			}
+		}
+		
+		//隐藏过滤片段
+		function filterPageHide(){
+			if($(".filter").find("i").hasClass("mext-icon-arrow-up")){
+				$(".filter").find("i").removeClass("mext-icon-arrow-up").addClass("mext-icon-arrow-down");
+			}		
+			$(".filterPage").hide();
+			$(".list").show();
+			$(".nav").show();
+		}
+		
+		//显示过滤片段
+		function filterPageShow(){
+			if($(".filter").find("i").hasClass("mext-icon-arrow-down")){
+				$(".filter").find("i").removeClass("mext-icon-arrow-down").addClass("mext-icon-arrow-up");
+			}			
+			$(".filterPage").show();
+			$(".list").hide();
+			$(".nav").hide();
+		}
+		
+		
+		//获取未读的所有数据
+		function getUnReadList(obj){
+			filterPageHide();
+			getWorkLogList({
+				hasRead : "N"
+			});
+		}
+		
+		//查看自己写的日志
+		function getMyLogList(obj){
+			$(obj).addClass("active");
+			$(obj).prev().removeClass("active");
+			filterPageHide();
+			$(".filter").hide();
+			getWorkLogList({
+				onlyMe:"Y"
+			});
+		}
+		
+		//查看发送给我的日志		
+		function getReceivedList(obj){
+			$(obj).addClass("active");
+			$(obj).next().removeClass("active");
+			$(".filter").show();
+			filterPageHide();
+			getWorkLogList({});
+		}
+	</script>
+</body>
+</html>

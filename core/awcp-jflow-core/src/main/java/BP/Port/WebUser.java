@@ -16,7 +16,6 @@ import BP.En.QueryObject;
 import BP.Sys.SystemConfig;
 import BP.Tools.StringHelper;
 import TL.ContextHolderUtils;
-import cn.org.awcp.core.utils.SessionUtils;
 
 /**
  * User 的摘要说明。
@@ -310,8 +309,6 @@ public class WebUser {
 		 */
 		if (getIsBSMode() && null != ContextHolderUtils.getRequest() && null != ContextHolderUtils.getSession()) {
 			ContextHolderUtils.getSession().setAttribute(key, val);
-		} else {
-			Current.SetSession(key, val);
 		}
 	}
 
@@ -443,7 +440,7 @@ public class WebUser {
 			/*
 			 * warning return BP.Glo.getHttpContextCurrent().Session.SessionID;
 			 */
-			return (String) SessionUtils.getCurrentSession().getId();
+			return (String) ContextHolderUtils.getSession().getId();
 		}
 		return s;
 	}

@@ -14,9 +14,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.github.miemiedev.mybatis.paginator.domain.PageList;
+
 import cn.org.awcp.base.BaseController;
 import cn.org.awcp.core.domain.BaseExample;
-import cn.org.awcp.core.utils.Tools;
+import cn.org.awcp.core.utils.SessionUtils;
 import cn.org.awcp.core.utils.constants.SessionContants;
 import cn.org.awcp.formdesigner.application.service.AuthorityCompoentService;
 import cn.org.awcp.formdesigner.application.service.AuthorityGroupService;
@@ -30,10 +34,6 @@ import cn.org.awcp.unit.core.domain.PunUserBaseInfo;
 import cn.org.awcp.unit.vo.PunSystemVO;
 import cn.org.awcp.unit.vo.PunUserBaseInfoVO;
 import cn.org.awcp.venson.controller.base.ControllerHelper;
-
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.github.miemiedev.mybatis.paginator.domain.PageList;
 
 @Controller
 @RequestMapping("/authority")
@@ -117,8 +117,7 @@ public class AuthorityGroupController extends BaseController {
 			 * v=resoVOs.get(0); if(status.equals("1")){
 			 * v.setAuthorityGroup(authorityGroupId); } if(status.equals("0")){
 			 * v.setAuthorityGroup(""); } v.setLastUpdater(u.getId());
-			 * v.setLastUpdateTime(new Date());
-			 * authorityGroupWorkFlowNodeService.save(vo);
+			 * v.setLastUpdateTime(new Date()); authorityGroupWorkFlowNodeService.save(vo);
 			 */
 			authorityGroupWorkFlowNodeService.delete(v);
 		} else {
@@ -190,7 +189,7 @@ public class AuthorityGroupController extends BaseController {
 	public AuthorityGroupVO authorityGroupSave(String order, String dynamicPageId, String destry, String name) {
 
 		AuthorityGroupVO auth = new AuthorityGroupVO();
-		Object o = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+		Object o = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 		if (o instanceof PunSystemVO) {
 			PunSystemVO system = (PunSystemVO) o;
 			auth.setSystemId(system.getSysId());
@@ -322,7 +321,7 @@ public class AuthorityGroupController extends BaseController {
 			@RequestParam(required = false, defaultValue = "10") int pageSize) {
 		ModelAndView mv = new ModelAndView();
 		if (StringUtils.isBlank(dynamicPageId)) {
-			
+
 		}
 		if (pageSize < 10) {
 			pageSize = 10;
@@ -331,7 +330,7 @@ public class AuthorityGroupController extends BaseController {
 			currentPage = 1;
 		}
 
-		Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+		Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 		if (obj instanceof PunSystemVO) {
 			BaseExample example = new BaseExample();
 			if (StringUtils.isNotBlank(name)) {
@@ -364,7 +363,7 @@ public class AuthorityGroupController extends BaseController {
 		if (id != null) {
 			AuthorityGroupVO vo = authorityGroupService.findById(id);
 			if (vo != null) {
-				
+
 			}
 			mv.addObject("vo", vo);
 		}

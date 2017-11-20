@@ -8,8 +8,8 @@
 		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd">
 
-    <import resource="base-context.xml" />
     <import resource="ApplicationContext.xml" />
+    <import resource="base-context.xml" />
     <import resource="spring-shiro.xml"/>
     <import resource="sitemonitor_appContext.xml"/>
 <!-- 	<import resource="classpath*:META-INF/spring/root.xml" /> -->

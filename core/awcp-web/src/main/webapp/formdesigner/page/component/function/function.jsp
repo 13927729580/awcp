@@ -53,7 +53,7 @@
 								<option value="0">获取位置</option>
 								<option value="1">获取用户</option>
 								<option value="2">获取组织</option>	
-								<option value="2">其他</option>		
+								<option value="3">其他</option>		
 							</select>
 						</div>
 					</div>

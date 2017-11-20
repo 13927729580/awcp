@@ -1,0 +1,116 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="aplus-terminal" content="1">
+    <meta charset="utf-8">
+    <title data-id="title_noticeReceiveList"></title>
+    <style type="text/css">*{-webkit-user-select:none;-webkit-tap-highlight-color:transparent;-moz-tap-highlight-color:transparent;-ms-touch-action:none;-moz-user-select:-moz-none;-webkit-touch-callout:none;margin:0;padding:0;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box}body{overflow-x:hidden;-webkit-text-size-adjust:none;color:#000;font-size:14px;display:-webkit-box;background:#fff;-webkit-box-orient:vertical;-webkit-box-align:stretch;min-width:320px}input,textarea{-webkit-user-select:text;-moz-user-select:-moz-text;-moz-user-select:text}fieldset,img{border:0}ol,ul{list-style:none}address,em{font-style:normal}a{color:#000;text-decoration:none}table{border-collapse:collapse}a:focus,input:focus,textarea:focus{-webkit-tap-highlight-color:transparent}:after,:before{-webkit-box-sizing:border-box;box-sizing:border-box;-webkit-text-size-adjust:none;text-size-adjust:none;-webkit-tap-highlight-color:transparent}:focus{outline:0}.clear{clear:both;width:100%}.clear:after{display:block;clear:both;height:1px;margin-top:-1px;content:''}body,html{margin:0;padding:0;width:100%;font-family:Helvetica,Arial,STXihei,"华文细黑","Microsoft YaHei","微软雅黑",Heiti,"黑体",SimSun,"宋体",sans-serif;height:100%}body{background-color:#fff}body.active{background-color:#ecebf3}.mod-unread{background-color:#fff}.mod-read{display:none}span.active{color:#6299F3!important;border-bottom:2px solid #6299F3!important}.mod-tab{position:fixed;top:0;background:#FFF;width:100%;height:44px}.mod-tab span{text-align:center;line-height:44px;border-bottom:1px solid #dedede;width:50%;float:left;box-sizing:border-box;font-size:16px!important}.mod-tab span:nth-child(1){border-right:1px solid #dedede}i{font-weight:400;font-style:normal}.no-data{margin:25% auto;text-align:center}.no-data img{width:50%}.no-data p{font-size:15px;color:#666}.header{height:100px}@media (max-device-height:400px){.dd-ab-box{bottom:30px}}.option{max-width:500px;margin:0 auto;padding:0 10px}.btn-reg{padding:0 10px;-webkit-box-sizing:border-box;height:47px;text-align:center;font-size:17px;line-height:47px;border-radius:4px;-webkit-background-clip:padding-box;width:100%;background-color:#008cee;color:#fff;border:1px solid #008cee;display:none}.btn-reg.disable{background-color:#e0e0e0;border:1px solid #e0e0e0}.micro-app .title{font-size:17px;text-align:center;padding:12px 0;color:#000}.micro-app .company{font-size:14px;color:#929292;text-align:center}.micro-app .app-icon{margin:0 auto;text-align:center}.footer{padding-top:90px}.tips{text-align:center;color:#333;line-height:21px;display:none}.doc{min-height:100%}.mod-avatar{min-height:100%;clear:both;padding:64px 10px 10px}.mod-avatar .bd ul:after{clear:both;display:block;visibility:hidden;height:0;line-height:0;content:''}.mod-avatar .bd{clear:both}.mod-avatar .bd ul{width:100%;clear:both}.mod-avatar .bd li{width:25%;text-align:center;float:left;height:100px;display:block}.mod-avatar .bd li .avator{height:50px;width:50px;-moz-border-radius:50px;-webkit-border-radius:50px;border-radius:50px;overflow:hidden;margin:0 auto}.mod-avatar .bd .no-img{height:50px;width:50px;line-height:50px;overflow:hidden;background-color:#ccc;color:#fff;font-size:16px}.mod-avatar .bd li .name{height:30px;line-height:30px;text-align:center;font-size:12px}</style>
+</head>
+<body>
+	<div class="doc">
+	    <section class="mod-tab">
+	        <span class="tab-unread active"><i></i></span>
+	        <span class="tab-read"><i></i></span>
+	    </section>
+	    <section class="mod-avatar mod-unread" id="mod-unread"></section>
+	    <section class="mod-avatar mod-read" id="mod-read"></section>
+	</div>
+	<script src="js/jquery.js" charset="utf-8"></script>
+	<script src="../venson/js/common.js"></script>
+	<script>		
+		if(Comm.isMobile()){
+			document.write("<script src='js/dingtalk.js' charset='utf-8'><\/script>");
+		}
+		else{
+			document.write("<script src='https://g.alicdn.com/dingding/dingtalk-pc-api/2.9.0/index.js' charset='utf-8'><\/script>");
+		}
+	</script>
+	<script src="js/resource.js"></script>
+	<script>
+		var id = Comm.getUrlParam("id");	//通知公告ID
+		$(".tab-unread").prepend(dd_res.unRead);
+		$(".tab-read").prepend(dd_res.hasRead);
+		
+		var data = Comm.getData("api/execute/getNoticeReadInfo",{"noticeID":id,"isRead":"N"});
+		getUnRead(data);
+		data = Comm.getData("api/execute/getNoticeReadInfo",{"noticeID":id,"isRead":"Y"});
+		getRead(data);
+		showAndHide();
+		
+		$(".tab-unread").click(function(){
+			if(!$(".tab-unread").hasClass("active")){
+				$(".tab-unread").addClass("active");
+				$(".tab-read").removeClass("active");
+				showAndHide();
+			}
+		});		     
+		
+		$(".tab-read").click(function(){
+			if(!$(".tab-read").hasClass("active")){
+				$(".tab-read").addClass("active");
+				$(".tab-unread").removeClass("active");
+				showAndHide();
+			}
+		});	
+		
+		//未读
+		function getUnRead(arr){
+			if(arr.length==0){
+				var html = '<div class="no-data"><img src="//gw.alicdn.com/tps/TB1alueKXXXXXc0XFXXXXXXXXXX-362-319.png">' + 
+			  	   		   '<p>' + dd_res.allHasRead + '</p></div>'
+				$("#mod-unread").html(html);
+			}
+			else{
+				$(".tab-unread").find("i").text("(" + arr.length + ")");
+				$("#mod-unread").html(getHtml(arr));
+			}
+		}
+			
+		//已读
+		function getRead(arr){
+			if(arr.length==0){
+				var html = '<div class="no-data"><img src="//gw.alicdn.com/tps/TB1alueKXXXXXc0XFXXXXXXXXXX-362-319.png">' + 
+	     		   		   '<p>' + dd_res.allNotRead + '</p></div>';
+				$("#mod-read").html(html);
+			}
+			else{
+				$(".tab-read").find("i").text("(" + arr.length + ")");
+				$("#mod-read").html(getHtml(arr));
+			}
+		}
+		
+		function getHtml(arr){
+        	var html = '<div class="bd"><ul>';
+			for(var i=0;i<arr.length;i++){
+				var name = arr[i].name;
+				var img = arr[i].img;
+				if(img){
+					html += '<li><div class="avator"><img src="' + img + '" width="50" height="50"></div>';
+				}
+				else{
+					html += '<li><div class="avator"><div class="no-img" style="background-color: #ff943e">' + 
+								Comm.handleName(name) + '</div></div>';
+				}
+				html += '<div class="name">' + name + '</div></li>';
+			}
+			html += '</ul></div>';
+			return html;
+		}
+		
+		function showAndHide(){
+			if($(".tab-unread").hasClass("active")){
+				$("#mod-unread").show();
+				$("#mod-read").hide();
+			}
+			else{
+				$("#mod-read").show();
+				$("#mod-unread").hide();
+			}
+		}
+		
+	</script>
+</body>
+</html>

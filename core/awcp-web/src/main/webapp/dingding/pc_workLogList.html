@@ -1,0 +1,220 @@
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title data-id="title_notice"></title>
+	<link rel="stylesheet" type="text/css" href="css/pc/style.css">
+	<link rel="stylesheet" type="text/css" href="css/pc/datetimepicker.css">
+	<link rel="stylesheet" type="text/css" href="css/pc/sqm.css">
+</head>
+<body>
+	<div id="warp">	
+		<!-- 导航栏 -->	
+		<header class="header">
+			<button onclick="location='pc_workLog.html?parentID=1'" data-id="writeLog"></button>
+			<button onclick="location='pc_workLogList.html?type=send'" data-id="sentByMe"></button>
+			<button onclick="location='pc_workLogList.html?type=received'" id="received">
+				<span class="unread-num ng-scope" id="unreadCount" style="display: none"><em></em></span>
+			</button>
+		</header>
+		
+		<!-- 筛选条件 -->
+		<div class="received_top">
+			<!-- 模板筛选 -->
+            <span class="key_template_search" id="template_search">
+                <span id="templateChoose" data-id="filterByTemplate"></span>
+                <select style="height:32px;border: solid 1px #e6e5e6;border-radius: 5px;padding-left: 10px;font-size: 13px;">
+                	<option></option>
+                </select>
+            </span>	
+            <!-- 人员筛选 -->
+            <span class="key_search" id="key_search" style="display: none;">
+                <span id="textSender" data-id="selectPerson"></span>
+                <input type="hidden" id="selectUsers" value="" />
+                <input id="search_input" class="input_radius" type="search" data-placeholder="selectPerson" readonly="readonly">
+                <div style="display: none" id="clean_input" class="clean_input"></div>
+            </span>
+            <!-- 时间筛选 -->
+            <span class="time_search">
+	            <span id="textTime" data-id="date"></span>
+	            <input id="starttime" class="input_radius" type="text" data-placeholder="startTime" readonly="readonly" style="width: 100px;">
+	            <span class="line" style="width:10px; margin: 0px 5px 4px 5px;"></span>
+	            <input id="endtime" class="input_radius" type="text" data-placeholder="endTime" readonly="readonly" style="width: 100px;">
+	           	<!-- 是否已读 -->
+	            <span class="filter_unread" style="display: none;">
+	                <input id="filterUnreadCheckbox" type="checkbox" class="filter_unread_checkbox" style="width: 100px;">
+	                <span id="filterUnreadText" class="filter_unread_text" data-id="onlyNotRead"></span>
+	            </span>
+            </span>
+        </div>
+        <div id="manage_body" class="manage_body"><ul></ul></div>
+        <div style="display:none" class="no_template" id="no_template">
+            <img src="img/pc/noData.png">
+            <div data-id="hasNoLog"></div>
+        </div>
+	</div>	
+	<script src="js/jquery.js" charset="utf-8"></script>
+	<script src="https://g.alicdn.com/dingding/dingtalk-pc-api/2.9.0/index.js" charset="utf-8"></script>
+	<script src="js/datetimepicker.js"></script>
+	<script src="../venson/js/common.js"></script>
+	<script src="js/resource.js"></script>
+	<script>
+		Comm.ddConfig();
+
+		$("#received").prepend(dd_res.received);
+		
+		var type = Comm.getUrlParam("type");
+		if(type=="send"){
+			$("header").children("button").eq(1).addClass("active").attr("disabled",true);
+		} else{
+			$("header").children("button").eq(2).addClass("active").attr("disabled",true);
+			$("#key_search").show();
+			$(".filter_unread").show();
+		}
+		
+		function getSearchObj(){
+			var obj = {
+				startTime:$("#starttime").val(),
+				endTime:$("#endtime").val(),
+				typeID:$("#template_search").find("select").val()
+			};
+			if(type=="received"){//我接收的
+				obj.creators = $("#selectUsers").val();
+				obj.hasRead = $("#filterUnreadCheckbox:checked").length==1?"N":"Y";
+			} else{//我发送的
+				obj.onlyMe = "Y";
+			}
+			return obj;
+		}
+		
+		getWorkLogList(getSearchObj());
+		
+		//日期选择框
+		$("#starttime,#endtime").datetimepicker({
+			lang:"ch",
+			format:"Y-m-d",
+			timepicker:false,
+			onChangeDateTime:function(){
+				getWorkLogList(getSearchObj());
+			}
+		});
+		
+		//是否只查看未读日志
+		$("#filterUnreadCheckbox").change(function(){
+			getWorkLogList(getSearchObj());
+		});
+		
+		//根据用户查找
+		$("#search_input").click(function(){
+			var selectUsers = $("#selectUsers").val();
+			var users = [];
+			if(selectUsers){
+				users = selectUsers.split(",");
+			}			
+			dd.biz.contact.choose({
+				corpId:dd_config.corpId,	
+				title:"选择用户",
+				users:users,
+				max: 60,//返回最多一个人数据
+				onSuccess: function(data) {
+					var ids = [];
+					var names = [];
+					for(var i=0;i<data.length;i++){
+						ids.push(data[i].emplId);
+						names.push(data[i].name);
+					}
+					$("#search_input").val(names.join());
+					$("#selectUsers").val(ids.join());
+					if(data.length>0){
+						$("#clean_input").show();
+					}
+					getWorkLogList(getSearchObj());
+			    },
+			    onFail: function(err) {
+			    	console.log(JSON.stringify(err));
+			    }
+			});
+		});
+		
+		//清空用户
+		$("#clean_input").click(function(){
+			$("#clean_input").hide();
+			$("#search_input").val("");
+			$("#selectUsers").val("");
+			getWorkLogList(getSearchObj());
+		});
+		
+		//日志类表单所有类别
+        var template = Comm.getData("api/execute/getLogTypes",{"_method":"get"});
+		var $select = $("#template_search").find("select");
+		for(var i=0;i<template.length;i++){
+			$select.append("<option value='" + template[i].value + "'>" + template[i].key + "</option>");
+		}
+		
+		//日志类表单所有类别改变事件
+		$("#template_search").find("select").change(function(){
+			getWorkLogList(getSearchObj());
+		});
+		
+		function getWorkLogList(obj){
+			var data = Comm.getData("dingding/getWorkLogList.do",obj);
+			if(data.length==0){
+				$("#no_template").show();
+				$(".manage_body").hide();
+			}
+			else{
+				$("#no_template").hide();
+				$(".manage_body").show();
+				var html = "";
+				var totalNotRead = 0;
+				for(var i=0;i<data.length;i++){
+					var url = data[i].url.replace("document","dingding") + "&id=" + data[i].ID;
+		   			var title = data[i].title;
+		   			var name = data[i].Creatorname;
+		   			var date = data[i].Createtime;
+		   			var headImg = data[i].headImg;
+		   			var isRead = data[i].isRead;
+		   			var img = "";
+		   			if(headImg){
+		   				img = '<img style="border-radius:60px" src="' + headImg + '">';
+		   			}
+		   			else{
+		   				img = '<div class="userLogo" style="background-color:#78919d">' + Comm.handleName(name) + '</div>';
+		   			}
+		   			var hasReadHtml = "";
+		   			if(type=="received"){
+		   				if(isRead == "Y" || !isRead){
+			   				hasReadHtml = '<span class="read-mark">' + dd_res.hasRead +　'</span>';
+						}	
+						else{
+							hasReadHtml = '<span class="read-mark read-mark-notread">' + dd_res.unRead +　'</span>';
+							totalNotRead++;
+						}
+		   			}	   			
+		   			html += '<li class="body_content"><div class="content_top">' + img + 
+		   					'<span class="c_t_title">' + name + '</span>' +
+		   					'<span class="c_t_right">' + title + '</span>' + hasReadHtml + '</div>' +
+		   					'<div class="content_body">';
+		   			var dataObj = data[i].data;
+		   			var index = 0;	//最多显示3行数据
+		   			for(key in dataObj){
+						html += '<p><span>' + key + ': </span>&nbsp;<span>' + dataObj[key] + '</span></p>';
+						index++;
+						if(index>=3){
+							break;
+						}
+					}
+		   			html += '</div><div class="content_bottom"><span>' + date + '</span>' + 
+		   					'<a href="' + url + '">查看详情</a></div></li>';
+				}
+				$(".manage_body").children("ul").html(html);
+				if(totalNotRead != 0){
+					$("#unreadCount").show().find("em").text(totalNotRead);
+				}
+				else{
+					$("#unreadCount").hide().find("em").text("");
+				}
+			}
+		}
+	</script>
+</body>
+</html>

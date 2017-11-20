@@ -4,10 +4,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
-
-import cn.org.awcp.core.utils.SessionUtils;
+import cn.org.awcp.core.utils.ContextContentUtils;
 
 /**
  * @ClassName: ContextHolderUtils
@@ -25,26 +22,13 @@ public class ContextHolderUtils {
 	 * @return
 	 */
 	public static HttpServletRequest getRequest() {
-		HttpServletRequest request = null;
-		try {
-			request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-			return request;
-		} catch (Exception e) {
-			return null;
-		}
+		return ContextContentUtils.getRequest();
 
 	}
 
 	public static HttpServletResponse getResponse() {
-		// HttpServletResponse response = ((ServletWebRequest)
-		// RequestContextHolder
-		// .getRequestAttributes()).getResponse();
-		return reponse_threadLocal.get();
+		return ContextContentUtils.getResponse();
 
-	}
-
-	public static void setResponse(HttpServletResponse response) {
-		reponse_threadLocal.set(response);
 	}
 
 	/**
@@ -53,52 +37,22 @@ public class ContextHolderUtils {
 	 * @return
 	 */
 	public static org.apache.shiro.session.Session getSession() {
-		org.apache.shiro.session.Session session = SessionUtils.getCurrentSession();
-		return session;
+		return ContextContentUtils.getSession();
 	}
 
 	public static void addCookie(String name, int expiry, String value) {
-		Cookie cookie = new Cookie(name, value);
-		cookie.setMaxAge(expiry);
-		cookie.setPath("/");
-		getResponse().addCookie(cookie);
+		ContextContentUtils.addCookie(name, expiry, value);
 	}
 
 	public static Cookie getCookie(String name) {
-		Cookie cookies[] = getRequest().getCookies();
-		if (cookies == null || name == null || name.length() == 0)
-			return null;
-		for (Cookie cookie : cookies) {
-			if (name.equals(cookie.getName())) {
-				return cookie;
-			}
-		}
-		return null;
+		return ContextContentUtils.getCookie(name);
 	}
 
 	public static void deleteCookie(String name) {
-		Cookie cookies[] = getRequest().getCookies();
-		if (cookies == null || name == null || name.length() == 0)
-			return;
-		for (Cookie cookie : cookies) {
-			if (name.equals(cookie.getName())) {
-				cookie.setValue("");
-				cookie.setMaxAge(0);
-				getResponse().addCookie(cookie);
-				return;
-			}
-		}
+		ContextContentUtils.deleteCookie(name);
 	}
 
 	public static void clearCookie() {
-		Cookie[] cookies = getRequest().getCookies();
-		if (null == cookies)
-			return;
-		for (Cookie cookie : cookies) {
-			cookie.setValue("");
-			cookie.setMaxAge(0);
-			getResponse().addCookie(cookie);
-
-		}
+		ContextContentUtils.clearCookie();
 	}
 }

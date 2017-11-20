@@ -117,7 +117,7 @@
 	<!-- 开启自动扫描 -->
 	<context:annotation-config />
 	
-	<context:component-scan base-package="cn.org.awcp,org.jflow,BP.WF,BP.DA" use-default-filters="false">
+	<context:component-scan base-package="cn.org.awcp" use-default-filters="false">
 		<!-- 只扫描service,repository,component -->
 		<context:include-filter type="annotation" expression="org.springframework.stereotype.Service" />
 		<context:include-filter type="annotation" expression="org.springframework.stereotype.Repository" />
@@ -149,7 +149,8 @@
 		<property name="cookieName" value="Language"></property>
 	</bean>
 
-	<task:scheduled-tasks>   
+	<!-- <task:scheduled-tasks>   
         <task:scheduled ref="updateTokenAndTicketJob" method="update" cron="0 0/60 * * * ?"/>  
-	</task:scheduled-tasks> 
+	</task:scheduled-tasks> -->
+	 
 </beans>

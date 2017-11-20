@@ -8,7 +8,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -79,13 +78,12 @@ public class DBAccess {
 	public static void copyDirectory(String Src, String Dst) {
 		/*
 		 * String[] Files; if (Dst.charAt(Dst.length() - 1) !=
-		 * Path.DirectorySeparatorChar) { Dst += Path.DirectorySeparatorChar; }
-		 * if (!Directory.Exists(Dst)) { Directory.CreateDirectory(Dst); } Files
-		 * = Directory.GetFileSystemEntries(Src); for (String Element : Files) {
-		 * // Sub directories if (Directory.Exists(Element)) {
-		 * copyDirectory(Element, Dst + Path.GetFileName(Element)); } // Files
-		 * in directory else { File.Copy(Element, Dst +
-		 * Path.GetFileName(Element), true); } }
+		 * Path.DirectorySeparatorChar) { Dst += Path.DirectorySeparatorChar; } if
+		 * (!Directory.Exists(Dst)) { Directory.CreateDirectory(Dst); } Files =
+		 * Directory.GetFileSystemEntries(Src); for (String Element : Files) { // Sub
+		 * directories if (Directory.Exists(Element)) { copyDirectory(Element, Dst +
+		 * Path.GetFileName(Element)); } // Files in directory else { File.Copy(Element,
+		 * Dst + Path.GetFileName(Element), true); } }
 		 */
 		copyFolder(new File(Src), new File(Dst));
 	}
@@ -236,7 +234,6 @@ public class DBAccess {
 		}
 	}
 
-	// C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
 	// /#endregion
 
 	// 构造函数
@@ -245,16 +242,13 @@ public class DBAccess {
 		KeyLockState = new Hashtable<String, Object>();
 	}
 
-	// C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
 	// /#region 运行中定义的变量
 	public static Hashtable<String, Object> CurrentSys_Serial;
 	private static int readCount = -1;
 	private static Hashtable<String, Object> KeyLockState;
 
-	// C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
 	// /#endregion
 
-	// C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
 	// /#region 产生序列号码方法
 	/**
 	 * 根据标识产生的序列号
@@ -410,12 +404,10 @@ public class DBAccess {
 		return num;
 	}
 
-	// C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
 	// /#endregion 第二版本的生成 OID。
 
 	/**
-	 * 获取一个从OID, 更新到OID. 用例: 我已经明确知道要用到260个OID, 但是为了避免多次取出造成效率浪费，就可以一次性取出
-	 * 260个OID.
+	 * 获取一个从OID, 更新到OID. 用例: 我已经明确知道要用到260个OID, 但是为了避免多次取出造成效率浪费，就可以一次性取出 260个OID.
 	 * 
 	 * @param cfgKey
 	 * @param getOIDNum
@@ -491,7 +483,6 @@ public class DBAccess {
 		return conn;
 	}
 
-	// C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
 	// /#endregion 取得连接对象 ，CS、BS共用属性
 
 	/**
@@ -501,12 +492,9 @@ public class DBAccess {
 		return SystemConfig.getAppCenterDBType();
 	}
 
-	// C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
 	// /#region 运行 SQL
 
-	// C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
 	// /#region 通过主应用程序在其他库上运行sql
-	// C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
 	// /#region pk
 	/**
 	 * 建立主键
@@ -564,10 +552,8 @@ public class DBAccess {
 		DBAccess.RunSQL(sql);
 	}
 
-	// C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
 	// /#endregion
 
-	// C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
 	// /#region index
 	public static void CreatIndex(String table, String pk) {
 		String sql = "";
@@ -635,8 +621,8 @@ public class DBAccess {
 		String[] strs = str.split("[;]", -1);
 		for (String s : strs) {
 			/*
-			 * warning if (StringHelper.isNullOrEmpty(s) ||
-			 * String.IsNullOrWhiteSpace(s)) { continue; }
+			 * warning if (StringHelper.isNullOrEmpty(s) || String.IsNullOrWhiteSpace(s)) {
+			 * continue; }
 			 */
 			if (StringHelper.isNullOrEmpty(s)) {
 				continue;
@@ -670,8 +656,8 @@ public class DBAccess {
 		String[] strs = str.split("--GO--");
 		for (String s : strs) {
 			/*
-			 * warning if (StringHelper.isNullOrEmpty(s) ||
-			 * String.IsNullOrWhiteSpace(s)) { continue; }
+			 * warning if (StringHelper.isNullOrEmpty(s) || String.IsNullOrWhiteSpace(s)) {
+			 * continue; }
 			 */
 			if (StringHelper.isNullOrEmpty(s)) {
 				continue;
@@ -763,12 +749,6 @@ public class DBAccess {
 		return RunSQL(sql, ens);
 	}
 
-	/** 
-	 
-	 
-	*/
-	private static boolean lockRunSQL = false;
-
 	/**
 	 * 执行sql
 	 * 
@@ -782,10 +762,6 @@ public class DBAccess {
 		if (sql == null || sql.trim().equals("")) {
 			return 1;
 		}
-
-		// while (lockRunSQL) {
-		// }
-		lockRunSQL = true;
 
 		int result = 0;
 		try {
@@ -808,10 +784,8 @@ public class DBAccess {
 			default:
 				throw new RuntimeException("发现未知的数据库连接类型！");
 			}
-			lockRunSQL = false;
 			return result;
 		} catch (RuntimeException ex) {
-			lockRunSQL = false;
 			String msg = "";
 			/*
 			 * warning Object tempVar = sql.clone();
@@ -825,7 +799,6 @@ public class DBAccess {
 			throw new RuntimeException(
 					"执行sql错误:" + ex.getMessage() + " Paras(" + paras.size() + ")=" + msg + "<hr>" + mysql);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			// e.printStackTrace();
 			return -1;
 		}
@@ -884,18 +857,6 @@ public class DBAccess {
 				ex.printStackTrace();
 			}
 		}
-	}
-
-	/**
-	 * 运行sql
-	 * 
-	 * @param sql
-	 *            sql
-	 * @return 执行结果
-	 * @throws Exception
-	 */
-	private static int RunSQL_200705_MySQL(String sql) throws Exception {
-		return RunSQL_200705_MySQL(sql, new Paras());
 	}
 
 	/**
@@ -975,13 +936,13 @@ public class DBAccess {
 			conn = DBAccess.getGetAppCenterDBConn();
 			/*
 			 * warning OracleConnection conn = DBAccess.getGetAppCenterDBConn();
-			 * OracleCommand cmd = new OracleCommand(sql, conn); cmd.CommandType
-			 * = CommandType.getText();
+			 * OracleCommand cmd = new OracleCommand(sql, conn); cmd.CommandType =
+			 * CommandType.getText();
 			 * 
 			 * for (Para para : paras) { OracleParameter oraP = new
-			 * OracleParameter(para.ParaName, para.getDATypeOfOra()); oraP.Size
-			 * = para.Size; oraP.setValue(para.val); cmd.Parameters.Add(oraP); }
-			 * int i = cmd.ExecuteNonQuery(); cmd.dispose(); return i;
+			 * OracleParameter(para.ParaName, para.getDATypeOfOra()); oraP.Size = para.Size;
+			 * oraP.setValue(para.val); cmd.Parameters.Add(oraP); } int i =
+			 * cmd.ExecuteNonQuery(); cmd.dispose(); return i;
 			 */
 			int i = 0;
 			if (null != paras && paras.size() > 0) {
@@ -1027,16 +988,16 @@ public class DBAccess {
 		try {
 			conn = DBAccess.getGetAppCenterDBConn();
 			/*
-			 * warning OracleDataAdapter ada = new OracleDataAdapter(selectSQL,
-			 * conn); ada.SelectCommand.setCommandType(CommandType.getText());
+			 * warning OracleDataAdapter ada = new OracleDataAdapter(selectSQL, conn);
+			 * ada.SelectCommand.setCommandType(CommandType.getText());
 			 * 
-			 * // 加入参数 for (Para para : paras) { OracleParameter myParameter =
-			 * new OracleParameter( para.ParaName, para.getDATypeOfOra());
-			 * myParameter.Size = para.Size; myParameter.setValue(para.val);
+			 * // 加入参数 for (Para para : paras) { OracleParameter myParameter = new
+			 * OracleParameter( para.ParaName, para.getDATypeOfOra()); myParameter.Size =
+			 * para.Size; myParameter.setValue(para.val);
 			 * ada.SelectCommand.getParameters().Add(myParameter); }
 			 * 
-			 * DataTable oratb = new DataTable("otb"); ada.Fill(oratb);
-			 * ada.dispose(); return oratb;
+			 * DataTable oratb = new DataTable("otb"); ada.Fill(oratb); ada.dispose();
+			 * return oratb;
 			 */
 			DataTable oratb = new DataTable("otb");
 			if (null != paras && paras.size() > 0) {
@@ -1110,16 +1071,16 @@ public class DBAccess {
 		try {
 			conn = DBAccess.getGetAppCenterDBConn();
 			/*
-			 * warning OracleDataAdapter ada = new OracleDataAdapter(selectSQL,
-			 * conn); ada.SelectCommand.setCommandType(CommandType.getText());
+			 * warning OracleDataAdapter ada = new OracleDataAdapter(selectSQL, conn);
+			 * ada.SelectCommand.setCommandType(CommandType.getText());
 			 * 
-			 * // 加入参数 for (Para para : paras) { OracleParameter myParameter =
-			 * new OracleParameter( para.ParaName, para.getDATypeOfOra());
-			 * myParameter.Size = para.Size; myParameter.setValue(para.val);
+			 * // 加入参数 for (Para para : paras) { OracleParameter myParameter = new
+			 * OracleParameter( para.ParaName, para.getDATypeOfOra()); myParameter.Size =
+			 * para.Size; myParameter.setValue(para.val);
 			 * ada.SelectCommand.getParameters().Add(myParameter); }
 			 * 
-			 * DataTable oratb = new DataTable("otb"); ada.Fill(oratb);
-			 * ada.dispose(); return oratb;
+			 * DataTable oratb = new DataTable("otb"); ada.Fill(oratb); ada.dispose();
+			 * return oratb;
 			 */
 			DataTable oratb = new DataTable("otb");
 			if (null != paras && paras.size() > 0) {
@@ -1185,61 +1146,6 @@ public class DBAccess {
 		}
 	}
 
-	private static DataTable RunSQLReturnTable_200705_SQL(String selectSQL) throws Exception {
-		ResultSet rs = null;
-		Connection conn = null;
-		Statement stmt = null;
-		PreparedStatement pstmt = null;
-		try {
-			conn = DBAccess.getGetAppCenterDBConn();
-			/*
-			 * warning SqlConnection conn = DBAccess.getGetAppCenterDBConn();
-			 * SqlDataAdapter ada = new SqlDataAdapter(selectSQL, conn);
-			 * ada.SelectCommand.setCommandType(CommandType.getText());
-			 * DataTable oratb = new DataTable("otb"); ada.Fill(oratb);
-			 * ada.dispose(); return oratb;
-			 */
-
-			DataTable oratb = new DataTable("otb");
-			stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
-			rs = stmt.executeQuery(selectSQL);
-			ResultSetMetaData rsmd = rs.getMetaData();
-			int size = rsmd.getColumnCount();
-			for (int i = 0; i < size; i++) {
-				// logger.debug(rsmd.getColumnType(i + 1));
-				oratb.Columns.Add(rsmd.getColumnName(i + 1), Para.getDAType(rsmd.getColumnType(i + 1)));
-			}
-			while (rs.next()) {
-				DataRow dr = oratb.NewRow();// 產生一列DataRow
-				for (int i = 0; i < size; i++) {
-					Object val = rs.getObject(i + 1);
-					dr.setValue(i, val);// DataRow一欄一欄填入資料
-					// dr.setDataType(i, Para.getDAType(val));
-				}
-				oratb.Rows.add(dr);// DataTable加入此DataRow
-			}
-			return oratb;
-		} catch (Exception ex) {
-			String msgErr = ex.getMessage();
-			String msg = "@运行查询在(RunSQLReturnTable_200705_SQL)出错 sql=" + selectSQL + " @异常信息：" + msgErr;
-			Log.DebugWriteError(msg);
-			throw new Exception(msg);
-		} finally {
-			try {
-				if (rs != null)
-					rs.close();
-				if (stmt != null)
-					stmt.close();
-				if (pstmt != null)
-					pstmt.close();
-				if (conn != null)
-					conn.close();
-			} catch (SQLException ex) {
-				ex.printStackTrace();
-			}
-		}
-	}
-
 	private static DataTable RunSQLReturnTable_200705_SQL_UL(String sql, Paras paras) {
 		ResultSet rs = null;
 		Connection conn = null;
@@ -1256,10 +1162,9 @@ public class DBAccess {
 			 * ada.SelectCommand.setCommandType(CommandType.getText());
 			 * 
 			 * // 加入参数 for (Para para : paras) { SqlParameter myParameter = new
-			 * SqlParameter(para.ParaName, para.val); myParameter.Size =
-			 * para.Size; ada.SelectCommand.getParameters().Add(myParameter);
-			 * }DataTable oratb = new DataTable("otb"); ada.Fill(oratb);
-			 * ada.dispose(); conn.Close(); return oratb;
+			 * SqlParameter(para.ParaName, para.val); myParameter.Size = para.Size;
+			 * ada.SelectCommand.getParameters().Add(myParameter); }DataTable oratb = new
+			 * DataTable("otb"); ada.Fill(oratb); ada.dispose(); conn.Close(); return oratb;
 			 */
 			DataTable oratb = new DataTable("otb");
 			if (null != paras && paras.size() > 0) {
@@ -1338,7 +1243,6 @@ public class DBAccess {
 				SqlRowSetMetaData sqlRsmd = sqlRowSet.getMetaData();
 				int columnCount = sqlRsmd.getColumnCount();
 				for (int i = 1; i <= columnCount; i++) {
-					Map<String, String> fieldMap = new HashMap<String, String>();
 					oratb.Columns.Add(sqlRsmd.getColumnName(i));
 					// dr.setDataType(i,
 					// Para.getDAType(String.valueOf(sqlRsmd.getColumnType(i))));
@@ -1369,7 +1273,6 @@ public class DBAccess {
 				SqlRowSetMetaData sqlRsmd = sqlRowSet.getMetaData();
 				int columnCount = sqlRsmd.getColumnCount();
 				for (int i = 1; i <= columnCount; i++) {
-					Map<String, String> fieldMap = new HashMap<String, String>();
 					oratb.Columns.Add(sqlRsmd.getColumnName(i));
 					Para.getDAType(String.valueOf(sqlRsmd.getColumnType(i)));
 				}
@@ -1412,102 +1315,26 @@ public class DBAccess {
 		}
 	}
 
-	/**
-	 * RunSQLReturnTable_200705_SQL
-	 * 
-	 * @param selectSQL
-	 *            要执行的sql
-	 * @return 返回table
-	 * @throws Exception
-	 */
-	private static DataTable RunSQLReturnTable_200705_MySQL(String selectSQL) throws Exception {
-		return RunSQLReturnTable_200705_MySQL(selectSQL, new Paras());
-	}
-
 	private static DataTable RunSQLReturnTable_200705_MySQL_UL(String sql, Paras paras) {
 
 		logger.debug("流程SQL：" + sql);
 		try {
 			JdbcTemplate jdbcTemplate = Springfactory.getBean("jdbcTemplate");
-			DataTable oratb = new DataTable("otb");
 			if (null != paras && paras.size() > 0) {
-
 				Map<String, Object> ps = parasToMap(paras);
-				NamedParameterJdbcTemplate namedParameterJdbcTemplate = null;
-				namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
-				SqlParameterSource paramSource = new MapSqlParameterSource(ps);
-
-				SqlRowSet sqlRowSet = namedParameterJdbcTemplate.queryForRowSet(sql, paramSource);
-				SqlRowSetMetaData sqlRsmd = sqlRowSet.getMetaData();
-				int columnCount = sqlRsmd.getColumnCount();
-				for (int i = 1; i <= columnCount; i++) {
-					Map<String, String> fieldMap = new HashMap<String, String>();
-					oratb.Columns.Add(sqlRsmd.getColumnName(i), Para.getDAType(sqlRsmd.getColumnType(i)));
-				}
-
-				while (sqlRowSet.next()) {
-					DataRow dr = oratb.NewRow();// 產生一列DataRow
-					for (int i = 0; i < sqlRowSet.getRow(); i++) {
-						Object val = sqlRowSet.getObject(i + 1);
-						if (dr.columns.get(i).getDataType().toString().toLowerCase().contains("int")) {
-							if (val == null) {
-								dr.setValue(i, 0);
-							} else {
-								dr.setValue(i, val);// DataRow一欄一欄填入資料
-							}
-						} else {
-							dr.setValue(i, val);
-						}
-					}
-					oratb.Rows.add(dr);// DataTable加入此DataRow
-				}
+				NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
+				return genTableByMap(namedParameterJdbcTemplate.queryForList(sql, ps));
 			} else {
-
-				NamedParameterJdbcTemplate namedParameterJdbcTemplate = null;
-				namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
-
-				SqlRowSet sqlRowSet = namedParameterJdbcTemplate.queryForRowSet(sql, new HashMap<String, Object>());
-				SqlRowSetMetaData sqlRsmd = sqlRowSet.getMetaData();
-
-				int columnCount = sqlRsmd.getColumnCount();
-				for (int i = 1; i <= columnCount; i++) {
-					Map<String, String> fieldMap = new HashMap<String, String>();
-					oratb.Columns.Add(sqlRsmd.getColumnName(i), Para.getDAType(sqlRsmd.getColumnType(i)));
-				}
-
-				while (sqlRowSet.next()) {
-					DataRow dr = oratb.NewRow();// 產生一列DataRow
-					for (int i = 0; i < columnCount; i++) {
-						Object val = sqlRowSet.getObject(i + 1);
-						if (dr.columns.get(i).getDataType().toString().toLowerCase().contains("int")) {
-							if (val == null) {
-								dr.setValue(i, 0);
-							} else {
-								dr.setValue(i, val);// DataRow一欄一欄填入資料
-							}
-						} else if (dr.columns.get(i).getDataType().toString().toLowerCase().contains("float")
-								|| dr.columns.get(i).getDataType().toString().toLowerCase().contains("double")) {
-							if (val == null) {
-								dr.setValue(i, 0);
-							} else {
-								dr.setValue(i, val);// DataRow一欄一欄填入資料
-							}
-						} else {
-							dr.setValue(i, val);
-						}
-					}
-					oratb.Rows.add(dr);// DataTable加入此DataRow
-				}
+				return genTableByMap(jdbcTemplate.queryForList(sql));
 			}
 
-			return oratb;
 		} catch (Exception ex) {
 			String msg = "@运行查询在(RunSQLReturnTable_200705_MySQL with paras)出错 sql=" + sql + " @异常信息：" + ex.getMessage();
 			msg += "@Para Num= " + paras.size();
 			for (Para pa : paras) {
 				msg += "@" + pa.ParaName + "=" + pa.val;
 			}
-			// Log.DebugWriteError(msg);
+			logger.debug(msg);
 			return null;
 		} finally {
 
@@ -1542,14 +1369,12 @@ public class DBAccess {
 	private static DataTable RunSQLReturnTable_200705_MySQL(String sql, Paras paras) {
 
 		logger.debug("流程SQL：" + sql);
-		JdbcTemplate jdbcTemplate = null;
 		List<Map<String, Object>> result = null;
-		NamedParameterJdbcTemplate namedParameterJdbcTemplate = null;
 		try {
-			jdbcTemplate = Springfactory.getBean("jdbcTemplate");
+			JdbcTemplate jdbcTemplate = Springfactory.getBean("jdbcTemplate");
 			if (null != paras && paras.size() > 0) {
 				Map<String, Object> ps = parasToMap(paras);
-				namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
+				NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
 				result = namedParameterJdbcTemplate.queryForList(sql, ps);
 				return genTableByMap(result);
 			} else {
@@ -1563,10 +1388,8 @@ public class DBAccess {
 			for (Para pa : paras) {
 				msg += "@" + pa.ParaName + "=" + pa.val;
 			}
-			// Log.DebugWriteError(msg);
+			logger.debug(msg);
 			return null;
-		} finally {
-			namedParameterJdbcTemplate = null;
 		}
 	}
 
@@ -1643,8 +1466,6 @@ public class DBAccess {
 		return RunSQLReturnTable(sql, ens);
 	}
 
-	private static boolean lockRunSQLReTable = false;
-
 	/**
 	 * 根据传入的键和值的方式查询返回DataSet集合 sqls语句用@符号区分
 	 * 
@@ -1697,7 +1518,6 @@ public class DBAccess {
 			Log.DefaultLogWriteLineError(ex.getMessage());
 			throw ex;
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return null;
 		}
@@ -1727,7 +1547,6 @@ public class DBAccess {
 			Log.DefaultLogWriteLineError(ex.getMessage());
 			throw ex;
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return null;
 		}
@@ -2146,7 +1965,6 @@ public class DBAccess {
 			return;
 		}
 		try {
-			int i = 0;
 			for (Para para : params) {
 				if (para.DAType == String.class) {
 					try {
@@ -2176,10 +1994,8 @@ public class DBAccess {
 				} else if (para.DAType == Boolean.class) {
 					ps.setBoolean(para.ParaName, Boolean.parseBoolean(String.valueOf(para.val)));
 				}
-				i++;
 			}
 		} catch (Exception e) {
-			// TODO: handle exception
 			e.printStackTrace();
 		}
 	}

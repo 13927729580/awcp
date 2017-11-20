@@ -1,0 +1,84 @@
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
+	<meta name="format-detection" content="telephone=no">
+	<meta name="HandheldFriendly" content="true">
+	<meta name="MobileOptimized" content="320">
+	<title></title>
+	<link rel="stylesheet" href="css/search.css">
+	<style>
+		.mui-input-row label {
+			line-height: 17px;
+		}
+		
+		#list {
+			position: fixed;
+			top: 46px;
+			bottom: 64px;
+			width: 100%;
+			overflow: auto;
+		}
+	</style>
+</head>
+<body>
+	<div class="search" style="position: fixed; top: 0px; border-bottom: 1px solid #EEEEEE; z-index: 10; display: block;">
+		<input type="text" id="searchInput" class="searchCustomerInput" style="width: 77%">
+		<button id="searchBtn" class="btn">搜索</button>
+	</div>
+	<div id="list"></div>
+	<div class="comBar">
+		<button id="saveBtn" class="comBtn" type="button">保存</button>
+	</div>
+	<script src="js/jquery.js" charset="utf-8"></script>
+	<script src="../venson/js/common.js"></script>
+	<script>
+		var id = Comm.getUrlParam("id");
+		var selectId = Comm.getUrlParam("selectId");
+		var saveApi = Comm.getUrlParam("saveApi");
+		var searchApi = Comm.getUrlParam("searchApi");
+		var backUrl = decodeURIComponent(Comm.getUrlParam("backUrl"));
+		
+		function queryData(){
+			var searchInput = $("#searchInput").val();
+			var data = Comm.getData("api/execute/" + searchApi,{"_method":"get",searchInput:searchInput});
+			var html = "";
+			for(var i=0;i<data.length;i++){
+				html += '<div class="mui-input-row mui-checkbox mui-left">' +
+						'<label>' + data[i].name + '</label>';
+				if(selectId == data[i].ID){
+					html += '<input name="checkboxItem" checked="checked" type="checkbox" value="' + data[i].ID + '"></div>';
+				}else{
+					html += '<input name="checkboxItem" type="checkbox" value="' + data[i].ID + '"></div>';
+				}						
+			}
+			if(data.length==0){
+				html = '<div class="mui-pull-bottom-pocket mui-block mui-visibility">' + 
+					   '<div class="mui-pull">' + 
+					   '<div class="mui-pull-loading mui-icon mui-spinner mui-hidden"></div>' +
+					   '<div class="mui-pull-caption mui-pull-caption-nomore">没有更多数据了</div></div></div>';
+			}
+			$("#list").html(html);
+			
+			$(".mui-checkbox").click(function(){
+				$("input[name='checkboxItem']").prop("checked",false);
+				$(this).find("input[name='checkboxItem']").prop("checked",true);
+			});
+		}
+		queryData();
+		
+		$("#searchBtn").click(function(){
+			queryData();
+		});
+		
+		$("#saveBtn").click(function(){
+			var $checkbox = $("input:checked");
+			var newSelectId = $checkbox.val();
+			var name = $.trim($checkbox.prev().text());
+			var obj = {"_method":"post",id:id,name:name,newSelectId:newSelectId};
+			Comm.getData("api/execute/" + saveApi,obj);
+			location.href = backUrl;
+		});
+	</script>
+</body>
+</html>

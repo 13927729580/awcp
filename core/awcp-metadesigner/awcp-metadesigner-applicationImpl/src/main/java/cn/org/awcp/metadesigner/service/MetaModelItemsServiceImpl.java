@@ -8,7 +8,6 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.github.miemiedev.mybatis.paginator.domain.PageList;
@@ -17,38 +16,30 @@ import cn.org.awcp.core.domain.BaseExample;
 import cn.org.awcp.core.domain.QueryChannelService;
 import cn.org.awcp.core.utils.BeanUtils;
 import cn.org.awcp.metadesigner.application.MetaModelItemService;
-import cn.org.awcp.metadesigner.application.MetaModelService;
 import cn.org.awcp.metadesigner.core.domain.MetaModelItems;
 import cn.org.awcp.metadesigner.vo.MetaModelItemsVO;
 
-@Service(value="metaModelItemsServiceImpl")
-public class MetaModelItemsServiceImpl implements MetaModelItemService{
-	
-	@Resource(name="queryChannel")
+@Service(value = "metaModelItemsServiceImpl")
+public class MetaModelItemsServiceImpl implements MetaModelItemService {
+
+	@Resource(name = "queryChannel")
 	private QueryChannelService queryChannel;
-	
-	@Autowired
-	private MetaModelService metaModelServiceImpl;
-	
-	public Long save(MetaModelItemsVO vo) {
-		try {
-			MetaModelItems modelItems = BeanUtils.getNewInstance(vo, MetaModelItems.class);
-			modelItems.save();
-			vo.setId(modelItems.getId());
-			return modelItems.getId();
-		} catch (Exception e) {
-			return 0L;
-		}
+
+	public String save(MetaModelItemsVO vo) {
+		MetaModelItems modelItems = BeanUtils.getNewInstance(vo, MetaModelItems.class);
+		modelItems.save();
+		vo.setId(modelItems.getId());
+		return modelItems.getId();
 	}
 
 	public boolean remove(MetaModelItemsVO vo) {
 		try {
 			MetaModelItems model = BeanUtils.getNewInstance(vo, MetaModelItems.class);
-			model.remove();	
+			model.remove();
 			return true;
 		} catch (Exception e) {
 			return false;
-		}	
+		}
 	}
 
 	public <T extends MetaModelItemsVO> void remove(Set<T> entities) {
@@ -62,7 +53,7 @@ public class MetaModelItemsServiceImpl implements MetaModelItemService{
 		}
 	}
 
-	public MetaModelItemsVO get(Long id) {
+	public MetaModelItemsVO get(String id) {
 		try {
 			MetaModelItems model = MetaModelItems.get(MetaModelItems.class, id);
 			return BeanUtils.getNewInstance(model, MetaModelItemsVO.class);
@@ -71,31 +62,31 @@ public class MetaModelItemsServiceImpl implements MetaModelItemService{
 		}
 	}
 
-	public PageList<MetaModelItemsVO> queryResult(String queryStr,Map<String, Object> params, int currentPage, int pageSize,
-			String sortString) {
-		PageList<MetaModelItems> pl = queryChannel.queryPagedResult(MetaModelItems.class,queryStr, params,
-				currentPage,pageSize,sortString);
+	public PageList<MetaModelItemsVO> queryResult(String queryStr, Map<String, Object> params, int currentPage,
+			int pageSize, String sortString) {
+		PageList<MetaModelItems> pl = queryChannel.queryPagedResult(MetaModelItems.class, queryStr, params, currentPage,
+				pageSize, sortString);
 		PageList<MetaModelItemsVO> list = new PageList<MetaModelItemsVO>(pl.getPaginator());
-		for(MetaModelItems m:pl){
+		for (MetaModelItems m : pl) {
 			MetaModelItemsVO vo = BeanUtils.getNewInstance(m, MetaModelItemsVO.class);
 			list.add(vo);
 		}
 		return list;
 	}
 
-	public List<MetaModelItemsVO> queryResult(String queryStr, long modelId) {
-		Map<String,Object> map = new HashMap<String, Object>();
+	public List<MetaModelItemsVO> queryResult(String queryStr, String modelId) {
+		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("modelId", modelId);
 		List<MetaModelItems> vo = queryChannel.queryResult(MetaModelItems.class, queryStr, map);
 		List<MetaModelItemsVO> list = new ArrayList<MetaModelItemsVO>();
-		for(MetaModelItems mmi:vo){
-			list.add((BeanUtils.getNewInstance(mmi,MetaModelItemsVO.class)));
+		for (MetaModelItems mmi : vo) {
+			list.add((BeanUtils.getNewInstance(mmi, MetaModelItemsVO.class)));
 		}
 		return list;
 	}
 
 	public boolean update(String queryStr, MetaModelItemsVO vo) {
-		Map<String,Object> map = new HashMap<String, Object>();
+		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("id", vo.getId());
 		map.put("modelId", vo.getModelId());
 		map.put("itemCode", vo.getItemCode());
@@ -109,41 +100,46 @@ public class MetaModelItemsServiceImpl implements MetaModelItemService{
 		map.put("usePrimaryKey", vo.getUsePrimaryKey());
 		map.put("defaultValue", vo.getDefaultValue());
 		try {
-			MetaModelItems.getRepository().executeUpdate(queryStr, map,MetaModelItems.class);
+			MetaModelItems.getRepository().executeUpdate(queryStr, map, MetaModelItems.class);
 			return true;
 		} catch (Exception e) {
 			return false;
 		}
-		
+
 	}
 
-	public boolean columnIsExist(String queryStr, String tableName,String itemName) {
-		String sql= "select " + itemName + " from " + tableName;
-		return metaModelServiceImpl.excuteSql(sql);
+	public boolean columnIsExist(String queryStr, String tableName, String itemName) {
+		String sql = "select " + itemName + " from " + tableName;
+		try {
+			MetaModelItems.getRepository().excuteSql(sql);
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
 	}
 
-	public List<MetaModelItemsVO> queryByState(String queryStr, long modelId) {
-		Map<String,Object> map = new HashMap<String, Object>();
+	public List<MetaModelItemsVO> queryByState(String queryStr, String modelId) {
+		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("modelId", modelId);
 		List<MetaModelItems> vo = queryChannel.queryResult(MetaModelItems.class, queryStr, map);
 		List<MetaModelItemsVO> list = new ArrayList<MetaModelItemsVO>();
-		for(MetaModelItems mmi:vo){
-			list.add((BeanUtils.getNewInstance(mmi,MetaModelItemsVO.class)));
+		for (MetaModelItems mmi : vo) {
+			list.add((BeanUtils.getNewInstance(mmi, MetaModelItemsVO.class)));
 		}
 		return list;
 	}
 
-	public List<MetaModelItemsVO> queryTableName(String queryStr,String tableName) {
-		Map<String,Object> map = new HashMap<String, Object>();
+	public List<MetaModelItemsVO> queryTableName(String queryStr, String tableName) {
+		Map<String, Object> map = new HashMap<String, Object>();
 		List<MetaModelItems> vo = queryChannel.queryResult(MetaModelItems.class, queryStr, map);
 		List<MetaModelItemsVO> list = new ArrayList<MetaModelItemsVO>();
-		for(MetaModelItems mmi:vo){
-			list.add((BeanUtils.getNewInstance(mmi,MetaModelItemsVO.class)));
+		for (MetaModelItems mmi : vo) {
+			list.add((BeanUtils.getNewInstance(mmi, MetaModelItemsVO.class)));
 		}
 		return list;
 	}
-	
-	public boolean removeByFk(Long modelId){
+
+	public boolean removeByFk(String modelId) {
 		try {
 			MetaModelItems.getRepository().removeByFK(MetaModelItems.class, "removeByFK", modelId);
 			return true;
@@ -152,27 +148,28 @@ public class MetaModelItemsServiceImpl implements MetaModelItemService{
 		}
 	}
 
-	public List<MetaModelItemsVO> queryColumn(String queryStr, long modelId,String itemCode) {
-		Map<String,Object> map = new HashMap<String, Object>();
+	public List<MetaModelItemsVO> queryColumn(String queryStr, String modelId, String itemCode) {
+		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("modelId", modelId);
 		map.put("itemCode", itemCode);
 		List<MetaModelItems> list = queryChannel.queryResult(MetaModelItems.class, queryStr, map);
 		List<MetaModelItemsVO> ls = new ArrayList<MetaModelItemsVO>();
-		for(MetaModelItems mmi:list){
+		for (MetaModelItems mmi : list) {
 			ls.add(BeanUtils.getNewInstance(mmi, MetaModelItemsVO.class));
 		}
 		return ls;
 	}
 
-	public PageList<MetaModelItemsVO> selectPagedByExample(BaseExample baseExample,
-			int currentPage, int pageSize, String sortString) {
-		PageList<MetaModelItems> list = this.queryChannel.selectPagedByExample(MetaModelItems.class, baseExample, 
+	public PageList<MetaModelItemsVO> selectPagedByExample(BaseExample baseExample, int currentPage, int pageSize,
+			String sortString) {
+		PageList<MetaModelItems> list = this.queryChannel.selectPagedByExample(MetaModelItems.class, baseExample,
 				currentPage, pageSize, sortString);
 		List<MetaModelItemsVO> ls = new ArrayList<MetaModelItemsVO>();
-		for(MetaModelItems mmi:list){
+		for (MetaModelItems mmi : list) {
 			ls.add(BeanUtils.getNewInstance(mmi, MetaModelItemsVO.class));
 		}
-		PageList<MetaModelItemsVO> pl = new PageList<MetaModelItemsVO>(ls,list.getPaginator());;
+		PageList<MetaModelItemsVO> pl = new PageList<MetaModelItemsVO>(ls, list.getPaginator());
+		;
 		return pl;
 	}
 

@@ -47,8 +47,7 @@ public class FormDesignerGlobal {
 		if (componentType == 1001 || componentType == 1002 || componentType == 1003 || componentType == 1004
 				|| componentType == 1005 || componentType == 1006 || componentType == 1007 || componentType == 1012
 				|| componentType == 1010 || componentType == 1011 || componentType == 1016 || componentType == 1019
-				|| componentType == 1020 || componentType == 1029 || componentType == 1030 || componentType == 1031
-				|| componentType == 1033 || componentType == 1037 || componentType == 1101) {
+				|| componentType == 1020 || componentType == 1033 || componentType == 1037 || componentType == 1101) {
 			return true;
 		}
 		return false;

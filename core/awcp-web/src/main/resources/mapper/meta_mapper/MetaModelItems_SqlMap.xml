@@ -4,8 +4,8 @@
 <mapper namespace="cn.org.awcp.metadesigner.core.domain.MetaModelItems">
 	<!-- <cache type="org.mybatis.caches.memcached.LoggingMemcachedCache" />  -->
 	<resultMap id="rm" type="cn.org.awcp.metadesigner.core.domain.MetaModelItems">
-		<result column="id" jdbcType="BIGINT" property="id"/>
-		<result property="modelId" jdbcType="BIGINT" column="modelId"/>
+		<result column="id" jdbcType="CHAR" property="id"/>
+		<result property="modelId" jdbcType="CHAR" column="modelId"/>
 		<result property="itemName" jdbcType="VARCHAR" column="itemName"/>
 		<result property="itemCode" jdbcType="VARCHAR" column="itemCode"/>
 		<result property="itemType" jdbcType="VARCHAR" column="itemType"/>
@@ -129,7 +129,7 @@
 		</if>
 	</select>
 	
-	<select id="get" parameterType="java.lang.Long" resultMap="rm">
+	<select id="get" parameterType="Object" resultMap="rm">
 		SELECT 
 			<include refid="Base_Column_List" />
 		FROM fw_mm_metamodelitems 
@@ -137,22 +137,19 @@
 			id = #{id} 
 	</select>
 	<!-- 查询所有的ID -->
-	<select id="findAllIds" resultType="java.lang.Long">
+	<select id="findAllIds" resultType="java.lang.String">
 		SELECT id FROM fw_mm_metamodelitems
 	</select>
 
 	<!-- 按Id删除 -->
-	<delete id="remove" parameterType="long">
+	<delete id="remove" parameterType="Object">
 		DELETE FROM fw_mm_metamodelitems WHERE
 		id = #{id} 
 	</delete>
 	 <!-- 插入 -->
 	<insert id="insert" parameterType="Object">
-		<selectKey resultType="java.lang.Long" order="AFTER"
-			keyProperty="id">
-			SELECT LAST_INSERT_ID()
-		</selectKey>
 		INSERT INTO fw_mm_metamodelitems (
+			id,
 			modelId,
 			itemName,
 			itemCode,
@@ -165,6 +162,7 @@
 			defaultValue,
 			remark
 		) VALUES (
+			#{id},
 			#{modelId},
 			#{itemName},
 			#{itemCode},
@@ -268,7 +266,7 @@
 	<select id="queryResult" resultMap="rm" parameterType="Object">
 	select 
 	<include refid="Base_Column_List"/>
-	from fw_mm_metamodelitems where modelId=${modelId} 
+	from fw_mm_metamodelitems where modelId=#{modelId} 
 	</select>
 
 	<select id="columnIsExist" parameterType="map" resultType="boolean"> 

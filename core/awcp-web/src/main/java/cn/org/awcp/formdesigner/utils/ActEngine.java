@@ -10,8 +10,12 @@ import java.util.Map;
 import javax.script.ScriptEngine;
 
 import org.apache.commons.lang3.StringUtils;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+
 import cn.org.awcp.core.domain.BaseExample;
-import cn.org.awcp.core.utils.Tools;
+import cn.org.awcp.core.utils.SessionUtils;
 import cn.org.awcp.core.utils.constants.SessionContants;
 import cn.org.awcp.formdesigner.application.service.DocumentService;
 import cn.org.awcp.formdesigner.application.vo.DocumentVO;
@@ -22,9 +26,6 @@ import cn.org.awcp.formdesigner.core.domain.design.context.act.PageAct;
 import cn.org.awcp.unit.vo.PunUserBaseInfoVO;
 //import cn.org.awcp.workflow.application.vo.ResultVO;
 //import cn.org.awcp.workflow.applicationimpl.bpm.component.WorkflowProcessService;
-
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 
 /**
  * @ClassName: ActEngine
@@ -90,7 +91,7 @@ public class ActEngine {
 	 * @Title: executeSave @Description: 执行保存动作的默认操作 @return String 执行结果 @throws
 	 */
 	private void saveWithValidatNoFlow() {
-		PunUserBaseInfoVO user = (PunUserBaseInfoVO) Tools.getObjectFromSession(SessionContants.CURRENT_USER);
+		PunUserBaseInfoVO user = (PunUserBaseInfoVO) SessionUtils.getObjectFromSession(SessionContants.CURRENT_USER);
 		DocumentUtils utils = (DocumentUtils) engine.get("DocumentUtils");
 		docVo.setLastmodifier(String.valueOf(user.getUserId()));
 		docVo.setAuditUser(String.valueOf(user.getUserId()));
@@ -124,7 +125,7 @@ public class ActEngine {
 		// 保存带流程
 		// 保存--判断有没有流程实例id 有-更新，
 		// 没有-判断有没有workflowId，有--启动流程，向document中插入一条记录 ，没有，插入一条记录
-		PunUserBaseInfoVO user = (PunUserBaseInfoVO) Tools.getObjectFromSession(SessionContants.CURRENT_USER);
+		PunUserBaseInfoVO user = (PunUserBaseInfoVO) SessionUtils.getObjectFromSession(SessionContants.CURRENT_USER);
 		DocumentUtils utils = (DocumentUtils) engine.get("DocumentUtils");
 		if (StringUtils.isNotBlank(docVo.getInstanceId())) {
 			// 更新数据
@@ -211,7 +212,7 @@ public class ActEngine {
 	 * @Title: executeDelete @Description: 执行删除动作的默认操作 @return String 执行结果 @throws
 	 */
 	public void delete() {
-		PunUserBaseInfoVO user = (PunUserBaseInfoVO) Tools.getObjectFromSession(SessionContants.CURRENT_USER);
+		PunUserBaseInfoVO user = (PunUserBaseInfoVO) SessionUtils.getObjectFromSession(SessionContants.CURRENT_USER);
 		DocumentUtils utils = (DocumentUtils) engine.get("DocumentUtils");
 		if (_selects != null && _selects.length >= 1) {
 			for (String select : _selects) {

@@ -13,7 +13,7 @@ import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSInputFile;
 
 import cn.org.awcp.base.BaseController;
-import cn.org.awcp.core.utils.Tools;
+import cn.org.awcp.core.utils.SessionUtils;
 import cn.org.awcp.core.utils.constants.SessionContants;
 import cn.org.awcp.core.utils.mongodb.MongoDBUtils;
 import cn.org.awcp.formdesigner.core.domain.Attachment;
@@ -27,7 +27,7 @@ public class MainTextController extends BaseController {
 	@ResponseBody
 	@RequestMapping(value = "/getUser")
 	public PunUserBaseInfoVO getUser() {
-		Object obj3 = Tools.getObjectFromSession(SessionContants.CURRENT_USER);
+		Object obj3 = SessionUtils.getObjectFromSession(SessionContants.CURRENT_USER);
 		PunUserBaseInfoVO user = (PunUserBaseInfoVO) obj3;
 		return user;
 	}
@@ -52,10 +52,10 @@ public class MainTextController extends BaseController {
 			file.remove();
 			// 修改mangodb数据
 
-			Object obj2 = Tools.getObjectFromSession(SessionContants.CURRENT_SYSTEM);
+			Object obj2 = SessionUtils.getObjectFromSession(SessionContants.CURRENT_SYSTEM);
 			if (obj2 instanceof PunSystemVO) {
 				PunSystemVO system = (PunSystemVO) obj2;
-				Object obj3 = Tools.getObjectFromSession(SessionContants.CURRENT_USER);
+				Object obj3 = SessionUtils.getObjectFromSession(SessionContants.CURRENT_USER);
 				PunUserBaseInfoVO user = (PunUserBaseInfoVO) obj3;
 
 				MongoClient client = MongoDBUtils.getMongoClient();

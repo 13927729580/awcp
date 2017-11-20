@@ -18,14 +18,9 @@ import java.util.Locale;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.session.Session;
-import org.apache.shiro.subject.Subject;
 import org.dom4j.Document;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
-
-import cn.org.awcp.core.utils.constants.SessionContants;
 
 public abstract class Tools {
 
@@ -60,8 +55,7 @@ public abstract class Tools {
 		String _dateStr = dateStr.trim();
 		try {
 			if (_dateStr.matches("\\d{1,2}[A-Z]{3}")) {
-				_dateStr = _dateStr
-						+ (Calendar.getInstance().get(Calendar.YEAR) - 2000);
+				_dateStr = _dateStr + (Calendar.getInstance().get(Calendar.YEAR) - 2000);
 			}
 			// 01OCT12
 			if (_dateStr.matches("\\d{1,2}[A-Z]{3}\\d{2}")) {
@@ -70,8 +64,7 @@ public abstract class Tools {
 				// ,01OCT2012
 				// 1224,01OCT2012
 				// 12:24
-				_dateStr = _dateStr.replaceAll("[^0-9A-Z]", "")
-						.concat("000000").substring(0, 15);
+				_dateStr = _dateStr.replaceAll("[^0-9A-Z]", "").concat("000000").substring(0, 15);
 				format = new SimpleDateFormat("ddMMMyyyyHHmmss", Locale.ENGLISH);
 			} else {
 				StringBuffer sb = new StringBuffer(_dateStr);
@@ -85,8 +78,7 @@ public abstract class Tools {
 						sb.insert(8, "0");
 					}
 				}
-				_dateStr = sb.append("000000").toString()
-						.replaceAll("[^0-9]", "").substring(0, 14);
+				_dateStr = sb.append("000000").toString().replaceAll("[^0-9]", "").substring(0, 14);
 				if (_dateStr.matches("\\d{14}")) {
 					format = new SimpleDateFormat("yyyyMMddHHmmss");
 				}
@@ -178,8 +170,7 @@ public abstract class Tools {
 	 * @return
 	 */
 	public static String format2ddMMMyy(Date date) {
-		SimpleDateFormat format = new SimpleDateFormat("ddMMMyy",
-				Locale.ENGLISH);
+		SimpleDateFormat format = new SimpleDateFormat("ddMMMyy", Locale.ENGLISH);
 		return format.format(date).toUpperCase();
 	}
 
@@ -191,8 +182,7 @@ public abstract class Tools {
 	 * @return
 	 */
 	public static String format2ddMMMyy(String dateStr) {
-		SimpleDateFormat format = new SimpleDateFormat("ddMMMyy",
-				Locale.ENGLISH);
+		SimpleDateFormat format = new SimpleDateFormat("ddMMMyy", Locale.ENGLISH);
 		return format.format(parseDate(dateStr)).toUpperCase();
 	}
 
@@ -206,8 +196,7 @@ public abstract class Tools {
 	 */
 	public static String formatDateStr(String dateStr, String... patterns) {
 		String pattern = YYYY_MM_DD_HH_MM_SS;
-		if (patterns != null && patterns.length > 0
-				&& StringUtils.isNotBlank(patterns[0])) {
+		if (patterns != null && patterns.length > 0 && StringUtils.isNotBlank(patterns[0])) {
 			pattern = patterns[0];
 		}
 		return DateFormatUtils.format(parseDate(dateStr), pattern);
@@ -225,8 +214,7 @@ public abstract class Tools {
 		if (date == null)
 			return "";
 		String pattern = YYYY_MM_DD_HH_MM_SS;
-		if (patterns != null && patterns.length > 0
-				&& StringUtils.isNotBlank(patterns[0])) {
+		if (patterns != null && patterns.length > 0 && StringUtils.isNotBlank(patterns[0])) {
 			pattern = patterns[0];
 		}
 		return DateFormatUtils.format(date, pattern);
@@ -246,8 +234,7 @@ public abstract class Tools {
 	 */
 	public static Date formatDate(Date orig, String... patterns) {
 		String pattern = YYYY_MM_DD_HH_MM_SS;
-		if (patterns != null && patterns.length > 0
-				&& StringUtils.isNotBlank(patterns[0])) {
+		if (patterns != null && patterns.length > 0 && StringUtils.isNotBlank(patterns[0])) {
 			pattern = patterns[0];
 		}
 		return parseDate(DateFormatUtils.format(orig, pattern));
@@ -477,11 +464,11 @@ public abstract class Tools {
 			String encoding = "GBK";
 			BufferedReader br = null;
 			try {
-				InputStreamReader read = new InputStreamReader(new FileInputStream(file), encoding);//考虑到编码格式
+				InputStreamReader read = new InputStreamReader(new FileInputStream(file), encoding);// 考虑到编码格式
 				br = new BufferedReader(read);// 构造一个BufferedReader类来读取文件
 				String s = null;
 				while ((s = br.readLine()) != null) {// 使用readLine方法，一次读一行
-					if(sb.length() != 0) {
+					if (sb.length() != 0) {
 						sb.append("\n");
 					}
 					sb.append(s);
@@ -489,7 +476,7 @@ public abstract class Tools {
 			} catch (IOException e) {
 				e.printStackTrace();
 			} finally {
-				if(br != null) {
+				if (br != null) {
 					try {
 						br.close();
 					} catch (IOException e) {
@@ -500,20 +487,20 @@ public abstract class Tools {
 		}
 		return sb.toString();
 	}
-	
+
 	public static String getFileContent(InputStream is, String fileName, String encoding) {
 		StringBuilder sb = new StringBuilder();
 		if (is != null && getTypePart(fileName).equalsIgnoreCase("txt")) {
-			if(org.apache.commons.lang3.StringUtils.isBlank(encoding)) {
+			if (org.apache.commons.lang3.StringUtils.isBlank(encoding)) {
 				encoding = "UTF-8";
 			}
 			BufferedReader br = null;
 			try {
-				InputStreamReader read = new InputStreamReader(is, encoding);//考虑到编码格式
+				InputStreamReader read = new InputStreamReader(is, encoding);// 考虑到编码格式
 				br = new BufferedReader(read);// 构造一个BufferedReader类来读取文件
 				String s = null;
 				while ((s = br.readLine()) != null) {// 使用readLine方法，一次读一行
-					if(sb.length() != 0) {
+					if (sb.length() != 0) {
 						sb.append("\n");
 					}
 					sb.append(s);
@@ -521,7 +508,7 @@ public abstract class Tools {
 			} catch (IOException e) {
 				e.printStackTrace();
 			} finally {
-				if(br != null) {
+				if (br != null) {
 					try {
 						br.close();
 					} catch (IOException e) {
@@ -535,56 +522,6 @@ public abstract class Tools {
 
 	// ==============================结束：文件操作=================================//
 
-	// ==============================开始：shiro session操作======================//
-	/**
-	 * 获取当前受shiro控制的Session
-	 * 
-	 * @return
-	 */
-	public static Session getCurrentSession() {
-		Subject subject = SecurityUtils.getSubject();
-		return subject.getSession();
-	}
-
-	/**
-	 * 从受shiro控制的session中获取对象
-	 * 
-	 * @param key
-	 * @return
-	 */
-	public static Object getObjectFromSession(String key) {
-		Session session = getCurrentSession();
-		return session.getAttribute(key);
-	}
-
-	/**
-	 * 往session中存入对象
-	 * 
-	 * @param key
-	 *            键
-	 * @param value
-	 *            值
-	 */
-	public static void addObjectToSession(Object key, Object value) {
-		Session session = getCurrentSession();
-		session.setAttribute(key, value);
-	}
-
-	/**
-	 * 清除session中的值
-	 */
-	public static void clearSession() {
-		Session session = getCurrentSession();
-		session.removeAttribute(SessionContants.CURRENT_USER);
-		session.removeAttribute(SessionContants.CURRENT_RESOURCES);
-		session.removeAttribute(SessionContants.CURRENT_ROLES);
-		session.removeAttribute(SessionContants.CURRENT_SYSTEM);
-		session.removeAttribute(SessionContants.CURRENT_USER_GROUP);
-	}
-
-	// ==============================结束：shiro
-	// session操作========================================//
-
 	// ==============================开始：xml操作=================================================//
 	/**
 	 * 从文件名初始化，如初始化成功返回ROOT，否则返回NULL
@@ -594,8 +531,7 @@ public abstract class Tools {
 	static public Document parseXml(String xmlSource) throws Exception {
 		if (xmlSource == null)
 			return null;
-		InputStream in = Thread.currentThread().getContextClassLoader()
-				.getResourceAsStream(xmlSource);
+		InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(xmlSource);
 		return parseXml(in);
 	}
 
@@ -625,8 +561,7 @@ public abstract class Tools {
 			root = saxReader.read(xmlFile);
 			return root;
 		} catch (Exception e) {
-			System.err.println("解析XML输入流出现异常，请检查XML输入流是否正确:"
-					+ xmlFile.getName());
+			System.err.println("解析XML输入流出现异常，请检查XML输入流是否正确:" + xmlFile.getName());
 			throw e;
 		}
 	}
@@ -776,12 +711,10 @@ public abstract class Tools {
 	 * @param newLine
 	 *            boolean 是否要换行
 	 */
-	static public void printAndClose(Document document, OutputStream out,
-			boolean indent, boolean newLine) {
+	static public void printAndClose(Document document, OutputStream out, boolean indent, boolean newLine) {
 		org.dom4j.io.XMLWriter writer = null;
 		try {
-			org.dom4j.io.OutputFormat format = org.dom4j.io.OutputFormat
-					.createPrettyPrint();
+			org.dom4j.io.OutputFormat format = org.dom4j.io.OutputFormat.createPrettyPrint();
 			format.setEncoding("GBK");
 			format.setIndent(indent);
 			format.setNewlines(newLine);
@@ -813,8 +746,7 @@ public abstract class Tools {
 	static public void printAndClose(Document document, OutputStream out) {
 		org.dom4j.io.XMLWriter writer = null;
 		try {
-			org.dom4j.io.OutputFormat format = org.dom4j.io.OutputFormat
-					.createPrettyPrint();
+			org.dom4j.io.OutputFormat format = org.dom4j.io.OutputFormat.createPrettyPrint();
 			format.setEncoding("GBK");
 			format.setTrimText(true);
 			format.setIndent(true);
@@ -875,8 +807,7 @@ public abstract class Tools {
 	 */
 	static public void print(Document document, OutputStream out, String charSet) {
 		org.dom4j.io.XMLWriter writer = null;
-		org.dom4j.io.OutputFormat format = org.dom4j.io.OutputFormat
-				.createPrettyPrint();
+		org.dom4j.io.OutputFormat format = org.dom4j.io.OutputFormat.createPrettyPrint();
 		format.setNewlines(true);
 		format.setEncoding(charSet);
 		format.setTrimText(true);
@@ -900,21 +831,20 @@ public abstract class Tools {
 
 	static public void main(String[] args) {
 		try {
-			Document document = org.dom4j.DocumentHelper.createDocument();// .parseText("<?xml version=\"1.0\" encoding=\"GBK\"?><system/>")
+			Document document = org.dom4j.DocumentHelper.createDocument();// .parseText("<?xml version=\"1.0\"
+																			// encoding=\"GBK\"?><system/>")
 																			// ;
 			org.dom4j.Element root = document.addElement("system");
 
 			java.util.Properties properties = System.getProperties();
-			for (Enumeration<?> elements = properties.propertyNames(); 
-					elements.hasMoreElements();) {
+			for (Enumeration<?> elements = properties.propertyNames(); elements.hasMoreElements();) {
 				String name = (String) elements.nextElement();
 				String value = properties.getProperty(name);
 				org.dom4j.Element element = root.addElement("property");
 				element.addAttribute("name", name);
 				element.addText(value);
 			}
-			root.addElement("tree").addAttribute("text", "测试")
-					.addAttribute("src", "./admin/createMenu.do?pId=12");
+			root.addElement("tree").addAttribute("text", "测试").addAttribute("src", "./admin/createMenu.do?pId=12");
 			Tools.printAndClose(document, System.out, true, true);
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -924,21 +854,20 @@ public abstract class Tools {
 	@SuppressWarnings("unused")
 	static private Document createDocument() {
 		try {
-			Document document = org.dom4j.DocumentHelper.createDocument();// .parseText("<?xml version=\"1.0\" encoding=\"GBK\"?><system/>")
+			Document document = org.dom4j.DocumentHelper.createDocument();// .parseText("<?xml version=\"1.0\"
+																			// encoding=\"GBK\"?><system/>")
 																			// ;
 			org.dom4j.Element root = document.addElement("system");
 
 			java.util.Properties properties = System.getProperties();
-			for (Enumeration<?> elements = properties.propertyNames(); elements
-					.hasMoreElements();) {
+			for (Enumeration<?> elements = properties.propertyNames(); elements.hasMoreElements();) {
 				String name = (String) elements.nextElement();
 				String value = properties.getProperty(name);
 				org.dom4j.Element element = root.addElement("property");
 				element.addAttribute("name", name);
 				element.addText(value);
 			}
-			root.addElement("tree").addAttribute("text", "测试")
-					.addAttribute("src", "./admin/createMenu.do?pId=12");
+			root.addElement("tree").addAttribute("text", "测试").addAttribute("src", "./admin/createMenu.do?pId=12");
 
 			return document;
 		} catch (Exception ex) {

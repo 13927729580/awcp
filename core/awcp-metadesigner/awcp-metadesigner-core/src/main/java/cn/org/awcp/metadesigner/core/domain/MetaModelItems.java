@@ -2,10 +2,10 @@ package cn.org.awcp.metadesigner.core.domain;
 
 import cn.org.awcp.core.domain.BaseEntity;
 
-public class MetaModelItems extends BaseEntity<Long> {
+public class MetaModelItems extends BaseEntity<String> {
 
 	private static final long serialVersionUID = 1L;
-	private Long modelId;
+	private String modelId;
 	private String itemName;
 	private String itemCode;
 	private String itemType;
@@ -20,11 +20,11 @@ public class MetaModelItems extends BaseEntity<Long> {
 	public MetaModelItems() {
 	}
 
-	public void setModelId(Long value) {
+	public void setModelId(String value) {
 		this.modelId = value;
 	}
 
-	public Long getModelId() {
+	public String getModelId() {
 		return this.modelId;
 	}
 

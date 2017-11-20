@@ -5,7 +5,7 @@ import java.util.List;
 import cn.org.awcp.core.common.exception.MRTException;
 import cn.org.awcp.core.domain.BaseEntity;
 
-public class MetaModelClass extends BaseEntity<Long> {
+public class MetaModelClass extends BaseEntity<String> {
 
 	private static final long serialVersionUID = 1L;
 

@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -14,15 +13,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
+
+import com.github.miemiedev.mybatis.paginator.domain.PageList;
+
 import cn.org.awcp.core.domain.BaseExample;
-import cn.org.awcp.formdesigner.utils.DocumentUtils;
 import cn.org.awcp.unit.service.PunGroupService;
 import cn.org.awcp.unit.service.PunPositionService;
 import cn.org.awcp.unit.service.PunRoleInfoService;
@@ -32,8 +31,9 @@ import cn.org.awcp.unit.vo.PunGroupVO;
 import cn.org.awcp.unit.vo.PunUserBaseInfoVO;
 import cn.org.awcp.unit.vo.PunUserGroupVO;
 
-import com.github.miemiedev.mybatis.paginator.domain.PageList;
-
+/**
+ * 用户部门Controller
+ */
 @Controller
 @RequestMapping("/punUserGroupController")
 public class PunUserGroupController {
@@ -44,43 +44,41 @@ public class PunUserGroupController {
 	public static final int pagesize = 8;
 
 	@Resource(name = "punUserGroupServiceImpl")
-	private PunUserGroupService punUserGroupService;
+	private PunUserGroupService punUserGroupService; // 用户部门Service
 
 	@Resource(name = "punPositionServiceImpl")
-	private PunPositionService punPositionService;
+	private PunPositionService punPositionService; // 职位Service
 
 	@Autowired
 	@Qualifier("punUserBaseInfoServiceImpl")
-	PunUserBaseInfoService userService;
+	PunUserBaseInfoService userService; // 用户Service
 
 	@Autowired
 	@Qualifier("punRoleInfoServiceImpl")
-	PunRoleInfoService roleService;
+	PunRoleInfoService roleService; // 角色Service
 
 	@Autowired
 	@Qualifier("punGroupServiceImpl")
-	PunGroupService groupService;
+	PunGroupService groupService; // 部门Service
 
 	@Resource(name = "jdbcTemplate")
 	private JdbcTemplate jdbcTemplate;
 
-	@RequestMapping(value = "/manager/punUserGroups", method = RequestMethod.GET)
-	public ModelAndView listPunUserGroup(String pagenum, PunUserGroupVO punUserGroup) {
-		ModelAndView mv = new ModelAndView();
-		mv.setViewName("punUserGroups");
-		mv.addObject("sidebar", "punUserGroups");
-		int num = 1;
-		if (null != pagenum) {
-			num = Integer.parseInt(pagenum);
-		}
-		List<PunUserGroupVO> list = punUserGroupService.findAll();
-		mv.addObject("punUserGrouptList", list);
-		mv.addObject("length", list.size());
-		mv.addObject("pagenum", num);
-		mv.addObject("punUserGroup", punUserGroup);
-		return mv;
-	}
-
+	/**
+	 * 保存用户,部门,职位
+	 * 
+	 * @param positionId
+	 *            职位Ids
+	 * @param boxs
+	 *            用户Ids
+	 * @param groupId
+	 *            部门Id
+	 * @param rootGroupId
+	 *            根部门Id
+	 * @param isManager
+	 *            是否是管理员
+	 * @return
+	 */
 	@RequestMapping(value = "/save", method = RequestMethod.POST)
 	public ModelAndView save(Long[] positionId, Long[] boxs, Long groupId, Long rootGroupId, Long isManager) {
 		ModelAndView mv = new ModelAndView(
@@ -100,24 +98,6 @@ public class PunUserGroupController {
 			}
 		}
 		return mv;
-	}
-
-	@RequestMapping(value = "/remove", method = RequestMethod.GET)
-	public String remove(@ModelAttribute PunUserGroupVO vo, Model model) {
-		punUserGroupService.remove(vo);
-		return "/manager/punUserGroups";
-	}
-
-	@RequestMapping(value = "/findAll", method = RequestMethod.GET)
-	public String findAll(Model model, HttpServletResponse response) throws Exception {
-		try {
-			List<PunUserGroupVO> list = this.punUserGroupService.findAll();
-			model.addAttribute("class", list);
-			return "/manager/punUserGroups";
-		} catch (Exception e) {
-			logger.info("ERROR", e);
-		}
-		return null;
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -208,44 +188,16 @@ public class PunUserGroupController {
 		return mv;
 	}
 
-	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/getUsers", method = RequestMethod.GET)
 	public ModelAndView getUsers(Long groupId, Long rootGroupId, String number, Long user) {
-
-		String str = "";
 		// 获取部门名称
 		PunGroupVO pun = groupService.findById(groupId);
-
-		// if(null!=pun.getNumber()&&!"".equals(pun.getNumber())){
-		//
-		// str=pun.getNumber()+"-";
-		// }else{
-		//
-		// //获取父级的排序
-		// if(null!=pun.getPid()&&!"".equals(pun.getPid())){
-		// String ids[]=pun.getPid().split(",");
-		// for (String s : ids) {
-		// PunGroupVO tem=groupService.findById(Long.parseLong(s));
-		// if("".equals(tem.getNumber())||null==tem.getNumber()){
-		// tem.setNumber("NO");
-		// }
-		// String nu=tem.getNumber();
-		// //只取父节点本身的排序
-		// str+=nu.substring(nu.lastIndexOf("-")+1,nu.length())+"-";
-		// }
-		// //本身为空的number
-		// str+="NO-";
-		// }
-		// }
-
 		// 编号不为空的话修改编号
-		if (!"".equals(number) && number != null && !"".equals(user) && user != null) {
-
+		if (!"".equals(number) && number != null && user != null) {
 			PunUserBaseInfoVO uvo = userService.findById(user);
 			uvo.setNumber(number);
 			userService.updateUser(uvo);
 		}
-
 		ModelAndView mv = new ModelAndView();
 		mv.setViewName("/unit/punGroup-usersView");
 
@@ -254,13 +206,10 @@ public class PunUserGroupController {
 			for (int i = 0; i < list.size(); i++) {
 				list.get(i).setDeptName(pun.getGroupChName());
 			}
-
 		}
-
 		mv.addObject("userList", list);
 		mv.addObject("groupId", groupId);
 		mv.addObject("rootGroupId", rootGroupId);
-		// mv.addObject("deptName",pun.getGroupChName());
 		return mv;
 	}
 
@@ -289,49 +238,57 @@ public class PunUserGroupController {
 		return mv;
 	}
 
-	@SuppressWarnings("rawtypes")
+	/**
+	 * 根据部门ID获取该部门的所有用户
+	 * 
+	 * @param groupId
+	 * @return
+	 */
 	@ResponseBody
 	@RequestMapping(value = "/getUserListByAjax", method = RequestMethod.GET)
-	public List getUserListByAjax(Long groupId, Long rootGroupId) {
-		PageList list = (PageList) punUserGroupService.queryUserListByGroupId(groupId);
+	public PageList<PunUserBaseInfoVO> getUserListByAjax(Long groupId) {
+		PageList<PunUserBaseInfoVO> list = punUserGroupService.queryUserListByGroupId(groupId);
 		return list;
 	}
 
-	@SuppressWarnings("rawtypes")
+	/**
+	 * 根据条件查询用户
+	 * 
+	 * @param groupId
+	 *            部门ID
+	 * @param role
+	 *            角色ID
+	 * @param job
+	 *            职位ID
+	 * @param name
+	 *            姓名
+	 * @param currentPage
+	 * @param pageSize
+	 * @return
+	 */
 	@ResponseBody
 	@RequestMapping(value = "/getUserListByWhere", method = RequestMethod.POST)
-	public List getUserListByWhere(Long groupId, Long rootGroupId, String role, String job, String eq,
+	public List<PunUserBaseInfoVO> getUserListByWhere(Long groupId, String role, String job, String name,
 			@RequestParam(value = "currentPage", required = false, defaultValue = "1") int currentPage,
 			@RequestParam(value = "pageSize", required = false, defaultValue = "9999") int pageSize) {
 		String sortString = "USER_ID.desc";
 		Map<String, Object> params = new HashMap<String, Object>();
 		String sqlMap = "";
-
 		if (role != null) {
 			params.put("roleId", role);
 			sqlMap = "queryUserRelateRole";
 		}
-
 		if (job != null) {
 			params.put("position_id", job);
 			sqlMap = "queryUserRelatePosition";
 		}
-
-		if (eq != null) {
-			params.put("name", eq);
+		if (name != null) {
+			params.put("name", name);
 			List<PunUserBaseInfoVO> userVOs = userService.queryResult("eqQueryList", params);
 			return userVOs;
 		}
-
 		List<PunUserBaseInfoVO> userVOs = userService.queryPagedResult(sqlMap, params, currentPage, pageSize,
 				sortString);
-		PunUserBaseInfoVO user = DocumentUtils.getIntance().getUser();
-		for (int i = 0; i < userVOs.size(); i++) {
-			if (user.getUserId().equals(userVOs.get(i).getUserId())) {
-				userVOs.remove(i);
-				break;
-			}
-		}
 		return userVOs;
 	}
 

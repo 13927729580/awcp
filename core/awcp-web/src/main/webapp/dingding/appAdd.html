@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title data-id="title_addApp"></title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="stylesheet" href="css/appAdd.css">
+</head>
+<body>
+    <div id="dingapp">
+		<div class="addAppCtl">
+			<div>
+				<div class="groupName"></div>
+				<div class="appListContainer"></div>
+			</div>
+		</div>
+	</div>
+    
+    <script src="js/jquery.js" charset="utf-8"></script>
+    <script src="js/dingtalk.js" charset="utf-8"></script>
+	<script src="../venson/js/common.js"></script>
+	<script src="js/resource.js"></script>
+    <script>
+    	var typeID = Comm.getUrlParam("typeID");	//微应用类型ID
+    	var typeName = Comm.getUrlParam("typeName");//微应用类型名
+    	if(Comm.cookie("Lang")=="en"){
+    		$(".groupName").html("For 「<span>" + typeName + "</span>」 add shortcut");
+    	}
+    	else{
+    		$(".groupName").html("为 「<span>" + typeName + "</span>」 分组添加快捷方式");
+    	}
+    	
+    	//获取该微应用类型的所有微应用
+    	$.ajax({
+		   	type: "POST",
+		   	url: baseUrl + "dingding/getAllApps.do?typeID=" + typeID,
+		   	async : false,
+		   	success: function(data){
+		   		var html = "";
+		   		for(var i=0;i<data.length;i++){
+		   			var img = baseUrl + 'common/file/showPicture.do?id=' + data[i].img;
+		   			var title = data[i].title;
+		   			var id = data[i].ID;
+		   			var state = data[i].state;
+		   			var children = data[i].children;
+		   			html += '<div class="appListItem"><div class="appListInfo"><div class="pure-g"><div class="pure-u-1-5">' + 
+		   					'<div class="img" style="background-image: url(&quot;' + img + '&quot;);"></div></div>' +
+		   					'<div class="pure-u-3-5"><h2>' + title + '</h2></div>';
+		   			if(state==0){
+		   				html += '<div class="pure-u-1-5"><div><a class="addButton">' + dd_res.addButton + '</a>' + 
+		   						'<input type="hidden" value="' + id + '" />' +
+		   						'</div></div></div></div>';
+		   			}
+		   			else{
+		   				html += '<div class="pure-u-1-5"><div><span>' + dd_res.added + '</span></div></div></div></div>';
+		   			}
+		   			var childHtml = "";
+		   			for(var j=0;j<children.length;j++){
+		   				var cImg = baseUrl + 'common/file/showPicture.do?id=' + children[j].img;
+		   				var cTitle = children[j].title;
+			   			var cId = children[j].ID;
+			   			var cState = children[j].state;
+		   				childHtml += '<div class="appFindListContainer"><div class="pure-g">' +
+		   							 '<div class="pure-u-1-5"><i></i></div>' +
+		   							 '<div class="pure-u-3-5"><h2>' + 
+		   							 '<i class="img" style="background-image: url(&quot;' + cImg + '&quot;);"></i>' + cTitle +
+		   							 '</h2></div>';
+		   				if(cState==0){
+		   					childHtml += '<div class="pure-u-1-5"><div><a class="addButton">' + dd_res.addButton + '</a>' +
+					   					 '<input type="hidden" value="' + cId + '" />' +
+				   						 '</div></div></div></div>';
+			   			}
+			   			else{
+			   				childHtml += '<div class="pure-u-1-5"><div><span>' + dd_res.added + '</span></div></div></div></div>';
+			   			}
+		   			} 
+		   			if(childHtml){
+		   				childHtml = '<div>' + childHtml + '</div>';
+		   			}
+		   			html += childHtml + '</div>';
+		   		}
+		   		$(".appListContainer").html(html);
+		   	}
+    	});
+    	
+    	//添加微应用按钮点击事件
+    	$(".addButton").click(function(){
+    		var $this = $(this);
+    		var appId = $this.next().val();
+    		$.ajax({
+                type: "POST",
+                url: baseUrl + "api/execute/enableApp?id=" + appId,
+                async : false,
+                success: function(data){
+                    if(data.data == "1"){
+                    	$this.parent().html("<span>" + dd_res.added + "</span>");
+                    }
+                }
+            });
+    	});
+    	
+    </script>
+</body>
+</html>

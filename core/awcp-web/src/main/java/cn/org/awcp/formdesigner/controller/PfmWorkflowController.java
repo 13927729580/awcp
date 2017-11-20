@@ -19,9 +19,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.github.miemiedev.mybatis.paginator.domain.PageList;
+import com.github.miemiedev.mybatis.paginator.domain.Paginator;
+
 import cn.org.awcp.base.BaseController;
 import cn.org.awcp.core.common.exception.MRTException;
-import cn.org.awcp.core.utils.Tools;
+import cn.org.awcp.core.utils.SessionUtils;
 import cn.org.awcp.core.utils.constants.SessionContants;
 import cn.org.awcp.formdesigner.application.service.FormdesignerService;
 import cn.org.awcp.formdesigner.application.vo.DynamicPageVO;
@@ -30,11 +35,6 @@ import cn.org.awcp.formdesigner.application.vo.WorkflowNodeVO;
 import cn.org.awcp.formdesigner.application.vo.WorkflowVO;
 import cn.org.awcp.formdesigner.application.vo.WorkflowVariableVO;
 import cn.org.awcp.unit.vo.PunSystemVO;
-
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.github.miemiedev.mybatis.paginator.domain.PageList;
-import com.github.miemiedev.mybatis.paginator.domain.Paginator;
 
 @Controller
 @RequestMapping("/fd/workflow")
@@ -138,7 +138,7 @@ public class PfmWorkflowController extends BaseController {
 		mv.addObject("workflowName", workflowName);
 		mv.addObject("pageId", pageId);
 		if (StringUtils.isNotBlank(workflowId)) {
-			Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+			Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 			if (obj instanceof PunSystemVO) {
 				// PunSystemVO system = (PunSystemVO)obj;
 				// 根据流程id查询节点信息
@@ -181,7 +181,7 @@ public class PfmWorkflowController extends BaseController {
 		if (currentPage < 1) {
 			currentPage = 1;
 		}
-		Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+		Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 		if (obj instanceof PunSystemVO) {
 			PunSystemVO system = (PunSystemVO) obj;
 			// TODO 接口sysId可改为string

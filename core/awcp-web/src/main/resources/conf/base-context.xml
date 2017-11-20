@@ -10,7 +10,7 @@
                 http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd">
 
 	<context:annotation-config />
-	<context:component-scan base-package="cn.org.awcp,org.jflow" >
+	<context:component-scan base-package="org.jflow,BP.WF,BP.DA" >
 	   <context:exclude-filter type="annotation"
 			expression="org.springframework.stereotype.Controller" />
 	</context:component-scan>

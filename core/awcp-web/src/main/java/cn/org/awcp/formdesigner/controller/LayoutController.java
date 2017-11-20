@@ -43,7 +43,7 @@ import com.alibaba.fastjson.JSONObject;
 import cn.org.awcp.base.BaseController;
 import cn.org.awcp.core.domain.BaseExample;
 import cn.org.awcp.core.utils.BeanUtils;
-import cn.org.awcp.core.utils.Tools;
+import cn.org.awcp.core.utils.SessionUtils;
 import cn.org.awcp.core.utils.constants.SessionContants;
 import cn.org.awcp.formdesigner.application.service.FormdesignerService;
 import cn.org.awcp.formdesigner.application.service.StoreService;
@@ -84,7 +84,7 @@ public class LayoutController extends BaseController {
 		vo.setContent(StringEscapeUtils.unescapeHtml4(vo.getContent()));
 		if (vo.getId().indexOf(",") < 0) {
 			if (validate(vo)) {
-				Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+				Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 				if (obj instanceof PunSystemVO) {
 					PunSystemVO system = (PunSystemVO) obj;
 					vo.setSystemId(system.getSysId());
@@ -130,7 +130,7 @@ public class LayoutController extends BaseController {
 				}
 			}
 			if (validate(vo)) {
-				Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+				Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 				if (obj instanceof PunSystemVO) {
 					PunSystemVO system = (PunSystemVO) obj;
 					vo.setSystemId(system.getSysId());
@@ -487,7 +487,7 @@ public class LayoutController extends BaseController {
 
 			// 保存行布局
 			StoreVO rowSV = new StoreVO();
-			Object o = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+			Object o = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 			if (o instanceof PunSystemVO) {
 				PunSystemVO system = (PunSystemVO) o;
 				rowSV.setSystemId(system.getSysId());
@@ -516,7 +516,7 @@ public class LayoutController extends BaseController {
 			// 遍历存列布局
 			for (int j = 0; j < cods; j++) {
 				StoreVO codSV = new StoreVO();
-				Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+				Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 				if (obj instanceof PunSystemVO) {
 					PunSystemVO system = (PunSystemVO) obj;
 					codSV.setSystemId(system.getSysId());
@@ -586,7 +586,7 @@ public class LayoutController extends BaseController {
 
 		// 生成合并的布局，并保存；
 		StoreVO codSV = new StoreVO();
-		Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+		Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 		if (obj instanceof PunSystemVO) {
 			PunSystemVO system = (PunSystemVO) obj;
 			codSV.setSystemId(system.getSysId());
@@ -615,7 +615,7 @@ public class LayoutController extends BaseController {
 		String id1 = storeService.save(codSV); // 保存合并布局并生成对应Id
 
 		Long systemId = null;
-		Object oo = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+		Object oo = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 		if (oo instanceof PunSystemVO) {
 			PunSystemVO system = (PunSystemVO) oo;
 			systemId = system.getSysId();
@@ -696,7 +696,7 @@ public class LayoutController extends BaseController {
 		o.setId(""); // 置Id为空，表示新增
 		o.setName("copy_" + s.getName());
 		Long systemId = null;
-		Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+		Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 		if (obj instanceof PunSystemVO) {
 			PunSystemVO system = (PunSystemVO) obj;
 			systemId = system.getSysId();
@@ -833,7 +833,7 @@ public class LayoutController extends BaseController {
 		for (int i = 0; i < rowCount; i++) {
 			// 保存行布局
 			StoreVO rowSV = new StoreVO();
-			Object o = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+			Object o = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 			if (o instanceof PunSystemVO) {
 				PunSystemVO system = (PunSystemVO) o;
 				rowSV.setSystemId(system.getSysId());
@@ -859,7 +859,7 @@ public class LayoutController extends BaseController {
 			for (int j = 0; j < cell.length; j++) { // 保存列
 
 				StoreVO codSV = new StoreVO();
-				Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+				Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 				if (obj instanceof PunSystemVO) {
 					PunSystemVO system = (PunSystemVO) obj;
 					codSV.setSystemId(system.getSysId());
@@ -909,7 +909,7 @@ public class LayoutController extends BaseController {
 	private void createComponent(String config, String dynamicPageId, String codId, String codName, int index) {
 		JSONObject o = configToJson(config);
 
-		Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+		Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 		StoreVO labelStore = new StoreVO(); // 对应组件的文本组件
 		if (obj instanceof PunSystemVO) {
 			PunSystemVO system = (PunSystemVO) obj;
@@ -957,7 +957,7 @@ public class LayoutController extends BaseController {
 		if (index <= 0) {
 			index = 1;
 		}
-		Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+		Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 		StoreVO labelStore = new StoreVO(); // 对应组件的文本组件
 		if (obj instanceof PunSystemVO) {
 			PunSystemVO system = (PunSystemVO) obj;
@@ -986,7 +986,7 @@ public class LayoutController extends BaseController {
 		if (index <= 0) {
 			index = 1;
 		}
-		Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+		Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 		StoreVO labelStore = new StoreVO(); // 对应组件的文本组件
 		if (obj instanceof PunSystemVO) {
 			PunSystemVO system = (PunSystemVO) obj;

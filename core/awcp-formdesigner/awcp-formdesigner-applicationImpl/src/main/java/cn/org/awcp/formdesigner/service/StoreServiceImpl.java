@@ -21,7 +21,6 @@ import cn.org.awcp.core.domain.Criteria;
 import cn.org.awcp.core.domain.QueryChannelService;
 import cn.org.awcp.core.utils.BeanUtils;
 import cn.org.awcp.core.utils.SessionUtils;
-import cn.org.awcp.core.utils.Tools;
 import cn.org.awcp.core.utils.constants.SessionContants;
 import cn.org.awcp.formdesigner.application.service.StoreService;
 import cn.org.awcp.formdesigner.application.vo.DynamicPageVO;
@@ -123,7 +122,7 @@ public class StoreServiceImpl implements StoreService {
 	@Override
 	public PageList<StoreVO> queryPagedResult(Map<String, Object> params, int currentPage, int pageSize,
 			String sortString) {
-		Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+		Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 		if (obj instanceof PunSystemVO) {
 			PunSystemVO system = (PunSystemVO) obj;
 			params.put("systemId", system.getSysId());
@@ -145,7 +144,7 @@ public class StoreServiceImpl implements StoreService {
 		try {
 			Map<String, Object> params = new HashMap<String, Object>();
 			params.put("code", code);
-			Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+			Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 			if (obj instanceof PunSystemVO) {
 				PunSystemVO system = (PunSystemVO) obj;
 				params.put("systemId", system.getSysId());
@@ -161,7 +160,7 @@ public class StoreServiceImpl implements StoreService {
 	@Override
 	public PageList<StoreVO> selectPagedByExample(BaseExample baseExample, int currentPage, int pageSize,
 			String sortString) {
-		Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+		Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 		if (obj instanceof PunSystemVO) {
 			PunSystemVO system = (PunSystemVO) obj;
 			if (baseExample.getOredCriteria().size() > 0) {
@@ -185,7 +184,7 @@ public class StoreServiceImpl implements StoreService {
 	public StoreVO findByCode(String code) {
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("code", code);
-		Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+		Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 		if (obj instanceof PunSystemVO) {
 			PunSystemVO system = (PunSystemVO) obj;
 			params.put("systemId", system.getSysId());
@@ -235,7 +234,7 @@ public class StoreServiceImpl implements StoreService {
 		baseExample.createCriteria().andEqualTo("DYNAMICPAGE_ID", dyanamicPageId).andLike("CODE",
 				StoreService.COMPONENT_CODE + "%");
 		PageList<StoreVO> list = selectPagedByExample(baseExample, 1, Integer.MAX_VALUE, " T_ORDER ASC");
-		Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+		Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 		if (obj instanceof PunSystemVO) {
 			PunSystemVO system = (PunSystemVO) obj;
 			if (baseExample.getOredCriteria().size() > 0) {
@@ -263,7 +262,7 @@ public class StoreServiceImpl implements StoreService {
 		PageList<StoreVO> list = selectPagedByExample(baseExample, 1, Integer.MAX_VALUE, " T_ORDER ASC");
 		PageList<StoreVO> list1 = selectPagedByExample(baseExample1, 1, Integer.MAX_VALUE, " T_ORDER ASC");
 		list.addAll(list1);
-		Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+		Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 		if (obj instanceof PunSystemVO) {
 			PunSystemVO system = (PunSystemVO) obj;
 			if (baseExample.getOredCriteria().size() > 0) {

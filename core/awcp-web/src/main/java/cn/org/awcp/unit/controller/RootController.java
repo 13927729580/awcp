@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Resource;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 import javax.servlet.http.HttpServletRequest;
@@ -15,12 +14,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+
 import cn.org.awcp.core.utils.SessionUtils;
 import cn.org.awcp.core.utils.constants.SessionContants;
 import cn.org.awcp.formdesigner.application.service.FormdesignerService;
@@ -37,9 +39,6 @@ import cn.org.awcp.venson.util.CheckUtils;
 import cn.org.awcp.venson.util.EmailUtil;
 import cn.org.awcp.venson.util.SMSUtil;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-
 @Controller
 @RequestMapping("/")
 public class RootController {
@@ -47,61 +46,47 @@ public class RootController {
 	 * 日志对象
 	 */
 	protected final Log logger = LogFactory.getLog(getClass());
-	@Autowired
+	
+	@Autowired	
 	private MetaModelOperateService metaModelOperateServiceImpl;
-	@Resource(name = "namedParameterJdbcTemplate")
-	private NamedParameterJdbcTemplate jdbcTemplate;
+
 	@Autowired
 	private FormdesignerService formdesignerServiceImpl;
 
 	/**
 	 * 获取部门树数据
-	 * 
 	 * @return
 	 */
-	@RequestMapping(value = "taskManagement/persons", method = RequestMethod.POST)
+	@RequestMapping(value = "queryDeptTreeData", method = RequestMethod.POST)
 	@ResponseBody
-	public List<Map<String, Object>> personDocuments(String type) {
-
+	public List<Map<String, Object>> queryDeptTreeData(String type) {
 		String sql = "select Group_ID as ID,PARENT_GROUP_ID as PID,GROUP_CH_NAME as Name,NUMBER as NUMBER"
 				+ " from p_un_group b order by case when NUMBER is null then 0 end , NUMBER asc";
-
 		List<Map<String, Object>> documentList = metaModelOperateServiceImpl.search(sql);
-
 		List<Map<String, Object>> returnList = new ArrayList<Map<String, Object>>();
 		for (Map<String, Object> map : documentList) {
 			Map<String, Object> m = new HashMap<String, Object>();
 			m.put("id", map.get("ID"));
 			// 为了不引起冲突的判断
-
 			if ("manage".equals(type)) {
 				if (!"".equals(map.get("NUMBER")) && map.get("NUMBER") != null) {
 					m.put("name", map.get("Name") + "-" + map.get("NUMBER"));
 				} else {
-
 					m.put("name", map.get("Name"));
 				}
-
 			} else {
 				m.put("name", map.get("Name"));
 			}
-
-			// m.put("name", map.get("Name"));
 			m.put("pId", map.get("PID"));
-			// m.put("number",map.get("NUMBER"));
-			// m.put("url", "./oa/task/task.jsp?id="+map.get("ID"));
-			m.put("url",
-					"punUserGroupController/getUsers.do?groupId=" + map.get("ID") + "&rootGroupId=" + map.get("PID"));
+			m.put("url","punUserGroupController/getUsers.do?groupId=" + map.get("ID") + "&rootGroupId=" + map.get("PID"));
 			m.put("target", "sysEditFrame");
 			m.put("open", true);
 			// 只有简单的选择功能
 			if ("simple".equals(type)) {
 				m.remove("url");
 			}
-
 			returnList.add(m);
 		}
-
 		return returnList;
 	}
 

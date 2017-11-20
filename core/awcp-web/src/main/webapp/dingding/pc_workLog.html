@@ -1,0 +1,44 @@
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title data-id="title_notice"></title>
+	<link rel="stylesheet" type="text/css" href="css/pc/style.css">
+	<link rel="stylesheet" type="text/css" href="css/pc/datetimepicker.css">
+	<link rel="stylesheet" type="text/css" href="css/pc/sqm.css">
+</head>
+<body>
+	<div id="warp">		
+		<header class="header">
+			<button onclick="location='pc_workLog.html" class="active" disabled="disabled" data-id="writeLog"></button>
+			<button onclick="location='pc_workLogList.html?type=send'" data-id="sentByMe"></button>
+			<button onclick="location='pc_workLogList.html?type=received'" data-id="received">
+				<span class="unread-num ng-scope" id="unreadCount" style="display: none"><em></em></span>
+			</button>	
+		</header>
+		<div style="display: block;" class="createreport_get_template" id="createreport_get_template">
+			<div>
+				<span id="textChooseTemplate">选择模板</span>
+			</div>
+			<div>
+				<ul id="appList"></ul>
+			</div>
+		</div>
+	</div>	
+	<script src="js/jquery.js" charset="utf-8"></script>
+	<script src="https://g.alicdn.com/dingding/dingtalk-pc-api/2.9.0/index.js" charset="utf-8"></script>
+	<script src="../venson/js/common.js"></script>
+	<script src="js/resource.js"></script>
+	<script>
+		var data = Comm.getData("api/execute/getAppsByParentID?parentID=1");
+		var html = "";
+		for(var i=0;i<data.length;i++){
+			html += "<li><button data-url='" + data[i].pcUrl + "'>" + data[i].title + "</button></li>";
+		}
+		$("#appList").html(html);
+		
+		$("#appList").find("button").bind("click",function(){
+			location.href = $(this).attr("data-url");
+		});
+	</script>
+</body>
+</html>

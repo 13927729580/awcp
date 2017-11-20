@@ -126,6 +126,9 @@
 		<#case 1101>
 			<@convertFunction c/>
 			<#break>
+		<#case 1102>
+			<@convertAddress c/>
+			<#break>
 		<#default>
 	</#switch>
 </#macro>
@@ -142,7 +145,7 @@
 		<#local placeholder = c['placeholder'] />			
 	</#if>
 	<div class="colSecond" >
-     	<span data-id='${placeholder}' class='awcp_fun <#if c['css']?? && c['css']?length gt 0>${c['css']}</#if>'  
+     	<span data-id='${placeholder + c['required']}' class='awcp_fun <#if c['css']?? && c['css']?length gt 0>${c['css']}</#if>'  
      		<#if c['style']?? >style='margin-left: 0px;${c['style']}'</#if>><#if c['extra']?? && c['extra']?length gt 0 >
 			<#noparse>${(</#noparse>${c['extra']}<#noparse>)!""}</#noparse>	
 		</#if></span>
@@ -158,6 +161,32 @@
 		</#if>
 		<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['disabled'])?? && status['</#noparse>${c['name']}<#noparse>']['disabled'] == 'true'>disabled="disabled"</#if></#noparse>
 	 	/>
+	 </div>
+</#macro>
+<#-------------------------------------------事件控件 end------------------------------------------>
+
+<#-------------------------------------------事件控件 begin------------------------------------------>
+<#macro convertAddress c>
+	<#if c['title']?? >
+		<div class="colFirst" >
+			<label><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
+		</div>
+	</#if>	
+	<#local placeholder = 'select' />
+	<#if c['placeholder']?? && c['placeholder']!=''>
+		<#local placeholder = c['placeholder'] />			
+	</#if>
+	<div class="colSecond" >
+     	<div>
+	        <div class="content-block">
+	            <input id="pcaName" type="text" readonly="readonly" placeholder="请选择省市县" 
+	            	value="<#noparse>${others['pcaName_</#noparse>${c['name']}<#noparse>']!''}</#noparse>"
+	            />
+	            <input id="pcaValue" type="hidden" 	
+					value="<#noparse>${others['pcaValue_</#noparse>${c['name']}<#noparse>']!''}</#noparse>"
+				/>
+	        </div>
+	    </div>
 	 </div>
 </#macro>
 <#-------------------------------------------事件控件 end------------------------------------------>
@@ -279,6 +308,7 @@
 		</#if>
 		<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['disabled'])?? && status['</#noparse>${c['name']}<#noparse>']['disabled'] == 'true'>disabled="disabled"</#if></#noparse>
 	 	/>
+	 	<input type="hidden" value="<#noparse><#if others??> ${others['options_</#noparse>${c['name']}<#noparse>']!''}</#if></#noparse>" />
 	</div>
 </#macro>
 <#-------------------------------------------下拉框select end------------------------------------------>
@@ -393,6 +423,9 @@
 		<#case 1101>
 			<@convertFunctionScript component/>
 			<#break>
+		<#case 1102>
+			<@convertAddressScript component/>
+			<#break>
 		<#default>
 	</#switch>
 </#macro>
@@ -409,6 +442,31 @@
 	</#noparse>
 </#macro>
 <#--事件控件脚本end-->
+
+<#--省市县控件脚本-->
+<#macro convertAddressScript component >
+	<#noparse><#if (status['</#noparse>${component['name']}<#noparse>']['disabled'])?? && status['</#noparse>${component['name']}<#noparse>']['disabled'] == 'true'>		
+	<#else>
+		(function(){
+			</#noparse>${(component['onchangeScript'])!""}<#noparse>		
+			var area = new LArea();
+			area.init({
+				trigger: "#pcaName",
+				valueTo: "#pcaValue",
+				keys: {
+					id: "value",
+					name: "text"
+				},
+				type: 2,
+				data: [provs_data, citys_data, dists_data],
+				fn:fn
+			});			
+		})();
+	</#if>	
+	</#noparse>
+</#macro>
+<#--省市县控件脚本end-->
+
 <#--多选框脚本-->
 <#macro convertCheckboxScript component >
 	<#noparse><#if (status['</#noparse>${component['name']}<#noparse>']['disabled'])?? && status['</#noparse>${component['name']}<#noparse>']['disabled'] == 'true'>		
@@ -666,11 +724,11 @@
 	<#else>
 		(function(){
 			var $input = $('input[name="</#noparse>${(component['name'])!""}<#noparse>"]');
-			var optionStr = </#noparse>${(component['optionScript'])!""}<#noparse>;		
+			var optionStr = $.trim($input.next().val());		
 			var optionArr = optionStr.split(";");	
 			var source = [];
 			var selectedKey;
-			var firstKey;
+			var firstKey;			
 			for(var i=0;i<optionArr.length;i++){
 				var e = optionArr[i];
 				if(e){
@@ -680,7 +738,7 @@
 					}
 					var val = arr[0];
 					var key;	//显示值		
-					if(Comm.cookie("Lang")=="en"){
+					if(dd_res.lang=="en"){
 						key = arr[0];							
 					}
 					else{

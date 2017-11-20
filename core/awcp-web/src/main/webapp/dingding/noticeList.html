@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title data-id="title_noticeList"></title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="stylesheet" href="css/noticeList.css">
+    <style>
+    	.submit-foot-content{
+	    	position: fixed;
+		    bottom: 0;
+		    padding-left: 20px;
+		    margin-top: 38px;
+		    width: 100%;
+		    background: #fff;
+		    padding-top: 10px;
+		    width:90%;
+    	}
+    	.submit-foot{
+    		background-color: #40affc;
+		    margin-bottom: 10px;
+		    border-radius: 4px;
+		    line-height: 38px;
+		    height: 38px;
+		    font-size: 16px;
+		    color: #fff;
+		    text-align: center;
+    	}
+    </style>
+</head>
+<body>
+	<!-- tab -->
+    <section class="mod-tab">
+        <span class="tab-unread active"><i></i></span>
+        <span class="tab-read" data-id="hasRead"></span>
+    </section>
+	<article class="notice-list-page-unread"></article>
+	<article class="notice-list-page-read" style="display: none;"></article>
+	<div class="submit-foot-content" style="display: none;">
+		<div class="submit-foot tTap" id="writeNotice" data-id="writeNotice"></div>
+	</div>
+	<script src="js/jquery.js" charset="utf-8"></script>
+	<script src="../venson/js/common.js"></script>
+	<script>	
+		//根据是否是移动端，引入不同的Js
+		if(Comm.isMobile()){
+			document.write("<script src='js/dingtalk.js' charset='utf-8'><\/script>");
+		}
+		else{
+			document.write("<script src='https://g.alicdn.com/dingding/dingtalk-pc-api/2.9.0/index.js' charset='utf-8'><\/script>");
+		}
+	</script>
+	<script src="js/resource.js"></script>
+	<script>
+		dd.ready(function(){});	//必须要执行(没有的话，在执行删除时，移动端无法弹出确认框)
+	
+		$(".tab-unread").prepend(dd_res.unRead);//特殊情况
+		
+		//获取该用户是否是管理员(awcp平台的管理员)
+		var queryResult = Comm.getData("api/execute/getUserIsAdmin");
+		var isAdmin = true;
+		if(queryResult.count == 0){
+			isAdmin = false;
+		} else{
+			$("#writeNotice").parent().show();
+		}
+		
+		getNoticeList("N");	//首次加载页面，默认获取未读通知
+		
+		//tab的点击事件
+		$(".tab-unread").click(function(){	//未读
+			$(".tab-read").removeClass("active");
+			$(".tab-unread").addClass("active");
+			$(".notice-list-page-unread").show();
+			$(".notice-list-page-read").hide();
+			getNoticeList("N");
+		});
+		$(".tab-read").click(function(){	//已读
+			$(".tab-read").addClass("active");
+			$(".tab-unread").removeClass("active");
+			$(".notice-list-page-unread").hide();
+			$(".notice-list-page-read").show();
+			getNoticeList("Y");
+		});
+		
+		//写日志
+		$("#writeNotice").click(function(){
+			if(window.hasOwnProperty("DingTalkPC")){
+				location.href = baseUrl + 'document/view.do?dynamicPageId=2164';
+			} else{
+				location.href = baseUrl + 'document/view.do?dynamicPageId=2054';
+			}
+		});
+		
+		//isRead:是否已读
+		function getNoticeList(isRead){
+			var noticeList = Comm.getData("api/execute/getNoticeList",{isRead:isRead});
+			var len = noticeList.length;
+			if(isRead == "N"){//未读的通知
+				if(len != 0){//有数据时
+					$(".tab-unread").find("i").css("display","inline-block").text(len);
+					$(".notice-list-page-unread").html('<ul class="notice-list-unread">' + getNoticeListHtml(noticeList) + '</ul>');
+					$(".notice-delete").click(function(){//绑定删除事件
+						var $li = $(this).parent().parent();
+						dd.device.notification.confirm({
+							"message":"",
+							"title":dd_res.deleteConfirm,
+							"buttonLabels":[dd_res.cancelButton,dd_res.okButton],
+							onSuccess: function(data) {
+								if(data.buttonIndex==1){
+									Comm.getData("api/execute/deleteNotice",{id:$li.attr("notice-id")});
+									$li.remove();
+									var noticeCount = $(".notice-list-page-unread").find("li").length;
+									if(noticeCount == 0){
+										$(".tab-unread").find("i").css("display","none");
+										var html = '<article class="no-notice-page" style="display: block;">' + 
+												   '<img src="img/icon-empty.png">' + 
+												   '<p>' + dd_res.allNoticeRead + '</p></article>';
+										$(".notice-list-page-unread").html(html);
+									}
+									else{
+										$(".tab-unread").find("i").text(noticeCount);
+									}
+								}
+						    }
+						});
+					});
+				}
+				else{//数据为空时
+					$(".tab-unread").find("i").css("display","none");
+					var html = '<article class="no-notice-page" style="display: block;">' + 
+							   '<img src="img/icon-empty.png">' + 
+							   '<p>' + dd_res.allNoticeRead + '</p></article>';
+					$(".notice-list-page-unread").html(html);
+				}
+			}
+			else{//已读的通知
+				if(len != 0){//有数据时
+					$(".notice-list-page-read").html('<ul class="notice-list-read">' + getNoticeListHtml(noticeList) + '</ul>');
+					$(".notice-delete").click(function(){
+						var $li = $(this).parent().parent();
+						dd.device.notification.confirm({//绑定删除事件
+							"message":"",
+							"title":dd_res.deleteConfirm,
+							"buttonLabels":[dd_res.cancelButton,dd_res.okButton],
+							onSuccess: function(data) {
+								if(data.buttonIndex==1){
+									Comm.getData("api/execute/deleteNotice",{id:$li.attr("notice-id")});
+									$li.remove();
+									if($(".notice-list-page-read").find("li").length==0){
+										var html = '<article class="no-notice-page" style="display: block;">' + 
+										   		   '<img src="img/icon-empty.png">' + 
+										   		   '<p>' + dd_res.noNoticeRead + '</p></article>';
+										$(".notice-list-page-read").html(html);
+									}
+								}
+						    }
+						});
+					});
+				}
+				else{//数据为空时
+					var html = '<article class="no-notice-page" style="display: block;">' + 
+							   '<img src="img/icon-empty.png">' + 
+							   '<p>' + dd_res.noNoticeRead + '</p></article>';
+					$(".notice-list-page-read").html(html);
+				}
+			}
+		}
+		
+		//根据数据生成Html片段
+		function getNoticeListHtml(noticeList){
+			var noticeListHtml = "";
+			for(var i=0;i<noticeList.length;i++){
+				var id = noticeList[i].ID;
+				if(isAdmin){	//管理员可以删除
+					noticeListHtml += '<li notice-id="' + id + '"><div class="notice-item"><div class="notice-delete">' +
+					  '<img src="img/noticeDelete.png" width="13px" height="16px"></div>';
+				}
+				else{
+					noticeListHtml += '<li><div class="notice-item">';
+				}				
+				var author = noticeList[i].Author;
+				if(!author){
+					author = "AWCP_ZH";
+				}
+				var date = noticeList[i].Createtime;
+				var title = noticeList[i].title;
+				var img = noticeList[i].Coverpicture;
+				if(!img){
+					img = 'img/notice.jpg';
+				}
+				var url = baseUrl + 'dingding/noticeView.html?id=' + id;
+				noticeListHtml += '<a href="' + url + '">' +
+								  '<div class="notice-img" style="background: url(' + img + ');' + 
+								  ' background-size: cover; background-position: center center;"></div>' +
+								  '<div class="notice-outline">' +
+								  '<p class="notice-title" style="display: -webkit-box;">' + author + '</p>' +
+								  '<p class="notice-detail"><span>' + title + '</span>&nbsp; <span>' + date + '</span>' +
+								  '</p></div></a></div></li>';
+			}
+			return noticeListHtml;			
+		}
+	
+	</script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title data-id="title_workLog"></title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="stylesheet" href="css/workLog.css">
+</head>
+<body>
+    <div id="root">
+    	<!-- 日志类微应用 -->
+	    <div class="wrap" style="height: 100%; width: 100%;">
+	        <div style="height: 100%; width: 100%;">
+	            <div class="home">
+	                <div class="tempList grid9">
+	                    <table id="apps"></table>
+	                </div>
+	            </div>
+	        </div>
+	    </div>
+	    
+	    <!-- 写日志，读日志 -->
+	    <div class="nav">
+            <ul>
+                <li class="icon-write on"><icon></icon><span class="text" data-id="writeLog"></span></li>
+                <li class="icon-view ">
+                	<div class="badge-block"><icon></icon><span class="text" data-id="readLog"></span></div>
+                </li>
+            </ul>
+        </div>
+    </div>
+	<script src="js/jquery.js" charset="utf-8"></script>
+	<script src="js/dingtalk.js" charset="utf-8"></script>
+	<script src="../venson/js/common.js"></script>
+	<script src="js/resource.js"></script>
+	<script>
+		var parentID = Comm.getUrlParam("parentID");
+		$.ajax({
+		   	type: "POST",
+		   	url: baseUrl + "api/execute/getAppsByParentID?parentID=" + parentID,
+		   	async : false,
+		   	success: function(data){
+		   		var arr = data.data;
+		   		var html = "";
+		   		for(var i=0;i<arr.length;i++){
+		   			var img = baseUrl + 'common/file/showPicture.do?id=' + arr[i].img;
+					var title = arr[i].title;
+					var url = arr[i].url
+					if(i%3 == 0){
+						html += '<tr><td class="appTd" style="height: 106.667px; width: 106.667px;" data-url="' + url + '">' + 
+	   					'<div class="grid9-col"><img class="temp-icon" src="' + img + '">' +
+	   					'<div class="grid9-text">' + title + '</div></div></td>';
+						if(i == arr.length-1){
+	   						html += '<tr/>';
+	   					}
+					} else if(i%3 == 1){
+						html += '<td class="appTd" style="height: 106.667px; width: 106.667px;" data-url="' + url + '">' + 
+	   					'<div class="grid9-col"><img class="temp-icon" src="' + img + '">' +
+	   					'<div class="grid9-text">' + title + '</div></div></td>';
+						if(i == arr.length-1){
+	   						html += '<tr/>';
+	   					}
+					} else if(i%3 == 2){
+		   				html += '<td class="appTd" style="height: 106.667px; width: 106.667px;" data-url="' + url + '">' + 
+	   					'<div class="grid9-col"><img class="temp-icon" src="' + img + '">' +
+	   					'<div class="grid9-text">' + title + '</div></div></td></tr>';
+		   			}
+		   		}
+		   		$("#apps").html(html);
+		   	}
+		});			
+		
+		//写日志
+		$(".appTd").click(function(){
+			var url = $(this).attr("data-url");
+			location.href = url;
+		});
+		
+		//查看日志
+		$(".icon-view").click(function(){
+			location.href = baseUrl + "dingding/workLogList.html?parentID=" + parentID;
+		});
+	</script>
+</body>
+</html>

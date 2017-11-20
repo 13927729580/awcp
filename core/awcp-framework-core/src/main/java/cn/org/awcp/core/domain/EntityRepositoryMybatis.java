@@ -210,7 +210,7 @@ public class EntityRepositoryMybatis implements EntityRepository {
 		return i;
 	}
 
-	public void removeByFK(Class<?> clazz, String queryStr, long fkId) {
+	public void removeByFK(Class<?> clazz, String queryStr, Object fkId) {
 		SqlSession session = getSession();
 		try {
 			Map<String, Object> map = new HashMap<String, Object>();

@@ -2,7 +2,6 @@ package cn.org.awcp.common.file;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -105,8 +104,7 @@ public class FileController {
 			rtn.put("flag", 3);
 			rtn.put("msg", "upload fail.");
 		}
-		response.getWriter().println(rtn.toJSONString());
-		return null;
+		return rtn.toJSONString();
 	}
 
 	/**
@@ -217,7 +215,7 @@ public class FileController {
 		if (!isSuccess) {
 			PrintWriter out = response.getWriter();
 			response.setContentType("text/html;charset=UTF-8");
-			out.println("文件不存在");
+			out.print("文件不存在");
 			out.close();
 		}
 		return null;
@@ -349,10 +347,7 @@ public class FileController {
 			msg = "文件不存在";
 		}
 		response.setContentType("text/html;charset=UTF-8");
-		PrintWriter writer = response.getWriter();
-		writer.write(msg);
-		writer.flush();
-		return null;
+		return msg;
 	}
 
 	/**
@@ -380,7 +375,7 @@ public class FileController {
 		response.setContentType("text/html; charset=UTF-8");
 
 		JSONObject obj = new JSONObject();
-
+		obj.put("error", 0);
 		String dirName = request.getParameter("dir");
 		if (dirName == null) {
 			dirName = "image";
@@ -393,18 +388,12 @@ public class FileController {
 		}
 		try {
 			uuid = fileService.save(imgFile.getInputStream(), imgFile.getContentType(), fileName, FileService.DEFAULT);
-		} catch (FileNotFoundException e) {
-			logger.info("ERROR", e);
-			obj.put("error", 1);
-			obj.put("message", "upload fail.");
-			return obj.toJSONString();
 		} catch (IOException e) {
 			logger.info("ERROR", e);
 			obj.put("error", 1);
 			obj.put("message", "upload fail.");
 			return obj.toJSONString();
 		}
-		obj.put("error", 0);
 		// 返回访问图片的url到富文本框中，通过getImage方法访问图片
 		obj.put("url", request.getContextPath() + "/common/file/getImage.do?uuid=" + uuid);
 		return obj.toJSONString();
@@ -416,13 +405,11 @@ public class FileController {
 		if (!ServletFileUpload.isMultipartContent(request)) {
 			obj.put("error", 1);
 			obj.put("message", "请选择文件！");
-			obj.toJSONString();
 			return;
 		}
 		if (!extMap.containsKey(dirName)) {
 			obj.put("error", 1);
 			obj.put("message", "目录名不正确！");
-			obj.toJSONString();
 			return;
 		}
 		// 获取原图片文件名字及文件扩展名
@@ -431,13 +418,11 @@ public class FileController {
 		if (!Arrays.<String>asList(extMap.get(dirName).split(",")).contains(fileExt)) {
 			obj.put("error", 1);
 			obj.put("message", "上传文件扩展名是不允许的扩展名。\n只允许" + extMap.get(dirName) + "格式。");
-			obj.toJSONString();
 			return;
 		}
 		if (imgFile.getSize() > 104857600) {
 			obj.put("error", 1);
 			obj.put("message", "上传文件过大！");
-			obj.toJSONString();
 			return;
 		}
 	}

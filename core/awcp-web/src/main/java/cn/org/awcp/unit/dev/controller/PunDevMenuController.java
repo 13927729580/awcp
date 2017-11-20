@@ -20,7 +20,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import cn.org.awcp.core.domain.BaseExample;
 import cn.org.awcp.core.domain.Criteria;
-import cn.org.awcp.core.utils.Tools;
+import cn.org.awcp.core.utils.SessionUtils;
 import cn.org.awcp.core.utils.constants.ResourceTypeEnum;
 import cn.org.awcp.core.utils.constants.SessionContants;
 import cn.org.awcp.formdesigner.application.service.FormdesignerService;
@@ -104,7 +104,7 @@ public class PunDevMenuController {
 				BaseExample example = new BaseExample();
 				Criteria criteria = example.createCriteria();
 				if (sysId == null) {
-					PunSystemVO object = (PunSystemVO) Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+					PunSystemVO object = (PunSystemVO) SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 					// 限制同一系统的动态表单
 					if (null != object.getSysId()) {
 						criteria.andEqualTo("SYSTEM_ID", object.getSysId());

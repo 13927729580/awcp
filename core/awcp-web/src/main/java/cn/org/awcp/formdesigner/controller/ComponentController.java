@@ -16,10 +16,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+
 import cn.org.awcp.base.BaseController;
 import cn.org.awcp.core.domain.BaseExample;
 import cn.org.awcp.core.utils.BeanUtils;
-import cn.org.awcp.core.utils.Tools;
+import cn.org.awcp.core.utils.SessionUtils;
 import cn.org.awcp.core.utils.constants.SessionContants;
 import cn.org.awcp.formdesigner.application.service.StoreService;
 import cn.org.awcp.formdesigner.application.vo.StoreVO;
@@ -27,10 +31,6 @@ import cn.org.awcp.formdesigner.core.constants.FormDesignGlobal;
 import cn.org.awcp.formdesigner.core.constants.FormDesignerGlobal;
 import cn.org.awcp.unit.vo.PunSystemVO;
 import cn.org.awcp.venson.controller.base.ControllerHelper;
-
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 
 @Controller
 @RequestMapping("/component")
@@ -140,7 +140,7 @@ public class ComponentController extends BaseController {
 			}
 
 		}
-		Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+		Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 		if (obj instanceof PunSystemVO) {
 			PunSystemVO system = (PunSystemVO) obj;
 			BaseExample baseExample = new BaseExample();
@@ -239,7 +239,7 @@ public class ComponentController extends BaseController {
 			}
 		}
 
-		Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+		Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 		if (obj instanceof PunSystemVO) {
 			PunSystemVO system = (PunSystemVO) obj;
 			BaseExample baseExample = new BaseExample();
@@ -262,7 +262,7 @@ public class ComponentController extends BaseController {
 		vo.setContent(StringEscapeUtils.unescapeHtml4(vo.getContent()));
 		if (componentIds == null || "".equals(componentIds)) {
 			if (validate(vo)) {
-				Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+				Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 				if (obj instanceof PunSystemVO) {
 					PunSystemVO system = (PunSystemVO) obj;
 					vo.setSystemId(system.getSysId());
@@ -322,7 +322,7 @@ public class ComponentController extends BaseController {
 	@RequestMapping(value = "/getSystemId")
 	public StoreVO getSystemId() {
 		StoreVO store = new StoreVO();
-		Object obj2 = Tools.getObjectFromSession(SessionContants.CURRENT_SYSTEM);
+		Object obj2 = SessionUtils.getObjectFromSession(SessionContants.CURRENT_SYSTEM);
 		if (obj2 instanceof PunSystemVO) {
 			PunSystemVO system = (PunSystemVO) obj2;
 			store.setSystemId(system.getSysId());
@@ -722,7 +722,7 @@ public class ComponentController extends BaseController {
 	@RequestMapping(value = "/quickSave")
 	public StoreVO quickSave(StoreVO vo) {
 
-		Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+		Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 		if (obj instanceof PunSystemVO) {
 			PunSystemVO system = (PunSystemVO) obj;
 			vo.setSystemId(system.getSysId());
@@ -784,10 +784,10 @@ public class ComponentController extends BaseController {
 			@RequestParam(value = "_componentType") String componentTypes,
 			@RequestParam(value = "_layoutId") String layoutIds,
 			@RequestParam(value = "_labelLayoutId") String labelLayoutIds,
-			@RequestParam(value = "_labelLayoutName") String labelLayoutNames, 
+			@RequestParam(value = "_labelLayoutName") String labelLayoutNames,
 			@RequestParam(value = "dynamicPageId") String dynamicPageId) {
 
-		Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+		Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 		Long systemId = null;
 		if (obj instanceof PunSystemVO) {
 			PunSystemVO system = (PunSystemVO) obj;

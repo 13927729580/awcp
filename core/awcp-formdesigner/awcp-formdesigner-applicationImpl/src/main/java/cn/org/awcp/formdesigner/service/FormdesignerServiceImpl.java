@@ -27,7 +27,6 @@ import cn.org.awcp.core.domain.Criteria;
 import cn.org.awcp.core.domain.QueryChannelService;
 import cn.org.awcp.core.utils.BeanUtils;
 import cn.org.awcp.core.utils.SessionUtils;
-import cn.org.awcp.core.utils.Tools;
 import cn.org.awcp.core.utils.constants.SessionContants;
 import cn.org.awcp.formdesigner.application.service.FormdesignerService;
 import cn.org.awcp.formdesigner.application.service.StoreService;
@@ -106,7 +105,7 @@ public class FormdesignerServiceImpl implements FormdesignerService {
 	@Override
 	public List<DynamicPageVO> findAll() {
 		BaseExample example = new BaseExample();
-		Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+		Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 		if (obj instanceof PunSystemVO) {
 			PunSystemVO system = (PunSystemVO) obj;
 			example.createCriteria().andEqualTo("SYSTEM_ID", system.getSysId());
@@ -123,7 +122,7 @@ public class FormdesignerServiceImpl implements FormdesignerService {
 	@Override
 	public PageList<DynamicPageVO> queryPagedResult(String queryStr, Map<String, Object> params, int currentPage,
 			int pageSize, String sortString) {
-		Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+		Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 		if (obj instanceof PunSystemVO) {
 			PunSystemVO system = (PunSystemVO) obj;
 			params.put("systemId", system.getSysId());
@@ -142,7 +141,7 @@ public class FormdesignerServiceImpl implements FormdesignerService {
 	@Override
 	public PageList<DynamicPageVO> selectPagedByExample(BaseExample example, int currentPage, int pageSize,
 			String sortString) {
-		Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+		Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 		if (obj instanceof PunSystemVO) {
 			PunSystemVO system = (PunSystemVO) obj;
 			if (example.getOredCriteria().size() > 0) {
@@ -528,6 +527,11 @@ public class FormdesignerServiceImpl implements FormdesignerService {
 		}
 		vo.setAfterLoadScript(StringEscapeUtils.unescapeHtml4(vo.getAfterLoadScript()));
 		vo.setPreLoadScript(StringEscapeUtils.unescapeHtml4(vo.getPreLoadScript()));
+		String styleId = vo.getStyleId();
+		if(StringUtils.isNotBlank(styleId)){
+			StoreVO storeVO = storeService.findById(vo.getStyleId());
+			vo.setStyleId(JSON.parseObject(storeVO.getContent()).getString("script"));
+		}		
 		root.put("dataAlias", dataAlias);
 		// root.put("pageActs", pageActs);
 		root.put("pageActs", pageActsList);
@@ -839,7 +843,7 @@ public class FormdesignerServiceImpl implements FormdesignerService {
 	@Override
 	public Map<String, List<StoreVO>> getSystemActs(List<String> dynamicPageIds) {
 		BaseExample baseExample = new BaseExample();
-		Object obj = Tools.getObjectFromSession(SessionContants.TARGET_SYSTEM);
+		Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 		if (obj instanceof PunSystemVO) {
 			PunSystemVO system = (PunSystemVO) obj;
 			baseExample.createCriteria().andEqualTo("SYSTEM_ID", system.getSysId());

@@ -18,7 +18,7 @@ import cn.org.awcp.metadesigner.application.DataSourceManageService;
 import cn.org.awcp.metadesigner.vo.DataSourceManageVO;
 
 public class DataSourceFactory {
-	private static Map<Long, DataSource> singletonObjects = new ConcurrentHashMap<Long, DataSource>(64);
+	private static Map<String, DataSource> singletonObjects = new ConcurrentHashMap<String, DataSource>(64);
 
 	/**
 	 * 日志对象
@@ -44,7 +44,7 @@ public class DataSourceFactory {
 	 * @param dsId
 	 * @return
 	 */
-	public static DataSource getDataSourceById(Long dsId) {
+	public static DataSource getDataSourceById(String dsId) {
 		logger.debug("-------------------------是进这里？----------------------");
 		DataSource ds = singletonObjects.get(dsId);
 		if (ds == null) {
@@ -73,13 +73,13 @@ public class DataSourceFactory {
 		return ds;
 	}
 
-	public static JdbcTemplate getJdbcTemplateById(Long dataSourceId) {
+	public static JdbcTemplate getJdbcTemplateById(String dataSourceId) {
 		DataSource ds = getDataSourceById(dataSourceId);
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ds);
 		return jdbcTemplate;
 	}
 
-	public static EntityRepositoryJDBC getEntityRepositoryJDBCById(Long dataSourceId) {
+	public static EntityRepositoryJDBC getEntityRepositoryJDBCById(String dataSourceId) {
 		DataSource ds = getDataSourceById(dataSourceId);
 		EntityRepositoryJDBC entityRepositoryJDBC = new EntityRepositoryJDBC(ds);
 		return entityRepositoryJDBC;

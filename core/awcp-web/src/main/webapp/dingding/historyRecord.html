@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title data-id="title_historyRecord"></title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<meta name="format-detection" content="telephone=no">
+	<link rel="stylesheet" href="css/historyRecord.css">
+</head>
+<body>
+	<div id="MF_APP">
+		<div>
+			<div class="dealed">
+				<div class="infiniteScroll">
+					<div class="list" offset="120">
+						<div class="dealed-list"></div>
+						<div ></div>
+						<div id="noRecord"></div>
+					</div>
+				</div>
+				<div class="modalWrapper">
+					<div class="modal"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script src="js/jquery.js" charset="utf-8"></script>
+	<script src="js/dingtalk.js" charset="utf-8"></script>
+	<script src="../venson/js/common.js"></script>
+	<script src="js/resource.js"></script>
+	<script>
+		var dynamicPageId = Comm.getUrlParam("dynamicPageId");
+		var recordId = Comm.getUrlParam("recordId");
+		var creator = Comm.getUrlParam("creator");
+		var data = Comm.getData("api/execute/queryHistoryRecord",{
+			dynamicPageId:dynamicPageId,
+			recordId:recordId,
+			creator:creator
+		});
+		var html = "";
+		if(data.length==0){
+			html = '<div class="EmptyNotify"><div class="history-record-list-empty">' +
+				   '<p class="attend-record-empty-tips">' + dd_res.noRecord + '</p> </div></div>';
+			$("#noRecord").html(html);
+		}
+		else{
+			for(var i=0;i<data.length;i++){
+				var url = data[i].url;
+				html += '<div class="list-item tTap" data-url="' + url + '"><span></span>';
+				var img = data[i].img;
+				var name = data[i].name;
+				if(img){
+					html += '<img class="item-avatar" src="' + img + '" />';
+				}
+				else{
+					html += '<div class="item-avatar" style="background: #8A8A8A;">' + Comm.handleName(name) + '</div>';
+				}
+				var title = data[i].title;
+				var wfState = data[i].WFState;
+				if(wfState==3){
+					wfState = '<span style="color: #17C295;">' + dd_res.WF_Approved + '</span>';
+				} else if(wfState==12){
+					wfState = '<span style="color: #ccc;">' + dd_res.WF_Cancel + '</span>';
+				} else if(wfState==13){
+					wfState = '<span style="color: #c23e17;">' + dd_res.WF_Reject + '</span>';
+				} else{
+					wfState = '<span style="color: #17C295;">' + dd_res.WF_Pending + '</span>';
+				}
+				html += '<div class="item-content"><div class="item-title-name tOmit">' + title + '</div>' +
+						'<div class="item-status-running">' + wfState + '</div></div>';
+				var date = data[i].RDT;
+				html += '<div class="item-right"><small>' + date + '</small></div><span></span></div>';	
+			}
+			
+			$(".dealed-list").html(html);
+			$(".list-item").click(function(){
+				var url = $(this).attr("data-url").replace("workflow","dingding");
+				location.href = url;
+			});
+		}
+	</script>
+</body>
+</html>

@@ -8,9 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import cn.org.awcp.metadesigner.application.MetaModelItemService;
-import cn.org.awcp.metadesigner.application.ModelRelationService;
 import cn.org.awcp.metadesigner.vo.MetaModelItemsVO;
-import cn.org.awcp.metadesigner.vo.ModelRelationVO;
 
 @Service("checkIsNull")
 public class CreateColumn {
@@ -18,10 +16,7 @@ public class CreateColumn {
 	 * 日志对象
 	 */
 	private static final Logger logger = LoggerFactory.getLogger(CreateColumn.class);
-	
-	@Autowired
-	private ModelRelationService modelRelationServiceImpl;
-	
+
 	@Autowired
 	private MetaModelItemService metaModelItemsServiceImpl;
 
@@ -36,8 +31,7 @@ public class CreateColumn {
 			st.append(")");
 			// str+=" "+vo.getItemType()+"("+vo.getItemLength()+")";
 		} else if (vo.getItemType().equals("一对一") || vo.getItemType().equals("多对一")) {
-			ModelRelationVO mr = this.modelRelationServiceImpl.queryByItem(vo.getId());
-			List<MetaModelItemsVO> list = this.metaModelItemsServiceImpl.queryResult("queryResult", mr.getModelId());
+			List<MetaModelItemsVO> list = this.metaModelItemsServiceImpl.queryResult("queryResult", vo.getModelId());
 			for (MetaModelItemsVO mmi : list) {
 				if (mmi.getUsePrimaryKey() == 1) {
 					st.append(" ");
@@ -51,7 +45,7 @@ public class CreateColumn {
 			st.append(vo.getItemType());
 			// str+=" "+vo.getItemType();
 		}
-	
+
 		if (vo.getUsePrimaryKey() != null && vo.getUsePrimaryKey() == 1) {
 			if (vo.getItemType().equals("int") || vo.getItemType().equals("bigInt")) {
 				st.append(" primary key auto_increment");

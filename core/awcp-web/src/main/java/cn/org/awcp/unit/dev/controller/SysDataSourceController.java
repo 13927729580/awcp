@@ -12,15 +12,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
-import cn.org.awcp.core.domain.BaseExample;
-import cn.org.awcp.metadesigner.application.DataSourceManageService;
-import cn.org.awcp.metadesigner.vo.DataSourceManageVO;
-import cn.org.awcp.unit.service.PunSystemService;
-import cn.org.awcp.unit.service.SysSourceRelationService;
-import cn.org.awcp.unit.vo.PunSystemVO;
-import cn.org.awcp.unit.vo.SysDataSourceVO;
 
 import com.github.miemiedev.mybatis.paginator.domain.PageList;
+
+import cn.org.awcp.core.domain.BaseExample;
+import cn.org.awcp.metadesigner.application.DataSourceManageService;
+import cn.org.awcp.metadesigner.application.SysSourceRelationService;
+import cn.org.awcp.metadesigner.vo.DataSourceManageVO;
+import cn.org.awcp.metadesigner.vo.SysDataSourceVO;
+import cn.org.awcp.unit.service.PunSystemService;
+import cn.org.awcp.unit.vo.PunSystemVO;
 
 @Controller
 @RequestMapping("/dataSys")
@@ -62,7 +63,7 @@ public class SysDataSourceController {
 		List<DataSourceManageVO> temp = new ArrayList<DataSourceManageVO>();
 		if (relations != null && relations.size() > 0) {
 			for (SysDataSourceVO relation : relations) {
-				Long dataId = relation.getDataSourceId();
+				String dataId = relation.getDataSourceId();
 				DataSourceManageVO vo = dataSourceService.get(dataId);
 				temp.add(vo);
 			}

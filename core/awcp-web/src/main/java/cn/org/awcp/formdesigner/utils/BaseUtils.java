@@ -73,6 +73,7 @@ import cn.org.awcp.venson.util.LocalStorage;
 import cn.org.awcp.venson.util.MD5Util;
 import cn.org.awcp.venson.util.PlatfromProp;
 
+@SuppressWarnings("unchecked")
 public abstract class BaseUtils {
 	protected static final Log logger = LogFactory.getLog(BaseUtils.class);
 	// 注入文档服务
@@ -256,7 +257,6 @@ public abstract class BaseUtils {
 	 * 
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	public List<Long> getRoles() {
 		List<PunRoleInfoVO> roleList = (List<PunRoleInfoVO>) SessionUtils
 				.getObjectFromSession(SessionContants.CURRENT_ROLES);
@@ -952,7 +952,6 @@ public abstract class BaseUtils {
 	 *            参数
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	public String executeHttpRequest(String method, String url, Map<String, String> params) {
 		if (params == null) {
 			params = Collections.EMPTY_MAP;
@@ -964,6 +963,7 @@ public abstract class BaseUtils {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	public boolean isLegalIdCard(String cardNo, String realName) {
 		if (this.jdbcTemplate.queryForObject("select count(1) from awcp_id_card_cache where cardno=? and realname=?",
 				Integer.class, cardNo, realName) == 1) {
@@ -1008,6 +1008,7 @@ public abstract class BaseUtils {
 	 *            卡号
 	 * @return
 	 */
+	@SuppressWarnings("deprecation")
 	public JSONObject isLegalBankIdCard(String bankcard, String mobile) {
 		Map<String, Object> user = this.jdbcTemplate.queryForMap(
 				"select identity_card,real_name from awcp_user where user_id=?", this.getUser().getUserId());
@@ -1088,7 +1089,7 @@ public abstract class BaseUtils {
 	 *            补齐的位数
 	 * @return
 	 */
-	public synchronized String getNumber(String prefix, int digit) {
+	public synchronized String getNumber(String prefix, int digit, boolean isRandom) {
 		String newDate = DateUtils.format(new Date(), "yyyyMMdd");
 		prefix = StringUtils.defaultString(prefix);
 		String key = prefix + "_serial_" + digit;
@@ -1118,18 +1119,128 @@ public abstract class BaseUtils {
 		String zero = "";
 		int len = digit - num.length();
 		for (int i = 0; i < len; i++) {
-			zero += (int) (Math.random() * 9);
+			if (isRandom) {
+				zero += (int) (Math.random() * 9);
+			} else {
+				zero += "0";
+			}
 		}
 		num = zero + num;
-		return StringUtils.defaultString(prefix) + newDate + num;
+		return prefix + newDate + num;
+	}
+
+	public synchronized String getNumber(int digit, boolean isRandom) {
+		return getNumber(null, digit, isRandom);
+	}
+
+	public synchronized String getNumber(String prefix, int digit) {
+		return getNumber(prefix, digit, true);
 	}
 
 	public synchronized String getNumber(int digit) {
-		return getNumber(null, digit);
+		return getNumber(null, digit, true);
+	}
+	
+	/**
+	 * 每月自增编号
+	 * @param prefix
+	 * @param digit
+	 * @param isRandom
+	 * @return
+	 */
+	public synchronized String getMonthIncNumber(String prefix, int digit, boolean isRandom) {
+		String newDate = DateUtils.format(new Date(), "yyyyMM");
+		prefix = StringUtils.defaultString(prefix);
+		String key = prefix + "_serial_" + digit;
+		JSONObject json = LocalStorage.get(key, JSONObject.class);
+		int atomicInt = 0;
+		String today;
+		if (json == null) {
+			json = new JSONObject();
+			today = newDate;
+			atomicInt = 1;
+		} else {
+			atomicInt = json.getInteger("atomicInt");
+			today = json.getString("today");
+			// 如果当前日期不相等，则重新开始计值
+			if (newDate.equals(today)) {
+				atomicInt = atomicInt + 1;
+			} else {
+				today = newDate;
+				atomicInt = 1;
+			}
+		}
+		json.put("atomicInt", atomicInt);
+		json.put("today", today);
+		LocalStorage.set(key, json);
+		String num = atomicInt + "";
+		// 补齐零位
+		String zero = "";
+		int len = digit - num.length();
+		for (int i = 0; i < len; i++) {
+			if (isRandom) {
+				zero += (int) (Math.random() * 9);
+			} else {
+				zero += "0";
+			}
+		}
+		num = zero + num;
+		return prefix + "-" + newDate + "-" + num;
+	}
+
+	public synchronized String getMonthIncNumber(String prefix, int digit) {
+		return getMonthIncNumber(prefix,digit,false);
+	}
+	
+	/**
+	 * 生产一个自增的编号
+	 * 
+	 * @param prefix
+	 * @param digit
+	 * @return
+	 */
+	public synchronized String getIncNumber(String prefix, int digit, boolean isRandom) {
+		prefix = StringUtils.defaultString(prefix);
+		String key = prefix + "_serial_" + digit;
+		JSONObject json = LocalStorage.get(key, JSONObject.class);
+		int atomicInt = 0;
+		if (json == null) {
+			json = new JSONObject();
+			atomicInt = 1;
+		} else {
+			atomicInt = json.getInteger("atomicInt");
+			atomicInt++;
+		}
+		json.put("atomicInt", atomicInt);
+		LocalStorage.set(key, json);
+		String num = atomicInt + "";
+		// 补齐零位
+		String zero = "";
+		int len = digit - num.length();
+		for (int i = 0; i < len; i++) {
+			if (isRandom) {
+				zero += (int) (Math.random() * 9);
+			} else {
+				zero += "0";
+			}
+		}
+		num = zero + num;
+		return StringUtils.defaultString(prefix) + num;
+	}
+
+	public synchronized String getIncNumber(int digit) {
+		return getIncNumber(null, digit, false);
+	}
+
+	public synchronized String getIncNumber(String prefix, int digit) {
+		return getIncNumber(prefix, digit, false);
+	}
+	
+	public synchronized String getIncNumber(int digit, boolean isRandom) {
+		return getIncNumber(null, digit, isRandom);
 	}
 
 	public boolean addTimerTask(String date, String sql, Object... args) {
-
 		return addTimerTask(DateUtils.parseDate(date), sql, args);
 	}
 
@@ -1250,9 +1361,9 @@ public abstract class BaseUtils {
 	 */
 	public boolean pushNotify(String title, String content, String type, String url, String receiver) {
 		type = StringUtils.defaultString(type, "system");
-		String sql = "insert into p_un_notification(ID,TITLE,CONTENT,TYPE,MSG_URL,CREATE_TIME,NOTICESTATE) values(?,?,?,?,?,?,'1')";
+		String sql = "insert into p_un_notification(ID,TITLE,CONTENT,TYPE,MSG_URL,CREATE_TIME,CREATOR,NOTICESTATE) values(?,?,?,?,?,?,'1')";
 		String msgId = UUID.randomUUID().toString();
-		if (this.excuteUpdate(sql, msgId, title, content, type, url, this.today()) == 1
+		if (this.excuteUpdate(sql, msgId, title, content, type, url, this.today(), ControllerHelper.getUserId()) == 1
 				&& this.pushNotifyUser(msgId, receiver)) {
 			return true;
 		}

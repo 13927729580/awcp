@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title data-id="title_approval"></title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<meta name="format-detection" content="telephone=no">
+	<link rel="stylesheet" href="css/approval.css">
+</head>
+<body>
+	<div id="MF_APP">
+		<div>
+			<div class="mif-home" style="margin-bottom:0px;">
+				<div class="home-head-back">
+					<div class="home-opt tFlexbox tAlignCenter">
+						<!-- 待我审批的 -->
+						<div class="opt-tap tFlex1">
+							<div class="opt-tap-min">
+								<div>
+									<div class="position-rel">
+										<img src="img/approval1.png" class="micro-flow-icon-png-40"  />
+									</div>
+								</div>
+								<span class="content-text" data-id="myApproval"></span>
+							</div>
+						</div>
+						<!-- 我发起的 -->
+						<div class="opt-tap tFlex1">
+							<div class="opt-tap-min">
+								<div>
+									<img src="img/approval2.png" class="micro-flow-icon-png-40" >
+								</div>
+								<span class="content-text" data-id="myStart"></span>
+							</div>
+						</div>
+						<!-- 抄送给我的 -->
+						<div class="opt-tap tFlex1">
+							<div class="opt-tap-min ">
+								<div>
+									<div class="position-rel">
+										<img src="img/approval3.png" class="micro-flow-icon-png-40">
+									</div>
+								</div>
+								<span class="content-text" data-id="ccToMe"></span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="home-split-oops"></div>
+			<div class="oa-manager-tips"></div>
+		</div>
+	</div>
+	<script src="js/jquery.js" charset="utf-8"></script>
+	<script src="js/dingtalk.js" charset="utf-8"></script>
+	<script src="../venson/js/common.js"></script>
+	<script src="js/resource.js"></script>
+	<script>
+		var parentID = Comm.getUrlParam("parentID");
+
+		$.ajax({
+		   	type: "POST",
+		   	url: baseUrl + "api/execute/getAppsByParentID?parentID=" + parentID,
+		   	async : false,
+		   	success: function(data){
+		   		var arr = data.data;
+		   		var types = ["出勤休假","人事","财务","行政","其他"];
+		   		var enTypes = ["Attendance","Personnel ","Finance","Executive","Other"];
+		   		var showTypes = types;	//定义显示的类型
+		   		if(Comm.cookie("Lang") == "en"){
+		   			showTypes = enTypes;
+		   		}
+		   		var obj = {};
+		   		for(var i=0;i<arr.length;i++){
+		   			var type = arr[i].approvalType;
+		   			if(obj.hasOwnProperty(type)){
+		   				obj[type].push(arr[i]);
+		   			}
+		   			else{
+		   				obj[type] = [];
+		   				obj[type].push(arr[i]);
+		   			}
+		   		}
+		   		var html = "";
+		   		for(var i=0;i<types.length;i++){
+		   			var type = types[i];
+		   			if(obj.hasOwnProperty(type)){
+		   				var apps = obj[type];
+		   				html += '<div class="home-type"><div class="home-type-detail"><span>' + showTypes[i] + 
+						   		'(' + apps.length + ')</span></div>';
+		   				for(var j=0;j<apps.length;j++){
+		   					var title = apps[j].title;
+		   					var img = baseUrl + 'common/file/showPicture.do?id=' + apps[j].img;
+		   					var url = apps[j].url;	   					
+							if(j%3 == 0){
+								if(j == 0){
+									html += '<div class="tFlexbox home-task first" style="display:;">' + 
+									'<div class="tFlex1 home-tap tTap" data-url="' + url + '"><div class="home-tap-iocn">' +
+									'<img class="micro-flow-icon-png-66 icon-border" src="' + img + '"></div>' +
+									'<span class="tapTitle">' + title + '</span></div>';
+								}
+								else{
+									html += '<div class="tFlexbox home-task" style="display:;">' + 
+									'<div class="tFlex1 home-tap tTap" data-url="' + url + '"><div class="home-tap-iocn">' +
+									'<img class="micro-flow-icon-png-66 icon-border" src="' + img + '"></div>' +
+									'<span class="tapTitle">' + title + '</span></div>';
+								}
+								if(j == apps.length-1){
+									html += '<div class="tFlex1 home-tap"></div><div class="tFlex1 home-tap"></div></div>';
+								}
+							} else if(j%3 == 1){
+								html += '<div class="tFlex1 home-tap tTap" data-url="' + url + '"><div class="home-tap-iocn">' +
+								'<img class="micro-flow-icon-png-66 icon-border" src="' + img + '"></div>' +
+								'<span class="tapTitle">' + title + '</span></div>';
+								if(j == apps.length-1){
+									html += '<div class="tFlex1 home-tap"></div></div>';
+								}
+							} else if(j%3 == 2){
+								html += '<div class="tFlex1 home-tap tTap" data-url="' + url + '"><div class="home-tap-iocn">' +
+								'<img class="micro-flow-icon-png-66 icon-border" src="' + img + '"></div>' +
+								'<span class="tapTitle">' + title + '</span></div></div>';
+							}
+		   				}
+		   				html += "</div>";
+		   			}
+		   		}
+		   		$(".mif-home").append(html);
+		   	}
+		});		
+		
+		//进入某个审批页面
+		$(".tTap").click(function(){
+			var url = $(this).attr("data-url");
+			location.href = url;
+		});
+		
+		//待我审批的
+		$(".opt-tap").eq(0).click(function(){
+			location.href = baseUrl + "dingding/approvalRequiringMyApproval.html";
+		});
+		
+		//我发起的
+		$(".opt-tap").eq(1).click(function(){
+			location.href = baseUrl + "dingding/approvalCreateByMe.html";
+		});
+		
+		//抄送给我的
+		$(".opt-tap").eq(2).click(function(){
+			location.href = baseUrl + "dingding/approvalCCToMe.html";
+		});		
+	</script>
+</body>
+</html>

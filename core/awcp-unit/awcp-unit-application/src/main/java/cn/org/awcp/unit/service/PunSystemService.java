@@ -7,7 +7,6 @@ import com.github.miemiedev.mybatis.paginator.domain.PageList;
 
 import cn.org.awcp.core.domain.BaseExample;
 import cn.org.awcp.unit.vo.PunSystemVO;
-import cn.org.awcp.unit.vo.SysDataSourceVO;
 
 public interface PunSystemService {
 
@@ -27,5 +26,4 @@ public interface PunSystemService {
 	public PageList<PunSystemVO> selectPagedByExample(BaseExample baseExample, int currentPage, int pageSize,
 			String sortString);
 
-	List<SysDataSourceVO> getSystemDataSource(Long long1);
 }
