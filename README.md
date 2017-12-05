@@ -80,7 +80,7 @@
 
 The GPL License.
 
-Copyright (c) 2017 OSChina.net
+Copyright (c) 2017 awcp.org.cn
 
 # 7. 我们正在用
 
