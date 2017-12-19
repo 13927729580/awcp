@@ -27,8 +27,8 @@
 			</select>
 			<span class="input-group-addon">排序类型</span>
 			<select name="orderby" class="form-control" id="orderby">
-				<option value="1"  selected="selected">升序</option>
-				<option value="-1">降序</option>
+				<option value="asc"  selected="selected">升序</option>
+				<option value="desc">降序</option>
 			</select>
 			<span class="input-group-addon">排序字段名称</span>
 			<input type="text" class="form-control" name="sortName" id="sortName" value="">
@@ -65,7 +65,28 @@
 		</div>
 	</div>	
 </div>
-
+<div class="form-group">
+	<div class="col-md-12" id="selectOption">
+		<div class="input-group">
+			<span class="input-group-addon required" title="列显示格式">格式化类型</span>
+			<select name="columnFormat" class="form-control" id="columnFormat">
+				<option selected="selected" value="">无</option>
+				<option value="1">日期</option>
+				<option value="2">数字</option>
+				<option value="3">字符串</option>
+			</select>
+			<span class="input-group-addon">格式</span>
+			<select name="columnPatten" class="form-control" id="columnPatten">
+				<option selected="selected" value="yyyy-MM-dd">yyyy-MM-dd</option>
+				<option value="yyyy-MM-dd HH:mm">yyyy-MM-dd HH:mm</option>
+				<option value="yyyy-MM-dd HH:mm:ss">yyyy-MM-dd HH:mm:ss</option>
+				<option value="yyyy年MM月dd日">yyyy年MM月dd日</option>
+				<option value="0.00">保留小数两位</option>
+				<option value="0.0">保留小数1位</option>
+			</select>
+		</div>
+	</div>
+</div>
 <div class="form-group">
 	<div class="col-md-12">
 		<div class="input-group">

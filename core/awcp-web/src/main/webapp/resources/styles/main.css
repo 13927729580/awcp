@@ -12,11 +12,11 @@ table{table-layout: fixed;}
 /***闈㈠寘灞憆ebuild css***/
 .breadcrumb>.active{color:#999}
 /***鍒嗛〉鍣╮ebuild css***/
-#pagers .m_p_bottom{padding: 15px;border: 1px solid transparent;background-color: #f1f1f1;border-color: #e4e4e4;}
+#pagers .m_p_bottom{padding: 15px;border: 1px solid transparent;}
 #pagers .m_p_bottom input,#pagers .m_p_bottom select{display:inline-block;width:60px;padding:0 8px;vertical-align:middle}
 #pagers .m_p_bottom label{padding:0 5px;}
 
-#line-pagers .m_p_bottom{padding:5px 15px;border: 1px solid transparent;background-color: #f1f1f1;border-color: #e4e4e4;}
+#line-pagers .m_p_bottom{padding:5px 15px;border: 1px solid transparent;}
 #line-pagers .m_p_bottom input,#line-pagers .m_p_bottom select{display:inline-block;width:60px;padding:0 8px;height:25px;vertical-align:middle}
 #line-pagers .m_p_bottom span{margin:0 5px;}
 #line-pagers .m_p_bottom a{text-decoration:none;}
@@ -24,7 +24,7 @@ table{table-layout: fixed;}
 #line-pagers .m_p_bottom label{padding:0 5px;}
 
 .datapager{text-align:center;}
-.datapager .m_p_bottom{padding:5px 15px;border: 1px solid transparent;background-color: #f1f1f1;border-color: #e4e4e4;}
+.datapager .m_p_bottom{padding:5px 15px;border: 1px solid transparent;}
 .datapager .m_p_bottom input,.datapager .m_p_bottom select{display:inline-block;width:60px;padding:0 8px;height:25px;vertical-align:middle}
 .datapager .m_p_bottom span{margin:0 5px;}
 .datapager .m_p_bottom a{text-decoration:none;}
@@ -33,12 +33,12 @@ table{table-layout: fixed;}
 /**end**/
 /***鎼滅储rebuild css***/
 .row-table{display:table;}
-#searchform{background:#f1f1f1;width: 100%;}
+#searchform{width: 100%;}
 #searchform .col-table{display:table-cell;float:none;vertical-align:middle;}
 #searchform  form{padding:10px 10px 5px;}
 #searchform .input-group{margin-bottom:5px;}
 /**end**/
-.dataform,#dataform{padding: 15px;margin-bottom: 20px;color: #333;background-color: #f1f1f1;border: 1px solid #e4e4e4;border-radius: 3px;
+.dataform,#dataform{padding: 15px;margin-bottom: 20px;color: #333;
 -webkit-transition: all .5s cubic-bezier(.175,.885,.32,1);
 -o-transition: all .5s cubic-bezier(.175,.885,.32,1);
 transition: all .5s cubic-bezier(.175,.885,.32,1);}
@@ -89,7 +89,7 @@ transition: all .5s cubic-bezier(.175,.885,.32,1);}
 	.name-list li i{display: inline-block;width: 14px;margin:0 5px;}
 .panel-body .tip{padding:5px 10px;text-align:center;border:1px dashed #efefef;color:#ddd;}
 .member-panel ul.choice-list{width:100%;padding:0;}
-.member-panel ul li{display:inline-block;padding: 3px 5px 3px 5px;margin: 0 0 3px 6px;line-height: 12px;cursor: default;background-color: #f1f1f1;border: 1px solid #ddd;border-radius: 3px;
+.member-panel ul li{display:inline-block;padding: 3px 5px 3px 5px;margin: 0 0 3px 6px;line-height: 12px;cursor: default;border: 1px solid #ddd;border-radius: 3px;
 -webkit-box-shadow: 0 0 2px #fff inset,0 1px 0 rgba(0,0,0,.05);box-shadow: 0 0 2px #fff inset,0 1px 0 rgba(0,0,0,.05);}
 	.choice-list a{text-decoration:none;color:#666;font-family:Aril;cursor:pointer;}
 	.choice-list li:hover{background-color: #fff;border-color: #c4c4c4;-webkit-box-shadow: 0 1px 0 rgba(0,0,0,.1);box-shadow: 0 1px 0 rgba(0,0,0,.1);}
@@ -105,3 +105,6 @@ transition: all .5s cubic-bezier(.175,.885,.32,1);}
 .search_main_warp{
 	margin: 10px 0 10px -10px;
 }    
+
+.datatable-wrapper{overflow-x:scroll;}
+.table{word-break: break-all;}

@@ -112,14 +112,13 @@
 	<table class="table table-bordered" id="componentTable" align="left">
 		<thead>
 			<tr>
-				<th width="30"><input type="checkbox" id="checkAllComponent" /></th>
-				<th width="260">名称</th>
-				<th width="120">类型</th>
-				<th width="260">数据源</th>
-				<th>默认值</th>
-				<th width="110">布局</th>
-				<th>描述</th>
-				<th width="50">序号</th>
+				<th width="5%"><input type="checkbox" id="checkAllComponent" /></th>
+				<th width="25%">name</th>
+				<th width="10%">类型</th>
+				<th width="30%">数据源</th>
+				<th width="15%">名称</th>
+				<th width="10%">布局</th>
+				<th width="5%">序号</th>
 			</tr>
 		</thead>
 		<tbody id="componentt">

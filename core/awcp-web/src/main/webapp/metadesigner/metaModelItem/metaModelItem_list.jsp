@@ -32,6 +32,7 @@
 				<button type="button" class="btn btn-success" id="addBtn"><i class="icon-plus-sign"></i>新增</button>
 				<button type="button" class="btn btn-info" id="deleteBtn"><i class="icon-trash"></i>删除</button>
 				<button type="button" class="btn btn-warning" id="updateBtn"><i class="icon-edit"></i>修改</button>
+				<button type="button" class="btn btn-success" onclick="javascript:history.back();">返回</button>
 <!-- 				<button type="button" class="btn btn-info" id="releaseBtn"><i class="icon-trash">发布</i></button> -->
 <!-- 				<button type="button" class="btn btn-info" id="createTableBtn"><i class="icon-trash">生成数据库表</i></button> -->
 				<button type="button" class="btn btn-info" id="searchBtn" data-toggle="collapse" data-target="#collapseButton"><i class="icon-search"></i></button>

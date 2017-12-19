@@ -45,7 +45,6 @@ import cn.org.awcp.unit.service.PunUserBaseInfoService;
 import cn.org.awcp.unit.service.PunUserGroupService;
 import cn.org.awcp.unit.service.PunUserRoleService;
 import cn.org.awcp.unit.utils.EncryptUtils;
-import cn.org.awcp.unit.utils.HttpUtil;
 import cn.org.awcp.unit.utils.Security;
 import cn.org.awcp.unit.vo.PunAJAXStatusVO;
 import cn.org.awcp.unit.vo.PunGroupVO;
@@ -69,28 +68,28 @@ public class PunUserBaseInfoController extends BaseController {
 
 	@Autowired
 	@Qualifier("punUserBaseInfoServiceImpl")
-	PunUserBaseInfoService userService;//用户Service
+	PunUserBaseInfoService userService;// 用户Service
 
 	@Autowired
 	@Qualifier("punUserRoleServiceImpl")
-	PunUserRoleService userRoleService;//用户角色关联Service
+	PunUserRoleService userRoleService;// 用户角色关联Service
 
 	@Autowired
 	@Qualifier("punRoleInfoServiceImpl")
-	PunRoleInfoService roleService;//角色Service
+	PunRoleInfoService roleService;// 角色Service
 
 	@Autowired
 	@Qualifier("punUserGroupServiceImpl")
-	PunUserGroupService userGroupService;//用户部门关联Service
+	PunUserGroupService userGroupService;// 用户部门关联Service
 
 	@Resource(name = "punPositionServiceImpl")
-	private PunPositionService punPositionService;//职位Service
-	
+	private PunPositionService punPositionService;// 职位Service
+
 	@Resource(name = "punGroupServiceImpl")
-	private PunGroupService punGroupService;//部门Service
-	
+	private PunGroupService punGroupService;// 部门Service
+
 	@Autowired
-	private MetaModelOperateService metaModelOperateServiceImpl;//元数据操作Service
+	private MetaModelOperateService metaModelOperateServiceImpl;// 元数据操作Service
 
 	/**
 	 * 获取当前系统角色
@@ -156,6 +155,9 @@ public class PunUserBaseInfoController extends BaseController {
 					vo.setUserPwd(existVO.getUserPwd());
 				}
 				boolean isNew = vo.getUserId() == null ? true : false;
+				String userHeadImg = StringUtils.defaultString(vo.getUserHeadImg(),
+						ControllerHelper.getBasePath() + "template/AdminLTE/images/user2-160x160.jpg");
+				vo.setUserHeadImg(userHeadImg);
 				Long userId = userService.addOrUpdateUser(vo);// 新增用户
 				// 新增用户时，增加部门和岗位
 				if (vo.getPositionGroupId() != null && vo.getPositionId() != null) {
@@ -164,16 +166,10 @@ public class PunUserBaseInfoController extends BaseController {
 						metaModelOperateServiceImpl.updateBySql(insertSql, userId, vo.getPositionGroupId(),
 								vo.getPositionId());
 					} else {
-						String sql = "SELECT USER_GRUOP_ID id FROM p_un_user_group WHERE user_id=?";
-						List<Map<String, Object>> data = metaModelOperateServiceImpl.search(sql, userId);
-						if (data.isEmpty()) {
-							metaModelOperateServiceImpl.updateBySql(insertSql, userId, vo.getPositionGroupId(),
-									vo.getPositionId());
-						} else {
-							sql = "update p_un_user_group set GROUP_ID=?,POSITION_ID=? where USER_GRUOP_ID=?";
-							metaModelOperateServiceImpl.updateBySql(sql, vo.getPositionGroupId(), vo.getPositionId(),
-									data.get(0).get("id"));
-						}
+						String sql = "delete FROM p_un_user_group WHERE user_id=?";
+						metaModelOperateServiceImpl.updateBySql(sql, userId);
+						metaModelOperateServiceImpl.updateBySql(insertSql, userId, vo.getPositionGroupId(),
+								vo.getPositionId());
 					}
 				}
 
@@ -233,10 +229,14 @@ public class PunUserBaseInfoController extends BaseController {
 
 	/**
 	 * 用户列表
-	 * @param vo	查询参数
-	 * @param model			
-	 * @param currentPage	当前页数
-	 * @param pageSize		每页记录条数
+	 * 
+	 * @param vo
+	 *            查询参数
+	 * @param model
+	 * @param currentPage
+	 *            当前页数
+	 * @param pageSize
+	 *            每页记录条数
 	 * @return
 	 */
 	@RequestMapping(value = "punUserBaseInfoList")
@@ -244,22 +244,13 @@ public class PunUserBaseInfoController extends BaseController {
 			@RequestParam(value = "currentPage", required = false, defaultValue = "1") int currentPage,
 			@RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize) {
 		try {
-			if (pageSize < 10) {
-				pageSize = 10;
-			}
-			if (currentPage < 1) {
-				currentPage = 1;
-			}
 			String sortString = "p_un_user_base_info.number";
 			BaseExample example = new BaseExample();
 			Criteria criteria = example.createCriteria();
 			String query_deptName = vo.getDeptName();// 部门名称
 			String query_name = vo.getName();// 姓名
-			String query_username = vo.getUserName();// 用户名
 			String query_mobile = vo.getMobile();// 手机号
-			String query_userIdCardNumber = vo.getUserIdCardNumber();// 身份证号
 			String query_userTitle = vo.getUserTitle();// 职称
-			PunGroupVO groupVO = (PunGroupVO) SessionUtils.getObjectFromSession(SessionContants.CURRENT_USER_GROUP);
 			if (StringUtils.isNotBlank(query_deptName)) {
 				criteria.andLike("p_un_group.GROUP_CH_NAME", "%" + query_deptName + "%");
 			}
@@ -269,19 +260,11 @@ public class PunUserBaseInfoController extends BaseController {
 			if (StringUtils.isNotBlank(query_mobile)) {
 				criteria.andLike("p_un_user_base_info.MOBILE", "%" + query_mobile + "%");
 			}
-			if (StringUtils.isNotBlank(query_username)) {
-				criteria.andLike("p_un_user_base_info.USER_NAME", "%" + query_username + "%");
-			}
-			if (StringUtils.isNotBlank(query_userIdCardNumber)) {
-				criteria.andLike("p_un_user_base_info.USER_ID_CARD_NUMBER", "%" + query_userIdCardNumber + "%");
-			}
 			if (StringUtils.isNotBlank(query_userTitle)) {
 				criteria.andLike("d.NAME", "%" + query_userTitle + "%");
 			}
-			if (null != groupVO.getGroupId()) {
-				criteria.andEqualTo("p_un_user_base_info.GROUP_ID", groupVO.getGroupId());
-			}
-			PageList<PunUserBaseInfoVO> vos = userService.selectByExample_UserList(example, currentPage, pageSize,sortString);
+			PageList<PunUserBaseInfoVO> vos = userService.selectByExample_UserList(example, currentPage, pageSize,
+					sortString);
 			model.addAttribute("currentPage", currentPage);
 			model.addAttribute("vos", vos);
 			model.addAttribute("vo", vo);
@@ -424,11 +407,11 @@ public class PunUserBaseInfoController extends BaseController {
 	 * @return
 	 */
 	@RequestMapping(value = "intoRoleRelateuser")
-	public ModelAndView intoRoleRelateuser(Long[] boxs, Long sysId) {
+	public ModelAndView intoRoleRelateuser(Long[] boxs) {
 		if (null == boxs || boxs.length < 1) {
 			return null;
 		}
-		ModelAndView mv = new ModelAndView("redirect:roleRelateUserQuery.do?roleId=" + boxs[0] + "&sysId=" + sysId);
+		ModelAndView mv = new ModelAndView("redirect:roleRelateUserQuery.do?roleId=" + boxs[0]);
 		return mv;
 	}
 
@@ -438,8 +421,6 @@ public class PunUserBaseInfoController extends BaseController {
 	 * @param vo
 	 * @param roleId
 	 *            角色ID
-	 * @param sysId
-	 *            系统ID
 	 * @param currentPage
 	 *            当前页
 	 * @return
@@ -448,7 +429,6 @@ public class PunUserBaseInfoController extends BaseController {
 	@RequestMapping(value = "roleRelateUserQuery")
 	public ModelAndView roleRelateUserQuery(PunUserBaseInfoVO vo,
 			@RequestParam(value = "roleId", required = false) Long roleId,
-			@RequestParam(value = "sysId", required = false) Long sysId,
 			@RequestParam(value = "currentPage", required = false, defaultValue = "1") int currentPage,
 			@RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize) {
 		ModelAndView mv = new ModelAndView("unit/user-relate-role");
@@ -477,7 +457,6 @@ public class PunUserBaseInfoController extends BaseController {
 					pageSize, sortString);
 
 			mv.addObject("roleId", roleId);
-			mv.addObject("sysId", sysId);
 			mv.addObject("vos", userVOs);
 			mv.addObject("currentPage", currentPage);
 		} catch (Exception e) {
@@ -492,13 +471,12 @@ public class PunUserBaseInfoController extends BaseController {
 	 * 
 	 * @param vo
 	 * @param roleId
-	 * @param sysId
 	 * @param currentPage
 	 * @param pageSize
 	 * @return
 	 */
 	@RequestMapping(value = "roleNotRelateUserQuery")
-	public ModelAndView roleNotRelateUserQuery(PunUserBaseInfoVO vo, Long roleId, Long sysId,
+	public ModelAndView roleNotRelateUserQuery(PunUserBaseInfoVO vo, Long roleId,
 			@RequestParam(value = "currentPage", required = false, defaultValue = "1") int currentPage,
 			@RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize) {
 		ModelAndView mv = new ModelAndView("unit/user-not-relate-role");
@@ -527,7 +505,6 @@ public class PunUserBaseInfoController extends BaseController {
 					currentPage, pageSize, sortString);
 
 			mv.addObject("roleId", roleId);
-			mv.addObject("sysId", sysId);
 			mv.addObject("vos", userVOs);
 			mv.addObject("currentPage", currentPage);
 		} catch (Exception e) {
@@ -623,27 +600,25 @@ public class PunUserBaseInfoController extends BaseController {
 	 *            重复输入密码
 	 * @param response
 	 */
+	@ResponseBody
 	@RequestMapping(value = "/updatePwd", method = RequestMethod.POST)
-	public void updatePwd(String oldPwd, String newPwd, HttpServletResponse response) {
-		PunAJAXStatusVO respStatus = new PunAJAXStatusVO();
+	public ReturnResult updatePwd(String oldPwd, String newPwd, HttpServletResponse response) {
+		ReturnResult result = ReturnResult.get();
 		try {
 			PunUserBaseInfoVO user = (PunUserBaseInfoVO) SessionUtils
 					.getObjectFromSession(SessionContants.CURRENT_USER);
 			if (!oldPwd.equals(EncryptUtils.decript(user.getUserPwd()))) {
-				respStatus.setMessage("原密码输入错误");
-				respStatus.setStatus(1);
+				result.setStatus(StatusCode.PARAMETER_ERROR.setMessage("原密码输入错误"));
 			} else {
 				user.setUserPwd(EncryptUtils.encrypt(newPwd));
 				userService.updateUser(user);
-				respStatus.setStatus(0);
-				respStatus.setMessage("修改成功");
+				result.setStatus(StatusCode.SUCCESS.setMessage("修改成功"));
 			}
 		} catch (Exception e) {
 			logger.info("ERROR", e);
-			respStatus.setMessage("修改失败，请重试或联系管理员");
-			respStatus.setStatus(1);
+			result.setStatus(StatusCode.FAIL.setMessage("修改失败，请重试或联系管理员"));
 		}
-		HttpUtil.writeDataToResponse(response, respStatus);
+		return result;
 	}
 
 	/**
@@ -652,9 +627,10 @@ public class PunUserBaseInfoController extends BaseController {
 	 * @param vo
 	 * @param response
 	 */
+	@ResponseBody
 	@RequestMapping(value = "updateSelfInfo")
-	public void updateSelfInfo(PunUserBaseInfoVO vo, HttpServletResponse response) {
-		PunAJAXStatusVO respStatus = new PunAJAXStatusVO();
+	public ReturnResult updateSelfInfo(PunUserBaseInfoVO vo, HttpServletResponse response) {
+		ReturnResult result = ReturnResult.get();
 		try {
 			PunUserBaseInfoVO user = (PunUserBaseInfoVO) SessionUtils
 					.getObjectFromSession(SessionContants.CURRENT_USER);
@@ -662,12 +638,12 @@ public class PunUserBaseInfoController extends BaseController {
 			vo.setUserIdCardNumber(vo.getUserName());
 			userService.updateUser(vo);
 			SessionUtils.addObjectToSession(SessionContants.CURRENT_USER, vo);
-			respStatus.setStatus(0);// 更新成功
-			respStatus.setMessage("更新成功");
+			result.setStatus(StatusCode.SUCCESS.setMessage("更新成功"));
 		} catch (Exception e) {
 			logger.info("ERROR", e);
+			result.setStatus(StatusCode.FAIL.setMessage("更新失败，请重试或联系管理员"));
 		}
-		HttpUtil.writeDataToResponse(response, respStatus);
+		return result;
 	}
 
 	/**
@@ -751,7 +727,6 @@ public class PunUserBaseInfoController extends BaseController {
 		return result;
 	}
 
-	private final static String SIGNATURE_MONGODB = "SIGNATURE_MONGODB";
 	@Resource(name = "IFileService")
 	private FileService fileService;
 
@@ -773,4 +748,5 @@ public class PunUserBaseInfoController extends BaseController {
 			logger.info("ERROR", e);
 		}
 	}
+
 }

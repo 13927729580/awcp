@@ -25,20 +25,30 @@
 			<button class="btn btn-primary" id="addBtn"><i class="icon-plus-sign"></i>新增</button>
 			<button class="btn btn-success" id="updateBtn"><i class="icon-edit"></i>修改</button>
 			<button class="btn btn-danger"  id="deleteBtn"><i class="icon-trash"></i>删除</button>		
-			<button class="btn btn-primary" id="copyBtn"><i class="icon-plus-sign"></i>复制</button>
-			<button class="btn btn-primary" id="copyToSystemBtn"><i class="icon-plus-sign"></i>复制到</button>
+			<button class="btn btn-primary" id="copyBtn"><i class="icon-copy"></i>复制</button>
+			<!-- <button class="btn btn-primary" id="copyToSystemBtn"><i class="icon-plus-sign"></i>复制到</button> -->
 			<button class="btn btn-warning" id="publishBtn"><i class="icon-edit"></i>发布</button>
 			<button class="btn btn-warning" id="checkOutBtn"><i class="icon-edit"></i>签出</button>
 			<button class="btn btn-warning" id="checkInBtn"><i class="icon-edit"></i>签入</button>
 			<button class="btn btn-info" id="export"><i class="icon-zoom-out"></i>预览</button>
 			<button class="btn btn-info" id="relation"><i class="icon-zoom-out"></i>引用关系</button>
-			<button class="btn btn-info" id="exportExcel"><i class="icon-plus-sign"></i>导出Excel</button>
+			<!-- <button class="btn btn-info" id="exportExcel"><i class="icon-plus-sign"></i>导出Excel</button> -->
+			<button class="btn btn-info" id="exportPage"><i class="icon-arrow-down"></i>导出</button>
+			<form action="fd/importOrRestorePage.do" method="post" style="display:inline-block;vertical-align:middle;" enctype="multipart/form-data">
+				<input type="hidden" name="hasBack" value="false">
+				<a class="btn btn-info" onclick="document.getElementById('importOrRestorePage').click()"><i class="icon-arrow-up"></i>导入</a>
+				<input type="file" style="display:none;"  name="importOrRestorePage" id="importOrRestorePage" class="importOrRestorePage" value="导入">
+			</form>
+			<!-- <form action="fd/importOrRestorePage.do" method="post" enctype="multipart/form-data">
+				<input type="hidden" name="hasBack" value="false">
+				<input type="file"  name="importOrRestorePage" class="importOrRestorePage" value="还原">
+			</form> -->
 			<button class="btn btn-info" id="catTemplate"><i class="icon-plus-sign"></i>查看发布后模版</button>			
 		</div>			
 		<div class="row">
 			<div id="collapseButton" class="in">
 				<form action="<%=basePath%>fd/list.do" id="groupForm" class="clearfix" method="post">
-					<div class="form-group">
+					<div class="form-group" style="overflow:auto;">
 						<div class="col-md-2">
 							<div class="input-group">
 								<span class="input-group-addon">页面名称</span>
@@ -156,6 +166,8 @@
 
 	<%@ include file="/resources/include/common_js.jsp" %>
 	<script type="text/javascript" src="<%=basePath%>resources/scripts/pageTurn.js"></script>
+	<script type="text/javascript" src="<%=basePath%>venson/js/jquery/jquery.form.js"></script>
+	<script type="text/javascript" src="<%=basePath%>venson/js/common.js"></script>
 	<script type="text/javascript">
 		var basePath = "<%=basePath%>";
 		$(function(){
@@ -382,6 +394,36 @@
 						alert(data);
 				   	}
 				});
+	    	});
+			$("#exportPage").click(function(){
+				if(count!=1){
+					alert("请选择一项进行操作");
+					return false;
+				}
+	    		var id = $("input[name='_selects']").val();
+	    		location.href=basePath + "fd/exportPage.do?pageId="+id;
+	    	});
+			$(".importOrRestorePage").on("change",function(){
+	    		var $form=$(this).parent();
+	    		if(!$.trim($(this).val())){
+	    			return;
+	    		}
+	    		if($(this).val().indexOf("export")!=-1){
+		    		$("input[name='hasBack']").val("true");
+		    		$form.attr("action",basePath+$form.attr("action"));
+		    		$form.submit();
+	    		}else{
+		    		$("input[name='hasBack']").val("false");
+		    		 var options = {
+    			        success: function(data){
+    			        	alert(data.message);
+    			        }, 
+    			        url: baseUrl +$form.attr("action"),
+    			        type: "POST", 
+    			        dataType: "json", 
+    			    }
+		    		$form.ajaxSubmit(options);
+	    		}
 	    	});
 			
 			$(".table-datatable").find("thead").find("th").eq(2).css("width","35%");

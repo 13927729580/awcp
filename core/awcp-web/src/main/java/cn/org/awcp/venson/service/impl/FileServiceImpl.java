@@ -2,6 +2,7 @@ package cn.org.awcp.venson.service.impl;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -11,7 +12,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
-import java.util.UUID;
+import java.util.Date;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
@@ -35,11 +36,13 @@ import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSInputFile;
 
+import cn.org.awcp.core.utils.BeanUtils;
 import cn.org.awcp.core.utils.mongodb.MongoDBUtils;
 import cn.org.awcp.formdesigner.core.domain.Attachment;
 import cn.org.awcp.unit.vo.PunUserBaseInfoVO;
 import cn.org.awcp.venson.controller.base.ControllerHelper;
 import cn.org.awcp.venson.service.FileService;
+import cn.org.awcp.venson.util.MD5Util;
 
 @Service("IFileService")
 @Transactional
@@ -51,24 +54,46 @@ public class FileServiceImpl implements FileService {
 
 	@Override
 	public String save(InputStream input, String fileType, String fileName, int type, boolean isIndex) {
-		String uuid = UUID.randomUUID().toString();
+		if (input == null) {
+			return null;
+		}
 		BufferedInputStream in = null;
 		BufferedOutputStream out = null;
 		try {
+			byte[] arr = IOUtils.toByteArray(input);
+			String uuid = MD5Util.getFileMD5String(arr);
+			AttachmentVO vo = this.get(uuid);
+			Attachment att;
+			// 判断附件在数据库中是否已经存在
+			if (vo != null) {
+				// 判断文件流是否存在
+				InputStream inputStream = this.getInputStream(vo);
+				// 如果存在则直接返回
+				if (inputStream != null) {
+					IOUtils.closeQuietly(in);
+					return uuid;
+				} else {
+					// 不存在则移除数据库数据
+					att = new Attachment();
+					att.setId(vo.getId());
+					att.remove();
+				}
+			} else {
+				att = new Attachment();
+			}
+			in = new BufferedInputStream(new ByteArrayInputStream(arr));
 			// 文件信息保存到附件表
 			PunUserBaseInfoVO user = ControllerHelper.getUser();
-			Attachment att = new Attachment();
 			att.setId(uuid);
-			att.setSize((long) input.available());
+			att.setSize((long) in.available());
 			att.setUserId(user.getUserId());
 			att.setUserName(user.getName());
 			att.setContentType(fileType);
 			att.setSystemId(ControllerHelper.getSystemId());
 			switch (type) {
 			case FileService.MONGODB:
-				in = new BufferedInputStream(input);
 				GridFS myFS = getGridFS();
-				GridFSInputFile gf = myFS.createFile(input);
+				GridFSInputFile gf = myFS.createFile(in);
 				gf.setContentType(fileType);
 				gf.setFilename(fileName);
 				gf.put("id", uuid);
@@ -87,7 +112,6 @@ public class FileServiceImpl implements FileService {
 				att.setStorageId(fileName);
 				att.setFileName(name);
 				String path = fileName.split(name)[0];
-				in = new BufferedInputStream(input);
 				// 判断目录是否存在
 				File file = new File(path);
 				boolean flag = true;
@@ -114,22 +138,144 @@ public class FileServiceImpl implements FileService {
 			logger.info("ERROR", e);
 			return null;
 		} finally {
+			IOUtils.closeQuietly(input);
 			IOUtils.closeQuietly(in);
 			IOUtils.closeQuietly(out);
 		}
 	}
 
 	@Override
-	public Attachment get(String id) {
-		return Attachment.get(Attachment.class, id);
+	public AttachmentVO get(String id) {
+		Attachment att = Attachment.get(Attachment.class, id);
+		if (att != null) {
+			AttachmentVO vo = new AttachmentVO();
+			BeanUtils.copyProperties(Attachment.get(Attachment.class, id), vo, false);
+			return vo;
+		} else {
+			return null;
+		}
+	}
+
+	public static class AttachmentVO {
+		private String id;
+		private String storageId;
+
+		private String fileName;
+
+		private Long userId;
+
+		private String userName;
+
+		private String contentType;
+
+		private Long systemId;
+
+		private Long size;
+
+		private Date createTime;
+		private Date updateTime;
+
+		private int type;
+
+		public String getId() {
+			return id;
+		}
+
+		public void setId(String id) {
+			this.id = id;
+		}
+
+		public String getStorageId() {
+			return storageId;
+		}
+
+		public void setStorageId(String storageId) {
+			this.storageId = storageId;
+		}
+
+		public String getFileName() {
+			return fileName;
+		}
+
+		public void setFileName(String fileName) {
+			this.fileName = fileName;
+		}
+
+		public Long getUserId() {
+			return userId;
+		}
+
+		public void setUserId(Long userId) {
+			this.userId = userId;
+		}
+
+		public String getUserName() {
+			return userName;
+		}
+
+		public void setUserName(String userName) {
+			this.userName = userName;
+		}
+
+		public String getContentType() {
+			return contentType;
+		}
+
+		public void setContentType(String contentType) {
+			this.contentType = contentType;
+		}
+
+		public Long getSystemId() {
+			return systemId;
+		}
+
+		public void setSystemId(Long systemId) {
+			this.systemId = systemId;
+		}
+
+		public Long getSize() {
+			return size;
+		}
+
+		public void setSize(Long size) {
+			this.size = size;
+		}
+
+		public Date getCreateTime() {
+			return createTime;
+		}
+
+		public void setCreateTime(Date createTime) {
+			this.createTime = createTime;
+		}
+
+		public Date getUpdateTime() {
+			return updateTime;
+		}
+
+		public void setUpdateTime(Date updateTime) {
+			this.updateTime = updateTime;
+		}
+
+		public int getType() {
+			return type;
+		}
+
+		public void setType(int type) {
+			this.type = type;
+		}
+
 	}
 
 	@Override
 	public boolean delete(boolean isCheck, String... id) {
-		Long userId = ControllerHelper.getUserId();
+		long userId = ControllerHelper.getUserId();
 		boolean isSuccess = true;
 		for (String i : id) {
-			Attachment att = get(i);
+			AttachmentVO att = get(i);
+			if (att == null) {
+				continue;
+			}
 			if (isCheck) {
 				if (att.getUserId() != userId) {
 					isSuccess = false;
@@ -147,7 +293,9 @@ public class FileServiceImpl implements FileService {
 				new File(att.getStorageId()).delete();
 				break;
 			}
-			att.remove();
+			Attachment atte = new Attachment();
+			atte.setId(att.getId());
+			atte.remove();
 		}
 		return isSuccess;
 	}
@@ -158,7 +306,7 @@ public class FileServiceImpl implements FileService {
 	}
 
 	@Override
-	public InputStream getInputStream(Attachment att) {
+	public InputStream getInputStream(AttachmentVO att) {
 		if (att == null) {
 			return null;
 		}
@@ -193,7 +341,7 @@ public class FileServiceImpl implements FileService {
 	}
 
 	@Override
-	public boolean download(Attachment att, OutputStream out) {
+	public boolean download(AttachmentVO att, OutputStream out) {
 		return copy(getInputStream(att), out);
 	}
 
@@ -224,7 +372,7 @@ public class FileServiceImpl implements FileService {
 		try {
 			zipOut = new ZipOutputStream(out);
 			for (String id : ids) {
-				Attachment att = get(id);
+				AttachmentVO att = get(id);
 				InputStream inputStream = getInputStream(att);
 				if (inputStream != null) {
 					// 设置压缩文件内的字符编码，不然会变成乱码

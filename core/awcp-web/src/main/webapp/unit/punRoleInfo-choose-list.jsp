@@ -1,122 +1,110 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
-	pageEncoding="UTF-8"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
-<%@ taglib prefix="sc" uri="szcloud"%>
-<%@page isELIgnored="false"%>
+    pageEncoding="UTF-8"%>
+ <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%
 	String path = request.getContextPath();
 	String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
 %>
 <!DOCTYPE html>
 <html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="renderer" content="webkit">
-<title>系统管理</title>
-<%@ include file="/resources/include/common_css.jsp"%><!-- 注意加载路径 -->
+<head lang="zh">
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <%@ include file="/resources/include/common_lte_css.jsp"%>
 </head>
-<body id="main">
-	<div class="container-fluid">
-		<div class="row" id="breadcrumb">
-			<ul class="breadcrumb">
-				<li><i class="icon-location-arrow icon-muted"></i></li>
-				<!--
-				<li><a href="#">组织机构与权限</a></li>
-				 <li><a href="#">开发者</a></li> 
-				<li><a href="<%=basePath %>unit/punRelateSys.do">已关联应用系统管理</a></li>
-				-->
-				<li class="active">角色管理</li>
-			</ul>
+<body>
+	<section class="content">
+		<div class="opeBtnGrop">
+			<a href="#" class="btn btn-success"  id="relateUserBtn">关联用户</a>
+			<a href="#" onclick="document.getElementById('userList').submit()" class="btn btn-primary">搜索</a>
+			<a href="#" onclick="document.getElementById('userList').reset()" class="btn btn-info">清空</a>
 		</div>
-
-		<div class="row" id="buttons">
-			<button type="button" class="btn btn-success" id="relateUserBtn">
-				<i class="icon-edit"></i>关联用户
-			</button>
-			<button type="button" class="btn btn-info" id="searchBtn"
-				data-toggle="collapse" data-target="#collapseButton">
-				<i class="icon-search"></i>
-			</button>
-		</div>
-
-		<div class="row" id="searchform">
-			<div id="collapseButton" class="collapse">
-				<form method="post" action="<%=basePath%>unit/manageRole.do" id="createForm">
-					<input type="hidden" name="currentPage"/>
-					<input type="hidden" name="boxs" value="${sysId}"/>
-					<div class="col-md-3">
-						<div class="input-group">
-							<span class="input-group-addon">角色名</span> 
-							<input name="roleName" class="form-control" id="roleName" type="text" value="${vo.roleName}" />
-						</div>
+		<div class="row">
+			<div class="col-md-12">
+				<div class="box box-info">
+					<div class="box-body">
+						<form method="post" id="userList">
+							<input type="hidden" id="currentPage" name="currentPage" value="${vos.getPaginator().getPage()}">
+							<input type="hidden" id="pageSize" name="pageSize" value="${vos.getPaginator().getLimit()}">
+							<input type="hidden" id="totalCount" name="totalCount" value="${vos.getPaginator().getTotalCount()}">
+							<div class="row form-group">
+								<div class="col-md-6">	
+									<div class="input-group">
+						                <span class="input-group-addon">角色名</span>
+						                <input name="roleName" class="form-control" id="roleName" type="text" value="${vo.roleName}" />
+						            </div>
+								</div>	
+							</div>	
+							<table class="table table-hover">
+								<thead>
+									<tr>
+										<th class="hidden"></th>
+										<th data-width="" data-field="" data-checkbox="true"></th>
+							            <th>序号</th>
+										<th>角色名</th>
+									</tr>
+								</thead>
+								<tbody>
+										<c:forEach items="${vos}" var="vo" varStatus="status">
+											<tr>
+												<td class="hidden"><input type="hidden" value="${vo.roleId}"></td>
+												<td></td>
+									            <td>${vos.getPaginator().getPage()*vos.getPaginator().getLimit()-vos.getPaginator().getLimit()+status.index +1}</td>
+					           					<td>${vo.roleName}</td>
+											</tr>
+										</c:forEach>
+								</tbody>
+							</table>
+						</form>
 					</div>
-					<div class="col-md-3 btn-group">
-						<button class="btn btn-primary" type="submit">确定</button>
-						<a class="btn" data-toggle="collapse"
-							data-target="#collapseButton">取消</a>
-					</div>
-				</form>
+				</div>
 			</div>
 		</div>
+	</section>
 
-		<div class="row" id="datatable">
-		<form method="post" id="userList">
-			
-			<table class="table datatable table-bordered">
-				<thead>
-					<tr>
-						<th class="hidden">
-						<input type="hidden" name="currentPage" value="${currentPage}">
-						<input type="hidden" name="sysId" value="${sysId}">
-						</th>
-						<th>角色名</th>
-					</tr>
-				</thead>
-				<tbody>
-						<c:forEach items="${vos}" var="vo">
-							<tr>
-								<td class="hidden formData"><input id="boxs" type="name"
-									value="${vo.roleId}"></td>
-	           					<td>${vo.roleName}</td>
-							</tr>
-						</c:forEach>
-				</tbody>
-			</table>
-		</form>
-		</div>
-		<div class="row navbar-fixed-bottom text-center" id="pagers">
-			<sc:PageNavigation dpName="vos"></sc:PageNavigation>
-		</div> 
-	</div>
-
-	<%@ include file="../resources/include/common_js.jsp"%>
-	<script type="text/javascript"
-		src="<%=basePath%>resources/scripts/pageTurn.js"></script>
+	<%@ include file="../resources/include/common_lte_js.jsp"%>
 	<script type="text/javascript">
 		  $(function(){
 			 
 			  var count=0;//默认选择行数为0
-			  $('table.datatable').datatable({
-				  checkable: true,
-				  checksChanged:function(event){
-					  this.$table.find("tbody tr").find("input#boxs").removeAttr("name");
-					  var checkArray = event.checks.checks;
-					  count = checkArray.length;//checkbox checked数量
-					  for(var i=0;i<count;i++){//给隐藏数据机上name属性
-						  this.$table.find("tbody tr").eq(checkArray[i]).find("input#boxs").attr("name","boxs");
-					  }
-				  }
-					
-			  });
+			  $(".table").bootstrapTable({
+					 pageSize:parseInt($("#pageSize").val()),
+		        	 pageNumber:parseInt($("#currentPage").val()),
+		        	 totalRows:parseInt($("#totalCount").val()),
+		        	 sidePagination:"server",
+		        	 pagination:true,
+		        	 onPageChange:function(number, size){
+		        		$("#pageSize").val(size);
+		        		$("#currentPage").val(number);
+		        		$("#userList").attr("action","<%=basePath%>unit/manageRole.do").submit();
+		        	 },
+		        	 onClickRow:function(row,$element,field){
+		        	  	  var $checkbox=$element.find(":checkbox").eq(0);
+		        	  	  if($checkbox.get(0).checked){
+							  $checkbox.get(0).checked=false;
+							  $element.find("input[type='hidden']").removeAttr("name","roleId");
+		        	  	  }else{
+							  $checkbox.get(0).checked=true;
+							  $element.find("input[type='hidden']").attr("name","roleId");
+		        	  	  }
+						  count = $("input[name='roleId']").length;
+		        	 },
+		        	 onCheck: function(row,$element){
+						  $element.closest("tr").find("input[type='hidden']").attr("name","roleId");
+						  count = $("input[name='roleId']").length;
+		        	 },
+		        	 onUncheck:function(row,$element){
+		        		 $element.closest("tr").find("input[type='hidden']").removeAttr("name");
+						 count = $("input[name='roleId']").length;
+		        	 }
+		         });
 			//relate user
 	      		$("#relateUserBtn").click(function(){
-	      			if(count > 0){
-	      				$("#userList").attr("action","<%=basePath%>unit/intoRoleRelateuser.do?sysId=${sysId}").submit();
+	      			if(count == 1){
+	      				$("#userList").attr("action","<%=basePath%>unit/roleRelateUserQuery.do?sysId=${sysId}").submit();
 	      			}else{
-	      				alert("请选择一项进行操作");
+	      				Comm.alert("请选择一项进行操作");
 	      			}
 	      			return false;
 	      		});

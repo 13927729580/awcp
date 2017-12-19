@@ -15,7 +15,6 @@ import cn.org.awcp.core.utils.SessionUtils;
 import cn.org.awcp.core.utils.constants.SessionContants;
 import cn.org.awcp.unit.vo.PunRoleInfoVO;
 import cn.org.awcp.unit.vo.PunUserBaseInfoVO;
-import cn.org.awcp.venson.controller.base.ControllerHelper;
 
 public class AuthorityFilter implements Filter {
 
@@ -29,7 +28,7 @@ public class AuthorityFilter implements Filter {
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
-		PunUserBaseInfoVO user = ControllerHelper.getUser();
+		PunUserBaseInfoVO user = (PunUserBaseInfoVO) SessionUtils.getObjectFromSession(SessionContants.CURRENT_USER);
 		if (user != null) {
 			String uri = httpRequest.getRequestURI();
 			if (uri.endsWith("jsp") || uri.endsWith("do")) {
@@ -39,6 +38,10 @@ public class AuthorityFilter implements Filter {
 					@SuppressWarnings("unchecked")
 					List<PunRoleInfoVO> roles = (List<PunRoleInfoVO>) SessionUtils
 							.getObjectFromSession(SessionContants.CURRENT_ROLES);
+					if (roles == null) {
+						httpRequest.getRequestDispatcher("/errorHandle.jsp").forward(request, response);
+						return;
+					}
 					boolean isSuperAdmin = false;
 					for (PunRoleInfoVO role : roles) {
 						if (role.getRoleName().equals("超级后台管理员")) {

@@ -5,7 +5,7 @@ import org.apache.ibatis.mapping.MappedStatement;
 import com.github.miemiedev.mybatis.paginator.dialect.MySQLDialect;
 import com.github.miemiedev.mybatis.paginator.domain.PageBounds;
 
-import cn.org.awcp.venson.util.MySqlSmartCountUtil;
+import cn.org.awcp.core.utils.MySqlSmartCountUtil;
 
 /**
  * 根据SQL语句获取优化后的count语句

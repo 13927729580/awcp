@@ -52,8 +52,9 @@ public class QueryServiceImpl implements QueryService {
 			wfSql += " OR a.WFState=" + WFState.ReturnSta.getValue();
 		}
 		StringBuilder builder = new StringBuilder();
-		builder.append("SELECT a.FK_Flow,a.FlowName,a.StarterName,a.FK_Node,a.FID,(CASE a.WFState WHEN 5 THEN " + RETURN
-				+ "  ELSE " + UNTREATED + " END) WFState ," + "a.WorkID,a.title,a.nodeName,a.RDT  FROM WF_EmpWorks a ");
+		builder.append("SELECT b.DYNAMICPAGE_ID,b.RECORD_ID,a.FK_Flow,a.FlowName,a.StarterName,a.FK_Node,a.FID,(CASE a.WFState WHEN 5 THEN " 
+				+ RETURN + " ELSE " + UNTREATED + " END) WFState ," + "a.WorkID,a.title,a.nodeName,a.RDT FROM WF_EmpWorks a "
+						+ "left join p_fm_document b on a.WorkID=b.WORKITEM_ID");
 		builder.append("  WHERE (" + wfSql + ") ");
 		// 包含授权
 		includeAuth(userName, builder, params);
@@ -186,20 +187,22 @@ public class QueryServiceImpl implements QueryService {
 
 		builder.append("select * , COUNT(DISTINCT d.workid) from ( ");
 
-		builder.append("(SELECT a.FK_Flow,a.FlowName,a.StarterName,a.FK_Node,a.FID,a.WorkID," + HANDLED
+		builder.append("(SELECT c.DYNAMICPAGE_ID,c.RECORD_ID,a.FK_Flow,a.FlowName,a.StarterName,a.FK_Node,a.FID,a.WorkID," + HANDLED
 				+ " as WFState,a.title,a.nodeName,a.RDT,concat(a.todoemps,B.FK_Emp) as userName"
 				+ ",( CASE WHEN NOW()>DATE_ADD(a.RDT, INTERVAL ( SELECT DeductDays FROM wf_node WHERE nodeid=a.FK_Node) "
 				+ FLOW_OVERTIME_VALUE + ") THEN 1 ELSE 0 END) isovertime "
-				+ " FROM WF_GenerWorkFlow A left join WF_GenerWorkerlist B on A.WorkID=B.WorkID  where  B.IsEnable=1 AND B.IsPass=1 ) ");
+				+ " FROM WF_GenerWorkFlow A left join WF_GenerWorkerlist B on A.WorkID=B.WorkID "
+				+ " left join p_fm_document c on A.WorkID=c.WORKITEM_ID where  B.IsEnable=1 AND B.IsPass=1 ) ");
 
 		builder.append(" union ");
 
 		// 加入抄送的已处理件
-		builder.append("(SELECT b.FK_Flow,b.FlowName,b.StarterName,b.FK_Node,b.FID,b.WorkID," + HANDLED
+		builder.append("(SELECT c.DYNAMICPAGE_ID,c.RECORD_ID,b.FK_Flow,b.FlowName,b.StarterName,b.FK_Node,b.FID,b.WorkID," + HANDLED
 				+ " as WFState,b.title,b.nodeName,b.RDT,a.CCTo as userName,"
 				+ "( CASE WHEN NOW()>DATE_ADD(b.RDT, INTERVAL ( SELECT DeductDays FROM wf_node WHERE nodeid=b.FK_Node) "
 				+ FLOW_OVERTIME_VALUE + ") THEN 1 ELSE 0 END)  isovertime"
-				+ "   FROM wf_cclist a left join wf_generworkflow b on a.WorkID=b.WorkID where a.Sta!=0 AND b.WFSta=0 )");
+				+ " FROM wf_cclist a left join wf_generworkflow b on a.WorkID=b.WorkID "
+				+ "left join p_fm_document c on a.WorkID=c.WORKITEM_ID where a.Sta!=0 AND b.WFSta=0 )");
 		builder.append("  ) d  where WFState<>3   ");
 		if (StringUtils.isNotBlank(FK_Flow)) {
 			params.put("FK_Flow", FK_Flow);
@@ -235,16 +238,17 @@ public class QueryServiceImpl implements QueryService {
 		StringBuilder builder = new StringBuilder();
 
 		builder.append("select * , COUNT(DISTINCT d.workid) from ( ");
-		builder.append("(select a.FK_Flow,a.FlowName,a.StarterName,a.FK_Node,a.FID,a.WorkID," + COMPILE
-				+ " as WFState,a.title,a.nodeName,a.RDT,concat(a.EMPS,a.TodoEmps) as userName,a.WFSta as state from wf_generworkflow a  where a.WFSta=1 )  ");
+		builder.append("(select c.DYNAMICPAGE_ID,c.RECORD_ID,a.FK_Flow,a.FlowName,a.StarterName,a.FK_Node,a.FID,a.WorkID," + COMPILE
+				+ " as WFState,a.title,a.nodeName,a.RDT,concat(a.EMPS,a.TodoEmps) as userName,a.WFSta as state "
+				+ "from wf_generworkflow a left join p_fm_document c on a.WorkID=c.WORKITEM_ID where a.WFSta=1 )  ");
 
 		builder.append(" union ");
 
 		// 加入抄送的办结件
-		builder.append("(SELECT b.FK_Flow,b.FlowName,b.StarterName,b.FK_Node,a.FID,b.WorkID," + COMPILE
+		builder.append("(SELECT c.DYNAMICPAGE_ID,c.RECORD_ID,b.FK_Flow,b.FlowName,b.StarterName,b.FK_Node,a.FID,b.WorkID," + COMPILE
 				+ " as WFState,b.title,b.nodeName,b.RDT,"
 				+ "a.CCTo as userName,a.Sta as state FROM wf_cclist a left join wf_generworkflow b on a.WorkID=b.WorkID  "
-				+ " where a.Sta!=0 AND b.WFSta=1 )");
+				+ "left join p_fm_document c on a.WorkID=c.WORKITEM_ID where a.Sta!=0 AND b.WFSta=1 )");
 
 		builder.append(" ) d  where 1=1 ");
 		if (StringUtils.isNotBlank(FK_Flow)) {

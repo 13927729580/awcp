@@ -23,20 +23,13 @@
 	<body id="main">
 	        <input type="hidden" name="userIds" id="userIds"/>
 	        <input type="hidden" name="oldGroupId" id="oldGroupId"/>
-	        <input type="hidden" name="newGroupId" id="newGroupId"/>
 			<div class="container-fluid">
 				<div class="row">
-				
-				 <div class="panel-heading" id="search">
-			                 
-			            	<button class="btn btn-primary" id="subeq" onclick="save()">保存</button>
-			     </div>
-				
-				 <div class="panel ui-layout-west">
-					<div class="panel-body" id="p1">
-					<ul id="tree1" class="ztree"></ul>
-					</div>
-				 </div>
+					 <div class="panel ui-layout-west">
+						<div class="panel-body" id="p1">
+						<ul id="tree1" class="ztree"></ul>
+						</div>
+					 </div>
 				</div>
 			</div>
 
@@ -48,29 +41,22 @@
          <script type="text/javascript">//page_group
          
          $('document').ready(function() {
-         
          try {
 				var dialog = top.dialog.get(window);
 			} catch (e) {
 				return;
 			}
-			
-			
 			//判断是否有数据，初始化 所属模型
 			var data = null;//dialog.data;
 			if(dialog != null){
 				data = dialog.data;
-				
 				if(data.userIds!=null){
 					$("#userIds").val(data.userIds);
 				}
-				
 				if(data.oldGroupId!=null){
 					$("#oldGroupId").val(data.oldGroupId);
 				}
 			}	
-			
-         
          });
          var setting = {
 	   			view: {
@@ -105,7 +91,7 @@
         });	
         
         
-        function save(){
+        function save(groupId){
            try {
 				var dialog = top.dialog.get(window);
 			} catch (e) {
@@ -114,12 +100,7 @@
 			
            var userIds=$("#userIds").val();
            //选中组织
-           var groupId=$("#newGroupId").val();
            var oldGroupId=$("#oldGroupId").val();
-           if($("#newGroupId").val()==""||$("#newGroupId").val()==null){
-           		alert("请选择要移动的部门");
-           		return false;
-           }
            if(userIds!=""&&groupId!=""){
            $.ajax({
                 type:"post",
@@ -128,9 +109,7 @@
                 async: false,
                 datatype:"json",
                 success:function(data){
-                       
                       if(data!=null&&data!=""){
-                      		
                       		dialog.close();
                       }
                 }
@@ -140,7 +119,7 @@
         }
         
         function selectItem(event, treeId, treeNode) {
-            $("#newGroupId").val(treeNode.id);
+            save(treeNode.id);
         } 
 			
         </script>

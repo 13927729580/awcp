@@ -24,7 +24,7 @@
 		<div class="row" id="breadcrumb">
 			<ul class="breadcrumb">
 				<li><i class="icon-location-arrow icon-muted"></i></li>
-				<li><a href="#">组织机构与权限</a></li>
+				<li><a href="<%=basePath%>unit/punGroupEdit.do?boxs=1">组织机构与权限</a></li>
 				<!-- <li><a href="#">开发者</a></li> -->
 				<li class="active">成员管理</li>
 			</ul>

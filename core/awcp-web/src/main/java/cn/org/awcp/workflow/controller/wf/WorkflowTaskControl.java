@@ -20,7 +20,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
@@ -34,6 +33,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.github.miemiedev.mybatis.paginator.domain.PageList;
 import com.github.miemiedev.mybatis.paginator.domain.Paginator;
+import com.sun.star.uno.RuntimeException;
 
 import BP.Port.Emp;
 import BP.Port.WebUser;
@@ -62,18 +62,20 @@ import cn.org.awcp.formdesigner.utils.DocUtils;
 import cn.org.awcp.formdesigner.utils.DocumentUtils;
 import cn.org.awcp.formdesigner.utils.PageBindUtil;
 import cn.org.awcp.formdesigner.utils.ScriptEngineUtils;
-import cn.org.awcp.metadesigner.application.MetaModelOperateService;
-import cn.org.awcp.unit.service.PunPositionService;
-import cn.org.awcp.unit.service.PunUserBaseInfoService;
-import cn.org.awcp.unit.service.PunUserGroupService;
+import cn.org.awcp.unit.core.domain.PunUserBaseInfo;
+import cn.org.awcp.unit.message.PunNotification;
+import cn.org.awcp.unit.message.WebSocket;
 import cn.org.awcp.unit.vo.PunUserBaseInfoVO;
 import cn.org.awcp.venson.common.I18nKey;
+import cn.org.awcp.venson.common.SC;
 import cn.org.awcp.venson.controller.base.ControllerContext;
 import cn.org.awcp.venson.controller.base.ControllerHelper;
 import cn.org.awcp.venson.controller.base.ReturnResult;
 import cn.org.awcp.venson.controller.base.StatusCode;
 import cn.org.awcp.venson.dingding.controller.DdUtil;
+import cn.org.awcp.venson.exception.PlatformException;
 import cn.org.awcp.venson.service.QueryService;
+import cn.org.awcp.venson.util.BeanUtil;
 import cn.org.awcp.workflow.controller.util.HttpRequestDeviceUtils;
 
 @Controller
@@ -84,18 +86,9 @@ public class WorkflowTaskControl extends BaseController {
 	 * 日志对象
 	 */
 	protected static final Log logger = LogFactory.getLog(WorkflowTaskControl.class);
-	@Autowired
-	@Qualifier("punUserBaseInfoServiceImpl")
-	PunUserBaseInfoService userService;// 用户Service
 
 	@Resource
 	private JdbcTemplate jdbcTemplate;
-
-	@Resource(name = "metaModelOperateServiceImpl")
-	private MetaModelOperateService meta;
-
-	@Resource(name = "punUserGroupServiceImpl")
-	private PunUserGroupService punUserGroupService;
 
 	@Autowired
 	private FormdesignerService formdesignerServiceImpl;
@@ -105,11 +98,6 @@ public class WorkflowTaskControl extends BaseController {
 	@Autowired
 	private StoreService storeServiceImpl;
 
-	// 0：表示待办任务，1：表示已办任务，在打开任务时赋值 2，归档件
-	private String taskType = "";
-
-	@Resource(name = "punPositionServiceImpl")
-	private PunPositionService punPositionService;
 	@Resource(name = "queryServiceImpl")
 	private QueryService query;
 
@@ -119,42 +107,25 @@ public class WorkflowTaskControl extends BaseController {
 	 * @return
 	 * @throws IOException
 	 */
-	@RequestMapping("listPersonalTasks")
-	public String listPersonalTasks(@RequestParam(required = false, defaultValue = "1") int currentPage,
+	@ResponseBody
+	@RequestMapping(value = "listPersonalTasks", method = RequestMethod.GET)
+	public ReturnResult listPersonalTasks(@RequestParam(required = false, defaultValue = "1") int currentPage,
 			@RequestParam(required = false, defaultValue = "15") int pageSize,
-			@RequestParam(required = false, defaultValue = "") String FK_Flow, HttpServletRequest request, Model model)
-			throws IOException {
-		// 获取当前登录用户
-		PunUserBaseInfoVO user = (PunUserBaseInfoVO) SessionUtils.getObjectFromSession(SessionContants.CURRENT_USER);
-		String workItemName = request.getParameter("workItemName");
-		model.addAttribute("workItemName", workItemName);
-		model.addAttribute("FK_Flow", FK_Flow);
+			@RequestParam(required = false) String FK_Flow, @RequestParam(required = false) String workItemName) {
+		ReturnResult result = ReturnResult.get();
+		PunUserBaseInfoVO user = ControllerHelper.getUser();
 		Map<String, Object> data = query.getUntreatedData(pageSize, (currentPage - 1) * pageSize, FK_Flow, workItemName,
 				user.getUserIdCardNumber(), true);
-
-		Paginator paginator = new Paginator(currentPage, pageSize, (Integer) data.get("count"));
-
-		PageList<Map<String, Object>> pageList = new PageList<Map<String, Object>>(
-				(List<Map<String, Object>>) data.get("data"), paginator);
-
-		model.addAttribute("currentPage", currentPage);
-		model.addAttribute("models", pageList);
-		model.addAttribute("count", data.get("count"));
-		String message = request.getParameter("message");
-		if (null != message) {
-			model.addAttribute("message", message);
-		} else {
-			model.addAttribute("message", "");
-		}
-		return "workflow/wf/listPersonalTasks";
+		result.setData(data.get(SC.DATA)).setTotal(data.get(SC.TOTAL));
+		return result;
 	}
 
 	/**
 	 * 查询待办件数量
 	 * 
 	 */
-	@RequestMapping("getUntreatedCount")
 	@ResponseBody
+	@RequestMapping(value = "getUntreatedCount", method = RequestMethod.GET)
 	public ReturnResult getUntreatedCount(@RequestParam(required = false, value = "FK_Flow") String FK_Flow,
 			@RequestParam(required = false, value = "workItemName") String workItemName) throws IOException {
 		ReturnResult result = ReturnResult.get();
@@ -170,35 +141,19 @@ public class WorkflowTaskControl extends BaseController {
 	 * 已处理
 	 * 
 	 * @return
-	 * @throws IOException
 	 */
-	@RequestMapping("inDoingTasks")
-	public String inDoingTasks(@RequestParam(required = false, defaultValue = "1") int currentPage,
+	@ResponseBody
+	@RequestMapping(value = "inDoingTasks", method = RequestMethod.GET)
+	public ReturnResult inDoingTasks(@RequestParam(required = false, defaultValue = "1") int currentPage,
 			@RequestParam(required = false, defaultValue = "15") int pageSize,
-			@RequestParam(required = false, defaultValue = "") String FK_Flow, HttpServletRequest request, Model model)
-			throws IOException {
-
+			@RequestParam(required = false) String FK_Flow, @RequestParam(required = false) String workItemName) {
+		ReturnResult result = ReturnResult.get();
 		// 获取当前登录用户
-		PunUserBaseInfoVO user = (PunUserBaseInfoVO) SessionUtils.getObjectFromSession(SessionContants.CURRENT_USER);
-
-		String workItemName = request.getParameter("workItemName");
-
-		model.addAttribute("workItemName", workItemName);
-		model.addAttribute("FK_Flow", FK_Flow);
-
+		PunUserBaseInfoVO user = ControllerHelper.getUser();
 		Map<String, Object> data = query.getHandledData(pageSize, (currentPage - 1) * pageSize, FK_Flow, workItemName,
 				user.getUserIdCardNumber());
-
-		Paginator paginator = new Paginator(currentPage, pageSize, (Integer) data.get("count"));
-
-		PageList<Map<String, Object>> pageList = new PageList<Map<String, Object>>(
-				(List<Map<String, Object>>) data.get("data"), paginator);
-
-		model.addAttribute("models", pageList);
-		model.addAttribute("currentPage", currentPage);
-		model.addAttribute("count", data.get("count"));
-
-		return "workflow/wf/inDoingTasks";
+		result.setData(data.get(SC.DATA)).setTotal(data.get(SC.TOTAL));
+		return result;
 	}
 
 	/**
@@ -206,28 +161,18 @@ public class WorkflowTaskControl extends BaseController {
 	 * 
 	 * @return
 	 */
-	@RequestMapping("listHistoryTasks")
-	public String listHistoryTasks(@RequestParam(required = false, defaultValue = "1") int currentPage,
+	@ResponseBody
+	@RequestMapping(value = "listHistoryTasks", method = RequestMethod.GET)
+	public ReturnResult listHistoryTasks(@RequestParam(required = false, defaultValue = "1") int currentPage,
 			@RequestParam(required = false, defaultValue = "15") int pageSize,
-			@RequestParam(required = false, defaultValue = "") String FK_Flow, HttpServletRequest request,
-			Model model) {
+			@RequestParam(required = false) String FK_Flow, @RequestParam(required = false) String workItemName) {
+		ReturnResult result = ReturnResult.get();
 		// 获取当前登录用户
-		PunUserBaseInfoVO user = (PunUserBaseInfoVO) SessionUtils.getObjectFromSession(SessionContants.CURRENT_USER);
-		String workItemName = request.getParameter("workItemName");
-		model.addAttribute("workItemName", workItemName);
-		model.addAttribute("FK_Flow", FK_Flow);
+		PunUserBaseInfoVO user = ControllerHelper.getUser();
 		Map<String, Object> data = query.getCompileData(pageSize, (currentPage - 1) * pageSize, FK_Flow, workItemName,
 				user.getUserIdCardNumber());
-
-		Paginator paginator = new Paginator(currentPage, pageSize, (Integer) data.get("count"));
-
-		PageList<Map<String, Object>> pageList = new PageList<Map<String, Object>>(
-				(List<Map<String, Object>>) data.get("data"), paginator);
-		model.addAttribute("count", data.get("count"));
-		model.addAttribute("models", pageList);
-		model.addAttribute("currentPage", currentPage);
-
-		return "workflow/wf/listHistoryTasks";
+		result.setData(data.get(SC.DATA)).setTotal(data.get(SC.TOTAL));
+		return result;
 	}
 
 	/**
@@ -423,29 +368,29 @@ public class WorkflowTaskControl extends BaseController {
 		Map<String, Object> resultMap = new HashMap();
 		DynamicPageVO pageVO = null;
 		PunUserBaseInfoVO user = null;
-		DocumentVO docVo = new DocumentVO();
+		DocumentVO docVo;
 		Map<String, String> map = null;
-		StoreVO store = null;
 		PageActVO act = null;
 		ScriptEngine engine = null;
 		Enumeration enumeration = null;
 		Map<String, Object> extMap = new HashMap<String, Object>();
 		DocumentUtils utils;
+		// 获取当前登录用户
+		pageVO = formdesignerServiceImpl.findById(pageId);
+		if (pageVO == null) {
+			throw new PlatformException("动态页面ID不能为空");
+		}
 		try {
-			// 获取当前登录用户
 			jdbcTemplate1.beginTranstaion();
 			user = (PunUserBaseInfoVO) SessionUtils.getObjectFromSession(SessionContants.CURRENT_USER);
-			if (StringUtils.isNotBlank(pageId)) {
-				pageVO = formdesignerServiceImpl.findById(pageId);
-			}
 			boolean isUpdate = false;
 			if (StringUtils.isNotBlank(update)) {
 				isUpdate = update.equalsIgnoreCase("true");
 			}
-
+			docVo = documentServiceImpl.findById(docId);
+			docVo = BeanUtil.instance(docVo, DocumentVO.class);
 			// 表单页面
 			if (pageVO.getPageType() == 1002) {// 初始化表单数据
-				docVo = documentServiceImpl.findById(docId);
 				docVo.setUpdate(isUpdate);
 				docVo.setDynamicPageId(pageId);
 				docVo.setDynamicPageName(pageVO.getName());
@@ -465,10 +410,11 @@ public class WorkflowTaskControl extends BaseController {
 				map.put(o.toString(), StringUtils.join(values, ";"));
 			}
 			docVo.setRequestParams(map);
-			docVo = documentServiceImpl.processParams(docVo);
-			store = storeServiceImpl.findById(actId);
-			act = JSON.parseObject(store.getContent(), PageActVO.class);
-
+			documentServiceImpl.processParams(docVo);
+			StoreVO store = storeServiceImpl.findById(actId);
+			if (store != null) {
+				act = JSON.parseObject(store.getContent(), PageActVO.class);
+			}
 			// 初始化脚本解释执行器,加载全局工具类
 			engine = ScriptEngineUtils.getScriptEngine(docVo, pageVO);
 			engine.put("request", request);
@@ -485,8 +431,11 @@ public class WorkflowTaskControl extends BaseController {
 
 			// 校验文档
 			utils = (DocumentUtils) engine.get("DocumentUtils");
-			if (StringUtils.isNotEmpty(docVo.getRecordId()))
-				utils.setDataItem(masterDataSource, "ID", docVo.getRecordId());
+			if (StringUtils.isNotEmpty(docVo.getRecordId())) {
+				if (StringUtils.isBlank(utils.getDataItem(masterDataSource, "ID"))) {
+					utils.setDataItem(masterDataSource, "ID", docVo.getRecordId());
+				}
+			}
 			if (preset.equals(docVo.getFlowTempleteId())) {
 				boolean isCH = ControllerHelper.getLang() == Locale.SIMPLIFIED_CHINESE;
 				String field = isCH ? "title" : "enTitle";
@@ -524,9 +473,6 @@ public class WorkflowTaskControl extends BaseController {
 			// 根据actType 执行其默认操作
 			actType = StringUtils.isNumeric(acte) ? Integer.parseInt(acte) : act.getActType();
 			switch (actType) {
-			case 2000:
-				break;
-			case 2002:
 			case 2006:
 				// 流程回撤
 				JFlowAdapter.Flow_DoUnSend(resultMap, flowTempleteId, workItemId);
@@ -539,6 +485,19 @@ public class WorkflowTaskControl extends BaseController {
 				break;
 			case 2011:// 流程流转(发送)
 			case 2018:// 流程转发
+				if ("006".equals(flowTempleteId)) {
+					String sql = "select executor from crmtile_workflow_executor where dynamicpageId=?";
+					long executor = 0;
+					try {
+						executor = jdbcTemplate1.queryForObject(sql, Long.class, docVo.getDynamicPageId());
+					} catch (Exception e) {
+
+					}
+					if (executor != 0) {
+						slectsUserIds = executor + "";
+					}
+				}
+
 				// 根据选中的人员ID，组装信息
 				if (StringUtils.isNotBlank(slectsUserIds)) {
 					JFlowAdapter.Node_SendWork(masterDataSource, utils, resultMap, docVo,
@@ -547,7 +506,7 @@ public class WorkflowTaskControl extends BaseController {
 				} else {
 					resultMap.put("success", false);
 					resultMap.put("message", ControllerHelper.getMessage(I18nKey.wf_select_least_person));
-					return resultMap;
+					throw new RuntimeException("流程转发没有选择执行人");
 				}
 				break;
 			case 2019:// 流程传阅
@@ -572,11 +531,12 @@ public class WorkflowTaskControl extends BaseController {
 			case 2017:// 流程办结
 				JFlowAdapter.Flow_DoFlowOverByCoercion(resultMap, flowTempleteId, Integer.valueOf(entryId),
 						Long.valueOf(workItemId), Long.valueOf(fid), "");
-
+				afterExecuteFlow(docVo, masterDataSource, jdbcTemplate1, resultMap);
 				break;
 			case 2023:// 流程退回
 				JFlowAdapter.Flow_returnWork(resultMap, Long.valueOf(fid), "", user.getUserIdCardNumber(), toNode,
 						masterDataSource, utils, docVo);
+				afterExecuteFlow(docVo, masterDataSource, jdbcTemplate1, resultMap);
 				break;
 			case 2024:// 加签
 				// 根据选中的人员ID，组装信息
@@ -604,6 +564,7 @@ public class WorkflowTaskControl extends BaseController {
 			resultMap.put("dynamicPageId", pageId);
 			resultMap.put("flowTempleteId", flowTempleteId);
 			resultMap.put("FID", fid);
+			freshFlow();
 			jdbcTemplate1.commit();
 			return resultMap;
 		} catch (Exception e) {
@@ -621,8 +582,6 @@ public class WorkflowTaskControl extends BaseController {
 			docVo = null;
 			if (map != null)
 				map.clear();
-			store = null;
-			act = null;
 			engine = null;
 			utils = null;
 			enumeration = null;
@@ -631,6 +590,13 @@ public class WorkflowTaskControl extends BaseController {
 
 		}
 		return resultMap;
+	}
+
+	private void freshFlow() {
+		String user = ControllerHelper.getUser().getUserIdCardNumber();
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("flow", "freshFlow");
+		WebSocket.sendMessage(user, map);
 	}
 
 	/**
@@ -805,7 +771,7 @@ public class WorkflowTaskControl extends BaseController {
 		String[] strs = slectsUserIds.split(",");
 		for (String s : strs) {
 			if (s != null && !s.equals("")) {
-				PunUserBaseInfoVO pbi = userService.findById(Long.parseLong(s));
+				PunUserBaseInfo pbi = PunUserBaseInfo.get(PunUserBaseInfo.class, Long.parseLong(s));
 				sb.append(pbi.getUserIdCardNumber());
 				sb.append(",");
 			}
@@ -816,10 +782,10 @@ public class WorkflowTaskControl extends BaseController {
 
 	private void afterExecuteFlow(DocumentVO docVo, String masterDataSource, SzcloudJdbcTemplate jdbcTemplate1,
 			Map<String, Object> resultMap) {
+		// 执行消息推送
+		addPush(docVo, masterDataSource, jdbcTemplate1);
 		if (preset.equals(docVo.getFlowTempleteId()) && resultMap.containsKey("success")
 				&& (Boolean) resultMap.get("success")) {
-			// 执行消息推送
-			addPush(docVo, masterDataSource, jdbcTemplate1);
 			// 流程日志
 			addLogs(docVo);
 		}
@@ -894,7 +860,6 @@ public class WorkflowTaskControl extends BaseController {
 	 */
 	private void addPush(DocumentVO vo, String masterDataSource, SzcloudJdbcTemplate jdbcTemplate1) {
 		String workItemId = vo.getWorkItemId();
-		String dynamicPageId = vo.getDynamicPageId();
 		String fid = vo.getFid();
 		if (fid != null && !fid.equals("0")) {
 			workItemId = fid;
@@ -919,54 +884,73 @@ public class WorkflowTaskControl extends BaseController {
 			emps = jdbcTemplate.queryForList(sql, workItemId, workItemId);
 		}
 
-		sql = "select optionStr,fieldName from dd_select_option "
-				+ "where dynamicPageId=(select dynamicPageId from dd_apps where pcDynamicPageId=? or dynamicPageId=?)";
-		List<Map<String, Object>> options = jdbcTemplate.queryForList(sql,dynamicPageId,dynamicPageId);
 		if (!emps.isEmpty()) {
+			if (HttpRequestDeviceUtils.isDingDing(ControllerContext.getRequest())) {
+				pushByDD(vo, emps);
+			} else {
+				String baseUrl = ControllerHelper.getBasePath();
+				String gotoUrl;
+				for (Map<String, Object> map : emps) {
+					String user = map.get("FK_EMP") + "";
+					gotoUrl = baseUrl + "workflow/wf/openTask.do?FK_Flow=" + vo.getFlowTempleteId() + "&WorkID="
+							+ map.get("workid") + "&FID=" + map.get("FID") + "&FK_Node=" + map.get("FK_Node")
+							+ "&dynamicPageId=" + vo.getDynamicPageId() + "&RECORD_ID=" + vo.getRecordId();
+					String title = (String) map.get("title");
+					DocumentUtils.getIntance().pushNotify(title, "您有新的流程待办，请及时处理！", PunNotification.KEY_FLOW, gotoUrl,
+							user);
+				}
+			}
 
-			Map<String, Object> data = jdbcTemplate.queryForMap("select * from " + vo.getTableName() + " where id=? ",
-					vo.getRecordId());
-			// 去app表中查找需要显示的字段
-			Object FIELDS = meta.queryObject("SELECT FIELDS FROM dd_apps WHERE dynamicPageId=? or pcDynamicPageId=?",
-					dynamicPageId,dynamicPageId);
-			Map<String, String> content = new LinkedHashMap<>();
-			boolean isEnglish = ControllerHelper.getLang() == Locale.ENGLISH;
-			if (FIELDS instanceof String) {
-				String[] fields = ((String) FIELDS).split(",");
-				for (String str : fields) {
-					if (StringUtils.isNotBlank(str)) {
-						String[] arr = str.split("=");
-						String key = arr[0];
-						Object v = data.get(key);
-						v = dealSelectVal(options, v + "", key);
-						if (v != null && !v.toString().isEmpty()) {
-							String name;
-							// 如果是英文默认取第三个，如果没配置则取键值
-							if (isEnglish) {
-								if (arr.length > 2) {
-									name = arr[2];
-								} else {
-									name = key;
-								}
+		}
+	}
+
+	public void pushByDD(DocumentVO vo, List<Map<String, Object>> emps) {
+		String dynamicPageId = vo.getDynamicPageId();
+		Map<String, Object> data = jdbcTemplate.queryForMap("select * from " + vo.getTableName() + " where id=? ",
+				vo.getRecordId());
+		// 去app表中查找需要显示的字段
+		Object FIELDS = this.jdbcTemplate.queryForList(
+				"SELECT FIELDS FROM dd_apps WHERE dynamicPageId=? or pcDynamicPageId=?", dynamicPageId, dynamicPageId);
+		Map<String, String> content = new LinkedHashMap<>();
+		boolean isEnglish = ControllerHelper.getLang() == Locale.ENGLISH;
+		String sql = "select optionStr,fieldName from dd_select_option "
+				+ "where dynamicPageId=(select dynamicPageId from dd_apps where pcDynamicPageId=? or dynamicPageId=?)";
+		List<Map<String, Object>> options = jdbcTemplate.queryForList(sql, dynamicPageId, dynamicPageId);
+		if (FIELDS instanceof String) {
+			String[] fields = ((String) FIELDS).split(",");
+			for (String str : fields) {
+				if (StringUtils.isNotBlank(str)) {
+					String[] arr = str.split("=");
+					String key = arr[0];
+					Object v = data.get(key);
+					v = dealSelectVal(options, v + "", key);
+					if (v != null && !v.toString().isEmpty()) {
+						String name;
+						// 如果是英文默认取第三个，如果没配置则取键值
+						if (isEnglish) {
+							if (arr.length > 2) {
+								name = arr[2];
 							} else {
-								name = arr[1];
+								name = key;
 							}
-							content.put(name, v + "");
+						} else {
+							name = arr[1];
 						}
+						content.put(name, v + "");
 					}
 				}
 			}
-			String baseUrl = ControllerHelper.getBasePath();
-			String gotoUrl;
-			for (Map<String, Object> map : emps) {
-				String user = map.get("FK_EMP") + "";
-				gotoUrl = baseUrl + "dingding/wf/openTask.do?FK_Flow=" + vo.getFlowTempleteId() + "&WorkID="
-						+ map.get("workid") + "&FID=" + map.get("FID") + "&FK_Node=" + map.get("FK_Node")
-						+ "&dynamicPageId=" + vo.getDynamicPageId();
-				content.put("validRepeat", map.get("RDT") + "");
-				String title = (String) map.get("title");
-				DocumentUtils.getIntance().sendMessage(gotoUrl, "0", content, title, user);
-			}
+		}
+		String baseUrl = ControllerHelper.getBasePath();
+		String gotoUrl;
+		for (Map<String, Object> map : emps) {
+			String user = map.get("FK_EMP") + "";
+			gotoUrl = baseUrl + "dingding/wf/openTask.do?FK_Flow=" + vo.getFlowTempleteId() + "&WorkID="
+					+ map.get("workid") + "&FID=" + map.get("FID") + "&FK_Node=" + map.get("FK_Node")
+					+ "&dynamicPageId=" + vo.getDynamicPageId() + "&RECORD_ID=" + vo.getRecordId();
+			content.put("validRepeat", map.get("RDT") + "");
+			String title = (String) map.get("title");
+			DocumentUtils.getIntance().sendMessage(gotoUrl, "0", content, title, user);
 		}
 	}
 
@@ -1029,14 +1013,14 @@ public class WorkflowTaskControl extends BaseController {
 
 	private String findDynamicpageByflowTempleteId(String flowTempleteId, String entryId) {
 		String sql = "SELECT a.id FROM p_fm_dynamicpage a WHERE WORKFLOW_NODE_INFO LIKE CONCAT('%workflowId\":\"',?,'%') AND WORKFLOW_NODE_INFO LIKE CONCAT('%id\":\"',?,'%')  ORDER BY created DESC";
-		List<Map<String, Object>> vo = meta.search(sql, flowTempleteId, entryId);
+		List<Map<String, Object>> vo = jdbcTemplate.queryForList(sql, flowTempleteId, entryId);
 		if (vo.size() == 1) {
 			return String.valueOf(vo.get(0).get("id"));
 		} else if (vo.size() > 0) {
 			sql = "SELECT a.id FROM p_fm_dynamicpage a LEFT JOIN p_un_page_binding b ON a.id=b.PAGEID_PC "
 					+ " WHERE b.PAGEID_PC IS NOT NULL AND WORKFLOW_NODE_INFO LIKE CONCAT('%workflowId\":\"',?,'%') AND WORKFLOW_NODE_INFO LIKE CONCAT('%id\":\"',?,'%') "
 					+ " ORDER BY created DESC ";
-			vo = meta.search(sql, flowTempleteId, entryId);
+			vo = jdbcTemplate.queryForList(sql, flowTempleteId, entryId);
 			if (!vo.isEmpty()) {
 				return String.valueOf(vo.get(0).get("id"));
 			}
@@ -1047,7 +1031,7 @@ public class WorkflowTaskControl extends BaseController {
 	private String renderDocument(HttpServletRequest request, HttpServletResponse response) {
 		String dynamicPageId = "";
 
-		taskType = request.getParameter("flag");
+		String taskType = request.getParameter("flag");
 
 		String entryId = request.getParameter("FK_Node");
 		String flowTempleteId = request.getParameter("FK_Flow");
@@ -1069,31 +1053,27 @@ public class WorkflowTaskControl extends BaseController {
 		ScriptEngine engine = null;
 		String isRead = request.getParameter("IsRead");
 		dynamicPageId = request.getParameter("dynamicPageId");
-		try {
-			// 如果页面指定动态页面则以传来页面为准
-			if (StringUtils.isBlank(dynamicPageId)) {
-				if (StringUtils.isNotBlank(flowTempleteId)) {// 通过模板打开表单
-					// 如果是阅知节点则默认打开1301的绑定页面
-					if (entryId.equals("0")) {
-						dynamicPageId = findDynamicpageByflowTempleteId(flowTempleteId,
-								Integer.parseInt(flowTempleteId) + "01");
-					} else {
-						dynamicPageId = findDynamicpageByflowTempleteId(flowTempleteId, entryId);
-
-					}
-					if (StringUtils.isBlank(dynamicPageId))
-						throw new Exception("表单配置错误，没有关联流程!");
-					// 新增移动参数配置
-					if (HttpRequestDeviceUtils.isMobileDevice(request)) {
-						dynamicPageId = PageBindUtil.getInstance().getMPageIDByDefaultId(dynamicPageId);
-						if (StringUtils.isBlank(dynamicPageId))
-							throw new Exception("表单配置错误，手机表单没做关联!");
-
-					}
-				}
+		// 如果页面指定动态页面则以传来页面为准
+		if (StringUtils.isBlank(dynamicPageId)) {
+			// 如果是阅知节点则默认打开1301的绑定页面
+			if (entryId.equals("0")) {
+				dynamicPageId = findDynamicpageByflowTempleteId(flowTempleteId,
+						Integer.parseInt(flowTempleteId) + "01");
+			} else {
+				dynamicPageId = findDynamicpageByflowTempleteId(flowTempleteId, entryId);
 			}
-
+			// 新增移动参数配置
+			if (HttpRequestDeviceUtils.isMobileDevice(request)) {
+				dynamicPageId = PageBindUtil.getInstance().getMPageIDByDefaultId(dynamicPageId);
+			}
+		}
+		pageVO = formdesignerServiceImpl.findById(dynamicPageId);
+		if (pageVO == null) {
+			throw new PlatformException("动态页面ID不能为空");
+		}
+		try {
 			docVo = documentServiceImpl.findDocByWorkItemId(flowTempleteId, workItemId);
+			docVo = BeanUtil.instance(docVo, DocumentVO.class);
 			docVo.setDynamicPageId(dynamicPageId);
 			docVo.setFlowTempleteId(flowTempleteId);
 			docVo.setWorkItemId(workItemId);
@@ -1104,11 +1084,9 @@ public class WorkflowTaskControl extends BaseController {
 
 			if (docVo.getId() != null) {
 				docVo.setUpdate(true);
-				pageVO = formdesignerServiceImpl.findById(docVo.getDynamicPageId());
 				docVo.setDynamicPageId(pageVO.getId().toString());
 				docVo.setDynamicPageName(pageVO.getName());
 			} else {
-				pageVO = formdesignerServiceImpl.findById(dynamicPageId);
 				// docVo = new DocumentVO();
 				// docVo.setFlowTempleteId(flowTempleteId);
 				docVo.setUpdate(false);
@@ -1127,19 +1105,20 @@ public class WorkflowTaskControl extends BaseController {
 			engine.put("session", request.getSession());
 			engine.put("root", root);
 			// 分页
-			Integer currentPage = 1;
-			Integer pageSize = 50;
-			if (StringUtils.isNotBlank(request.getParameter("currentPage"))) {
-				currentPage = Integer.parseInt(request.getParameter("currentPage"));
+			String currentPage = request.getParameter("currentPage");
+			String pageSize = request.getParameter("pageSize");
+			if (!StringUtils.isNumeric(currentPage)) {
+				currentPage = "1";
 			}
-			if (StringUtils.isNotBlank(request.getParameter("pageSize"))) {
-				pageSize = Integer.parseInt(request.getParameter("pageSize"));
+			if (!StringUtils.isNumeric(pageSize)) {
+				pageSize = docVo.getPageSize() == null ? "10" : docVo.getPageSize() + "";
 			}
 			String orderBy = docVo.getRequestParams().get("orderBy");
 			String allowOrderBy = docVo.getRequestParams().get("allowOrderBy");
 			docVo.setAllowOrderBy(allowOrderBy);
 			docVo.setOrderBy(orderBy);
-			dataMap = documentServiceImpl.initDocumentDataFlow(currentPage, pageSize, docVo, engine, pageVO);
+			dataMap = documentServiceImpl.initDocumentDataFlow(Integer.parseInt(currentPage),
+					Integer.parseInt(pageSize), docVo, engine, pageVO);
 
 			docVo.setListParams(dataMap);
 			/**
@@ -1151,14 +1130,14 @@ public class WorkflowTaskControl extends BaseController {
 			jcon.put("relatePageId", pageVO.getId());
 			jcon.put("componentType", "");
 			components = formdesignerServiceImpl.getComponentByContainerWithColumn(jcon);
-			DocUtils.calculateCompents(docVo, others, status, components, dataMap, engine);
+			DocUtils.calculateCompents(docVo, others, status, components, dataMap, engine, isRead);
 
 			// Map<String, Object> actAttr = new HashMap<String, Object>();
 			BaseExample actExample = new BaseExample();
 			actExample.createCriteria().andEqualTo("dynamicPage_id", pageVO.getId()).andLike("code",
 					StoreService.PAGEACT_CODE + "%");
 			stores = storeServiceImpl.selectPagedByExample(actExample, 1, Integer.MAX_VALUE, null);
-			DocUtils.calculateStores(map, stores, pageActStatus, engine, others);
+			DocUtils.calculateStores(map, stores, pageActStatus, engine, others, isRead);
 
 			root.put("pageActStatus", pageActStatus);
 			// 执行页面加载前脚本
@@ -1239,6 +1218,44 @@ public class WorkflowTaskControl extends BaseController {
 	 * @return
 	 * @throws Exception
 	 */
+	@RequestMapping("openWorkFlow")
+	public String openWorkFlow(HttpServletResponse response, HttpServletRequest request) throws Exception {
+		String id = request.getParameter("id");
+		String dynamicPageId = StringUtils.defaultString(request.getParameter("dynamicPageId"));
+		String FK_Flow = StringUtils.defaultString(request.getParameter("FK_Flow"));
+		String FK_Node = StringUtils.defaultString(request.getParameter("FK_Node"));
+		String WorkID = StringUtils.defaultString(request.getParameter("WorkID"));
+		String FID = StringUtils.defaultString(request.getParameter("FID"));
+		String flag = StringUtils.defaultString(request.getParameter("flag"));
+		String IsRead = StringUtils.defaultString(request.getParameter("IsRead"));
+		String WFState = StringUtils.defaultString(request.getParameter("WFState"));
+		String fid = StringUtils.defaultString(request.getParameter("fid"));
+		String sql = "select id,WORKFLOW_NODE_INFO from p_fm_dynamicpage where WORKFLOW_NODE_INFO is not null";
+		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+		String key = FK_Node + "_" + FK_Flow;
+		for (int i = 0; i < list.size(); i++) {
+			String workFlowNodeInfo = list.get(i).get("WORKFLOW_NODE_INFO") + "";
+			JSONObject obj = JSON.parseObject(workFlowNodeInfo);
+			if (obj.containsKey(key)) {
+				dynamicPageId = list.get(i).get("id") + "";
+				break;
+			}
+		}
+		String path = request.getContextPath();
+		String basePath = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + path
+				+ "/";
+		String url = basePath + "workflow/wf/openTask.do?id=" + id + "&dynamicPageId=" + dynamicPageId + "&FK_Flow="
+				+ FK_Flow + "&FK_Node=" + FK_Node + "&WorkID=" + WorkID + "&FID=" + FID + "&flag=" + flag + "&fid="
+				+ fid + "&WFState=" + WFState + "&IsRead=" + IsRead;
+		return "redirect:" + url;
+	}
+
+	/**
+	 * 打开任务
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
 	@RequestMapping("openTask")
 	public void openTask(HttpServletResponse response, HttpServletRequest request) throws Exception {
 
@@ -1311,7 +1328,7 @@ public class WorkflowTaskControl extends BaseController {
 		Map<String, Object> map = query.getUntreatedData(10000, 0, null, null, user.getUserIdCardNumber(), true);
 		List<Map<String, Object>> ls = (List<Map<String, Object>>) map.get("data");
 		int count = ls.size();
-		PunUserBaseInfoVO punUserBaseInfoVO = userService.findById(userId);
+		PunUserBaseInfo punUserBaseInfoVO = PunUserBaseInfo.get(PunUserBaseInfo.class, userId);
 		for (int i = 0; i < count; i++) {
 
 			Dev2Interface.Node_Shift(ls.get(i).get("FK_Flow").toString(),

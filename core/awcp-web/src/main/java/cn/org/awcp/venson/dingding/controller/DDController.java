@@ -140,6 +140,11 @@ public class DDController {
 			}
 			if (json.get("errcode") == null) {
 				String userId = json.getString("userid");
+				// 用户不存在则创建用户
+				List<PunUserBaseInfoVO> users = userService.selectByIDCard(userId);
+				if (users.isEmpty()) {
+					createOrUpdateUser(userId);
+				}
 				PunUserBaseInfoVO user = ControllerHelper.toLogin(userId, true);
 				Map<String, Object> data = new HashMap<String, Object>();
 				data.put("isAdmin", json.getBoolean("is_sys"));

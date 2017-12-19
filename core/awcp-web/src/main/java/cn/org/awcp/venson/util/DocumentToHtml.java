@@ -460,7 +460,8 @@ public class DocumentToHtml {
 				String tableName = StringUtils.isBlank(sheet.getSheetName()) ? "表格" + k + 1 : sheet.getSheetName();
 				html.append("<div><h3>" + tableName + "</h3>");
 				html.append("<table class='gridtable' id='table" + k + "'>");
-				for (int i = 0; i < sheet.getLastRowNum(); i++) { // 行循环开始
+				int rowNum = sheet.getLastRowNum()+1;
+				for (int i = 0; i < rowNum; i++) { // 行循环开始
 					html.append("<tr>");
 					Row row = sheet.getRow(i); // 行
 					short cellNum = 0;

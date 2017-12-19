@@ -36,23 +36,23 @@ public class FormDesignGlobal {
 		// COMPOENT_TYPE_NAME.put("1021", "审批意见");// 计算值、隐藏、禁用
 		// COMPOENT_TYPE_NAME.put("1022", "审批状态");// 计算值、隐藏、禁用
 
-		COMPOENT_TYPE_NAME.put("1023", "word编辑");// 计算值、隐藏、禁用
-		COMPOENT_TYPE_NAME.put("1024", "附件");// 计算值、隐藏、禁用
+		// COMPOENT_TYPE_NAME.put("1023", "word编辑");// 计算值、隐藏、禁用
+		// COMPOENT_TYPE_NAME.put("1024", "附件");// 计算值、隐藏、禁用
 		// COMPOENT_TYPE_NAME.put("1026", "动态选择框");// 计算值、隐藏、禁用
 		// COMPOENT_TYPE_NAME.put("1025", "标签页面");// 计算值、隐藏、禁用
 		// COMPOENT_TYPE_NAME.put("1027", "树形");// 计算值、隐藏、禁用
 		// COMPOENT_TYPE_NAME.put("1028", "角色选择框");// 计算值、隐藏、禁用
-		COMPOENT_TYPE_NAME.put("1032", "数字文本输入框");// 计算值、隐藏、禁用
+		// COMPOENT_TYPE_NAME.put("1032", "数字文本输入框");// 计算值、隐藏、禁用
 		COMPOENT_TYPE_NAME.put("1033", "级联下拉框");// 计算值、隐藏、禁用
-		COMPOENT_TYPE_NAME.put("1034", "tab切换");// 计算值、隐藏、禁用
+		// COMPOENT_TYPE_NAME.put("1034", "tab切换");// 计算值、隐藏、禁用
 		// COMPOENT_TYPE_NAME.put("1035", "地图");// 计算值、隐藏、禁用
 		COMPOENT_TYPE_NAME.put("1036", "搜索条件");// 计算值、隐藏、禁用
-		COMPOENT_TYPE_NAME.put("1037", "签名");// 计算值、隐藏、禁用
+		// COMPOENT_TYPE_NAME.put("1037", "签名");// 计算值、隐藏、禁用
 		// COMPOENT_TYPE_NAME.put("1038", "grid表格");// 计算值、隐藏、禁用
-		COMPOENT_TYPE_NAME.put("1039", "easyUI基础-树表格");// 计算值、隐藏、禁用
-		COMPOENT_TYPE_NAME.put("1040", "easyUI行编辑表格");// 计算值、隐藏、禁用
-		COMPOENT_TYPE_NAME.put("1041", "easyUI嵌套表格");// 计算值、隐藏、禁用
-		COMPOENT_TYPE_NAME.put("1042", "表格組件-easyUI");// 计算值、隐藏、禁用
+		// COMPOENT_TYPE_NAME.put("1039", "easyUI基础-树表格");// 计算值、隐藏、禁用
+		// COMPOENT_TYPE_NAME.put("1040", "easyUI行编辑表格");// 计算值、隐藏、禁用
+		// COMPOENT_TYPE_NAME.put("1041", "easyUI嵌套表格");// 计算值、隐藏、禁用
+		// COMPOENT_TYPE_NAME.put("1042", "表格組件-easyUI");// 计算值、隐藏、禁用
 
 		/*
 		 * 钉钉控件
@@ -61,7 +61,6 @@ public class FormDesignGlobal {
 		COMPOENT_TYPE_NAME.put("1102", "手机省市县控件");
 
 		COMPOENT_TYPE_URL.put("1001", "formdesigner/page/component/input/input.jsp");
-		COMPOENT_TYPE_URL.put("1009", "formdesigner/page/component/label/label.jsp");
 		COMPOENT_TYPE_URL.put("1002", "formdesigner/page/component/datetime/datetime.jsp");
 		COMPOENT_TYPE_URL.put("1003", "formdesigner/page/component/checkbox/checkbox.jsp");
 		COMPOENT_TYPE_URL.put("1004", "formdesigner/page/component/radio/radio.jsp");
@@ -69,6 +68,7 @@ public class FormDesignGlobal {
 		COMPOENT_TYPE_URL.put("1006", "formdesigner/page/component/select/select.jsp");
 		// COMPOENT_TYPE_URL.put("1007","formdesigner/page/component/password/password.jsp");
 		COMPOENT_TYPE_URL.put("1008", "formdesigner/page/component/column/column.jsp");
+		COMPOENT_TYPE_URL.put("1009", "formdesigner/page/component/label/label.jsp");
 		COMPOENT_TYPE_URL.put("1010", "formdesigner/page/component/hidden/hidden.jsp");
 		COMPOENT_TYPE_URL.put("1011", "formdesigner/page/component/file/file.jsp");
 		COMPOENT_TYPE_URL.put("1012", "formdesigner/page/component/containPage/containPage.jsp");
@@ -85,23 +85,28 @@ public class FormDesignGlobal {
 		// "formdesigner/page/component/approvalStatus/approvalStatus.jsp");
 		// COMPOENT_TYPE_URL.put("1022",
 		// "formdesigner/page/component/approvalViews/approvalViews.jsp");
-		COMPOENT_TYPE_URL.put("1023", "formdesigner/page/component/mainText/mainText.jsp");
-		COMPOENT_TYPE_URL.put("1024", "formdesigner/page/component/appendix/appendix.jsp");
+		// COMPOENT_TYPE_URL.put("1023",
+		// "formdesigner/page/component/mainText/mainText.jsp");
+		// COMPOENT_TYPE_URL.put("1024",
+		// "formdesigner/page/component/appendix/appendix.jsp");
 		// COMPOENT_TYPE_URL.put("1026","formdesigner/page/component/dynamicSelect/dynamicSelect.jsp");
 		// COMPOENT_TYPE_URL.put("1025","formdesigner/page/component/tabs/tabs.jsp");
 		// COMPOENT_TYPE_URL.put("1027","formdesigner/page/component/zTree/zTree.jsp");
 		// COMPOENT_TYPE_URL.put("1028","formdesigner/page/component/roleSelect/roleSelect.jsp");
-		COMPOENT_TYPE_URL.put("1032", "formdesigner/page/component/input/input.jsp");
+		// COMPOENT_TYPE_URL.put("1032", "formdesigner/page/component/input/input.jsp");
 		COMPOENT_TYPE_URL.put("1033", "formdesigner/page/component/multilevelLinkage/multilevelLinkage.jsp");
-		COMPOENT_TYPE_URL.put("1034", "formdesigner/page/component/tab/tab.jsp");
+		// COMPOENT_TYPE_URL.put("1034", "formdesigner/page/component/tab/tab.jsp");
 		// COMPOENT_TYPE_URL.put("1035","formdesigner/page/component/aMap/amap.jsp");
 		COMPOENT_TYPE_URL.put("1036", "formdesigner/page/component/searchComponent/addSearch.jsp");
-		COMPOENT_TYPE_URL.put("1037", "formdesigner/page/component/image/image.jsp");
+		// COMPOENT_TYPE_URL.put("1037", "formdesigner/page/component/image/image.jsp");
 		// COMPOENT_TYPE_URL.put("1038","formdesigner/page/component/gridTable/table.jsp");
-		COMPOENT_TYPE_URL.put("1039", "formdesigner/page/component/easyui/grid.jsp");
-		COMPOENT_TYPE_URL.put("1040", "formdesigner/page/component/easyui/rowediting.jsp");
-		COMPOENT_TYPE_URL.put("1041", "formdesigner/page/component/easyui/nestgrid.jsp");
-		COMPOENT_TYPE_URL.put("1042", "formdesigner/page/component/easyui/dataGrid.jsp");
+		// COMPOENT_TYPE_URL.put("1039", "formdesigner/page/component/easyui/grid.jsp");
+		// COMPOENT_TYPE_URL.put("1040",
+		// "formdesigner/page/component/easyui/rowediting.jsp");
+		// COMPOENT_TYPE_URL.put("1041",
+		// "formdesigner/page/component/easyui/nestgrid.jsp");
+		// COMPOENT_TYPE_URL.put("1042",
+		// "formdesigner/page/component/easyui/dataGrid.jsp");
 
 		/*
 		 * 钉钉组件

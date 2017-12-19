@@ -183,7 +183,6 @@ public class PfmWorkflowController extends BaseController {
 		}
 		Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 		if (obj instanceof PunSystemVO) {
-			PunSystemVO system = (PunSystemVO) obj;
 			// TODO 接口sysId可改为string
 			// List<BpmCategoryVO> categories =
 			// workflowService.findProcessCategoryList(1, Integer.MAX_VALUE,

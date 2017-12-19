@@ -1,0 +1,260 @@
+﻿<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <link rel="stylesheet" href="./template/AdminLTE/css/bootstrap.min.css">
+    <link rel="stylesheet" href="./template/AdminLTE/css/bootstrap-table.css">
+    <link rel="stylesheet" href="./template/AdminLTE/css/sortable.css">
+    <link rel="stylesheet" href="./template/AdminLTE/css/bootstrap-datepicker.css">
+    <link rel="stylesheet" href="./template/AdminLTE/css/daterangepicker.css">
+    <link rel="stylesheet" href="./template/AdminLTE/css/bootstrap3-wysihtml5.css">
+    <link rel="stylesheet" href="./template/AdminLTE/css/AdminLTE.css">
+    <link rel="stylesheet" href="./template/AdminLTE/css/font-awesome.min.css">
+    <link rel="stylesheet" href="./template/AdminLTE/css/ionicons.min.css">
+    <link rel="stylesheet" href="./template/AdminLTE/css/main.css">
+    <link rel="stylesheet" href="./template/AdminLTE/css/tooltip.css">
+    <title>我的桌面</title>
+</head>
+<body>
+	<section class="content">
+		<div class="row">
+			<section class="col-md-7 connectedSortable ui-sortable">
+				<!-- TO DO List -->
+		          <div class="box box-primary" style="min-height:300px;">
+		            <div class="box-header ui-sortable-handle">
+		              <i class="ion ion-clipboard"></i>
+		
+		              <h3 class="box-title">待办事项列表</h3>
+		
+		              <div class="box-tools pull-right">
+		                <ul class="pagination pagination-sm inline">
+		                  <li><a id="listPersonalTasks" href="javascript:void(0)">»</a></li>
+		                </ul>
+		              </div>
+		            </div>
+		            <!-- /.box-header -->
+		            <div class="box-body">
+		              <ul id="ul-flow" class="todo-list ui-sortable">
+		               
+		              </ul>
+		            </div>
+		          </div>
+		                   <!-- Chat box -->
+	                   <!-- Chat box -->
+          <div class="box box-success">
+            <div class="box-header">
+              <i class="fa fa-comments-o"></i>
+
+              <h3 class="box-title">消息</h3>
+
+              <div class="box-tools pull-right" data-toggle="tooltip">
+                <div class="btn-group" data-toggle="btn-toggle">
+                  <button type="button" class="btn btn-default btn-sm isRead active" title="未读"><i class="fa fa-square text-green"></i></button>
+                  <button type="button" class="btn btn-default btn-sm isRead" title="已读"><i class="fa fa-square text-red"></i></button>
+                </div>
+              </div>
+            </div>
+            <div class="box-body chat" id="chat-box">
+              <!-- chat item -->
+              
+              <!-- /.item -->
+            </div>
+          </div>
+          <!-- /.box (chat box) -->
+			</section>
+			<section class="col-md-5 connectedSortable ui-sortable">
+				<!-- solid sales graph -->
+          <div class="box box-solid bg-teal-gradient">
+            <div class="box-header">
+              <i class="fa fa-th"></i>
+
+              <h3 class="box-title">销售图</h3>
+
+              <div class="box-tools pull-right" >
+                <button type="button" class="btn bg-teal btn-sm" data-widget="collapse" data-toggle="tooltip"><i class="fa fa-minus"></i>
+                </button>
+                <button type="button" class="btn bg-teal btn-sm" data-widget="remove" data-toggle="tooltip"><i class="fa fa-times"></i>
+                </button>
+              </div>
+            </div>
+            <div class="box-body border-radius-none">
+              <div class="chart" id="line-chart" style="height: 250px;"></div>
+            </div>
+            <!-- /.box-body -->
+            <div class="box-footer no-border">
+              <div class="row">
+                <div class="col-xs-4 text-center" style="border-right: 1px solid #f4f4f4">
+                  <input type="text" class="knob" data-readonly="true" value="20" data-width="50" data-height="50"
+                         data-fgColor="#39CCCC">
+
+                  <div class="knob-label">Mail-Orders</div>
+                </div>
+                <!-- ./col -->
+                <div class="col-xs-4 text-center" style="border-right: 1px solid #f4f4f4">
+                  <input type="text" class="knob" data-readonly="true" value="50" data-width="50" data-height="50"
+                         data-fgColor="#39CCCC">
+
+                  <div class="knob-label">Online</div>
+                </div>
+                <!-- ./col -->
+                <div class="col-xs-4 text-center">
+                  <input type="text" class="knob" data-readonly="true" value="30" data-width="50" data-height="50"
+                         data-fgColor="#39CCCC">
+
+                  <div class="knob-label">In-Store</div>
+                </div>
+                <!-- ./col -->
+              </div>
+              <!-- /.row -->
+            </div>
+            <!-- /.box-footer -->
+          </div>
+          <!-- /.box -->
+          <!-- Calendar -->
+          <div class="box box-solid bg-green-gradient">
+            <div class="box-header">
+              <i class="fa fa-calendar"></i>
+
+              <h3 class="box-title">日历</h3>
+              <!-- tools box -->
+              <div class="pull-right box-tools">
+                <!-- button with a dropdown -->
+                <div class="btn-group">
+                  <button type="button" class="btn btn-success btn-sm dropdown-toggle">
+                    <i class="fa fa-bars"></i></button>
+                </div>
+                <button type="button" class="btn btn-success btn-sm" data-widget="collapse"><i class="fa fa-minus"></i>
+                </button>
+                <button type="button" class="btn btn-success btn-sm" data-widget="remove"><i class="fa fa-times"></i>
+                </button>
+              </div>
+              <!-- /. tools -->
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body no-padding">
+              <!--The calendar -->
+              <div id="calendar" style="width: 100%"></div>
+            </div>
+          </div>
+          <!-- /.box -->
+			</section>
+		</div>
+	</section>
+<script src="./template/AdminLTE/js/jquery-2.2.3.min.js"></script>
+<script src="./template/AdminLTE/js/jquery-ui.min.js"></script>
+<script src="./template/AdminLTE/js/dashboard.js"></script>
+<script src="./template/AdminLTE/js/TodoList.js"></script>
+<script src="./template/AdminLTE/js/app.js"></script>
+<script src="./template/AdminLTE/js/tooltip.js"></script>
+<script src="./template/AdminLTE/js/bootstrap3-wysihtml5.all.min.js"></script>
+<!-- daterangepicker -->
+<script src="./template/AdminLTE/js/moment.min.js"></script>
+<script src="./template/AdminLTE/js/daterangepicker.js"></script>
+<script src="./template/AdminLTE/js/bootstrap-datepicker.min.js"></script>
+<!-- jQuery Knob Chart -->
+<script src="./template/AdminLTE/js/jquery.knob.min.js"></script>
+<!-- Slimscroll -->
+<script src="./template/AdminLTE/js/jquery.slimscroll.js"></script>
+<!-- Morris.js charts -->
+<script src="./template/AdminLTE/js/raphael.min.js"></script>
+<script src="./template/AdminLTE/js/morris.js"></script>
+<script src="./venson/js/common.js"></script>
+<script>
+  $.widget.bridge('uibutton', $.ui.button);
+  //渲染dom
+  rendererChat("all","0");
+  $(".isRead").on("click",function(){
+	  //判断是已读还是未读
+	  if("未读"==$(this).attr("title")){
+		  rendererChat("all","0");
+	  }else{
+		  rendererChat("all","1");
+	  }
+  })
+  $("#listPersonalTasks").on("click",function(){
+	  parent.addTabs({
+		  id:"10624",
+          url: baseUrl+"workflow/wf/listPersonalTasks.html",
+          title: "待办件",
+          close:true
+      });
+  })
+  rendererFlow(5);
+  function rendererFlow(pageSize){
+	  //获取待办
+	  var flow=Comm.getData("api/workflow/wf/listPersonalTasks",{"_method":"get","pageSize":pageSize});
+	  var flowHtml=[];
+	//判断是否有数据
+	  if(flow&&flow.length>0){
+		  var now=new Date().getTime();
+		  $.each(flow,function(i,e){
+			  var diff=now-new Date(e.RDT).getTime();
+			  var min=diff/1000/60;
+			  var color;
+			  if(min>=1440){
+				  min=min/1440;
+				  min=min.toFixed(1)+" 天";
+				  color="label-danger";
+			  }else if(min>=60){
+				  min=min/60;
+				  color="label-warning";
+				  min=min.toFixed(1)+" 小时";
+			  }else if(min>=10){
+				  color="label-primary";
+				  min=min.toFixed(1)+" 分钟";
+			  }else{
+				  color="label-success";
+				  min=min.toFixed(1)+" 分钟";
+			  }
+			  flowHtml.push('<li>');
+			  flowHtml.push('<span class="handle ui-sortable-handle">');
+			  flowHtml.push('<i class="fa fa-ellipsis-v"></i>');
+			  flowHtml.push('<i class="fa fa-ellipsis-v"></i>');
+			  flowHtml.push('</span>');
+			  flowHtml.push('<span class="text"><a href="javascript:void(0)" data-id="'+e.WorkID+e.FK_Node+'" data-url="workflow/wf/openWorkFlow.do?id='+e.RECORD_ID+'&dynamicPageId='+e.DYNAMICPAGE_ID+'&FK_Flow='+
+					  e.FK_Flow+'&FK_Node='+e.FK_Node+'&WorkID='+e.WorkID+'&FID='+e.FID+'&WFState='+e.WFState+'">'+e.title+'</a></span><small class="label '+color+' "><i class="fa fa-clock-o"></i> '+min+'</small>');
+		  })
+	  }else{
+		  flowHtml.push('<li><span class="handle ui-sortable-handle"><i class="fa fa-ellipsis-v"></i><i class="fa fa-ellipsis-v"></i></span><span class="text">暂无待办</span>');
+	  }
+	  $("#ul-flow").html(flowHtml.join(''));
+	  $("#ul-flow").off("click").on("click","a",function(){
+		  parent.addTabs({
+			  	id:$(this).attr("data-id"),
+	            url: baseUrl+$(this).attr("data-url"),
+	            title: $(this).text(),
+	            close:true
+	        });
+	  })
+  }
+  function rendererChat(type,read){
+	  //获取消息
+	  var notifys=Comm.getData("api/notifications",{"_method":"get","type":type,"read":read});
+	  var chatHtml=[];
+	  //判断是否有数据
+	  if(notifys&&notifys.length>0){
+		  $.each(notifys,function(i,e){
+			  chatHtml.push('<div class="item">');
+			  chatHtml.push('<img src="./template/AdminLTE/images/user2-160x160.jpg" alt="'+e.create_name+'" class="online"/>');
+			  chatHtml.push('<p class="message">');
+			  chatHtml.push('<a href="javascript:void(0)" data-url="'+e.msg_url+'" class="openTabs">');
+			  chatHtml.push('<small class="text-muted pull-right"><i class="fa fa-clock-o"></i> '+e.create_time+'</small>');
+			  chatHtml.push('<span data-id="'+e.id+'">'+e.title+'</span></a></p><p style="margin-left: 55px;">'+e.content+'</p></div>');
+		  })
+	  }else{
+		  chatHtml.push('<div class="item"><img src="./template/AdminLTE/images/user2-160x160.jpg" alt="" class="online"/><p class="message">暂无消息</p></div>');
+	  }
+	  $("#chat-box").html(chatHtml.join(''));
+	  $("#chat-box").off("click").on("click",".openTabs",function(){
+		  parent.addTabs({
+			  	id:$(this).find("span").attr("data-id"),
+	            url: $(this).attr("data-url"),
+	            title: $(this).find("span").text(),
+	            close:true
+	        });
+	  })
+  }
+</script>
+</body>
+</html>

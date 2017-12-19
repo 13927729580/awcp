@@ -889,7 +889,7 @@ var multilevelLinkage=function(option){
 						return;
 					}
 					//添加dom节点
-					var html='<div class="col-md-2"><div class="input-group"><span class="input-group-addon">'+that.option.labels[i]+'</span><select id="'+that.option.idPrefix+i+'" name="'+that.option.names[i]+'" class="'+that.option.idPrefix+' form-control"></select></div></div>';
+					var html='<div class="col-md-4"><div class="input-group"><span class="input-group-addon">'+that.option.labels[i]+'</span><select id="'+that.option.idPrefix+i+'" name="'+that.option.names[i]+'" class="'+that.option.idPrefix+' form-control"></select></div></div>';
 					
 					$warp=$(html);
 					$(that.option.container).append($warp);
@@ -926,6 +926,7 @@ var multilevelLinkage=function(option){
 			getParams:function(sql){
 				var that=this;
 				var param={};
+				param["_method"]="get";
 				param.APIId=$.trim(sql);
 				$.each(that.option.names,function(i,e){
 					var val=$("."+that.option.idPrefix+'[name='+e+']').val();
@@ -1706,164 +1707,246 @@ var multilevelLinkage=function(option){
 
 <#-------------------------------------------dataGrid框组件begin---------------------------------------->
 <#macro convertdataGrid c >
-	<div id="${c['pageId']}" class="<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['hidden'])?? && status['</#noparse>${c['name']}<#noparse>']['hidden'] == 'true'>hidden</#if></#noparse>
+	<div id="easyui_dg_${c['pageId']}" class="<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['hidden'])?? && status['</#noparse>${c['name']}<#noparse>']['hidden'] == 'true'>hidden</#if></#noparse>
 	<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['disabled'])?? && status['</#noparse>${c['name']}<#noparse>']['disabled'] == 'true'> disabled</#if></#noparse>">
-		<div class="row" id="${c['pageId']}_buttons">
+		<div id="tb_${c['pageId']}" style="height:auto;text-align:left;">
 			<#if c['operateAdd']?? && c['operateAdd']=='1'>
-				<button id='${c['pageId']}_Add' class='btn btn-info'>新增</button>
+				<a href="javascript:void(0)" class="easyui-linkbutton easyui-add" data-options="iconCls:'icon-plus',plain:true">增加</a>
 			</#if>
 			<#if c['operateEdit']?? && c['operateEdit']=='1'>
-				<button id='${c['pageId']}_Edit' class='btn btn-info'>编辑</button>
+				<a href="javascript:void(0)" class="easyui-linkbutton easyui-edit" data-options="iconCls:'icon-edit',plain:true">更改</a>
+			</#if>
+			<#if c['operateSave']?? && c['operateSave']=='1'>
+				<a href="javascript:void(0)" class="easyui-linkbutton easyui-save" data-options="iconCls:'icon-save',plain:true">保存</a>
+			</#if>
+			<#if c['operateUndo']?? && c['operateUndo']=='1'>
+				<a href="javascript:void(0)" class="easyui-linkbutton easyui-undo" data-options="iconCls:'icon-undo',plain:true">还原</a>
 			</#if>
 			<#if c['operateDelete']?? && c['operateDelete']=='1'>
-				<button id='${c['pageId']}_Delete' class='btn btn-success'>删除</button>
+				<a href="javascript:void(0)" class="easyui-linkbutton easyui-remove" data-options="iconCls:'icon-remove',plain:true">移除</a>
 			</#if>
 		</div>
-
-
-		<table class="table gridtable table-bordered">
-			<thead>
-				<tr>
-					<th class="hidden" width="10"><input id="boxs" type="hidden"/></th>
-					<#if c['columns']?? >
-					 <#list c['columns']?sort_by("order") as item>
-						<th data-width="${item['columnWidth']!''}" field="${item['columnField']!''}"> ${item['columnTitle']!''}</th>
-					</#list>
-					</#if>
-				</tr>
-			</thead>
-			<tbody>
-
-			</tbody>
-			<tfoot>
-			</tfoot>
-		</table>
-		<#if c['hasPager']?? && c['hasPager']=='1'>
-			<div class="datapager">
-				<div class="m_p_bottom">
-					<span><select class="form-control showSize" data-pagesize="0"><option value="10">10</option><option value="20">20</option><option value="50">50</option></select>&nbsp;&nbsp;条记录/页</span>
-					<span class="direction"><a class="backward" href="javascript:;" title="首页"><i class="icon-step-backward"></i>&nbsp;首页</a>
-						<a class="left" href="javascript:;" title="上一页"><i class="icon-double-angle-left"></i>&nbsp;上一页</a>
-						<a class="right" href="javascript:;" title="下一页">下一页&nbsp;<i class="icon-double-angle-right"></i></a>
-						<a class="forward" href="javascript:;" title="末页">末页&nbsp;<i class="icon-step-forward"></i></a>
-					</span>
-					<span>当前第<label class="text-danger currentpage">0</label>页</span>
-					<span>共<label class="text-danger totalpage">0</label>页</span>
-					<span>共<label class="text-danger total">0</label>条记录</span>
-					<span>跳至<label>第</label><input class="form-control showPage" type="text"><label>页</label></span>
-				</div>
-			</div>
-		</#if>
+		<table id="dg_${c['pageId']}" style="width:100%"></table>
 	</div>
-
 </#macro>
 
 <#macro convertdataGridScript c >
-
-	$("#${c['pageId']}").dataGrid({url:'<#noparse>${basePath}</#noparse>document/refreshDataGrid.do?componentId=${c['pageId']}',
-								  data:{<#if c['connditions']?? ><#list c['connditions'] as item>${item['paramKey']!''}:
-								  <#if item['isFinal']?? && item['isFinal']=='1'>
-								 	 '${item['paramValue']!''}'
-								  <#else>
-								  	 '<#noparse>${(</#noparse>${item['paramValue']}<#noparse>)!''}</#noparse>'
-								  </#if>
-								  ,</#list></#if>pageSize:999}});
-
-	<#if c['operateAdd']?? && c['operateAdd']=='1'>
-		$("#${(c['pageId'])}_Add").click(function(){
-
-			var paramData = new Map();
-			var str="";
-			<#if c['param']?? && c['param']?size gt 0>
-				<#list c['param'] as item>
-					str+="&";
-					str+="${item['storeParamId']}";
-			        str+="=";
-			        str+="<#noparse>${(</#noparse>${item['exportParam']}<#noparse>)!''}</#noparse>";
-					paramData.put('${item['storeParamId']}','<#noparse>${(</#noparse>${item['exportParam']}<#noparse>)!''}</#noparse>');
-				</#list>
-			</#if> 
-			
-		    
-			top.dialog({
-				id : 'edit-dialog' + Math.ceil(Math.random() * 10000),
-				title : '新增...',
-				url : "<#noparse>${basePath}</#noparse>document/view.do?dynamicPageId=${c['alertPage']}"+str,
-				data: paramData,
-				width : ${(c['viewWidth'])!600},
-				height: ${(c['viewHeight'])!600},
-				onclose : function() {
-					if (this.returnValue) {
-						$("#${c['pageId']}").dataGrid({url:'<#noparse>${basePath}</#noparse>document/refreshDataGrid.do?componentId=${c['pageId']}',
-								  data:{<#if c['connditions']?? ><#list c['connditions'] as item>${item['paramKey']!''}:
-								  <#if item['isFinal']?? && item['isFinal']=='1'>
-								 	 '${item['paramValue']!''}'
-								  <#else>
-								  	 '<#noparse>${(</#noparse>${item['paramValue']}<#noparse>)!''}</#noparse>'
-								  </#if>
-								  ,</#list></#if>pageSize:10}});
+	(function(){
+		var baseUrl="<#noparse>${basePath}</#noparse>";
+		$("#dg_${c['pageId']}").datagrid({
+									  pageSize: 10,        //设置默认分页大小
+									  pagination: true,//分页控件 
+	        						  rownumbers: true,//行号
+	        						  border: false, 
+	        						  collapsible: false,
+	        						  checkOnSelect:false,
+	        						  selectOnCheck:false,
+	        						  fitColumns:true,
+	   								  loadFilter:function(data){
+											var d={};
+							  				if(data.status==0){
+												d.rows=data.data;
+												d.total=data.total;  								  				
+							  				}else{
+							  					d.rows=[];
+							  					d.total=0;
+							  				}
+							  				return d;
+									  },     						  
+									  url:baseUrl+"document/refreshDataGrid.do?componentId=${c['pageId']}",
+									  queryParams:{<#if c['connditions']?? ><#list c['connditions'] as item>"${item['paramKey']!''}":
+									  <#if item['isFinal']?? && item['isFinal']=='1'>
+									 	 "${item['paramValue']!''}"
+									  <#else>
+									  	 "<#noparse>${(</#noparse>${item['paramValue']}<#noparse>)!''}</#noparse>"
+									  </#if>,</#list></#if>pageSize:10},
+									  columns:[[
+									  <#if c['columns']?? >
+									  	{field:'ck',checkbox:true}
+										 <#list c['columns'] as item>
+											,{
+											field:"${item['columnField']!''}",
+											title:"${item['columnTitle']!''}",
+											<#if item['editType']?? && item['editType']!='0'>
+												<#if item['editType']=='checkbox'>
+													editor:{
+														type:"checkbox",
+														options:{on:"${item['editValue']!''}",off:""}
+													},
+												<#elseif item['editType']?? &&  item['editType']=='combobox'>  
+													editor:{
+														type:"combobox",
+														options:getCombobox("${item['editValue']!''}")
+													},
+												<#else>  
+													editor:"${item['editType']}",
+												</#if>
+											</#if>  
+											<#if item['columnWidth']??>
+											width:"${item['columnWidth']!''}"
+											</#if>
+											}
+										</#list>
+									  </#if>
+									  ]],
+									  toolbar: "tb_${c['pageId']}",
+									  onClickCell:onClickCell
+		});
+		function getCombobox(value){
+			var result={valueField:'id',textField:'text',data:[]};
+			if(value.indexOf("=")!=-1){
+				var options=value.split(";");
+				var len=options.length;
+				for(var i=0;i<len;i++){
+					if(options[i]){
+						var option=options[i].split("=");
+						result.data.push({id:option[0],text:option[1]});
 					}
 				}
-			}).showModal();
-
-			return false;
-
-		});
-	</#if>
-
-	<#if c['operateDelete']?? && c['operateDelete']=='1'>
-		$("#${(c['pageId'])}_Delete").click(function(){
-			var ids = $("#${c['pageId']} table.gridtable").data("ids");
-			if(ids == undefined){
-				alert('请选择数据');
 			}else{
-				var data = {<#if c['connditions']?? ><#list c['connditions'] as item>${item['paramKey']!''}:
-								  <#if item['isFinal']?? && item['isFinal']=='1'>
-								 	 '${item['paramValue']!''}'
-								  <#else>
-								  	 '<#noparse>${(</#noparse>${item['paramValue']}<#noparse>)!''}</#noparse>'
-								  </#if>
-								  ,</#list></#if>pageSize:10};
-				data.method = 'delete';
-				data._selects = ids;
-				$("#${c['pageId']}").dataGrid({url:'<#noparse>${basePath}</#noparse>document/refreshDataGrid.do?componentId=${c['pageId']}',
-								  data:data});
+				$.ajax({ 
+			          type : "get", 
+			          url : baseUrl+value, 
+			          async : false, 
+			          success : function(data){
+			          	if(data.status==0){
+				            result.data = data.data;
+			          	}
+			          } 
+		          });
 			}
-			return false;
-		});
-	</#if>
-
-	<#if c['operateEdit']?? && c['operateEdit']=='1'>
-		$("#${(c['pageId'])}_Edit").click(function(){
-			var ids = $("#${c['pageId']} table.gridtable").data("ids");
-			if(ids == null || ids == "" || ids.indexOf(",")>0){
-				alert("请选中一项操作");
+			return result;
+		}
+		var editIndex = undefined;
+		function endEditing(){
+			if (editIndex == undefined){return true}
+			if ($('#dg_${c['pageId']}').datagrid('validateRow', editIndex)){
+				$('#dg_${c['pageId']}').datagrid('endEdit', editIndex);
+				editIndex = undefined;
+				return true;
+			} else {
 				return false;
 			}
-			top.dialog({
-				id : 'edit-dialog' + Math.ceil(Math.random() * 10000),
-				title : '编辑...',
-				url : "<#noparse>${basePath}</#noparse>document/view.do?dynamicPageId=${c['alertPage']}&id=" + ids,
-				width : ${(c['viewWidth'])!600},
-				height: ${(c['viewHeight'])!600},
-				onclose : function() {
-					if (this.returnValue) {
-						$("#${c['pageId']}").dataGrid({url:'<#noparse>${basePath}</#noparse>document/refreshDataGrid.do?componentId=${c['pageId']}',
-								  data:{<#if c['connditions']?? ><#list c['connditions'] as item>${item['paramKey']!''}:
-								  <#if item['isFinal']?? && item['isFinal']=='1'>
-								 	 '${item['paramValue']!''}'
-								  <#else>
-								  	 '<#noparse>${(</#noparse>${item['paramValue']}<#noparse>)!''}</#noparse>'
-								  </#if>
-								  ,</#list></#if>pageSize:10}});
-					}
+		}
+		function onClickCell(index, field){
+			if (editIndex != index){
+				if (endEditing()){
+					$('#dg_${c['pageId']}').datagrid('selectRow', index)
+							.datagrid('beginEdit', index);
+					editIndex = index;
 				}
-			}).showModal();
+			}
+		}
+		<#if c['hasPager']?? && c['hasPager']=='1'>
+			var p = $('#dg_${c['pageId']}').datagrid('getPager');
+		    $(p).pagination({
+		        pageSize: 10,//每页显示的记录条数，默认为10 
+		        pageList: [10, 20, 30, 40, 50],//可以设置每页记录条数的列表 
+		        beforePageText: '第',//页数文本框前显示的汉字 
+		        afterPageText: '页    共 {pages} 页',
+		        displayMsg: '当前显示 {from} - {to} 条记录   共 {total} 条记录'
+		    });
+	    </#if>
+		$("#tb_${(c['pageId'])}").on("click","a",function(){
+			//增加
+			if($(this).hasClass("easyui-add")){
+				var paramData = {};
+				var str="";
+				<#if c['param']?? && c['param']?size gt 0>
+					<#list c['param'] as item>
+						str+="&";
+						str+="${item['storeParamId']}";
+				        str+="=";
+				        str+="<#noparse>${(</#noparse>${item['exportParam']}<#noparse>)!''}</#noparse>";
+						paramData['${item['storeParamId']}']='<#noparse>${(</#noparse>${item['exportParam']}<#noparse>)!''}</#noparse>';
+					</#list>
+				</#if> 
+				
+			    
+				top.dialog({
+					id : 'edit-dialog' + Math.ceil(Math.random() * 10000),
+					title : '新增...',
+					url : "<#noparse>${basePath}</#noparse>document/view.do?dynamicPageId=${c['alertPage']}"+str,
+					data: paramData,
+					width : ${(c['viewWidth'])!600},
+					height: ${(c['viewHeight'])!600},
+					onclose : function() {
+						if (this.returnValue) {
+							$("#dg_${c['pageId']}").datagrid('reload');
+						}
+					}
+				}).showModal();
+	
+				return false;
+			
+			}
+			//编辑
+			else if($(this).hasClass("easyui-edit")){
+				var ids = $("#dg_${c['pageId']}").datagrid('getChecked');
+				if(!ids||ids.length!=1){
+					alert("请勾选中一项操作");
+					return false;
+				}
+				top.dialog({
+					id : 'edit-dialog' + Math.ceil(Math.random() * 10000),
+					title : '编辑...',
+					url : "<#noparse>${basePath}</#noparse>document/view.do?dynamicPageId=${c['alertPage']}&id=" + ids[0]["ID"],
+					width : ${(c['viewWidth'])!600},
+					height: ${(c['viewHeight'])!600},
+					onclose : function() {
+						if (this.returnValue) {
+							$("#dg_${c['pageId']}").datagrid('clearChecked').datagrid('reload');
+						}
+					}
+				}).showModal();
+			}
+			//保存
+			else if($(this).hasClass("easyui-save")){
+				var rows = $("#dg_${c['pageId']}").datagrid('getChanges');
+				if(!rows||rows.length==0){
+					return;
+				}
+				var data = {<#if c['connditions']?? ><#list c['connditions'] as item>${item['paramKey']!''}:
+									  <#if item['isFinal']?? && item['isFinal']=='1'>
+									 	 '${item['paramValue']!''}'
+									  <#else>
+									  	 '<#noparse>${(</#noparse>${item['paramValue']}<#noparse>)!''}</#noparse>'
+									  </#if>
+									  ,</#list></#if>pageSize:10};
+				data.method = 'save';
+				data.json = JSON.stringify(rows);
+				$("#dg_${c['pageId']}").datagrid('load',data);
+			}
+			//撤销
+			else if($(this).hasClass("easyui-undo")){
+				var rows = $("#dg_${c['pageId']}").datagrid('getChanges');
+				if(rows&&rows.length>0){
+					$("#dg_${c['pageId']}").datagrid('reload');
+				}
+			}
+			//删除
+			else if($(this).hasClass("easyui-remove")){
+				var ids = $("#dg_${c['pageId']}").datagrid('getChecked');
+				if(!ids||ids.length==0){
+					alert('请勾选数据');
+				}else{
+					var data = {<#if c['connditions']?? ><#list c['connditions'] as item>${item['paramKey']!''}:
+									  <#if item['isFinal']?? && item['isFinal']=='1'>
+									 	 '${item['paramValue']!''}'
+									  <#else>
+									  	 '<#noparse>${(</#noparse>${item['paramValue']}<#noparse>)!''}</#noparse>'
+									  </#if>
+									  ,</#list></#if>pageSize:10};
+					data.method = 'delete';
+					data._selects = ids.map(x=>x.ID).join(",");
+					$("#dg_${c['pageId']}").datagrid('clearChecked').datagrid('load',data);
+				}
+				return false;
+			}
+		})
+	
+	})();
 
-			return false;
-
-		});
-	</#if>
 
 </#macro>
 <#-------------------------------------------dataGrid框组件end---------------------------------------->
@@ -1970,15 +2053,15 @@ var multilevelLinkage=function(option){
 		<div id='${(c['pageId'])!""}' class="uploader" >
 			<input type="hidden" class="orgfile" name="${c['name']}" value="<#noparse>${(</#noparse>${c['dataItemCode']}<#noparse>)!''}</#noparse>" />
 		    <div class="btns mb10">
-		        <div class="picker"><i class="icon-upload-alt"></i> 上传附件</div>
-		        <div class="btn btn-primary" style="background:rgb(0, 183, 238); border-radius: 3px; border: medium none; padding: 6px 12px;margin-right:12px;float:left;" id="MoreDownload"><i class="icon-download-alt"></i> 下载附件</div>
-		        <div class="btn btn-primary" style="background:rgb(0, 183, 238); border-radius: 3px; border: medium none; padding: 6px 12px;float:left;" id="FileRemove"><i class="icon-trash"></i> 删除附件</div>
+		        <div class="picker"><i class="icon-upload-alt"></i>上传附件</div>
+		        <div class="btn btn-primary" id="MoreDownload"><i class="icon-download-alt"></i> 下载附件</div>
+		        <div class="btn btn-primary" id="FileRemove"><i class="icon-trash"></i> 删除附件</div>
 		    </div>
-		    <div class="table table-bordered uploader-list oldlist">
-		    	<table class="table datatable table-bordered table-hover" id="uploadListTable">
+		    <div class="table table-bordered oldlist">
+		    	<table class="table uploader-list">
 					<thead>
 						<tr>
-							<th class="hidden"></th>
+							<th></th>
 							<th>文件名称</th>
 							<th>文件类型</th>
 							<th>文件大小</th>
@@ -1986,7 +2069,7 @@ var multilevelLinkage=function(option){
 					</thead>
 					<tbody></tbody>
 					<tfoot>
-						<tr><td colspan="5" class="tips"></td></tr>
+						<tr><td colspan="4" class="tips"></td></tr>
 					</tfoot>
 				</table>
 			</div>

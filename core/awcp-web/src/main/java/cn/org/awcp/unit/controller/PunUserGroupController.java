@@ -30,6 +30,7 @@ import cn.org.awcp.unit.service.PunUserGroupService;
 import cn.org.awcp.unit.vo.PunGroupVO;
 import cn.org.awcp.unit.vo.PunUserBaseInfoVO;
 import cn.org.awcp.unit.vo.PunUserGroupVO;
+import cn.org.awcp.venson.common.SC;
 
 /**
  * 用户部门Controller
@@ -189,20 +190,24 @@ public class PunUserGroupController {
 	}
 
 	@RequestMapping(value = "/getUsers", method = RequestMethod.GET)
-	public ModelAndView getUsers(Long groupId, Long rootGroupId, String number, Long user) {
-		// 获取部门名称
-		PunGroupVO pun = groupService.findById(groupId);
+	public ModelAndView getUsers(Long groupId, Long rootGroupId, Integer number, Long user) {
+		if (groupId == null) {
+			groupId = SC.GROUP_ID;
+		}
 		// 编号不为空的话修改编号
-		if (!"".equals(number) && number != null && user != null) {
+		if (number != null && user != null) {
 			PunUserBaseInfoVO uvo = userService.findById(user);
-			uvo.setNumber(number);
-			userService.updateUser(uvo);
+			if (uvo != null) {
+				uvo.setNumber(number + "");
+				userService.updateUser(uvo);
+			}
 		}
 		ModelAndView mv = new ModelAndView();
 		mv.setViewName("/unit/punGroup-usersView");
 
 		PageList<PunUserBaseInfoVO> list = punUserGroupService.queryUserListByGroupId(groupId);
-		if (list != null) {
+		if (!list.isEmpty()) {
+			PunGroupVO pun = groupService.findById(groupId);
 			for (int i = 0; i < list.size(); i++) {
 				list.get(i).setDeptName(pun.getGroupChName());
 			}
@@ -325,66 +330,23 @@ public class PunUserGroupController {
 	// 用户组织编辑
 	@ResponseBody
 	@RequestMapping(value = "/userGroupEdit", method = RequestMethod.POST)
-	public Map<String, Object> userGroupEdit(Long groupId, String userIds, Long oldGroupId) {
-		if (!"".equals(userIds) && userIds != null) {
+	public Map<String, Object> userGroupEdit(Long groupId, String[] userIds, Long oldGroupId) {
+		for (String s : userIds) {
+			Map<String, Object> params = new HashMap<String, Object>();
+			params.put("groupId", oldGroupId);
+			params.put("userId", s);
+			List<PunUserGroupVO> userGroupVOs = punUserGroupService.queryResult("eqQueryList", params);
+			if (null != userGroupVOs && userGroupVOs.size() > 0) {
+				for (PunUserGroupVO pvo : userGroupVOs) {
 
-			String ids[] = userIds.split(",");
-			for (String s : ids) {
-
-				Map<String, Object> params = new HashMap<String, Object>();
-				params.put("groupId", oldGroupId);
-				params.put("userId", s);
-				List<PunUserGroupVO> userGroupVOs = punUserGroupService.queryResult("eqQueryList", params);
-				String str = "";
-				if (null != userGroupVOs && userGroupVOs.size() > 0) {
-					for (PunUserGroupVO pvo : userGroupVOs) {
-
-						pvo.setGroupId(groupId);
-						punUserGroupService.save(pvo);
-					}
+					pvo.setGroupId(groupId);
+					punUserGroupService.save(pvo);
 				}
-
-				// 移动组织修改用户在组织的序号
-				PunUserBaseInfoVO pu = userService.findById(Long.parseLong(s));
-				PunGroupVO pun = groupService.findById(groupId);
-
-				if (null != pun.getNumber() && !"".equals(pun.getNumber())) {
-
-					str = pun.getNumber() + "-";
-				} else {
-
-					// 获取父级的排序
-					if (null != pun.getPid() && !"".equals(pun.getPid())) {
-						String pid[] = pun.getPid().split(",");
-						for (String st : pid) {
-							PunGroupVO tem = groupService.findById(Long.parseLong(st));
-							if ("".equals(tem.getNumber()) || null == tem.getNumber()) {
-								tem.setNumber("NO");
-							}
-							String nu = tem.getNumber();
-							// 只取父节点本身的排序
-							str += nu.substring(nu.lastIndexOf("-") + 1, nu.length()) + "-";
-						}
-						// 本身为空的number
-						str += "NO-";
-					}
-				}
-				if (null != pu.getNumber() && !"".equals(pu.getNumber())) {
-					String nu = pu.getNumber();
-					// 只取本身的排序
-					pu.setNumber(nu.substring(nu.lastIndexOf("-") + 1, nu.length()));
-				}
-				pu.setNumber(str + pu.getNumber());
-				userService.addOrUpdateUser(pu);
-
 			}
-			Map<String, Object> res = new HashMap<String, Object>();
-			res.put("result", "success");
-			return res;
-
 		}
-
-		return null;
+		Map<String, Object> res = new HashMap<String, Object>();
+		res.put("result", "success");
+		return res;
 	}
 
 }

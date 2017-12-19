@@ -91,6 +91,19 @@ public class MD5Util {
 	}
 
 	/**
+	 * 功能：得到文件的md5值。
+	 * 
+	 */
+	public static String getFileMD5String(byte[] file) {
+		if (file == null) {
+			return null;
+		}
+		messagedigest.update(file);
+		return bufferToHex(messagedigest.digest());
+
+	}
+
+	/**
 	 * 功能：得到一个字符串的MD5值。
 	 * 
 	 */

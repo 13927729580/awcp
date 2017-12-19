@@ -3,12 +3,21 @@
  * 
  */
 // 后台接口前缀
-var baseUrl = window.location.protocol + "//" + window.location.host + "/awcp/";
+
+var baseUrl = "//" + window.location.host + "/awcp/";
 var basePath = baseUrl;
 // 前台跳转前缀
-var baseUIUrl = window.location.protocol + "//" + window.location.host + "/awcp/";
+var baseUIUrl = "//" + window.location.host + "/awcp/";
 var Comm = {};
 
+
+Comm.uuid = function(){
+    var d = (new Date()).getTime();
+    while (d < 10000000000000000){
+        d *= 10;
+    }
+    return d + Math.floor(Math.random() * 9999);
+}
 
 Comm.getUrlParam= function (name,url) {
     var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); // 构造一个含有目标参数的正则表达式对象
@@ -353,12 +362,9 @@ Comm.getData = function (url, params, cache) {
                              // parent.window.cache[name] = data;
                              Comm.set(name, data);
                          } else if(d.status === -4){
-                             Comm.alert("您还未登录,请先登录！");
-                             if(Comm.isMobile()){
-                             	location.href=baseUrl+"dingding/index.html";
-                             }else{
-                             	location.href=baseUrl+"login.html";
-                             }
+                             Comm.alert("您还未登录,请先登录！",function(){
+                            	 location.href=baseUrl+"login.html"
+                             });
                          }else {
                         	 Comm.alert(d.message, "error");
                              throw new Error(d.message);
@@ -395,12 +401,9 @@ Comm.getData = function (url, params, cache) {
     						}
                         }
                     }else if(d.status === -4){
-                    	Comm.alert("您还未登录,请先登录！");
-                        if(Comm.isMobile()){
-                        	location.href=baseUrl+"dingding/index.html";
-                        }else{
-                        	location.href=baseUrl+"login.html";
-                        }
+                    	 Comm.alert("您还未登录,请先登录！",function(){
+                        	 location.href=baseUrl+"login.html"
+                         });
                     }else {
                     	Comm.alert(d.message, "error");
 	                     throw new Error(d.message);
@@ -605,6 +608,31 @@ Comm.set = function (key, value) {
 		localStorage.setItem(key, value);
 	}
 }
+
+Comm.clearSearch = function(){
+	var textNames = $("#textName").val();
+	var selectNames = $("#selectName").val();
+	var dateSelectName = $("#dateSelectName").val();
+	if(textNames){
+		var textArr = textNames.split("@");
+		for(var i=0;i<textArr.length;i++){
+			Comm.set("search_text" + textArr[i],"");
+		}	
+	}
+	if(selectNames){
+		var selectArr = selectNames.split("@");
+		for(var i=0;i<selectArr.length;i++){
+			Comm.set("search_select" + selectArr[i],"");
+		}	
+	}
+	if(dateSelectName){
+		var dateSelectArr = dateSelectName.split("@");
+		for(var i=0;i<dateSelectArr.length;i++){
+			Comm.set("search_dateSelect" + dateSelectArr[i],"");
+		}	
+	}
+}
+
 Comm.get = function (key) {
 	var data;
 	var obj=localStorage.getItem(key);
@@ -669,7 +697,13 @@ Comm.setSelectData=function($tag,data){
 	$tag.append(html.join(''));
 }
 
-Comm.alert=function(message){
+Comm.dialog=function(option){
+	if(option.type==""){
+		
+	}
+}
+
+Comm.alert=function(message,fn){
 	if(window.hasOwnProperty("dd")){
 		var _default={message: "",title:dd_res.tip,buttonName:dd_res.okButton};
 		if(typeof(message)=="object"){
@@ -680,18 +714,18 @@ Comm.alert=function(message){
 		dd.device.notification.alert(_default);
 	}else if(top.dialog){
 		top.dialog({
-			id : 'edit-dialog' + Math.ceil(Math.random() * 10000),
-			title : '提示框',
+			title: '提示框',
 			content: message,
-			width : 350,
-			height : 50,
+			skin:"col-md-4",
+			ok: function () {},
 			okValue:"确定",
-			cancelValue: "取消",
-			cancel: true
-		}).showModal();
+            fixed: true, 
+			onclose:fn
+		}).show();
 	}else {
 		alert(message);
 	}
+
 }
 
 Comm.confirm=function(message){
@@ -808,6 +842,65 @@ Comm.validDDParam=function(id){
 	}
 	return true;
 }
+
+
+/**
+ * 表单校验
+ * @param id 需要校验的表单ID 默认值为：#groupForm
+ * */
+Comm.validForm=function(id){
+	//设置默认值
+	id = (id)?id:"#groupForm";
+	//获取所有需要校验的对象
+	var custom = $(id+" .customGroup[data-required='1']");
+	var len = custom.length;
+	for (var i=0;i<len;i++ ) {
+		//找到同级表单元素
+		var _dom = custom.eq(i);
+		var dataItemCode=$(_dom).find(".dataItemCode");
+		var	label = $(_dom).find(".control-label");
+		var helpblock=_dom.find(".help-block");
+		//如果为空则提示
+		if (dataItemCode.is(":input")) {
+			if(!dataItemCode.val()){
+				$("html,body").animate({scrollTop:label.offset().top},500);
+				if(helpblock.length<=0){
+					_dom.append('<small class="help-block">'+label.text()+'不能为空</small>');
+				}else{
+					helpblock.show();
+				}
+				_dom.addClass("has-error");
+				return false;
+			}else{
+				_dom.removeClass("has-error");
+				if(helpblock&&helpblock.length>0){
+					helpblock.hide();
+				}
+			}
+		}else{
+			var type=dataItemCode.attr("data-type");
+			if(type=="checkbox"){
+				if(!dataItemCode.find(":checkbox,:radio").is(':checked')){
+					$("html,body").animate({scrollTop:label.offset().top},500);
+					if(helpblock.length<=0){
+						_dom.append('<small class="help-block">'+label.text()+'不能为空</small>');
+					}else{
+						helpblock.show();
+					}
+					_dom.addClass("has-error");
+					return false;
+				}else{
+					_dom.removeClass("has-error");
+					if(helpblock&&helpblock.length>0){
+						helpblock.hide();
+					}
+				}
+			}
+		} 
+	}
+	return true;
+}
+
 
 Comm.handleName=function(name){
 	if(!name){

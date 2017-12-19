@@ -10,31 +10,21 @@
 		</button>
 		<ul class="dropdown-menu">
 			<li><a href="javascript:void(0)" onclick="addAct('2000');">普通</a></li>
+			<li><a href="javascript:void(0)" onclick="addAct('2001');">保存</a></li>
+			<li><a href="javascript:void(0)" onclick="addAct('2002');">返回</a></li>
+			<li><a href="javascript:void(0)" onclick="addAct('2003');">删除</a></li> 
 			<li><a href="javascript:void(0)" onclick="addAct('2009');">新增</a></li>
 			<li><a href="javascript:void(0)" onclick="addAct('2010');">更新</a></li>
-			<li><a href="javascript:void(0)" onclick="addAct('2003');">删除</a></li>
-			<li><a href="javascript:void(0)" onclick="addAct('2001');">保存</a></li>
-			<li><a href="javascript:void(0)" onclick="addAct('2002');">返回</a></li>			
-			<li><a href="javascript:void(0)" onclick="addAct('2008');">流程保存</a></li>
-			<li><a href="javascript:void(0)" onclick="addAct('2011');">流程流转</a></li>
-			<li><a href="javascript:void(0)" onclick="addAct('2019');">流程传阅</a></li>
-			<li><a href="javascript:void(0)" onclick="addAct('2018');">流程转发</a></li>
-			<li><a href="javascript:void(0)" onclick="addAct('2022');">流程办结</a></li>
-			<li><a href="javascript:void(0)" onclick="addAct('2023');">流程退回</a></li>		
-			<li><a href="javascript:void(0)" onclick="addAct('2024');">流程加签</a></li>
-			<li><a href="javascript:void(0)" onclick="addAct('2025');">流程移交</a></li>
-			<li><a href="javascript:void(0)" onclick="addAct('2005');">流程调整</a></li>
-			<li><a href="javascript:void(0)" onclick="addAct('2004');">启动流程</a></li>
-			<li><a href="javascript:void(0)" onclick="addAct('2006');">流程回撤</a></li>
-			<li><a href="javascript:void(0)" onclick="addAct('2007');">编辑审批人</a></li>
-			<li><a href="javascript:void(0)" onclick="addAct('2012');">打开</a></li>
-			<li><a href="javascript:void(0)" onclick="addAct('2013');">审批</a></li>
 			<li><a href="javascript:void(0)" onclick="addAct('2014');">Pdf打印</a></li>
 			<li><a href="javascript:void(0)" onclick="addAct('2016');">Excel导出</a></li>
-			<li><a href="javascript:void(0)" onclick="addAct('2015');">保存不带校验</a></li>			
-			<li><a href="javascript:void(0)" onclick="addAct('2017');">保存并返回</a></li>				
-			<li><a href="javascript:void(0)" onclick="addAct('2020');">流程图</a></li>
-			<li><a href="javascript:void(0)" onclick="addAct('2021');">流程归档</a></li>					
+			<li><a href="javascript:void(0)" onclick="addAct('2004');">导入</a></li>
+			<li><a href="javascript:void(0)" onclick="addAct('2006');">流程回撤</a></li>
+			<li><a href="javascript:void(0)" onclick="addAct('2008');">保存（带流程）</a></li>
+			<li><a href="javascript:void(0)" onclick="addAct('2018');">流程转发</a></li>
+			<li><a href="javascript:void(0)" onclick="addAct('2019');">流程传阅</a></li>
+			<li><a href="javascript:void(0)" onclick="addAct('2017');">流程办结</a></li>
+			<li><a href="javascript:void(0)" onclick="addAct('2023');">流程退回</a></li>
+			<li><a href="javascript:void(0)" onclick="addAct('2024');">加签</a></li>				
 		</ul>
 	</div>
 	<button class="btn btn-sm btn-info" id="batchModifyActType">

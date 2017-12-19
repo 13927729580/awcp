@@ -11,97 +11,102 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<meta name="renderer" content="webkit">
- 		<title>岗位信息</title>
- 		<%-- <jsp:include page="" flush=”true”/> --%>
- 		<%@ include file="../resources/include/common_css.jsp" %><!-- 注意加载路径 -->
+		<meta charset="utf-8">
+	    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+	    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+	    <%@ include file="/resources/include/common_lte_css.jsp"%>
 	</head>
-	<body id="main">
-		<div class="container-fluid">
-			<!--list页面整体布局结构 
-			<div class="row" id="breadcrumb">面包屑导航</div>
-			<div class="row" id="buttons">按钮区</div>
-			<div class="row" id="searchform">搜索区</div>
-			<div class="row" id="datatable">数据展示区</div>
-			<div class="row" id="pagers">分页</div>
-			-->
+	<body>
+		<section class="content">
 			<ul class="nav nav-tabs">
 			     <li>
-			     	<a href="<%=basePath%>unit/selfGroupGet.do?">组织信息编辑</a>
+			     	<a href="<%=basePath%>unit/selfGroupGet.do">组织信息编辑</a>
 			     </li>
 			     <li>
-			       <a href="<%=basePath%>unit/punGroupEdit.do?boxs=${vo.groupId}">组织树编辑</a>
+			       <a href="<%=basePath%>unit/punGroupEdit.do">组织树编辑</a>
 			     </li>
 			     <li class="active">
 					<a href="javascript:;">职务</a>
 			     </li>
-			   </ul>
-			<div style="margin-top:20px;">  
-		   </div>
-			<div class="row" id="buttons">
+			</ul>
+			<div style="margin-top:20px;"></div>
+			<div class="opeBtnGrop">
 				<button type="button" class="btn btn-success" id="allchecker"><i class="icon-plus-sign"></i>新增</button>
 				<button type="button" class="btn btn-warning" id="alleidt"><i class="icon-edit"></i>编辑</button>
 				<button type="button" class="btn btn-warning" id="deleteBtn"><i class="icon-edit"></i>删除</button>
 			</div>
 			
-			<div class="row" id="datatable">
-			<form  method="post" id="userList">	
-				<table class="table datatable table-bordered">
-					<thead>
-						<tr>
-							<th class="hidden">
-								<input type="hidden" id="groupId" name="groupId" value="${vo.groupId}">	
-	            				<input type="hidden" name="currentPage" value="${currentPage}">	
-							</th>
-							<th>职务名称</th>
-							<th>等级</th>
-						</tr>
-					</thead>
-					<tbody>
-					<c:forEach items="${punPositiontList}" var="vo">
-			          <tr> 	
-			            <td class="hidden formData">
-			            	<input id="boxs" type="hidden" value="${vo.positionId}">
-			            	<input id="positionName" type="hidden" value="${vo.name}">
-			            	<input id="grade" type="hidden" value="${vo.grade}">
-			            </td>
-		            	<td>${vo.name}</td>
-		            	<td>${vo.grade}</td>
-			          </tr>
-			          </c:forEach>
-					</tbody>
-				</table>
-				</form>
+		<div class="row">
+			<div class="col-md-12">
+				<div class="box box-info">
+					<div class="box-body">
+						<form  method="post" id="userList">	
+							<%-- <input type="hidden" id="currentPage" name="currentPage" value="${vos.getPaginator().getPage()}">
+							<input type="hidden" id="pageSize" name="pageSize" value="${vos.getPaginator().getLimit()}">
+							<input type="hidden" id="totalCount" name="totalCount" value="${vos.getPaginator().getTotalCount()}"> --%>
+							<table class="table table-hover">
+								<thead>
+									<tr>
+										<th class="hidden"></th>
+										<th data-width="" data-field="" data-checkbox="true"></th>
+										<th>职务名称</th>
+										<th>等级</th>
+									</tr>
+								</thead>
+								<tbody>
+								<c:forEach items="${vos}" var="vo">
+						          <tr> 	
+						            <td class="hidden formData">
+						            	<input data-name="${vo.name}" data-grade="${vo.grade}" type="hidden" value="${vo.positionId}">
+						            </td>
+						            <td></td>
+					            	<td>${vo.name}</td>
+					            	<td>${vo.grade}</td>
+						          </tr>
+						          </c:forEach>
+								</tbody>
+							</table>
+						</form>
+					</div>
+				</div>
 			</div>
-<!-- 			<div class="row navbar-fixed-bottom text-center" id="pagers"> -->
-<%-- 				<sc:PageNavigation dpName="vos"></sc:PageNavigation>  --%>
-<!-- 			</div> -->
 		</div>
-	 
-	 <%@ include file="../resources/include/common_js.jsp" %>
-<%-- 	 <script type="text/javascript" src="<%=basePath%>resources/scripts/pageTurn.js"></script> --%>
+	 </section>
+	 <%@ include file="../resources/include/common_lte_js.jsp"%>
 	 <script type="text/javascript">
 		  $(function(){
-			  var count=0;//默认选择行数为0
-			  $('table.datatable').datatable({
-				  checkable: true,
-				  checksChanged:function(event){
-					  this.$table.find("tbody tr").find("input#boxs").removeAttr("name");
-					  this.$table.find("tbody tr").find("input#positionName").removeAttr("name");
-					  this.$table.find("tbody tr").find("input#grade").removeAttr("name");
-					  var checkArray = event.checks.checks;
-					  count = checkArray.length;//checkbox checked数量
-					  for(var i=0;i<count;i++){//给隐藏数据机上name属性
-						  this.$table.find("tbody tr").eq(checkArray[i]).find("input#boxs").attr("name","positionId");
-						  this.$table.find("tbody tr").eq(checkArray[i]).find("input#positionName").attr("name","positionName");
-						  this.$table.find("tbody tr").eq(checkArray[i]).find("input#grade").attr("name","grade");
-					  }
-				  }
-					
-			  });
+			  var count=0;
+			  $(".table").bootstrapTable({
+					<%--  pageSize:parseInt($("#pageSize").val()),
+		        	 pageNumber:parseInt($("#currentPage").val()),
+		        	 totalRows:parseInt($("#totalCount").val()),
+		        	 sidePagination:"server",
+		        	 pagination:true,
+		        	 onPageChange:function(number, size){
+		        		$("#pageSize").val(size);
+		        		$("#currentPage").val(number);
+		        		$("#userList").attr("action","<%=basePath%>punPositionController/pageList.do").submit();
+		        	 }, --%>
+		        	 onClickRow:function(row,$element,field){
+		        	  	  var $checkbox=$element.find(":checkbox").eq(0);
+		        	  	  if($checkbox.get(0).checked){
+							  $checkbox.get(0).checked=false;
+							  $element.find("input[type='hidden']").removeAttr("name","positionId");
+		        	  	  }else{
+							  $checkbox.get(0).checked=true;
+							  $element.find("input[type='hidden']").attr("name","positionId");
+		        	  	  }
+						  count = $("input[name='positionId']").length;
+		        	 },
+		        	 onCheck: function(row,$element){
+						  $element.closest("tr").find("input[type='hidden']").attr("name","positionId");
+						  count = $("input[name='positionId']").length;
+		        	 },
+		        	 onUncheck:function(row,$element){
+		        		 $element.closest("tr").find("input[type='hidden']").removeAttr("name");
+						 count = $("input[name='positionId']").length;
+		        	 }
+		         });
 			  
 				var dialogContent = function(){
 					var name,grade;
@@ -114,12 +119,11 @@
 					'<span class="input-group-addon"><i class="icon-pencil"></i>&nbsp;&nbsp;名称</span>'+
 			        '<input name="groupName" type="text" class="form-control" value="'+name+'" placeholder="名称">'+
 					'<span class="input-group-addon"><i class="icon-pencil"></i>&nbsp;&nbsp;等级</span>'+
-			        '<input name="grade" id="gradeValue" type="text" class="form-control" value="'+grade+'" placeholder="等级"></div>';
+			        '<input name="grade" id="gradeValue" type="number" class="form-control" value="'+grade+'" placeholder="等级"></div>';
 					return content;
 				};
 				
 				$('#allchecker').bind("click", function(){
-					
 					var d = dialog({
 					    title: '添加职务信息',
 					    content: dialogContent(),
@@ -127,20 +131,21 @@
 					    ok: function () {
 					    	var $groupName = $("input[name='groupName']");
 					    	var $grade = $("input[name='grade']");
-					    	if($groupName.val()==""){
+					    	if(!$groupName.val()||!$grade){
+					    		Comm.alert("名称或等级不能为空");
 					    		return false;
 					    	}else{
 								//添加菜单
 								$.ajax({
 								   type: "POST",
 								   url: "<%=basePath%>punPositionController/save.do",
-								   data: "groupId="+$('#groupId').val()+"&name="+$groupName.val()+"&grade="+$grade.val(),
+								   data: "&name="+$groupName.val()+"&grade="+$grade.val(),
 								   success: function(data){
 									    if(data.status==0){
-									    	alertMessage("添加成功");
-									     	window.location.href="<%=basePath%>punPositionController/pageList.do?groupId=" + $('#groupId').val();
+									    	Comm.alert("添加成功");
+									     	window.location.href="<%=basePath%>punPositionController/pageList.do";
 									    }else{
-									    	alertMessage(data.message);
+									    	Comm.alert(data.message);
 									    }
 								   }
 								})			
@@ -157,26 +162,14 @@
 				});
 				
 				$('#alleidt').bind("click", function(){
-					if(count != 1){
-						alert("请选择一个岗位编辑");
+					var rows=$("input[name='positionId']");
+					if(count!=1){
+						Comm.alert("请选择一个岗位编辑");
 						return false;
 					}
-					var positionId;
-					var positionName;
-					var check_array=document.getElementsByName("positionId");
-					var positionNames=document.getElementsByName("positionName");
-					var grade=document.getElementsByName("grade");
-					//ljw 2014-12-8 checked and modify
-					var positionName = positionNames[0].value;
-					var positionId = check_array[0].value;
-					var grade = grade[0].value;
-// 					for(var i=0;i<check_array.length;i++)
-// 			           {        
-// 		            	   positionId=parseInt(check_array[i].value);
-// 		            	   positionName = positionNames[i].value;
-// 		            	   break;
-// 			           }
-///////////////////////////////end//////////////////////////////////////
+					var positionId =rows.val();
+					var positionName = rows.attr("data-name");
+					var grade=rows.attr("data-grade");
 					var d = dialog({
 					    title: '编辑职务名称',
 					    content: dialogContent(positionName,grade),
@@ -184,7 +177,6 @@
 					    ok: function () {
 					    	var $groupName = $("input[name='groupName']");
 					    	var $grade = $("#gradeValue");
-					    	console.log($grade.val());
 					    	if($groupName.val()==""){
 					    		return false;
 					    	}else{
@@ -192,13 +184,13 @@
 								$.ajax({
 								   type: "POST",
 								   url: "<%=basePath%>punPositionController/update.do",
-								   data: "groupId="+$('#groupId').val()+"&name="+$groupName.val()+"&grade="+$grade.val()+"&positionId="+positionId,
+								   data: "name="+$groupName.val()+"&grade="+$grade.val()+"&positionId="+positionId,
 								   success: function(data){
 									    if(data.status==0){
-									    	alertMessage("编辑成功");
-									     	window.location.href="<%=basePath%>punPositionController/pageList.do?groupId=" + $('#groupId').val();
+									    	Comm.alert("编辑成功");
+									     	window.location.href="<%=basePath%>punPositionController/pageList.do";
 									    }else{
-									    	alertMessage(data.message);
+									    	Comm.alert(data.message);
 									    }
 								   }
 								})			
@@ -216,7 +208,7 @@
 				
 				$("#deleteBtn").click(function(){
 					if(count<1){
-						alert("请至少选择一项操作");
+						Comm.alert("请至少选择一项操作");
 						return false;
 					}
 					if(window.confirm("确定删除？")){
@@ -225,15 +217,6 @@
 					return false;
 				})
 				
-				function alertMessage(message){
-					var md = dialog({
-					    content: message
-					});
-					md.show();
-					setTimeout(function () {
-					    md.close().remove();
-					}, 2000);
-				}
           	
           });
 		</script>

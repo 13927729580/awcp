@@ -22,11 +22,14 @@
 		<property name="sessionIdCookie" ref="sessionIdCookie" /> 
 		<property name="sessionDAO" ref="sessionDAO" />
 	</bean>
-	<bean id="sessionDAO" class="org.apache.shiro.session.mgt.eis.EnterpriseCacheSessionDAO" />
-	<!-- <bean id="sessionDAO" class="org.apache.shiro.session.mgt.eis.MemorySessionDAO"/> -->
-<!-- 	<bean id="cookie" class="org.apache.shiro.web.servlet.SimpleCookie">
-		<property name="httpOnly" value="true" />
-	</bean> -->
+	<bean id="sessionIdGenerator" class="org.apache.shiro.session.mgt.eis.JavaUuidSessionIdGenerator "/>  
+	<bean id="sessionDAO" class="org.apache.shiro.session.mgt.eis.EnterpriseCacheSessionDAO">  
+	    <!--设置Session缓存名字，默认就是shiro-activeSessionCache-->  
+	    <property name="activeSessionsCacheName" value="shiro-activeSessionCache"/>  
+	    <!-- 用于生成会话ID，默认就是JavaUuidSessionIdGenerator，使用java.util.UUID生成 -->  
+	    <property name="sessionIdGenerator" ref="sessionIdGenerator"/>
+	    <property name="cacheManager" ref="shiroCacheManager" />  
+	</bean> 
 	
 	<!-- 会话Cookie模板 -->
 	<bean id="sessionIdCookie" class="org.apache.shiro.web.servlet.SimpleCookie">
@@ -45,7 +48,7 @@
 	
 	<!-- 定期验证 -->
 	<bean id="sessionValidationScheduler" class="org.apache.shiro.session.mgt.ExecutorServiceSessionValidationScheduler">
-	    <property name="interval" value="18000000"/>
+	    <property name="interval" value="7200000"/>
 	</bean>
 	
 	 <bean id="securityManager"
@@ -64,7 +67,7 @@
 	</bean>   
     <!-- 用户授权信息Cache, 采用EhCache -->
 	<bean id="shiroCacheManager" class="org.apache.shiro.cache.ehcache.EhCacheManager">
-		<property name="cacheManagerConfigFile" value="classpath:ehcache/ehcache-shiro.xml"/>
+		<property name="cacheManagerConfigFile" value="classpath:conf/ehcache-shiro.xml"/>
 	</bean>
      <!-- 項目自定义的Realm -->
     <bean id="shiroDbRealm" class="cn.org.awcp.unit.shiro.ShiroDbRealm" ></bean>
@@ -102,7 +105,11 @@
             /common/file/getImage.do =anon
             /common/file/preview.do =anon
             /api/execute/** =anon,kickout
+            /wechat/*.do=anon
+            /wxPay/jsPayNotify.do=anon
+            /wxPay/webNotify.do=anon
             /**/*.do= authc,kickout
+            /api/**= authc,kickout
             <!-- 
             /devAdmin/login.do = anon
             /devAdmin/logout.do = anon

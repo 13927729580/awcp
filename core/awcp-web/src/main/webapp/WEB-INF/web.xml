@@ -11,6 +11,9 @@
 	<listener>
 		<listener-class>cn.org.awcp.common.log.LogbackConfigListener</listener-class>
 	</listener>
+	<listener>
+		<listener-class>net.sf.ehcache.constructs.web.ShutdownListener</listener-class>
+	</listener>
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
 		<param-value>

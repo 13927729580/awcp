@@ -17,7 +17,7 @@
 <link rel="stylesheet" href="${ctxBase}/styles/style.css" />
 <link rel="stylesheet" href="<%=basePath %>./resources/styles/zTreeStyle/zTreeStyle.css">
 <%-- <link rel="stylesheet" href="${ctxBase}/styles/zTreeStyle/szcloud.css"> --%>
-<link rel="stylesheet" href="<%=basePath %>base/resources/artDialog/css/ui-dialog.css" >
+<link rel="stylesheet" href="<%=basePath %>template/AdminLTE/css/artDialog/dialog.css" >
 <!--[if lt IE 9]>
   <script src="${ctxBase}/plugins/zui/assets/html5shiv.js"></script>
   <script src="${ctxBase}/plugins/zui/assets/respond.js"></script>
@@ -62,7 +62,7 @@
 <script src="<%=basePath %>base/resources/zui/dist/js/zui.js" language="javascript" type="text/javascript"></script>
 <script src="<%=basePath %>resources/plugins/zTree_v3/js/jquery.ztree.all-3.5.js" language="javascript" type="text/javascript"></script>
 <script src="${ctxBase}/scripts/jquery.ManageList.ui.js" language="javascript" type="text/javascript"></script>
-<script src="<%=basePath %>base/resources/artDialog/dist/dialog-plus-min.js"></script>
+<script src="<%=basePath %>template/AdminLTE/js/artDialog/dialog-plus.js"></script>
 
 <script language="javascript">
 var setting = {

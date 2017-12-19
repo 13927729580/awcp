@@ -7,15 +7,16 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import cn.org.awcp.core.utils.DateUtils;
 
 /**
  * 控制器支持类
+ * 
  * @author ThinkGem
  */
 public abstract class BaseController {
@@ -25,11 +26,11 @@ public abstract class BaseController {
 	 */
 	protected Log logger = LogFactory.getLog(getClass());
 
-	protected ThreadLocal<BindingResult> result = new ThreadLocal<BindingResult>();
-
 	/**
 	 * 添加Model消息
-	 * @param messages 消息
+	 * 
+	 * @param messages
+	 *            消息
 	 */
 	protected void addMessage(ModelAndView mv, String... messages) {
 		StringBuilder sb = new StringBuilder();
@@ -41,7 +42,9 @@ public abstract class BaseController {
 
 	/**
 	 * 添加Model消息
-	 * @param messages 消息
+	 * 
+	 * @param messages
+	 *            消息
 	 */
 	protected void addMessage(Model model, String... messages) {
 		StringBuilder sb = new StringBuilder();
@@ -53,7 +56,9 @@ public abstract class BaseController {
 
 	/**
 	 * 添加Flash消息
-	 * @param messages 消息
+	 * 
+	 * @param messages
+	 *            消息
 	 */
 	protected void addMessage(RedirectAttributes redirectAttributes, String... messages) {
 		StringBuilder sb = new StringBuilder();
@@ -64,9 +69,7 @@ public abstract class BaseController {
 	}
 
 	/**
-	 * 初始化数据绑定 
-	 * 1. 将所有传递进来的String进行HTML编码，防止XSS攻击 
-	 * 2. 将字段中Date类型转换为String类型
+	 * 初始化数据绑定 1. 将所有传递进来的String进行HTML编码，防止XSS攻击 2. 将字段中Date类型转换为String类型
 	 */
 	@InitBinder
 	protected void initBinder(WebDataBinder binder) {

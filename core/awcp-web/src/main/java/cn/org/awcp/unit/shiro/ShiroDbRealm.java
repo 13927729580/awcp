@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.authc.AuthenticationException;
@@ -25,7 +24,6 @@ import cn.org.awcp.core.domain.BaseExample;
 import cn.org.awcp.core.domain.Criteria;
 import cn.org.awcp.core.utils.SessionUtils;
 import cn.org.awcp.core.utils.constants.SessionContants;
-import cn.org.awcp.metadesigner.application.MetaModelOperateService;
 import cn.org.awcp.unit.service.PunGroupService;
 import cn.org.awcp.unit.service.PunRoleAccessService;
 import cn.org.awcp.unit.service.PunRoleInfoService;
@@ -35,6 +33,9 @@ import cn.org.awcp.unit.utils.WhichEndEnum;
 import cn.org.awcp.unit.vo.PunRoleAccessVO;
 import cn.org.awcp.unit.vo.PunRoleInfoVO;
 import cn.org.awcp.unit.vo.PunUserBaseInfoVO;
+import cn.org.awcp.venson.common.SC;
+import cn.org.awcp.venson.exception.PlatformException;
+import cn.org.awcp.venson.util.CookieUtil;
 
 public class ShiroDbRealm extends AuthorizingRealm {
 	/**
@@ -60,20 +61,18 @@ public class ShiroDbRealm extends AuthorizingRealm {
 	@Qualifier("punRoleAccessServiceImpl")
 	private PunRoleAccessService roleAccessService;// 访问控制
 
-	@Autowired
-	private MetaModelOperateService metaModelOperateServiceImpl;
+	private UsernamePasswordToken token;
 
 	// 授权方法
 	@Override
 	protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
 		SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
-		if (null == principals) {
-			throw new AuthenticationException("principals can not be null");
+		if (null == token) {
+			throw new AuthenticationException("token can not be null");
 		}
 		// 获取当前登录的用户名
-		String userName = (String) super.getAvailablePrincipal(principals);
 
-		String[] result = userName.split(SPLIT);
+		String[] result = token.getUsername().split(SPLIT);
 		String whichEnd = result[2];// 端
 		switch (WhichEndEnum.getOperChartType(whichEnd)) {
 		case FRONT_END:// 前端
@@ -134,6 +133,7 @@ public class ShiroDbRealm extends AuthorizingRealm {
 	protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authcToken)
 			throws AuthenticationException {
 		UsernamePasswordToken token = (UsernamePasswordToken) authcToken;
+		this.token = token;
 		return verifyEnd(token);
 	}
 
@@ -148,20 +148,25 @@ public class ShiroDbRealm extends AuthorizingRealm {
 		String orgCode = result[0];// 组织机构代码
 		String idCard = result[1];// 身份证号码
 		String whichEnd = result[2];// 端
+		PunUserBaseInfoVO pvi = null;
 		String password = null;
-		if (result.length > 3)
-			password = EncryptUtils.decript(result[3]);
-		if (StringUtils.isBlank(password)) {
+		// 查看是否属于免密校验
+		if (result.length > 3) {
+			password = result[3];
+			pvi = findFrontUser(orgCode, idCard);
+		} else {
 			switch (WhichEndEnum.getOperChartType(whichEnd)) {
 			case FRONT_END:// 前端
-				password = validateFrontUser(orgCode, idCard);
+				pvi = findFrontUser(orgCode, idCard);
+				password = pvi.getUserPwd();
+				password = EncryptUtils.decript(password);
 				break;
 
 			default:
 				break;
 			}
 		}
-		return new SimpleAuthenticationInfo(token.getUsername(), password, this.getName());
+		return new SimpleAuthenticationInfo(pvi, password, this.getName());
 	}
 
 	/**
@@ -171,14 +176,22 @@ public class ShiroDbRealm extends AuthorizingRealm {
 	 * @param idCard
 	 * @return
 	 */
-	private String validateFrontUser(String orgCode, String idCard) {
+	private PunUserBaseInfoVO findFrontUser(String orgCode, String idCard) {
 		logger.debug("validateFrontUser");
-		Object password = metaModelOperateServiceImpl.queryObject(
-				"select USER_PWD from p_un_user_base_info where mobile=? or user_id_card_number=?", idCard, idCard);
-		if (password instanceof String) {
-			return EncryptUtils.decript(password.toString());
-		}
-		return null;
+		Map<String, Object> m = new HashMap<String, Object>();
+
+		m.put("userIdCardNumber", idCard);
+		List<PunUserBaseInfoVO> pvis = this.userService.queryResult("eqQueryList", m); // 查询用户
+		if (pvis.isEmpty()) {
+			CookieUtil.deleteCookie(SC.USER_ACCOUNT);
+			CookieUtil.deleteCookie(SC.SECRET_KEY);
+			throw new PlatformException("账号未找到");
+		} else if (pvis.size() != 1) {
+			CookieUtil.deleteCookie(SC.USER_ACCOUNT);
+			CookieUtil.deleteCookie(SC.SECRET_KEY);
+			throw new PlatformException("账号信息有误");
+		} else
+			return pvis.get(0);
 	}
 
 }

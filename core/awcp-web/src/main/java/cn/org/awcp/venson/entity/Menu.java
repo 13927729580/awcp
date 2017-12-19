@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+
 import cn.org.awcp.unit.vo.PunMenuVO;
 import cn.org.awcp.venson.controller.base.ControllerHelper;
 
@@ -164,7 +165,7 @@ public class Menu {
 				// 查看图标是否为空，如果为空则显示默认图标
 				Menu children = new Menu(vo.getMenuId(), vo.getMenuName(),
 						getUrl(vo.getDynamicPageId(), vo.getMenuAddress()),
-						getIcon(vo.getMenuIcon(), "images/icon/icon-lucency/system.png"));
+						getIcon(vo.getMenuIcon(), "fa fa-circle-o"));
 				children.setFlag(vo.getMenuFlag());
 				children.setType(vo.getType());
 				menu.add(children);
@@ -183,7 +184,7 @@ public class Menu {
 		if (StringUtils.isBlank(icon)) {
 			icon = defaultImg;
 		}
-		return ControllerHelper.getBasePath() + icon;
+		return icon;
 	}
 
 }

@@ -63,19 +63,22 @@ public class UnitBaseController {
 
 	@Autowired
 	@Qualifier("punUserBaseInfoServiceImpl")
-	private PunUserBaseInfoService userService;	//用户Service
-	
-	@Autowired
-	@Qualifier("punMenuServiceImpl")
-	private PunMenuService resouService;	//资源Service
+	private PunUserBaseInfoService userService; // 用户Service
 
 	@Autowired
-	private MetaModelOperateService metaModelOperateServiceImpl;	//元数据操作Service
+	@Qualifier("punMenuServiceImpl")
+	private PunMenuService resouService; // 资源Service
+
+	@Autowired
+	private MetaModelOperateService metaModelOperateServiceImpl; // 元数据操作Service
 
 	/**
 	 * 登录
-	 * @param userPwd	用户密码
-	 * @param userName	USER_ID_CARD_NUMBER或者手机号
+	 * 
+	 * @param userPwd
+	 *            用户密码
+	 * @param userName
+	 *            USER_ID_CARD_NUMBER或者手机号
 	 * @param code
 	 * @param ALT
 	 * @return
@@ -93,28 +96,21 @@ public class UnitBaseController {
 			userPwd = Security.decodeBASE64(userPwd);
 			userPwd = userPwd.substring("BasicAuth:".length());
 		}
-		Map<String, Object> m = new HashMap<String, Object>();
-
-		m.put("userIdCardNumber", userName);
-		PunUserBaseInfoVO pvi = null;
-		try {
-			pvi = this.userService.queryResult("eqQueryList", m).get(0);	//查询用户
-		} catch (Exception e) {
-			return result.setStatus(StatusCode.FAIL.setMessage("登录失败，请核实登录信息"));
-		}
 		Subject subject = SecurityUtils.getSubject();
-		String plainToke = pvi.getOrgCode() + ShiroDbRealm.SPLIT + pvi.getUserIdCardNumber() + ShiroDbRealm.SPLIT
-				+ WhichEndEnum.getOperChartType(code).getCode() + ShiroDbRealm.SPLIT + pvi.getUserPwd();
-		UsernamePasswordToken token = new UsernamePasswordToken(plainToke, userPwd == null ? "" : userPwd);
+		String plainToke = SC.ORG_CODE + ShiroDbRealm.SPLIT + userName + ShiroDbRealm.SPLIT
+				+ WhichEndEnum.getOperChartType(code).getCode();
+		UsernamePasswordToken token = new UsernamePasswordToken(plainToke, userPwd);
 		try {
 			subject.login(token);
+			PunUserBaseInfoVO pvi = (PunUserBaseInfoVO) subject.getPrincipal();
 			if (SC.USER_STATUS_DISABLED.equals(pvi.getUserStatus())) {
 				return result.setStatus(StatusCode.FAIL.setMessage("用户已禁用"));
 			} else if (SC.USER_STATUS_DISABLED.equals(pvi.getUserStatus())) {
 				return result.setStatus(StatusCode.FAIL.setMessage("用户审核中"));
 			}
 			ControllerHelper.doLoginSuccess(pvi);
-			List<PunRoleInfoVO> roles = (List<PunRoleInfoVO>) SessionUtils.getObjectFromSession(SessionContants.CURRENT_ROLES);
+			List<PunRoleInfoVO> roles = (List<PunRoleInfoVO>) SessionUtils
+					.getObjectFromSession(SessionContants.CURRENT_ROLES);
 			String targetUrl = SC.TARGET_URL[0];
 			for (PunRoleInfoVO role : roles) {
 				if (role.getRoleName().equals("超级后台管理员")) {
@@ -126,7 +122,8 @@ public class UnitBaseController {
 			if (StringUtils.isNotBlank(ALT)) {
 				String secretKey = CookieUtil.findCookie(SC.SECRET_KEY);
 				if (secretKey == null || !secretKey.equals(pvi.getUserIdCardNumber())) {
-					CookieUtil.addCookie(SC.SECRET_KEY,MD5Util.getMD5StringWithSalt(pvi.getUserIdCardNumber(), SC.SALT));
+					CookieUtil.addCookie(SC.SECRET_KEY,
+							MD5Util.getMD5StringWithSalt(pvi.getUserIdCardNumber(), SC.SALT));
 					CookieUtil.addCookie(SC.USER_ACCOUNT, pvi.getUserIdCardNumber());
 				}
 			}
@@ -140,6 +137,7 @@ public class UnitBaseController {
 
 	/**
 	 * 获取用户信息
+	 * 
 	 * @return
 	 */
 	@ResponseBody
@@ -157,6 +155,7 @@ public class UnitBaseController {
 
 	/**
 	 * 获取PC端用户菜单
+	 * 
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
@@ -168,7 +167,8 @@ public class UnitBaseController {
 		PunSystemVO system = (PunSystemVO) SessionUtils.getObjectFromSession(SessionContants.CURRENT_SYSTEM);
 		// 当前用户
 		PunUserBaseInfoVO user = (PunUserBaseInfoVO) SessionUtils.getObjectFromSession(SessionContants.CURRENT_USER);
-		List<PunRoleInfoVO> roles = (List<PunRoleInfoVO>) SessionUtils.getObjectFromSession(SessionContants.CURRENT_ROLES);
+		List<PunRoleInfoVO> roles = (List<PunRoleInfoVO>) SessionUtils
+				.getObjectFromSession(SessionContants.CURRENT_ROLES);
 
 		Long userId = user.getUserId();// 用户ID
 		Long sysId = system.getSysId();// 系统ID
@@ -201,6 +201,7 @@ public class UnitBaseController {
 
 	/**
 	 * 获取App页面的菜单
+	 * 
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
@@ -212,7 +213,8 @@ public class UnitBaseController {
 		PunSystemVO system = (PunSystemVO) SessionUtils.getObjectFromSession(SessionContants.CURRENT_SYSTEM);
 		// 当前用户
 		PunUserBaseInfoVO user = ControllerHelper.getUser();
-		List<PunRoleInfoVO> roles = (List<PunRoleInfoVO>) SessionUtils.getObjectFromSession(SessionContants.CURRENT_ROLES);
+		List<PunRoleInfoVO> roles = (List<PunRoleInfoVO>) SessionUtils
+				.getObjectFromSession(SessionContants.CURRENT_ROLES);
 
 		Long userId = user.getUserId();// 用户ID
 		Long sysId = system.getSysId();// 系统ID
@@ -250,7 +252,7 @@ public class UnitBaseController {
 		return result;
 	}
 
-	//去除重复菜单项
+	// 去除重复菜单项
 	private List<PunMenuVO> removeDuplicate(List<PunMenuVO> list) {
 		// 此处去重要使用LinkedHashSet，要保留原有顺序
 		HashSet<PunMenuVO> hashSet = new LinkedHashSet<PunMenuVO>(list);
@@ -262,6 +264,7 @@ public class UnitBaseController {
 
 	/**
 	 * 用户登出
+	 * 
 	 * @param request
 	 * @return
 	 */
@@ -275,6 +278,7 @@ public class UnitBaseController {
 
 	/**
 	 * 用于单点登录
+	 * 
 	 * @param uid
 	 * @param key
 	 * @param url
@@ -287,7 +291,8 @@ public class UnitBaseController {
 		ModelAndView mv = new ModelAndView("redirect:" + base + "login.html");
 		url = StringUtils.isBlank(url) ? base + "manage/index.html" : url;
 		// 判断是否已经存在登录用户
-		PunUserBaseInfoVO current_user = (PunUserBaseInfoVO) SessionUtils.getObjectFromSession(SessionContants.CURRENT_USER);
+		PunUserBaseInfoVO current_user = (PunUserBaseInfoVO) SessionUtils
+				.getObjectFromSession(SessionContants.CURRENT_USER);
 		if (current_user != null) {
 			// 判断当前已登录用户是否是指定的uid用户
 			if (current_user.getUserIdCardNumber().equals(uid))
@@ -306,9 +311,9 @@ public class UnitBaseController {
 		String body = HttpUtils.sendGet("http://www.tongyuanmeng.com/awcp/api/executeAPI.do", parameters);
 		// 若返回值不为空则为合法操作
 		if (body != null && uid.equals(JSON.parseObject(body).getString("data"))) {
-			if (ControllerHelper.toLogin(uid, false) != null){
+			if (ControllerHelper.toLogin(uid, false) != null) {
 				return new ModelAndView("redirect:" + url);
-			}				
+			}
 		}
 		return mv;
 	}

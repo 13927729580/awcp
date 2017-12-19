@@ -35,7 +35,7 @@ var multilevelLinkage=function(option){
 						return;
 					}
 					//添加dom节点
-					var html='<div class="col-md-2"><div class="input-group"><span class="input-group-addon">'+that.option.labels[i]+'</span><select id="'+that.option.idPrefix+i+'" name="'+that.option.names[i]+'" class="'+that.option.idPrefix+' form-control"></select></div></div>';
+					var html='<div class="col-md-4"><div class="input-group"><span class="input-group-addon">'+that.option.labels[i]+'</span><select id="'+that.option.idPrefix+i+'" name="'+that.option.names[i]+'" class="'+that.option.idPrefix+' form-control"></select></div></div>';
 					
 					$warp=$(html);
 					$(that.option.container).append($warp);
@@ -72,6 +72,7 @@ var multilevelLinkage=function(option){
 			getParams:function(sql){
 				var that=this;
 				var param={};
+				param["_method"]="get";
 				param.APIId=$.trim(sql);
 				$.each(that.option.names,function(i,e){
 					var val=$("."+that.option.idPrefix+'[name='+e+']').val();

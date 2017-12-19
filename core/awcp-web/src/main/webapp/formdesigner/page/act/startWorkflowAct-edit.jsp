@@ -27,44 +27,7 @@
 					<span style="color: red">(${result})</span>
 				</c:if>
 				<%@ include file="comms/basicInfo.jsp"%>
-				<div class="form-group ">
-					<label class="col-md-1 control-label">启动方式</label>
-					<div class="col-md-5">
-						<label class="radio-inline"> 
-							<input name="extbute[pattern]" type="radio"
-							<c:if test="${'1' eq act.extbute['pattern']}"> checked="checked"</c:if>
-							value="1">用户选择
-						</label> 
-						<label class="radio-inline"> 
-							<input name="extbute[pattern]" type="radio"
-							<c:if test="${'2' eq act.extbute['pattern']}"> checked="checked"</c:if>
-							value="2">脚本启动
-						</label> 
-						<label class="radio-inline"> 
-							<input name="extbute[pattern]" type="radio"
-							<c:if test="${'3' eq act.extbute['pattern']}"> checked="checked"</c:if>
-							value="3">选择流程
-						</label>
-					</div> 
-				</div>
-				 <div class="form-group hidden" id="selectworkflowdiv">
-					<label class="col-md-1 control-label">选择流程</label>
-					<div class="col-md-5">
-						<select class=" form-control" name="extbute[workflowId]" id="workflowId">
-							<option value="${act.extbute['workflowId']}"></option>
-						</select>
-					</div>
-				</div>
-				<div class="form-group hidden" id="scriptdiv">
-					<label class="col-md-1 control-label">启动脚本</label>
-					<div class="col-md-5">
-						<textarea name='extbute[startScript]' id='startScript' rows='4' class='form-control'>
-							${act.extbute['startScript']}
-						</textarea>
-					</div>
-				</div> 
 				<%@ include file="comms/scripts.jsp"%>
-				<%@ include file="comms/confirm.jsp"%>
 			</form>
 		</div>
 	</div>

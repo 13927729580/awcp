@@ -1,25 +1,24 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
- <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %> 
- <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%> 
- <%@ taglib prefix="sc" uri="szcloud" %>
- <%@page isELIgnored="false"%> 
- <%
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %> 
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%> 
+<%@ taglib prefix="sc" uri="szcloud" %>
+<%@ page isELIgnored="false"%> 
+<%
 	String path = request.getContextPath();
 	String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
 %>
-
 <!DOCTYPE html>
 <html>
-	<head><base href="<%=basePath%>">
-		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<meta name="renderer" content="webkit">
- 		<title>动态表单编辑页面</title>
- 		<%@ include file="/resources/include/common_form_css.jsp" %><!-- 注意加载路径 -->
-		<link rel="stylesheet" href="<%=basePath%>resources/plugins/zTree_v3/css/zTreeStyle/zTreeStyle.css">
-	</head>
+<head>
+	<base href="<%=basePath%>">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="renderer" content="webkit">
+	<title>动态表单编辑页面</title>
+	<%@ include file="/resources/include/common_form_css.jsp" %><!-- 注意加载路径 -->
+	<link rel="stylesheet" href="<%=basePath%>resources/plugins/zTree_v3/css/zTreeStyle/zTreeStyle.css">
+</head>
 <body id="main">
 	<input type="hidden" name="id" value="${pageId}" id="id">
 	<div id="groupform">
@@ -39,28 +38,25 @@
 					<button type="button" class="btn btn-sm btn-success dropdown-toggle" data-toggle="dropdown">
 						<i class="icon-edit"></i>批量修改 <span class="caret"></span>
 					</button>
-						<ul class="dropdown-menu" role="menu">
-							<li><a href="javascript:void(0)" onclick="batchModifyTreeProportion(this);">批量修改布局占比</a></li>
-							<li><a href="javascript:void(0)" onclick="batchModifyTreeHeight(this);">批量修改行高列宽</a></li>
-							<li><a href="javascript:void(0)" onclick="batchModifyTreeAlign(this);">批量修改对齐方式</a></li>
-							<li><a href="javascript:void(0)" onclick="batchModifyTreeBorder(this);">批量修改边框</a></li>
-							<li><a href="javascript:void(0)" onclick="batchTreeModify(this);">同类型批量修改</a></li>
-							<li><a href="javascript:void(0)" onclick="batchTreeHeight(this);">批量清除宽高</a></li>
-						</ul>
+					<ul class="dropdown-menu" role="menu">
+						<li><a href="javascript:void(0)" onclick="batchModifyTreeProportion(this);">批量修改布局占比</a></li>
+						<li><a href="javascript:void(0)" onclick="batchModifyTreeHeight(this);">批量修改行高列宽</a></li>
+						<li><a href="javascript:void(0)" onclick="batchModifyTreeAlign(this);">批量修改对齐方式</a></li>
+						<li><a href="javascript:void(0)" onclick="batchModifyTreeBorder(this);">批量修改边框</a></li>
+						<li><a href="javascript:void(0)" onclick="batchTreeModify(this);">同类型批量修改</a></li>
+						<li><a href="javascript:void(0)" onclick="batchTreeHeight(this);">批量清除宽高</a></li>
+					</ul>
 				</div>
 			</div>
 			<div class="btn-group mb10">
-				<button type="button" class="btn btn-sm btn-success"
-					id="merageLayout1">
-				<i class="icon-plus"></i>合并布局
+				<button type="button" class="btn btn-sm btn-success" id="merageLayout1">
+					<i class="icon-plus"></i>合并布局
 				</button>
-				<button type="button" class="btn btn-sm btn-success"
-					id="copyLayout1">
+				<button type="button" class="btn btn-sm btn-success" id="copyLayout1">
 					<i class="icon-copy"></i>复制布局
 				</button>
-				<button type="button" class="btn btn-sm btn-success"
-					id="refreshLayoutOrder1">
-				<i class="icon-refresh"></i>重置序号
+				<button type="button" class="btn btn-sm btn-success" id="refreshLayoutOrder1">
+					<i class="icon-refresh"></i>重置序号
 				</button>
 			</div>
 			<div id="collapseButton" class="mb10">
@@ -78,17 +74,10 @@
 					<ul id="tree1" class="ztree"></ul>
 				</div>
 				<div>
-				<button type="button" class="btn btn-sm btn-success hidden" id="addLayoutBtn"
-					onclick="CheckAllNodes();">
-					全选
-				</button>
-				<button type="button" class="btn btn-sm btn-success hidden" id="addLayoutBtn"
-					onclick="CancelAllNodes();">
-					取消
-				</button>
+					<button type="button" class="btn btn-sm btn-success hidden" id="addLayoutBtn" onclick="CheckAllNodes();">全选</button>
+					<button type="button" class="btn btn-sm btn-success hidden" id="addLayoutBtn" onclick="CancelAllNodes();">取消</button>
 				</div>
-			</div>
-				
+			</div>			
 		</div>
 		<div class="col-xs-9" style="margin-bottom:0;">
 			<div class="btn-group mb10">
@@ -102,8 +91,6 @@
 						</c:forEach>
 					</ul>
 				</div>
-	
-	
 				<div class="btn-group">
 					<button type="button" class="btn  btn-info dropdown-toggle" data-toggle="dropdown">
 						<i class="icon-plus-sign"></i>快捷新增 <span class="caret"></span>
@@ -132,7 +119,6 @@
 						<li><a href="javascript:void(0)" onclick="modifiSameType();">同类型批量修改</a></li>
 					</ul>
 				</div>
-	
 				<button class="btn  btn-info" id="deleteComponent">
 					<i class="icon-remove"></i>删除
 				</button>
@@ -144,19 +130,18 @@
 				</button>
 				<button class="btn  btn-info" id="refreshContainerComponent">
 					<i class="icon-remove"></i>重置包含组件
-				</button>
-				
+				</button>				
 			</div>
 			<div class="componentTable" contenteditable="false">
 				<table class="table table-bordered" id="componentTable1" align="left">
 					<thead>
 						<tr>
-							<th width="20"><input type="checkbox" id="checkAllComponent" /></th>
-							<th>名称</th>
-							<th >类型</th>
-							<th>数据源</th>
+							<th width="40px"><input type="checkbox" id="checkAllComponent" /></th>
+							<th width="260px">名称</th>
+							<th width="120px">类型</th>
+							<th width="260px">数据源</th>
 							<th width="60px">默认值</th>
-							<th>布局</th>
+							<th width="100px">布局</th>
 							<th>描述</th>
 							<th width="50px">序号</th>
 						</tr>
@@ -168,40 +153,35 @@
 		</div>
 	</div>
 
-		<%@ include file="/resources/include/common_form_js.jsp" %>
-		<script type="text/javascript" src="<%=basePath%>resources/plugins/zTree_v3/js/jquery.ztree.all-3.5.js"></script>
-		<script type="text/javascript" src="<%=basePath%>formdesigner/scripts/dynamicpage.constant.js"></script>
-		<script type="text/javascript" src="<%=basePath%>formdesigner/scripts/form.dpcommon.js"></script>
-		<script type="text/javascript" src="<%=basePath%>formdesigner/scripts/form.cpcommons.js"></script>
-		<script type="text/javascript" src="<%=basePath%>resources/scripts/jquery.serializejson.min.js"></script>
-		<script type="text/javascript" src="<%=basePath%>resources/scripts/map.js"></script>		
-		<script type="text/javascript" src="<%=basePath%>resources/scripts/layout.js"></script>
-		<script type="text/javascript" src="<%=basePath%>formdesigner/page/script/layout_tree.js"></script>
-		<script type="text/javascript" src="<%=basePath%>formdesigner/page/script/data.js"></script>
-		<script type="text/javascript" >//自己按需求可以提取单独的js文件 存放与resources/scripts文件夹下 命名规则：form.文件名.js
+	<%@ include file="/resources/include/common_form_js.jsp" %>
+	<script type="text/javascript" src="<%=basePath%>resources/plugins/zTree_v3/js/jquery.ztree.all-3.5.js"></script>
+	<script type="text/javascript" src="<%=basePath%>formdesigner/scripts/dynamicpage.constant.js"></script>
+	<script type="text/javascript" src="<%=basePath%>formdesigner/scripts/form.dpcommon.js"></script>
+	<script type="text/javascript" src="<%=basePath%>formdesigner/scripts/form.cpcommons.js"></script>
+	<script type="text/javascript" src="<%=basePath%>resources/scripts/jquery.serializejson.min.js"></script>
+	<script type="text/javascript" src="<%=basePath%>resources/scripts/map.js"></script>		
+	<script type="text/javascript" src="<%=basePath%>resources/scripts/layout.js"></script>
+	<script type="text/javascript" src="<%=basePath%>formdesigner/page/script/layout_tree.js"></script>
+	<script type="text/javascript" src="<%=basePath%>formdesigner/page/script/data.js"></script>
+	<script type="text/javascript" >//自己按需求可以提取单独的js文件 存放与resources/scripts文件夹下 命名规则：form.文件名.js
 		var basePath = "<%=basePath%>";
 			$(document).ready(function() {
 				var dynamicPageId=$("#id").val();
 				loadComponentTable(dynamicPageId);
-				//loadLayoutTable(dynamicPageId);
-				//loadCTabByLayout(dynamicPageId);
 				initLayoutTree(dynamicPageId);
 			});
 			
-			$("#deleteComponent").click(function(){
-					
-					var count = $(":checkbox[name='component']:checked").size();
-					if(count > 0){
-						var dynamicPageId = $("#id").val();
-						edit("component","remove",null,null,dynamicPageId);
-						return false;
-					}else{
-						alert("请选择组件操作");
-						return false;
-					}
-					
-					
-				});
+			$("#deleteComponent").click(function(){					
+				var count = $(":checkbox[name='component']:checked").size();
+				if(count > 0){
+					var dynamicPageId = $("#id").val();
+					edit("component","remove",null,null,dynamicPageId);
+					return false;
+				}else{
+					alert("请选择组件操作");
+					return false;
+				}				
+			});
 			
 			function initLayoutTree(dynamicPageId){
 				//发送ajax请求
@@ -264,16 +244,14 @@
 			   	 	url: "formdesigner/page/layout/layoutEdit.jsp",
 			    	data:postData,
 			    	onclose: function () {
-			          if (this.returnValue) {
-			                var ret= this.returnValue;
+			          	if (this.returnValue) {
+			           		var ret= this.returnValue;
 			                treeNode.name = ret.name;	  							
-					        var item = {"id":ret.id,"pId":ret.description,"name":ret.name};
-					         
+					        var item = {"id":ret.id,"pId":ret.description,"name":ret.name};				         
 					        treeObj.updateNode(treeNode,false);					    
 						    alertMessage("修改成功");
-				      }
+				      	}
 			    	}
-				//editLayout("layout","update",treeId.id,null,dynamicPageId);
 				}).showModal();
 				return false;
 				
@@ -297,18 +275,19 @@
 			            url: "formdesigner/page/layout/layoutEdit.jsp",
 			            data:postData,
 			            onclose: function () {
-			                   	if (this.returnValue) {
-			                		var ret= this.returnValue;	  							
-					            	var item = {"id":ret.id,"pId":ret.description,"name":ret.name};
-					            	$.fn.zTree.getZTreeObj("tree1").addNodes(treeNode,item);
-						    		alertMessage("添加成功");
-				                }
+		                   	if (this.returnValue) {
+		                		var ret= this.returnValue;	  							
+				            	var item = {"id":ret.id,"pId":ret.description,"name":ret.name};
+				            	$.fn.zTree.getZTreeObj("tree1").addNodes(treeNode,item);
+					    		alertMessage("添加成功");
+			                }
 			           }
 			
 					}).showModal();
 					return false;
 				});
 			};
+			
 			function removeHoverDom(treeId, treeNode) {
 				$("#addBtn_"+treeNode.tId).unbind().remove();
 			};
@@ -325,44 +304,37 @@
 				var _selects=new Array();
 				var treeObj = $.fn.zTree.getZTreeObj("tree1");
 				var nodes = treeObj.getCheckedNodes(true);
-				//alert(nodes);
 				if(layoutId!=null){
 					_selects.push(layoutId);
 				}else{
 					
 				}
-				//var loadUrl = "layout/getLayoutListByPageId.do"
-				//$(":checkbox[name="+objectType+"]:checked").each(function(){
-					//var value=$(this).val();
-					//_selects.push(value);
-			//	});
 				$.ajax({
-				url:"layout/deleteByAjax.do",
-				type:"POST",
-				async:false,
-				data:{_selects:_selects.join(",")},
-				success:function(ret){
-					if("1"==ret){
-						//fresh();
-						$(":checkbox[name='allLayout']").prop("checked",false);
-						loadLayoutTable(dynamicPageId);
-						$.fn.zTree.getZTreeObj("tree1").removeNode(treeNode);
-						alert("删除成功！");
-					}else{
-						alert("删除失败！");
-					}
-				
-				},
-				error: function (XMLHttpRequest, textStatus, errorThrown) { 
-	             	 alert(errorThrown); 
-		    	}
+					url:"layout/deleteByAjax.do",
+					type:"POST",
+					async:false,
+					data:{_selects:_selects.join(",")},
+					success:function(ret){
+						if("1"==ret){
+							//fresh();
+							$(":checkbox[name='allLayout']").prop("checked",false);
+							loadLayoutTable(dynamicPageId);
+							$.fn.zTree.getZTreeObj("tree1").removeNode(treeNode);
+							alert("删除成功！");
+						}else{
+							alert("删除失败！");
+						}
+					
+					},
+					error: function (XMLHttpRequest, textStatus, errorThrown) { 
+		             	 alert(errorThrown); 
+			    	}
 				});
 			}
 			
 			function zTreeOnClick(event, treeId, treeNode) {
 				var dynamicPageId=$("#id").val();
 				var objectType = "component";
- 			   	//alert(treeNode.tId + ", " + treeNode.name+", "+dynamicPageId);
  			   	$.ajax({
 					type:"GET",
 					url:"component/getComponentListByLayoutId.do",
@@ -370,16 +342,13 @@
 					async:false,
 					//回调函数
 					success:function(data){
-						//alert(data);
-						// clear table
 						$("#" + objectType + "t").empty();
 						$.each(data, function(idx, item) {
 							addRow(objectType, item);
 						});
-						
 					},
 				    error: function (XMLHttpRequest, textStatus, errorThrown) { 
-		                  alert(errorThrown); 
+		                alert(errorThrown); 
 				    }
 				});
 			};

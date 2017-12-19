@@ -62,15 +62,15 @@
 					<div class="col-md-4">
 						<select data-placeholder="请选择属性类型..." name="itemType" class="chosen-select form-control" tabindex="2">
 									<option value="int">int</option>
-									<option value="bigInt">bigInt</option>
-									<option value="varchar">varchar</option>
-									<option value="bool">bool</option>
-									<option value="boolean">boolean</option>
+									<option value="bigint">bigint</option>
 									<option value="float">float</option>
 									<option value="double">double</option>
+									<option value="varchar">varchar</option>
+									<option value="char">char</option>
+									<option value="text">text</option>
 									<option value="date">date</option>
-									<option value="1">一对一</option>
-									<option value="2">多对一</option>
+									<option value="datetime">datetime</option>
+									<option value="timestamp">timestamp</option>
 						</select>
 					</div>
 					<label class="col-md-2 control-label">属性长度</label>

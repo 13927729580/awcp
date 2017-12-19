@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import cn.org.awcp.formdesigner.core.domain.Attachment;
+import cn.org.awcp.venson.service.impl.FileServiceImpl.AttachmentVO;
 import cn.org.awcp.venson.util.PlatfromProp;
 
 /**
@@ -68,7 +68,7 @@ public interface FileService {
 	 * @param id
 	 * @return
 	 */
-	Attachment get(String id);
+	AttachmentVO get(String id);
 
 	/**
 	 * 获取文件
@@ -85,7 +85,7 @@ public interface FileService {
 	 *            附件实例
 	 * @return
 	 */
-	InputStream getInputStream(Attachment att);
+	InputStream getInputStream(AttachmentVO att);
 
 	/**
 	 * 删除文件
@@ -122,7 +122,7 @@ public interface FileService {
 	 * @param out
 	 * @return
 	 */
-	boolean download(Attachment att, OutputStream out);
+	boolean download(AttachmentVO att, OutputStream out);
 
 	/**
 	 * 

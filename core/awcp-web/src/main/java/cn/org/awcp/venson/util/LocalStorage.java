@@ -20,12 +20,15 @@ import com.alibaba.fastjson.JSONObject;
  */
 public class LocalStorage {
 	protected static final Log logger = LogFactory.getLog(LocalStorage.class);
-	public final static File awcpFile;
 	public static final String EMPTY_JSON = "{}";
+	private static File awcpFile;
 	private static JSONObject store;
+
 	static {
+		// 文件存放路径取jre路径
+		String path = System.getProperty("java.home") + File.separator + "awcp.json";
 		// 创建平台属性文件
-		awcpFile = new File("awcp.json");
+		awcpFile = new File(path);
 		// 如果文件不存在则初始化
 		if (!awcpFile.exists()) {
 			init();
@@ -47,7 +50,7 @@ public class LocalStorage {
 		// 新增对象
 		store.put(key, value);
 		// 写入文件
-		writeJSONToFile(awcpFile, store);
+		writeJSONToFile(store);
 
 	}
 
@@ -59,14 +62,14 @@ public class LocalStorage {
 	 * @param obj
 	 *            写入对象
 	 */
-	public static void writeJSONToFile(File file, Object obj) {
+	public static void writeJSONToFile(Object obj) {
 		FileOutputStream writer = null;
 		try {
 			if (!awcpFile.exists()) {
 				awcpFile.createNewFile();
 			}
 			// 创建文件写入对象
-			writer = new FileOutputStream(file);
+			writer = new FileOutputStream(awcpFile);
 			// 开始写入
 			JSON.writeJSONString(writer, obj);
 		} catch (IOException e) {
@@ -111,7 +114,7 @@ public class LocalStorage {
 		if (isEmpty())
 			return null;
 		Object data = store.remove(key);
-		writeJSONToFile(awcpFile, store);
+		writeJSONToFile(store);
 		return data;
 	}
 
@@ -148,7 +151,7 @@ public class LocalStorage {
 	 */
 	private static void init() {
 		store = new JSONObject();
-		writeJSONToFile(awcpFile, store);
+		writeJSONToFile(store);
 	}
 
 	/**
@@ -160,7 +163,7 @@ public class LocalStorage {
 		FileInputStream in = null;
 		try {
 			in = new FileInputStream(awcpFile);
-			return JSON.parseObject(IOUtils.toByteArray(in), JSONObject.class);
+			return JSON.parseObject(in, JSONObject.class);
 		} catch (Exception e) {
 			logger.debug("ERROR", e);
 			// 解析出错则创建新对象

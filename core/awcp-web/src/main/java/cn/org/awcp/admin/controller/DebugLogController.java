@@ -14,99 +14,103 @@ import java.util.Date;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
+
 import cn.org.awcp.core.utils.DateUtils;
 import cn.org.awcp.venson.controller.base.ControllerHelper;
 
 /**
  * 后台展示日志
+ * 
  * @author Administrator
  *
  */
 @Controller
 @RequestMapping("/debug")
 public class DebugLogController {
-	
+
 	/**
 	 * 展示日志
+	 * 
 	 * @return
 	 */
 	@RequestMapping("/view")
 	public ModelAndView viewLog() {
 		ModelAndView mv = new ModelAndView();
 		mv.setViewName("devAdmin/mylog");
-		String filePath = System.getProperty("catalina.base") + File.separator + "logs" + File.separator + 
-				"awcp-" + DateUtils.format(new Date(), "yyyy-MM-dd")  + ".log";
-		String result = "<hr/>" + randomAccessReadFile(filePath);	
+		String filePath = System.getProperty("catalina.base") + File.separator + "logs" + File.separator + "awcp-"
+				+ DateUtils.format(new Date(), "yyyy-MM-dd") + ".log";
+		String result = "<hr/>" + randomAccessReadFile(filePath);
 		mv.addObject("logs", result);
 		return mv;
 	}
 
-	private String randomAccessReadFile(String filePath){
-		RandomAccessFile rf = null;  
+	private String randomAccessReadFile(String filePath) {
+		RandomAccessFile rf = null;
 		StringBuffer sb = new StringBuffer();
-	    try {  
-	    	rf = new RandomAccessFile(filePath, "r");  //r:可读,w：可写
-	    	long len = rf.length(); 	//文件长度  	       
-	    	long nextend =  len - 1;	//指针是从0到length-1  
-	    	String line = null;  
-	    	int c = -1;  
-	    	int i = 400000;
-	    	rf.seek(nextend); 			//seek到最后一个字符 
-	    	while (nextend >= 0 && i>=0) {  
-	    		c = rf.read();	 
-	    		//只有行与行之间才有\r\n，这表示读到每一行上一行的末尾的\n，而执行完read后，  指针指到了这一行的开头字符 
-	    		if (c == '\n'){ 
-	    			line = rf.readLine();
-	    			if(line!=null){
-	    				//RandomAccessFile的readLine方法读取文本为ISO-8859-1，需要转化为utf-8
-	    				line =  new String(line.getBytes("ISO-8859-1"), "utf-8");  
-	    				if (line.length() > 4 && StringUtils.isNumeric(line.substring(0, 2)) && !line.contains("ERROR")) {
-							sb.insert(0,"<pre class=\"text-success\">" + line + "</pre>");
+		try {
+			rf = new RandomAccessFile(filePath, "r"); // r:可读,w：可写
+			long len = rf.length(); // 文件长度
+			if (len == 0) {
+				return "";
+			}
+			long nextend = len - 1; // 指针是从0到length-1
+			String line = null;
+			int c = -1;
+			int i = 400000;
+			rf.seek(nextend); // seek到最后一个字符
+			while (nextend >= 0 && i >= 0) {
+				c = rf.read();
+				// 只有行与行之间才有\r\n，这表示读到每一行上一行的末尾的\n，而执行完read后， 指针指到了这一行的开头字符
+				if (c == '\n') {
+					line = rf.readLine();
+					if (line != null) {
+						// RandomAccessFile的readLine方法读取文本为ISO-8859-1，需要转化为utf-8
+						line = new String(line.getBytes("ISO-8859-1"), "utf-8");
+						if (line.length() > 4 && StringUtils.isNumeric(line.substring(0, 2))
+								&& !line.contains("ERROR")) {
+							sb.insert(0, "<pre class=\"text-success\">" + line + "</pre>");
 						} else {
-							sb.insert(0,"<pre class=\"text-danger\">" + line + "</pre>");
-						}  
-	    			}
-	    		}  
-	    		//这一句必须在这个位置，如果在nextend--后，那么导致进0循环后去seek-1索引，报异常
-	    		//如果在read()以前，那么导致进入0循环时，因为read指针到1，第一行少读取一个字符  
-	    		rf.seek(nextend); 
-	    		if (nextend == 0) {// 当文件指针退至文件开始处，输出第一行  
-	    			line = rf.readLine();
-	    			if(line!=null){
-	    				//RandomAccessFile的readLine方法读取文本为ISO-8859-1，需要转化为utf-8
-	    				line =  new String(line.getBytes("ISO-8859-1"), "utf-8");  
-	    				if (line.length() > 4 && StringUtils.isNumeric(line.substring(0, 2)) && !line.contains("ERROR")) {
-							sb.insert(0,"<pre class=\"text-success\">" + line + "</pre>");
+							sb.insert(0, "<pre class=\"text-danger\">" + line + "</pre>");
+						}
+					}
+				}
+				// 这一句必须在这个位置，如果在nextend--后，那么导致进0循环后去seek-1索引，报异常
+				// 如果在read()以前，那么导致进入0循环时，因为read指针到1，第一行少读取一个字符
+				rf.seek(nextend);
+				if (nextend == 0) {// 当文件指针退至文件开始处，输出第一行
+					line = rf.readLine();
+					if (line != null) {
+						// RandomAccessFile的readLine方法读取文本为ISO-8859-1，需要转化为utf-8
+						line = new String(line.getBytes("ISO-8859-1"), "utf-8");
+						if (line.length() > 4 && StringUtils.isNumeric(line.substring(0, 2))
+								&& !line.contains("ERROR")) {
+							sb.insert(0, "<pre class=\"text-success\">" + line + "</pre>");
 						} else {
-							sb.insert(0,"<pre class=\"text-danger\">" + line + "</pre>");
-						}  
-	    			}
-    	        }
-	    		i--;
-	    		nextend--;            
-	    	}  
-	    } catch (FileNotFoundException e) {  
-	    	e.printStackTrace();  
-	    } catch (IOException e) {  
-	    	e.printStackTrace();  
-	    } finally {  
-	    	try {  
-	    		if (rf != null)  
-	    			rf.close();  
-	    	} catch (IOException e) {  
-	    		e.printStackTrace();  
-	    	}  
-	    }  
-	    return sb.toString();
+							sb.insert(0, "<pre class=\"text-danger\">" + line + "</pre>");
+						}
+					}
+				}
+				i--;
+				nextend--;
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			IOUtils.closeQuietly(rf);
+		}
+		return sb.toString();
 	}
-	
+
 	@SuppressWarnings("unused")
-	private String readFile(String filePath){
+	private String readFile(String filePath) {
 		BufferedReader br = null;
 		StringBuffer sb = new StringBuffer();
 		try {
@@ -131,15 +135,16 @@ public class DebugLogController {
 				}
 			}
 		}
-		if(sb.length()>200000){			
-			sb.substring(sb.length()-200000);
+		if (sb.length() > 200000) {
+			sb.substring(sb.length() - 200000);
 			sb.substring(sb.indexOf("<pre class=\"text-success\">"));
 		}
 		return sb.toString();
 	}
-	
+
 	/**
 	 * 下载日志
+	 * 
 	 * @param response
 	 * @return
 	 */
@@ -147,9 +152,9 @@ public class DebugLogController {
 	@RequestMapping(value = "/downloadLog")
 	public String downloadLog(HttpServletResponse response) {
 		String date = DateUtils.format(new Date(), "yyyy-MM-dd");
-		String filePath = System.getProperty("catalina.base") + File.separator + "logs" + 
-				File.separator + "awcp-" + date  + ".log";
-		String fileName = "awcp-" + date  + ".log";
+		String filePath = System.getProperty("catalina.base") + File.separator + "logs" + File.separator + "awcp-"
+				+ date + ".log";
+		String fileName = "awcp-" + date + ".log";
 		InputStream is = null;
 		try {
 			is = new FileInputStream(filePath);
@@ -160,7 +165,8 @@ public class DebugLogController {
 			int i;
 			try {
 				response.setContentType("application/x-msdownload;");
-				response.setHeader("Content-disposition","attachment; filename=" + ControllerHelper.processFileName(fileName));
+				response.setHeader("Content-disposition",
+						"attachment; filename=" + ControllerHelper.processFileName(fileName));
 				OutputStream out = response.getOutputStream(); // 读取文件流
 				i = 0;
 				byte[] buffer = new byte[4096];
@@ -172,10 +178,10 @@ public class DebugLogController {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-		} 
+		}
 		return null;
 	}
-	
+
 	/**
 	 * 清空日志
 	 */
@@ -184,8 +190,8 @@ public class DebugLogController {
 		ModelAndView mv = new ModelAndView();
 		mv.setViewName("redirect:/debug/view.do");
 		String date = DateUtils.format(new Date(), "yyyy-MM-dd");
-		File file = new File(System.getProperty("catalina.base") + File.separator + "logs" + File.separator + 
-				"awcp-" + date  + ".log");
+		File file = new File(System.getProperty("catalina.base") + File.separator + "logs" + File.separator + "awcp-"
+				+ date + ".log");
 		try {
 			if (!file.exists()) {
 				file.createNewFile();

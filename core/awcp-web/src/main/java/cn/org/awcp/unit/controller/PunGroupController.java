@@ -21,6 +21,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.alibaba.fastjson.JSON;
+
 import cn.org.awcp.core.domain.QueryChannelService;
 import cn.org.awcp.core.utils.SessionUtils;
 import cn.org.awcp.core.utils.constants.SessionContants;
@@ -38,8 +41,7 @@ import cn.org.awcp.unit.vo.PunGroupSysVO;
 import cn.org.awcp.unit.vo.PunGroupVO;
 import cn.org.awcp.unit.vo.PunResourceTreeNode;
 import cn.org.awcp.unit.vo.PunUserBaseInfoVO;
-
-import com.alibaba.fastjson.JSON;
+import cn.org.awcp.venson.common.SC;
 
 @Controller
 @RequestMapping("/unit")
@@ -104,7 +106,7 @@ public class PunGroupController {
 				} else {
 					PunGroupVO parentGroupVO = (PunGroupVO) groupService.findById(vo.getParentGroupId());
 					if (null == parentGroupVO) {
-						ra.addFlashAttribute("result", "No parent group exsit.");
+						ra.addFlashAttribute("result", "父组织不存在.");
 						return mv;
 					}
 					vo.setPid(parentGroupVO.getPid() + vo.getParentGroupId().toString() + ",");
@@ -113,14 +115,14 @@ public class PunGroupController {
 					vo.setParentGroupId(new Long(0));// 根节点的ParentId为0
 				}
 				groupService.addOrUpdate(vo);
-				ra.addFlashAttribute("result", "Updated successfully!");
+				ra.addFlashAttribute("result", "更新成功");
 				return mv;
 			} else {
-				model.addAttribute("result", "Fail:" + valMessage.toString() + "。");
+				model.addAttribute("result", "更新失败:" + valMessage.toString() + "。");
 			}
 		} catch (Exception e) {
 			logger.info("ERROR", e);
-			model.addAttribute("result", "System error.");
+			model.addAttribute("result", "系统错误，更新失败.");
 		}
 		return new ModelAndView("/unit/punGroup-edit");
 	}
@@ -137,7 +139,6 @@ public class PunGroupController {
 	public PunAJAXStatusVO punGroupAJAXSave(@ModelAttribute("vo") PunGroupVO vo) {
 		PunAJAXStatusVO respStatus = new PunAJAXStatusVO();
 		try {
-			// vo.setGroupType("1");
 			if (validate(vo)) {
 				if (null == vo.getParentGroupId() || vo.getParentGroupId().longValue() == 0) {
 					vo.setPid(null);
@@ -145,7 +146,7 @@ public class PunGroupController {
 					PunGroupVO parentGroupVO = (PunGroupVO) groupService.findById(vo.getParentGroupId());
 					if (null == parentGroupVO) {
 						respStatus.setStatus(1);
-						respStatus.setMessage("System error.");
+						respStatus.setMessage("系统错误.");
 					}
 					String pid = parentGroupVO.getPid();
 					if (pid == null)
@@ -160,12 +161,12 @@ public class PunGroupController {
 				respStatus.setData(vo);
 			} else {
 				respStatus.setStatus(1);
-				respStatus.setMessage("Failed:" + valMessage.toString());
+				respStatus.setMessage("更新失败:" + valMessage.toString());
 			}
 		} catch (Exception e) {
 			logger.info("ERROR", e);
 			respStatus.setStatus(1);
-			respStatus.setMessage("System error.");
+			respStatus.setMessage("系统错误.");
 		}
 		return respStatus;
 	}
@@ -181,14 +182,20 @@ public class PunGroupController {
 		ModelAndView mv = new ModelAndView();
 		mv.setViewName("/unit/punGroupTree-edit");
 		try {
-			PunGroupVO vo = groupService.findById(boxs[0]);
+			PunGroupVO vo;
+			if (boxs == null || boxs.length == 0) {
+				vo = groupService.findById(SC.GROUP_ID);
+			} else {
+
+				vo = groupService.findById(boxs[0]);
+			}
 			List<Map<String, Object>> data = jdbcTemplate.queryForList(
 					"select group_id id,parent_group_id pId,group_ch_name name,number,group_type groupType from p_un_group");
 			mv.addObject("groupJson", JSON.toJSON(data));
 			mv.addObject("vo", vo);
 		} catch (Exception e) {
 			logger.info("ERROR", e);
-			mv.addObject("result", "System error.");
+			mv.addObject("result", "系统错误.");
 		}
 		return mv;
 	}
@@ -202,7 +209,6 @@ public class PunGroupController {
 	@ResponseBody
 	@RequestMapping(value = "getGroupTreeByAjax")
 	public String getGroupTreeByAjax(Long[] boxs) {
-
 		try {
 			PunGroupVO vo = groupService.findById(boxs[0]);
 			String pid = vo.getPid();
@@ -227,7 +233,6 @@ public class PunGroupController {
 		} catch (Exception e) {
 			logger.info("ERROR", e);
 		}
-		// return mv;
 		return null;
 	}
 
@@ -247,7 +252,7 @@ public class PunGroupController {
 			mv.addObject("vo", vo1);
 		} catch (Exception e) {
 			logger.info("ERROR", e);
-			mv.addObject("result", "System error.");
+			mv.addObject("result", "系统错误.");
 		}
 		return mv;
 	}
@@ -269,12 +274,12 @@ public class PunGroupController {
 				respStatus.setStatus(0);
 			} else {
 				respStatus.setStatus(1);
-				respStatus.setMessage("Parent group not exsit.");
+				respStatus.setMessage("该组织不存在.");
 			}
 		} catch (Exception e) {
 			logger.info("ERROR", e);
 			respStatus.setStatus(1);
-			respStatus.setMessage("System error.");
+			respStatus.setMessage("系统错误.");
 		}
 		return respStatus;
 	}
@@ -297,10 +302,10 @@ public class PunGroupController {
 				groupSysService.addOrUpdate(groupSys);
 			}
 			mv.addObject("relateOrNot", '0');
-			mv.addObject("result", "Add successfully.");
+			mv.addObject("result", "添加成功.");
 		} catch (Exception e) {
 			logger.info("ERROR", e);
-			mv.addObject("result", "System error.");
+			mv.addObject("result", "系统错误.");
 		}
 		return mv;
 	}
@@ -320,7 +325,7 @@ public class PunGroupController {
 				groupSysService.deleteBySysAndGroup(sysId, group.getGroupId());
 			}
 			mv.addObject("relateOrNot", '1');
-			mv.addObject("resutl", "Cancel relate successful");
+			mv.addObject("resutl", "取消关联成功");
 		} catch (Exception e) {
 			logger.info("ERROR", e);
 		}
@@ -357,7 +362,6 @@ public class PunGroupController {
 				}
 			}
 			// 判断组是否已录入过,组织的下属机构无需填该项
-
 			if (null != gVOs && gVOs.size() > 0) {
 				valMessage.append(",该组织已经存在");
 				return false;
@@ -372,7 +376,6 @@ public class PunGroupController {
 	 * @param vo
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "searchByType")
 	public ModelAndView searchByType(HttpServletRequest request) {
 		ModelAndView mv = new ModelAndView();
@@ -434,28 +437,18 @@ public class PunGroupController {
 		return vo;
 	}
 
-	// 编辑组织number
+	/**
+	 * 编辑组织number
+	 * 
+	 * @param groupId
+	 * @param number
+	 * @return
+	 */
 	@RequestMapping(value = "editGroup")
 	public ModelAndView editGroup(Long groupId, String number) {
 		ModelAndView mv = new ModelAndView();
 		PunGroupVO pun = groupService.findById(groupId);
-
-		String str = "";
-		// 获取父级的排序
-		if (null != pun.getPid() && !"".equals(pun.getPid())) {
-			String ids[] = pun.getPid().split(",");
-			for (String s : ids) {
-				PunGroupVO tem = groupService.findById(Long.parseLong(s));
-				if ("".equals(tem.getNumber()) || null == tem.getNumber()) {
-					tem.setNumber("NO");
-				}
-				String nu = tem.getNumber();
-				// 只取父节点本身的排序
-				str += nu.substring(nu.lastIndexOf("-") + 1, nu.length()) + "-";
-			}
-		}
-
-		pun.setNumber(str + number);
+		pun.setNumber(number);
 		groupService.addOrUpdate(pun);
 		mv.setViewName("/unit/departmentList");
 		return mv;

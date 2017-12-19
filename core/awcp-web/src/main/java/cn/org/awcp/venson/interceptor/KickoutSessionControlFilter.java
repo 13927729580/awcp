@@ -1,5 +1,15 @@
 package cn.org.awcp.venson.interceptor;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Serializable;
+import java.util.Deque;
+import java.util.LinkedList;
+
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.shiro.cache.Cache;
 import org.apache.shiro.cache.CacheManager;
 import org.apache.shiro.session.Session;
@@ -16,19 +26,10 @@ import cn.org.awcp.venson.controller.base.ReturnResult;
 import cn.org.awcp.venson.controller.base.StatusCode;
 import cn.org.awcp.venson.util.CookieUtil;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.Serializable;
-import java.util.Deque;
-import java.util.LinkedList;
-
 /**
  * 只保留一个在线用户 <br>
  * 类说明:增加、查找、删除cookie
+ * 
  * @author venson
  */
 public class KickoutSessionControlFilter extends AccessControlFilter {
@@ -75,14 +76,14 @@ public class KickoutSessionControlFilter extends AccessControlFilter {
 		}
 
 		Session session = subject.getSession();
-		String username = (String) subject.getPrincipal();
+		String userAccount = CookieUtil.findCookie(SC.USER_ACCOUNT);
 		Serializable sessionId = session.getId();
 
 		// TODO 同步控制
-		Deque<Serializable> deque = cache.get(username);
+		Deque<Serializable> deque = cache.get(userAccount);
 		if (deque == null) {
 			deque = new LinkedList<Serializable>();
-			cache.put(username, deque);
+			cache.put(userAccount, deque);
 		}
 
 		// 如果队列里没有此sessionId，且用户没有被踢出；放入队列

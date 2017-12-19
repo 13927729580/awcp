@@ -54,6 +54,7 @@ import cn.org.awcp.formdesigner.core.domain.Document;
 import cn.org.awcp.metadesigner.application.MetaModelOperateService;
 import cn.org.awcp.metadesigner.application.MetaModelService;
 import cn.org.awcp.metadesigner.vo.MetaModelVO;
+import cn.org.awcp.unit.message.PunNotification;
 import cn.org.awcp.unit.service.PunGroupService;
 import cn.org.awcp.unit.service.PunPositionService;
 import cn.org.awcp.unit.service.PunUserBaseInfoService;
@@ -1140,9 +1141,10 @@ public abstract class BaseUtils {
 	public synchronized String getNumber(int digit) {
 		return getNumber(null, digit, true);
 	}
-	
+
 	/**
 	 * 每月自增编号
+	 * 
 	 * @param prefix
 	 * @param digit
 	 * @param isRandom
@@ -1189,9 +1191,9 @@ public abstract class BaseUtils {
 	}
 
 	public synchronized String getMonthIncNumber(String prefix, int digit) {
-		return getMonthIncNumber(prefix,digit,false);
+		return getMonthIncNumber(prefix, digit, false);
 	}
-	
+
 	/**
 	 * 生产一个自增的编号
 	 * 
@@ -1235,7 +1237,7 @@ public abstract class BaseUtils {
 	public synchronized String getIncNumber(String prefix, int digit) {
 		return getIncNumber(prefix, digit, false);
 	}
-	
+
 	public synchronized String getIncNumber(int digit, boolean isRandom) {
 		return getIncNumber(null, digit, isRandom);
 	}
@@ -1318,6 +1320,16 @@ public abstract class BaseUtils {
 		return jdbcTemplate;
 	}
 
+	/**
+	 * 获取Spring管理的bean
+	 * 
+	 * @param beanName
+	 * @return
+	 */
+	public Object getBean(String beanName) {
+		return Springfactory.getBean(beanName);
+	}
+
 	public void throwException(String msg) {
 		if (msg == null)
 			throw new PlatformException();
@@ -1339,32 +1351,49 @@ public abstract class BaseUtils {
 	 * 
 	 * @param title
 	 * @param url
+	 *            消息链接
 	 * @param receiver
+	 *            接收人（IDcardNumber）
 	 * @return
 	 */
 	public boolean pushSystemNotify(String title, String content, String url, String receiver) {
-		return pushNotify(title, content, "system", url, receiver);
+		return pushNotify(title, content, null, url, receiver);
 	}
 
 	/**
 	 * 门户手机用户消息推送
 	 * 
-	 * @param msg
-	 *            消息
+	 * @param title
+	 *            消息标题
+	 * @param content
+	 *            消息内容
 	 * @param type
 	 *            消息类型
 	 * @param url
 	 *            消息链接
 	 * @param receiver
-	 *            接受人
+	 *            接收人（IDcardNumber）
 	 * @return
 	 */
 	public boolean pushNotify(String title, String content, String type, String url, String receiver) {
 		type = StringUtils.defaultString(type, "system");
-		String sql = "insert into p_un_notification(ID,TITLE,CONTENT,TYPE,MSG_URL,CREATE_TIME,CREATOR,NOTICESTATE) values(?,?,?,?,?,?,'1')";
+		String sql = "insert into p_un_notification(ID,TITLE,CONTENT,TYPE,MSG_URL,CREATE_TIME,CREATOR,CREATE_NAME,STATE) values(?,?,?,?,?,?,?,?,'1')";
 		String msgId = UUID.randomUUID().toString();
-		if (this.excuteUpdate(sql, msgId, title, content, type, url, this.today(), ControllerHelper.getUserId()) == 1
-				&& this.pushNotifyUser(msgId, receiver)) {
+		String createTime = this.today();
+		PunUserBaseInfoVO user = ControllerHelper.getUser();
+		if (this.excuteUpdate(sql, msgId, title, content, type, url, this.today(), user.getUserId(),
+				user.getName()) == 1 && this.pushNotifyUser(msgId, receiver)) {
+			// 消息推送
+			PunNotification notification = new PunNotification();
+			notification.setContent(content);
+			notification.setCreateTime(createTime);
+			notification.setCreateName(user.getName());
+			notification.setId(msgId);
+			notification.setTitle(title);
+			notification.setType(type);
+			notification.setReceiver(receiver);
+			notification.setMsgUrl(url);
+			notification.sendScoket();
 			return true;
 		}
 		throw new PlatformException("消息发送失败");

@@ -68,14 +68,14 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 						<input type="hidden" name="sysStatus" value="${vo.sysStatus}"/>
 						<input name="sysAddress" class="form-control" id="sysAddress" type="text" placeholder="" value="${vo.sysAddress}">
 		            </div>
-		             <label class="col-md-2 control-label">默认数据源：</label>
+		            <%--  <label class="col-md-2 control-label">默认数据源：</label>
 		            <div class="col-md-4">
 		            	<select data-placeholder="请选择数据源..." id="defaultDataSource" class="chosen-select form-control" tabindex="2" name="defaultDataSource">
 							<c:forEach var="item" items="${ss}">
 								<option value="${item.id}" <c:if test="${source.id==item.id}">selected="selected"</c:if> >${item.name}</option>
 							</c:forEach>
 						</select>
-		            </div>
+		            </div> --%>
 				</div>
 				
 				<div class="form-group"><!-- 表单提交按钮区域 -->

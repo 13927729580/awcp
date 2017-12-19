@@ -96,8 +96,7 @@ public class PunRoleInfoController {
 		if (StringUtils.isNotBlank(vo.getRoleName())) {
 			criteria.andLike("ROLE_NAME", "%" + vo.getRoleName() + "%");
 		}
-		PageList<PunRoleInfoVO> vos = roleService.selectPagedByExample(example, currentPage, pageSize,
-				"ROLE_NAME DESC");
+		PageList<PunRoleInfoVO> vos = roleService.selectPagedByExample(example, currentPage, pageSize, "ROLE_ID ASC");
 
 		PunSystemVO sys = punSystemService.findById(sysId);
 		mv.addObject("sys", sys);
@@ -298,14 +297,11 @@ public class PunRoleInfoController {
 	 * @return
 	 */
 	@RequestMapping(value = "manageRole")
-	public ModelAndView manageRole(Long[] boxs, @RequestParam(value = "roleName", required = false) String roleName,
+	public ModelAndView manageRole(@RequestParam(value = "roleName", required = false) String roleName,
 			@RequestParam(value = "currentPage", required = false, defaultValue = "1") int currentPage,
 			@RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize) {
 		ModelAndView mv = new ModelAndView("/unit/punRoleInfo-choose-list");
 		try {
-			if (null == boxs || boxs.length > 1) {
-				return null;
-			}
 			if (currentPage < 1)
 				currentPage = 1;
 			if (pageSize < 10) {
@@ -313,7 +309,6 @@ public class PunRoleInfoController {
 			}
 			BaseExample example = new BaseExample();
 			Criteria critera = example.createCriteria();
-			critera.andEqualTo("SYS_ID", boxs[0]);
 			if (StringUtils.isNotEmpty(roleName)) {
 				critera.andLike("ROLE_NAME", "%" + roleName + "%");
 			}
@@ -323,7 +318,6 @@ public class PunRoleInfoController {
 			vo.setRoleName(roleName);
 			mv.addObject("vo", vo);
 			mv.addObject("vos", vos);
-			mv.addObject("sysId", boxs[0]);
 		} catch (Exception e) {
 			logger.info("ERROR", e);
 			mv.addObject("result", "System error.");

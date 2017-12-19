@@ -4,7 +4,7 @@ actView.put("actType.2000", "动作");
 actView.put("actType.2001", "保存带校验");
 actView.put("actType.2002", "返回");
 actView.put("actType.2003", "删除");
-actView.put("actType.2004", "启动流程");
+actView.put("actType.2004", "导入");
 actView.put("actType.2005", "流程调整");
 actView.put("actType.2006", "流程回撤");
 actView.put("actType.2007", "编辑审批人");

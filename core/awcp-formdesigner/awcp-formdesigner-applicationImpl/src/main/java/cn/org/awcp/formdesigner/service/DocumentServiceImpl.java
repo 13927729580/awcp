@@ -35,6 +35,7 @@ import cn.org.awcp.core.domain.QueryChannelService;
 import cn.org.awcp.core.utils.BeanUtils;
 import cn.org.awcp.core.utils.ContextContentUtils;
 import cn.org.awcp.core.utils.DateUtils;
+import cn.org.awcp.core.utils.MySqlSmartCountUtil;
 import cn.org.awcp.core.utils.SessionUtils;
 import cn.org.awcp.core.utils.constants.SessionContants;
 import cn.org.awcp.formdesigner.application.service.DocumentService;
@@ -286,12 +287,11 @@ public class DocumentServiceImpl implements DocumentService {
 				// 如果是多行数据，需分页，则需查询数据条数
 				if (dd.getIsPage() > 0) {
 					logger.debug("datasource[{}] : sql is mutiple and should be paged ", dd.getName());
-					StringBuilder countSql = new StringBuilder();
-					countSql.append("select count(*) from (").append(sql).append(") temp");
 					// 修改成具名参数
 					// totalCount
 					// =jdbcTemplate.queryForInt(countSql.toString());
-					totalCount = namedParameterJdbcTemplate.queryForObject(countSql.toString(), param, Integer.class);
+					String countSql = MySqlSmartCountUtil.getCountSql(sql, false);
+					totalCount = namedParameterJdbcTemplate.queryForObject(countSql, param, Integer.class);
 					logger.debug("datasource[{}] : countSql is {} data count {}", dd.getName(), countSql, totalCount);
 					paginator = new Paginator(currentPage, pageSize, totalCount);
 				} else {

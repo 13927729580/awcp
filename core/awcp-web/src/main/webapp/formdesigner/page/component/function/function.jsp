@@ -40,25 +40,7 @@
 			</div>
 			<div class="row tab-content">
 				<div class="tab-pane active" id="tab1">
-					<div class="form-group">
-						<label class="col-md-2 control-label required">数据显示别名</label>
-						<div class="col-md-4">
-							<input name="extra" class="form-control" id="extra" type="text" value="">
-						</div>
-					</div>
-					<div class="form-group">
-						<label class="col-md-2 control-label required">类型</label>
-						<div class="col-md-4">
-							<select id="funType" class="chosen-select form-control" tabindex="2" name="funType">
-								<option value="0">获取位置</option>
-								<option value="1">获取用户</option>
-								<option value="2">获取组织</option>	
-								<option value="3">其他</option>		
-							</select>
-						</div>
-					</div>
 					<%@ include file="/formdesigner/page/component/function/basicInfo.jsp" %>
-				
 				</div>
 				<div class="tab-pane" id="tab2"><%@ include file="/formdesigner/page/component/common/validators.jsp" %></div>
 				<div class="tab-pane " id="tab3">

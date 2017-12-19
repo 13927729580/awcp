@@ -200,7 +200,7 @@ public class PrintServiceImpl implements PrintService, ServletContextAware {
 			for (int i = 0; i < pageList.size(); i++) {
 
 				boolean isPageHidden = false;
-				DynamicPageVO page = formdesignerServiceImpl.findById (pageList.get(i));
+				DynamicPageVO page = formdesignerServiceImpl.findById(pageList.get(i));
 				if (StringUtils.isNotEmpty(page.getHiddenScript())) {
 					ScriptEngine engine = ScriptEngineUtils.getScriptEngine();
 					engine.put("dataMap", dataMap);
@@ -513,7 +513,7 @@ public class PrintServiceImpl implements PrintService, ServletContextAware {
 					for (int i = 0; i < pageList.size(); i++) {
 
 						boolean isPageHidden = false;
-						DynamicPageVO page = formdesignerServiceImpl.findById( pageList.get(i));
+						DynamicPageVO page = formdesignerServiceImpl.findById(pageList.get(i));
 						if (StringUtils.isNotEmpty(page.getHiddenScript())) {
 							ScriptEngine engine = ScriptEngineUtils.getScriptEngine();
 							engine.put("dataMap", dataMap);
@@ -903,8 +903,8 @@ public class PrintServiceImpl implements PrintService, ServletContextAware {
 		JSONArray columns = component.getJSONArray("columns");
 		columns = sortByOrderArray(columns);
 
-		BaseFont bfChinese = BaseFont.createFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED);// 设置中文字体
-		Font headFont = new Font(bfChinese, 12f, Font.NORMAL);// 设置字体大小
+		Font headFont = getFont(component.getString("fontfamily"), component.getString("fontsize"),
+				component.getString("textstyle"));// 设置字体大小
 
 		PdfPTable table = new PdfPTable(columns.size());
 		table.setSplitLate(false);
@@ -973,14 +973,13 @@ public class PrintServiceImpl implements PrintService, ServletContextAware {
 					if (map.get((String) o.getString("columnField")) != null) {
 						value = (String) map.get((String) o.getString("columnField"));
 					}
-					finalContent.add(new Chunk(value, headFont));
+					finalContent.add(new Chunk(value + "\n", headFont));
 					PdfPCell cell = new PdfPCell(finalContent);
 
 					cell.setUseAscender(true);
 					cell.setUseDescender(true);
 					cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 					cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-
 					if (StringUtils.isNotEmpty(lineHeight)) { // 设置行高
 						if (lineHeightType != null && "2".equals(lineHeightType)) {
 							cell.setMinimumHeight((float) (Float.parseFloat(lineHeight) * 28.35));
@@ -1546,7 +1545,7 @@ public class PrintServiceImpl implements PrintService, ServletContextAware {
 		BaseExample example = new BaseExample();
 		example.createCriteria().andEqualTo("dynamicPage_id", pageVO.getId());
 
-		List<Store> children = Store.selectByExample(Store.class,example);
+		List<Store> children = Store.selectByExample(Store.class, example);
 		List<JSONObject> mainLayouts = new ArrayList<JSONObject>();
 		// 布局组件
 		Map<String, JSONObject> map = new HashMap<String, JSONObject>();
@@ -1616,7 +1615,7 @@ public class PrintServiceImpl implements PrintService, ServletContextAware {
 		BaseExample example = new BaseExample();
 		example.createCriteria().andEqualTo("dynamicPage_id", id);
 
-		List<Store> children = Store.selectByExample(Store.class,example);
+		List<Store> children = Store.selectByExample(Store.class, example);
 		List<JSONObject> mainLayouts = new ArrayList<JSONObject>();
 		// 布局组件
 		Map<String, JSONObject> map = new HashMap<String, JSONObject>();
@@ -1699,7 +1698,6 @@ public class PrintServiceImpl implements PrintService, ServletContextAware {
 			bfChinese = BaseFont.createFont("STSongStd-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED);// 设置中文字体
 		}
 
-		BaseFont bfEnglish = BaseFont.createFont();
 		float fontSize = 12f;
 		if (fontSizeStr != null && !"".equals(fontSizeStr)) {
 
@@ -1743,7 +1741,6 @@ public class PrintServiceImpl implements PrintService, ServletContextAware {
 			bfChinese = BaseFont.createFont("STSongStd-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED);// 设置中文字体
 		}
 
-		BaseFont bfEnglish = BaseFont.createFont();
 		float fontSize = 12f;
 		if (fontSizeStr != null && !"".equals(fontSizeStr)) {
 
@@ -1876,7 +1873,6 @@ public class PrintServiceImpl implements PrintService, ServletContextAware {
 			try {
 				return IOUtils.toByteArray(in);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

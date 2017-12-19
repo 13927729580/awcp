@@ -34,10 +34,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.miemiedev.mybatis.paginator.domain.PageList;
 import com.github.miemiedev.mybatis.paginator.domain.Paginator;
@@ -45,6 +47,7 @@ import com.itextpdf.text.DocumentException;
 
 import cn.org.awcp.base.BaseController;
 import cn.org.awcp.core.domain.BaseExample;
+import cn.org.awcp.core.domain.SzcloudJdbcTemplate;
 import cn.org.awcp.core.utils.BeanUtils;
 import cn.org.awcp.core.utils.DateUtils;
 import cn.org.awcp.core.utils.SessionUtils;
@@ -68,11 +71,15 @@ import cn.org.awcp.formdesigner.utils.DocumentUtils;
 import cn.org.awcp.formdesigner.utils.PageBindUtil;
 import cn.org.awcp.formdesigner.utils.ScriptEngineUtils;
 import cn.org.awcp.metadesigner.application.MetaModelOperateService;
+import cn.org.awcp.metadesigner.application.MetaModelService;
 import cn.org.awcp.unit.vo.PunUserBaseInfoVO;
 import cn.org.awcp.venson.controller.base.ControllerHelper;
+import cn.org.awcp.venson.controller.base.ReturnResult;
+import cn.org.awcp.venson.controller.base.StatusCode;
 import cn.org.awcp.venson.exception.PlatformException;
 import cn.org.awcp.venson.service.FileService;
 import cn.org.awcp.venson.service.QueryService;
+import cn.org.awcp.venson.util.BeanUtil;
 import jxl.Cell;
 import jxl.CellView;
 import jxl.Sheet;
@@ -113,6 +120,9 @@ public class DocumentController extends BaseController {
 
 	@Resource(name = "metaModelOperateServiceImpl")
 	private MetaModelOperateService meta;
+
+	@Autowired
+	SzcloudJdbcTemplate jdbcTemplate;
 
 	/**
 	 *
@@ -196,6 +206,7 @@ public class DocumentController extends BaseController {
 			}
 			logger.debug("end init request parameters ");
 			docVo.setRequestParams(map);
+			String isRead = request.getParameter("IsRead");
 
 			Map<String, Object> root = new HashMap<String, Object>();
 			logger.debug("start init engine ");
@@ -206,13 +217,13 @@ public class DocumentController extends BaseController {
 			engine.put("root", root);
 			logger.debug("end init engine ");
 			// 分页
-			Integer currentPage = 1;
-			Integer pageSize = 50;
-			if (StringUtils.isNotBlank(request.getParameter("currentPage"))) {
-				currentPage = Integer.parseInt(request.getParameter("currentPage"));
+			String currentPage = request.getParameter("currentPage");
+			String pageSize = request.getParameter("pageSize");
+			if (!StringUtils.isNumeric(currentPage)) {
+				currentPage = "1";
 			}
-			if (StringUtils.isNotBlank(request.getParameter("pageSize"))) {
-				pageSize = Integer.parseInt(request.getParameter("pageSize"));
+			if (!StringUtils.isNumeric(pageSize)) {
+				pageSize = docVo.getPageSize() == null ? "10" : docVo.getPageSize() + "";
 			}
 			String orderBy = map.get("orderBy");
 			String allowOrderBy = map.get("allowOrderBy");
@@ -225,8 +236,8 @@ public class DocumentController extends BaseController {
 			docVo.setAppListPageId(applist.toString());
 
 			logger.debug("start init dataMap ");
-			Map<String, List<Map<String, String>>> dataMap = documentServiceImpl.initDocumentData(currentPage, pageSize,
-					docVo, engine, pageVO);
+			Map<String, List<Map<String, String>>> dataMap = documentServiceImpl
+					.initDocumentData(Integer.parseInt(currentPage), Integer.parseInt(pageSize), docVo, engine, pageVO);
 			logger.debug("end init engine ");
 			docVo.setListParams(dataMap);
 
@@ -244,7 +255,7 @@ public class DocumentController extends BaseController {
 			logger.debug("end find components the size is " + components.size());
 			logger.debug("start init components status");
 			logger.debug("components : " + JSON.toJSONString(components, true));
-			DocUtils.calculateCompents(docVo, others, status, components, dataMap, engine);
+			DocUtils.calculateCompents(docVo, others, status, components, dataMap, engine, isRead);
 			logger.debug("end init components status");
 			logger.debug("start init pageacts status");
 
@@ -253,7 +264,8 @@ public class DocumentController extends BaseController {
 					StoreService.PAGEACT_CODE + "%");
 			List<StoreVO> stores = storeServiceImpl.selectPagedByExample(actExample, 1, Integer.MAX_VALUE, null);
 			Map<String, Map<String, Object>> pageActStatus = new HashMap<String, Map<String, Object>>();
-			DocUtils.calculateStores(map, stores, pageActStatus, engine, others);
+
+			DocUtils.calculateStores(map, stores, pageActStatus, engine, others, isRead);
 			logger.debug("end init pageacts status");
 
 			root.put("pageActStatus", pageActStatus);
@@ -306,7 +318,7 @@ public class DocumentController extends BaseController {
 			root.put("session", sessionMap);
 			root.put("vo", docVo);
 			root.put("currentPage", currentPage);
-
+			root.put("IsRead", isRead);
 			logger.debug("start render template");
 			String s = FreeMarkers.renderString(templateString, root);
 			root.clear();
@@ -322,13 +334,13 @@ public class DocumentController extends BaseController {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@RequestMapping(value = "/excute")
 	public ModelAndView excuteAct(HttpServletRequest request, HttpServletResponse response) throws DocumentException {
-		cn.org.awcp.core.domain.SzcloudJdbcTemplate jdbcTemplate1 = Springfactory.getBean("jdbcTemplate");
 		ModelAndView mv = new ModelAndView();
 		String actId = request.getParameter("actId");
 		String pageId = request.getParameter("dynamicPageId");
 		String docId = request.getParameter("docId");
 		String update = request.getParameter("update");
 		String[] _selects = request.getParameterValues("_selects");// 列表页面才能使用
+		DocumentVO docVo = null;
 		if (StringUtils.isBlank(actId)) {
 			mv.addObject("dynamicPageId", pageId);
 			mv.addObject("docId", docId);
@@ -344,10 +356,10 @@ public class DocumentController extends BaseController {
 			isUpdate = update.equalsIgnoreCase("true");
 		}
 
-		DocumentVO docVo = new DocumentVO();
 		if (pageVO.getPageType() == 1002) { // 表单页面
 			// 初始化表单数据
 			docVo = documentServiceImpl.findById(docId);
+			docVo = BeanUtil.instance(docVo, DocumentVO.class);
 			docVo.setUpdate(isUpdate);
 			docVo.setDynamicPageId(pageId);
 			docVo.setDynamicPageName(pageVO.getName());
@@ -382,10 +394,10 @@ public class DocumentController extends BaseController {
 		if (StringUtils.isNotBlank(act.getServerScript())) {
 			String ret = null;
 			try {
-				jdbcTemplate1.beginTranstaion();
+				jdbcTemplate.beginTranstaion();
 				String script = StringEscapeUtils.unescapeHtml4(act.getServerScript());
 				ret = (String) engine.eval(script);
-				jdbcTemplate1.commit();
+				jdbcTemplate.commit();
 				if (ret != null && (ret.startsWith("redirect:") || ret.startsWith("forward:"))) {
 					mv.setViewName(ret);
 					return mv;
@@ -393,7 +405,7 @@ public class DocumentController extends BaseController {
 			} catch (Exception e) {
 				logger.info("ERROR", e);
 				try {
-					jdbcTemplate1.rollback();
+					jdbcTemplate.rollback();
 				} catch (Exception e1) {
 					logger.info("ERROR", e);
 				}
@@ -403,8 +415,6 @@ public class DocumentController extends BaseController {
 			Integer actType = act.getActType();
 			// 根据actType 执行其默认操作
 			switch (actType) {
-			case 2000:
-				break;
 			case 2001:// 保存--不带流程，
 				if (user.getUserId() != null) {
 					docVo.setLastmodifier(String.valueOf(user.getUserId()));
@@ -460,17 +470,13 @@ public class DocumentController extends BaseController {
 					String viewName = "redirect:/document/view.do?dynamicPageId=" + pageId;
 					mv.setViewName(viewName);
 					return mv;
-				} else {
-					// TODO 返回并提示没有选择记录
 				}
-				break;
-			case 2008:// 保存带流程
 				break;
 			case 2009:// 新增
 				mv.addObject("dynamicPageId", act.getExtbute().get("target"));
 				mv.setViewName("redirect:/document/view.do");
 				return mv;
-			case 2010:// 打开或审批
+			case 2010:// 编辑
 				if (_selects != null && _selects.length == 1) {
 					BaseExample baseExample = new BaseExample();
 					baseExample.createCriteria().andEqualTo("RECORD_ID", _selects[0]);
@@ -497,54 +503,6 @@ public class DocumentController extends BaseController {
 						return mv;
 					}
 				}
-				break;
-			case 2011:// 流程流转
-				break;
-			case 2012:// 打开
-				if (_selects != null && _selects.length == 1) {
-					BaseExample baseExample = new BaseExample();
-					baseExample.createCriteria().andEqualTo("RECORD_ID", _selects[0]);
-					List<DocumentVO> documents = documentServiceImpl.findPageByExample(baseExample, 1,
-							Integer.MAX_VALUE, null);
-					if (documents != null && documents.size() > 0) {
-						// 只读方式打开
-						mv.setViewName("redirect:/document/view.do?id=" + documents.get(0).getRecordId()
-								+ "&dynamicPageId=" + documents.get(0).getDynamicPageId());
-						return mv;
-					} else {
-
-					}
-				}
-				break;
-			case 2013:// 审批
-				if (_selects != null && _selects.length == 1) {
-					BaseExample baseExample = new BaseExample();
-					baseExample.createCriteria().andEqualTo("RECORD_ID", _selects[0]);
-					List<DocumentVO> documents = documentServiceImpl.findPageByExample(baseExample, 1,
-							Integer.MAX_VALUE, null);
-					List<DocumentVO> workflowDoc = new ArrayList<DocumentVO>();
-					List<DocumentVO> noneProcessDoc = new ArrayList<DocumentVO>();
-					if (documents != null && documents.size() > 0) {
-						for (DocumentVO document : documents) {
-							if (StringUtils.isNotBlank(document.getWorkflowId())) {
-								workflowDoc.add(document);
-							} else {
-								noneProcessDoc.add(document);
-							}
-						}
-					}
-					if (workflowDoc.size() > 0) {// 流程相关
-
-					} else if (noneProcessDoc.size() > 0) {// 流程无关
-						// 判断用户权限 有权限直接打开
-						mv.setViewName("redirect:/document/view.do?recordId=" + _selects[0] + "&dynamicPageId="
-								+ noneProcessDoc.get(0).getDynamicPageId());
-						return mv;
-					}
-				} else {
-					// 返回并提示选择只能选择一条记录
-				}
-
 				break;
 			case 2014:// pdf打印
 				// 1、准备参数
@@ -580,38 +538,6 @@ public class DocumentController extends BaseController {
 				}
 				return null;
 
-			case 2015:// 保存--不带流程，
-				docVo.setLastmodifier(String.valueOf(user.getUserId()));
-				docVo.setAuditUser(String.valueOf(user.getUserId()));
-				// 设置doc 记录为草稿状态
-				docVo.setState("草稿");
-				if (docVo.isUpdate()) {
-					// 更新数据
-					for (Iterator<String> it = docVo.getListParams().keySet().iterator(); it.hasNext();) {
-						String o = it.next();
-						utils.updateData(o);
-					}
-					// 更新document 记录
-					// 最后修改时间
-					docVo.setLastmodified(new Date(System.currentTimeMillis()));
-					utils.saveDocument();
-				} else {
-					// 创建时间
-					docVo.setCreated(new Date(System.currentTimeMillis()));
-					docVo.setAuthorId(user.getUserId());
-					// 最后修改时间
-					docVo.setLastmodified(docVo.getCreated());
-					// 保存数据
-					// 向document插入数据
-					for (Iterator<String> it = docVo.getListParams().keySet().iterator(); it.hasNext();) {
-						docVo.setId("");
-						String o = it.next();
-						utils.saveData(o);
-						utils.saveDocument();
-					}
-					utils.saveDocument();
-				}
-				break;
 			case 2016:// Excel导出
 				// 1、准备参数
 				String excelScript = act.getExtbute().get("script");
@@ -649,63 +575,61 @@ public class DocumentController extends BaseController {
 					logger.info("ERROR", e);
 				}
 				return null;
-			case 2017:// 保存并返回
-				if (user.getUserId() != null) {
-					docVo.setLastmodifier(String.valueOf(user.getUserId()));
-					docVo.setAuditUser(String.valueOf(user.getUserId()));
-				}
-				if (docVo.isUpdate()) {
-					// 更新数据
-					for (Iterator<String> it = docVo.getListParams().keySet().iterator(); it.hasNext();) {
-						String o = it.next();
-						utils.updateData(o);
-					}
-					// 更新document 记录
-					// 最后修改时间
-					docVo.setLastmodified(new Date(System.currentTimeMillis()));
-					utils.saveDocument();
-
-				} else {
-					// 创建时间
-					docVo.setCreated(new Date(System.currentTimeMillis()));
-					docVo.setAuthorId(user.getUserId());
-					// 最后修改时间
-					docVo.setLastmodified(docVo.getCreated());
-					// 保存数据
-					// 向document插入数据
-					for (Iterator<String> it = docVo.getListParams().keySet().iterator(); it.hasNext();) {
-						docVo.setId("");
-						String o = it.next();
-						utils.saveData(o);
-						utils.saveDocument();
-					}
-					utils.saveDocument();
-				}
-				backId = null;
-				obt = utils.getThingFromSession("backId");
-				if (obt != null) {
-					backId = (Long) obt;
-				} else {
-					backId = Long.parseLong(act.getExtbute().get("target"));
-				}
-				mv.setViewName("redirect:/document/view.do?dynamicPageId=" + backId);
-				return mv;
 
 			default:
 				break;
 			}
-			// 调用流程接口
 
 		}
 
 		// 数据校验
 		// 根据Map和模型，组装Map（documentVo.params），key为模型item的code
-		// 读取actId对应的act中的actScript，获得jsrunner，执行脚本，该跳转跳转，该返回返回，根据actType来确定
-		// 默认跳转到document/view，即当前页面。跳转或者返回只能
 		mv.addObject("dynamicPageId", pageId);
 		mv.addObject("id", docVo.getId());
 		mv.setViewName("redirect:/document/view.do");
 		return mv;
+	}
+
+	/***
+	 * 执行动作脚本
+	 * 
+	 * @param actId
+	 *            动作ID
+	 * @param request
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(value = "executeAct", method = RequestMethod.GET)
+	public ReturnResult executeAct(String actId, HttpServletRequest request) {
+		ReturnResult result = ReturnResult.get();
+		StoreVO store = storeServiceImpl.findById(actId);
+		if (store == null) {
+			return result.setStatus(StatusCode.FAIL.setMessage("动作脚本为空，无效执行"));
+		}
+		PageActVO act = JSON.parseObject(store.getContent(), PageActVO.class);
+		// 初始化脚本解释执行器,加载全局工具类
+		ScriptEngine engine = ScriptEngineUtils.getScriptEngine();
+		engine.put("request", request);
+		engine.put("session", request.getSession());
+		// 如跳转、返回之类的
+		if (StringUtils.isNotBlank(act.getServerScript())) {
+			try {
+				jdbcTemplate.beginTranstaion();
+				String script = StringEscapeUtils.unescapeHtml4(act.getServerScript());
+				Object data = engine.eval(script);
+				result.setStatus(StatusCode.SUCCESS).setData(data);
+				jdbcTemplate.commit();
+				return result;
+			} catch (Exception e) {
+				logger.debug("ERROR", e);
+				jdbcTemplate.rollback();
+				result.setStatus(StatusCode.FAIL.setMessage("执行脚本出错"));
+				return result;
+			}
+		} else {
+			result.setStatus(StatusCode.FAIL.setMessage("动作脚本为空，无效执行"));
+			return result;
+		}
 	}
 
 	@ResponseBody
@@ -857,6 +781,9 @@ public class DocumentController extends BaseController {
 		if (pageVO.getPageType() == 1002) { // 表单页面
 			// 初始化表单数据
 			docVo = documentServiceImpl.findById(docId);
+			if (docVo == null) {
+				docVo = new DocumentVO();
+			}
 			docVo.setUpdate(isUpdate);
 			docVo.setDynamicPageId(pageId);
 			docVo.setDynamicPageName(pageVO.getName());
@@ -887,18 +814,17 @@ public class DocumentController extends BaseController {
 		engine.put("request", request);
 		// 如跳转、返回之类的
 		if (StringUtils.isNotBlank(act.getServerScript())) {
-			cn.org.awcp.core.domain.SzcloudJdbcTemplate jdbcTemplate1 = Springfactory.getBean("jdbcTemplate");
 			try {
 				String script = StringEscapeUtils.unescapeHtml4(act.getServerScript());
-				jdbcTemplate1.beginTranstaion();
+				jdbcTemplate.beginTranstaion();
 				Object o = engine.eval(script);
 				ControllerHelper.renderJSON(ControllerHelper.CONTENT_TYPE_HTML, o);
-				jdbcTemplate1.commit();
+				jdbcTemplate.commit();
 				return null;
 			} catch (Exception e) {
 				logger.info("ERROR", e);
 				result = e.getMessage();
-				jdbcTemplate1.rollback();
+				jdbcTemplate.rollback();
 			}
 		} else {
 			result = "script is null";
@@ -1296,6 +1222,9 @@ public class DocumentController extends BaseController {
 		return filename;
 	}
 
+	@Autowired
+	private MetaModelService metaModelServiceImpl;
+
 	/**
 	 * ajax刷新表格数据，如果传入的method为delete，则执行删除，返回查询列表数据
 	 * 
@@ -1303,32 +1232,62 @@ public class DocumentController extends BaseController {
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/refreshDataGrid")
-	public Map refreshDataGrid(HttpServletRequest request) {
-
+	public ReturnResult refreshDataGrid(HttpServletRequest request,
+			@RequestParam(value = "page", required = false, defaultValue = "1") int currentPage,
+			@RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize) {
+		ReturnResult result = ReturnResult.get();
 		String componentId = request.getParameter("componentId");
 
 		StoreVO s = storeServiceImpl.findById(componentId);
 
 		String method = request.getParameter("method");
 
+		JSONObject oo = JSON.parseObject(s.getContent());
+		String dataAlias = "";
+		if (request.getParameter("dataFile") != null) {
+			dataAlias = oo.getString(request.getParameter("dataFile"));
+		} else {
+			dataAlias = oo.getString("dataAlias");
+		}
+		String pageId = s.getDynamicPageId();
+		DynamicPageVO pageVo = formdesignerServiceImpl.findById(pageId);
+		Map<String, DataDefine> map = PageDataBeanWorker
+				.convertConfToDataDefines(StringEscapeUtils.unescapeHtml4(pageVo.getDataJson()));
+		DataDefine dd = map.get(dataAlias);
 		if ("delete".equals(method)) { // 删除
 			String selects = request.getParameter("_selects");
 			String[] _selects = null;
 			if (selects != null) {
 				_selects = selects.split(",");
 			}
-			String pageId = s.getDynamicPageId();
-			DynamicPageVO pageVO = formdesignerServiceImpl.findById(pageId);
+
 			DocumentUtils utils = DocumentUtils.getIntance();
 			if (_selects != null && _selects.length >= 1) {
 				for (String select : _selects) {
-					utils.deleteData(pageVO, select);
+					utils.deleteData(pageVo, select);
 				}
 			}
+		} else if ("save".equals(method)) {
+			String json = request.getParameter("json");
+			JSONArray arr = JSON.parseArray(json);
+			if (arr != null && !arr.isEmpty()) {
+				int size = arr.size();
+				for (int i = 0; i < size; i++) {
+					JSONObject obj = arr.getJSONObject(i);
+					try {
+						meta.update(obj.toJavaObject(Map.class),
+								metaModelServiceImpl.queryByModelCode(dd.getModelCode()).getTableName());
+					} catch (Exception e) {
+						result.setData(Collections.EMPTY_LIST).setTotal(0);
+						return result;
+					}
+				}
+			}
+
 		}
 
-		Map dataMap = getDataGridItems(request, s);
-		return dataMap;
+		getDataGridItems(request, s, dd, oo, currentPage, pageSize, result);
+		return result;
 	}
 
 	/**
@@ -1339,30 +1298,11 @@ public class DocumentController extends BaseController {
 	 *            表格组件
 	 * @return
 	 */
-	public Map getDataGridItems(HttpServletRequest request, StoreVO s) {
+	public void getDataGridItems(HttpServletRequest request, StoreVO s, DataDefine dd, JSONObject oo, int currentPage,
+			int pageSize, ReturnResult result) {
 
-		int currentPage = 1;
-		int pageSize = 10;
-		if (request.getParameter("currentPage") != null) {
-			currentPage = Integer.parseInt(request.getParameter("currentPage"));
-		}
-		if (request.getParameter("pageSize") != null) {
-			pageSize = Integer.parseInt(request.getParameter("pageSize"));
-		}
 		if (s != null) {
-			JSONObject oo = JSON.parseObject(s.getContent());
-			String dataAlias = "";
-			if (request.getParameter("dataFile") != null) {
-				dataAlias = oo.getString(request.getParameter("dataFile"));
-			} else {
-				dataAlias = oo.getString("dataAlias");
-			}
 
-			String pageId = s.getDynamicPageId();
-			DynamicPageVO pageVo = formdesignerServiceImpl.findById(pageId);
-			Map<String, DataDefine> map = PageDataBeanWorker
-					.convertConfToDataDefines(StringEscapeUtils.unescapeHtml4(pageVo.getDataJson()));
-			DataDefine dd = map.get(dataAlias);
 			ScriptEngine engine = ScriptEngineUtils.getScriptEngine();
 			DocumentVO docVo = new DocumentVO();
 			engine.put("request", request);
@@ -1370,12 +1310,14 @@ public class DocumentController extends BaseController {
 				PageList<Map<String, String>> pageList = documentServiceImpl.getDataListByDataDefine(dd, engine,
 						currentPage, pageSize, null);
 
-				if (pageList == null)
-					return null;
+				if (pageList == null || pageList.isEmpty()) {
+					result.setData(Collections.EMPTY_LIST).setTotal(0);
+					return;
+				}
 
 				// 操作显示脚本
 				Map<String, List<Map<String, String>>> dataMap = new HashMap<String, List<Map<String, String>>>();
-				dataMap.put(dataAlias + "_list", pageList);
+				dataMap.put(dd.getName() + "_list", pageList);
 				docVo.setListParams(dataMap);
 
 				String showScript = oo.getString("showScript");
@@ -1384,31 +1326,12 @@ public class DocumentController extends BaseController {
 						engine.eval(StringEscapeUtils.unescapeHtml4(showScript));
 					}
 				}
-
-				Map returnMap = new HashMap();
-				returnMap.put("currentPage", pageList.getPaginator().getPage());
-				returnMap.put("total", pageList.getPaginator().getTotalCount());
-				returnMap.put("totalPage", pageList.getPaginator().getTotalPages());
-				returnMap.put("data", pageList);
-				// 通用选择框需要的数据
-				if (request.getParameter("dataFile") != null) {
-					returnMap.put("zTreeId", oo.getString("zTreeId"));
-					returnMap.put("pId", oo.getString("pId"));
-					returnMap.put("zTreeName", oo.getString("zTreeName"));
-					if ("showDataItemCode".equals(request.getParameter("dataFile"))) {
-						returnMap.put("showName", oo.getString("showName"));
-						returnMap.put("showWhere", oo.getString("showWhere"));
-						returnMap.put("returnVal", oo.getString("returnVal"));
-					}
-				}
-
-				return returnMap;
+				result.setData(pageList).setTotal(pageList.getPaginator().getTotalCount());
 			} catch (ScriptException e) {
-				// TODO Auto-generated catch block
+				result.setStatus(StatusCode.FAIL.setMessage("服务器出错，请联系管理员"));
 				logger.info("ERROR", e);
 			}
 		}
-		return null;
 	}
 
 	@Resource(name = "IFileService")

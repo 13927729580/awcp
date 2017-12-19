@@ -43,6 +43,7 @@ import cn.org.awcp.metadesigner.vo.SysDataSourceVO;
 import cn.org.awcp.unit.service.PunSystemService;
 import cn.org.awcp.unit.vo.PunSystemVO;
 import cn.org.awcp.venson.controller.base.ControllerHelper;
+import cn.org.awcp.venson.util.BeanUtil;
 
 @Controller
 @RequestMapping("/metaModel")
@@ -85,7 +86,8 @@ public class MetaModelController extends BaseController {
 		try {
 			for (int i = 0; i < tableNames.length; i++) {
 				MetaModelVO modelVO = metaModelServiceImpl.queryByModelCode(tableNames[i]);
-				if (modelVO == null || StringUtils.isBlank(modelVO.getTableName())
+				modelVO=BeanUtil.instance(modelVO, MetaModelVO.class);
+				if (StringUtils.isBlank(modelVO.getTableName())
 						|| StringUtils.isBlank(modelVO.getId())) {
 					modelVO.setModelCode(tableNames[i]);
 					modelVO.setModelName(tableNames[i]);
@@ -718,7 +720,7 @@ public class MetaModelController extends BaseController {
 			PunSystemVO system = (PunSystemVO) obj;
 			c.andEqualTo("SYSTEM_ID", system.getSysId());
 		}
-		PageList<MetaModelVO> pl = this.metaModelServiceImpl.selectPagedByExample(be, currentPage, 25, "id desc");
+		PageList<MetaModelVO> pl = this.metaModelServiceImpl.selectPagedByExample(be, currentPage, 25, "seq desc");
 		model.addAttribute("list", pl);
 		model.addAttribute("currentPage", currentPage);
 		return "metadesigner/metaModel/findAll";

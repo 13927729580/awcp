@@ -146,10 +146,10 @@ public class PfmTemplateController {
 	}
 
 	@RequestMapping(value = "delete")
-	public ModelAndView punGroupDelete(String[] boxs, int currentPage, HttpServletRequest request) {
+	public ModelAndView punGroupDelete(String[] boxs, HttpServletRequest request) {
 		ModelAndView mv = new ModelAndView();
 		try {
-			mv.setViewName("redirect:/pfmTemplateController/pageList.do?currentPage=" + currentPage);
+			mv.setViewName("redirect:/pfmTemplateController/pageList.do");
 			for (String id : boxs) {
 
 				// 先删除文件
@@ -160,10 +160,8 @@ public class PfmTemplateController {
 				// 删除对应的记录
 				pfmTemplateService.remove(pfm);
 			}
-			mv.addObject("result", "删除成功！");
 		} catch (Exception e) {
 			logger.info("ERROR", e);
-			mv.addObject("result", "操作失败：系统异常");
 		}
 		return mv;
 	}
@@ -184,7 +182,6 @@ public class PfmTemplateController {
 				mv.addObject("vo", vo);
 			} catch (Exception e) {
 				logger.info("ERROR", e);
-				mv.addObject("result", "异常");
 			}
 		}
 		return mv;

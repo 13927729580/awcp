@@ -35,7 +35,6 @@
 					<li class="active"><a href="#tab1" data-toggle="tab">基本</a></li>
 					<li class=""><a href="#tab2" data-toggle="tab">校验</a></li>
 					<li class=""><a href="#tab3" data-toggle="tab">状态</a></li>
-					<li class=""><a href="#tab4" data-toggle="tab">格式</a></li>
 					<li class=""><a href="#tab5" data-toggle="tab">Excel导出</a></li>
 				</ul>
 			</div>
@@ -43,7 +42,6 @@
 				<div class="tab-pane active" id="tab1"><%@ include file="/formdesigner/page/component/column/basicInfo.jsp" %></div>
 				<div class="tab-pane" id="tab2"><%@ include file="/formdesigner/page/component/common/validators.jsp" %></div>
 				<div class="tab-pane " id="tab3"><%@ include file="/formdesigner/page/component/common/hidden-disabled-readonly-defaultvalue-show.jsp" %></div>
-				<div class="tab-pane " id="tab4"><%@ include file="/formdesigner/page/component/column/columnFormat.jsp" %></div>
 				<div class="tab-pane " id="tab5"><%@ include file="/formdesigner/page/component/column/columnExcel.jsp" %></div>
 			</div>
 		</form>

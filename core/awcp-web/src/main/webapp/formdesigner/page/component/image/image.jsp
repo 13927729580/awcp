@@ -60,16 +60,16 @@
 			$("#uploadType").val('<%=PlatfromProp.getValue("default_upload_type")%>')
 			$("#uploadType").on("change",function(){
 				if(this.value==1){
-					$("#filePathDiv").show();
+					$("#filePath").attr("disabled",false);
 				}else{
-					$("#filePathDiv").hide();
+					$("#filePath").attr("disabled",true);
 				}
 			})
 			initializeDocument("${componentType}","${_ComponentTypeName[componentType]}");
 			if($("#uploadType").val()==1){
-				$("#filePathDiv").show();
+				$("#filePath").attr("disabled",false);
 			}else{
-				$("#filePathDiv").hide();
+				$("#filePath").attr("disabled",true);
 			}
 			//var url = "<%=basePath%>component/validateComponentNameInPage.do?dynamicPageId="+$("#dynamicPageId").val()+"&componentName="+$("#name").val()+"&componentId="+$("#pageId").val();
 			//alert(url);

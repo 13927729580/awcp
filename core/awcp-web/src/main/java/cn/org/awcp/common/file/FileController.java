@@ -26,6 +26,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
@@ -35,10 +36,12 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
 import cn.org.awcp.core.utils.Tools;
-import cn.org.awcp.formdesigner.core.domain.Attachment;
 import cn.org.awcp.formdesigner.core.domain.Store;
 import cn.org.awcp.venson.controller.base.ControllerHelper;
+import cn.org.awcp.venson.controller.base.ReturnResult;
+import cn.org.awcp.venson.controller.base.StatusCode;
 import cn.org.awcp.venson.service.FileService;
+import cn.org.awcp.venson.service.impl.FileServiceImpl.AttachmentVO;
 import cn.org.awcp.venson.util.DocumentToHtml;
 import sun.misc.BASE64Decoder;
 
@@ -53,18 +56,17 @@ public class FileController {
 	@Resource(name = "IFileService")
 	private FileService fileService;
 
+	@ResponseBody
 	@RequestMapping(value = "/upload")
-	public String upload(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		JSONObject rtn = new JSONObject();
+	public ReturnResult upload(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ReturnResult result = ReturnResult.get();
 		// 创建一个通用的多部分解析器
 		CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver(
 				request.getSession().getServletContext());
-		List<Serializable> list = new ArrayList<>();
 		// 判断 request 是否有文件上传,即多部分请求
 		if (multipartResolver.isMultipart(request)) {
 			// 转换成多部分request
 			MultipartHttpServletRequest multiRequest = (MultipartHttpServletRequest) request;
-			// 取得request中的所有文件名
 			Iterator<String> iter = multiRequest.getFileNames();
 			String uploadType = request.getParameter("uploadType");
 			int type = StringUtils.isNumeric(uploadType) ? Integer.parseInt(uploadType) : FileService.DEFAULT;
@@ -76,35 +78,39 @@ public class FileController {
 				String uploadFolder = request.getParameter("uploadFolder");
 				filePath = getUploadPath(uploadFolder);
 			}
+			List<Serializable> list = new ArrayList<>();
 			while (iter.hasNext()) {
 				// 取得上传文件
-				MultipartFile file = multiRequest.getFile(iter.next());
-				if (file != null) {
-					// 取得当前上传文件的文件名称
-					String myFileName = file.getOriginalFilename();
-					// 如果名称不为"",说明该文件存在，否则说明该文件不存在
-					if (myFileName.trim() != "") {
-						String fileName = file.getOriginalFilename();
-						if (type == FileService.FOLDER) {
-							fileName = filePath + fileName;
-						}
-						Serializable id = fileService.save(file.getInputStream(), file.getContentType(), fileName, type,
-								"1".equals(isIndex));
-						if (id != null) {
-							list.add(id);
+				List<MultipartFile> files = multiRequest.getFiles(iter.next());
+				if (files != null && !files.isEmpty()) {
+					for (MultipartFile file : files) {
+						if (file != null) {
+							// 取得当前上传文件的文件名称
+							String myFileName = file.getOriginalFilename();
+							// 如果名称不为"",说明该文件存在，否则说明该文件不存在
+							if (myFileName.trim() != "") {
+								String fileName = file.getOriginalFilename();
+								if (type == FileService.FOLDER) {
+									fileName = filePath + fileName;
+								}
+								Serializable id = fileService.save(file.getInputStream(), file.getContentType(),
+										fileName, type, "1".equals(isIndex));
+								if (id != null) {
+									list.add(id);
+								}
+							}
 						}
 					}
 				}
 			}
-		}
-		if (list.size() > 0) {
-			rtn.put("flag", 1);
-			rtn.put("msg", StringUtils.join(list, ","));
+			if (list.size() > 0) {
+				return result.setStatus(StatusCode.SUCCESS).setData(StringUtils.join(list, ";"));
+			} else {
+				return result.setStatus(StatusCode.FAIL.setMessage("上传失败"));
+			}
 		} else {
-			rtn.put("flag", 3);
-			rtn.put("msg", "upload fail.");
+			return result.setStatus(StatusCode.FAIL.setMessage("未找到上传文件，上传失败"));
 		}
-		return rtn.toJSONString();
 	}
 
 	/**
@@ -118,7 +124,7 @@ public class FileController {
 	@RequestMapping(value = "/download")
 	public String download(HttpServletRequest request, HttpServletResponse response, String fileId) throws IOException {
 		boolean isSuccess = false;
-		Attachment att = fileService.get(fileId);
+		AttachmentVO att = fileService.get(fileId);
 		if (att != null) {
 			response.setContentType("application/x-msdownload;");
 			response.setHeader("Content-disposition",
@@ -126,7 +132,7 @@ public class FileController {
 			isSuccess = fileService.download(att, response.getOutputStream());
 		}
 		if (!isSuccess) {
-			return "redirect:" + ControllerHelper.getBasePath() + "images/file_lose.png";
+			return "redirect:" + fileLose();
 		}
 		return null;
 	}
@@ -138,28 +144,7 @@ public class FileController {
 		response.addHeader("Expires", new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toString());
 		boolean isSuccess = fileService.download(id, response.getOutputStream());
 		if (!isSuccess) {
-			return "redirect:" + ControllerHelper.getBasePath() + "images/img_lose.png";
-		}
-		return null;
-	}
-
-	/**
-	 * 富文本框中通过url访问上传都mogodb的图片
-	 * 
-	 * @param uuid
-	 * @param request
-	 * @param response
-	 * @return
-	 * @throws IOException
-	 */
-	@RequestMapping(value = "/getImage")
-	public String getImage(String uuid, HttpServletRequest request, HttpServletResponse response) throws IOException {
-		// 设置缓存
-		response.addHeader("Cache-Control", "max-age=86400");
-		response.addHeader("Expires", new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toString());
-		boolean isSuccess = fileService.download(uuid, response.getOutputStream());
-		if (!isSuccess) {
-			return "redirect:" + ControllerHelper.getBasePath() + "images/img_lose.png";
+			return "redirect:" + fileLose();
 		}
 		return null;
 	}
@@ -170,7 +155,6 @@ public class FileController {
 	@ResponseBody
 	@RequestMapping(value = "/generateImageByBase64Str")
 	public String generateImageByBase64Str(HttpServletRequest request, String imgStr) {// 对字节数组字符串进行Base64解码并生成图片
-		JSONObject resultObj = new JSONObject();
 		if (imgStr == null)
 			return "";// 图像数据为空
 		String[] imgStrs = imgStr.split(",");
@@ -187,10 +171,9 @@ public class FileController {
 			Serializable id = fileService.save(new ByteArrayInputStream(bytes), "img.jpg", "img/jpg",
 					FileService.MONGODB);
 			// 返回访问图片的url到富文本框中，通过getImage方法访问图片
-			resultObj.put("url", request.getContextPath() + "/common/file/getImage.do?uuid=" + id);
-			return resultObj.toJSONString();
+			return ControllerHelper.getBasePath() + "common/file/showPicture.do?id=" + id;
 		} catch (Exception e) {
-			return "";
+			return fileLose();
 		}
 	}
 
@@ -206,12 +189,18 @@ public class FileController {
 	 * @throws IOException
 	 */
 	@RequestMapping(value = "/batchDownload")
-	public String batchDownload(HttpServletRequest request, HttpServletResponse response, String[] fileIds)
-			throws IOException {
-
-		response.setContentType("application/x-msdownload;");
-		response.setHeader("Content-Disposition", "attachment;filename=download.zip");
-		boolean isSuccess = fileService.batchDownload(fileIds, response.getOutputStream());
+	public String batchDownload(HttpServletResponse response,
+			@RequestParam(value = "fileName", required = false, defaultValue = "download") String fileName,
+			String[] fileIds) throws IOException {
+		boolean isSuccess;
+		if (fileIds == null || fileIds.length == 0) {
+			isSuccess = false;
+		} else {
+			response.setContentType("application/x-msdownload;");
+			response.setHeader("Content-Disposition",
+					"attachment;filename=" + ControllerHelper.processFileName(fileName) + ".zip");
+			isSuccess = fileService.batchDownload(fileIds, response.getOutputStream());
+		}
 		if (!isSuccess) {
 			PrintWriter out = response.getWriter();
 			response.setContentType("text/html;charset=UTF-8");
@@ -230,33 +219,17 @@ public class FileController {
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/get")
-	public String get(String id) {
-		Attachment att = fileService.get(id);
-		InputStream in = fileService.getInputStream(att);
-		JSONObject rtn = new JSONObject();
+	public ReturnResult get(String id) {
+		ReturnResult result = ReturnResult.get();
+		AttachmentVO vo = fileService.get(id);
+		InputStream in = fileService.getInputStream(vo);
 		if (in != null) {
-			JSONObject o = transAttToJSON(att);
-			rtn.put("result", "1");
-			rtn.put("msg", o.toJSONString());
-			rtn.put("status", 0);
-			rtn.put("data", o.toJSONString());
+			result.setStatus(StatusCode.SUCCESS).setData(vo);
 			IOUtils.closeQuietly(in);
 		} else {
-			rtn.put("result", "3");
-			rtn.put("status", 0);
-			rtn.put("msg", "文件不存在");
+			result.setStatus(StatusCode.SUCCESS).setData(-1);
 		}
-		return rtn.toJSONString();
-	}
-
-	private JSONObject transAttToJSON(Attachment att) {
-		JSONObject o = new JSONObject();
-		o.put("id", att.getId());
-		o.put("length", att.getSize());
-		String tmp = att.getFileName();
-		tmp = tmp.substring(tmp.lastIndexOf("/") + 1);
-		o.put("filename", tmp);
-		return o;
+		return result;
 	}
 
 	/**
@@ -268,13 +241,17 @@ public class FileController {
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/delete")
-	public String delete(String[] ids, HttpServletRequest request, HttpServletResponse response) {
-		JSONObject rtn = new JSONObject();
-		fileService.delete(ids);
-		rtn.put("result", "1");
-		rtn.put("msg", "删除成功！");
-		rtn.put("status", 0);
-		return rtn.toJSONString();
+	public ReturnResult delete(String[] ids) {
+		ReturnResult result = ReturnResult.get();
+		if (ids == null || ids.length == 0) {
+			return result.setStatus(StatusCode.SUCCESS).setData(-1);
+		}
+		if (fileService.delete(true, ids)) {
+			result.setStatus(StatusCode.SUCCESS).setData(0);
+		} else {
+			result.setStatus(StatusCode.SUCCESS).setData(-1);
+		}
+		return result;
 	}
 
 	/**
@@ -286,18 +263,22 @@ public class FileController {
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/remove")
-	public String remove(String[] ids, HttpServletRequest request, HttpServletResponse response) {
-		JSONObject rtn = new JSONObject();
-		fileService.delete(false, ids);
-		rtn.put("result", "1");
-		rtn.put("msg", "删除成功！");
-		rtn.put("status", 0);
-		return rtn.toJSONString();
+	public ReturnResult remove(String[] ids) {
+		ReturnResult result = ReturnResult.get();
+		if (ids == null || ids.length == 0) {
+			return result.setStatus(StatusCode.SUCCESS).setData(-1);
+		}
+		if (fileService.delete(false, ids)) {
+			result.setStatus(StatusCode.SUCCESS).setData(0);
+		} else {
+			result.setStatus(StatusCode.SUCCESS).setData(-1);
+		}
+		return result;
 	}
 
 	@RequestMapping("/preview")
 	public String preview(HttpServletResponse response, String fileId) throws Exception {
-		Attachment att = Attachment.get(Attachment.class, fileId);
+		AttachmentVO att = fileService.get(fileId);
 		InputStream is = fileService.getInputStream(att);
 		String msg = "";
 		if (is != null) {
@@ -395,9 +376,13 @@ public class FileController {
 			return obj.toJSONString();
 		}
 		// 返回访问图片的url到富文本框中，通过getImage方法访问图片
-		obj.put("url", request.getContextPath() + "/common/file/getImage.do?uuid=" + uuid);
+		obj.put("url", ControllerHelper.getBasePath() + "common/file/showPicture.do?id=" + uuid);
 		return obj.toJSONString();
 
+	}
+
+	private String fileLose() {
+		return ControllerHelper.getBasePath() + "images/img_lose.png";
 	}
 
 	private void checkFile(HttpServletRequest request, HashMap<String, String> extMap, JSONObject obj, String dirName,

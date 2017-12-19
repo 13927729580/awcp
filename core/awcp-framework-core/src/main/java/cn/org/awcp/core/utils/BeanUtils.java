@@ -25,88 +25,93 @@ import java.util.HashMap;
 import java.util.List;
 
 public class BeanUtils {
-      
-    /**
-     * <b>实体值复制</b> <br>
-     * @author vakin jiang <br />
-           mailto:<a href="mailto:chiang.www@gmail.com">chiang.www@gmail.com</a>
-     * @version 1.0
-                at 2010-11-15
-     */
-    public static void copyProperties(Object from, Object to,boolean ignoreNull) {
-        try {
-            if(from == null || to == null) {
-            	return;
-            }
-            BeanInfo toBI = Introspector.getBeanInfo(to.getClass());
-            PropertyDescriptor[] toPD = toBI.getPropertyDescriptors();
 
-            BeanInfo fromBI = Introspector.getBeanInfo(from.getClass());
-            PropertyDescriptor[] fromPD = fromBI.getPropertyDescriptors();
+	/**
+	 * <b>实体值复制</b> <br>
+	 * 
+	 * @author vakin jiang <br />
+	 *         mailto:<a href="mailto:chiang.www@gmail.com">chiang.www@gmail.com</a>
+	 * @version 1.0 at 2010-11-15
+	 */
+	public static void copyProperties(Object from, Object to, boolean ignoreNull) {
+		try {
+			if (from == null || to == null) {
+				return;
+			}
+			BeanInfo toBI = Introspector.getBeanInfo(to.getClass());
+			PropertyDescriptor[] toPD = toBI.getPropertyDescriptors();
 
-            HashMap<String, PropertyDescriptor> fromMap = new HashMap<String, PropertyDescriptor>();
-            for (PropertyDescriptor pd : fromPD) {
-                fromMap.put(pd.getName(), pd);
-            }
+			BeanInfo fromBI = Introspector.getBeanInfo(from.getClass());
+			PropertyDescriptor[] fromPD = fromBI.getPropertyDescriptors();
 
-            for (PropertyDescriptor toP : toPD) {
+			HashMap<String, PropertyDescriptor> fromMap = new HashMap<String, PropertyDescriptor>();
+			for (PropertyDescriptor pd : fromPD) {
+				fromMap.put(pd.getName(), pd);
+			}
 
-                Method setMethod = toP.getWriteMethod();
+			for (PropertyDescriptor toP : toPD) {
 
-                PropertyDescriptor formP = fromMap.get(toP.getName());
-                if (formP == null)// 如果from没有此属性的get方法，跳过
-                    continue;
+				Method setMethod = toP.getWriteMethod();
 
-                Method getMethod = fromMap.get(toP.getName()).getReadMethod();
+				PropertyDescriptor formP = fromMap.get(toP.getName());
+				if (formP == null)// 如果from没有此属性的get方法，跳过
+					continue;
 
-                if (getMethod != null && setMethod != null) {
-                    Object result = getMethod.invoke(from);
-                    //
-                    if (ignoreNull && (result == null || "".equals(result.toString())))continue;
-                    
-                    try {
-                    	//属性名同，属性类型不同的情况
-                        Class<?> valParameterTypes = result.getClass();
-                        Class<?> targetParameterTypes = setMethod.getParameterTypes()[0];
-                        if(targetParameterTypes == java.util.Date.class && valParameterTypes == String.class){
-                        	result = DateUtils.parseDate(result.toString());
-                        }else if(targetParameterTypes == String.class && valParameterTypes == java.util.Date.class){
-                        	result = DateUtils.format((java.util.Date)result);
-                        }else if(targetParameterTypes == Integer.class && valParameterTypes == String.class){
-                        	result = Integer.parseInt(result.toString());
-                        }else if(targetParameterTypes == Long.class && valParameterTypes == String.class){
-                        	result = Long.parseLong(result.toString());
-                        }
-                        //
-                    	setMethod.invoke(to, result);
-                    } catch (Exception e) {}
-                }
-            }
-            
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-    
-    public static <T> T getNewInstance(Object from, Class<T> clazz) {
-        try {
-            T instance = clazz.newInstance();
-            copyProperties(from, instance,true);
-            return instance;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-    
-    public static <T> List<T> getNewList(Collection<?> src, Class<T> clazz) {
-        try {
-            List<T> result = new ArrayList<T>();
-            for (Object object : src) {
-                result.add(getNewInstance(object, clazz));
-            }
-            return result;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
+				Method getMethod = fromMap.get(toP.getName()).getReadMethod();
+
+				if (getMethod != null && setMethod != null) {
+					Object result = getMethod.invoke(from);
+					//
+					if (ignoreNull && (result == null || "".equals(result.toString())))
+						continue;
+
+					try {
+						// 属性名同，属性类型不同的情况
+						Class<?> valParameterTypes = result.getClass();
+						Class<?> targetParameterTypes = setMethod.getParameterTypes()[0];
+						if (targetParameterTypes == java.util.Date.class && valParameterTypes == String.class) {
+							result = DateUtils.parseDate(result.toString());
+						} else if (targetParameterTypes == String.class && valParameterTypes == java.util.Date.class) {
+							result = DateUtils.format((java.util.Date) result);
+						} else if (targetParameterTypes == Integer.class && valParameterTypes == String.class) {
+							result = Integer.parseInt(result.toString());
+						} else if (targetParameterTypes == Long.class && valParameterTypes == String.class) {
+							result = Long.parseLong(result.toString());
+						}
+						//
+						setMethod.invoke(to, result);
+					} catch (Exception e) {
+					}
+				}
+			}
+
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static <T> T getNewInstance(Object from, Class<T> clazz) {
+		if (from == null) {
+			return null;
+		}
+		try {
+			T instance = clazz.newInstance();
+			copyProperties(from, instance, true);
+			return instance;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static <T> List<T> getNewList(Collection<?> src, Class<T> clazz) {
+		try {
+			List<T> result = new ArrayList<T>();
+			for (Object object : src) {
+				result.add(getNewInstance(object, clazz));
+			}
+			return result;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 }

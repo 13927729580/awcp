@@ -43,11 +43,11 @@
 			</div>
 			<div class="row">
 			<form  method="post" id="manuList">	
+				<input type="hidden" id="pageId" name="pageId" value="${pageId}"/></th>
 				<table class="table datatable1 table-bordered">
 					<thead>
 						<tr>
 							<th class="hidden">
-								<input type="hidden" id="pageId" name="pageId" value="${pageId}"/></th>
 							<th>结点名</th>
 							<th>流程名</th>
 						</tr>

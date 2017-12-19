@@ -775,7 +775,7 @@ function loadCommonComponentData(storeObject){
 		if(componentObject.title)	$("#title").val(componentObject.title);
 		if(componentObject.enTitle)	$("#enTitle").val(componentObject.enTitle);
 		if(componentObject.placeholder)	$("#placeholder").val(componentObject.placeholder);
-		if(componentObject.required)	$("#required").val(componentObject.required);
+		if(componentObject.required=="1")$("#required").attr("checked", true);
 		if(componentObject.extra)	$("#extra").val(componentObject.extra);
 		if(componentObject.isSingle)$("#isSingle").val(componentObject.isSingle);
 		if(componentObject.funType) $("#funType").val(componentObject.funType);
@@ -956,13 +956,13 @@ function loadCommonComponentData(storeObject){
 				str+="<td><input style='width:100%' name='columns[][columnTitle]' id='columnTitle-"+index+"' value='"+item.columnTitle+"' type=text" + "/>"+"</td>";
 				str+="<td><input style='width:100%' name='columns[][columnField]' id='columnField-"+index+"' value='"+item.columnField+"' type=text" + "/>"+"</td>";
 				str+="<td><input style='width:100%' name='columns[][columnWidth]' id='columnWidth-"+index+"' value='"+item.columnWidth+"' type=text" + "/>"+"</td>";
-				str+="<td><input style='width:100%' name='columns[][order]' id='columnWidth-"+index+"' value='"+item.order+"' type=text" + "/>"+"</td>";
-				//var sortable = (item.sortable=='1')?true:false;
-				if(item.sortable=='1'){
-					str+="<td style='text-align:center;'>"+"<input type='checkbox' name='columns[][sortable]' id='sortable-'"+ index +"' value='1' checked/></td>";
-				}else{
-					str+="<td style='text-align:center;'>"+"<input type='checkbox' name='columns[][sortable]' id='sortable-'"+ index +"' value='1' /></td>";
-				}
+				str+="<td><input style='width:100%' name='columns[][order]' id='columnOrder-"+index+"' value='"+item.order+"' type=text" + "/>"+"</td>";
+				str+="<td style='text-align:center;'><select class='editType' name='columns[][editType]' id='editType-'"+ index +"' value='"+item.editType+"'>";
+				str+="<option "+(item.editType==0?"selected":"")+" value='0'>无</option><option "+(item.editType=="textbox"?"selected":"")+
+				" value='text'>文本</option><option "+(item.editType=="numberbox"?"selected":"")+" value='numberbox'>数字</option><option "+
+				(item.editType=="datebox"?"selected":"")+" value='datebox'>日期框</option><option "+(item.editType=="combobox"?"selected":"")
+				+" value='combobox'>下拉框</option><option "+(item.editType=="checkbox"?"selected":"")+" value='checkbox'>选择框</option></select></td>";
+				str+="<td><input class='editValue' "+(item.editType=="combobox"||item.editType=="checkbox"?"":"disabled='disabled'")+" style='width:100%' name='columns[][editValue]' id='editValue-"+index+"' value='"+item.editValue+"' type=text" + "/>"+"</td>";
 				str+="<td style='text-align:center;'><a href='javascript:void(0)' class='removeTr'>删除</a>"+"</td>";
 				str+="</tr>";
 				index++;
@@ -986,7 +986,7 @@ function loadCommonComponentData(storeObject){
 					str+="<td style='text-align:center;'>"+"<input type='checkbox' name='connditions[][ifFinal]' id='sortable-'"+ connIndex +"' value='1' /></td>";
 				}
 				
-				str+="<td style='text-align:center;'><a href='javascript:void(0)' class='removeTr'>删除</a>"+"</td>";
+				str+="<td style='text-align:center;'><a href='javascript:void(0)' class='removeConnTr'>删除</a>"+"</td>";
 				str+="</tr>";
 				connIndex++;
 				$("#connditionBody").append(str);
@@ -1049,6 +1049,8 @@ function loadCommonComponentData(storeObject){
 		if(componentObject.operateAdd) { $("input[name='operateAdd']").attr("checked","checked");}
 		if(componentObject.operateDelete) { $("input[name='operateDelete']").attr("checked","checked");}
 		if(componentObject.operateEdit) { $("input[name='operateEdit']").attr("checked","checked");}
+		if(componentObject.operateSave) { $("input[name='operateSave']").attr("checked","checked");}
+		if(componentObject.operateUndo) { $("input[name='operateUndo']").attr("checked","checked");}
 		
 		if(componentObject.alertPage) { 
 			$("#alertPage").val(componentObject.alertPage).trigger("change");
@@ -1117,12 +1119,33 @@ function loadCommonComponentData(storeObject){
 		}
 		//搜索条件
 		if(componentObject.selectOption){
-			$("#selectOption").val(componentObject.selectOption);
+			$("#selectOption").val(componentObject.selectOption);			
+		}
+		if(componentObject.selectLabel){
 			$("#selectLabel").val(componentObject.selectLabel);
-			$("#selectName").val(componentObject.selectName);
+		}
+		if(componentObject.selectName){
+			$("#selectName").val(componentObject.selectName);		
+		}
+		if(componentObject.textLabel){
 			$("#textLabel").val(componentObject.textLabel);
+		}
+		if(componentObject.textName){
 			$("#textName").val(componentObject.textName);
 		}
+		if(componentObject.dateSelectLabel){
+			$("#dateSelectLabel").val(componentObject.dateSelectLabel);
+		}
+		if(componentObject.dateSelectName){
+			$("#dateSelectName").val(componentObject.dateSelectName);
+		}
+		if(componentObject.userSelectLabel){
+			$("#userSelectLabel").val(componentObject.userSelectLabel);
+		}
+		if(componentObject.userSelectName){
+			$("#userSelectName").val(componentObject.userSelectName);
+		}
+		
 		//gridTable
 		//easyUi 所有表格
 		if(componentObject.gridType){

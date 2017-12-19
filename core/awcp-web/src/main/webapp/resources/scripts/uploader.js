@@ -109,41 +109,28 @@
 		uploader.on('uploadSuccess', function(file, response) {
 			$('#' + file.id).find('p.state').css('color', 'green').text('Uploaded');
 			$('#' + file.id).remove();
-			fileAjax("get", { 'id': response.msg }, function(result) {
+			fileAjax("get", { 'id': response.data }, function(result) {
 				if(result.data){
-					var item = eval("(" + result.msg + ")");
-					if(option.auto) {
-						var _file = item.filename.split(".");
-						var selectOption = option.$uploader.find('select.type');
-						var selectOptionText = selectOption.find("option[value=" + selectOption.val() + "]").text();
-						var fileNames = "";
-						for(var j = 0; j < _file.length - 1; j++) {
-							fileNames += _file[j] + "."
-						}
-						fileNames = fileNames.substring(0, fileNames.length - 1)
-						var tHtml = '<tr id="' + item.id + '" class="item"><td class="hidden formData text-center"><input id="boxs" type="hidden" value="' + item.id + '">' +
-							'<td  class="text-center"><a class="download" href="' + basePath + 'common/file/download.do?fileId=' + item.id + '" data-id="' + item.id + '">' + fileNames + '</a></td>' +
-							'<td  class="text-center">' + _file[_file.length - 1] + '</td>';
-						tHtml += option.isEditor ? ('<td data-id="' + selectOption.val() + '">' + selectOptionText + '</td>') : '';
-						tHtml += '<td  class="text-center">' + toMb(item.length) + 'mb</td></tr>';
-						option.$oldlist.find("table tbody").append(tHtml);
-						initTable();
-						setInterval(formatUploadTable, 100);
-					} else {
-						var dHtml = '<div id="' + item.id + '" class="item clearfix">' +
-							'<h4 class="info" data-size="' + item.length + '"><a data-backdrop="static" data-width="1000px" data-height="500px" data-iframe="' + basePath + 'common/file/preview.do?fileId=' + item.id + '" data-id="' + item.id + '" data-toggle="modal" class="download">' + item.filename + "</a>&nbsp;&nbsp;--" + toMb(item.length) + 'Mb<span class="cancel"><i class="icon-remove"></i></span></h4>' +
-							'</div>';
-						option.$oldlist.append(dHtml);
-						initTable();
-						setInterval(formatUploadTable, 100);
-					}
+					var item = result.data;
+					var tHtml = '<tr id="' + item.id + '" class="item"><td class="formData text-center"><input type="checkbox" name="_selects"/><input id="boxs" type="hidden" value="' + item.id + '">' +
+						'<td  class="text-center"><a class="download" data-toggle="modal" data-backdrop="static" data-width="1000px" data-height="500px" data-iframe="' + basePath + 'common/file/preview.do?fileId=' + item.id + '" data-id="' + item.id + '">' + item.fileName + '</a></td>' +
+						'<td  class="text-center">' + item.contentType + '</td>';
+					tHtml += '<td  class="text-center">' + toMb(item.size) + 'mb</td></tr>';
+					option.$oldlist.find("table tbody").append(tHtml);
 					option.fileNum = option.fileNum + 1;
-					option.fileSize = option.fileSize + item.length;
+					option.fileSize = option.fileSize + item.size;
+					option.$oldlist.off("click").on("click","input[type='checkbox']",function(){
+						if($(this).is(':checked')){
+							$(this).parent().parent().addClass("active");
+						}else{
+							$(this).parent().parent().removeClass("active");
+						}
+					})
 				}			
 			});
 
 			//增加文件至附件列表
-			var msg = (option.orgFile == "") ? response.msg : (";" + response.msg);
+			var msg = (option.orgFile == "") ? response.data : (";" + response.data);
 			option.orgFile = option.orgFile.concat(msg);
 			option.$uploader.find(".filenumber").text(option.fileNum);
 			option.$uploader.find(".filesize").text(toMb(option.fileSize));
@@ -194,39 +181,27 @@
 	//获取已上传文件列表
 	var getList = function(option) {
 		option.orgFile = option.$uploader.find(".orgfile").val(); //获取附件ids
-		if(option.orgFile != '') {
+		if(typeof(option.orgFile) == "string" ) {
 			option.fileArray = option.orgFile.split(";");
 			option.fileNum = option.fileArray.length;
 			var newFileNum = option.fileNum;
 			for(var i = 0; i < option.fileNum; i++) {
 				fileAjax("get", { 'id': option.fileArray[i] }, function(result) {
-					if(result.result == 1) {
-						var file = eval("(" + result.msg + ")");
-						if(option.auto) {
-							var _file = file.filename.split(".");
-							var fileNames = "";
-							for(var j = 0; j < _file.length - 1; j++) {
-								fileNames += _file[j] + "."
+					var file = result.data;
+					if(file !=-1) {
+						var tHtml = '<tr id="' + file.id + '" class="item"><td class="formData text-center"><input type="checkbox" name="_selects"/><input id="boxs" type="hidden" value="' + file.id + '"> </td>' +
+							'<td  class="text-center"><a class="download"  data-backdrop="static" data-width="1000px" data-height="500px"  data-toggle="modal" data-iframe="' + basePath + 'common/file/preview.do?fileId=' + file.id + '" data-id="' + file.id + '">' + file.fileName + '</a></td>' +
+							'<td  class="text-center">' + file.contentType + '</td>';
+						/*tHtml += option.isEditor ? ('<td>' + file.contentType + '</td>') : '';*/
+						tHtml += '<td  class="text-center">' + toMb(file.size) + 'mb</td></tr>';
+						option.$oldlist.find("table tbody").append(tHtml);
+						option.$oldlist.off("click").on("click","input[type='checkbox']",function(){
+							if($(this).is(':checked')){
+								$(this).parent().parent().addClass("active");
+							}else{
+								$(this).parent().parent().removeClass("active");
 							}
-							fileNames = fileNames.substring(0, fileNames.length - 1)
-							var tHtml = '<tr id="' + file.id + '" class="item"><td class="hidden formData text-center"><input id="boxs" type="hidden" value="' + file.id + '"> </td>' +
-								'<td  class="text-center"><a class="download"  data-backdrop="static" data-width="1000px" data-height="500px"  data-toggle="modal" data-iframe="' + basePath + 'common/file/preview.do?fileId=' + file.id + '" data-id="' + file.id + '">' + fileNames + '</a></td>' +
-								'<td  class="text-center">' + _file[_file.length - 1] + '</td>';
-							tHtml += option.isEditor ? ('<td>' + file.type + '</td>') : '';
-							tHtml += '<td  class="text-center">' + toMb(file.length) + 'mb</td></tr>';
-							option.$oldlist.find("table tbody").append(tHtml);
-							initTable();
-							setInterval(formatUploadTable, 100);
-						} else {
-							var dHtml = '<div id="' + file.id + '" class="item clearfix">';
-							dHtml += '<h4 class="info" data-size="' + file.length + '"><a class="download"  data-backdrop="static" data-toggle="modal" data-width="1000px" data-height="500px" data-iframe="' + basePath + 'common/file/preview.do?fileId=' + file.id + '" data-id="' + file.id + '">' + file.filename + "</a>&nbsp;&nbsp;--" + toMb(file.length) + 'Mb';
-							dHtml += option.isReadonly ? '' : '<span class="cancel"><i class="icon-remove"></i></span>';
-							dHtml += '<a href="' + basePath + 'common/file/download.do?fileId=' + file.id + '" class="submit btn btn-mini">下载</a>';
-							dHtml += '</h4></div>';
-							option.$oldlist.append(dHtml);
-							initTable();
-							setInterval(formatUploadTable, 100);
-						}
+						})
 						option.fileSize = option.fileSize + file.length;
 					} else {
 						newFileNum = newFileNum - 1;
@@ -243,7 +218,7 @@
 	//删除已上传文件;n为文件id
 	var deleteFile = function(id) {
 		if(id){
-			fileAjax("delete", { "ids": id }, function(result) {
+			fileAjax("remove", { "ids": id }, function(result) {
 				if(result.status==0){
 					return true;
 				}else{
@@ -254,13 +229,12 @@
 	};
 
 	var init = function(option) { //option:uploader参数；uploader:uploader标识符
+		//如果为只读，移除上传按钮
 		if(option.isReadonly) {
 			option.$uploader.find(".btns div:last-child").remove();
 			option.$uploader.find(".btns div:first-child").remove();
-		} //如果为只读，移除上传按钮
-		else {
-			option.$uploader.find(".btns div[id='MoreDownload']").remove();
 		}
+//		option.$uploader.find(".btns div[id='MoreDownload']").remove();
 		getList(option);
 		initUploader(option);
 		option.$uploader.find(".tips").html("提示: <label class='filenumber'>" + option.fileNum + "</label>/" + option.fileNumLimit + " 已上传, 文件大小 <label class='filesize'>" + toMb(option.fileSize) + "</label>/" + toMb(option.fileSizeLimit) + "Mb。");
@@ -317,7 +291,7 @@
 		}
 	});
 
-	$("body").on("click", ".uploader .oldlist .cancel", function() { //删除上传文件
+	$(".uploader").on("click", ".oldlist .cancel", function() { //删除上传文件
 		var _this = $(this),
 			_item = _this.parents(".item"),
 			_itemId = _item.attr("id"), //获取当前文件ID
@@ -342,14 +316,31 @@
 		_thisOption.item.destroy();
 		init(_thisOption, _optionId);
 	});
-
-	$("div[id='FileRemove']").bind("click", function(event) {
+	$(".uploader #MoreDownload").bind("click", function(event) {
+		var _option = $(this).parents(".uploader");
+		var _optionId = _option.attr("id");
+		var _thisOption = keyOption[_optionId];
+		var arr = [];
+		$(event.target).parent().parent().find(".uploader-list tbody tr.active").each(function() {		
+			var _itemId = $(this).children('td').eq(0).children('input[type="hidden"]').eq(0).val(); //获取当前文件ID			
+			arr.push(_itemId);
+		});	
+		if(arr.length == 0){
+			dialogAlert("请至少选择一项进行下载");
+		}else if(arr.length ==1){
+			location.href=basePath+"api/common/file/download?fileId="+arr[0];
+		}else{
+			location.href=basePath+"api/common/file/batchDownload?fileName=附件"+arr.map(m=>"&fileIds="+m).join('');
+		}
+		
+	})
+	$(".uploader #FileRemove").bind("click", function(event) {
 		var _option = $(this).parents(".uploader");
 		var _optionId = _option.attr("id");
 		var _thisOption = keyOption[_optionId];
 		var deleteArr = [];
-		$(event.target).parent().parent().find("table.table-datatable tbody tr.active").each(function() {		
-			var _itemId = $(this).children('td').eq(1).children('input').eq(0).val(); //获取当前文件ID			
+		$(event.target).parent().parent().find(".uploader-list tbody tr.active").each(function() {		
+			var _itemId = $(this).children('td').eq(0).children('input[type="hidden"]').eq(0).val(); //获取当前文件ID			
 			deleteFile(_itemId);
 			deleteArr.push(_itemId);
 		});	

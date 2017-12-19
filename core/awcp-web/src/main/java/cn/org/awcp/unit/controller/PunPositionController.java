@@ -14,16 +14,18 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import cn.org.awcp.core.utils.ConverToJson;
-import cn.org.awcp.unit.service.PunPositionService;
-import cn.org.awcp.unit.utils.HttpUtil;
-import cn.org.awcp.unit.vo.PunAJAXStatusVO;
-import cn.org.awcp.unit.vo.PunPositionVO;
 
 import com.github.miemiedev.mybatis.paginator.domain.PageList;
+
+import cn.org.awcp.core.utils.ConverToJson;
+import cn.org.awcp.unit.service.PunPositionService;
+import cn.org.awcp.unit.vo.PunPositionVO;
+import cn.org.awcp.venson.controller.base.ReturnResult;
+import cn.org.awcp.venson.controller.base.StatusCode;
 
 @Controller
 @RequestMapping("/punPositionController")
@@ -54,29 +56,25 @@ public class PunPositionController {
 		return mv;
 	}
 
+	@ResponseBody
 	@RequestMapping(value = "/save", method = RequestMethod.POST)
-	public void save(PunPositionVO punPosition, HttpServletResponse response) {
-		ModelAndView mv = new ModelAndView();
-		mv.setViewName("redirect:/punPositionController/pageList.do?groupId=" + punPosition.getGroupId());
-		PunAJAXStatusVO respStatus = new PunAJAXStatusVO();
+	public ReturnResult save(PunPositionVO punPosition, HttpServletResponse response) {
+		ReturnResult result = ReturnResult.get();
 		/**
 		 * 增加岗位唯一校验 ljw 2014-12-8
 		 */
 		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("groupId", punPosition.getGroupId());
 		params.put("name", punPosition.getName());
 		List<PunPositionVO> vos = punPositionService.queryResult("queryList", params);
 		if (null != vos && vos.size() > 0) {
-			respStatus.setStatus(1);
-			respStatus.setMessage("岗位" + punPosition + "已存在");
+			result.setStatus(StatusCode.FAIL.setMessage("岗位" + punPosition + "已存在"));
 		} else {
 			///////////////////////// end/////////////////////////////////
 			punPosition.setShortName(punPosition.getName());
 			punPositionService.save(punPosition);
-			respStatus.setStatus(0);
-			// ra.addFlashAttribute("result","保存成功");
+			result.setStatus(StatusCode.SUCCESS);
 		}
-		HttpUtil.writeDataToResponse(response, respStatus);
+		return result;
 	}
 
 	/**
@@ -90,10 +88,10 @@ public class PunPositionController {
 	 * @return
 	 */
 	@RequestMapping(value = "/remove")
-	public ModelAndView remove(long[] positionId, int groupId, RedirectAttributes ra) {
+	public ModelAndView remove(long[] positionId, RedirectAttributes ra) {
 
 		ModelAndView mv = new ModelAndView();
-		mv.setViewName("redirect:/punPositionController/pageList.do?groupId=" + groupId);
+		mv.setViewName("redirect:/punPositionController/pageList.do");
 		try {
 			if (null != positionId && positionId.length > 0) {
 				for (Long id : positionId) {
@@ -102,7 +100,6 @@ public class PunPositionController {
 					punPositionService.remove(p);
 				}
 			}
-			mv.addObject("groupId", groupId);
 			ra.addFlashAttribute("result", "成功删除" + positionId.length + "个岗位");
 		} catch (Exception e) {
 			ra.addFlashAttribute("result", "执行删除异常");
@@ -137,34 +134,29 @@ public class PunPositionController {
 		}
 	}
 
+	@ResponseBody
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
-	public void update(PunPositionVO punPosition, HttpServletResponse response) {
+	public ReturnResult update(PunPositionVO punPosition, HttpServletResponse response) {
+		ReturnResult result = ReturnResult.get();
 		logger.debug(punPosition.getGrade() + "");
-		ModelAndView mv = new ModelAndView();
-		mv.setViewName("redirect:/punPositionController/pageList.do?groupId=" + punPosition.getGroupId());
-		PunAJAXStatusVO respStatus = new PunAJAXStatusVO();
 		punPosition.setShortName(punPosition.getName());
 		punPositionService.update(punPosition, "update");
-		respStatus.setStatus(0);
-		HttpUtil.writeDataToResponse(response, respStatus);
+		result.setStatus(StatusCode.SUCCESS);
+		return result;
 	}
 
 	@RequestMapping(value = "/pageList", method = RequestMethod.GET)
-	public ModelAndView selectPagedByExample(String queryStr, Map<String, Object> params, String sortString,
-			int groupId) {
+	public ModelAndView selectPagedByExample(
+			@RequestParam(value = "currentPage", required = false, defaultValue = "1") int currentPage,
+			@RequestParam(value = "pageSize", required = false, defaultValue = "100") int pageSize) {
 
 		ModelAndView mv = new ModelAndView();
 		mv.setViewName("/unit/punGroup-Positions");
 
-		Map queryParam = new HashMap();
-		queryParam.put("groupId", groupId);
-		PageList<PunPositionVO> list = punPositionService.selectPagedByExample("queryList", queryParam, 1, 9999, null);
-
-		Map map = new HashMap();
-		map.put("groupId", groupId);
-
-		mv.addObject("punPositiontList", list);
-		mv.addObject("vo", map);
+		PageList<PunPositionVO> list = punPositionService.selectPagedByExample("queryList", null, currentPage, pageSize,
+				null);
+		System.out.println(list.getPaginator());
+		mv.addObject("vos", list);
 
 		return mv;
 	}

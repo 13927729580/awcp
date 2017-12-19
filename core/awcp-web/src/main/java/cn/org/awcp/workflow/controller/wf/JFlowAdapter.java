@@ -8,6 +8,13 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
+
+import BP.Port.WebUser;
+import BP.WF.Dev2Interface;
+import BP.WF.SendReturnObjs;
+import BP.WF.Template.Node;
+import BP.WF.Template.PubLib.AskforHelpSta;
+import BP.WF.Template.PubLib.WFState;
 import cn.org.awcp.core.utils.SessionUtils;
 import cn.org.awcp.core.utils.Springfactory;
 import cn.org.awcp.core.utils.constants.SessionContants;
@@ -16,12 +23,6 @@ import cn.org.awcp.formdesigner.utils.DocumentUtils;
 import cn.org.awcp.unit.vo.PunUserBaseInfoVO;
 import cn.org.awcp.venson.common.I18nKey;
 import cn.org.awcp.venson.controller.base.ControllerHelper;
-import BP.Port.WebUser;
-import BP.WF.Dev2Interface;
-import BP.WF.SendReturnObjs;
-import BP.WF.Template.Node;
-import BP.WF.Template.PubLib.AskforHelpSta;
-import BP.WF.Template.PubLib.WFState;
 
 public class JFlowAdapter {
 
@@ -31,7 +32,7 @@ public class JFlowAdapter {
 			resultMap.put("act", 1);
 			Dev2Interface.Flow_DoFlowOverByCoercion(flowNo, nodeid, workID, fid, msg);
 			resultMap.put("success", true);
-			resultMap.put("message", ControllerHelper.getMessage(I18nKey.wf_send_success));
+			resultMap.put("message", ControllerHelper.getMessage("wf_execute_complete"));
 		} catch (Exception e) {
 			resultMap.put("success", false);
 			resultMap.put("message", ControllerHelper.getMessage(I18nKey.wf_send_fail));
@@ -114,6 +115,11 @@ public class JFlowAdapter {
 			Dev2Interface.Node_ReturnWork(flowNo, Long.parseLong(workID), fid, Integer.parseInt(nodeid), NDForm,
 					returnEmp, msg, true);
 			saveExecuteData(utils, docVo, masterDataSource);
+			String nextExecutor = "";
+			if(StringUtils.isNotBlank(returnEmp)){
+				nextExecutor = "," + ControllerHelper.getMessage("wf_next_step_executor") + returnEmp;
+			}	
+			resultMap.put("message", ControllerHelper.getMessage(I18nKey.wf_send_success) + nextExecutor);
 			resultMap.put("success", true);
 			resultMap.put("message", ControllerHelper.getMessage(I18nKey.wf_send_success));
 
@@ -154,7 +160,7 @@ public class JFlowAdapter {
 		Node currND = new Node(fk_node);
 		Hashtable table = convertHashtable(masterDataSource, utils);
 		String title = null;
-		if (table.get("title") != null) {
+		if (table != null && table.get("title") != null) {
 			title = (String) table.get("title");
 		}
 		SendReturnObjs result = Dev2Interface.Node_SendWork(fk_flow, Long.parseLong(workID), table, null, 0, toUsers,
@@ -162,7 +168,13 @@ public class JFlowAdapter {
 		boolean flag = saveExecuteData(utils, docVo, masterDataSource);
 		if (flag) {
 			resultMap.put("success", true);
-			resultMap.put("message", ControllerHelper.getMessage(I18nKey.wf_send_success));
+			String nextExecutor = result.getVarAcceptersName();
+			if(StringUtils.isNotBlank(nextExecutor)){
+				nextExecutor = "," + ControllerHelper.getMessage("wf_next_step_executor") + nextExecutor;
+			} else{
+				nextExecutor = "";
+			}		
+			resultMap.put("message", ControllerHelper.getMessage(I18nKey.wf_send_success) + nextExecutor);
 		} else {
 			resultMap.put("success", false);
 			resultMap.put("message", ControllerHelper.getMessage(I18nKey.wf_send_fail));

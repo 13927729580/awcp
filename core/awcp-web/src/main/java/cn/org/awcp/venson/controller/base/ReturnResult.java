@@ -10,7 +10,6 @@ public class ReturnResult {
 	private Object total;
 	private String message;
 	private Object data;
-	private Object rows;
 
 	public ReturnResult() {
 	}
@@ -49,15 +48,6 @@ public class ReturnResult {
 
 	public ReturnResult setData(Object data) {
 		this.data = data;
-		return this;
-	}
-
-	public Object getRows() {
-		return rows;
-	}
-
-	public ReturnResult setRows(Object rows) {
-		this.rows = rows;
 		return this;
 	}
 

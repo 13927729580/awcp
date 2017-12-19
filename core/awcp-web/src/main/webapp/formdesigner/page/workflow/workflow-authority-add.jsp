@@ -17,16 +17,13 @@
 		<meta name="renderer" content="webkit">
  		<title>菜单编辑页面</title>
 		<script type="text/javascript" src="<%=basePath%>formdesigner/scripts/dynamicpage.constant.js"></script>
-		<script type="text/javascript" src="<%=basePath%>formdesigner/page/map.js"></script>
+		<script type="text/javascript" src="<%=basePath%>resources/scripts/map.js"></script>
  		<%-- <jsp:include page="" flush="true"/> --%>
  		<%@ include file="/resources/include/common_form_css.jsp" %><!-- 注意加载路径 -->
 		<link href="<%=basePath%>resources/plugins/treeTable/vsStyle/jquery.treeTable.css" rel="stylesheet" type="text/css" />
 	</head>
 	<body id="main">
 		<div class="container-fluid">
-			<div class="row" id="buttons">
-				<button type="button" class="btn btn-success" id="close"><i class="icon-plus-sign"></i>关闭</button>
-			</div>
 			<div class="row" id="dataform">
 				<form class="form-horizontal" role="form" method="post" id="authority">
 					<input type="hidden" name="dynamicPageId" id="dynamicPageId"/>

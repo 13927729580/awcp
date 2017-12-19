@@ -44,18 +44,16 @@
 		
 			<div class="row" id="datatable">
 			<form  method="post" id="manuList">	
-				<div class="row" id="searchform">
-					<input type="hidden" name="currentPage" value="1" />
-					<div class="col-md-3">
-						<div class="input-group">
-							<span class="input-group-addon">模板名称/ID</span>
-							<input name="fileName" class="form-control" id="fileName" type="text"/>
-						</div>
+				<input type="hidden" name="currentPage" value="${currentPage}" />
+				<div class="col-md-3">
+					<div class="input-group">
+						<span class="input-group-addon">模板名称/ID</span>
+						<input name="fileName" class="form-control" id="fileName" type="text"/>
 					</div>
-					<div class="col-md-3 btn-group">
-						<button class="btn btn-primary" type="submit">提交</button>
-						<button style="margin: 0 5px;" class="btn btn-success" type="reset">清空</button>
-					</div>
+				</div>
+				<div class="col-md-3 btn-group">
+					<button class="btn btn-primary" type="submit">提交</button>
+					<button style="margin: 0 5px;" class="btn btn-success" type="reset">清空</button>
 				</div>
 				<table class="table datatable table-bordered">
 					<thead>

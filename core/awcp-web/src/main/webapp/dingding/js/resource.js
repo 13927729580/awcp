@@ -274,7 +274,7 @@ else{
 	dd_res = dd_zh;
 }
 
-dd_res.corpId = "ding55a7d6879ef499e935c2f4657eb6378f";
+dd_res.corpId = "";
 
 /**钉钉打开链接*/
 Comm.openLink=function(url){

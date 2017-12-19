@@ -1,140 +1,130 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
- <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %> 
- <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%> 
- <%@ taglib prefix="sc" uri="szcloud" %>
- <%@page isELIgnored="false"%> 
- <%
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %> 
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%> 
+<%@ taglib prefix="sc" uri="szcloud" %>
+<%@page isELIgnored="false"%> 
+<%
 	String path = request.getContextPath();
 	String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
 %>
 <!DOCTYPE html>
 <html>
-	<head><base href="<%=basePath%>">
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<meta name="renderer" content="webkit">
- 		<title>数据源-领域模型</title>
- 		<%@ include file="/resources/include/common_form_css.jsp" %>
-		<link rel="stylesheet" href="<%=basePath%>resources/plugins/select2/select2.css"/>
-		<link rel="stylesheet" href="<%=basePath%>resources/plugins/select2/select2-bootstrap.css"/>
-	</head>
-	<body id="main">
-		<div class="container-fluid">
-			 <!--<div class="row" id="breadcrumb">
-				<ul class="breadcrumb">
-		          <li><i class="icon-location-arrow icon-muted"></i></li>
-		          <li><a href="#">首页</a></li>
-		          <li><a href="#">我的应用产品</a></li>
-		          <li class="active">数据源-领域模型编辑</li>
-		        </ul>
-			</div> -->
-			<div class="row" id="buttons">
-				<button class="btn btn-success" id="saveBtn" ><i class="icon-save"></i>保存</button>
-				<button class="btn btn-warning" id="cancelBtn"><i class="icon-remove"></i>取消</button>
-			</div>
-			<div class="row" id="dataform">
-				<div class="alert alert-info">提示：<br>如果是确定的记录条数，则选择“多行数据”、“不分页”、设置固定记录即可<br>请不要在sql语句中写入limit等分页字样</div>
-				<form class="form-horizontal"  id="datasourceForm"  >
-					 	<c:if test="${result!=null&&''!=result}">
-							<span style="color: red">(${result})</span>
-						</c:if>
-					 	<input type="hidden" name="id" value="" id="id"/>	
-						<div class="form-group">
-								<label class="col-md-1 control-label required">别名：</label>
-								<div class="col-md-2">
-									<input type='text' name='name'    id='name' value="" class='form-control' />
-								</div>
-								<label class="col-md-1 control-label required">数据记录</label>
-								<div class="col-md-2">
-									<select class="form-control" name="isSingle" id = "isSingle">
-										<option value="0">单行数据</option>
-										<option value="1">多行数据</option>
-									</select>
-								</div>
-								<label class="col-md-1 control-label required">分页</label>
-								<div class="col-md-2">
-									<select class="form-control" name="isPage" id = "isPage">
-										<option value="0">不分页</option>
-										<option value="1">分页</option>
-									</select>
-								</div>
-								<label class="col-md-1 control-label required">固定记录</label>
-								<div class="col-md-2">
-									<input type='text' name='limitCount' id='limitCount' value="0" class='form-control' />
-								</div>
-						</div>
-						<div class="form-group">
-								<label class="col-md-1 control-label">描述：</label>
-								<div class="col-md-11">
-									<input name='description' id='description' class='form-control'/>
-								</div>
-						</div>
-						
-						<div class="form-group">
-								<label class="col-md-1 control-label">SQL语句</label>
-								<div class="col-md-11">
-									<textarea rows="5"  name="sqlScript" id="sqlScript" class='form-control'></textarea>
-								</div>
-						</div>
-						
-						<div class="form-group">
-								<label class="col-md-1 control-label">DELETE SQL语句</label>
-								<div class="col-md-11">
-									<textarea rows="5"  name="deleteSql" id="deleteSql" class='form-control'></textarea>
-								</div>
-						</div>
-							
-				        <div class="form-group" id="modelSelect" >
-								<label class="col-md-1 control-label">选择模型</label>
-								<div class="col-md-5">
-									<select  id="modelCode" class="form-control"   name="modelCode">
-										<option value="">-----------请选择模型------------</option>
-									</select>
-								</div>
-						</div>	
-				</form>
-				<form class="form-horizontal"  id="dataitemForm"  >
-						<div  contenteditable="false">
-					          <table class="table table-bordered">
-					            <thead>
-						              <tr>
-						                <th><input type="checkbox" id="checkAllItem"/></th>
-						                <th>名称（中文）</th>
-						                <th>名称（英文）</th>
-						                <th>类型</th>
-						                <th>长度</th>
-						                <th>默认值</th>
-						                <th>允许空</th>
-						              </tr>
-					            </thead>
-					            <tbody id="modelitemtable">
-					            </tbody>
-					          </table>
-				        </div>
-		        </form>
-			</div>
+<head>
+	<base href="<%=basePath%>">
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="renderer" content="webkit">
+	<title>数据源-领域模型</title>
+	<%@ include file="/resources/include/common_form_css.jsp" %>
+	<link rel="stylesheet" href="<%=basePath%>resources/plugins/select2/select2.css"/>
+	<link rel="stylesheet" href="<%=basePath%>resources/plugins/select2/select2-bootstrap.css"/>
+</head>
+<body id="main">
+	<div class="container-fluid">
+		<div class="row" id="buttons">
+			<button class="btn btn-success" id="saveBtn" ><i class="icon-save"></i>保存</button>
+			<button class="btn btn-warning" id="cancelBtn"><i class="icon-remove"></i>取消</button>
 		</div>
-		<%@ include file="/resources/include/common_form_js.jsp" %>
-		<script type="text/javascript" src="<%=basePath%>resources/scripts/json2.js"></script>
-		<script type="text/javascript" src="<%=basePath%>resources/plugins/select2/select2.js"></script>
-		<script type="text/javascript" src="<%=basePath%>resources/plugins/select2/select2_locale_zh-CN.js"></script>
-		<script type="text/javascript" src="<%=basePath%>resources/scripts/jquery.serializejson.min.js"></script>
-		<script type="text/javascript" src="<%=basePath %>resources/scripts/map.js"></script>
-		<script type="text/javascript" src="<%=basePath %>formdesigner/page/script/data.js"></script>
-		<script type="text/javascript">
+		<div class="row" id="dataform">
+			<div class="alert alert-info">提示：<br>如果是确定的记录条数，则选择“多行数据”、“不分页”、设置固定记录即可<br>请不要在sql语句中写入limit等分页字样</div>
+			<form class="form-horizontal"  id="datasourceForm"  >
+			 	<c:if test="${result!=null&&''!=result}">
+					<span style="color: red">(${result})</span>
+				</c:if>
+			 	<input type="hidden" name="id" value="" id="id"/>	
+				<div class="form-group">
+					<label class="col-md-1 control-label required">别名：</label>
+					<div class="col-md-2">
+						<input type='text' name='name'    id='name' value="" class='form-control' />
+					</div>
+					<label class="col-md-1 control-label required">数据记录</label>
+					<div class="col-md-2">
+						<select class="form-control" name="isSingle" id = "isSingle">
+							<option value="0">单行数据</option>
+							<option value="1">多行数据</option>
+						</select>
+					</div>
+					<label class="col-md-1 control-label required">分页</label>
+					<div class="col-md-2">
+						<select class="form-control" name="isPage" id = "isPage">
+							<option value="0">不分页</option>
+							<option value="1">分页</option>
+						</select>
+					</div>
+					<label class="col-md-1 control-label required">固定记录</label>
+					<div class="col-md-2">
+						<input type='text' name='limitCount' id='limitCount' value="0" class='form-control' />
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-md-1 control-label">描述：</label>
+					<div class="col-md-11">
+						<input name='description' id='description' class='form-control'/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-md-1 control-label">SQL语句</label>
+					<div class="col-md-11">
+						<textarea rows="8"  name="sqlScript" id="sqlScript" class='form-control'></textarea>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-md-1 control-label">DELETE SQL语句</label>
+					<div class="col-md-11">
+						<textarea rows="3"  name="deleteSql" id="deleteSql" class='form-control'></textarea>
+					</div>
+				</div>
+		        <div class="form-group" id="modelSelect" >
+					<label class="col-md-1 control-label">选择模型</label>
+					<div class="col-md-5">
+						<select  id="modelCode" class="form-control"   name="modelCode">
+							<option value="">-----------请选择模型------------</option>
+						</select>
+					</div>
+				</div>	
+			</form>
+			<form class="form-horizontal"  id="dataitemForm"  >
+				<div  contenteditable="false">
+			    	<table class="table table-bordered">
+			            <thead>
+				        	<tr>
+				                <th width="50"><input type="checkbox" id="checkAllItem"/></th>
+				                <th>名称（中文）</th>
+				                <th>名称（英文）</th>
+				                <th width="70">类型</th>
+				                <th width="70">长度</th>
+				                <th width="70">默认值</th>
+				                <th width="70">不允许空</th>
+				            </tr>
+			            </thead>
+			            <tbody id="modelitemtable">
+			            </tbody>
+			    	</table>
+		        </div>
+	        </form>
+		</div>
+	</div>
+	<%@ include file="/resources/include/common_form_js.jsp" %>
+	<script type="text/javascript" src="<%=basePath%>resources/scripts/json2.js"></script>
+	<script type="text/javascript" src="<%=basePath%>resources/plugins/select2/select2.js"></script>
+	<script type="text/javascript" src="<%=basePath%>resources/plugins/select2/select2_locale_zh-CN.js"></script>
+	<script type="text/javascript" src="<%=basePath%>resources/scripts/jquery.serializejson.min.js"></script>
+	<script type="text/javascript" src="<%=basePath %>resources/scripts/map.js"></script>
+	<script type="text/javascript" src="<%=basePath %>formdesigner/page/script/data.js"></script>
+	<script type="text/javascript">
 		//key modelCode; value tableName
 		var models = new Map();
 		
 		//勾选模型属性时触发
-			function changeItemMap(ched){
-				if($(ched).prop("checked")){
-					itemMap.put($(ched).val(),true);
-				}else{
-					itemMap.remove($(ched).val());
-				}
-				freshSQL();
+		function changeItemMap(ched){
+			if($(ched).prop("checked")){
+				itemMap.put($(ched).val(),true);
+			}else{
+				itemMap.remove($(ched).val());
 			}
+			freshSQL();
+		}
 		
 		//初始化一行模型属性数据
 		function initItemRow(item, flag){
@@ -171,12 +161,13 @@
 				$("#modelitemtable").append("<td></td>");
 			}
 			if(item.useNull){
-				$("#modelitemtable").append("<td>"+item.useNull+"</td>");
+				$("#modelitemtable").append("<td>是</td>");
 			} else {
 				$("#modelitemtable").append("<td></td>");
 			}
 			$("#modelitemtable").append("</tr>");
 		}
+		
 		//初始化模型属性
 		function initModelItem(obj){
 			if($("#modelCode").val()){
@@ -246,7 +237,7 @@
 		   	//alert(4);
 		    $("#name").formValidator({onShow:"请输入模型别名名称,不超过40字符",onCorrect:"符合格式要求"})
 				.inputValidator({min:1,max:40,empty:{leftEmpty:false,rightEmpty:false},onError:"请填写名称"});
-        	try {
+	       	try {
 				var dialog = top.dialog.get(window);
 			} catch (e) {
 				//return;
@@ -337,7 +328,7 @@
 			$("#cancelBtn").click(function(){
 				dialog.remove();
 			});
-         });
-         </script>	
-	</body>
+        });
+	</script>	
+</body>
 </html>

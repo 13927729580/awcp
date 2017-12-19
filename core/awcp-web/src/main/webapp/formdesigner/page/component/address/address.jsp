@@ -39,13 +39,7 @@
 			</div>
 			<div class="row tab-content">
 				<div class="tab-pane active" id="tab1">
-					<div class="form-group">
-						<label class="col-md-2 control-label required">省市县数据源名</label>
-						<div class="col-md-4">
-							<input name="extra" class="form-control" id="extra" type="text" value="">
-						</div>
-					</div>					
-					<%@ include file="/formdesigner/page/component/function/basicInfo.jsp" %>				
+					<%@ include file="./basicInfo.jsp" %>				
 				</div>
 				<div class="tab-pane" id="tab2"><%@ include file="/formdesigner/page/component/common/validators.jsp" %></div>
 				<div class="tab-pane " id="tab3">

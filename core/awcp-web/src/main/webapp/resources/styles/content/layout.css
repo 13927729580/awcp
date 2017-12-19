@@ -5,7 +5,7 @@ body,html{background:#f1f1f1;font-family:宋体;}
 .container{position:relative;background:#fff;min-width:920px;margin-top:20px;padding-top:20px; padding-bottom:60px;}
 .icons li > i {display: inline-block;width: 20px;}
 
-form[role='customForm'],#buttons{width:98%;margin:0 auto;}
+form[role='customForm'],#buttons{margin:0 auto;}
 #buttons button{margin-bottom:5px;font-size:15px;}
 @media (max-width: 900px){
 

@@ -18,6 +18,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+
 import cn.org.awcp.core.utils.Springfactory;
 import cn.org.awcp.formdesigner.application.vo.AuthorityCompoentVO;
 import cn.org.awcp.formdesigner.application.vo.AuthorityGroupWorkFlowNodeVO;
@@ -27,9 +30,6 @@ import cn.org.awcp.formdesigner.core.domain.design.context.act.PageAct;
 import cn.org.awcp.formdesigner.service.AuthorityCompoentServiceImpl;
 import cn.org.awcp.formdesigner.service.AuthorityGroupWorkFlowNodeServiceImpl;
 import cn.org.awcp.venson.controller.base.ControllerHelper;
-
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 
 public class DocUtils {
 	/**
@@ -305,7 +305,6 @@ public class DocUtils {
 		if (markerText != null && markerText.contains("<option")) {
 			sb.append(MessageFormat.format(markerText, "", "", ""));
 		}
-
 		if (StringUtils.isBlank(value)) {
 			value = "";
 		}
@@ -334,24 +333,24 @@ public class DocUtils {
 		}
 	}
 
-	private static String getDataItem(String dataSource,Map<String, List<Map<String, String>>> dataMap){
-		if(StringUtils.isNotBlank(dataSource)){
+	private static String getDataItem(String dataSource, Map<String, List<Map<String, String>>> dataMap) {
+		if (StringUtils.isNotBlank(dataSource)) {
 			String[] arr = dataSource.split("\\.");
-			if(arr.length==2){
+			if (arr.length == 2) {
 				String container = arr[0];
 				String item = arr[1];
 				List<Map<String, String>> list = dataMap.get(container + "_list");
-				if(list!=null && list.size()>0){
+				if (list != null && list.size() > 0) {
 					return list.get(0).get(item);
 				}
 			}
 		}
 		return "";
 	}
-	
+
 	public static void calculateCompents(DocumentVO docVo, Map<String, String> others, Map<String, JSONObject> status,
-			List<JSONObject> components, Map<String, List<Map<String, String>>> dataMap, ScriptEngine engine)
-			throws ScriptException {
+			List<JSONObject> components, Map<String, List<Map<String, String>>> dataMap, ScriptEngine engine,
+			String isRead) throws ScriptException {
 		boolean isCH = ControllerHelper.getLang() == Locale.SIMPLIFIED_CHINESE;
 		if (components != null && components.size() > 0) {
 			for (int i = 0; i < components.size(); i++) {
@@ -505,10 +504,10 @@ public class DocUtils {
 						String extra = component.getString("extra");
 						List<String> valueList = new ArrayList<String>();
 						List<String> nameList = new ArrayList<String>();
-						for(String str : extra.split(",")){
-							valueList.add(getDataItem(str,dataMap));
+						for (String str : extra.split(",")) {
+							valueList.add(getDataItem(str, dataMap));
 						}
-						if(valueList.size()==3){
+						if (valueList.size() == 3) {
 							String sql = "select name from p_attr_province where code=? union all "
 									+ "select name from p_attr_city where code=? union all "
 									+ "select name from p_attr_area where code=?";
@@ -544,7 +543,9 @@ public class DocUtils {
 					default:
 						break;
 					}
-
+					if ("1".equals(isRead)) {
+						o.put("disabled", "true");
+					}
 					status.put(component.getString("name"), o);
 
 				}
@@ -552,22 +553,22 @@ public class DocUtils {
 		}
 	}
 
-	private static String getListStr(List<String> list){
+	private static String getListStr(List<String> list) {
 		StringBuffer sb = new StringBuffer();
-		for(String str : list){
-			if(StringUtils.isNotBlank(str)){
+		for (String str : list) {
+			if (StringUtils.isNotBlank(str)) {
 				sb.append(str + ",");
 			}
 		}
-		if(sb.length()>0){
-			sb.deleteCharAt(sb.length()-1);
+		if (sb.length() > 0) {
+			sb.deleteCharAt(sb.length() - 1);
 		}
 		return sb.toString();
 	}
-	
+
 	public static void calculateStores(Map<String, String> map, List<StoreVO> stores,
-			Map<String, Map<String, Object>> pageActStatus, ScriptEngine engine, Map<String, String> others)
-			throws ScriptException {
+			Map<String, Map<String, Object>> pageActStatus, ScriptEngine engine, Map<String, String> others,
+			String isRead) throws ScriptException {
 		boolean isCH = ControllerHelper.getLang() == Locale.SIMPLIFIED_CHINESE;
 		if (stores != null && stores.size() > 0) {
 			for (StoreVO store : stores) {

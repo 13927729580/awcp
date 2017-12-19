@@ -1,9 +1,11 @@
 package cn.org.awcp.venson.controller.base;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.text.ParseException;
@@ -34,7 +36,6 @@ import com.github.miemiedev.mybatis.paginator.domain.PageList;
 
 import BP.Port.Emp;
 import BP.Port.WebUser;
-import cn.org.awcp.core.utils.Security;
 import cn.org.awcp.core.utils.SessionUtils;
 import cn.org.awcp.core.utils.Springfactory;
 import cn.org.awcp.core.utils.constants.SessionContants;
@@ -42,7 +43,6 @@ import cn.org.awcp.formdesigner.utils.DocumentUtils;
 import cn.org.awcp.unit.service.PunGroupService;
 import cn.org.awcp.unit.service.PunRoleInfoService;
 import cn.org.awcp.unit.service.PunSystemService;
-import cn.org.awcp.unit.service.PunUserBaseInfoService;
 import cn.org.awcp.unit.service.PunUserGroupService;
 import cn.org.awcp.unit.shiro.ShiroDbRealm;
 import cn.org.awcp.unit.utils.WhichEndEnum;
@@ -257,6 +257,10 @@ public final class ControllerHelper {
 		return codedfilename;
 	}
 
+	public static void makeAttachment(String contentType, String header[], byte[] data) throws IOException {
+		makeAttachment(contentType, header, new ByteArrayInputStream(data));
+	}
+
 	/**
 	 * 输入下载文件
 	 * 
@@ -266,20 +270,15 @@ public final class ControllerHelper {
 	 *            文件打开形式以及文件名
 	 * @param data
 	 *            文件数据
-	 * @return 打印文件根路径
 	 */
-	public static void makeAttachment(String contentType, String header[], byte[] data) throws IOException {
+	public static void makeAttachment(String contentType, String[] header, InputStream data) throws IOException {
 		HttpServletResponse response = ControllerContext.getResponse();
 		response.setContentType(contentType);
 		response.setHeader(CONTENT_DISPOSITION, header[0] + ";fileName=" + processFileName(header[1]));
-		ServletOutputStream stream = response.getOutputStream();
-		stream.write(data);
-		stream.flush();
-		stream.close();
-	}
-
-	public static void makeAttachment(String contentType, String[] header, InputStream data) throws IOException {
-		makeAttachment(contentType, header, IOUtils.toByteArray(data));
+		ServletOutputStream output = response.getOutputStream();
+		IOUtils.copy(data, output);
+		IOUtils.closeQuietly(output);
+		IOUtils.closeQuietly(data);
 	}
 
 	public static void makeAttachment(String contentType, String[] header, String filePath) throws IOException {
@@ -332,6 +331,18 @@ public final class ControllerHelper {
 		out.close();
 	}
 
+	public static void renderJSON(String contentType, Object obj, OutputStream out) throws IOException {
+		contentType = StringUtils.defaultString((String) contentType, CONTENT_TYPE_JSON);
+		HttpServletResponse response = ControllerContext.getResponse();
+		response.setContentType(contentType + "; charset=UTF-8");
+		out.write(JSONObject.toJSONString(obj).getBytes());
+		IOUtils.closeQuietly(out);
+	}
+
+	public static void renderJSON(Object obj, OutputStream out) throws IOException {
+		renderJSON(null, obj, out);
+	}
+
 	/**
 	 * 生成文件名
 	 * 
@@ -379,7 +390,7 @@ public final class ControllerHelper {
 			parameters.put("APIId", "validSSO");
 			String body = HttpUtils.sendGet("http://www.tongyuanmeng.com/awcp/api/executeAPI.do", parameters);
 			// 若返回值不为空则为合法操作
-			if (body != null && userAccount.equals(JSON.parseObject(body).getString("data"))) {
+			if (StringUtils.isNotBlank(body) && userAccount.equals(JSON.parseObject(body).getString("data"))) {
 				return toLogin(userAccount, false) != null;
 			}
 		}
@@ -387,31 +398,22 @@ public final class ControllerHelper {
 	}
 
 	public static PunUserBaseInfoVO toLogin(String userAccount, boolean isRemember) {
-		Map<String, Object> m = new HashMap<String, Object>();
-		m.put("userIdCardNumber", userAccount);
-		PunUserBaseInfoService userService = Springfactory.getBean("punUserBaseInfoServiceImpl");
-		List<PunUserBaseInfoVO> pvis = userService.queryResult("eqQueryList", m);
-		if (!pvis.isEmpty()) {
-			PunUserBaseInfoVO pvi = pvis.get(0);
-			// 用户状态禁用或未审核
-			if (SC.USER_STATUS_AUDIT.equals(pvi.getUserStatus())
-					|| SC.USER_STATUS_DISABLED.equals(pvi.getUserStatus())) {
-				return null;
-			}
-			Subject subject = SecurityUtils.getSubject();
-			String plainToke = pvi.getOrgCode() + ShiroDbRealm.SPLIT + pvi.getUserIdCardNumber() + ShiroDbRealm.SPLIT
-					+ WhichEndEnum.FRONT_END.getCode() + ShiroDbRealm.SPLIT + pvi.getUserPwd();
-			UsernamePasswordToken token = new UsernamePasswordToken(plainToke,
-					pvi.getUserPwd() == null ? "" : Security.decryptPassword(pvi.getUserPwd()));
-			subject.login(token);
-			ControllerHelper.doLoginSuccess(pvi);
-			if (isRemember) {
-				CookieUtil.addCookie(SC.SECRET_KEY, MD5Util.getMD5StringWithSalt(pvi.getUserIdCardNumber(), SC.SALT));
-				CookieUtil.addCookie(SC.USER_ACCOUNT, pvi.getUserIdCardNumber());
-			}
-			return pvi;
+		Subject subject = SecurityUtils.getSubject();
+		String plainToke = SC.ORG_CODE + ShiroDbRealm.SPLIT + userAccount + ShiroDbRealm.SPLIT
+				+ WhichEndEnum.FRONT_END.getCode() + ShiroDbRealm.SPLIT + SC.SALT;
+		UsernamePasswordToken token = new UsernamePasswordToken(plainToke, SC.SALT);
+		subject.login(token);
+		PunUserBaseInfoVO pvi = (PunUserBaseInfoVO) subject.getPrincipal();
+		// 用户状态禁用或未审核
+		if (SC.USER_STATUS_AUDIT.equals(pvi.getUserStatus()) || SC.USER_STATUS_DISABLED.equals(pvi.getUserStatus())) {
+			return null;
 		}
-		return null;
+		ControllerHelper.doLoginSuccess(pvi);
+		if (isRemember) {
+			CookieUtil.addCookie(SC.SECRET_KEY, MD5Util.getMD5StringWithSalt(pvi.getUserIdCardNumber(), SC.SALT));
+			CookieUtil.addCookie(SC.USER_ACCOUNT, pvi.getUserIdCardNumber());
+		}
+		return pvi;
 	}
 
 	public static Long getUserId() {

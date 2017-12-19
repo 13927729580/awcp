@@ -206,8 +206,8 @@
 					empty : true,
 					onShow : "菜单地址"
 				}).inputValidator({
-					max : 128,
-					onError : "最长128位"
+					max : 250,
+					onError : "最长250位"
 				});
 				$("#menuSeq").formValidator({
 					onShow : "请输入资源顺序",

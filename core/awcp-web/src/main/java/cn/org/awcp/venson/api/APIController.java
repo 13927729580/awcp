@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import cn.org.awcp.core.domain.SzcloudJdbcTemplate;
+import cn.org.awcp.core.utils.MySqlSmartCountUtil;
 import cn.org.awcp.core.utils.Springfactory;
 import cn.org.awcp.formdesigner.engine.util.MyScriptEngine;
 import cn.org.awcp.formdesigner.utils.ScriptEngineUtils;
@@ -31,7 +32,6 @@ import cn.org.awcp.venson.controller.base.ControllerHelper;
 import cn.org.awcp.venson.controller.base.ReturnResult;
 import cn.org.awcp.venson.controller.base.StatusCode;
 import cn.org.awcp.venson.interceptor.ExceptionHandler;
-import cn.org.awcp.venson.util.MySqlSmartCountUtil;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
@@ -94,11 +94,6 @@ public class APIController extends BaseController {
 			executePage(request, result, api, params);
 		} else if (api.getAPIType() == APIType.EXECUTE_SCRIPT.getValue()) {
 			executeScript(request, result, api);
-		}
-		String resName = request.getParameter("resName");
-		if (StringUtils.isNotBlank(resName)) {
-			result.setRows(result.getData());
-			result.setData(null);
 		}
 		if (api.isCache()) {
 			Cache cache = cacheManager.getCache(CACHE_NAME);

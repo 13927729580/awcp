@@ -6,6 +6,8 @@ import java.net.URLEncoder;
 
 import javax.servlet.http.Cookie;
 
+import org.apache.commons.lang3.StringUtils;
+
 import cn.org.awcp.venson.controller.base.ControllerContext;
 
 /**
@@ -49,6 +51,19 @@ public class CookieUtil {
 					} catch (UnsupportedEncodingException e) {
 					}
 
+				}
+			}
+		}
+		return null;
+
+	}
+
+	public static String findCookie(String name, String text) {
+		if (StringUtils.isNotBlank(text) && StringUtils.isNotBlank(name)) {
+			String[] cookies = text.split(";");
+			for (String cookie : cookies) {
+				if (cookie.contains(name)) {
+					return cookie.split("=")[1];
 				}
 			}
 		}

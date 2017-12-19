@@ -2,7 +2,7 @@
 var cs = document.createElement("link");
 cs.setAttribute("rel","stylesheet");
 cs.setAttribute("type","text/css");
-cs.setAttribute("href", location.protocol + "//" + location.host + "/" +"resources/styles/zTreeStyle/szcloud.css");
+cs.setAttribute("href", basePath +"resources/styles/zTreeStyle/szcloud.css");
 document.getElementsByTagName("head")[0].appendChild(cs);
 
 //配置参数

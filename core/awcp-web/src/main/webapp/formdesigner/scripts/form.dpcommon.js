@@ -28,7 +28,7 @@ var commStore = {
 			componentStore : "componentJsonArray",
 			modelStore : "modelJsonArray"
 		},
-		table : [ "name", "componentType", "dataItemCode", "defaultValue", "layoutName","description", "order" ],
+		table : [ "name", "componentType", "dataItemCode", "title", "layoutName", "order" ],
 		unique : 'pageId',
 		href : "name",
 		order : "componentOrder",
@@ -166,7 +166,6 @@ function addRow(objectType, comObject) {
 	item = eval("(" + comObject.content + ")");
 	var str = "<tr id='" + item[unique] + "'><td><input type='checkbox' name='"
 			+ objectType + "' value='" + item[unique] + "'/></td>";
-
 	$.each(table, function(i, t) {
 		// 判断是否是href字段，若是加事件，不是else
 		if (href == t) {

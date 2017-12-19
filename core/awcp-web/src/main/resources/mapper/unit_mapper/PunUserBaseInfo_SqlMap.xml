@@ -449,12 +449,12 @@
 			order by ${orderByClause}
 		</if>
 		<if test="start !=0 or limit!=0">
-			limit #{start},#{limit}
+			limit ${start},${limit}
 		</if>
 	</select>
 	<select id="queryCountByExample_UserList" resultType="INTEGER" 
     parameterType="cn.org.awcp.core.domain.BaseExample">
-   	 	select count(1) from p_un_user_base_info 
+   	 	select COUNT(DISTINCT p_un_user_base_info.user_id) from p_un_user_base_info 
    	 	left join p_un_user_group on p_un_user_base_info.user_id=p_un_user_group.user_id 
 		left join p_un_group on p_un_user_group.group_id=p_un_group.group_id 
 		left join p_un_position d on d.POSITION_ID=p_un_user_group.POSITION_ID
@@ -484,7 +484,7 @@
 		</if>
 		
 		<if test="start !=0 or limit!=0">
-			limit #{start},#{limit}
+			limit ${start},${limit}
 		</if>
 		
 	</select>

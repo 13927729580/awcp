@@ -97,6 +97,7 @@ var loadUploadPreview = function(img,photo,callback){//img:img标签ID;photo:inp
 	
 	_parent.find(".photo-btn a.delete").click(function(){
 		var photoVal = _parent.find(".photo").val();
+		Comm.getData("api/common/file/remove",{"_method":"get","ids":photoVal});
 		_parent.find(".photo").val("");
 		_parent.find(".photo-con").remove();
 		_parent.find(".msg").text("");
@@ -118,9 +119,11 @@ function uploadFile(that){
 		fileElementId:$(that).attr("id"),                        //文件选择框的id属性  
 		dataType :"json",
 		success: function(data){      				
-			if(data.flag==1){
-				$parent.find(".photo").val(data.msg);
+			if(data.status==0){
+				$parent.find(".photo").val(data.data);
 				$msg.text("上传成功");
+			}else{
+				$msg.text(data.message);
 			}
 		} 
 	}); 

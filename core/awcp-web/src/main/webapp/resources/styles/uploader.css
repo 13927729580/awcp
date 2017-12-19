@@ -10,15 +10,12 @@
 	position: relative;
 	display: inline-block;
 	cursor: pointer;
-	background: #00b7ee;
 	padding: 10px 15px;
 	color: #fff;
 	text-align: center;
 	border-radius: 3px;
 	overflow: hidden;
-}
-.webuploader-pick-hover {
-	background: #00a2d4;
+    background: #108bf1;
 }
 
 .webuploader-pick-disable {
@@ -33,5 +30,5 @@
 .uploader .item{position:relative;}
 .uploader .info .cancel{margin-left:10px;color:#06c;cursor:pointer;}
 .uploader .progress {position:absolute;bottom:0;left:20%;width:80%;height:10px;}
-.uploader .picker {display: inline-block;line-height: 1.428571429;vertical-align: middle;margin: 0 12px 0 0;}
+.uploader .picker {display: inline-block;vertical-align: middle;}
 .uploader .picker .webuploader-pick {padding: 6px 12px;display: block;}

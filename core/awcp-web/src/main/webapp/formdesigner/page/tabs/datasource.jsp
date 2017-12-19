@@ -18,7 +18,7 @@
 	<table class="table table-bordered" id="modelTable" align="left">
 		<thead>
 			<tr>
-				<th><input type="checkbox" id="checkAllDatasource" /></th>
+				<th width="50"><input type="checkbox" id="checkAllDatasource" /></th>
 				<th>名称</th>
 				<th>描述</th>
 			</tr>

@@ -85,7 +85,12 @@
 		</div>
 	</div>
 </div>
-
+<div class="form-group">
+	<label class="col-md-2 control-label required">高度</label>
+	<div class="col-md-4">
+		<input name="imageHeight" class="form-control" id="imageHeight" type="text" value="">
+	</div>
+</div>
 <div class="form-group">
 	<label class="col-md-2 control-label">描述：</label>
 	<div class="col-md-4">

@@ -2,7 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %> 
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%> 
 <%@ taglib prefix="sc" uri="szcloud" %>
-<%@page isELIgnored="false"%> 
+<%@ page isELIgnored="false"%> 
 <%
 	String path = request.getContextPath();
 	String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
@@ -32,14 +32,14 @@
 			</div>
 		
 			<div class="row" id="tab">
-				<ul class="nav nav-tabs"><!-- 标签页nav里面的 href的值对应的是 tab-content里面的tab-pane的id值 -->
-					<li class=""><a href="#tab1" data-toggle="tab">菜单</a></li>
+				<ul class="nav nav-tabs"><!-- 标签页nav里面的 href的值对应的是 tab-content里面的tab-pane的id值 -->				
 					<li class="active"><a href="#tab2" data-toggle="tab">按钮</a></li>
+					<li class=""><a href="#tab1" data-toggle="tab">菜单</a></li>
 				</ul>
 			</div>
 			<div class="row tab-content">
- 				<div class="tab-pane" id="tab1"><jsp:include page="/unit/punRoleMenuAccess-edit.jsp"/></div> 
 				<div class="tab-pane active" id="tab2"><jsp:include page="/unit/componentAccess-edit.jsp"/></div> 
+ 				<div class="tab-pane" id="tab1"><jsp:include page="/unit/punRoleMenuAccess-edit.jsp"/></div> 				
 			</div>
 		</div>
 		
@@ -91,18 +91,15 @@
 						operType:"1"
 					});
 					checkResult || dialogAlert("Failed");
-					return checkResult;
-					 
+					return checkResult;				 
 				}else{//删除权限
 					checkResult = result("<%=basePath%>unit/punRoleAccessAJAXDelete.do", { 
 						roleId: roleId, 
 						resourceId: treeNode.id 
 					});
 					checkResult || dialogAlert("Failed");
-					return checkResult;
-						
-				}
-					
+					return checkResult;						
+				}					
 			};
 			
 			function creatMenu(){
@@ -189,14 +186,13 @@
 					});
 				});
 				
-				var moduleId = "${moduleId}"?"${moduleId}":1;
+				var moduleId = "${moduleId}"?"${moduleId}":11;
 				$("#modules").val(moduleId);
 				$("#modules").bind("change",function(){
 					var moduleId = $("#modules").val();
 					location.href = "<%=basePath%>punAccessRelationController/punRoleMenuAccessEdit.do?roleId=" 
 									+ roleId + "&moduleId=" + moduleId;
-				});
-					
+				});				
 			});
 		</script>		
 	</body>
