@@ -2596,8 +2596,8 @@ CREATE TABLE `p_un_user_base_info` (
 -- ----------------------------
 -- Records of p_un_user_base_info
 -- ----------------------------
-INSERT INTO `p_un_user_base_info` VALUES ('718945', '10001', '9e8e2e085360e6209a995756d9ac61ebc76eb47d1640a819', '10001', '10001', null, '1234', '1234', '0755-8588567', null, '18824159524', '0755-8588567', 'test@altoromutual.com', '10001', 'Managing Director', '9876543210', '9876543210', '1', '45575544-2', null, '0000-00-00 00:00:00', null, null, null, '0569b002-b4ab-4541-a814-2200b4206881', null);
-INSERT INTO `p_un_user_base_info` VALUES ('719811', '9999', '9e8e2e085360e6209a995756d9ac61ebc76eb47d1640a819', '9999', '9999', '', '', '', '', '', '18888888881', '', '', '', '', '', '', '1', '45575544-2', '', '0000-00-00 00:00:00', null, '', '', '', '');
+INSERT INTO `p_un_user_base_info` VALUES ('718945', '10001', '9e8e2e085360e6209a995756d9ac61ebc76eb47d1640a819', '10001', '10001', null, '1234', '1234', '0755-8588567', null, '18824159524', '0755-8588567', 'test@altoromutual.com', '10001', 'Managing Director', '9876543210', '9876543210', '1', '45575544-2', null, null, null, null, null, '0569b002-b4ab-4541-a814-2200b4206881', null);
+INSERT INTO `p_un_user_base_info` VALUES ('719811', '9999', '9e8e2e085360e6209a995756d9ac61ebc76eb47d1640a819', '9999', '9999', '', '', '', '', '', '18888888881', '', '', '', '', '', '', '1', '45575544-2', '', null, null, '', '', '', '');
 
 -- ----------------------------
 -- Table structure for p_un_user_group
