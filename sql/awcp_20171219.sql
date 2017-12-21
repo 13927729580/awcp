@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50626
 File Encoding         : 65001
 
-Date: 2017-12-19 23:47:09
+Date: 2017-12-21 12:59:28
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -583,7 +583,7 @@ CREATE TABLE `p_fm_api_describe` (
 -- ----------------------------
 DROP TABLE IF EXISTS `p_fm_api_privilege`;
 CREATE TABLE `p_fm_api_privilege` (
-  `ID` int(10) NOT NULL AUTO_INCREMENT,
+  `ID` int(11) NOT NULL AUTO_INCREMENT,
   `NAME` varchar(100) COLLATE utf8mb4_bin DEFAULT NULL,
   `TYPE` char(4) COLLATE utf8mb4_bin DEFAULT NULL,
   `RULES` varchar(5000) COLLATE utf8mb4_bin DEFAULT NULL,
@@ -604,7 +604,7 @@ DROP TABLE IF EXISTS `p_fm_api_privilege_relation`;
 CREATE TABLE `p_fm_api_privilege_relation` (
   `ID` int(10) NOT NULL AUTO_INCREMENT,
   `API_ID` char(36) COLLATE utf8mb4_bin DEFAULT NULL,
-  `PRI_ID` char(36) COLLATE utf8mb4_bin DEFAULT NULL,
+  `PRI_ID` int(11) DEFAULT NULL,
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
@@ -2596,8 +2596,8 @@ CREATE TABLE `p_un_user_base_info` (
 -- ----------------------------
 -- Records of p_un_user_base_info
 -- ----------------------------
-INSERT INTO `p_un_user_base_info` VALUES ('718945', '10001', '9e8e2e085360e6209a995756d9ac61ebc76eb47d1640a819', '10001', '10001', null, '1234', '1234', '0755-8588567', null, '18824159524', '0755-8588567', 'test@altoromutual.com', '10001', 'Managing Director', '9876543210', '9876543210', '1', '45575544-2', null, '0000-00-00 00:00:00', null, null, null, '0569b002-b4ab-4541-a814-2200b4206881', null);
-INSERT INTO `p_un_user_base_info` VALUES ('719811', '9999', '9e8e2e085360e6209a995756d9ac61ebc76eb47d1640a819', '9999', '9999', '', '', '', '', '', '18888888881', '', '', '', '', '', '', '1', '45575544-2', '', '0000-00-00 00:00:00', null, '', '', '', '');
+INSERT INTO `p_un_user_base_info` VALUES ('718945', '10001', '9e8e2e085360e6209a995756d9ac61ebc76eb47d1640a819', '10001', '10001', null, '1234', '1234', '0755-8588567', null, '18824159524', '0755-8588567', 'test@altoromutual.com', '10001', 'Managing Director', '9876543210', '9876543210', '1', '45575544-2', null, null, null, null, null, '0569b002-b4ab-4541-a814-2200b4206881', null);
+INSERT INTO `p_un_user_base_info` VALUES ('719811', '9999', '9e8e2e085360e6209a995756d9ac61ebc76eb47d1640a819', '9999', '9999', '', '', '', '', '', '18888888881', '', '', '', '', '', '', '1', '45575544-2', '', null, null, '', '', '', '');
 
 -- ----------------------------
 -- Table structure for p_un_user_group
@@ -4917,6 +4917,8 @@ CREATE TABLE `sys_userlogt` (
 -- ----------------------------
 -- Records of sys_userlogt
 -- ----------------------------
+INSERT INTO `sys_userlogt` VALUES ('33d5e0fc27d0457abb5137822d1576ef', '9999', '192.168.1.50', 'SignIn', '登录', '2017-12-19 23:47:58');
+INSERT INTO `sys_userlogt` VALUES ('9609709023ad450890e1334cb549ed65', '10001', '192.168.1.85', 'SignIn', '登录', '2017-12-19 23:50:12');
 INSERT INTO `sys_userlogt` VALUES ('bba9a89921f742d58f8eafc2643c7c2a', '10001', '192.168.1.50', 'SignIn', '登录', '2017-12-19 23:47:38');
 
 -- ----------------------------

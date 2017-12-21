@@ -1,5 +1,10 @@
-﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+﻿<script type="text/javascript">
+if(window!=top){
+	top.location.href=location.href;
+}
+</script>
+<!DOCTYPE>
+<html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>AWCP-全栈配置云开发平台</title>
@@ -17,15 +22,6 @@
 <script src="./venson/js/base64.js"></script>
 </head>
 <body>
-<script>$(document).ready(function(c) {
-	$('.close').on('click', function(c){
-		$('.login-form').fadeOut('slow', function(c){
-	  		$('.login-form').remove();
-		});
-	});	  
-});
-</script>
-
 <h1>AWCP-全栈配置云开发平台</h1>
 <div class="login-form">
 	<div class="head-info">
@@ -40,16 +36,16 @@
 				<input type="hidden" name="sysId" id="sysId" value="110" />
 				<!-- <input type="hidden" name="ALT" id="ALT" value="true"/> -->
 				<input type="hidden" id="orgCode" name="orgCode" value="45575544-2" />
-				<input type="text"  data-require=true name="userName" class="text" id="userName" value="用户名" >
-				<div class="key">
-					<input type="password"  data-require=true name="userPwd" id="userPwd" placeholder="密码">
-					<p class="wrongTip"></p>
-				</div>
+		<input type="text"  data-require=true name="userName" class="text" id="userName" value="用户名" >
+		<div class="key">
+			<input type="password"  data-require=true name="userPwd" id="userPwd" placeholder="密码">
+			<p class="wrongTip"></p>
+		</div>
 	</form>
 	<div class="signin"><input type="button" value="登录" id="btUserLogin" ></div>
 </div>
 <div class="copy-rights">
-	<!-- <p>Copyright &copy; 2015.Company name All rights reserved.<a target="_blank" href="http://www.jsdaima.com/">js代码</a></p> -->
+	<p>Copyright &copy; 2017 <a target="_blank" href="https://www.awcp.org.cn">深圳缘梦互联网科技有限公司</a></p>
 </div>
 <script>
 $(function(){
