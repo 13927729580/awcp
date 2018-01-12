@@ -529,10 +529,10 @@
 				<!-- 数据库 -->
 				<db.application.database.type>mysql</db.application.database.type>
 				<db.driver>com.mysql.jdbc.Driver</db.driver>
-				<db.url>jdbc:mysql://localhost:3306/open_awcp?useUnicode=true&amp;characterEncoding=utf8&amp;zeroDateTimeBehavior=convertToNull&amp;transformedBitIsBoolean=true&amp;useOldAliasMetadataBehavior=true</db.url>
+				<db.url>jdbc:mysql://localhost:3306/awcp_dd?useUnicode=true&amp;characterEncoding=utf8&amp;zeroDateTimeBehavior=convertToNull&amp;transformedBitIsBoolean=true&amp;useOldAliasMetadataBehavior=true</db.url>
 				<db.username>root</db.username>
 				<db.password>123456</db.password>
-				<AppCenterDBDatabase>open_awcp</AppCenterDBDatabase>
+				<AppCenterDBDatabase>awcp_dd</AppCenterDBDatabase>
 				<!-- mongodb.url -->
 				<mongodb.url>127.0.0.1</mongodb.url>
 				<mongodb.port>27017</mongodb.port>
