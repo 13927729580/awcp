@@ -30,10 +30,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.miemiedev.mybatis.paginator.domain.PageList;
 import com.github.miemiedev.mybatis.paginator.domain.Paginator;
-import com.sun.star.uno.RuntimeException;
 
 import BP.Port.Emp;
 import BP.Port.WebUser;
@@ -100,6 +100,25 @@ public class WorkflowTaskControl extends BaseController {
 
 	@Resource(name = "queryServiceImpl")
 	private QueryService query;
+
+	/**
+	 * 由我创建
+	 * 
+	 * @return
+	 * @throws IOException
+	 */
+	@ResponseBody
+	@RequestMapping(value = "createByMe", method = RequestMethod.GET)
+	public ReturnResult createByMe(@RequestParam(required = false, defaultValue = "1") int currentPage,
+			@RequestParam(required = false, defaultValue = "15") int pageSize,
+			@RequestParam(required = false) String FK_Flow, @RequestParam(required = false) String workItemName) {
+		ReturnResult result = ReturnResult.get();
+		PunUserBaseInfoVO user = ControllerHelper.getUser();
+		Map<String, Object> data = query.getCreateByMeData(pageSize, (currentPage - 1) * pageSize, FK_Flow,
+				workItemName, user.getUserIdCardNumber());
+		result.setData(data.get(SC.DATA)).setTotal(data.get(SC.TOTAL));
+		return result;
+	}
 
 	/**
 	 * 待办任务（个人任务）
@@ -388,6 +407,10 @@ public class WorkflowTaskControl extends BaseController {
 				isUpdate = update.equalsIgnoreCase("true");
 			}
 			docVo = documentServiceImpl.findById(docId);
+			// 尝试通过流程编号查找
+			if (docVo == null) {
+				docVo = documentServiceImpl.findDocByWorkItemId(flowTempleteId, workItemId);
+			}
 			docVo = BeanUtil.instance(docVo, DocumentVO.class);
 			// 表单页面
 			if (pageVO.getPageType() == 1002) {// 初始化表单数据
@@ -486,15 +509,17 @@ public class WorkflowTaskControl extends BaseController {
 			case 2011:// 流程流转(发送)
 			case 2018:// 流程转发
 				if ("006".equals(flowTempleteId)) {
-					String sql = "select executor from crmtile_workflow_executor where dynamicpageId=?";
-					long executor = 0;
-					try {
-						executor = jdbcTemplate1.queryForObject(sql, Long.class, docVo.getDynamicPageId());
-					} catch (Exception e) {
-
+					String sql = "select executor+'' from crmtile_workflow_executor where dynamicpageId=?";
+					Object direct = request.getAttribute("direct");
+					if (HttpRequestDeviceUtils.isMobileDevice(request) || HttpRequestDeviceUtils.isDingDing(request)
+							|| direct != null) {
+						sql = "select USER_ID_CARD_NUMBER from p_un_user_base_info where USER_ID="
+								+ "(select executor from crmtile_workflow_executor where dynamicpageId=?)";
 					}
-					if (executor != 0) {
-						slectsUserIds = executor + "";
+					try {
+						slectsUserIds = jdbcTemplate1.queryForObject(sql, String.class, docVo.getDynamicPageId());
+					} catch (Exception e) {
+						throw new PlatformException("没有设置流程执行人");
 					}
 				}
 
@@ -506,7 +531,7 @@ public class WorkflowTaskControl extends BaseController {
 				} else {
 					resultMap.put("success", false);
 					resultMap.put("message", ControllerHelper.getMessage(I18nKey.wf_select_least_person));
-					throw new RuntimeException("流程转发没有选择执行人");
+					throw new PlatformException("流程转发没有选择执行人");
 				}
 				break;
 			case 2019:// 流程传阅
@@ -518,8 +543,7 @@ public class WorkflowTaskControl extends BaseController {
 				request.setAttribute("state", 3);
 				JFlowAdapter.Flow_DoFlowOverByCoercion(resultMap, flowTempleteId, Integer.valueOf(entryId),
 						Long.valueOf(workItemId), Long.valueOf(fid), WFState.Undo);
-				insertIntoLogs(docVo, user.getUserIdCardNumber(),
-						ControllerHelper.getMessage(I18nKey.wf_approval_undo));
+				afterExecuteFlow(docVo, masterDataSource, jdbcTemplate1, resultMap);
 				break;
 			case 2027:// 流程拒绝
 				// 状态拒绝
@@ -534,8 +558,9 @@ public class WorkflowTaskControl extends BaseController {
 				afterExecuteFlow(docVo, masterDataSource, jdbcTemplate1, resultMap);
 				break;
 			case 2023:// 流程退回
+				boolean isBackToThisNode = "N".equals(request.getParameter("isBackToThisNode")) ? false : true;
 				JFlowAdapter.Flow_returnWork(resultMap, Long.valueOf(fid), "", user.getUserIdCardNumber(), toNode,
-						masterDataSource, utils, docVo);
+						masterDataSource, utils, docVo, isBackToThisNode);
 				afterExecuteFlow(docVo, masterDataSource, jdbcTemplate1, resultMap);
 				break;
 			case 2024:// 加签
@@ -569,13 +594,13 @@ public class WorkflowTaskControl extends BaseController {
 			return resultMap;
 		} catch (Exception e) {
 			logger.info("ERROR", e);
-			try {
-				jdbcTemplate1.rollback();
-			} catch (Exception e1) {
-			}
+			jdbcTemplate1.rollback();
 			resultMap.put("success", false);
-			resultMap.put("message", ControllerHelper.getMessage(I18nKey.wf_operation_failure));
-
+			if (e instanceof PlatformException) {
+				resultMap.put("message", e.getMessage());
+			} else {
+				resultMap.put("message", ControllerHelper.getMessage(I18nKey.wf_operation_failure));
+			}
 		} finally {
 			pageVO = null;
 			user = null;
@@ -619,7 +644,7 @@ public class WorkflowTaskControl extends BaseController {
 			}
 			// 如果存在抄送人
 			if (StringUtils.isNotBlank(CC_slectsUserIds)) {
-				com.alibaba.fastjson.JSONArray jsonArr = JSON.parseArray(CC_slectsUserIds);
+				JSONArray jsonArr = JSON.parseArray(CC_slectsUserIds);
 				// 插入抄送记录
 				int len = jsonArr.size();
 				for (int i = 0; i < len; i++) {
@@ -656,7 +681,7 @@ public class WorkflowTaskControl extends BaseController {
 					return;
 				}
 			}
-			com.alibaba.fastjson.JSONArray jsonArr = JSON.parseArray(slectsUserIds);
+			JSONArray jsonArr = JSON.parseArray(slectsUserIds);
 			// 将人员数据保存
 			String sql = " insert into p_fm_work(JSON,CREATOR,WORK_ID,FLOW_ID,NODE_ID,CURRENT_NODE,PAGE_ID) values(?,?,?,?,?,?,?)";
 			this.jdbcTemplate.update(sql, slectsUserIds, currentUserID, workItemId, preset, entryId, 0, pageId);
@@ -714,7 +739,7 @@ public class WorkflowTaskControl extends BaseController {
 				request.setAttribute("state", 3);
 			} else {
 				String text = map.get("JSON") + "";
-				com.alibaba.fastjson.JSONArray jsonArr = JSON.parseArray(text);
+				JSONArray jsonArr = JSON.parseArray(text);
 				int nextNode = CURRENT_NODE + 1;
 				int len = jsonArr.size();
 				// 查询是否还有下一节点人员
@@ -782,73 +807,76 @@ public class WorkflowTaskControl extends BaseController {
 
 	private void afterExecuteFlow(DocumentVO docVo, String masterDataSource, SzcloudJdbcTemplate jdbcTemplate1,
 			Map<String, Object> resultMap) {
-		// 执行消息推送
-		addPush(docVo, masterDataSource, jdbcTemplate1);
-		if (preset.equals(docVo.getFlowTempleteId()) && resultMap.containsKey("success")
-				&& (Boolean) resultMap.get("success")) {
-			// 流程日志
-			addLogs(docVo);
-		}
-	}
 
-	private void addLogs(DocumentVO docVo) {
-		// 查看是否属于预置流程
-		if (preset.equals(docVo.getFlowTempleteId())) {
-
-			String userId = ControllerHelper.getUser().getUserIdCardNumber();
-			HttpServletRequest request = ControllerContext.getRequest();
-			String content = request.getParameter("work_logs_content");
-			Object CURRENT_NODE = request.getAttribute("CURRENT_NODE");
-			Object state = request.getAttribute("state");
-			int currentNode = 0;
-			if (CURRENT_NODE != null) {
-				// 先从流程预设中获取
-				currentNode = Integer.parseInt(CURRENT_NODE + "");
-			}
-			// 默认意见为同意。
-			if (StringUtils.isBlank(content)) {
-				content = ControllerHelper.getMessage(I18nKey.wf_agree);
-			}
-			if (state == null) {
-				state = 0;
-			}
-			String today = DocumentUtils.getIntance().today();
-			try {
-				// 取出发送时间为空，并且创建时间最早的那条记录ID
-				Integer id = this.jdbcTemplate.queryForObject(
-						"select ID from p_fm_work_logs where WORK_ID=? and creator=? and CURRENT_NODE=? and send_time is null order by create_time limit 0,1",
-						Integer.class, docVo.getWorkItemId(), userId, currentNode);
-				// 如果记录表已经存在该成员的日志则直接更新,没有则插入
-				String sql = "update p_fm_work_logs set send_time=?, content=?,state=? where id=?";
-				this.jdbcTemplate.update(sql, today, content, state, id);
-			} catch (DataAccessException e) {
-				insertIntoLogs(docVo, userId, content);
-			}
-		}
-	}
-
-	private void insertIntoLogs(DocumentVO docVo, String userId, String content) {
-		if (preset.equals(docVo.getFlowTempleteId())) {
-			HttpServletRequest request = ControllerContext.getRequest();
-			Object CURRENT_NODE = request.getAttribute("CURRENT_NODE");
-			String today = DocumentUtils.getIntance().today();
-			String sql = "insert into p_fm_work_logs(CONTENT,WORK_ID,PAGE_ID,CREATOR,SEND_TIME,CURRENT_NODE,state) values(?,?,?,?,?,?,?)";
-			Object state = request.getAttribute("state");
-			if (state == null) {
-				state = 0;
-			}
-			// 如果没有指定排序则自动生成排序
-			if (CURRENT_NODE == null) {
-				// 流程预设中不存在则自动生成
-				Integer currentNode = this.jdbcTemplate.queryForObject(
-						"select max(CURRENT_NODE) from p_fm_work_logs where WORK_ID=?", Integer.class,
-						docVo.getWorkItemId());
-				this.jdbcTemplate.update(sql, content, docVo.getWorkItemId(), docVo.getDynamicPageId(), userId, today,
-						currentNode, state);
+		if (resultMap.containsKey("success") && (Boolean) resultMap.get("success")) {
+			// 增加消息推送
+			addPush(docVo, masterDataSource, jdbcTemplate1);
+			// 流程日志，查看是否属于预置流程
+			if (preset.equals(docVo.getFlowTempleteId())) {
+				addPresetLogs(docVo);
 			} else {
-				this.jdbcTemplate.update(sql, content, docVo.getWorkItemId(), docVo.getDynamicPageId(), userId, today,
-						CURRENT_NODE, state);
+				addCommonLogs(docVo);
 			}
+		}
+	}
+
+	/**
+	 * 增加普通流程的流程日志
+	 * 
+	 * @param docVo
+	 */
+	private void addCommonLogs(DocumentVO docVo) {
+		String userId = ControllerHelper.getUser().getUserIdCardNumber();
+		HttpServletRequest request = ControllerContext.getRequest();
+		String sql = "insert into p_fm_work_logs(CONTENT,WORK_ID,PAGE_ID,CREATOR,SEND_TIME,CURRENT_NODE,state) values(?,?,?,?,?,?,?)";
+		Object state = request.getAttribute("state");
+		String content = request.getParameter("work_logs_content");
+		if (state == null) {
+			state = 0;
+		}
+		// 默认意见为同意。
+		if (StringUtils.isBlank(content)) {
+			content = ControllerHelper.getMessage(I18nKey.wf_agree);
+		}
+		String today = DocumentUtils.getIntance().today();
+		this.jdbcTemplate.update(sql, content, docVo.getWorkItemId(), docVo.getDynamicPageId(), userId, today,
+				docVo.getEntryId(), state);
+	}
+
+	/**
+	 * 增加钉钉预设流程的流程日志
+	 * 
+	 * @param docVo
+	 */
+	private void addPresetLogs(DocumentVO docVo) {
+		String userId = ControllerHelper.getUser().getUserIdCardNumber();
+		HttpServletRequest request = ControllerContext.getRequest();
+		String content = request.getParameter("work_logs_content");
+		Object CURRENT_NODE = request.getAttribute("CURRENT_NODE");
+		Object state = request.getAttribute("state");
+		int currentNode = 0;
+		if (CURRENT_NODE != null) {
+			// 先从流程预设中获取
+			currentNode = Integer.parseInt(CURRENT_NODE + "");
+		}
+		// 默认意见为同意。
+		if (StringUtils.isBlank(content)) {
+			content = ControllerHelper.getMessage(I18nKey.wf_agree);
+		}
+		if (state == null) {
+			state = 0;
+		}
+		String today = DocumentUtils.getIntance().today();
+		try {
+			// 取出发送时间为空，并且创建时间最早的那条记录ID
+			Integer id = this.jdbcTemplate.queryForObject(
+					"select ID from p_fm_work_logs where WORK_ID=? and creator=? and CURRENT_NODE=? and send_time is null order by create_time limit 0,1",
+					Integer.class, docVo.getWorkItemId(), userId, currentNode);
+			// 如果记录表已经存在该成员的日志则直接更新,没有则插入
+			String sql = "update p_fm_work_logs set send_time=?, content=?,state=? where id=?";
+			this.jdbcTemplate.update(sql, today, content, state, id);
+		} catch (DataAccessException e) {
+			addCommonLogs(docVo);
 		}
 	}
 
@@ -1137,8 +1165,10 @@ public class WorkflowTaskControl extends BaseController {
 			actExample.createCriteria().andEqualTo("dynamicPage_id", pageVO.getId()).andLike("code",
 					StoreService.PAGEACT_CODE + "%");
 			stores = storeServiceImpl.selectPagedByExample(actExample, 1, Integer.MAX_VALUE, null);
+			// 计算隐藏只读禁用值
 			DocUtils.calculateStores(map, stores, pageActStatus, engine, others, isRead);
-
+			// 计算流程节点绑定隐藏只读禁用值
+			DocUtils.flowAuthorityResolve(docVo, status);
 			root.put("pageActStatus", pageActStatus);
 			// 执行页面加载前脚本
 			String preLoadScript = StringEscapeUtils.unescapeHtml4(pageVO.getPreLoadScript());

@@ -66,7 +66,7 @@ public class JFlowAdapter {
 	}
 
 	public static void Flow_returnWork(Map resultMap, long fid, String msg, String userId, String toNode,
-			String masterDataSource, DocumentUtils utils, DocumentVO docVo) throws Exception {
+			String masterDataSource, DocumentUtils utils, DocumentVO docVo,boolean isBackToThisNode) throws Exception {
 		try {
 			resultMap.put("act", 1);
 			String flowNo = docVo.getFlowTempleteId();
@@ -113,16 +113,14 @@ public class JFlowAdapter {
 
 			}
 			Dev2Interface.Node_ReturnWork(flowNo, Long.parseLong(workID), fid, Integer.parseInt(nodeid), NDForm,
-					returnEmp, msg, true);
+					returnEmp, msg, isBackToThisNode);
 			saveExecuteData(utils, docVo, masterDataSource);
 			String nextExecutor = "";
 			if(StringUtils.isNotBlank(returnEmp)){
 				nextExecutor = "," + ControllerHelper.getMessage("wf_next_step_executor") + returnEmp;
 			}	
-			resultMap.put("message", ControllerHelper.getMessage(I18nKey.wf_send_success) + nextExecutor);
+			resultMap.put("message", ControllerHelper.getMessage("wf_send_return_success") + nextExecutor);
 			resultMap.put("success", true);
-			resultMap.put("message", ControllerHelper.getMessage(I18nKey.wf_send_success));
-
 		} catch (Exception e) {
 			resultMap.put("success", false);
 			resultMap.put("message", ControllerHelper.getMessage(I18nKey.wf_send_fail));

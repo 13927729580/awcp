@@ -30,7 +30,6 @@ import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
 import org.springframework.util.ReflectionUtils;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.github.miemiedev.mybatis.paginator.domain.PageList;
 
@@ -52,8 +51,8 @@ import cn.org.awcp.unit.vo.PunSystemVO;
 import cn.org.awcp.unit.vo.PunUserBaseInfoVO;
 import cn.org.awcp.unit.vo.PunUserGroupVO;
 import cn.org.awcp.venson.common.SC;
+import cn.org.awcp.venson.exception.PlatformException;
 import cn.org.awcp.venson.util.CookieUtil;
-import cn.org.awcp.venson.util.HttpUtils;
 import cn.org.awcp.venson.util.MD5Util;
 
 /**
@@ -151,9 +150,11 @@ public final class ControllerHelper {
 
 	public static String getBasePath() {
 		HttpServletRequest request = ControllerContext.getRequest();
-		String path = request.getContextPath();
-		String basePath = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + path
-				+ "/";
+		if (request == null) {
+			return null;
+		}
+		String basePath = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()
+				+ request.getContextPath() + "/";
 		return basePath;
 	}
 
@@ -164,27 +165,32 @@ public final class ControllerHelper {
 		Map<String, Object> gParams = new HashMap<String, Object>();
 		Emp emp = new Emp(pvi.getUserIdCardNumber());
 		WebUser.SignInOfGener(emp);
-		gParams.put("orgCode", pvi.getOrgCode());
+		gParams.put("parentGroupId", 0);
 		List<PunGroupVO> groups = groupService.queryResult("eqQueryList", gParams);
+		if (groups.isEmpty() || groups.size() != 1) {
+			throw new PlatformException("组织架构为空");
+		}
 		SessionUtils.addObjectToSession(SessionContants.CURRENT_USER, pvi);// 用户
 		SessionUtils.addObjectToSession(SessionContants.CURRENT_USER_GROUP, groups.get(0));// 组
 		gParams.clear();
 		gParams.put("userId", pvi.getUserId());
 		PageList<PunUserGroupVO> userGroup = usergroupService.selectPagedByExample("queryList", gParams, 0, 1, null);
 		if (userGroup != null && !userGroup.isEmpty()) {
-			SessionUtils.addObjectToSession(SC.USER_GROUP, userGroup.get(0));// 组
+			SessionUtils.addObjectToSession(SC.USER_GROUP, userGroup);// 组
 		}
-		gParams.put("sysId", SC.SYSTEM_ID);
+
 		PunSystemService sysService = Springfactory.getBean("punSystemServiceImpl");
-		PunSystemVO system = sysService.findById(SC.SYSTEM_ID);
-		SessionUtils.addObjectToSession(SessionContants.CURRENT_SYSTEM, system);
-		SessionUtils.addObjectToSession(SessionContants.TARGET_SYSTEM, system);
+		List<PunSystemVO> system = sysService.findAll();
+		SessionUtils.addObjectToSession(SessionContants.CURRENT_SYSTEM, system.get(0));
+		SessionUtils.addObjectToSession(SessionContants.TARGET_SYSTEM, system.get(0));
+
+		gParams.put("sysId", system.get(0).getSysId());
 		List<PunRoleInfoVO> roles = (List<PunRoleInfoVO>) roleService.queryResult("queryBySysIdAndUserId", gParams);
 		SessionUtils.addObjectToSession(SessionContants.CURRENT_ROLES, roles);
 	}
 
-	public static PunUserGroupVO getUserGroup() {
-		return (PunUserGroupVO) SessionUtils.getObjectFromSession(SC.USER_GROUP);
+	public static List<PunUserGroupVO> getUserGroup() {
+		return (List<PunUserGroupVO>) SessionUtils.getObjectFromSession(SC.USER_GROUP);
 	}
 
 	public static PunSystemVO getSystem() {
@@ -199,9 +205,8 @@ public final class ControllerHelper {
 		PunSystemVO system = getSystem();
 		if (system != null) {
 			return system.getSysId();
-		} else {
-			return SC.SYSTEM_ID;
 		}
+		return 110L;
 	}
 
 	/**
@@ -383,14 +388,9 @@ public final class ControllerHelper {
 			}
 		}
 		if (secretKey != null && userAccount != null) {
-			// 如果不为空则进行校验key值得合法性
-			Map<String, String> parameters = new HashMap<String, String>();
-			parameters.put("uid", userAccount);
-			parameters.put("key", secretKey);
-			parameters.put("APIId", "validSSO");
-			String body = HttpUtils.sendGet("http://www.tongyuanmeng.com/awcp/api/executeAPI.do", parameters);
+			String data = MD5Util.getMD5StringWithSalt(userAccount, SC.SALT);
 			// 若返回值不为空则为合法操作
-			if (StringUtils.isNotBlank(body) && userAccount.equals(JSON.parseObject(body).getString("data"))) {
+			if (userAccount.equals(data)) {
 				return toLogin(userAccount, false) != null;
 			}
 		}
@@ -399,8 +399,8 @@ public final class ControllerHelper {
 
 	public static PunUserBaseInfoVO toLogin(String userAccount, boolean isRemember) {
 		Subject subject = SecurityUtils.getSubject();
-		String plainToke = SC.ORG_CODE + ShiroDbRealm.SPLIT + userAccount + ShiroDbRealm.SPLIT
-				+ WhichEndEnum.FRONT_END.getCode() + ShiroDbRealm.SPLIT + SC.SALT;
+		String plainToke = userAccount + ShiroDbRealm.SPLIT + WhichEndEnum.FRONT_END.getCode() + ShiroDbRealm.SPLIT
+				+ SC.SALT;
 		UsernamePasswordToken token = new UsernamePasswordToken(plainToke, SC.SALT);
 		subject.login(token);
 		PunUserBaseInfoVO pvi = (PunUserBaseInfoVO) subject.getPrincipal();

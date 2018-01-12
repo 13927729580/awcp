@@ -33,10 +33,9 @@ public class DDRequestService {
 				.getString("access_token");
 	}
 
-	public static JSONObject getDepartmentUser(String accessToken, long departmentId, Long offset, Integer size,
-			String order) {
-		return HttpHelper.httpGet(URLConstant.gettoken + "?access_token=" + accessToken + "&department_id="
-				+ departmentId + "&offset=" + offset + "&size=" + size + "&order=" + order);
+	public static JSONObject getSimpleDeptUser(String accessToken, long departmentId) {
+		String url = URLConstant.simple_user_list + "?access_token=" + accessToken + "&department_id=" + departmentId;
+		return HttpHelper.httpGet(url);
 	}
 
 	public static JSONObject getDeptList(String accessToken) {

@@ -6,11 +6,12 @@ if(window!=top){
 <!DOCTYPE>
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
 <title>AWCP-全栈配置云开发平台</title>
 <meta name="keywords" content="AWCP,核码,自由职业者,外包,众包,企业服务,企业信息化,共享定制" />
 <meta name="description" content="深圳缘梦互联网科技有限公司（简称缘梦互联网科技）是一家以企业应用研究为核心的软件开发公司，经过多年的努力，积累了awcp共享定制平台，该平台实现了可视化流程设计，表单配置，业务逻辑定制，基本满足了基于数据库方面的业务系统开发。该平台已经开源，目前已经有三千多人掌握了平台开发。" />
-<meta name="viewport" content="width=device-width, initial-scale=1">
 <script type="application/x-javascript"> addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false); function hideURLbar(){ window.scrollTo(0,1); } </script>
 
 <link href="./resources/styles/login1.css" rel='stylesheet' type='text/css' />
@@ -22,7 +23,7 @@ if(window!=top){
 <script src="./venson/js/base64.js"></script>
 </head>
 <body>
-<h1>AWCP-全栈配置云开发平台</h1>
+<h1 id="systemName">AWCP-全栈配置云开发平台</h1>
 <div class="login-form">
 	<div class="head-info">
 		<label class="lbl-1"> </label>
@@ -30,13 +31,13 @@ if(window!=top){
 		<label class="lbl-3"> </label>
 	</div>
 	<div class="clear"> </div>
-	<div class="avtar"><img src="images/logo.png" width="79" /></div>
+	<div class="avtar"><img id="loginImg" data-src="images/logo.png" width="79" /></div>
 	<form id="saveForm">
 		<input type="hidden" name="targetUrl" value="manage/index.html" />
 				<input type="hidden" name="sysId" id="sysId" value="110" />
 				<!-- <input type="hidden" name="ALT" id="ALT" value="true"/> -->
 				<input type="hidden" id="orgCode" name="orgCode" value="45575544-2" />
-		<input type="text"  data-require=true name="userName" class="text" id="userName" value="用户名" >
+		<input type="text"  data-require=true name="userName" class="text" id="userName" placeholder="用户名" >
 		<div class="key">
 			<input type="password"  data-require=true name="userPwd" id="userPwd" placeholder="密码">
 			<p class="wrongTip"></p>
@@ -49,6 +50,29 @@ if(window!=top){
 </div>
 <script>
 $(function(){
+	$.get(baseUrl+"api/anon/systemName",function(data){
+		if(systemName){
+			$("#systemName").text(data.data);
+		}else{
+			$("#systemName").text("全栈配置云开发平台");
+		}
+	});
+	var imgs=Comm.getData("api/execute/getAttrImg",{"_method":"get","type":"loginLogo"});
+	if(imgs&&imgs.length==1){
+		var images=imgs[0].images;
+		var arr=images.split(";");
+		$.each(arr,function(i,e){
+			if(e.length>20){
+				var file=Comm.getData("api/common/file/get",{"id":e});
+				if(file!=-1){
+					$("#loginImg").attr("src",baseUrl+"api/common/file/showPicture?id="+e);
+				}
+			}		
+		})
+	}
+	if(!$("#loginImg").attr("src")){
+		$("#loginImg").attr("src",$("#loginImg").attr("data-src"));
+	}
 	$("#userName").val($.cookie("userName"));
 	$("#btUserLogin").bind("click", function() {
 		if(!Comm.checkError()){	//校验
@@ -57,7 +81,7 @@ $(function(){
 			params.userPwd = "isAuth" + Base64.encode(params.userPwd);
 			$.ajax({
      		   type: "POST",
-     		   url: baseUrl + "appLogin.do",
+     		   url: baseUrl + "api/appLogin",
      		   data: params,
      		   success: function(data){
      			    if(data.status==0){

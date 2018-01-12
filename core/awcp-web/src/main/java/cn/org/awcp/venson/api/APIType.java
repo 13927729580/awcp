@@ -42,21 +42,36 @@ public enum APIType {
 	 * 执行脚本
 	 */
 	EXECUTE_SCRIPT(8);
-	private int type;
-
 	private APIType() {
 	}
 
 	private APIType(int type) {
-		this.type = type;
 	}
 
 	public void setType(int type) {
-		this.type = type;
 	}
 
-	public int getValue() {
-		return type;
+	public static APIType valueOf(int value) { // 手写的从int到enum的转换函数
+		switch (value) {
+		case 1:
+			return APIType.ADD;
+		case 2:
+			return APIType.UPDATE;
+		case 3:
+			return APIType.GET;
+		case 4:
+			return APIType.DELETE;
+		case 5:
+			return APIType.EXECUTE;
+		case 6:
+			return APIType.QUERY;
+		case 7:
+			return APIType.PAGE;
+		case 8:
+			return APIType.EXECUTE_SCRIPT;
+		default:
+			return null;
+		}
 	}
 
 }

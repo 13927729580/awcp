@@ -92,4 +92,17 @@ public class PunNotificationController {
 		}
 	}
 
+	@RequestMapping(value = "notifications/read/{id}", method = RequestMethod.GET)
+	public ReturnResult readNotifications(@PathVariable("id") String id) {
+		ReturnResult result = ReturnResult.get();
+		// 获取当前登录用户
+		String sql = "UPDATE p_un_notify_user SET is_read='1' WHERE msg_id=:id AND USER=:user";
+		// 获取当前登录用户
+		PunUserBaseInfoVO user = ControllerHelper.getUser();
+		Map<String, Object> paramMap = new HashMap<>();
+		paramMap.put("user", user.getUserIdCardNumber());
+		paramMap.put("id", id);
+		return result.setStatus(StatusCode.SUCCESS).setData(jdbcTemplate.update(sql, paramMap));
+	}
+
 }

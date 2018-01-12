@@ -375,6 +375,7 @@ public class PageActController extends BaseController {
 		ModelAndView mv = new ModelAndView();
 		String[] ids = selects.split(",");
 		if (storeService.delete(ids)) {
+			deleteResource(ids);
 			addMessage(mv, "删除成功");
 		}
 		mv.setViewName("redirect:/fd/act/list.do");
@@ -392,9 +393,7 @@ public class PageActController extends BaseController {
 	public String deletePageActByAjax(@RequestParam(value = "_selects") String selects) {
 		String[] ids = selects.split(",");
 		if (storeService.delete(ids)) {
-			for (int i = 0; i < ids.length; i++) {
-				punResourceService.removeByRelateResoAndType(ids[i], "3");
-			}
+			deleteResource(ids);
 			return "1";
 		} else {
 			return "0";
@@ -414,6 +413,7 @@ public class PageActController extends BaseController {
 		String[] ids = selects.split(",");
 		try {
 			storeService.delete(ids);
+			deleteResource(ids);
 		} catch (Exception e) {
 			logger.info("ERROR", e);
 		}
@@ -421,6 +421,12 @@ public class PageActController extends BaseController {
 		// 从session中获取当前页？
 		mv.setViewName("redirect:/fd/act/list.do");
 		return mv;
+	}
+
+	private void deleteResource(String... ids) {
+		for (String id : ids) {
+			punResourceService.removeByRelateResoAndType(id, "3");
+		}
 	}
 
 	/**

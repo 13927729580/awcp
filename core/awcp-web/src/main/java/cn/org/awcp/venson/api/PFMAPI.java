@@ -1,16 +1,15 @@
 package cn.org.awcp.venson.api;
 
-import java.util.HashMap;
+import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 
 import cn.org.awcp.core.domain.SzcloudJdbcTemplate;
+import cn.org.awcp.core.utils.Cache;
 import cn.org.awcp.core.utils.Springfactory;
-import cn.org.awcp.venson.util.PlatfromProp;
 
 /**
  * api接口实体类
@@ -18,7 +17,11 @@ import cn.org.awcp.venson.util.PlatfromProp;
  * @author venson
  *
  */
-public class PFMAPI {
+public class PFMAPI implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	// APIID
 	private String APIID;
 	// API名称
@@ -143,12 +146,7 @@ public class PFMAPI {
 		APICache = aPICache;
 	}
 
-	private static final Map<String, PFMAPI> cache = new HashMap<>();
-
-	private static boolean isCache;
-	static {
-		isCache = Boolean.parseBoolean(PlatfromProp.getValue("API_SCRIPT_CACHE"));
-	}
+	private static final Cache cache = Springfactory.getBean("cache");
 
 	/**
 	 * 根据Id获取API记录
@@ -160,16 +158,10 @@ public class PFMAPI {
 			apiName = apiName.trim();
 		}
 		// 判断是否启用缓存
-		if (isCache) {
-			// 先去缓存中查找
-			if (cache.containsKey(apiName)) {
-				return cache.get(apiName);
-			}
-		} else {
-			// 删除缓存
-			if (cache.containsKey(apiName)) {
-				cache.remove(apiName);
-			}
+		// 先去缓存中查找
+		Object value = cache.get(apiName);
+		if (value instanceof PFMAPI) {
+			return (PFMAPI) value;
 		}
 		SzcloudJdbcTemplate jdbcTemplate = Springfactory.getBean("jdbcTemplate");
 		String sql = "select API_ID as APIID,API_Name as APIName,API_SQL as APISQL,API_DESC as APIDesc,"
@@ -178,9 +170,7 @@ public class PFMAPI {
 		try {
 			PFMAPI result = jdbcTemplate.queryForObject(sql, new BeanPropertyRowMapper<PFMAPI>(PFMAPI.class), apiName);
 			result.setRules(APIRule.get(result.getAPIID(), jdbcTemplate));
-			if (isCache) {
-				cache.put(apiName, result);
-			}
+			cache.put(apiName, result);
 			return result;
 		} catch (DataAccessException e) {
 			return null;

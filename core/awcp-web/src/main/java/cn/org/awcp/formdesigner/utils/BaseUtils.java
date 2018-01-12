@@ -42,6 +42,7 @@ import com.github.miemiedev.mybatis.paginator.domain.Paginator;
 import BP.WF.Dev2Interface;
 import BP.WF.Template.Flow;
 import BP.WF.Template.WorkBase.Work;
+import cn.org.awcp.core.utils.Cache;
 import cn.org.awcp.core.utils.DateUtils;
 import cn.org.awcp.core.utils.Security;
 import cn.org.awcp.core.utils.SessionUtils;
@@ -54,7 +55,7 @@ import cn.org.awcp.formdesigner.core.domain.Document;
 import cn.org.awcp.metadesigner.application.MetaModelOperateService;
 import cn.org.awcp.metadesigner.application.MetaModelService;
 import cn.org.awcp.metadesigner.vo.MetaModelVO;
-import cn.org.awcp.unit.message.PunNotification;
+import cn.org.awcp.unit.message.PunNotificationService;
 import cn.org.awcp.unit.service.PunGroupService;
 import cn.org.awcp.unit.service.PunPositionService;
 import cn.org.awcp.unit.service.PunUserBaseInfoService;
@@ -93,6 +94,10 @@ public abstract class BaseUtils {
 	protected MetaModelService metaModelService = Springfactory.getBean("metaModelServiceImpl");
 	// 注入元数据操作服务
 	protected MetaModelOperateService metaModelOperateService = Springfactory.getBean("metaModelOperateServiceImpl");
+	// 消息推送
+	protected PunNotificationService punNotificationService = Springfactory.getBean("punNotificationService");
+	// 消息推送
+	protected Cache cache = Springfactory.getBean("cache");
 
 	/*
 	 * 获取项目路径
@@ -154,11 +159,11 @@ public abstract class BaseUtils {
 		Object currentUser = SessionUtils.getObjectFromSession(SessionContants.CURRENT_USER);
 		// 如果当前用户为空则尝试去cookie中查找
 		if (currentUser == null) {
-			// 如果cookie登陆失败则直接为非法登陆
+			// 尝试用cookie登录
 			if (!ControllerHelper.loginByCookie())
 				return null;
 		}
-		return (PunUserBaseInfoVO) SessionUtils.getObjectFromSession(SessionContants.CURRENT_USER);
+		return (PunUserBaseInfoVO) currentUser;
 
 	}
 
@@ -739,15 +744,20 @@ public abstract class BaseUtils {
 	 *            数据源名称
 	 * @return
 	 */
-	public boolean updateData(String name) {
-
-		documentService.updateModelData(ControllerContext.getPage(), ControllerContext.getDoc(), name);
-		return true;
+	public Object updateData(String name) {
+		if (documentService.updateModelData(ControllerContext.getPage(), ControllerContext.getDoc(), name)) {
+			return true;
+		} else {
+			return null;
+		}
 	}
 
-	public boolean updateDataFlow(String name) {
-		documentService.updateModelDataFlow(ControllerContext.getPage(), ControllerContext.getDoc(), name);
-		return true;
+	public Object updateDataFlow(String name) {
+		if (documentService.updateModelDataFlow(ControllerContext.getPage(), ControllerContext.getDoc(), name)) {
+			return true;
+		} else {
+			return null;
+		}
 	}
 
 	/************** sql执行 ****************/
@@ -938,8 +948,7 @@ public abstract class BaseUtils {
 	 * @return
 	 */
 	public boolean deleteData(DynamicPageVO page, String recordId) {
-		documentService.deleteModelData(page, recordId);
-		return true;
+		return documentService.deleteModelData(page, recordId);
 	}
 
 	/***
@@ -953,7 +962,7 @@ public abstract class BaseUtils {
 	 *            参数
 	 * @return
 	 */
-	public String executeHttpRequest(String method, String url, Map<String, String> params) {
+	public String executeHttpRequest(String method, String url, Map<String, Object> params) {
 		if (params == null) {
 			params = Collections.EMPTY_MAP;
 		}
@@ -1356,8 +1365,8 @@ public abstract class BaseUtils {
 	 *            接收人（IDcardNumber）
 	 * @return
 	 */
-	public boolean pushSystemNotify(String title, String content, String url, String receiver) {
-		return pushNotify(title, content, null, url, receiver);
+	public boolean pushSystemNotify(String title, String content, String url, String receiver, String... way) {
+		return pushNotify(title, content, null, url, receiver, way);
 	}
 
 	/**
@@ -1375,43 +1384,12 @@ public abstract class BaseUtils {
 	 *            接收人（IDcardNumber）
 	 * @return
 	 */
-	public boolean pushNotify(String title, String content, String type, String url, String receiver) {
-		type = StringUtils.defaultString(type, "system");
-		String sql = "insert into p_un_notification(ID,TITLE,CONTENT,TYPE,MSG_URL,CREATE_TIME,CREATOR,CREATE_NAME,STATE) values(?,?,?,?,?,?,?,?,'1')";
-		String msgId = UUID.randomUUID().toString();
-		String createTime = this.today();
-		PunUserBaseInfoVO user = ControllerHelper.getUser();
-		if (this.excuteUpdate(sql, msgId, title, content, type, url, this.today(), user.getUserId(),
-				user.getName()) == 1 && this.pushNotifyUser(msgId, receiver)) {
-			// 消息推送
-			PunNotification notification = new PunNotification();
-			notification.setContent(content);
-			notification.setCreateTime(createTime);
-			notification.setCreateName(user.getName());
-			notification.setId(msgId);
-			notification.setTitle(title);
-			notification.setType(type);
-			notification.setReceiver(receiver);
-			notification.setMsgUrl(url);
-			notification.sendScoket();
-			return true;
-		}
-		throw new PlatformException("消息发送失败");
+	public boolean pushNotify(String title, String content, String type, String url, String receiver, String... way) {
 
+		return punNotificationService.pushNotify(title, content, type, url, receiver, way);
 	}
 
-	public boolean pushNotifyUser(String msgId, String receiver) {
-		String sql = "insert into p_un_notify_user(MSG_ID,USER,IS_READ,STATE) values(?,?,'0','1')";
-		String[] users = receiver.split(",");
-		boolean result = true;
-		for (String user : users) {
-			if (StringUtils.isNotBlank(user)) {
-				int r = this.excuteUpdate(sql, msgId, user);
-				if (r == 0) {
-					result = false;
-				}
-			}
-		}
-		return result;
+	public Cache getCache() {
+		return cache;
 	}
 }

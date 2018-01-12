@@ -1143,7 +1143,8 @@ public class MapData extends EntityNoName {
 					BP.Sys.SysEnum se = new BP.Sys.SysEnum();
 					for (DataColumn dc : dt.Columns) {
 						String val = (String) ((dr.getValue(dc.ColumnName) instanceof String)
-								? dr.getValue(dc.ColumnName) : null);
+								? dr.getValue(dc.ColumnName)
+								: null);
 						se.SetValByKey(dc.ColumnName, val);
 					}
 					se.setMyPK(se.getEnumKey() + "_" + se.getLang() + "_" + se.getIntKey());
@@ -1537,6 +1538,8 @@ public class MapData extends EntityNoName {
 		String sql = "";
 		sql = "SELECT * FROM Sys_MapDtl WHERE FK_MapData ='" + this.getNo() + "'";
 		DataTable Sys_MapDtl = DBAccess.RunSQLReturnTable(sql);
+		// TODO 20171229 modify by venson 将查询SQL清空
+		sql = "";
 		String ids = "'" + this.getNo() + "'";
 		for (DataRow dr : Sys_MapDtl.Rows) {
 			ids += ",'" + dr.getValue("No") + "'";

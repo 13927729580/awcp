@@ -145,19 +145,18 @@ public class ShiroDbRealm extends AuthorizingRealm {
 	private SimpleAuthenticationInfo verifyEnd(UsernamePasswordToken token) {
 		String nameAndOrgcodeAndEnd = token.getUsername();
 		String[] result = nameAndOrgcodeAndEnd.split(SPLIT);
-		String orgCode = result[0];// 组织机构代码
-		String idCard = result[1];// 身份证号码
-		String whichEnd = result[2];// 端
+		String idCard = result[0];// 身份证号码
+		String whichEnd = result[1];// 端
 		PunUserBaseInfoVO pvi = null;
 		String password = null;
 		// 查看是否属于免密校验
-		if (result.length > 3) {
-			password = result[3];
-			pvi = findFrontUser(orgCode, idCard);
+		if (result.length > 2) {
+			password = result[2];
+			pvi = findFrontUser(idCard);
 		} else {
 			switch (WhichEndEnum.getOperChartType(whichEnd)) {
 			case FRONT_END:// 前端
-				pvi = findFrontUser(orgCode, idCard);
+				pvi = findFrontUser(idCard);
 				password = pvi.getUserPwd();
 				password = EncryptUtils.decript(password);
 				break;
@@ -176,7 +175,7 @@ public class ShiroDbRealm extends AuthorizingRealm {
 	 * @param idCard
 	 * @return
 	 */
-	private PunUserBaseInfoVO findFrontUser(String orgCode, String idCard) {
+	private PunUserBaseInfoVO findFrontUser(String idCard) {
 		logger.debug("validateFrontUser");
 		Map<String, Object> m = new HashMap<String, Object>();
 

@@ -41,9 +41,9 @@
 		<thead>
 			<tr>
 				<th>传入参数</th>
-				<th width="10%">————》</th>
+				<th width="6%">——》</th>
 				<th>存储组件</th>
-				<th width="10%">删除</th>
+				<th width="6%">删除</th>
 			</tr>
 		</thead>
 		<tbody id="paramentBody"></tbody>

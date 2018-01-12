@@ -1,18 +1,22 @@
 package cn.org.awcp.venson.util;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
  * 用于模拟HTTP请求中GET/POST方式
  * 
- * @author landa
+ * @author venson
  *
  */
 public class HttpUtils {
@@ -20,6 +24,34 @@ public class HttpUtils {
 	 * 日志对象
 	 */
 	protected static final Log logger = LogFactory.getLog(HttpUtils.class);
+
+	public static void main(String[] args) {
+		Map<String, Object> map = new HashMap<>();
+		map.put("name", "admin");
+		System.out.println(HttpUtils.sendPost("http://192.168.1.111/awcp/api/execute/test", null));
+	}
+
+	/**
+	 * 发送GET请求
+	 * 
+	 * @param url
+	 *            目的地址
+	 * @return 远程响应结果
+	 */
+	public static String sendGet(String url) {
+		return sendGet(url, null);
+	}
+
+	/**
+	 * 发送POST请求
+	 * 
+	 * @param url
+	 *            目的地址
+	 * @return 远程响应结果
+	 */
+	public static String sendPost(String url) {
+		return sendPost(url, null);
+	}
 
 	/**
 	 * 发送GET请求
@@ -30,31 +62,35 @@ public class HttpUtils {
 	 *            请求参数，Map类型。
 	 * @return 远程响应结果
 	 */
-	public static String sendGet(String url, Map<String, String> parameters) {
-		String result = "";
+	public static String sendGet(String url, Map<String, Object> parameters) {
+		StringBuffer result = new StringBuffer();
 		BufferedReader in = null;// 读取响应输入流
-		StringBuffer sb = new StringBuffer();// 存储参数
-		String params = "";// 编码之后的参数
 		try {
-			// 编码请求参数
-			if (parameters.size() == 1) {
-				for (String name : parameters.keySet()) {
-					sb.append(name).append("=").append(java.net.URLEncoder.encode(parameters.get(name), "UTF-8"));
+			if (parameters != null && parameters.size() > 0) {
+				StringBuffer sb = new StringBuffer();// 存储参数
+				// 编码请求参数
+				if (parameters.size() == 1) {
+					for (String name : parameters.keySet()) {
+						sb.append(name).append("=")
+								.append(URLEncoder.encode(String.valueOf(parameters.get(name)), "UTF-8"));
+					}
+				} else {
+					for (String name : parameters.keySet()) {
+						sb.append(name).append("=")
+								.append(URLEncoder.encode(String.valueOf(parameters.get(name)), "UTF-8")).append("&");
+					}
+					sb.delete(0, sb.length() - 1);
 				}
-				params = sb.toString();
-			} else {
-				for (String name : parameters.keySet()) {
-					sb.append(name).append("=").append(java.net.URLEncoder.encode(parameters.get(name), "UTF-8"))
-							.append("&");
+				if (url.contains("?")) {
+					url = url + "&" + sb.toString();
+				} else {
+					url = url + "?" + sb.toString();
 				}
-				String temp_params = sb.toString();
-				params = temp_params.substring(0, temp_params.length() - 1);
 			}
-			String full_url = url + "?" + params;
 			// 创建URL对象
-			java.net.URL connURL = new java.net.URL(full_url);
+			URL connURL = new URL(url);
 			// 打开URL连接
-			java.net.HttpURLConnection httpConn = (java.net.HttpURLConnection) connURL.openConnection();
+			HttpURLConnection httpConn = (HttpURLConnection) connURL.openConnection();
 			// 设置通用属性
 			httpConn.setRequestProperty("Accept", "*/*");
 			httpConn.setRequestProperty("Connection", "Keep-Alive");
@@ -66,20 +102,14 @@ public class HttpUtils {
 			String line;
 			// 读取返回的内容
 			while ((line = in.readLine()) != null) {
-				result += line;
+				result.append(line);
 			}
 		} catch (Exception e) {
 			logger.info("ERROR", e);
 		} finally {
-			try {
-				if (in != null) {
-					in.close();
-				}
-			} catch (IOException e) {
-				logger.info("ERROR", e);
-			}
+			IOUtils.closeQuietly(in);
 		}
-		return result;
+		return result.toString();
 	}
 
 	/**
@@ -91,31 +121,15 @@ public class HttpUtils {
 	 *            请求参数，Map类型。
 	 * @return 远程响应结果
 	 */
-	public static String sendPost(String url, Map<String, String> parameters) {
-		String result = "";// 返回的结果
+	public static String sendPost(String url, Map<String, Object> parameters) {
+		StringBuffer result = new StringBuffer();
 		BufferedReader in = null;// 读取响应输入流
 		PrintWriter out = null;
-		StringBuffer sb = new StringBuffer();// 处理请求参数
-		String params = "";// 编码之后的参数
 		try {
-			// 编码请求参数
-			if (parameters.size() == 1) {
-				for (String name : parameters.keySet()) {
-					sb.append(name).append("=").append(java.net.URLEncoder.encode(parameters.get(name), "UTF-8"));
-				}
-				params = sb.toString();
-			} else {
-				for (String name : parameters.keySet()) {
-					sb.append(name).append("=").append(java.net.URLEncoder.encode(parameters.get(name), "UTF-8"))
-							.append("&");
-				}
-				String temp_params = sb.toString();
-				params = temp_params.substring(0, temp_params.length() - 1);
-			}
 			// 创建URL对象
-			java.net.URL connURL = new java.net.URL(url);
+			URL connURL = new URL(url);
 			// 打开URL连接
-			java.net.HttpURLConnection httpConn = (java.net.HttpURLConnection) connURL.openConnection();
+			HttpURLConnection httpConn = (HttpURLConnection) connURL.openConnection();
 			// 设置通用属性
 			httpConn.setRequestProperty("Accept", "*/*");
 			httpConn.setRequestProperty("Connection", "Keep-Alive");
@@ -123,10 +137,26 @@ public class HttpUtils {
 			// 设置POST方式
 			httpConn.setDoInput(true);
 			httpConn.setDoOutput(true);
+			StringBuffer sb = new StringBuffer();// 存储参数
+			if (parameters != null && parameters.size() > 0) {
+				// 编码请求参数
+				if (parameters.size() == 1) {
+					for (String name : parameters.keySet()) {
+						sb.append(name).append("=")
+								.append(URLEncoder.encode(String.valueOf(parameters.get(name)), "UTF-8"));
+					}
+				} else {
+					for (String name : parameters.keySet()) {
+						sb.append(name).append("=")
+								.append(URLEncoder.encode(String.valueOf(parameters.get(name)), "UTF-8")).append("&");
+					}
+					sb.delete(0, sb.length() - 1);
+				}
+			}
 			// 获取HttpURLConnection对象对应的输出流
 			out = new PrintWriter(httpConn.getOutputStream());
 			// 发送请求参数
-			out.write(params);
+			out.write(sb.toString());
 			// flush输出流的缓冲
 			out.flush();
 			// 定义BufferedReader输入流来读取URL的响应，设置编码方式
@@ -134,23 +164,15 @@ public class HttpUtils {
 			String line;
 			// 读取返回的内容
 			while ((line = in.readLine()) != null) {
-				result += line;
+				result.append(line);
 			}
 		} catch (Exception e) {
 			logger.info("ERROR", e);
 		} finally {
-			try {
-				if (out != null) {
-					out.close();
-				}
-				if (in != null) {
-					in.close();
-				}
-			} catch (IOException ex) {
-				logger.info("ERROR", ex);
-			}
+			IOUtils.closeQuietly(out);
+			IOUtils.closeQuietly(in);
 		}
-		return result;
+		return result.toString();
 	}
 
 }

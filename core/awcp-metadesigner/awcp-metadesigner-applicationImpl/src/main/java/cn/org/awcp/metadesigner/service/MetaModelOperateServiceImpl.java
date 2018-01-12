@@ -1,12 +1,13 @@
 package cn.org.awcp.metadesigner.service;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -30,6 +31,8 @@ import cn.org.awcp.unit.vo.PunSystemVO;
 
 @Service(value = "metaModelOperateServiceImpl")
 public class MetaModelOperateServiceImpl implements MetaModelOperateService {
+	private final Logger logger = LoggerFactory.getLogger(getClass());
+
 	@Autowired
 	@Qualifier("jdbcTemplate")
 	private JdbcTemplate jdbcTemplate;
@@ -50,7 +53,7 @@ public class MetaModelOperateServiceImpl implements MetaModelOperateService {
 	/**
 	 * 保存
 	 */
-	public boolean save(Map<String, String> map, String modelCode) throws Exception {
+	public boolean save(Map<String, String> map, String modelCode) {
 		// 查询
 		MetaModelVO mm = metaModelServiceImpl.queryByModelCode(modelCode.trim());
 		StringBuffer sb = new StringBuffer("insert into ").append(mm.getTableName()).append(" (");
@@ -73,21 +76,18 @@ public class MetaModelOperateServiceImpl implements MetaModelOperateService {
 				values.append(",");
 			}
 		}
-		try {
-			if (values.length() > 0) {
-				/**
-				 * 去除groupId modify by venson 20170320
-				 * 
-				 */
-				sb.delete(sb.length() - 1, sb.length());
-				sb.append(") value(");
-				sb.append(values.delete(values.length() - 1, values.length())).append(");");
-				NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
-				namedParameterJdbcTemplate.update(sb.toString(), maps);
+		if (values.length() > 0) {
+			/**
+			 * 去除groupId modify by venson 20170320
+			 * 
+			 */
+			sb.delete(sb.length() - 1, sb.length());
+			sb.append(") value(");
+			sb.append(values.delete(values.length() - 1, values.length())).append(");");
+			NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
+			if (namedParameterJdbcTemplate.update(sb.toString(), maps) == 1)
+
 				return true;
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
 		return false;
 	}
@@ -109,6 +109,7 @@ public class MetaModelOperateServiceImpl implements MetaModelOperateService {
 			jdbcTemplate.update(sb.toString(), id);
 			return true;
 		} catch (Exception e) {
+			logger.error("ERROR", e);
 			return false;
 		}
 	}
@@ -120,7 +121,7 @@ public class MetaModelOperateServiceImpl implements MetaModelOperateService {
 	 *             "like"--"lt_"
 	 * @param :modelCode
 	 */
-	public boolean deleteByParams(Map<String, String> map, String modelCode) throws ParseException {
+	public boolean deleteByParams(Map<String, String> map, String modelCode) {
 		StringBuffer sb = new StringBuffer("delete from ");
 		MetaModelVO mm = metaModelServiceImpl.queryByModelCode(modelCode);
 		sb.append(mm.getTableName());
@@ -134,13 +135,10 @@ public class MetaModelOperateServiceImpl implements MetaModelOperateService {
 				sb.append(s);
 			}
 		}
-		try {
-			NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
-			namedParameterJdbcTemplate.update(sb.toString(), map);
+		NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
+		if (namedParameterJdbcTemplate.update(sb.toString(), map) == 1)
 			return true;
-		} catch (Exception e) {
-			return false;
-		}
+		return false;
 	}
 
 	/**
@@ -149,7 +147,7 @@ public class MetaModelOperateServiceImpl implements MetaModelOperateService {
 	 * @params:map map中的key为 modelCode中的字段名
 	 * @param :modelCode
 	 */
-	public boolean update(Map<String, String> map, String modelCode) throws ParseException {
+	public boolean update(Map<String, String> map, String modelCode) {
 		// 根据modelcode查出模型
 		MetaModelVO mm = metaModelServiceImpl.queryByModelCode(modelCode.trim());
 		StringBuffer sb = new StringBuffer("update ").append(mm.getTableName()).append(" set ");
@@ -164,6 +162,7 @@ public class MetaModelOperateServiceImpl implements MetaModelOperateService {
 		// 遍历数据，拼装SQL语句
 		Map<String, Object> maps = new HashMap<String, Object>();
 		int size = 0;// 更新的字段数，如果为空则不更新
+		String primaryKey = null;
 		for (String s : map.keySet()) {
 			// 根据数据的key（也就是数据字段的名字），找到对应的模型属性
 			MetaModelItemsVO tmp = map2.get(s);
@@ -181,6 +180,7 @@ public class MetaModelOperateServiceImpl implements MetaModelOperateService {
 						where.append("=");
 						where.append(map.get(tmp.getItemCode()));
 					}
+					primaryKey = tmp.getItemCode();
 				} else {
 					sb.append(tmp.getItemCode());
 					sb.append("=");
@@ -192,16 +192,15 @@ public class MetaModelOperateServiceImpl implements MetaModelOperateService {
 			}
 		}
 		sb.deleteCharAt(sb.length() - 1).append(where);
-		try {
-			if (size > 0) {// 如果要更新的字段数大于0，则更新
-				NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
-				namedParameterJdbcTemplate.update(sb.toString(), maps);
+		if (size > 0) {// 如果要更新的字段数大于0，则更新
+			NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
+			map.put("_primay_key_", primaryKey);
+			if (namedParameterJdbcTemplate.update(sb.toString(), maps) == 1) {
+
+				return true;
 			}
-			return true;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return false;
 		}
+		return false;
 	}
 
 	/**

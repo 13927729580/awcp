@@ -126,10 +126,6 @@
 			<artifactId>mybatis-paginator</artifactId>
 		</dependency>
 		
-		<dependency>
-			<groupId>com.itextpdf</groupId>
-			<artifactId>itextpdf</artifactId>
-		</dependency>
 		
 	<!-- 	<dependency>
     		<groupId>com.microsoft.sqlserver</groupId>

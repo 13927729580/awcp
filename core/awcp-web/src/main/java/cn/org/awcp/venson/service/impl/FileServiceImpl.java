@@ -18,7 +18,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.solr.client.solrj.SolrClient;
-//import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.request.AbstractUpdateRequest;
 import org.apache.solr.client.solrj.request.ContentStreamUpdateRequest;
 import org.apache.solr.common.util.ContentStreamBase;
@@ -37,7 +36,6 @@ import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSInputFile;
 
 import cn.org.awcp.core.utils.BeanUtils;
-import cn.org.awcp.core.utils.mongodb.MongoDBUtils;
 import cn.org.awcp.formdesigner.core.domain.Attachment;
 import cn.org.awcp.unit.vo.PunUserBaseInfoVO;
 import cn.org.awcp.venson.controller.base.ControllerHelper;
@@ -51,6 +49,12 @@ public class FileServiceImpl implements FileService {
 	 * 日志对象
 	 */
 	private static final Log logger = LogFactory.getLog(FileServiceImpl.class);
+
+	@Autowired
+	public SolrClient solrClient;
+
+	@Autowired
+	private MongoClient mongo;
 
 	@Override
 	public String save(InputStream input, String fileType, String fileName, int type, boolean isIndex) {
@@ -92,13 +96,15 @@ public class FileServiceImpl implements FileService {
 			att.setSystemId(ControllerHelper.getSystemId());
 			switch (type) {
 			case FileService.MONGODB:
-				GridFS myFS = getGridFS();
+				DB db = mongo.getDB("myFiles");
+				GridFS myFS = new GridFS(db);
 				GridFSInputFile gf = myFS.createFile(in);
 				gf.setContentType(fileType);
 				gf.setFilename(fileName);
 				gf.put("id", uuid);
 				gf.put("user", user.getUserId());
 				gf.save();
+
 				att.setFileName(fileName);
 				att.setStorageId(uuid);
 				att.setType(FileService.MONGODB);
@@ -284,9 +290,11 @@ public class FileServiceImpl implements FileService {
 			}
 			switch (att.getType()) {
 			case FileService.MONGODB:
-				GridFS myFS = getGridFS();
+				DB db = mongo.getDB("myFiles");
+				GridFS myFS = new GridFS(db);
 				DBObject query = new BasicDBObject("id", att.getStorageId());
 				myFS.remove(query);
+
 				break;
 
 			case FileService.FOLDER:
@@ -313,12 +321,18 @@ public class FileServiceImpl implements FileService {
 		InputStream in = null;
 		switch (att.getType()) {
 		case FileService.MONGODB:
-			GridFS myFS = getGridFS();
-			DBObject query = new BasicDBObject("id", att.getStorageId());
-			GridFSDBFile gif = myFS.findOne(query);
-			if (gif != null) {
-				in = gif.getInputStream();
+			try {
+				DB db = mongo.getDB("myFiles");
+				GridFS myFS = new GridFS(db);
+				DBObject query = new BasicDBObject("id", att.getStorageId());
+				GridFSDBFile gif = myFS.findOne(query);
+				if (gif != null) {
+					in = gif.getInputStream();
+				}
+			} catch (Exception e1) {
+				logger.debug("ERROR", e1);
 			}
+
 			break;
 
 		case FileService.FOLDER:
@@ -408,15 +422,6 @@ public class FileServiceImpl implements FileService {
 	@Override
 	public String save(InputStream input, String fileType, String fileName) {
 		return this.save(input, fileType, fileName, FileService.DEFAULT, false);
-	}
-
-	@Autowired
-	public SolrClient solrClient;
-
-	private GridFS getGridFS() {
-		MongoClient client = MongoDBUtils.getMongoClient();
-		DB db = client.getDB("myFiles");
-		return new GridFS(db);
 	}
 
 	public void indexFilesSolr(InputStream input, String fileName, String fileType) {

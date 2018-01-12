@@ -29,7 +29,6 @@
 		<div class="row ui-layout-north" id="breadcrumb">
 			<ul class="breadcrumb">
 	          <li><i class="icon-location-arrow icon-muted"></i></li>
-	          <li><a href="<%=basePath%>dev/punSystemList.do">系统管理</a></li>
 	          <li class="active">系统编辑</li>
 	        </ul>
 		</div>
@@ -74,6 +73,7 @@
 				{ id:91, pId:7, name:"页面绑定管理",url:"<%=basePath%>common/user/list-bind.do",target:"sysEditFrame"},
 				{ id:92, pId:7, name:"页面接口管理",url:"<%=basePath%>document/view.do?dynamicPageId=1",target:"sysEditFrame"},
 				{ id:93, pId:7, name:"页面模块管理",url:"<%=basePath%>document/view.do?dynamicPageId=4",target:"sysEditFrame"},
+				{ id:94, pId:7, name:"报表管理",url:"<%=basePath%>document/view.do?dynamicPageId=21",target:"sysEditFrame"},				
 				{ id:8, pId:0, name:"流程管理",url:null,target:"sysEditFrame",open:true},
 				{ id:81, pId:8, name:"流程设计器",url:"<%=basePath%>WF/Admin/xap/Designer.jsp",target:"_blank",open:true},
 				{ id:9, pId:0, name:"调试日志",url:"<%=basePath%>debug/view.do",target:"sysEditFrame"}

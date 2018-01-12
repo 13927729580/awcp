@@ -26,6 +26,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
+
+import BP.Port.Emp;
+import BP.Port.WebUser;
 import cn.org.awcp.core.utils.SessionUtils;
 import cn.org.awcp.core.utils.constants.SessionContants;
 import cn.org.awcp.unit.service.PunGroupService;
@@ -33,9 +36,6 @@ import cn.org.awcp.unit.service.PunUserBaseInfoService;
 import cn.org.awcp.unit.utils.WhichEndEnum;
 import cn.org.awcp.unit.vo.PunGroupVO;
 import cn.org.awcp.unit.vo.PunUserBaseInfoVO;
-import cn.org.awcp.venson.common.SC;
-import BP.Port.Emp;
-import BP.Port.WebUser;
 
 @Controller
 @RequestMapping("/WF")
@@ -65,7 +65,6 @@ public class LoginController {
 
 			Emp emp = new Emp(object.getLoginName());
 			PunUserBaseInfoVO vo = new PunUserBaseInfoVO();
-			vo.setOrgCode(SC.ORG_CODE);
 			vo.setUserIdCardNumber(object.getLoginName());
 			vo.setUserPwd(object.getLoginPass());
 

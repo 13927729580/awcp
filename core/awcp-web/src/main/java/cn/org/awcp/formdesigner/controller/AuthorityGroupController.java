@@ -233,8 +233,9 @@ public class AuthorityGroupController extends BaseController {
 	// 配置权限
 	@ResponseBody
 	@RequestMapping(value = "/addAuthorityValue")
-	public AuthorityCompoentVO addAuthorityValue(String componentId, String value, String authorityGroupId,
-			String status, String includeComponent) {
+	public AuthorityCompoentVO addAuthorityValue(@RequestParam("componentId") String componentId,
+			@RequestParam("value") int value, @RequestParam("authorityGroupId") String authorityGroupId,
+			@RequestParam("status") int status, String includeComponent) {
 
 		AuthorityCompoentVO vo = new AuthorityCompoentVO();
 
@@ -247,14 +248,14 @@ public class AuthorityGroupController extends BaseController {
 		if (resoVOs.size() > 0) {
 			// 修改操作
 			AuthorityCompoentVO v = resoVOs.get(0);
-			if (status.equals("1")) {
+			// 勾选中
+			if (status == 1) {
 				if (v.getAuthorityValue() == null) {
 					v.setAuthorityValue("");
 				}
 				v.setAuthorityValue(v.getAuthorityValue() + value);
-			}
-			if (status.equals("0")) {
-				v.setAuthorityValue(v.getAuthorityValue().replace(value, ""));
+			} else {
+				v.setAuthorityValue(v.getAuthorityValue().replace(value + "", ""));
 			}
 
 			v.setLastUpdater(ControllerHelper.getUserId());
@@ -275,7 +276,7 @@ public class AuthorityGroupController extends BaseController {
 			}
 			vo.setCreateTime(new Date());
 			vo.setLastUpdateTime(new Date());
-			vo.setAuthorityValue(value);
+			vo.setAuthorityValue(value + "");
 			vo.setAuthorityGroupId(authorityGroupId);
 			String id = authorityCompoentService.save(vo);
 			vo.setId(id);

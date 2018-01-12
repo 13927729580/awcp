@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.script.ScriptEngine;
-import javax.script.ScriptException;
 
 import com.github.miemiedev.mybatis.paginator.domain.PageList;
 
@@ -62,7 +61,7 @@ public interface DocumentService {
 	 * 删除元数据table 表中的一条数据
 	 */
 	Boolean deleteModelData(DynamicPageVO page, String recordId);
-	
+
 	/**
 	 * 处理request带来的数据
 	 * 
@@ -88,7 +87,8 @@ public interface DocumentService {
 
 	String print(String docId);
 
-	PageList<DocumentVO> selectPagedByExample(BaseExample baseExample, int currentPage, int pageSize,String sortString);
+	PageList<DocumentVO> selectPagedByExample(BaseExample baseExample, int currentPage, int pageSize,
+			String sortString);
 
 	public void excuteUpdate(String sql);
 
@@ -96,7 +96,7 @@ public interface DocumentService {
 
 	public void excuteUpdate(String sql, String dsName);
 
-	public Map<String,Object> excuteQuery(String sql, String dsName);
+	public Map<String, Object> excuteQuery(String sql, String dsName);
 
 	public List<Map<String, Object>> excuteQueryForList(String sql, String dsName);
 
@@ -138,8 +138,8 @@ public interface DocumentService {
 	 */
 	String saveModelData(DynamicPageVO pageVO, DocumentVO vo, String datadefineName);
 
-	Map<String,Object> saveModelDataFlow(DynamicPageVO pageVO, DocumentVO vo, String datadefineName, boolean masterDateSource)
-			throws Exception;
+	Map<String, Object> saveModelDataFlow(DynamicPageVO pageVO, DocumentVO vo, String datadefineName,
+			boolean masterDateSource);
 
 	/**
 	 * 向元数据 相应表中插入一条数据
@@ -191,5 +191,5 @@ public interface DocumentService {
 	List<Map<String, Object>> excuteQueryForList(String sql);
 
 	public PageList<Map<String, String>> getDataListByDataDefine(DataDefine dd, ScriptEngine engine,
-			Integer currentPage, Integer pageSize, String orderBy) throws ScriptException;
+			Integer currentPage, Integer pageSize, String orderBy);
 }

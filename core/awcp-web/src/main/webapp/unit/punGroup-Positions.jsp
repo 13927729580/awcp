@@ -40,10 +40,10 @@
 			<div class="col-md-12">
 				<div class="box box-info">
 					<div class="box-body">
-						<form  method="post" id="userList">	
-							<%-- <input type="hidden" id="currentPage" name="currentPage" value="${vos.getPaginator().getPage()}">
+						<form  method="get" id="userList">	
+							<input type="hidden" id="currentPage" name="currentPage" value="${vos.getPaginator().getPage()}">
 							<input type="hidden" id="pageSize" name="pageSize" value="${vos.getPaginator().getLimit()}">
-							<input type="hidden" id="totalCount" name="totalCount" value="${vos.getPaginator().getTotalCount()}"> --%>
+							<input type="hidden" id="totalCount" name="totalCount" value="${vos.getPaginator().getTotalCount()}">
 							<table class="table table-hover">
 								<thead>
 									<tr>
@@ -77,7 +77,7 @@
 		  $(function(){
 			  var count=0;
 			  $(".table").bootstrapTable({
-					<%--  pageSize:parseInt($("#pageSize").val()),
+					 pageSize:parseInt($("#pageSize").val()),
 		        	 pageNumber:parseInt($("#currentPage").val()),
 		        	 totalRows:parseInt($("#totalCount").val()),
 		        	 sidePagination:"server",
@@ -86,7 +86,7 @@
 		        		$("#pageSize").val(size);
 		        		$("#currentPage").val(number);
 		        		$("#userList").attr("action","<%=basePath%>punPositionController/pageList.do").submit();
-		        	 }, --%>
+		        	 },
 		        	 onClickRow:function(row,$element,field){
 		        	  	  var $checkbox=$element.find(":checkbox").eq(0);
 		        	  	  if($checkbox.get(0).checked){

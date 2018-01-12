@@ -24,12 +24,12 @@
 		<div class="row" id="breadcrumb">
 			<ul class="breadcrumb">
 				<li><i class="icon-location-arrow icon-muted"></i></li>
-<!-- 				<li><a href="#">开发者工作室</a></li> -->
-				<!-- <li><a href="#">开发者</a></li> -->
+				<!-- <li><a href="#">开发者工作室</a></li>
+				<li><a href="#">开发者</a></li> -->
 				<li class="active">系统管理</li>
 			</ul>
 		</div>
-
+		<!--
 		<div class="row" id="buttons">
 			<button type="button" class="btn btn-success" id="addBtn">
 				<i class="icon-plus-sign"></i>新增
@@ -41,81 +41,45 @@
 				<i class="icon-edit"></i>修改
 			</button>
 			<button type="button" class="btn btn-success" id="onlineBtn">
-			<i class="icon-edit"></i>发布申请
+				<i class="icon-edit"></i>发布申请
 			</button> 
 			<button type="button" class="btn btn-warning" id="offlineBtn">
-			<i class="icon-edit"></i>下线申请
+				<i class="icon-edit"></i>下线申请
 			</button>
-<!-- 			<button type="button" class="btn btn-warning" id="menuBtn"> -->
-<!-- 				<i class="icon-edit"></i>管理菜单 -->
-<!-- 			</button> -->
-<!-- 			<button type="button" class="btn btn-warning" id="roleBtn"> -->
-<!-- 				<i class="icon-edit"></i>管理角色 -->
-<!-- 			</button> -->
-			<button type="button" class="btn btn-info" id="searchBtn"
-				data-toggle="collapse" data-target="#collapseButton">
-				<i class="icon-search"></i>
+			<button type="button" class="btn btn-warning" id="menuBtn">
+				<i class="icon-edit"></i>管理菜单 
 			</button>
+			<button type="button" class="btn btn-warning" id="roleBtn">
+				<i class="icon-edit"></i>管理角色
+ 			</button>
 		</div>
-
-		<div class="row" id="searchform">
-			<div id="collapseButton" class="collapse">
-				<form action="<%=basePath%>dev/punSystemList.do"
-					id="createForm">
-					<input type="hidden" name="currentPage" value="0" />
-					<div class="col-md-3">
-						<div class="input-group">
-							<span class="input-group-addon">系统名</span> <input name="sysName"
-								class="form-control" id="sysName" value="${vo.sysName}" type="text" />
-						</div>
-					</div>
-					<div class="col-md-3">
-						<div class="input-group">
-							<span class="input-group-addon">系统简称</span> <input name="sysShortName"
-								class="form-control" id="sysShortName" value="${vo.sysShortName}" type="text" />
-						</div>
-					</div>
-					<div class="col-md-3 btn-group">
-						<button class="btn btn-primary" type="submit">提交</button>
-						<a class="btn" data-toggle="collapse"
-							data-target="#collapseButton">取消</a>
-					</div>
-				</form>
-			</div>
-		</div>
-
+ 		-->
 		<div class="row" id="datatable">
 		<form method="post" id="userList">
 			<input type="hidden" name="currentPage" value="${currentPage}">
 			<table class="table datatable table-bordered">
 				<thead>
 					<tr>
-						<th class="hidden"></th>
+						<!-- <th class="hidden"></th> -->
 						<th>系统名</th>
 						<th>系统简称</th>
-						<th>系统地址</th>
-						<th>发布状态</th>
+						<th>修改</th>
 					</tr>
 				</thead>
 				<tbody>
 					<c:forEach items="${vos}" var="vo">
 						<tr>
-							<td class="hidden formData"><input id="boxs" type="name"
-								value="${vo.sysId}"></td>
+							<%-- <td class="hidden formData"><input id="boxs" type="name"
+								value="${vo.sysId}"></td> --%>
 							<td><a href="<%=basePath%>dev/intoSystemCenter.do?boxs=${vo.sysId}">${vo.sysName}</a></td>
 							<td>${vo.sysShortName}</td>
-							<td>${vo.sysAddress}</td>
-							<td><c:if test="${vo.sysStatus==1}">发布</c:if>
-					                <c:if test="${vo.sysStatus==0}">未发布</c:if></td>
+							<td><a href="<%=basePath%>dev/punSystemGet.do?boxs=${vo.sysId}">修改</a></td>
 						</tr>
 					</c:forEach>
 				</tbody>
 			</table>
 		</form>
 		</div>
-		<div class="row navbar-fixed-bottom text-center" id="pagers">
-			<sc:PageNavigation dpName="vos"></sc:PageNavigation>
-		</div> 
 	</div>
 
 	<%@ include file="/resources/include/common_js.jsp"%>
@@ -124,7 +88,7 @@
 		  $(function(){
 			  var count=0;//默认选择行数为0
 			  $('table.datatable').datatable({
-				  checkable: true,
+				  /* checkable: true, */
 				  checksChanged:function(event){
 					  this.$table.find("tbody tr").find("input#boxs").removeAttr("name");
 					  var checkArray = event.checks.checks;

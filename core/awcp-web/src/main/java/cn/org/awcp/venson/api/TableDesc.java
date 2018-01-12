@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 
-import cn.org.awcp.venson.common.SC;
 import cn.org.awcp.venson.controller.base.ControllerHelper;
 import cn.org.awcp.venson.util.DateFormaterUtil;
 
@@ -119,8 +118,6 @@ public class TableDesc {
 			params.put(this.Field, DateFormaterUtil.dateToString(new Date()));
 		} else if (this.Field.equals("CREATE_TIME") || this.Field.equals("createTime")) {
 			params.put(this.Field, DateFormaterUtil.dateToString(DateFormaterUtil.FORMART4, new Date()));
-		} else if (this.Field.equals("GROUP_ID")) {
-			params.put(this.Field, SC.GROUP_ID + "");
 		}
 	}
 

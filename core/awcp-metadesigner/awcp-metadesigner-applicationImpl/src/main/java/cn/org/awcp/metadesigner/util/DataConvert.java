@@ -1,6 +1,5 @@
 package cn.org.awcp.metadesigner.util;
 
-import java.text.ParseException;
 import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
@@ -11,7 +10,7 @@ import cn.org.awcp.core.utils.DateUtils;
 @Component(value = "dataConvert")
 public class DataConvert {
 
-	public Object stringToObject(String s, String type) throws ParseException {
+	public Object stringToObject(String s, String type) {
 		if (type.equalsIgnoreCase("int") || type.equalsIgnoreCase("smallint")) {
 			if (StringUtils.isNotBlank(s)) {
 				try {

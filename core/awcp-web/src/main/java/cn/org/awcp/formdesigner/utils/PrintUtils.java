@@ -8,12 +8,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
-import cn.org.awcp.core.domain.BaseExample;
-import cn.org.awcp.formdesigner.application.service.StoreService;
-import cn.org.awcp.formdesigner.core.domain.Store;
-import cn.org.awcp.formdesigner.core.domain.design.context.component.Layout;
-import cn.org.awcp.formdesigner.util.PdfHeaderFooter;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -30,13 +27,17 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 
+import cn.org.awcp.core.domain.BaseExample;
+import cn.org.awcp.formdesigner.application.service.StoreService;
+import cn.org.awcp.formdesigner.core.domain.Store;
+import cn.org.awcp.formdesigner.core.domain.design.context.component.Layout;
+
 public class PrintUtils {
 	/**
 	 * @param inputStream
 	 *            文件内容输入流
 	 */
-	public static void printPdf(Map<String, Map<String, String>> data,
-			String path, JSONObject templet) {
+	public static void printPdf(Map<String, Map<String, String>> data, String path, JSONObject templet) {
 		// 页边距
 		int left = templet.getIntValue("leftDistance");
 		int right = templet.getIntValue("rightDistance");
@@ -49,8 +50,7 @@ public class PrintUtils {
 
 		// 打印的页面列表
 		List<Long> pageList = new ArrayList<Long>();
-		JSONArray objectList = JSON.parseArray(templet
-				.getString("select_dynamicPage"));
+		JSONArray objectList = JSON.parseArray(templet.getString("select_dynamicPage"));
 		if (objectList != null && objectList.size() > 0) {
 			for (int i = 0; i < objectList.size(); i++) {
 				pageList.add(objectList.getJSONObject(i).getLongValue("id"));
@@ -60,8 +60,7 @@ public class PrintUtils {
 		String mPdfPath = "E:/11/";
 		Document document = new Document(PageSize.A4, left, right, top, bottom);// 建立一个Document对象
 		try {
-			PdfWriter writer = PdfWriter.getInstance(document,
-					new FileOutputStream(mPdfPath + "taony125-test.pdf"));// 建立一个PdfWriter对象
+			PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(mPdfPath + "taony125-test.pdf"));// 建立一个PdfWriter对象
 
 			Rectangle rect = new Rectangle(36, 54, 559, 788);
 			rect.setBorderColor(BaseColor.BLACK);
@@ -78,17 +77,14 @@ public class PrintUtils {
 			for (int i = 0; i < pageList.size(); i++) {
 				document.newPage(); // 新一页
 				Map map = getLayoutAndComp((Long) pageList.get(i));
-				List<JSONObject> mainLayouts = (List<JSONObject>) map
-						.get("layouts");
+				List<JSONObject> mainLayouts = (List<JSONObject>) map.get("layouts");
 				mainLayouts = sortByOrder(mainLayouts); // 排序
-				Map<String, List<JSONObject>> components = (Map<String, List<JSONObject>>) map
-						.get("components");
+				Map<String, List<JSONObject>> components = (Map<String, List<JSONObject>>) map.get("components");
 				PdfPTable mainTable = new PdfPTable(1);
 
 				if (mainLayouts != null && mainLayouts.size() > 0) {
 					for (int j = 0; j < mainLayouts.size(); j++) {
-						mainTable.addCell(new PdfPCell(createTable(
-								mainLayouts.get(j), components, data)));
+						mainTable.addCell(new PdfPCell(createTable(mainLayouts.get(j), components, data)));
 					}
 				}
 				document.add(mainTable);
@@ -102,21 +98,17 @@ public class PrintUtils {
 		document.close();
 	}
 
-	private static PdfPTable createTable(JSONObject o,
-			Map<String, List<JSONObject>> components,
-			Map dataMap) throws DocumentException,
-			IOException {
+	private static PdfPTable createTable(JSONObject o, Map<String, List<JSONObject>> components, Map dataMap)
+			throws DocumentException, IOException {
 
-		BaseFont bfChinese = BaseFont.createFont("STSong-Light",
-				"UniGB-UCS2-H", BaseFont.NOT_EMBEDDED);// 设置中文字体
+		BaseFont bfChinese = BaseFont.createFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED);// 设置中文字体
 
 		Font headFont = new Font(bfChinese, 10, Font.BOLD);// 设置字体大小
 
 		String type = o.getString("layoutType");
 		PdfPTable t = null;
 		if (type.equalsIgnoreCase("2")) {
-			if (o.getJSONArray("childLayouts") == null
-					|| o.getJSONArray("childLayouts").size() == 0) {
+			if (o.getJSONArray("childLayouts") == null || o.getJSONArray("childLayouts").size() == 0) {
 				// t = new PdfPTable(1);
 				PdfPCell c = new PdfPCell();
 				// c.setHorizontalAlignment(Element.ALIGN_CENTER);
@@ -134,8 +126,7 @@ public class PrintUtils {
 							// c.addElement(new Phrase(title,headFont));
 							finalContent.add(new Chunk(title, headFont));
 						} else {
-							String dataSource = component
-									.getString("dataItemCode");
+							String dataSource = component.getString("dataItemCode");
 							String content = (String) dataMap.get(dataSource);
 							// c.addElement(new Phrase(content,headFont));
 							finalContent.add(new Chunk(content, headFont));
@@ -152,14 +143,12 @@ public class PrintUtils {
 				array = sortByOrderArray(array);
 				float[] widths = new float[array.size()];
 				for (int i = 0; i < array.size(); i++) {
-					widths[i] = array.getJSONObject(i)
-							.getIntValue("proportion");
+					widths[i] = array.getJSONObject(i).getIntValue("proportion");
 				}
 				// t = new PdfPTable(array.size());
 				t = new PdfPTable(widths);
 				for (int i = 0; i < array.size(); i++) {
-					PdfPCell p = new PdfPCell(createTable(
-							array.getJSONObject(i), components, dataMap));
+					PdfPCell p = new PdfPCell(createTable(array.getJSONObject(i), components, dataMap));
 					// p.setColspan(array.getJSONObject(i).getIntValue("proportion"));
 					t.addCell(p);
 					// t.addCell(new
@@ -168,8 +157,7 @@ public class PrintUtils {
 			}
 		} else {
 			t = new PdfPTable(1);
-			if (o.getJSONArray("childLayouts") == null
-					|| o.getJSONArray("childLayouts").size() == 0) {
+			if (o.getJSONArray("childLayouts") == null || o.getJSONArray("childLayouts").size() == 0) {
 				// t = new PdfPTable(1);
 				PdfPCell c = new PdfPCell();
 				// c.setHorizontalAlignment(Element.ALIGN_CENTER);
@@ -187,8 +175,7 @@ public class PrintUtils {
 							// c.addElement(new Phrase(title,headFont));
 							finalContent.add(new Chunk(title, headFont));
 						} else {
-							String dataSource = component
-									.getString("dataItemCode");
+							String dataSource = component.getString("dataItemCode");
 							String content = (String) dataMap.get(dataSource);
 							// c.addElement(new Phrase(content,headFont));
 							finalContent.add(new Chunk(content, headFont));
@@ -203,8 +190,7 @@ public class PrintUtils {
 			} else {
 				JSONArray array = o.getJSONArray("childLayouts");
 				for (int i = 0; i < array.size(); i++) {
-					t.addCell(new PdfPCell(createTable(array.getJSONObject(i),
-							components, dataMap)));
+					t.addCell(new PdfPCell(createTable(array.getJSONObject(i), components, dataMap)));
 				}
 			}
 		}
@@ -220,7 +206,7 @@ public class PrintUtils {
 		BaseExample example = new BaseExample();
 		example.createCriteria().andEqualTo("dynamicPage_id", id);
 
-		List<Store> children = Store.selectByExample(Store.class,example);
+		List<Store> children = Store.selectByExample(Store.class, example);
 		List<JSONObject> mainLayouts = new ArrayList<JSONObject>();
 		// 布局组件
 		Map<String, JSONObject> map = new HashMap<String, JSONObject>();
@@ -283,7 +269,7 @@ public class PrintUtils {
 		BaseExample example = new BaseExample();
 		example.createCriteria().andEqualTo("dynamicPage_id", id);
 
-		List<Store> children = Store.selectByExample(Store.class,example);
+		List<Store> children = Store.selectByExample(Store.class, example);
 		List<JSONObject> mainLayouts = new ArrayList<JSONObject>();
 		// 布局组件
 		Map<String, JSONObject> map = new HashMap<String, JSONObject>();
@@ -358,7 +344,5 @@ public class PrintUtils {
 		}
 		return list;
 	}
-	
 
-	
 }

@@ -218,7 +218,7 @@ public class PunDevUserSystemController {
 		ModelAndView mv = new ModelAndView();
 		mv.setViewName("unit/dev/punSysMenu-edit");
 		try {
-			List<PunMenuVO> resoVOs = menuService.getPunMenuBySys(sysVO);
+			List<PunMenuVO> resoVOs = menuService.findAll();
 			ResourceTreeUtils rtu = new ResourceTreeUtils();
 			List<PunMenuVO[]> list = rtu.generateTreeView(resoVOs);
 			Map<Integer, List<PunResourceTreeNode>> resultMap = new HashMap<Integer, List<PunResourceTreeNode>>();

@@ -86,9 +86,8 @@ public class MetaModelController extends BaseController {
 		try {
 			for (int i = 0; i < tableNames.length; i++) {
 				MetaModelVO modelVO = metaModelServiceImpl.queryByModelCode(tableNames[i]);
-				modelVO=BeanUtil.instance(modelVO, MetaModelVO.class);
-				if (StringUtils.isBlank(modelVO.getTableName())
-						|| StringUtils.isBlank(modelVO.getId())) {
+				modelVO = BeanUtil.instance(modelVO, MetaModelVO.class);
+				if (StringUtils.isBlank(modelVO.getTableName()) || StringUtils.isBlank(modelVO.getId())) {
 					modelVO.setModelCode(tableNames[i]);
 					modelVO.setModelName(tableNames[i]);
 					modelVO.setTableName(tableNames[i]);
@@ -693,7 +692,8 @@ public class MetaModelController extends BaseController {
 
 	@RequestMapping(value = "/selectPage")
 	public String selectPageByExample(@ModelAttribute MetaModelVO vo, Model model,
-			@RequestParam(required = false, defaultValue = "1") int currentPage) {
+			@RequestParam(required = false, defaultValue = "1") int currentPage,
+			@RequestParam(required = false, defaultValue = "25") int pageSize) {
 		BaseExample be = new BaseExample();
 		String modelName = vo.getModelName();
 		Criteria c = be.createCriteria();
@@ -720,7 +720,8 @@ public class MetaModelController extends BaseController {
 			PunSystemVO system = (PunSystemVO) obj;
 			c.andEqualTo("SYSTEM_ID", system.getSysId());
 		}
-		PageList<MetaModelVO> pl = this.metaModelServiceImpl.selectPagedByExample(be, currentPage, 25, "seq desc");
+		PageList<MetaModelVO> pl = this.metaModelServiceImpl.selectPagedByExample(be, currentPage, pageSize,
+				"seq desc");
 		model.addAttribute("list", pl);
 		model.addAttribute("currentPage", currentPage);
 		return "metadesigner/metaModel/findAll";

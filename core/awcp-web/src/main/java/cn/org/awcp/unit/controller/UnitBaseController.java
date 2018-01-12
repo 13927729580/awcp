@@ -3,11 +3,11 @@ package cn.org.awcp.unit.controller;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -17,16 +17,16 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
-
-import com.alibaba.fastjson.JSON;
 
 import cn.org.awcp.core.utils.Security;
 import cn.org.awcp.core.utils.SessionUtils;
@@ -46,7 +46,6 @@ import cn.org.awcp.venson.controller.base.ReturnResult;
 import cn.org.awcp.venson.controller.base.StatusCode;
 import cn.org.awcp.venson.entity.Menu;
 import cn.org.awcp.venson.util.CookieUtil;
-import cn.org.awcp.venson.util.HttpUtils;
 import cn.org.awcp.venson.util.MD5Util;
 
 /**
@@ -97,8 +96,7 @@ public class UnitBaseController {
 			userPwd = userPwd.substring("BasicAuth:".length());
 		}
 		Subject subject = SecurityUtils.getSubject();
-		String plainToke = SC.ORG_CODE + ShiroDbRealm.SPLIT + userName + ShiroDbRealm.SPLIT
-				+ WhichEndEnum.getOperChartType(code).getCode();
+		String plainToke = userName + ShiroDbRealm.SPLIT + WhichEndEnum.getOperChartType(code).getCode();
 		UsernamePasswordToken token = new UsernamePasswordToken(plainToke, userPwd);
 		try {
 			subject.login(token);
@@ -146,11 +144,91 @@ public class UnitBaseController {
 		ReturnResult result = ReturnResult.get();
 		PunUserBaseInfoVO pvi = ControllerHelper.getUser();
 		if (pvi != null) {
-			result.setStatus(StatusCode.SUCCESS).setData(pvi);
+			PunUserBaseInfoVO vo = new PunUserBaseInfoVO();
+			BeanUtils.copyProperties(pvi, vo, "userPwd");
+			result.setStatus(StatusCode.SUCCESS).setData(vo);
 		} else {
 			result.setStatus(StatusCode.NO_LOGIN.setMessage("用户未登录，请重新登录！"));
 		}
 		return result;
+	}
+
+	@ResponseBody
+	@RequestMapping(value = "/userHeadImg", method = RequestMethod.GET)
+	public void updateUserHeadImg(String userHeadImg) {
+		if (StringUtils.isNotBlank(userHeadImg)) {
+			Long userId = ControllerHelper.getUserId();
+			metaModelOperateServiceImpl.updateBySql("update p_un_user_base_info set USER_HEAD_IMG=? where USER_ID=? ",
+					userHeadImg, userId);
+			ControllerHelper.getUser().setUserHeadImg(userHeadImg);
+		}
+	}
+
+	/**
+	 * 用户菜单点击次数加1
+	 * 
+	 * @param menuId
+	 */
+	@ResponseBody
+	@RequestMapping(value = "shortcut/{id}", method = RequestMethod.GET)
+	public void shortcutGet(@PathVariable("id") String menuId) {
+		if (!StringUtils.isNumeric(menuId))
+			return;
+		Long userId = ControllerHelper.getUserId();
+		Object id = metaModelOperateServiceImpl
+				.queryObject("select id from p_un_menu_count where user_id=? and menu_id=?", userId, menuId);
+		if (id.equals(0)) {
+			metaModelOperateServiceImpl.updateBySql(
+					"insert into p_un_menu_count(user_id,menu_id,click_count) values(?,?,1)", userId, menuId);
+		} else {
+			metaModelOperateServiceImpl.updateBySql("update p_un_menu_count set click_count=click_count+1 where id=?",
+					id);
+		}
+	}
+
+	/**
+	 * 获取用户常用菜单
+	 * 
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(value = "shortcuts", method = RequestMethod.GET)
+	public ReturnResult shortcuts() {
+		ReturnResult result = ReturnResult.get();
+		Long userId = ControllerHelper.getUserId();
+		List<Map<String, Object>> menus = metaModelOperateServiceImpl.search(
+				"SELECT distinct b.MENU_ID id,b.MENU_NAME name,b.MENU_ICON icon,b.MENU_ADDRESS,b.DYNAMICPAGE_ID FROM p_un_menu_count a LEFT JOIN p_un_menu b ON a.menu_id=b.menu_id LEFT JOIN p_un_user_role c ON a.user_id=c.USER_ID LEFT JOIN p_un_role_access d ON c.ROLE_ID=d.ROLE_ID  LEFT JOIN  p_un_resource e ON e.RESOURCE_ID=d.RESOURCE_ID WHERE e.RELATE_RESO_ID=a.menu_id AND a.user_id=? ORDER BY click_count DESC limit 0,8",
+				userId);
+		// 处理数据格式
+		List<Map<String, Object>> menuIds = menus.stream().map(m -> {
+			m.put("url", Menu.getUrl((String) m.get("DYNAMICPAGE_ID"), (String) m.get("MENU_ADDRESS")));
+			m.put("icon", Menu.getIcon((String) m.get("icon"), "fa-circle-o"));
+			m.remove("DYNAMICPAGE_ID");
+			m.remove("MENU_ADDRESS");
+			return m;
+		}).collect(Collectors.toList());
+		result.setStatus(StatusCode.SUCCESS).setData(menuIds);
+		return result;
+	}
+
+	/**
+	 * 移除用户一个或所有常用菜单
+	 * 
+	 * @param menuId
+	 */
+	@ResponseBody
+	@RequestMapping(value = "shortcut/{id}", method = RequestMethod.DELETE)
+	public void shortcutRemove(@PathVariable("id") String menuId) {
+		Long userId = ControllerHelper.getUserId();
+		// 移除所有
+		if ("all".equals(menuId)) {
+			metaModelOperateServiceImpl.updateBySql("delete from p_un_menu_count where user_id=?", userId);
+		} else {
+			if (StringUtils.isNumeric(menuId)) {
+				metaModelOperateServiceImpl.updateBySql("delete from p_un_menu_count where user_id=? and menu_id=?",
+						userId, menuId);
+			}
+		}
 	}
 
 	/**
@@ -179,13 +257,7 @@ public class UnitBaseController {
 		}
 		List<PunMenuVO> resoVOs = removeDuplicate(resoVOs1);
 		// web菜单移除app中间菜单
-		Iterator<PunMenuVO> it = resoVOs.iterator();
-		while (it.hasNext()) {
-			PunMenuVO punMenuVO = (PunMenuVO) it.next();
-			if (punMenuVO.getType() == 2) {
-				it.remove();
-			}
-		}
+		resoVOs = resoVOs.stream().filter(menu -> menu.getType() != 2).collect(Collectors.toList());
 		// 查找所有的父Id
 		Set<Long> pids = new HashSet<Long>();
 		for (PunMenuVO vo : resoVOs) {
@@ -304,13 +376,9 @@ public class UnitBaseController {
 			}
 		}
 		// 如果不存在已登录用户则进行校验key值得合法性
-		Map<String, String> parameters = new HashMap<String, String>();
-		parameters.put("uid", uid);
-		parameters.put("key", key);
-		parameters.put("APIId", "validSSO");
-		String body = HttpUtils.sendGet("http://www.tongyuanmeng.com/awcp/api/executeAPI.do", parameters);
+		String body = MD5Util.getMD5StringWithSalt(uid, SC.SALT);
 		// 若返回值不为空则为合法操作
-		if (body != null && uid.equals(JSON.parseObject(body).getString("data"))) {
+		if (uid.equals(body)) {
 			if (ControllerHelper.toLogin(uid, false) != null) {
 				return new ModelAndView("redirect:" + url);
 			}

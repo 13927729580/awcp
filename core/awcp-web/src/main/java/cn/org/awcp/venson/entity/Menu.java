@@ -135,7 +135,7 @@ public class Menu {
 	public static String getUrl(String DID, String oriUrl) {
 		String url;
 		String base = ControllerHelper.getBasePath();
-		if (DID != null) {
+		if (DID != null && DID.length() > 1) {
 			url = base + "document/view.do?dynamicPageId=" + DID;
 		} else {
 			if (StringUtils.isBlank(oriUrl) || oriUrl.trim().equals("#")) {
@@ -164,8 +164,7 @@ public class Menu {
 			if (vo.getType() == 0 && vo.getParentMenuId() == menu.getId()) {
 				// 查看图标是否为空，如果为空则显示默认图标
 				Menu children = new Menu(vo.getMenuId(), vo.getMenuName(),
-						getUrl(vo.getDynamicPageId(), vo.getMenuAddress()),
-						getIcon(vo.getMenuIcon(), "fa fa-circle-o"));
+						getUrl(vo.getDynamicPageId(), vo.getMenuAddress()), getIcon(vo.getMenuIcon(), "fa-circle-o"));
 				children.setFlag(vo.getMenuFlag());
 				children.setType(vo.getType());
 				menu.add(children);

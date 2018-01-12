@@ -24,11 +24,10 @@
 				<div class="box box-info">
 					<div class="box-body">
 						<form method="get" action="<%=basePath%>unit/searchByType.do" id="userList">
-							<input type="hidden" id="groupId" value="${groupId}"/>
-							<input type="hidden" id="rootGroupId" value="${rootGroupId}"/>
-							<%-- <input type="hidden" id="currentPage" name="currentPage" value="${userList.getPaginator().getPage()}">
+							<input type="hidden" id="groupId" value="${pun.groupId}"/>
+							<input type="hidden" id="currentPage" name="currentPage" value="${userList.getPaginator().getPage()}">
 							<input type="hidden" id="pageSize" name="pageSize" value="${userList.getPaginator().getLimit()}">
-							<input type="hidden" id="totalCount" name="totalCount" value="${userList.getPaginator().getTotalCount()}"> --%>
+							<input type="hidden" id="totalCount" name="totalCount" value="${userList.getPaginator().getTotalCount()}">
 							<div class="row form-group">
 								<div class="col-xs-4">
 									<div class="input-group">
@@ -72,7 +71,16 @@
 												<td></td>
 												<td>${vo.name}</td>
 												<td>${vo.userIdCardNumber}</td>
-												<td>${vo.deptName}</td>
+												<td>
+												<c:choose>
+														<c:when test="${not empty vo.deptName}">
+															${vo.deptName}
+														</c:when>
+														<c:otherwise>
+															${pun.groupChName}
+														</c:otherwise>
+											    </c:choose>
+											    </td>
 												<td>
 													<c:forEach items="${vo.positionList}" var="p" varStatus="sta">
 													<c:choose>
@@ -118,7 +126,7 @@
 				  $("#searchType").val(searchType);  
 			  }
 			  $(".table").bootstrapTable({
-					 <%-- pageSize:parseInt($("#pageSize").val()),
+					 pageSize:parseInt($("#pageSize").val()),
 		        	 pageNumber:parseInt($("#currentPage").val()),
 		        	 totalRows:parseInt($("#totalCount").val()),
 		        	 sidePagination:"server",
@@ -127,7 +135,7 @@
 		        		$("#pageSize").val(size);
 		        		$("#currentPage").val(number);
 		        		$("#userList").attr("action","<%=basePath%>punUserGroupController/getUsers.do").submit();
-		        	 }, --%>
+		        	 },
 		        	 onClickRow:function(row,$element,field){
 		        	  	  var $checkbox=$element.find(":checkbox").eq(0);
 		        	  	  if($checkbox.get(0).checked){

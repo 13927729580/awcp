@@ -46,10 +46,8 @@
 		
 		function sso(code){
 			Comm.getData("dingding/sso.do",{"code":code,"_method":"get"});
-			console.log(document.cookie);
 			var url = Comm.getUrlParam("url");
 			url = decodeURIComponent(url);
-			console.log(document.cookie);
 			location.href = url;
 		}
 	</script>

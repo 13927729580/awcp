@@ -1942,6 +1942,7 @@ function canRemoveTab(pageId) {
 var addTabs = function (options) {
     var defaultTabOptions = {
         id: Math.random() * 200,
+        icon:"fa-circle-o",
         urlType: "relative",
         title: "新页面"
     };
@@ -1966,9 +1967,9 @@ var addTabsDom=function(options){
         //创建新TAB的title
         // title = '<a  id="tab_' + pageId + '"  data-id="' + pageId + '"  class="menu_tab" >';
 
-        var $title = $('<a href="javascript:void(0);"></a>').attr(pageIdField, pageId).addClass("menu_tab");
+        var $title = $('<a class="menu_tab" '+pageIdField+'="'+pageId+'" href="javascript:void(0);"></a>');
 
-        var $text = $("<span class='page_tab_title'></span>").text(options.title).appendTo($title);
+        var $text = $("<i class='fa "+options.icon+"'></i> <span class='page_tab_title'>"+options.title+"</span>").appendTo($title);
         // title += '<span class="page_tab_title">' + options.title + '</span>';
 
         //是否允许关闭
@@ -2049,7 +2050,7 @@ function closeTabByPageId(pageId) {
     $title.remove();
     $tabPanel.remove();
     //移除缓存
-	  tabCache.remove(pageId);
+	tabCache.remove(pageId);
     // scrollToTab($('.menu_tab.active')[0]);
 
 }
@@ -2060,7 +2061,7 @@ function closeTabOnly(pageId) {
     $title.remove();
     $tabPanel.remove();
     //移除缓存
-	  tabCache.remove(pageId);
+	tabCache.remove(pageId);
 }
 
 var closeCurrentTab = function () {
@@ -2320,9 +2321,9 @@ TabCache.prototype = {
 					//添加到dom
 					addTabsDom(options);
 					//只激活最后一个
-					if(i==len-1){
-						activeTabByPageId(options.id);
-					}
+//					if(i==len-1){
+//						activeTabByPageId(options.id);
+//					}
 				}
 			}
 		},
@@ -2339,7 +2340,6 @@ $(function () {
     $tabs.on("click", ".menu_tab", function () {
         var pageId = getPageId(this);
         activeTabByPageId(pageId);
-        refreshTabById(pageId);
     });
 
     //双击选项卡刷新页面
@@ -2377,12 +2377,11 @@ $(function () {
             }
         },
         {
-            text: "在新窗口打开",
+            text: "关闭",
             action: function (e, $selector, rightClickEvent) {
 
                 var pageId = getPageId(findTabElement(rightClickEvent.target));
-                var url = getTabUrlById(pageId);
-                window.open(url);
+                closeTabByPageId(pageId);
 
             }
         }
@@ -2492,8 +2491,10 @@ $(function () {
                         $a.addClass("ajaxify");
                     }
                     else if (item.targetType != null && item.targetType === "iframe-tab") {
-                        var href = 'addTabs({id:\'' + item.id + '\',title: \'' + item.text + '\',close: true,url: \'' + item.url + '\'});';
-                        $a.attr('onclick', href);
+                        //var href = 'addTabs({id:"' + item.id + '",icon: "' + item.icon + '",title: "' + item.text + '",close: true,url: "' + item.url + '"});';
+                        //$a.attr("onclick",href);
+                        $a.attr({"id":item.id, "data-icon":item.icon,"title":item.text,"data-url":item.url});
+                        $a.addClass("subMenu");
                     }
                     else if (item.targetType != null && item.targetType === "iframe") { //代表单iframe页面
                         $a.attr("href", item.url);
@@ -2518,9 +2519,16 @@ $(function () {
         }
 
         //另外绑定菜单被点击事件,做其它动作
-        $menu_ul.on("click", "li.treeview a", function () {
+        $menu_ul.on("click", "li.treeview a.subMenu", function () {
             var $a = $(this);
-
+            $.get(baseUrl+"api/shortcut/"+$a.attr("id"));
+            top.addTabs({
+			  	id:$a.attr("id"),
+			  	icon:$a.attr("data-icon"),
+			  	title: $a.attr("title"),
+	            url: $a.attr("data-url"),
+	            close:true
+	        });
             if ($a.next().size()==0) {//如果size>0,就认为它是可以展开的
                 if ($(window).width() < $.AdminLTE.options.screenSizes.sm) {//小屏幕
                     //触发左边菜单栏按钮点击事件,关闭菜单栏

@@ -627,5 +627,62 @@
       GROUP BY p_un_user_base_info.USER_ID
       order by p_un_user_base_info.user_id
     </select>	
+    <resultMap id="userResultMap" type="cn.org.awcp.unit.core.domain.PunUserBaseInfo" >
+		<result property="userId" jdbcType="BIGINT"
+			column="USER_ID" />
+		<result property="userName" jdbcType="VARCHAR"
+			column="USER_NAME" />
+		<result property="userPwd" jdbcType="VARCHAR"
+			column="USER_PWD" />
+		<result property="userIdCardNumber" jdbcType="VARCHAR"
+			column="USER_ID_CARD_NUMBER" />
+		<result property="name" jdbcType="VARCHAR"
+			column="NAME" />
+		<result property="userBirthPlace" jdbcType="VARCHAR"
+			column="USER_BIRTH_PLACE" />
+		<result property="userHouseholdRegist" jdbcType="VARCHAR"
+			column="USER_HOUSEHOLD_REGIST" />
+		<result property="userDomicile" jdbcType="VARCHAR"
+			column="USER_DOMICILE" />
+		<result property="userOfficePhone" jdbcType="VARCHAR"
+			column="USER_OFFICE_PHONE" />
+		<result property="userHousePhone" jdbcType="VARCHAR"
+			column="USER_HOUSE_PHONE" />
+		<result property="mobile" jdbcType="VARCHAR"
+			column="MOBILE" />
+		<result property="userFax" jdbcType="VARCHAR"
+			column="USER_FAX" />
+		<result property="userEmail" jdbcType="VARCHAR"
+			column="USER_EMAIL" />
+		<result property="employeeId" jdbcType="VARCHAR"
+			column="EMPLOYEE_ID" />
+		<result property="userTitle" jdbcType="VARCHAR"
+			column="USER_TITLE" />
+		<result property="userDossierNumber" jdbcType="VARCHAR"
+			column="USER_DOSSIER_NUMBER" />
+		<result property="userOfficeNum" jdbcType="VARCHAR"
+			column="USER_OFFICE_NUM" />
+		<result property="groupId" jdbcType="BIGINT"
+			column="belong_Group" />
+		<result property="number" jdbcType="VARCHAR"
+			column="NUMBER" />
+		<collection property="positionList" ofType="cn.org.awcp.unit.core.domain.PunPosition" >
+			<result property="positionId" column="positionId" />
+			<result property="name" column="positionName" />
+			<result property="shortName" column="shortName" />
+			<result property="groupId" column="positionGroupId" />
+		</collection>
+	</resultMap>
+    
+    <select id="queryUserListByGroupId" resultMap="userResultMap" parameterType="Object">
+		select u.*,g.group_id as belong_Group,p.position_id as positionId,
+		g.is_manager as isManager,
+		p.name as positionName,p.short_name as shortName,p.group_id as positionGroupId 
+		 from p_un_user_base_info u,p_un_user_group g,p_un_position p
+			where u.user_id=g.user_id
+				and g.position_id=p.position_id
+				and g.group_id=#{groupId}
+				order by case when u.number is null then 0 end , u.number asc
+	</select>
 </mapper>
 

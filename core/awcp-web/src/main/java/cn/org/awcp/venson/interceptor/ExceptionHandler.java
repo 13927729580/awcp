@@ -42,12 +42,20 @@ public class ExceptionHandler implements HandlerExceptionResolver {
 		// 将事务进行回滚
 		jdbcTemplate.rollback();
 		handler(ex, result);
+		String requestType = request.getHeader("X-Requested-With");
 		try {
-			ControllerHelper.renderJSON(null, result);
+			if (requestType != null && requestType.equals("XMLHttpRequest")) {
+				ControllerHelper.renderJSON(null, result);
+				return new ModelAndView();
+			} else {
+				ModelAndView mv = new ModelAndView("error");
+				mv.addObject("message", result.getMessage());
+				mv.addObject("error", result.getData());
+				return mv;
+			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			return new ModelAndView();
 		}
-		return new ModelAndView();
 	}
 
 	public static void handler(Exception ex, ReturnResult result) {

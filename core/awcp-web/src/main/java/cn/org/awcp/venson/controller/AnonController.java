@@ -3,6 +3,7 @@ package cn.org.awcp.venson.controller;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
@@ -21,13 +22,13 @@ import cn.org.awcp.common.security.VerifyCodeGenerator;
 import cn.org.awcp.core.domain.SzcloudJdbcTemplate;
 import cn.org.awcp.core.utils.SessionUtils;
 import cn.org.awcp.core.utils.constants.SessionContants;
-import cn.org.awcp.formdesigner.utils.DocumentUtils;
 import cn.org.awcp.metadesigner.application.MetaModelOperateService;
+import cn.org.awcp.unit.core.domain.PunSystem;
+import cn.org.awcp.unit.message.PunNotificationService;
 import cn.org.awcp.unit.service.PunUserBaseInfoService;
 import cn.org.awcp.unit.service.PunUserRoleService;
 import cn.org.awcp.unit.utils.EncryptUtils;
 import cn.org.awcp.unit.vo.PunUserBaseInfoVO;
-import cn.org.awcp.venson.common.SC;
 import cn.org.awcp.venson.controller.base.ControllerHelper;
 import cn.org.awcp.venson.controller.base.ReturnResult;
 import cn.org.awcp.venson.controller.base.StatusCode;
@@ -61,6 +62,9 @@ public class AnonController {
 
 	@Resource(name = "jdbcTemplate")
 	private SzcloudJdbcTemplate jdbcTemplate;
+
+	@Resource(name = "punNotificationService")
+	private PunNotificationService punNotificationService;
 
 	/**
 	 * 发送短信验证码
@@ -161,11 +165,6 @@ public class AnonController {
 		return result;
 	}
 
-	// private long demander = 115L;
-	// private long developer = 116L;
-	// private long teclPartner = 117L;
-	private long cityPartner = 118L;
-
 	@RequestMapping(value = "registerUser", method = RequestMethod.POST)
 	public ReturnResult registerUser(@RequestParam("code") String code, @RequestParam("name") String name,
 			@RequestParam("phone") String phone, @RequestParam("password") String password,
@@ -182,19 +181,17 @@ public class AnonController {
 			// 该号码可以使用
 			PunUserBaseInfoVO vo = new PunUserBaseInfoVO();
 			vo.setUserIdCardNumber(name);
-			vo.setGroupId(SC.GROUP_ID);// 设置所属组织ID
 			vo.setMobile(phone);
 			// 随机姓名
 			vo.setUserName(VerifyCodeGenerator.getInstance().getRandString());
 			vo.setUserPwd(EncryptUtils.encrypt(password));// 密码加密
-			vo.setOrgCode(SC.ORG_CODE);
 			// 插入角色
 			vo.setRoleList(Arrays.asList(role));
 			// 将选择角色保存进cookie
 			CookieUtil.addCookie("awcp_user_role", role + "");
 			Long userId = userService.addOrUpdateUser(vo);
 			// 增加注册消息推送
-			DocumentUtils.getIntance().pushNotifyUser("register", userId + "");
+			punNotificationService.pushNotifyUser("register", userId + "");
 			// 关联企业用户
 			result.setStatus(StatusCode.SUCCESS);
 			jdbcTemplate.commit();
@@ -270,5 +267,21 @@ public class AnonController {
 		} catch (IOException e) {
 			logger.debug("ERROR", e);
 		}
+	}
+
+	/**
+	 * 获取系统名称
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value = "systemName", method = RequestMethod.GET)
+	public ReturnResult systemName() {
+		ReturnResult result = ReturnResult.get();
+		List<PunSystem> system = PunSystem.findAll();
+		if (system != null && !system.isEmpty())
+			result.setData(system.get(0).getSysName());
+		else
+			result.setData("AWCP-全栈配置云开发平台");
+		return result;
 	}
 }

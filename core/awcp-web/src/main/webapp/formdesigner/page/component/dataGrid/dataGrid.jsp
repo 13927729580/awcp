@@ -182,60 +182,52 @@
 			
 			$("#alertPage").select2();
 			
-			var myIndex=0;
 			$("#addParament").click(function(){
-				var str="<tr id=paramTr'"+index+"'>";
-					str+="<td>"+"<input type='text'   name='param[][exportParam]' id='exportParam-"+myIndex+"' value=''>"
-									+	"<button class='btn btn-default exportParam' type='button' id='exportParam-"+myIndex+"' >选择</button>"
-									+"</td>";																
-					str+="<td>————》</td>";						
-					str+="<td>"+"<input type='text'   name='param[][storeParam]' id='storeParam-"+myIndex+"' value=''>"
-							   +"<input type='hidden'   name='param[][storeParamId]' id='storeParamId-"+myIndex+"' value=''>"
-							   +"<button class='btn btn-default storeIdSelect' type='button' id='storeIdSelect-"+myIndex+"' >选择</button>"										
-							   +"</td>";
-					str+="<td><a href='javascript:void(0)' class='removeParamTr'>删除</a>"+"</td>";
-					str+="</tr>";
-					myIndex++;						
+				var str = "<tr><td><input type='text' style='width:75%' name='param[][exportParam]' value=''>" +	
+						  "<button class='btn btn-default exportParam' type='button'>选择</button></td><td>——》</td>" +					
+						  "<td><input type='text' style='width:75%' name='param[][storeParam]' value=''>" +
+						  "<input type='hidden' name='param[][storeParamId]' value=''>" + 
+						  "<button class='btn btn-default storeIdSelect' type='button'>选择</button></td>" + 
+						  "<td><a href='javascript:void(0)' class='removeParamTr'>删除</a>" + "</td></tr>";
 				$("#paramentBody").append(str);
 			});
 				
 			$("#paramentBody").on("click",".exportParam",function(){
 				var _this = $(this);
-				var index = _this.attr("id").split("-")[1];
 				if($("#dynamicPageId").val()){
 					top.dialog({
 						id : 'edit-dialog' + Math.ceil(Math.random() * 10000),
 						title : '数据源选择',
+						height:400,
 						url : basePath + "formdesigner/page/component/common/dataSourceSelect.jsp",
 						data : dataSource,
 						onclose : function() {
 							if (this.returnValue) {
-								$("#exportParam-"+index).val(this.returnValue);
+								_this.prev().val(this.returnValue);
 							}
 						}
-					}).show(document.getElementById("exportParam-"+index));
+					}).show();
 				} else {
 					alert("请先保存表单");
 				}
 			});
 			
-			
 			$("#paramentBody").on("click",".storeIdSelect",function(){
 				var _this = $(this);
-				var index = _this.attr("id").split("-")[1];
 				if($("#alertPage").val()){
 					top.dialog({
 						id : 'edit-dialog' + Math.ceil(Math.random() * 10000),
 						title : '数据源选择',
+						height:400,
 						url : basePath + "formdesigner/page/component/common/storeParamSelect.jsp",
 						data : $("#alertPage").val(),
 						onclose : function() {
 							if (this.returnValue) {
-								$("#storeParam-"+index).val(this.returnValue.storeCode);
-								$("#storeParamId-"+index).val(this.returnValue.storeId);
+								_this.prev().prev().val(this.returnValue.storeCode);
+								_this.prev().val(this.returnValue.storeId);
 							}
 						}
-					}).show(document.getElementById("storeParam-"+index));
+					}).show();
 				} else {
 					alert("请先选择弹出页面");
 				}
@@ -252,6 +244,7 @@
 			var _this = $(this);
 			_this.parents("tr").remove();
 		});
+		
 		$("#connditionBody").on("click",".removeConnTr",function(){
 			var _this = $(this);
 			_this.parents("tr").remove();

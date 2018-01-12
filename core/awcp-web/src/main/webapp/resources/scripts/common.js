@@ -18,6 +18,7 @@ function updateAction(params){
 }
 
 function saveFormPage(dynamicPageId,actId){
+	$("#buttons").find("button").attr("disabled",true);
 	$("#actId").val(actId);		
 	$.ajax({
 	   type: "POST",
@@ -29,8 +30,10 @@ function saveFormPage(dynamicPageId,actId){
 				Comm.alert("保存成功",function(){
 					location.href = basePath + "document/view.do?dynamicPageId=" + dynamicPageId;
 				});				
-			} else{
-				Comm.alert(data);
+			} else{				
+				Comm.alert(data,function(){
+					$("#buttons").find("button").attr("disabled",false);
+				});
 			}
 	   	}
 	});	
@@ -96,7 +99,7 @@ function openPage(url,title){
 function editFormPage(dynamicPageId){
 	var count = $("input[name='_selects']").length;
 	if(count!=1){
-		Comm.alert("请选择一项进行操作");
+		Comm.alert("请选择一项进行操作");		
 		return false;
 	}
 	var id = $("input[name='_selects']").val();
@@ -121,8 +124,8 @@ function deleteRecord(actId){
 					Comm.alert("删除成功",function(){
 						$("#groupForm").submit();
 					});					
-				} else{
-					Comm.alert(data);
+				} else{			
+					Comm.alert("删除失败");
 				}
 		   }
 		});

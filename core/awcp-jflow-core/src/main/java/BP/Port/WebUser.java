@@ -451,7 +451,7 @@ public class WebUser {
 	public static String getFK_Dept() {
 		String val = GetValFromCookie("FK_Dept", null, false);
 		if (val == null) {
-			val = "587235";
+			val = "1";
 			// throw new RuntimeException(
 			// "@err-003 FK_Dept
 			// 登陆信息丢失，请确认当前操作员的部门信息是否完整，检查表:Port_Emp字段FK_Dept。");

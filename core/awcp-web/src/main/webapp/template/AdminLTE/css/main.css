@@ -4,8 +4,14 @@
 
 .opeBtnGrop {
 	margin-bottom: 20px;
+	min-height: 34px;
 }
-
+.opeBtnGrop .fixedBtnBox{
+	    position: fixed;
+		top: 15px;
+		    left: 15px;
+			z-index: 9;
+}
 .required {
 	position: relative;
 }
@@ -35,7 +41,9 @@
 	background: #ecf0f5;
 	margin-right: 12px;
 }
-
+.functionalList li i{
+	padding-top:7px;
+}
 .functionalList li img {
 	width: 40px;
 	padding-top: 10px;

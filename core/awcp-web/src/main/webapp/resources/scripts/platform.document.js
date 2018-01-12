@@ -6,9 +6,13 @@ function actNewRun(actId,pageId){
 
 //编辑
 function actUpdateRun(actId,pageId){
-	var id = $("input[name='_selects']").val();
-	$("#"+actId).attr("disabled","true");
-	location.href = basePath + "document/view.do?dynamicPageId=" + pageId + "&id=" + id;
+	if(count==1){
+		var id = $("input[name='_selects']").val();
+		$("#"+actId).attr("disabled","true");
+		location.href = basePath + "document/view.do?dynamicPageId=" + pageId + "&id=" + id;
+	}else{
+		Comm.alert("请勾选一个选项");
+	}
 }
 
 //返回
@@ -31,6 +35,10 @@ function actRunWithNoValidators(actId){
 
 
 function actDeleteRun(actId){
+	if(count==0){
+		Comm.alert("请至少勾选一个选项");
+		return false;
+	}
 	$("#actId").val(actId);	
 	$("#"+actId).attr("disabled","true");
 	$("#groupForm").attr("action",basePath + "document/excute.do").submit();	
@@ -141,12 +149,12 @@ function empty(v) {
 /**
  * 表单生成pdf，并下载到本地
  */
-function downloadFile(actId,formName) {
+function downloadFile(actId,isTabs,formName) {
 	var docId = $("#docId").val();
 	var pageId = $("#dynamicPageId").val();
 	$("#actId").val(actId);
 	var formJson;
-	if(arguments.length==1){
+	if(!formName){
 		formJson=$("#groupForm").serialize();
 		/*var _selects = new Array();
 		$("input[name='_selects']").each(function(){
@@ -156,7 +164,15 @@ function downloadFile(actId,formName) {
 	}else{
 		formJson=$("#"+formName).serialize();
 	}
-	$.download(basePath + "document/excute.do",formJson,'post');
+	if(isTabs&&parent.hasOwnProperty("addTabs")){
+		parent.addTabs({
+			url: baseUrl+"document/excute.do?"+formJson,
+			title: $("#dynamicPageName").val()+"_打印",
+			close:true
+		});
+	}else{
+		$.download(basePath + "document/excute.do",formJson,'post');
+	}
 }
 
 //Ajax 文件下载 
@@ -175,8 +191,8 @@ jQuery.download = function(url, data, method){
 		if(pageSize != undefined){
 			inputs+='<input type="hidden" name="pageSize" value="'+ pageSize +'" />';
 		}
-		var actId = $("#actId").val();
 		if(data.indexOf("actId")==-1){
+			var actId = $("#actId").val();
 			inputs+='<input type="hidden" name="actId" value="'+ actId +'" />';
 		}
 		//request发送请求 

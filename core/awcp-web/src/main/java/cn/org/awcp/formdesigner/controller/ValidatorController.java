@@ -133,9 +133,11 @@ public class ValidatorController extends BaseController {
 	@RequestMapping(value = "/edit")
 	public ModelAndView editValidator(@RequestParam(value = "_selects", required = false) String id,
 			@RequestParam(value = "isSelect", required = false) boolean isSelect,
+			@RequestParam(value = "message", required = false) String message,
 			@RequestParam(value = "type", required = false) String type) {
 		ModelAndView mv = new ModelAndView();
 		mv.addObject("isSelect", isSelect);
+		mv.addObject("message", message);
 		if (StringUtils.isBlank(type) && StringUtils.isBlank(id)) {
 			addMessage(mv, "请选择类型");
 			mv.setViewName("formdesigner/page/validator/list.do");// JSP页面

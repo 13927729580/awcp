@@ -148,14 +148,13 @@ public class PunPositionController {
 	@RequestMapping(value = "/pageList", method = RequestMethod.GET)
 	public ModelAndView selectPagedByExample(
 			@RequestParam(value = "currentPage", required = false, defaultValue = "1") int currentPage,
-			@RequestParam(value = "pageSize", required = false, defaultValue = "100") int pageSize) {
+			@RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize) {
 
 		ModelAndView mv = new ModelAndView();
 		mv.setViewName("/unit/punGroup-Positions");
 
 		PageList<PunPositionVO> list = punPositionService.selectPagedByExample("queryList", null, currentPage, pageSize,
 				null);
-		System.out.println(list.getPaginator());
 		mv.addObject("vos", list);
 
 		return mv;

@@ -344,7 +344,11 @@ public class DdDocController {
 			}
 		} 
 		else {
-			bool = docUtils.updateData(dataSource);
+			if(docUtils.updateData(dataSource)==null){
+				bool = false;
+			} else{
+				bool = true;
+			}
 		}
 		if(bool){//发送消息通知
 			sendMsg(dataSource,docUtils,id,dynamicPageId,zhTitle,enTitle,data);

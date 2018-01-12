@@ -4,7 +4,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta name="format-detection" content="telephone=no,email=no,adress=no"/>
-    <title>404</title>
+    <title>500</title>
     <script>
         (function () {
             document.documentElement.style.fontSize=document.documentElement.clientWidth / 1080 * 100 + "px";
@@ -13,6 +13,7 @@
         	history.back();
         }
     </script>
+    <script type="text/javascript" src="./venson/js/common.js"></script>
      <style type="text/css">
     .abnormal{    position: absolute;
     top: 0;
@@ -66,7 +67,9 @@
 
 <!--500-->
 <div class="abnormal">
-    <img src="/awcp/images/error.png">
+    <script type="text/javascript">
+    	document.write('<img src="'+baseUrl+'images/error.png">')
+    </script>
     <p>服务器被核码踹了！</p>
     <span class="returnBack" onclick="returnBack()">返回上一页</span>
 </div>

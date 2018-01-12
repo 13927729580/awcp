@@ -42,7 +42,7 @@
 			<div class="settingBtn btn-group center-block">
 			   <a class="btn btn-sm btn-primary" href="javascript:void(0);" id="allinfo">个人信息</a>
 			   <a class="btn btn-sm btn-success" href="javascript:void(0);" id="allchecker">修改密码</a>
-			   <a class="btn btn-sm btn-warning" href="javascript:void(0)" id="logOut" style="width: 38px;text-align: left;">退出</a>
+			   <a class="btn btn-sm btn-warning" href="javascript:void(0)" id="logOut">退出</a>
 			</div>
 		</div>		
 	</nav> 
@@ -51,7 +51,7 @@
   
   <div class="C-contentFrame clearfix">
         
-            <iframe src="<%=basePath%>dev/punSystemList.do"  name="main" scrolling="auto" frameborder="0" width="100%" height="100%"></iframe> 
+            <iframe src="<%=basePath%>dev/intoSystemCenter.do?boxs=110"  name="main" scrolling="auto" frameborder="0" width="100%" height="100%"></iframe> 
 
   </div>
  
@@ -125,19 +125,6 @@ function newMenu(){
 		            "groupType": null,
 		            "iconSkin": null,
 		            "click": null
-		        },
-		        {
-		            "id": 6,
-		            "pId": 5,
-		            "name": "应用系统管理",
-		            "url": "dev/intoPunSystemList.do",
-		            "target": "main",
-		            "open": false,
-		            "isParent": false,
-		            "checked": false,
-		            "groupType": null,
-		            "iconSkin": null,
-		            "click": null
 		        }
 		    ]
 
@@ -200,7 +187,7 @@ $(document).ready(function(){
 				//修改密码
 				$.ajax({
 					type : "POST",
-					url : baseUrl+"unit/updatePwd.do",
+					url : "<%=basePath%>unit/updatePwd.do",
 					data : "oldPwd=" + oldPwd
 							+ "&newPwd=" + newPwd,
 					success : function(data) {

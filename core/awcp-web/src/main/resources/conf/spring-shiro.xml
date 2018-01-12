@@ -91,18 +91,26 @@
       <!--   <property name="defaultFilterChainDefinitions"> -->
             <value>
             /appLogin.do = anon
+            /api/appLogin= anon
             /logout.do = anon
+            /api/logout = anon
             /anon/*.do =anon
+            /api/anon/**= anon
+            /api/common/file/download= anon
+            /api/common/file/get= anon
+            /api/common/file/showPicture= anon
+            /api/common/file/preview =anon
             /logsso.do =anon
             <!-- 钉钉模块免校验 begin -->
             /dingding/config.do =anon
             /dingding/sso.do =anon
             /dingding/eventChangeReceive.do =anon
+            /dingding/corpId.do=anon
             <!-- 钉钉模块免校验 end-->
+            /api/logsso =anon
             /common/file/download.do =anon
             /common/file/get.do =anon
             /common/file/showPicture.do =anon
-            /common/file/getImage.do =anon
             /common/file/preview.do =anon
             /api/execute/** =anon,kickout
             /wechat/*.do=anon

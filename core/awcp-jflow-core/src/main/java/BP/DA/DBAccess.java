@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -230,7 +231,7 @@ public class DBAccess {
 				out.close();
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("ERROR", e);
 		}
 	}
 
@@ -799,7 +800,6 @@ public class DBAccess {
 			throw new RuntimeException(
 					"执行sql错误:" + ex.getMessage() + " Paras(" + paras.size() + ")=" + msg + "<hr>" + mysql);
 		} catch (Exception e) {
-			// e.printStackTrace();
 			return -1;
 		}
 	}
@@ -841,7 +841,6 @@ public class DBAccess {
 				msg = "SQL=" + paras.getSQLNoPara() + ",异常信息:" + ex.getMessage();
 			}
 
-			Log.DefaultLogWriteLineInfo(msg);
 			throw new Exception(msg);
 		} finally {
 			try {
@@ -854,7 +853,7 @@ public class DBAccess {
 				if (conn != null)
 					conn.close();
 			} catch (SQLException ex) {
-				ex.printStackTrace();
+				logger.error("ERROR", ex);
 			}
 		}
 	}
@@ -878,15 +877,13 @@ public class DBAccess {
 			SqlParameterSource paramSource = new MapSqlParameterSource(ps);
 			return namedParameterJdbcTemplate.update(sql, paramSource);
 		} catch (Exception ex) {
-			logger.debug(sql);
-			ex.printStackTrace();
+			logger.error("ERROR", ex);
 			String msg = "";
 			if (paras.size() == 0) {
 				msg = "SQL=" + sql + ",异常信息:" + ex.getMessage();
 			} else {
 				msg = "SQL=" + paras.getSQLNoPara() + ",异常信息:" + ex.getMessage();
 			}
-			Log.DefaultLogWriteLineInfo(msg);
 			throw new Exception(msg);
 		}
 	}
@@ -962,7 +959,7 @@ public class DBAccess {
 			} else {
 				msg = "SQL=" + paras.getSQLNoPara() + ",异常信息:" + ex.getMessage();
 			}
-			Log.DefaultLogWriteLineInfo(msg);
+			logger.error("ERROR", ex);
 			throw new Exception(msg);
 		} finally {
 			try {
@@ -975,7 +972,7 @@ public class DBAccess {
 				if (conn != null)
 					conn.close();
 			} catch (SQLException ex) {
-				ex.printStackTrace();
+				logger.error("ERROR", ex);
 			}
 		}
 	}
@@ -1045,7 +1042,8 @@ public class DBAccess {
 			for (Para pa : paras) {
 				msg += "@" + pa.ParaName + "=" + pa.val;
 			}
-			Log.DebugWriteError(msg);
+			logger.error("ERROR", msg);
+			logger.error("ERROR", ex);
 			return null;
 		} finally {
 			try {
@@ -1058,7 +1056,7 @@ public class DBAccess {
 				if (conn != null)
 					conn.close();
 			} catch (SQLException ex) {
-				ex.printStackTrace();
+				logger.error("ERROR", ex);
 			}
 		}
 	}
@@ -1128,7 +1126,8 @@ public class DBAccess {
 			for (Para pa : paras) {
 				msg += "@" + pa.ParaName + "=" + pa.val;
 			}
-			Log.DebugWriteError(msg);
+			logger.error("ERROR", msg);
+			logger.error("ERROR", ex);
 			return null;
 		} finally {
 			try {
@@ -1141,7 +1140,7 @@ public class DBAccess {
 				if (conn != null)
 					conn.close();
 			} catch (SQLException ex) {
-				ex.printStackTrace();
+				logger.error("ERROR", ex);
 			}
 		}
 	}
@@ -1210,7 +1209,8 @@ public class DBAccess {
 			for (Para pa : paras) {
 				msg += "@" + pa.ParaName + "=" + pa.val;
 			}
-			Log.DebugWriteError(msg);
+			logger.error("ERROR", msg);
+			logger.error("ERROR", ex);
 			return null;
 		} finally {
 			try {
@@ -1223,7 +1223,7 @@ public class DBAccess {
 				if (conn != null)
 					conn.close();
 			} catch (SQLException ex) {
-				ex.printStackTrace();
+				logger.error("ERROR", ex);
 			}
 		}
 	}
@@ -1308,7 +1308,8 @@ public class DBAccess {
 			for (Para pa : paras) {
 				msg += "@" + pa.ParaName + "=" + pa.val;
 			}
-			Log.DebugWriteError(msg);
+			logger.error("ERROR", msg);
+			logger.error("ERROR", ex);
 			return null;
 		} finally {
 
@@ -1334,7 +1335,8 @@ public class DBAccess {
 			for (Para pa : paras) {
 				msg += "@" + pa.ParaName + "=" + pa.val;
 			}
-			logger.debug(msg);
+			logger.error(msg);
+			logger.error("ERROR", ex);
 			return null;
 		} finally {
 
@@ -1375,7 +1377,8 @@ public class DBAccess {
 			if (null != paras && paras.size() > 0) {
 				Map<String, Object> ps = parasToMap(paras);
 				NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
-				result = namedParameterJdbcTemplate.queryForList(sql, ps);
+				// TODO 20171229 modify by venson 防止被druid当做SQL注入拦截
+				result = namedParameterJdbcTemplate.queryForList(handleInjectSQL(sql), ps);
 				return genTableByMap(result);
 			} else {
 				result = jdbcTemplate.queryForList(sql);
@@ -1388,9 +1391,44 @@ public class DBAccess {
 			for (Para pa : paras) {
 				msg += "@" + pa.ParaName + "=" + pa.val;
 			}
-			logger.debug(msg);
+			logger.error(msg);
+			logger.error("ERROR", ex);
 			return null;
 		}
+	}
+
+	private static final String HANDLE_STR = "(1=1)";
+
+	/**
+	 * 防止拼接语句多次出现1=1被druid当做注入拦截
+	 * 
+	 * @param sql
+	 *            要处理的SQL
+	 * @author venson
+	 * @version 20171229
+	 * @return
+	 */
+	private static String handleInjectSQL(String sql) {
+		int startPos = 0;
+		int count = 0;
+		while ((startPos = (StringUtils.indexOf(sql, HANDLE_STR, startPos))) != StringUtils.INDEX_NOT_FOUND) {
+			// 从第二个1=1开始
+			if (count >= 1) {
+				String temp = sql.substring(0, startPos);
+				// 移除1=1
+				int andIndex = temp.lastIndexOf("AND");
+				if (andIndex != StringUtils.INDEX_NOT_FOUND) {
+					temp = temp.substring(0, andIndex);
+					temp += sql.substring(startPos + HANDLE_STR.length(), sql.length());
+					sql = temp;
+					// 前移7位
+					startPos = startPos - 7;
+				}
+			}
+			startPos += HANDLE_STR.length();
+			count++;
+		}
+		return sql;
 	}
 
 	public static DataTable RunSQLReturnTable(Paras ps) {
@@ -1518,7 +1556,7 @@ public class DBAccess {
 			Log.DefaultLogWriteLineError(ex.getMessage());
 			throw ex;
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("ERROR", e);
 			return null;
 		}
 	}
@@ -1547,7 +1585,7 @@ public class DBAccess {
 			Log.DefaultLogWriteLineError(ex.getMessage());
 			throw ex;
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("ERROR", e);
 			return null;
 		}
 	}
@@ -1996,7 +2034,7 @@ public class DBAccess {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("ERROR", e);
 		}
 	}
 
@@ -2079,16 +2117,4 @@ public class DBAccess {
 		// }
 	}
 
-	public static void main(String[] args) throws Exception {
-		// Paras ps = new Paras();
-		// // Para p = new Para("visit_date",Date.class,
-		// // DataType.stringToDate("2014-09-05"));
-		// // ps.Add(p);
-		// DataTable table = RunSQLReturnTable_200705_MySQL(
-		// "select * from media_control where ip = '192.168.0.2'", ps);
-		// logger.debug(Json.ToJson(table));
-
-		DataSet ds = new DataSet();
-		ds.readXmls("D:/android workspace/jflow/jflow-web/src/main/webapp/DataUser/XML/TempleteSheetOfStartNode.xml");
-	}
 }

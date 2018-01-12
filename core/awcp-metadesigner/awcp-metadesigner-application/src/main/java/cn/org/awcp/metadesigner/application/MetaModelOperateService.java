@@ -20,7 +20,7 @@ public interface MetaModelOperateService {
 	 * @return
 	 * @throws Exception
 	 */
-	public boolean save(Map<String, String> map, String modelCode) throws Exception;
+	public boolean save(Map<String, String> map, String modelCode);
 
 	/**
 	 * 根据ID删除
@@ -39,7 +39,7 @@ public interface MetaModelOperateService {
 	 * @return
 	 * @throws ParseException
 	 */
-	public boolean deleteByParams(Map<String, String> map, String modelCode) throws ParseException;
+	public boolean deleteByParams(Map<String, String> map, String modelCode);
 
 	/**
 	 * 修改
@@ -49,7 +49,7 @@ public interface MetaModelOperateService {
 	 * @return
 	 * @throws Exception
 	 */
-	public boolean update(Map<String, String> map, String modelCode) throws Exception;
+	public boolean update(Map<String, String> map, String modelCode);
 
 	/**
 	 * 根据modelCode查找

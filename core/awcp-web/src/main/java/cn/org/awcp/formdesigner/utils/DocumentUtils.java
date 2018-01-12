@@ -383,6 +383,10 @@ public class DocumentUtils extends BaseUtils {
 		}		
 	}
 	
+	/**
+	 * 手机端保存明细时设置订单的价格
+	 * @param orderId
+	 */
 	public void setOrderTotalPrice(String orderId){
 		String sql = "select ifnull(slFee,0)+ifnull(jgFee,0) as fee from crmtile_order where ID=?";
 		double fee = jdbcTemplate.queryForObject(sql, Double.class,orderId);
@@ -390,6 +394,34 @@ public class DocumentUtils extends BaseUtils {
 		double items = jdbcTemplate.queryForObject(sql, Double.class,orderId);
 		sql = "update crmtile_order set totalPrice=? where ID=?";
 		jdbcTemplate.update(sql, fee+items,orderId);
+	}
+	
+	/**
+	 * 删除订单
+	 * @param orderId
+	 */
+	public void deleteWf(String[] ids){		
+		String countSql = "select count(*) from crmtile_order where ID=? and state in ('0','2')";
+		String updateCustomer = "update crmtile_customer set hasOrder='N' "
+				+ "where ID=(select customerId from crmtile_order where ID=? and state in ('0','2'))";
+		String delOrderSql = "delete from crmtile_order where ID=? and state in ('0','2')";		
+		String sql = "select WORKITEM_ID,WORKFLOW_ID from p_fm_document where RECORD_ID=?";
+		String delDoc = "delete from p_fm_document where RECORD_ID=?";
+		Map<String,Object> map = null;
+		for (String id : ids) {
+			int count = jdbcTemplate.queryForObject(countSql, Integer.class,id);
+			if(count==1){
+				excuteUpdate(updateCustomer, id);
+				excuteUpdate(delOrderSql,id);			
+				map = excuteQuery(sql,id);
+				if(map!=null){
+					String flowNo = (String) map.get("WORKFLOW_ID");
+					long workID = Long.parseLong((String)map.get("WORKITEM_ID"));
+					Dev2Interface.Flow_DoDeleteFlowByReal(flowNo,workID,false);
+				}			
+				excuteUpdate(delDoc,id);
+			}		
+		}
 	}
 	
 	/**

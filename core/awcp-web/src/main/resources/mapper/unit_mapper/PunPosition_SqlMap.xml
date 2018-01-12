@@ -94,7 +94,7 @@
 	<select id="getAll" resultMap="BaseResultMap">
 		SELECT 
 			<include refid="Base_Column_List" />
-		FROM p_un_position
+		FROM p_un_position order by grade asc
 	</select>
 	
 	<!-- 更新 -->

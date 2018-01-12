@@ -20,7 +20,8 @@
 	<link rel="stylesheet" href="<%=basePath%>resources/plugins/zTree_v3/css/zTreeStyle/zTreeStyle.css">
 </head>
 <body id="main">
-	<input type="hidden" name="id" value="${pageId}" id="id">
+	<input type="hidden" value="${vo.dataJson}" name="dataJson" id="modelJsonArray" >		
+	<input type="hidden" name="id" value="${vo.id}" id="id">
 	<div id="groupform">
 		<div class="col-xs-3">			
 			<div class="btn-group mb10">
@@ -136,14 +137,13 @@
 				<table class="table table-bordered" id="componentTable1" align="left">
 					<thead>
 						<tr>
-							<th width="40px"><input type="checkbox" id="checkAllComponent" /></th>
-							<th width="260px">名称</th>
-							<th width="120px">类型</th>
-							<th width="260px">数据源</th>
-							<th width="60px">默认值</th>
-							<th width="100px">布局</th>
-							<th>描述</th>
-							<th width="50px">序号</th>
+							<th width="5%"><input type="checkbox" id="checkAllComponent" /></th>
+							<th width="25%">name</th>
+							<th width="10%">类型</th>
+							<th width="30%">数据源</th>
+							<th width="15%">名称</th>
+							<th width="10%">布局</th>
+							<th width="5%">序号</th>
 						</tr>
 					</thead>
 					<tbody id="componentt">

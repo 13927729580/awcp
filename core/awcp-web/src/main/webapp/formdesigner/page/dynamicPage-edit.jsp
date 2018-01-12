@@ -50,7 +50,7 @@
 							<li class=""><a href="#actConfig" data-toggle="tab">动作</a></li>
 							<li class=""><a href="#workflow" data-toggle="tab">流程</a></li>
 							<li class=""><a href="#locLayout" data-toggle="tab">布局</a></li>
-							<li class=""><a href="<%=basePath%>layout/turnToLayoutComponent.do?dynamicPageId=${vo.id}"  target="_blank">组件和布局</a></li>
+							<%-- <li class=""><a href="<%=basePath%>layout/turnToLayoutComponent.do?dynamicPageId=${vo.id}"  target="_blank">组件和布局</a></li> --%>
 							<li class=""><a href="#authority" data-toggle="tab">权限组配置</a></li>
 						</c:if>
 					</ul>

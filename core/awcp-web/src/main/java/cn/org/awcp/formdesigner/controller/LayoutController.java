@@ -1598,14 +1598,10 @@ public class LayoutController extends BaseController {
 	@RequestMapping(value = "/turnToLayoutComponent")
 	public ModelAndView turnToLayoutComponent(String dynamicPageId) {
 		ModelAndView mv = new ModelAndView();
-		mv.addObject("pageId", dynamicPageId);
+		mv.addObject("vo", formdesignerServiceImpl.findById(dynamicPageId));
 		mv.setViewName("formdesigner/page/tabs/component-layout-list");
 		mv.addObject("_COMPOENT_TYPE_NAME", FormDesignGlobal.COMPOENT_TYPE_NAME);
 		return mv;
-	}
-
-	public static void main(String[] args) {
-		// sortLayoutComponent();
 	}
 
 }

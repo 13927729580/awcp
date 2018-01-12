@@ -14,7 +14,7 @@ public class PlatfromProp {
 	 */
 	static {
 		try {
-			InputStream in = SMSUtil.class.getClassLoader().getResourceAsStream("conf/awcp.properties");
+			InputStream in = PlatfromProp.class.getClassLoader().getResourceAsStream("conf/awcp.properties");
 			BufferedReader bfr = new BufferedReader(new InputStreamReader(in));
 			p.load(bfr);
 		} catch (IOException e) {

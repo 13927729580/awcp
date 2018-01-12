@@ -274,7 +274,7 @@ else{
 	dd_res = dd_zh;
 }
 
-dd_res.corpId = "";
+dd_res.corpId = Comm.getData("dingding/corpId.do",{"_method":"GET"},true);
 
 /**钉钉打开链接*/
 Comm.openLink=function(url){

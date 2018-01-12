@@ -167,17 +167,6 @@
 	
 	
 	
-	<select id="queryUserListByGroupId" resultMap="userResultMap" parameterType="Object">
-		select u.*,g.group_id as belong_Group,p.position_id as positionId,
-		g.is_manager as isManager,
-		p.name as positionName,p.short_name as shortName,p.group_id as positionGroupId 
-		 from p_un_user_base_info u,p_un_user_group g,p_un_position p
-			where u.user_id=g.user_id
-				and g.position_id=p.position_id
-				and g.group_id=#{groupId}
-				order by case when u.number is null then 0 end , u.number asc
-	</select>
-	
 	<select id="queryUserByUserIdAndGroupId" resultMap="userResultMap" parameterType="Object">
 		select u.*,g.group_id as belong_Group,p.position_id as positionId,
 			   g.is_manager as isManager,

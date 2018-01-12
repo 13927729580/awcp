@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
+
 import cn.org.awcp.core.utils.SessionUtils;
 import cn.org.awcp.core.utils.Springfactory;
 import cn.org.awcp.core.utils.constants.SessionContants;
@@ -24,7 +25,6 @@ import cn.org.awcp.unit.service.PunGroupService;
 import cn.org.awcp.unit.service.PunUserBaseInfoService;
 import cn.org.awcp.unit.vo.PunGroupVO;
 import cn.org.awcp.unit.vo.PunUserBaseInfoVO;
-import cn.org.awcp.venson.common.SC;
 
 @Controller
 @RequestMapping("/common/user")
@@ -130,16 +130,18 @@ public class CommonUserController {
 
 	/**
 	 * 查询当前用户下常用联系人
+	 * 
 	 * @return
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/queryCommonUser")
 	public List<PunUserBaseInfoVO> queryByUser() {
 		JdbcTemplate jdbcTemplate = Springfactory.getBean("jdbcTemplate");
-		PunUserBaseInfoVO userInfo = (PunUserBaseInfoVO) SessionUtils.getObjectFromSession(SessionContants.CURRENT_USER);
-		String sql = "select * from (select * from p_un_common_user where user_id='" + userInfo.getUserId() + 
-				"' order by click_number desc limit 15) as t " + 
-				"order by case when t.order_ is null or t.order_='' then 0 end , length(t.order_) asc, t.order_ asc";
+		PunUserBaseInfoVO userInfo = (PunUserBaseInfoVO) SessionUtils
+				.getObjectFromSession(SessionContants.CURRENT_USER);
+		String sql = "select * from (select * from p_un_common_user where user_id='" + userInfo.getUserId()
+				+ "' order by click_number desc limit 15) as t "
+				+ "order by case when t.order_ is null or t.order_='' then 0 end , length(t.order_) asc, t.order_ asc";
 		List<Map<String, Object>> mapResult = jdbcTemplate.queryForList(sql);
 		List<PunUserBaseInfoVO> list = new ArrayList<PunUserBaseInfoVO>();
 		for (Map<String, Object> map : mapResult) {
@@ -210,9 +212,8 @@ public class CommonUserController {
 		List<Map<String, Object>> ls = jdbcTemplate.queryForList(sql);
 		List<PunUserBaseInfoVO> list = new ArrayList<PunUserBaseInfoVO>();
 		for (Map<String, Object> map : ls) {
-			PunUserBaseInfoVO vo = userService.getUserBaseInfoByGroupIdAndCardNumber(SC.GROUP_ID,
-					map.get("FK_Emp").toString());
-			list.add(vo);
+			List<PunUserBaseInfoVO> vo = userService.selectByIDCard(map.get("FK_Emp").toString());
+			list.addAll(vo);
 		}
 		return list;
 	}

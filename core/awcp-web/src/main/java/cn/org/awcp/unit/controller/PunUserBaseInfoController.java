@@ -53,7 +53,6 @@ import cn.org.awcp.unit.vo.PunRoleInfoVO;
 import cn.org.awcp.unit.vo.PunSystemVO;
 import cn.org.awcp.unit.vo.PunUserBaseInfoVO;
 import cn.org.awcp.unit.vo.PunUserRoleVO;
-import cn.org.awcp.venson.common.SC;
 import cn.org.awcp.venson.controller.base.ControllerHelper;
 import cn.org.awcp.venson.controller.base.ReturnResult;
 import cn.org.awcp.venson.controller.base.StatusCode;
@@ -142,10 +141,6 @@ public class PunUserBaseInfoController extends BaseController {
 		try {
 			PunGroupVO groupVO = (PunGroupVO) SessionUtils.getObjectFromSession(SessionContants.CURRENT_USER_GROUP);
 			vo.setGroupId(groupVO.getGroupId());// 设置所属组织ID
-			if (vo.getOrgCode() == null || vo.getOrgCode().equals("")) {
-
-				vo.setOrgCode(SC.ORG_CODE);
-			}
 			String msg = validate(vo);
 			if (msg == null) {
 				if (null == vo.getUserId() || "yes".equals(vo.getUpdatePassword())) {// 新增用户或者修改密码

@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.web.servlet.support.RequestContext;
+
 import cn.org.awcp.core.utils.SessionUtils;
 import cn.org.awcp.core.utils.constants.SessionContants;
 import cn.org.awcp.unit.vo.PunUserBaseInfoVO;
@@ -25,7 +26,7 @@ public abstract class BaseController {
 		for (Entry<String, String[]> entry : map.entrySet()) {
 			String key = entry.getKey();
 			List<String> filtersList = new ArrayList<String>();
-			Collections.addAll(filtersList, "currentPage", "pageSize", "offset", "limit", "privilegesID");
+			Collections.addAll(filtersList, "privilegesID");
 			if (filters != null) {
 				Collections.addAll(filtersList, filters);
 			}

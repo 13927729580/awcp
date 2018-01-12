@@ -5,6 +5,18 @@ import java.util.Map;
 public interface QueryService {
 
 	/**
+	 * 由我创建
+	 * 
+	 * @param limit
+	 * @param offset
+	 * @param FK_Flow
+	 * @param workItemName
+	 * @param userName
+	 * @return
+	 */
+	Map<String, Object> getCreateByMeData(int limit, int offset, String FK_Flow, String workItemName, String userName);
+
+	/**
 	 * 待处理件
 	 * 
 	 * @param limit

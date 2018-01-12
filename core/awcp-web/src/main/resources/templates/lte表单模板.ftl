@@ -60,6 +60,7 @@
 				</#if>
 			</div>
 		</div>
+		<div class="fixedBtnBox"></div>
 		<div class="row" id="newTitle"></div>
 <#noparse>
 		<div class="row">

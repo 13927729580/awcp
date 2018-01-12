@@ -18,6 +18,10 @@ public class URLConstant {
 	 */
 	public static final String user_list = Env.OAPI_HOST + "/user/list";
 	/**
+	 * 获取部门下的所有用户
+	 */
+	public static final String simple_user_list = Env.OAPI_HOST + "/user/simplelist";
+	/**
 	 * 根据code获取用户信息
 	 */
 	public static final String getuserinfo = Env.OAPI_HOST + "/user/getuserinfo";

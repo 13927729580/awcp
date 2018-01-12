@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -53,18 +52,12 @@ import cn.org.awcp.metadesigner.application.SysSourceRelationService;
 import cn.org.awcp.metadesigner.vo.MetaModelVO;
 import cn.org.awcp.metadesigner.vo.SysDataSourceVO;
 import cn.org.awcp.unit.vo.PunSystemVO;
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
 
 @Service
 public class DocumentServiceImpl implements DocumentService {
 	private static final Logger logger = LoggerFactory.getLogger(DocumentServiceImpl.class);
 
 	public static final String CACHE_KEY_PREFIX = "cache_key_pre_";
-
-	@Autowired
-	private CacheManager cacheManager;
 
 	@Autowired
 	@Qualifier("queryChannel")
@@ -102,14 +95,12 @@ public class DocumentServiceImpl implements DocumentService {
 	 * 删除文档
 	 */
 	public Boolean delete(DocumentVO vo) {
-		try {
-			Document doc = BeanUtils.getNewInstance(vo, Document.class);
-			doc.remove();
-			return true;
-		} catch (Exception e) {
-			e.printStackTrace();
+		Document doc = BeanUtils.getNewInstance(vo, Document.class);
+		if (doc == null) {
 			return false;
 		}
+		doc.remove();
+		return true;
 
 	}
 
@@ -154,17 +145,13 @@ public class DocumentServiceImpl implements DocumentService {
 		String orderByList = docVo.getOrderBy();
 		logger.debug("start find data in datajson");
 		for (DataDefine dd : datas) {
-			try {
-				if (!StringUtils.isNumeric(allowOrderBy) || Integer.parseInt(allowOrderBy) != 1) {
-					orderByList = "";
-				}
-				PageList<Map<String, String>> pageList = getDataListByDataDefine(dd, engine, currentPage, pageSize,
-						orderByList);
-				if (pageList != null) {
-					listParams.put(dd.getName() + "_list", pageList);
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
+			if (!StringUtils.isNumeric(allowOrderBy) || Integer.parseInt(allowOrderBy) != 1) {
+				orderByList = "";
+			}
+			PageList<Map<String, String>> pageList = getDataListByDataDefine(dd, engine, currentPage, pageSize,
+					orderByList);
+			if (pageList != null) {
+				listParams.put(dd.getName() + "_list", pageList);
 			}
 		}
 		logger.debug("end find data in datajson");
@@ -186,42 +173,38 @@ public class DocumentServiceImpl implements DocumentService {
 		String orderByList = docVo.getOrderBy();// ebaseinfo.id,desc;ebaseinfo.name,desc;
 		logger.debug("start find data in datajson");
 		for (DataDefine dd : datas) {
-			try {
-				StringBuilder orderBy = new StringBuilder();
-				String alias = dd.getName();
-				String keyAlias = alias + ".";
-				if (StringUtils.isNotBlank(allowOrderBy) && allowOrderBy.equalsIgnoreCase("1")) {
-					logger.debug("allow orderby");
-					int begin = orderByList.indexOf(keyAlias);
-					while (begin != -1) {
-						orderBy.append(", ");
-						int end = orderByList.indexOf(";", begin);
-						if (end != -1) {
-							String itemCode = orderByList.substring(begin + keyAlias.length(), end);
-							logger.debug("itemcode is {}", itemCode);
-							if (itemCode.indexOf(",") != -1) {
-								orderBy.append(itemCode.replaceAll(",", " "));
-							} else {
-								orderBy.append(itemCode).append(" DESC");
-							}
-							begin = orderByList.indexOf(keyAlias, end);
+			StringBuilder orderBy = new StringBuilder();
+			String alias = dd.getName();
+			String keyAlias = alias + ".";
+			if (StringUtils.isNotBlank(allowOrderBy) && allowOrderBy.equalsIgnoreCase("1")) {
+				logger.debug("allow orderby");
+				int begin = orderByList.indexOf(keyAlias);
+				while (begin != -1) {
+					orderBy.append(", ");
+					int end = orderByList.indexOf(";", begin);
+					if (end != -1) {
+						String itemCode = orderByList.substring(begin + keyAlias.length(), end);
+						logger.debug("itemcode is {}", itemCode);
+						if (itemCode.indexOf(",") != -1) {
+							orderBy.append(itemCode.replaceAll(",", " "));
 						} else {
-							begin = orderByList.indexOf(keyAlias, begin);
+							orderBy.append(itemCode).append(" DESC");
 						}
+						begin = orderByList.indexOf(keyAlias, end);
+					} else {
+						begin = orderByList.indexOf(keyAlias, begin);
 					}
-					if (orderBy.length() == 1) {
-						orderBy.deleteCharAt(1);
-					}
-				} else {
-					logger.debug("deny orderby");
 				}
-				PageList<Map<String, String>> pageList = getDataListByDataDefine(dd, engine, currentPage, pageSize,
-						orderBy.toString());
-				if (pageList != null) {
-					listParams.put(dd.getName() + "_list", pageList);
+				if (orderBy.length() == 1) {
+					orderBy.deleteCharAt(1);
 				}
-			} catch (Exception e) {
-				e.printStackTrace();
+			} else {
+				logger.debug("deny orderby");
+			}
+			PageList<Map<String, String>> pageList = getDataListByDataDefine(dd, engine, currentPage, pageSize,
+					orderBy.toString());
+			if (pageList != null) {
+				listParams.put(dd.getName() + "_list", pageList);
 			}
 		}
 		logger.debug("end find data in datajson");
@@ -241,16 +224,19 @@ public class DocumentServiceImpl implements DocumentService {
 	 * @param pageSize
 	 *            页条数
 	 * @return
-	 * @throws ScriptException
 	 */
 	public PageList<Map<String, String>> getDataListByDataDefine(DataDefine dd, ScriptEngine engine,
-			Integer currentPage, Integer pageSize, String orderBy) throws ScriptException {
+			Integer currentPage, Integer pageSize, String orderBy) {
 		logger.debug("start find {} ", dd.getName());
 		List<Map<String, String>> list = new ArrayList<Map<String, String>>();
 		String script = dd.getSqlScript();
 		String sql = null;
 		if (StringUtils.isNotBlank(script)) {
-			sql = (String) engine.eval(script);
+			try {
+				sql = (String) engine.eval(script);
+			} catch (ScriptException e) {
+				logger.error("ERROR", e);
+			}
 		}
 		logger.debug("datasource[{}] compute sql is {} ", dd.getName(), sql);
 		if (StringUtils.isNotBlank(sql)) {
@@ -443,8 +429,6 @@ public class DocumentServiceImpl implements DocumentService {
 					continue;
 				String dataCode = codes[0];
 				String itemCode = codes[1];
-				if (itemCode.equals("FK_Flow"))
-					logger.debug("5555555555555555555555555");
 
 				List<Map<String, String>> list = listParams.get(dataCode);
 				Map<String, String> data = null;
@@ -544,22 +528,16 @@ public class DocumentServiceImpl implements DocumentService {
 				.get(datadefineName);
 		if (dd != null) {
 			DataDefine md = (DataDefine) dd;
-			try {
-				if (vo != null && StringUtils.isNotBlank(vo.getId()) && pageVO != null && pageVO.getId() != null) {
-				}
-				metaModelOperateServiceImpl.update(vo.getListParams().get(datadefineName).get(0), md.getModelCode());
-				return true;
-			} catch (Exception e) {
-				e.printStackTrace();
+			if (vo != null && StringUtils.isNotBlank(vo.getId()) && pageVO != null && pageVO.getId() != null) {
 			}
+			if (metaModelOperateServiceImpl.update(vo.getListParams().get(datadefineName).get(0), md.getModelCode()))
+				return true;
 		}
 		return false;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public boolean updateModelData(DynamicPageVO pageVO, DocumentVO vo, String datadefineName) {
-		Map<String, List<Map<String, String>>> listParams = null;
 		DynamicPage page = BeanUtils.getNewInstance(pageVO, DynamicPage.class);
 		logger.debug("start convert datadefines in {} [{}]", pageVO.getId(), pageVO.getName());
 		DataDefine dd = PageDataBeanWorker.convertConfToDataDefines(StringEscapeUtils.unescapeHtml4(page.getDataJson()))
@@ -569,60 +547,12 @@ public class DocumentServiceImpl implements DocumentService {
 			// get data from doc.requestMap, and put it into map with model
 			// processParams(vo);executeAct 方法中已经做处理
 			DataDefine md = (DataDefine) dd;
-			try {
-				boolean flag = true;
-				Map<String, String> newData = null;
-				if (vo != null && vo.getListParams() != null && vo.getListParams().get(datadefineName) != null
-						&& !vo.getListParams().get(datadefineName).isEmpty()) {
-					newData = vo.getListParams().get(datadefineName).get(0);
-				}
-				logger.debug("start compare data in {} [{}]", pageVO.getId(), pageVO.getName());
-				// 比对数据
-				// put data in cache
-				if (pageVO != null && pageVO.getId() != null) {
-					String cacheKey = CACHE_KEY_PREFIX + pageVO.getId();
-					Cache documentCache = cacheManager.getCache("document");
-					if (documentCache != null) {
-						Element tmp = documentCache.get(cacheKey);
-						if (tmp != null) {
-							listParams = (Map<String, List<Map<String, String>>>) tmp;
-							if (listParams.get(datadefineName) != null && !listParams.get(datadefineName).isEmpty()) {
-								Map<String, String> memData = listParams.get(datadefineName).get(0);
-								if (newData != null && !newData.isEmpty()) {
-									boolean equal = true;
-									for (Iterator<String> it = newData.keySet().iterator(); it.hasNext();) {
-										String key = it.next();
-										if (newData.get(key) == null) {
-											if (memData.get(key) != null) {
-												equal = false;
-												memData.put(key, null);
-											}
-										} else if (!newData.get(key).equalsIgnoreCase(memData.get(key))) {
-											equal = false;
-											memData.put(key, newData.get(key));
-										}
-									}
-									if (equal)
-										flag = false;
-								}
-							}
-
-						}
-					}
-				}
-				logger.debug("end compare data in {} [{}]", pageVO.getId(), pageVO.getName());
-				logger.debug("{} data in {} [{}] is be changed", datadefineName, pageVO.getId(), pageVO.getName());
-				if (flag) {
-					logger.debug("start update {} data in {} [{}] is be changed", datadefineName, pageVO.getId(),
-							pageVO.getName());
-					metaModelOperateServiceImpl.update(vo.getListParams().get(datadefineName).get(0),
-							md.getModelCode());
-					logger.debug("end update {} data in {} [{}] is be changed", datadefineName, pageVO.getId(),
-							pageVO.getName());
-				}
-				return true;
-			} catch (Exception e) {
-				e.printStackTrace();
+			boolean flag = true;
+			if (flag) {
+				logger.debug("start update {} data in {} [{}] is be changed", datadefineName, pageVO.getId(),
+						pageVO.getName());
+				return metaModelOperateServiceImpl.update(vo.getListParams().get(datadefineName).get(0),
+						md.getModelCode());
 			}
 		}
 		return false;
@@ -638,24 +568,21 @@ public class DocumentServiceImpl implements DocumentService {
 			// processParams(vo);executeAct 方法中已经做处理
 			DataDefine md = (DataDefine) dd;
 			String id = null;
-			try {
-				Map<String, String> data = vo.getListParams().get(datadefineName).get(0);
-				if (data != null && !data.isEmpty()) {
-					if (data.containsKey("ID")) {
-						id = data.get("ID");
-						if (StringUtils.isBlank(id)) {
-							id = UUID.randomUUID().toString();
-							data.put("ID", id);
-							vo.setRecordId(id);
-						}
+			Map<String, String> data = vo.getListParams().get(datadefineName).get(0);
+			if (data != null && !data.isEmpty()) {
+				if (data.containsKey("ID")) {
+					id = data.get("ID");
+					if (StringUtils.isBlank(id)) {
+						id = UUID.randomUUID().toString();
+						data.put("ID", id);
+						vo.setRecordId(id);
 					}
 				}
+			}
 
-				metaModelOperateServiceImpl.save(data, md.getModelCode());
+			if (metaModelOperateServiceImpl.save(data, md.getModelCode())) {
 				vo.setTableName(metaModelServiceImpl.queryByModelCode(md.getModelCode()).getTableName());
 				return id;
-			} catch (Exception e) {
-				e.printStackTrace();
 			}
 		}
 		return null;
@@ -664,15 +591,12 @@ public class DocumentServiceImpl implements DocumentService {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public Map saveModelDataFlow(DynamicPageVO pageVO, DocumentVO vo, String datadefineName, boolean masterDateSource)
-			throws Exception {
+	public Map saveModelDataFlow(DynamicPageVO pageVO, DocumentVO vo, String datadefineName, boolean masterDateSource) {
 		DynamicPage page = BeanUtils.getNewInstance(pageVO, DynamicPage.class);
 		DataDefine dd = PageDataBeanWorker.convertConfToDataDefines(StringEscapeUtils.unescapeHtml4(page.getDataJson()))
 				.get(datadefineName);
 		Map resultMap = null;
 		if (dd != null) {
-			// get data from doc.requestMap, and put it into map with model
-			// processParams(vo);executeAct 方法中已经做处理
 			DataDefine md = (DataDefine) dd;
 			String id = null;
 			Map<String, String> data = vo.getListParams().get(datadefineName).get(0);
@@ -720,9 +644,6 @@ public class DocumentServiceImpl implements DocumentService {
 
 	@Override
 	public void excuteUpdate(String sql) {
-		// Long dataSourceId = getDataSourceIdByCurrentSystem();
-		// JdbcTemplate jdbcTemplate =
-		// DataSourceFactory.getJdbcTemplateById(dataSourceId);
 		jdbcTemplate.execute(sql);
 	}
 
@@ -774,34 +695,29 @@ public class DocumentServiceImpl implements DocumentService {
 	@Override
 	public String insertModelData(Map<String, String> map, String modelCode) {
 		String id = null;
-		try {
-			if (map != null && !map.isEmpty()) {
-				if (map.containsKey("ID")) {
-					id = map.get("ID");
-					if (!StringUtils.isNotBlank(id)) {
-						id = UUID.randomUUID().toString();
-						map.put("ID", id);
-					}
+		if (map != null && !map.isEmpty()) {
+			if (map.containsKey("ID")) {
+				id = map.get("ID");
+				if (!StringUtils.isNotBlank(id)) {
+					id = UUID.randomUUID().toString();
+					map.put("ID", id);
 				}
-				metaModelOperateServiceImpl.save(map, modelCode);
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
+			metaModelOperateServiceImpl.save(map, modelCode);
 		}
 		return id;
 	}
 
 	@Override
 	public String updateModelData(Map<String, String> map, String modelCode) {
-		String id = null;
-		try {
-			if (map != null && !map.isEmpty()) {
-				metaModelOperateServiceImpl.update(map, modelCode);
+		if (map != null && !map.isEmpty()) {
+			if (metaModelOperateServiceImpl.update(map, modelCode)) {
+				String _primay_key_ = map.get("_primay_key_");
+				return map.get(_primay_key_);
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
+
 		}
-		return id;
+		return null;
 	}
 
 	public String print(String docId) {
@@ -810,22 +726,22 @@ public class DocumentServiceImpl implements DocumentService {
 
 	@Override
 	public Boolean deleteModelData(DynamicPageVO pageVo, String recordId) {
-		try {
-			DynamicPage page = BeanUtils.getNewInstance(pageVo, DynamicPage.class);
-			Map<String, DataDefine> dds = PageDataBeanWorker
-					.convertConfToDataDefines(StringEscapeUtils.unescapeHtml4(page.getDataJson()));
-			for (Entry<String, DataDefine> entry : dds.entrySet()) {
-				DataDefine dd = entry.getValue();
-				if (dd != null) {
-					DataDefine md = (DataDefine) dd;
-					metaModelOperateServiceImpl.delete(recordId, md.getModelCode());
+		DynamicPage page = BeanUtils.getNewInstance(pageVo, DynamicPage.class);
+		Map<String, DataDefine> dds = PageDataBeanWorker
+				.convertConfToDataDefines(StringEscapeUtils.unescapeHtml4(page.getDataJson()));
+		boolean flag = true;
+		for (Entry<String, DataDefine> entry : dds.entrySet()) {
+			DataDefine dd = entry.getValue();
+			if (dd != null) {
+				DataDefine md = (DataDefine) dd;
+				if (!metaModelOperateServiceImpl.delete(recordId, md.getModelCode())) {
+					flag = false;
 				}
+			} else {
+				flag = false;
 			}
-			return true;
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
-		return false;
+		return flag;
 	}
 
 	@Override
@@ -843,16 +759,14 @@ public class DocumentServiceImpl implements DocumentService {
 
 	@Override
 	public boolean deleteByExample(BaseExample example) {
-		try {
-			List<DocumentVO> list = this.selectPagedByExample(example, 1, Integer.MAX_VALUE, null);
-			for (DocumentVO doc : list) {
-				delete(doc);
+		List<DocumentVO> list = this.selectPagedByExample(example, 1, Integer.MAX_VALUE, null);
+		boolean flag = true;
+		for (DocumentVO doc : list) {
+			if (!delete(doc)) {
+				flag = false;
 			}
-			return true;
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
-		return false;
+		return flag;
 	}
 
 	@Override // 计划废弃

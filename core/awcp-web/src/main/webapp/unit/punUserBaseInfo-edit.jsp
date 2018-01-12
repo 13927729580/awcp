@@ -299,9 +299,9 @@
 		$(function(){
 			loadUploadPreview("signatureImage_Img","file_signatureImage",20,20);
    			$.formValidator.initConfig({formID:"userForm",debug:false,onSuccess:function(){
-			   	$("#userForm").submit();
+   				$("#userForm").submit();
     		},onError:function(){alert("错误，请看提示")}});
-				$("#userName").formValidator({onShow:"请输入用户名",onFocus:"至少1位",onCorrect:"符合要求"}).inputValidator({min:1,empty:{leftEmpty:false,rightEmpty:false,emptyError:"不能有空符号"},onError:"必填",max:50,onError:"最长50位"});
+				$("#userIdCardNumber").formValidator({onShow:"请输入用户名",onFocus:"至少1位",onCorrect:"符合要求"}).inputValidator({min:1,empty:{leftEmpty:false,rightEmpty:false,emptyError:"不能有空符号"},onError:"必填",max:50,onError:"最长50位"});
 				$("#userPwd").formValidator({onShow:"请输入密码,默认密码是791013",onFocus:"至少1位,默认密码是791013",onCorrect:"密码合法"}).inputValidator({min:1,max:16,empty:{leftEmpty:false,rightEmpty:false,emptyError:"密码两边不能有空符号"},onError:"密码不能为空,请确认"});
 				$("#password2").formValidator({onShow:"输再次输入密码",onFocus:"至少1位,默认密码是791013",onCorrect:"密码一致"}).inputValidator({min:1,max:16,empty:{leftEmpty:false,rightEmpty:false,emptyError:"重复密码两边不能有空符号"},onError:"重复密码不能为空,请确认"}).compareValidator({desID:"userPwd",operateor:"=",onError:"2次密码不一致,请确认"});
 				$("#name").formValidator({onShow:"请输入姓名",}).inputValidator({min:2,max:30,onError:"长度在2～30位之间"});

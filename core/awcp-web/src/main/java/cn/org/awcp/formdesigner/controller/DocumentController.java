@@ -2,10 +2,9 @@ package cn.org.awcp.formdesigner.controller;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.sql.Date;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -16,9 +15,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.zip.ZipOutputStream;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 import javax.script.ScriptEngine;
@@ -55,7 +52,6 @@ import cn.org.awcp.core.utils.Springfactory;
 import cn.org.awcp.core.utils.constants.SessionContants;
 import cn.org.awcp.formdesigner.application.service.DocumentService;
 import cn.org.awcp.formdesigner.application.service.FormdesignerService;
-import cn.org.awcp.formdesigner.application.service.PrintService;
 import cn.org.awcp.formdesigner.application.service.StoreService;
 import cn.org.awcp.formdesigner.application.vo.DocumentVO;
 import cn.org.awcp.formdesigner.application.vo.DynamicPageVO;
@@ -66,6 +62,7 @@ import cn.org.awcp.formdesigner.core.domain.design.context.data.DataDefine;
 import cn.org.awcp.formdesigner.core.engine.FreeMarkers;
 import cn.org.awcp.formdesigner.core.parse.bean.PageDataBeanWorker;
 import cn.org.awcp.formdesigner.engine.util.VirtualRequest;
+import cn.org.awcp.formdesigner.service.PrintService;
 import cn.org.awcp.formdesigner.utils.DocUtils;
 import cn.org.awcp.formdesigner.utils.DocumentUtils;
 import cn.org.awcp.formdesigner.utils.PageBindUtil;
@@ -79,20 +76,9 @@ import cn.org.awcp.venson.controller.base.StatusCode;
 import cn.org.awcp.venson.exception.PlatformException;
 import cn.org.awcp.venson.service.FileService;
 import cn.org.awcp.venson.service.QueryService;
+import cn.org.awcp.venson.service.impl.FileServiceImpl.AttachmentVO;
 import cn.org.awcp.venson.util.BeanUtil;
-import jxl.Cell;
-import jxl.CellView;
-import jxl.Sheet;
-import jxl.Workbook;
-import jxl.format.Alignment;
-import jxl.format.CellFormat;
-import jxl.format.VerticalAlignment;
-import jxl.read.biff.BiffException;
-import jxl.write.Label;
-import jxl.write.WritableCellFormat;
-import jxl.write.WritableFont;
-import jxl.write.WritableSheet;
-import jxl.write.WritableWorkbook;
+import cn.org.awcp.venson.util.ExcelUtil;
 
 @Controller
 @RequestMapping("/document")
@@ -136,12 +122,14 @@ public class DocumentController extends BaseController {
 	 * @param response
 	 * @param request
 	 * @return
+	 * @throws IOException
+	 * @throws ScriptException
 	 * @throws Exception
 	 */
 	@SuppressWarnings("rawtypes")
 	@RequestMapping(value = "/view")
 	public String view(String id, String dynamicPageId, String docId, HttpServletResponse response,
-			HttpServletRequest request) throws Exception {
+			HttpServletRequest request) throws IOException, ScriptException {
 		/*
 		 * 校验必要参数，查询模版， 渲染模版
 		 */
@@ -155,6 +143,9 @@ public class DocumentController extends BaseController {
 			logger.debug("start init document and dynamicpage ");
 			if (StringUtils.isBlank(docId)) {
 				pageVO = formdesignerServiceImpl.findById(dynamicPageId);
+				if (pageVO == null) {
+					throw new PlatformException("动态页面未找到");
+				}
 				docVo = new DocumentVO();
 				docVo.setFlowTempleteId(request.getParameter("FK_Flow"));
 				docVo.setWorkItemId(request.getParameter("WorkID"));
@@ -183,6 +174,9 @@ public class DocumentController extends BaseController {
 					pageVO = formdesignerServiceImpl.findById(dynamicPageId);
 				} else {
 					pageVO = formdesignerServiceImpl.findById(docVo.getDynamicPageId());
+				}
+				if (pageVO == null) {
+					throw new PlatformException("动态页面未找到");
 				}
 				docVo.setDynamicPageId(pageVO.getId());
 				docVo.setDynamicPageName(pageVO.getName());
@@ -331,9 +325,9 @@ public class DocumentController extends BaseController {
 		return null;
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@RequestMapping(value = "/excute")
-	public ModelAndView excuteAct(HttpServletRequest request, HttpServletResponse response) throws DocumentException {
+	public ModelAndView excuteAct(HttpServletRequest request, HttpServletResponse response)
+			throws ScriptException, IOException {
 		ModelAndView mv = new ModelAndView();
 		String actId = request.getParameter("actId");
 		String pageId = request.getParameter("dynamicPageId");
@@ -351,15 +345,18 @@ public class DocumentController extends BaseController {
 		if (StringUtils.isNotBlank(pageId)) {
 			pageVO = formdesignerServiceImpl.findById(pageId);
 		}
+		if (pageVO == null) {
+			throw new PlatformException("动态页面ID未找到");
+		}
 		boolean isUpdate = false;
 		if (StringUtils.isNotBlank(update)) {
 			isUpdate = update.equalsIgnoreCase("true");
 		}
+		// 初始化表单数据
+		docVo = documentServiceImpl.findById(docId);
+		docVo = BeanUtil.instance(docVo, DocumentVO.class);
 
 		if (pageVO.getPageType() == 1002) { // 表单页面
-			// 初始化表单数据
-			docVo = documentServiceImpl.findById(docId);
-			docVo = BeanUtil.instance(docVo, DocumentVO.class);
 			docVo.setUpdate(isUpdate);
 			docVo.setDynamicPageId(pageId);
 			docVo.setDynamicPageName(pageVO.getName());
@@ -369,7 +366,7 @@ public class DocumentController extends BaseController {
 		}
 
 		Map<String, String> map = new HashMap<String, String>();
-		Enumeration enumeration = request.getParameterNames();
+		Enumeration<String> enumeration = request.getParameterNames();
 		for (; enumeration.hasMoreElements();) {
 			Object o = enumeration.nextElement();
 			String name = o.toString();
@@ -383,6 +380,9 @@ public class DocumentController extends BaseController {
 		docVo.setRequestParams(map);
 		docVo = documentServiceImpl.processParams(docVo);
 		StoreVO store = storeServiceImpl.findById(actId);
+		if (store == null) {
+			throw new PlatformException("按钮动作ID未找到");
+		}
 		PageActVO act = JSON.parseObject(store.getContent(), PageActVO.class);
 		PunUserBaseInfoVO user = (PunUserBaseInfoVO) SessionUtils.getObjectFromSession(SessionContants.CURRENT_USER);
 		// 初始化脚本解释执行器,加载全局工具类
@@ -507,10 +507,10 @@ public class DocumentController extends BaseController {
 			case 2014:// pdf打印
 				// 1、准备参数
 				String script = act.getExtbute().get("script");
-				Map<String, String> params = new HashMap<String, String>();
+				Map params = new HashMap();
 				if (StringUtils.isNotBlank(script)) {
 					try {
-						params = (Map<String, String>) engine.eval(StringEscapeUtils.unescapeHtml4(script));
+						params = (Map) engine.eval(StringEscapeUtils.unescapeHtml4(script));
 					} catch (ScriptException e2) {
 						logger.info("ERROR", e2);
 					}
@@ -553,7 +553,7 @@ public class DocumentController extends BaseController {
 				String templateFileId = act.getExtbute().get("templateFileId");
 				// 导出数据的sql
 				String sqlScript = act.getExtbute().get("sqlScript");
-				String actSql = new String();
+				String actSql = "";
 				if (StringUtils.isNotBlank(sqlScript)) {
 					try {
 						actSql = (String) engine.eval(StringEscapeUtils.unescapeHtml4(sqlScript));
@@ -569,11 +569,7 @@ public class DocumentController extends BaseController {
 				paramMap.put("excelParams", excelParams);
 				paramMap.putAll(map);
 				VirtualRequest vRequest = new VirtualRequest(paramMap); // request的getParament无法重置，所有自己模拟一个virtualRequest用于存跳转参数
-				try {
-					excelListPage(vRequest, request, response);
-				} catch (ScriptException e) {
-					logger.info("ERROR", e);
-				}
+				excelListPage(vRequest, request, response);
 				return null;
 
 			default:
@@ -689,14 +685,7 @@ public class DocumentController extends BaseController {
 	@RequestMapping("/getListJson")
 	public List<Map<String, String>> getListJson(HttpServletRequest request) throws ScriptException {
 
-		Map<String, String> paramMap = new HashMap<String, String>();
-		Enumeration enumeration = request.getParameterNames();
-		for (; enumeration.hasMoreElements();) {
-			Object o = enumeration.nextElement();
-			paramMap.put(o.toString(), request.getParameter(o.toString()));
-		}
-
-		String dynamicPageId = paramMap.get("dynamicPageId");
+		String dynamicPageId = request.getParameter("dynamicPageId");
 		DynamicPageVO pageVO = formdesignerServiceImpl.findById(dynamicPageId);
 		DocumentVO docVo = new DocumentVO();
 		docVo.setDynamicPageId(String.valueOf(pageVO.getId()));
@@ -721,8 +710,6 @@ public class DocumentController extends BaseController {
 						Boolean ret = (Boolean) engine.eval(showScript);
 						if (ret) {
 							break;
-						} else {
-							// TODO 报错
 						}
 					}
 				}
@@ -793,7 +780,7 @@ public class DocumentController extends BaseController {
 		}
 
 		Map<String, String> map = new HashMap<String, String>();
-		Enumeration enumeration = request.getParameterNames();
+		Enumeration<String> enumeration = request.getParameterNames();
 		for (; enumeration.hasMoreElements();) {
 			Object o = enumeration.nextElement();
 			String name = o.toString();
@@ -846,7 +833,7 @@ public class DocumentController extends BaseController {
 	 */
 	@RequestMapping(value = "/print")
 	public void print(VirtualRequest paramRequest, HttpServletRequest request, HttpServletResponse response)
-			throws ScriptException, DocumentException {
+			throws ScriptException {
 
 		String docId = paramRequest.getParameter("docId");
 		String pageId = paramRequest.getParameter("dynamicPageId");
@@ -866,17 +853,8 @@ public class DocumentController extends BaseController {
 		// 查找模版
 		if (StringUtils.isNotBlank(pageId)) {
 			pageVO = formdesignerServiceImpl.findById(pageId);
-		} else {
-			// FIXME 报错
-			// return null;
 		}
 
-		// 表单页面
-		// if (pageVO.getPageType() == 1002) {// 初始化表单数据
-		// 查找document
-		// if (docVo.isUpdate()) {
-		// DocumentVO tmp = documentServiceImpl.findById(docId);
-		// }
 		docVo.setId(docId);
 
 		docVo.setDynamicPageId(pageId);
@@ -977,14 +955,7 @@ public class DocumentController extends BaseController {
 		}
 		// 设置在线预览方式打开Pdf文件
 		response.setContentType("application/pdf;charset=UTF-8");
-		try {
-			response.setHeader("Content-disposition",
-					"inline; filename=" + encodeChineseDownloadFileName(request, fileName));
-		} catch (UnsupportedEncodingException e1) {
-			// TODO Auto-generated catch block
-			logger.info("ERROR", e1);
-		}
-
+		response.setHeader("Content-disposition", "inline; filename=" + ControllerHelper.processFileName(fileName));
 		OutputStream out = null;
 		try {
 			// 判断是否需要合并pdf
@@ -1009,24 +980,19 @@ public class DocumentController extends BaseController {
 		// }
 	}
 
-	@ResponseBody
-	@RequestMapping(value = "/excelListPage")
 	public void excelListPage(VirtualRequest paramRequest, HttpServletRequest request, HttpServletResponse response)
-			throws ScriptException {
+			throws ScriptException, IOException {
 		String docId = paramRequest.getParameter("docId");
 		String pageId = paramRequest.getParameter("dynamicPageId");
 		String templateFileId = paramRequest.getParameter("templateFileId");
 		String actSql = paramRequest.getParameter("actSql");
 		// 根据pageId，获取组件，然后进行request遍历，组装成Map（documentVo.requestParams），key为组件name
-		ModelAndView mv = new ModelAndView();
 		DocumentVO docVo = new DocumentVO();
 		DynamicPageVO pageVO = null;
 		// 查找模版
-		if (StringUtils.isNotBlank(pageId)) {
-			pageVO = formdesignerServiceImpl.findById(pageId);
-		} else {
-			// FIXME 报错
-			// return null;
+		pageVO = formdesignerServiceImpl.findById(pageId);
+		if (pageVO == null) {
+			throw new PlatformException("动态页面为空");
 		}
 		docVo.setId(docId);
 		docVo.setDynamicPageId(pageId);
@@ -1034,7 +1000,7 @@ public class DocumentController extends BaseController {
 		// 初始化脚本解释执行器,加载全局工具类
 		ScriptEngine engine = ScriptEngineUtils.getScriptEngine(docVo, pageVO);
 		// TODO put engine 工具类库
-		engine.put("request", paramRequest);
+		engine.put("request", request);
 		engine.put("session", request.getSession());
 		// 分页
 		String orderBy = docVo.getRequestParams().get("orderBy");
@@ -1063,7 +1029,9 @@ public class DocumentController extends BaseController {
 		} else {// 导出excel动作中的sql脚本为空，则根据列表页面的数据源来导出
 			dataMap = documentServiceImpl.initDocumentData(1, MAX_EXCEL_PAGE_SIZE, docVo, engine, pageVO);
 		}
-
+		if (dataMap.isEmpty()) {
+			throw new PlatformException("数据源或sql脚本不能为空");
+		}
 		List<JSONObject> columns = new ArrayList<JSONObject>();
 		if (!StringUtils.isNotBlank(templateFileId)) {// 如果没有模板，则根据执行下面代找到所有列框，然后根据列框来导出数据
 			// 查找列框
@@ -1096,21 +1064,9 @@ public class DocumentController extends BaseController {
 
 		response.setContentType("text/html;charset=UTF-8");
 		response.setContentType("application/x-msdownload;");
-		try {
-			response.setHeader("Content-disposition",
-					"attachment; filename=" + encodeChineseDownloadFileName(request, pageVO.getName() + "-列表.xls"));
-		} catch (UnsupportedEncodingException e1) {
-			// TODO Auto-generated catch block
-			logger.info("ERROR", e1);
-		}
-		try {
-			// 此处多传了模板ID和页面两个参数pageVO，pageVO是为了获取序号的模式和序号是降序还是升序
-			printExcel(columns, dataMap, response.getOutputStream(), templateFileId, pageVO);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			logger.info("ERROR", e);
-		}
-		// }
+		response.setHeader("Content-disposition",
+				"attachment; filename=" + ControllerHelper.processFileName(pageVO.getName() + "-列表.xls"));
+		printExcel(columns, dataMap, response.getOutputStream(), templateFileId, pageVO);
 	}
 
 	public Map getListPageData(VirtualRequest paramRequest, HttpServletRequest request) throws ScriptException {
@@ -1193,33 +1149,6 @@ public class DocumentController extends BaseController {
 			}
 		}
 		return returnMap;
-	}
-
-	/**
-	 * 对文件流输出下载的中文文件名进行编码 屏蔽各种浏览器版本的差异性
-	 * 
-	 * @throws UnsupportedEncodingException
-	 */
-	public String encodeChineseDownloadFileName(HttpServletRequest request, String pFileName)
-			throws UnsupportedEncodingException {
-
-		String filename = null;
-		String agent = request.getHeader("USER-AGENT");
-		if (null != agent) {
-			if (-1 != agent.indexOf("Firefox")) {// Firefox
-				filename = "=?UTF-8?B?"
-						+ (new String(org.apache.commons.codec.binary.Base64.encodeBase64(pFileName.getBytes("UTF-8"))))
-						+ "?=";
-			} else if (-1 != agent.indexOf("Chrome")) {// Chrome
-				filename = new String(pFileName.getBytes(), "ISO8859-1");
-			} else {// IE7+
-				filename = java.net.URLEncoder.encode(pFileName, "UTF-8");
-				filename = StringUtils.replace(filename, "+", "%20");// 替换空格
-			}
-		} else {
-			filename = pFileName;
-		}
-		return filename;
 	}
 
 	@Autowired
@@ -1339,196 +1268,39 @@ public class DocumentController extends BaseController {
 
 	private void printExcel(List<JSONObject> columns, Map<String, List<Map<String, String>>> dataMap, OutputStream os,
 			String templateFileId, DynamicPageVO pageVO) {
-		WritableWorkbook workbook = null;
-		Workbook template = null;// 定义模板
 		if (templateFileId != null && StringUtils.isNoneBlank(templateFileId)) {// 当模板ID不为空，找到模板
-			try {
-				template = Workbook.getWorkbook(fileService.getInputStream(templateFileId));// 初始化模板
-			} catch (BiffException e) {
-				logger.info("ERROR", e);
-			} catch (IOException e) {
-				logger.info("ERROR", e);
+			AttachmentVO att = fileService.get(templateFileId);
+			if (att == null) {
+				throw new PlatformException("模板未找到，请重新上传");
 			}
-		}
-
-		try {
-			// 序号模式
-			String numFormat = pageVO.getReverseNumMode() != null ? pageVO.getReverseNumMode() : "0000";
-			// 序号升序或降序
-			String sortType = pageVO.getReverseSortord();
-
-			if (template != null) {// 如果模板不为空，则根据模板导出
-				workbook = Workbook.createWorkbook(os, template);// 根据模板创建一个workbook
-				WritableSheet sheet = workbook.getSheet(0);// 新建一个工作簿
-				Sheet templateSheet = template.getSheet(0);// 获取模板的工作簿
-
-				// 下面是获取模板中的列头，模板中的的列头格式为
-				// ：”数据源名.属性名_列名“，或者当根据sql查找导出数据时格式为：“sql属性名_列名”
-				List<String> templateColumns = new ArrayList<String>();
-				int colNum = templateSheet.getColumns();
-				for (int i = 0; i < colNum; i++) {
-					Cell cell = templateSheet.getCell(i, 0);
-					if (cell == null)
-						continue;
-					if (StringUtils.isNotBlank(cell.getContents())) {
-						// 如果列头不为空则增加到templateColumns中进行后面数据填充
-						templateColumns.add(cell.getContents());
-					}
-				}
-				// 遍历模板中的列头名称，把数据一一对应填并根据模板填写到工作簿sheet中
-				for (int i = 0; i < templateColumns.size(); i++) {
-					String templateColumn = templateColumns.get(i);
-					String[] colums = templateColumn.split("_");
-					String[] codes = colums[0].split("\\.");
-					if (codes != null && codes.length > 0) {
-						// 填写列头
-						// 获取表头的CellFormat
-						CellFormat headFormat = sheet.getWritableCell(i, 0).getCellFormat();
-						// 定义列头的内容和格式
-						Label headLabel = new Label(i, 0, colums[1], headFormat);
-						// 增加列头
-						sheet.addCell(headLabel);
-						// 获取模板中定义的数据源名和属性名
-						String contentCodes = "";
-						if (codes.length == 1) {
-							// 当定义为根据sql导出数据，格式为“sql属性名_列名”
-							contentCodes = codes[0];
-						} else {
-							// 当根据数据源导出数据时，格式为”数据源名.属性名_列名“
-							contentCodes = codes[1];
-						}
-						// 获取数据
-						List<Map<String, String>> list = new ArrayList<Map<String, String>>();
-						if (dataMap.get("sqlData") != null) {
-							// 当根据sql导出时，dataMap中数据只有一个List
-							list = dataMap.get("sqlData");
-						} else {
-							// 当根据数据源导出时，根据数据源名称查找对应的list
-							list = dataMap.get(codes[0] + "_list");
-						}
-						// 对序号进行独立的处理
-						if (contentCodes.equalsIgnoreCase("no") && i == 0) {
-							// 序号的格式定义为“no_序号名”
-							if (dataMap.get("sqlData") != null) {
-								// 根据sql导出时，对序号的处理不能使用Paginator
-								int size = list.size();
-								for (int j = 0; j < size; j++) {
-									int number = size - j;
-									DecimalFormat df2 = new DecimalFormat("0000");// 根据sql导出其序号模式为“0000”
-									CellFormat contentFormat = sheet.getWritableCell(0, 1).getCellFormat();
-									Label la = new Label(0, j + 1, df2.format(number), contentFormat);
-									sheet.addCell(la);
-								}
-							} else {
-								Paginator page = ((PageList) list).getPaginator();
-								for (int j = 0; j < list.size(); j++) {
-									int number = page.getTotalCount() - page.getPage() * page.getLimit()
-											+ page.getLimit() - j;
-									DecimalFormat df2 = new DecimalFormat("0000");// 根据sql导出其序号模式为“0000”
-									CellFormat contentFormat = sheet.getWritableCell(0, 1).getCellFormat();
-									Label la = new Label(0, j + 1, df2.format(number), contentFormat);
-									sheet.addCell(la);
-								}
-							}
-
-						} else {
-							// 内容处理，根据模板中定义的属性名对号入座
-							CellFormat contentFormat = sheet.getWritableCell(i, 1).getCellFormat();
-							for (int j = 0; j < list.size(); j++) {
-								Map<String, String> data = list.get(j);
-								String content = data.get(contentCodes);
-								Label la = new Label(i, j + 1, content, contentFormat);
-								sheet.addCell(la);
-							}
-						}
-					}
-				}
-			} else {// 没用模板时，根据数据源和列框导出数据
-
-				WritableFont fontHead = new WritableFont(WritableFont.createFont("宋体"), 11, WritableFont.BOLD);
-				WritableCellFormat formatHead = new WritableCellFormat(fontHead);
-				formatHead.setWrap(true);
-				formatHead.setVerticalAlignment(VerticalAlignment.CENTRE);
-				formatHead.setAlignment(Alignment.CENTRE);
-				WritableFont fontContent = new WritableFont(WritableFont.createFont("宋体"), 11);
-				WritableCellFormat formatContent = new WritableCellFormat(fontContent);
-				formatContent.setWrap(true);
-				formatContent.setVerticalAlignment(VerticalAlignment.CENTRE);
-				formatContent.setAlignment(Alignment.LEFT);
-				CellView cellView = new CellView();
-				cellView.setAutosize(true); // 设置自动大小
-				workbook = Workbook.createWorkbook(os);
-				WritableSheet sheet = workbook.createSheet("First Sheet", 0);
-				for (int i = -1; i < columns.size(); i++) {
-					if (i == -1) {
-						sheet.setColumnView(0, 10);// 根据内容自动设置列宽
-						Label label = new Label(0, 0, "序号", formatHead);
-						sheet.addCell(label);
-						JSONObject column = columns.get(0);
-						String[] codes = column.getString("dataItemCode").split("\\.");
-						List<Map<String, String>> list = dataMap.get(codes[0] + "_list");
-						Paginator page = ((PageList) dataMap.get(codes[0] + "_list")).getPaginator();
-						for (int j = 0; j < list.size(); j++) {
-							int number = 0;
-							if (sortType != null && sortType.equalsIgnoreCase("0")) {// 升序
-								number = page.getPage() * page.getLimit() - page.getLimit() + j + 1;
-							} else {// 降序
-								number = page.getTotalCount() - page.getPage() * page.getLimit() + page.getLimit() - j;
-							}
-
-							DecimalFormat df2 = new DecimalFormat(numFormat);
-							Label la = new Label(0, j + 1, df2.format(number), formatContent);
-							sheet.addCell(la);
-						}
-					} else {
-						// sheet.setColumnView(i+1, cellView);//根据内容自动设置列宽
-						// sheet.setRowView(i+1, 1);
-						JSONObject column = columns.get(i);
-						Label label = new Label(i + 1, 0, column.getString("columnName"), formatHead);
-						sheet.addCell(label);// 添加列头
-						// 添加列数据
-						String dataSource = column.getString("dataItemCode");
-						String[] codes = dataSource.split("\\.");
-						int max = 0;
-						if (codes != null && codes.length > 0) {
-							List<Map<String, String>> list = dataMap.get(codes[0] + "_list");
-							for (int j = 0; j < list.size(); j++) {
-								Map<String, String> data = list.get(j);
-								String content = data.get(codes[1]);
-								if (content != null) {
-									if (content.length() + getChineseNum(content) > max) {
-										max = content.length() + getChineseNum(content);
-									}
-								}
-								Label la = new Label(i + 1, j + 1, content, formatContent);
-								sheet.addCell(la);
-							}
-							if (max != 0) {
-								sheet.setColumnView(i + 1, max + 4);
-							} else {
-								sheet.setColumnView(i + 1, cellView);
-							}
-						}
-					}
-				}
+			InputStream in = fileService.getInputStream(att);
+			if (in == null) {
+				throw new PlatformException("模板未找到，请重新上传");
 			}
+			List<Map<String, String>> list = null;
+			if (dataMap.get("sqlData") != null) {
+				// 当根据sql导出时，dataMap中数据只有一个List
+				list = dataMap.get("sqlData");
+			} else {
+				list = dataMap.values().iterator().next();
+			}
+			ExcelUtil.exportExcelByTemplate((List) list, in, os);
+		} else {
+			List<Map<String, String>> list;
+			if (dataMap.containsKey("sqlData")) {
+				list = dataMap.get("sqlData");
+			} else {
+				list = dataMap.values().iterator().next();
+			}
+			ExcelUtil.exportExcelByCreate(columns.stream().map(j -> {
+				Map<String, String> head = new HashMap<>();
+				head.put("title", j.getString("columnName"));
+				head.put("field", j.getString("dataItemCode").split("\\.")[1]);
+				return head;
+			}).collect(Collectors.toList()), (List) list, os);
 
-			workbook.write();
-			workbook.close();
-		} catch (Exception e) {
-			logger.info("ERROR", e);
 		}
 
-	}
-
-	private int getChineseNum(String context) { // /统计context中是汉字的个数
-		int lenOfChinese = 0;
-		Pattern p = Pattern.compile("[\u4e00-\u9fa5]"); // 汉字的Unicode编码范围
-		Matcher m = p.matcher(context);
-		while (m.find()) {
-			lenOfChinese++;
-		}
-		return lenOfChinese;
 	}
 
 	@ResponseBody
@@ -1537,37 +1309,15 @@ public class DocumentController extends BaseController {
 		String dynamicPages = request.getParameter("dynamicPageIds");
 
 		String[] dynamicPageArr = dynamicPages.split(",");
-		Map<String, String> map = new HashMap<String, String>();
-		Enumeration enumeration = request.getParameterNames();
-		for (; enumeration.hasMoreElements();) {
-
-			Object o = enumeration.nextElement();
-			String name = o.toString();
-			String[] values = request.getParameterValues(name);
-			map.put(o.toString(), StringUtils.join(values, ";"));
-		}
+		Map<String, String[]> ParameterMap = request.getParameterMap();
 
 		String fileName = ((PunUserBaseInfoVO) (SessionUtils.getObjectFromSession(SessionContants.CURRENT_USER)))
 				.getName();
 		VirtualRequest virtualRequest = new VirtualRequest();
-		ZipOutputStream zipOut = null;
-		// try {
-		// zipOut = new ZipOutputStream(response.getOutputStream());
-		// } catch (IOException e3) {
-		// // TODO Auto-generated catch block
-		// e3.logger.info("ERROR", e)();
-		// }
-		// zip的名称为
-		// zipOut.setComment("评审表.rar");
 		response.setContentType("text/html;charset=UTF-8");
 		response.setContentType("application/x-msdownload;");
-		try {
-			response.setHeader("Content-disposition",
-					"attachment; filename=" + encodeChineseDownloadFileName(request, fileName + ".pdf"));
-		} catch (UnsupportedEncodingException e1) {
-			// TODO Auto-generated catch block
-			logger.info("ERROR", e1);
-		}
+		response.setHeader("Content-disposition",
+				"attachment; filename=" + ControllerHelper.processFileName(fileName + ".pdf"));
 
 		List<StoreVO> printManageVOs = new ArrayList<StoreVO>();
 		List<Map> dataMaps = new ArrayList<Map>();
@@ -1577,12 +1327,10 @@ public class DocumentController extends BaseController {
 			String dynamicPageId = dynamicPageArr[i];
 			DynamicPageVO pageVO = null;
 			pageVO = formdesignerServiceImpl.findById(dynamicPageId);
-			for (String key : map.keySet()) {
-				if (map.get(key) != null) {
-					String[] values = map.get(key).split(",");
-					if (values != null && values[i] != null) {
-						virtualRequest.setParameter(key, values[i]);
-					}
+			for (String key : ParameterMap.keySet()) {
+				if (ParameterMap.get(key) != null) {
+					String[] values = ParameterMap.get(key);
+					virtualRequest.setParameter(key, StringUtils.join(values, ";"));
 				}
 			}
 
@@ -1819,7 +1567,7 @@ public class DocumentController extends BaseController {
 			}
 			logger.debug("start init request parameters ");
 			Map<String, String> map = new HashMap<String, String>();
-			Enumeration enumeration = request.getParameterNames();
+			Enumeration<String> enumeration = request.getParameterNames();
 			for (; enumeration.hasMoreElements();) {
 				Object o = enumeration.nextElement();
 				String name = o.toString();
@@ -1957,7 +1705,7 @@ public class DocumentController extends BaseController {
 			}
 			logger.debug("start init request parameters ");
 			Map<String, String> map = new HashMap<String, String>();
-			Enumeration enumeration = request.getParameterNames();
+			Enumeration<String> enumeration = request.getParameterNames();
 			for (; enumeration.hasMoreElements();) {
 				Object o = enumeration.nextElement();
 				String name = o.toString();
@@ -1967,7 +1715,6 @@ public class DocumentController extends BaseController {
 			logger.debug("end init request parameters ");
 			docVo.setRequestParams(map);
 
-			Map<String, Object> root = new HashMap<String, Object>();
 			logger.debug("start init engine ");
 			// 拿脚本执行引擎
 			ScriptEngine engine = ScriptEngineUtils.getScriptEngine(docVo, pageVO);
@@ -2100,7 +1847,7 @@ public class DocumentController extends BaseController {
 			}
 			logger.debug("start init request parameters ");
 			Map<String, String> map = new HashMap<String, String>();
-			Enumeration enumeration = request.getParameterNames();
+			Enumeration<String> enumeration = request.getParameterNames();
 			for (; enumeration.hasMoreElements();) {
 				Object o = enumeration.nextElement();
 				String name = o.toString();

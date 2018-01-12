@@ -27,6 +27,7 @@
 		<property name="locations">
 			<list>
 				<value>classpath:conf/jdbc.properties</value>
+				<value>classpath:conf/awcp.properties</value>
 			</list>
 		</property>
 	</bean>
@@ -94,6 +95,11 @@
 	<bean id="solrClient" class="org.apache.solr.client.solrj.impl.HttpSolrClient">
 		<constructor-arg index="0" value="http://192.168.1.134:8080/solr/awcp-files" />
 	</bean>
+	<!-- mongodb客户端 -->
+	<bean id="mongoClient" class="com.mongodb.MongoClient">
+		<constructor-arg index="0" value="${mongo.url}" />
+		<constructor-arg index="1" value="${mongo.port}" />
+	</bean>
 	<bean id="jdbcTemplate" class="cn.org.awcp.core.domain.SzcloudJdbcTemplate">
 		<property name="dataSource" ref="dataSource"></property>
 	</bean>
@@ -111,6 +117,8 @@
 		<property name="dataSource" ref="dataSource"></property>
 	</bean>
 
+	<bean id="cache" class="cn.org.awcp.venson.cache.EhCacheBasedCache"/>
+	
 	<!--使用基于注解方式配置事务 -->
 	<tx:annotation-driven transaction-manager="txManager" />
 	
@@ -128,12 +136,6 @@
 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
 		<property name="basePackage" value="cn.org.awcp" />
 	</bean>
-
-	<bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
-		<property name="shared" value="true" />
-		<property name="configLocation" value="classpath:conf/ehcache.xml" />
-	</bean>
-
 
 	<bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
 		<property name="basename">

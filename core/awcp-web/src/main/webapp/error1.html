@@ -13,6 +13,7 @@
         	history.back();
         }
     </script>
+    <script type="text/javascript" src="./venson/js/common.js"></script>
     <style type="text/css">
     .abnormal{    position: absolute;
     top: 0;
@@ -66,7 +67,9 @@
 
 <!--404-->
 <div class="abnormal">
-    <img src="/awcp/images/error.png">
+    <script type="text/javascript">
+    	document.write('<img src="'+baseUrl+'images/error.png">')
+    </script>
     <p>页面被核码吃了！</p>
     <span class="returnBack" onclick="returnBack()">返回上一页</span>
 </div>

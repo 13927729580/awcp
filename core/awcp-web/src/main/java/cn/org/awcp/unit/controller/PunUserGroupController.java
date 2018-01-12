@@ -30,7 +30,6 @@ import cn.org.awcp.unit.service.PunUserGroupService;
 import cn.org.awcp.unit.vo.PunGroupVO;
 import cn.org.awcp.unit.vo.PunUserBaseInfoVO;
 import cn.org.awcp.unit.vo.PunUserGroupVO;
-import cn.org.awcp.venson.common.SC;
 
 /**
  * 用户部门Controller
@@ -182,7 +181,7 @@ public class PunUserGroupController {
 		ModelAndView mv = new ModelAndView();
 		mv.setViewName("/unit/punGroup-userEdit");
 
-		PageList list = (PageList) punUserGroupService.queryUserListByGroupId(groupId);
+		PageList list = (PageList) punUserGroupService.queryUserListByGroupId(groupId, 0, 9999, null);
 		mv.addObject("userList", list);
 		mv.addObject("groupId", groupId);
 		mv.addObject("rootGroupId", rootGroupId);
@@ -190,9 +189,17 @@ public class PunUserGroupController {
 	}
 
 	@RequestMapping(value = "/getUsers", method = RequestMethod.GET)
-	public ModelAndView getUsers(Long groupId, Long rootGroupId, Integer number, Long user) {
+	public ModelAndView getUsers(Long groupId, @RequestParam(value = "number", required = false) Integer number,
+			@RequestParam(value = "user", required = false) Long user,
+			@RequestParam(value = "currentPage", required = false, defaultValue = "1") int currentPage,
+			@RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize) {
+		ModelAndView mv = new ModelAndView();
+		mv.setViewName("/unit/punGroup-usersView");
 		if (groupId == null) {
-			groupId = SC.GROUP_ID;
+			Map<String, Object> pun = jdbcTemplate.queryForMap(
+					"select group_id groupId,group_ch_name groupChName from p_un_group where PARENT_GROUP_ID=0");
+			mv.addObject("pun", pun);
+			groupId = (Long) pun.get("groupId");
 		}
 		// 编号不为空的话修改编号
 		if (number != null && user != null) {
@@ -202,19 +209,16 @@ public class PunUserGroupController {
 				userService.updateUser(uvo);
 			}
 		}
-		ModelAndView mv = new ModelAndView();
-		mv.setViewName("/unit/punGroup-usersView");
 
-		PageList<PunUserBaseInfoVO> list = punUserGroupService.queryUserListByGroupId(groupId);
+		Map<String, Object> map = new HashMap<>();
+		map.put("groupId", groupId);
+		PageList<PunUserBaseInfoVO> list = punUserGroupService.queryUserListByGroupId(groupId, currentPage, pageSize,
+				null);
 		if (!list.isEmpty()) {
 			PunGroupVO pun = groupService.findById(groupId);
-			for (int i = 0; i < list.size(); i++) {
-				list.get(i).setDeptName(pun.getGroupChName());
-			}
+			mv.addObject("pun", pun);
 		}
 		mv.addObject("userList", list);
-		mv.addObject("groupId", groupId);
-		mv.addObject("rootGroupId", rootGroupId);
 		return mv;
 	}
 
@@ -252,7 +256,7 @@ public class PunUserGroupController {
 	@ResponseBody
 	@RequestMapping(value = "/getUserListByAjax", method = RequestMethod.GET)
 	public PageList<PunUserBaseInfoVO> getUserListByAjax(Long groupId) {
-		PageList<PunUserBaseInfoVO> list = punUserGroupService.queryUserListByGroupId(groupId);
+		PageList<PunUserBaseInfoVO> list = punUserGroupService.queryUserListByGroupId(groupId, 0, 9999, null);
 		return list;
 	}
 

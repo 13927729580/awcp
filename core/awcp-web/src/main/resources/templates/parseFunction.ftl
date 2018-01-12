@@ -1891,8 +1891,8 @@ var multilevelLinkage=function(option){
 					id : 'edit-dialog' + Math.ceil(Math.random() * 10000),
 					title : '编辑...',
 					url : "<#noparse>${basePath}</#noparse>document/view.do?dynamicPageId=${c['alertPage']}&id=" + ids[0]["ID"],
-					width : ${(c['viewWidth'])!600},
-					height: ${(c['viewHeight'])!600},
+					width : width,
+					height: height,
 					onclose : function() {
 						if (this.returnValue) {
 							$("#dg_${c['pageId']}").datagrid('clearChecked').datagrid('reload');

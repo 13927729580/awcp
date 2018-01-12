@@ -857,6 +857,7 @@ function loadCommonComponentData(storeObject){
 		if(componentObject.imageHeight) 	$("#imageHeight").val(componentObject.imageHeight);
 		if(componentObject.imageWidth) 	$("#imageWidth").val(componentObject.imageWidth);
 		
+		
 		//select
 		if(componentObject.supportSearch) { $("input[name='supportSearch']").attr("checked","checked");}
 		if(componentObject.supportMulti) { $("input[name='supportMulti']").attr("checked","checked");}
@@ -933,8 +934,7 @@ function loadCommonComponentData(storeObject){
 		if(componentObject.searchLocation) { $("#searchLocation").val(componentObject.searchLocation).trigger("change");}
 		//表格组件 
 		if(componentObject.dataAlias) { $("#dataAlias").val(componentObject.dataAlias);}
-		if(componentObject.viewWidth) { $("#viewWidth").val(componentObject.viewWidth);}
-		if(componentObject.viewHeight) { $("#viewHeight").val(componentObject.viewHeight);}
+		if(componentObject.pageSize) 	$("#pageSize").val(componentObject.pageSize);
 		if(componentObject.hasPager) { $("#hasPager").val(componentObject.hasPager).trigger("change");}
 		if((componentObject.columns)){
 			var data = componentObject.columns;
@@ -958,7 +958,7 @@ function loadCommonComponentData(storeObject){
 				str+="<td><input style='width:100%' name='columns[][columnWidth]' id='columnWidth-"+index+"' value='"+item.columnWidth+"' type=text" + "/>"+"</td>";
 				str+="<td><input style='width:100%' name='columns[][order]' id='columnOrder-"+index+"' value='"+item.order+"' type=text" + "/>"+"</td>";
 				str+="<td style='text-align:center;'><select class='editType' name='columns[][editType]' id='editType-'"+ index +"' value='"+item.editType+"'>";
-				str+="<option "+(item.editType==0?"selected":"")+" value='0'>无</option><option "+(item.editType=="textbox"?"selected":"")+
+				str+="<option "+(item.editType==0?"selected":"")+" value='0'>无</option><option "+(item.editType=="text"?"selected":"")+
 				" value='text'>文本</option><option "+(item.editType=="numberbox"?"selected":"")+" value='numberbox'>数字</option><option "+
 				(item.editType=="datebox"?"selected":"")+" value='datebox'>日期框</option><option "+(item.editType=="combobox"?"selected":"")
 				+" value='combobox'>下拉框</option><option "+(item.editType=="checkbox"?"selected":"")+" value='checkbox'>选择框</option></select></td>";
@@ -995,23 +995,18 @@ function loadCommonComponentData(storeObject){
 		}
 		if((componentObject.param)){
 			var data = componentObject.param;
-			var myIndex=0;
-			$.each(data, function(index, item) {
-				
-				var str="<tr id=paramTr'"+index+"'>";
-				str+="<td>"+"<input type='text'   name='param[][exportParam]' id='exportParam-"+myIndex+"' value='"+item.exportParam+"'>"
-						   +"<button class='btn btn-default exportParam' type='button' id='exportParam-"+myIndex+"' >选择</button>"
-						   +"</td>";
-				str+="<td>————》</td>";
-				str+="<td>"+"<input type='text'   name='param[][storeParam]' id='storeParam-"+myIndex+"' value='"+item.storeParam+"'>"
-						   +"<input type='hidden'   name='param[][storeParamId]' id='storeParamId-"+myIndex+"' value='"+item.storeParamId+"'>"
-						   +"<button class='btn btn-default storeIdSelect' type='button' id='storeIdSelect-"+myIndex+"' >选择</button>"
-								
-						   +"</td>";
-				str+="<td><a href='javascript:void(0)' class='removeParamTr'>删除</a>"+"</td>";
-				str+="</tr>";
-				myIndex++;
-				
+			$.each(data, function(index, item) {				
+				var str="<tr>";
+				str += "<td><input type='text' style='width:75%' name='param[][exportParam]' value='" + item.exportParam + "'>"
+					+ "<button class='btn btn-default exportParam' type='button'>选择</button>"
+					+ "</td>";
+				str += "<td>——》</td>";
+				str += "<td><input type='text' style='width:75%' name='param[][storeParam]' value='" + item.storeParam + "'>"
+				    + "<input type='hidden' name='param[][storeParamId]' value='" + item.storeParamId + "'>"
+					+ "<button class='btn btn-default storeIdSelect' type='button'>选择</button>"
+					+ "</td>";
+				str += "<td><a href='javascript:void(0)' class='removeParamTr'>删除</a>"+"</td>";
+				str += "</tr>";
 				$("#paramentBody").append(str);
 			});
 		}

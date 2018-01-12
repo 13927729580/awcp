@@ -3,8 +3,6 @@ package cn.org.awcp.unit.message;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -26,8 +24,7 @@ import org.springframework.web.context.request.RequestAttributes;
 import com.alibaba.fastjson.JSON;
 
 import cn.org.awcp.core.utils.constants.SessionContants;
-import cn.org.awcp.venson.common.SC;
-import cn.org.awcp.venson.util.CookieUtil;
+import cn.org.awcp.unit.vo.PunUserBaseInfoVO;
 
 /**
  * @ServerEndpoint 注解是一个类层次的注解，它的功能主要是将目前的类定义成一个websocket服务器端,
@@ -60,16 +57,14 @@ public class WebSocket {
 		HandshakeRequest request = (HandshakeRequest) session.getUserProperties()
 				.get(RequestAttributes.REFERENCE_REQUEST);
 		ShiroHttpSession httpSession = (ShiroHttpSession) request.getHttpSession();
-		if (httpSession.getAttribute(SessionContants.CURRENT_USER) == null) {
+		Object obj = httpSession.getAttribute(SessionContants.CURRENT_USER);
+		if (obj == null) {
 			close(session);
 			return;
 		}
+		PunUserBaseInfoVO user=(PunUserBaseInfoVO) obj;
 		// 判断前后端登录用户是否一致
-		Map<String, List<String>> headers = request.getHeaders();
-		List<String> cookies = headers.get("Cookie");
-		String text = cookies.get(0);
-		String value = CookieUtil.findCookie(SC.USER_ACCOUNT, text);
-		if (!id.equals(value)) {
+		if (!id.equals(user.getUserIdCardNumber())) {
 			close(session);
 			return;
 		}

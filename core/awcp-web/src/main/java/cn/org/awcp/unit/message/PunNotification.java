@@ -3,6 +3,8 @@ package cn.org.awcp.unit.message;
 import java.util.HashMap;
 import java.util.Map;
 
+import cn.org.awcp.formdesigner.utils.DocumentUtils;
+
 public class PunNotification {
 	public static final String KEY_NOTIFY = "notify";
 	public static final String KEY_FLOW = "flow";
@@ -14,6 +16,11 @@ public class PunNotification {
 	private String createTime;
 	private String createName;
 	private String receiver;
+	public final static String WECHAT = "wechat";
+	public final static String IMPORTANT = "1";
+	public final static String UNIMPORTANT = "0";
+	public final static String SOCKET = UNIMPORTANT;
+	public final static String DING_DING = IMPORTANT;
 
 	public PunNotification(String title, String content, String msgUrl, String createName) {
 		this.title = title;
@@ -96,6 +103,28 @@ public class PunNotification {
 			this.receiver = null;
 			map.put(this.getType(), this);
 			WebSocket.sendMessage(user, map);
+		}
+	}
+
+	public void sendDD() {
+		DocumentUtils.getIntance().sendMessage(this.msgUrl, "0", this.content, this.title, this.receiver);
+	}
+
+	public void send(String... way) {
+		// 为空，默认走socket
+		if (way == null || way.length == 0) {
+			way = new String[] { UNIMPORTANT };
+		}
+		for (String w : way) {
+			if (IMPORTANT.equals(w)) {
+				this.sendDD();
+			} else if (UNIMPORTANT.equals(w)) {
+				this.sendScoket();
+			} else if (WECHAT.equals(w)) {
+				// NOT
+			} else {
+				this.sendScoket();
+			}
 		}
 	}
 

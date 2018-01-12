@@ -31,8 +31,6 @@
 		<mybatis.version>3.2.8</mybatis.version>
 		<mybatis.caches.version>1.0.3</mybatis.caches.version>
 
-		<itextpdf.version>5.5.9</itextpdf.version>
-		<itextpdf-asian.version>5.2.0</itextpdf-asian.version>
 		<jsoup.version>1.7.3</jsoup.version>
 
 
@@ -98,17 +96,6 @@
 
 	<dependencyManagement>
 		<dependencies>
-			<dependency>
-				<groupId>com.itextpdf</groupId>
-				<artifactId>itextpdf</artifactId>
-				<version>${itextpdf.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.itextpdf</groupId>
-				<artifactId>itext-asian</artifactId>
-				<version>${itextpdf-asian.version}</version>
-			</dependency>
-
 			<dependency>
 				<!-- jsoup HTML parser library @ http://jsoup.org/ -->
 				<groupId>org.jsoup</groupId>
@@ -542,13 +529,13 @@
 				<!-- 数据库 -->
 				<db.application.database.type>mysql</db.application.database.type>
 				<db.driver>com.mysql.jdbc.Driver</db.driver>
-				<db.url>jdbc:mysql://localhost:3306/awcp_dd?useUnicode=true&amp;characterEncoding=utf8&amp;zeroDateTimeBehavior=convertToNull&amp;transformedBitIsBoolean=true&amp;useOldAliasMetadataBehavior=true</db.url>
+				<db.url>jdbc:mysql://localhost:3306/open_awcp?useUnicode=true&amp;characterEncoding=utf8&amp;zeroDateTimeBehavior=convertToNull&amp;transformedBitIsBoolean=true&amp;useOldAliasMetadataBehavior=true</db.url>
 				<db.username>root</db.username>
 				<db.password>123456</db.password>
-				<mybatis.memcached.enable>false</mybatis.memcached.enable>
-				<AppCenterDBDatabase>awcp_dd</AppCenterDBDatabase>
+				<AppCenterDBDatabase>open_awcp</AppCenterDBDatabase>
 				<!-- mongodb.url -->
-				<mongodb.url>127.0.0.1:27017</mongodb.url>
+				<mongodb.url>127.0.0.1</mongodb.url>
+				<mongodb.port>27017</mongodb.port>
 				<!-- 日志级别 -->
 				<log.level>debug</log.level>
 				<mybatis.log>STDOUT_LOGGING</mybatis.log>

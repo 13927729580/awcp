@@ -18,11 +18,14 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.alibaba.fastjson.JSON;
+import com.github.miemiedev.mybatis.paginator.domain.PageList;
+import com.github.miemiedev.mybatis.paginator.domain.Paginator;
 
 import cn.org.awcp.core.domain.QueryChannelService;
 import cn.org.awcp.core.utils.SessionUtils;
@@ -41,7 +44,6 @@ import cn.org.awcp.unit.vo.PunGroupSysVO;
 import cn.org.awcp.unit.vo.PunGroupVO;
 import cn.org.awcp.unit.vo.PunResourceTreeNode;
 import cn.org.awcp.unit.vo.PunUserBaseInfoVO;
-import cn.org.awcp.venson.common.SC;
 
 @Controller
 @RequestMapping("/unit")
@@ -182,17 +184,16 @@ public class PunGroupController {
 		ModelAndView mv = new ModelAndView();
 		mv.setViewName("/unit/punGroupTree-edit");
 		try {
-			PunGroupVO vo;
 			if (boxs == null || boxs.length == 0) {
-				vo = groupService.findById(SC.GROUP_ID);
+				mv.addObject("vo", jdbcTemplate.queryForMap(
+						"select group_id groupId,group_ch_name groupChName from p_un_group where PARENT_GROUP_ID=0"));
 			} else {
-
-				vo = groupService.findById(boxs[0]);
+				mv.addObject("vo", groupService.findById(boxs[0]));
 			}
 			List<Map<String, Object>> data = jdbcTemplate.queryForList(
 					"select group_id id,parent_group_id pId,group_ch_name name,number,group_type groupType from p_un_group");
 			mv.addObject("groupJson", JSON.toJSON(data));
-			mv.addObject("vo", vo);
+
 		} catch (Exception e) {
 			logger.info("ERROR", e);
 			mv.addObject("result", "系统错误.");
@@ -248,7 +249,6 @@ public class PunGroupController {
 		try {
 			PunGroupVO vo = (PunGroupVO) SessionUtils.getObjectFromSession(SessionContants.CURRENT_USER_GROUP);
 			PunGroupVO vo1 = groupService.findById(vo.getGroupId());
-			SessionUtils.addObjectToSession(SessionContants.CURRENT_USER_GROUP, vo1);
 			mv.addObject("vo", vo1);
 		} catch (Exception e) {
 			logger.info("ERROR", e);
@@ -377,7 +377,9 @@ public class PunGroupController {
 	 * @return
 	 */
 	@RequestMapping(value = "searchByType")
-	public ModelAndView searchByType(HttpServletRequest request) {
+	public ModelAndView searchByType(HttpServletRequest request,
+			@RequestParam(value = "currentPage", required = false, defaultValue = "1") int currentPage,
+			@RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize) {
 		ModelAndView mv = new ModelAndView();
 		String type = request.getParameter("searchType");
 
@@ -389,12 +391,8 @@ public class PunGroupController {
 			List<PunGroupVO> vo = groupService.queryResult("eqQueryList", params);
 			if (null != vo && vo.size() > 0) {
 				PunGroupVO pvo = vo.get(0);
-				users = punUserGroupService.queryUserListByGroupId(pvo.getGroupId());
-				if (users != null) {
-					for (int i = 0; i < users.size(); i++) {
-						users.get(i).setDeptName(pvo.getGroupChName());
-					}
-				}
+				users = punUserGroupService.queryUserListByGroupId(pvo.getGroupId(), currentPage, pageSize, null);
+				mv.addObject("pun", pvo);
 			}
 		} else {
 			params.put("name", request.getParameter("searchName"));
@@ -414,6 +412,7 @@ public class PunGroupController {
 				}
 			}
 			type = "1";
+			users = new PageList<>(users, new Paginator(1, users.size(), users.size()));
 		}
 		mv.addObject("userList", users);
 		mv.addObject("searchName", request.getParameter("searchName"));

@@ -22,6 +22,7 @@
 			<a href="#" class="btn btn-danger" id="deleteBtn">删除</a>
 			<a href="#" onclick="document.getElementById('userList').submit()" class="btn btn-primary">搜索</a>
 			<a href="#" onclick="document.getElementById('userList').reset()" class="btn btn-info">清空</a>
+			<a href="#" class="btn btn-info" id="syncUser">钉钉同步</a>
     	</div>
 		
 		<div class="row">
@@ -85,7 +86,7 @@
 								            <td>${currentPage*vos.getPaginator().getLimit()-vos.getPaginator().getLimit()+status.index +1}</td>
 								            <td><a href="javascript:void(0)" data-id='${vo.userId}' class="userName">${vo.name}</a></td>
 								            <td>${vo.deptName}</td>
-								            <td>${vo.userName}</td>
+								            <td>${vo.userIdCardNumber}</td>
 								            <td>${vo.mobile}</td> 
 								            <td>${vo.userTitle}</td>
 								          </tr>
@@ -206,6 +207,25 @@
   				$.get("<%=basePath%>unit/batchImportSignature.do");
   			}
   			
+  		});
+  		$("#syncUser").click(function(){
+  			Comm.confirm("此操作会改变人员组织架构，请确认是否同步！",function(){
+  				var that=this;
+  				that.content("正在同步，请耐心等候.....");
+  				var syncUser=function(dialog){
+  					var data=Comm.getData("api/dingding/syncUser",{"_method":"get"});
+  					dialog.close();
+  	  	  			if(data==-1){
+  	  	  				Comm.alert("钉钉中未找到可同步人员");
+  	  	  			}else{
+  	  	  				Comm.alert("同步成功",function(){
+  			  				location.reload();
+  	  	  				});
+  	  	  			}
+  				}
+  				setTimeout(function(){syncUser(that)},50);
+  				return false;
+  			})
   		});
       	
       });

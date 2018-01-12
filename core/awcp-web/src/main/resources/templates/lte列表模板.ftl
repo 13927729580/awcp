@@ -44,6 +44,7 @@
 		</#if>						
 <#noparse>
 		</div>
+		<div class="fixedBtnBox"></div>
 		<div class="row">
 		<div class="col-md-12">
 			<div class="box box-info">
@@ -170,9 +171,11 @@
         	  	  if($checkbox.get(0).checked){
 					  $checkbox.get(0).checked=false;
 					  $element.find("input[type='hidden']").removeAttr("name","_selects");
+					  $element.removeClass("selected");
         	  	  }else{
 					  $checkbox.get(0).checked=true;
 					  $element.find("input[type='hidden']").attr("name","_selects");
+					  $element.addClass("selected");
         	  	  }
 				  count = $("input[name='_selects']").length;
         	 },
@@ -186,13 +189,13 @@
         	 }, 
         	 onCheckAll: function (rows) {
         		 $.each(rows,function(i,e){
-        			$("input[value='"+$($.trim(e["0"])).attr("value")+"']").attr("name","_selects");
+        			$("#groupForm table input[value='"+$($.trim(e["0"])).attr("value")+"']").attr("name","_selects");
         		 })
 				 count = $("input[name='_selects']").length;
              },
              onUncheckAll: function (rows) {          	 
             	 $.each(rows,function(i,e){
-        			$("input[value='"+$($.trim(e["0"])).attr("value")+"']").removeAttr("name");
+        			$("#groupForm table input[value='"+$($.trim(e["0"])).attr("value")+"']").removeAttr("name");
         		 })
 				 count = $("input[name='_selects']").length;
              },

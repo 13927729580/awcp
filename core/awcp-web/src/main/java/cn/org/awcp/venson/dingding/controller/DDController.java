@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -94,6 +95,13 @@ public class DDController {
 		return result;
 	}
 
+	@RequestMapping(value = "/corpId", method = RequestMethod.GET)
+	public ReturnResult corpId() {
+		ReturnResult result = ReturnResult.get();
+		result.setData(Env.CORP_ID);
+		return result;
+	}
+
 	@RequestMapping(value = "/spaceid", method = RequestMethod.GET)
 	public ReturnResult spaceid(
 			@RequestParam(value = "domain", required = false, defaultValue = "attachment") String domain,
@@ -123,9 +131,9 @@ public class DDController {
 		if (current_user != null) {
 			Map<String, Object> data = new HashMap<String, Object>();
 			String userId = current_user.getUserIdCardNumber();
-			PunUserGroupVO userGroup = ControllerHelper.getUserGroup();
-			if (userGroup != null) {
-				data.put("isAdmin", userGroup.getIsManager());
+			List<PunUserGroupVO> userGroup = ControllerHelper.getUserGroup();
+			if (userGroup != null && !userGroup.isEmpty()) {
+				data.put("isAdmin", userGroup.get(0).getIsManager());
 			}
 			data.put("name", current_user.getName());
 			data.put("userid", userId);
@@ -199,8 +207,7 @@ public class DDController {
 		String plainText = null;
 		// 对于DingTalkEncryptor的第三个参数，ISV进行配置的时候传对应套件的SUITE_KEY，普通企业传Corpid
 		try {
-			dingTalkEncryptor = new DingTalkEncryptor(Env.TOKEN, Env.ENCODING_AES_KEY,
-					Env.SUITE_KEY.length() > 0 ? Env.SUITE_KEY : Env.CORP_ID);
+			dingTalkEncryptor = new DingTalkEncryptor(Env.TOKEN, Env.ENCODING_AES_KEY, Env.CORP_ID);
 			plainText = dingTalkEncryptor.getDecryptMsg(msgSignature, timeStamp, nonce, encrypt);
 		} catch (DingTalkEncryptException e) {
 			e.printStackTrace();
@@ -303,15 +310,10 @@ public class DDController {
 		parentid = parentid == null ? 0L : parentid;
 		String order = dept.getString("order");
 		if (group != null && group.getGroupId() != null) {
-			PunGroupVO vo = new PunGroupVO();
-			vo.setGroupId(id);
-			vo.setParentGroupId(parentid);
-			vo.setNumber(order);
-			vo.setGroupChName(name);
-			vo.setGroupShortName(name);
-			vo.setGroupType("3");
-			vo.setOrgCode(SC.ORG_CODE);
-			groupService.addOrUpdate(vo);
+			group.setParentGroupId(parentid);
+			group.setNumber(order);
+			group.setGroupChName(name);
+			groupService.addOrUpdate(group);
 			// 同步部门主管
 			if (StringUtils.isNotBlank(deptManagerUseridList)) {
 				String[] managerUserIds = deptManagerUseridList.split("\\|");
@@ -323,24 +325,72 @@ public class DDController {
 				}
 			}
 		} else {
-			String sql = "insert into p_un_group(group_id,parent_group_id,group_type,group_ch_name,org_code,pid,number) values(?,?,?,?,?,?,?)";
-			jdbcTemplate.update(sql, id, parentid, "3", name, SC.ORG_CODE, parentid, order);
+			this.jdbcTemplate.update("delete from p_un_group where GROUP_CH_NAME=?", name);
+			this.jdbcTemplate.update(
+					"delete from p_un_user_group where GROUP_ID=(select GROUP_ID from p_un_group where GROUP_CH_NAME=? limit 0,1)",
+					name);
+			String sql = "insert into p_un_group(group_id,parent_group_id,group_type,group_ch_name,pid,number) values(?,?,?,?,?,?)";
+			jdbcTemplate.update(sql, id, parentid, "3", name, parentid, order);
 		}
+	}
+
+	// 从钉钉同步用户到系统
+	@RequestMapping(value = "syncUser", method = RequestMethod.GET)
+	public ReturnResult syncUser() {
+		ReturnResult result = ReturnResult.get();
+		String token = AuthHelper.getAccessToken();
+		// 获取钉钉所有部门
+		JSONObject deptList = DDRequestService.getDeptList(token);
+		if (deptList.containsKey("errcode")) {
+			result.setStatus(StatusCode.SUCCESS).setData(-1);
+			return result;
+		}
+		JSONArray depts = deptList.getJSONArray("department");
+		for (int i = depts.size() - 1; i >= 0; i--) {
+			JSONObject json = depts.getJSONObject(i);
+			Long deptId = json.getLong("id");
+			// 获取部门下的所有用户
+			JSONObject userlist = DDRequestService.getSimpleDeptUser(token, deptId);
+			JSONArray users = userlist.getJSONArray("userlist");
+			for (int j = users.size() - 1; j >= 0; j--) {
+				JSONObject user = users.getJSONObject(j);
+				createOrUpdateUser(user.getString("userid"));
+			}
+		}
+		result.setStatus(StatusCode.SUCCESS).setData(0);
+		return result;
 	}
 
 	/**
 	 * 
-	 * @param userId
+	 * @param userIdCard
 	 * @param isUpdate
 	 */
-	private void createOrUpdateUser(String userId) {
-		List<PunUserBaseInfoVO> vos = userService.selectByIDCard(userId);
-		JSONObject userInfo = DDRequestService.getUserInfoByUId(AuthHelper.getAccessToken(), userId);
+	private void createOrUpdateUser(String userIdCard) {
+		JSONObject userInfo = DDRequestService.getUserInfoByUId(AuthHelper.getAccessToken(), userIdCard);
+		String sql = "select user_id from p_un_user_base_info where mobile=?";
+		String mobile = userInfo.getString("mobile");
+		PunUserBaseInfoVO vo = null;
+		try {
+			long userId = this.jdbcTemplate.queryForObject(sql, Long.class, mobile);
+			vo = userService.findById(userId);
+			// 根据手机号找的要更新用户名
+			vo.setUserIdCardNumber(userIdCard);
+		} catch (DataAccessException e) {
+			// 如果手机号没找到则根据用户名再查找一次，防止用户更换手机号
+			List<PunUserBaseInfoVO> users = this.userService.selectByIDCard(userIdCard);
+			if (!users.isEmpty() && users.size() == 1) {
+				vo = users.get(0);
+				// 更新手机号
+				vo.setMobile(mobile);
+			}
+		}
 		// 如果没有该用户则创建
-		if (vos.isEmpty()) {
-			PunUserBaseInfoVO vo = new PunUserBaseInfoVO();
-			vo.setUserIdCardNumber(userId);
-			setUser(vo, userInfo);
+		if (vo == null || vo.getUserId() == null) {
+			vo = new PunUserBaseInfoVO();
+			vo.setUserIdCardNumber(userIdCard);
+			vo.setMobile(mobile);
+			setUser(vo, userInfo, false);
 			// 同步用户角色和部门
 			Map<String, Object> params = new HashMap<String, Object>();
 			addUserRole(vo, params);
@@ -348,9 +398,8 @@ public class DDController {
 			params.clear();
 			addUserGroup(userInfo, params, uId);
 			// 如果存在则更新用户数据
-		} else if (vos.size() == 1) {
-			PunUserBaseInfoVO vo = vos.get(0);
-			setUser(vo, userInfo);
+		} else {
+			setUser(vo, userInfo, true);
 			// 同步用户部门
 			Map<String, Object> params = new HashMap<String, Object>();
 			userService.addOrUpdateUser(vo);
@@ -358,24 +407,21 @@ public class DDController {
 		}
 	}
 
-	private void setUser(PunUserBaseInfoVO vo, JSONObject userInfo) {
+	private void setUser(PunUserBaseInfoVO vo, JSONObject userInfo, boolean isUpdate) {
 		String name = userInfo.getString("name");
-		String mobile = userInfo.getString("mobile");
 		String img = userInfo.getString("avatar");
 		String email = userInfo.getString("email");
 		vo.setName(name);
 		vo.setUserName(PinYinF4jUtils.getPinYin(name));
 		vo.setUserHeadImg(img);
-		vo.setMobile(mobile);
 		vo.setUserEmail(email);
-		vo.setUserPwd(SC.DEFAULT_PWD);
-		vo.setGroupId(SC.GROUP_ID);
-		vo.setOrgCode(SC.ORG_CODE);
+		if (!isUpdate) {
+			vo.setUserPwd(SC.DEFAULT_PWD);
+		}
 	}
 
 	private void addUserRole(PunUserBaseInfoVO vo, Map<String, Object> params) {
 		// 获取并设置一个默认的角色
-		params.put("sysId", SC.SYSTEM_ID);
 		params.put("roleName", "普通用户");
 		PageList<PunRoleInfoVO> roles = roleService.queryPagedResult("eqQueryList", params, 0, 1, null);
 		if (!roles.isEmpty()) {
@@ -384,9 +430,8 @@ public class DDController {
 	}
 
 	private void addUserGroup(JSONObject userInfo, Map<String, Object> params, Long uId) {
-		params.put("groupId", SC.GROUP_ID);
 		// 获取一个默认的岗位
-		PageList<PunPositionVO> positions = punPositionService.selectPagedByExample("queryList", params, 0, 1, null);
+		List<PunPositionVO> positions = punPositionService.findAll();
 		Long poId = null;
 		if (!positions.isEmpty()) {
 			poId = positions.get(0).getPositionId();
@@ -399,6 +444,8 @@ public class DDController {
 		String sql = "insert into p_un_user_group(USER_ID,GROUP_ID,POSITION_ID,IS_MANAGER) values(?,?,?,?)";
 		for (int i = 0; i < size; i++) {
 			Long deptId = depts.getLong(i);
+			// 同步部门
+			addOrUpdateGroup(deptId);
 			jdbcTemplate.update(sql, uId, deptId, poId, userInfo.getBoolean("isAdmin") ? 1 : 0);
 		}
 	}

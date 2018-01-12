@@ -254,7 +254,7 @@
 	</delete>
 	
 	<!-- 按MenuId删除RoleAccess -->
-	<delete id="removeRoleAccessByResource" parameterType="java.lang.Long">
+	<delete id="removeRoleAccessByResource" parameterType="java.util.Map">
 		DELETE FROM p_un_role_access
 		WHERE RESOURCE_ID IN(
 		SELECT RESOURCE_ID FROM p_un_resource  
@@ -262,7 +262,7 @@
 		RELATE_RESO_ID = #{relateResoId} AND RESOURCE_TYPE=#{resourceType})
 	</delete>
 	<!-- 按MenuId删除资源 -->
-	<delete id="removeResource" parameterType="java.lang.Long">
+	<delete id="removeResource" parameterType="java.util.Map">
 		DELETE FROM p_un_resource
 		WHERE 
 		RELATE_RESO_ID =		#{relateResoId} 

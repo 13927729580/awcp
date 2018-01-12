@@ -17,10 +17,10 @@ public class DBUtil {
 	 */
 	protected static final Log logger = LogFactory.getLog(DBUtil.class);
 	private static ThreadLocal<Connection> connLocal = new ThreadLocal<Connection>();
-	private static final String user = "cdb_outerroot";
-	private static final String password = "Dcba4321@#";
+	private static final String user = "root";
+	private static final String password = "123456";
 	private static final String driverClass = "com.mysql.jdbc.Driver";
-	private static final String jdbcUrl = "jdbc:mysql://5704b9845a977.gz.cdb.myqcloud.com:9492/awcp_dd_zh?useUnicode=true&amp;characterEncoding=utf8&amp;zeroDateTimeBehavior=convertToNull&amp;transformedBitIsBoolean=true&amp;useOldAliasMetadataBehavior=true";
+	private static final String jdbcUrl = "jdbc:mysql://localhost:3306/awcp_dd?useUnicode=true&amp;characterEncoding=utf8&amp;zeroDateTimeBehavior=convertToNull&amp;transformedBitIsBoolean=true&amp;useOldAliasMetadataBehavior=true";
 
 	private DBUtil() {
 	}
@@ -88,8 +88,8 @@ public class DBUtil {
 			while (rs.next()) {
 				String table = rs.getString(1);
 				// 如果不是组织表，则重置所有组ID
-				if (table.startsWith("awcp")) {
-					System.out.println("drop table " + table + ";");
+				if (table.startsWith("dd_")) {
+					System.out.println("delete from " + table + ";");
 				}
 			}
 			DBUtil.commit();

@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
@@ -142,131 +141,45 @@ public class DocUtils {
 	}
 
 	// 解析组件权限
-	public static Map<String, JSONObject> flowAuthorityResolve(DocumentVO docVo, Map<String, JSONObject> map) {
+	public static void flowAuthorityResolve(DocumentVO docVo, Map<String, JSONObject> map) {
 
 		AuthorityCompoentServiceImpl authorityCompoentService = Springfactory.getBean("authorityCompoentServiceImpl");
 		AuthorityGroupWorkFlowNodeServiceImpl authorityGroupWorkFlowNodeService = Springfactory
 				.getBean("authorityGroupWorkFlowNodeServiceImpl");
-		// if(lo_Item.CurActivity!=null){
-		int nodes = Integer.valueOf(docVo.getEntryId());
-		// String did="1446";
-		// boolean workItemAccess=false;
-		// int nodes=1;
-		Map<String, JSONObject> status = new HashMap<String, JSONObject>();
 		Map<String, Object> resParams = new HashMap<String, Object>();
 		resParams.put("dynamicPageId", docVo.getDynamicPageId());
-		resParams.put("flowNode", nodes);
+		resParams.put("flowNode", docVo.getEntryId());
 		List<AuthorityGroupWorkFlowNodeVO> flvo = authorityGroupWorkFlowNodeService.queryResult("eqQueryList",
 				resParams);
 		for (AuthorityGroupWorkFlowNodeVO ao : flvo) {
 			resParams.clear();
 			resParams.put("authorityGroupId", ao.getAuthorityGroup());
 			List<AuthorityCompoentVO> resoVOs = authorityCompoentService.queryResult("eqQueryList", resParams);
-			JSONObject jcon = new JSONObject();
-			// if(true){
-			// for (AuthorityCompoentVO vo : resoVOs){
-			// JSONObject o = new JSONObject();
-			// jcon.clear();
-			// jcon.put("relatePageId",docVo.getDynamicPageId());
-			// jcon.put("name",vo.getComponentId());
-			// jcon.put("componentType", "");
-			// List<JSONObject> components =
-			// dynamicPageService.getComponentByContainerWithColumn(jcon);
-			// if(components!=null){
-			// //JSONObject component = components.get(0);
-			//
-			// Set<String> key=status.keySet();
-			// if(!key.contains(vo.getComponentId())){
-			// o.put("readonly","true");
-			// o.put("disabled", "true");
-			// status.put(vo.getComponentId(), o);
-			// }
-			//
-			// }
-			// }
-			// }else{
-
 			for (AuthorityCompoentVO vo : resoVOs) {
 				if (vo.getAuthorityValue() != null) {
-					int type = Integer.parseInt(vo.getAuthorityValue());
-					JSONObject o = new JSONObject();
-					jcon.clear();
-					jcon.put("relatePageId", docVo.getDynamicPageId());
-					jcon.put("name", vo.getComponentId());
-					jcon.put("componentType", "");
-					// List<JSONObject> components =
-					// dynamicPageService.getComponentByContainerWithColumn(jcon);
-					// JSONObject component = components.get(0);
-					Set<String> key = status.keySet();
-					switch (type) {
-					case 10:
-						if (key.contains(vo.getComponentId())) {
-
-							if (status.get(vo.getComponentId()).get("modify") == null) {
-								status.remove(vo.getComponentId());
-								o.put("readonly", "true");
-								o.put("disabled", "true");
-								status.put(vo.getComponentId(), o);
-
-							}
-
-						} else {
-
+					if (!map.containsKey(vo.getComponentId())) {
+						continue;
+					}
+					JSONObject o = map.get(vo.getComponentId());
+					// 修改
+					if (vo.getAuthorityValue().contains("11")) {
+						o.put("readonly", "false");
+						o.put("disabled", "false");
+						o.put("hidden", "false");
+					} else {
+						// 只读
+						if (vo.getAuthorityValue().contains("10")) {
 							o.put("readonly", "true");
-							o.put("disabled", "true");
-							status.put(vo.getComponentId(), o);
 						}
-						break;
-					case 11:
-
-						if (key.contains(vo.getComponentId())) {
-							status.remove(vo.getComponentId());
-							o.put("modify", "true");
-						} else {
-							o.put("modify", "true");
-						}
-						status.put(vo.getComponentId(), o);
-						break;
-					case 12:
-						if (key.contains(vo.getComponentId())) {
-
-							if (status.get(vo.getComponentId()).get("modify") != null) {
-								status.remove(vo.getComponentId());
-								o.put("modify", "true");
-							} else if (status.get(vo.getComponentId()).get("readonly") != null) {
-								status.remove(vo.getComponentId());
-								o.put("readonly", "true");
-								o.put("disabled", "true");
-							} else {
-								status.remove(vo.getComponentId());
-								o.put("hidden", "true");
-							}
-
-						} else {
-
+						// 隐藏
+						if (vo.getAuthorityValue().contains("12")) {
 							o.put("hidden", "true");
 						}
-						status.put(vo.getComponentId(), o);
-						break;
-					default:
-						break;
 					}
 				}
 
 			}
 		}
-		// }
-
-		Set<String> st = map.keySet();
-		for (String s : st) {
-
-			if (status.containsKey(s)) {
-				map.put(s, status.get(s));
-			}
-
-		}
-		// }
-		return map;
 	}
 
 	/**
@@ -543,7 +456,7 @@ public class DocUtils {
 					default:
 						break;
 					}
-					if ("1".equals(isRead)) {
+					if ("1".equals(isRead) && type!=1010) {
 						o.put("disabled", "true");
 					}
 					status.put(component.getString("name"), o);
@@ -582,6 +495,10 @@ public class DocUtils {
 				}
 				// 执行隐藏脚本
 				Boolean hiddenStatus = (Boolean) engine.eval(hiddenScript);
+				if("1".equals(isRead) && !"返回".equals(act.getName()) 
+						&& !"关闭".equals(act.getName()) && !"打印".equals(act.getName())) {
+					hiddenStatus = true;
+				}
 				actState.put("chooseValidate", chooseValidate);
 				if (chooseValidate != null) {
 					Double chooseNum = (Double) engine.eval(chooseScript);

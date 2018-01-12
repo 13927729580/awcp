@@ -363,7 +363,7 @@ Comm.getData = function (url, params, cache) {
                              Comm.set(name, data);
                          } else if(d.status === -4){
                              Comm.alert("您还未登录,请先登录！",function(){
-                            	 location.href=baseUrl+"login.html"
+                            	 top.location.href=baseUrl+"login.html"
                              });
                          }else {
                         	 Comm.alert(d.message, "error");
@@ -402,7 +402,7 @@ Comm.getData = function (url, params, cache) {
                         }
                     }else if(d.status === -4){
                     	 Comm.alert("您还未登录,请先登录！",function(){
-                        	 location.href=baseUrl+"login.html"
+                    		 top.location.href=baseUrl+"login.html"
                          });
                     }else {
                     	Comm.alert(d.message, "error");
@@ -724,18 +724,21 @@ Comm.alert=function(message,fn){
 		}).show();
 	}else {
 		alert(message);
+		if(typeof fn==="function"){
+			fn();
+		}
 	}
 
 }
 
-Comm.confirm=function(message){
-	var _default={message: "",title:dd_res.tip,buttons:[dd_res.cancelButton, dd_res.okButton],fn:function(data){}};
-	if(typeof(message)=="object"){
-		_default=$.extend(_default,message);
-	}else{
-		_default.message=message;
-	}
+Comm.confirm=function(message,fn){
 	if(window.hasOwnProperty("dd")){
+		var _default={message: "",title:dd_res.tip,buttons:[dd_res.cancelButton, dd_res.okButton],fn:function(data){}};
+		if(typeof(message)=="object"){
+			_default=$.extend(_default,message);
+		}else{
+			_default.message=message;
+		}
 		dd.device.notification.confirm({
 		    message: _default.message,
 		    title: _default.title,
@@ -745,8 +748,23 @@ Comm.confirm=function(message){
 		    },
 		    onFail : function(err) {}
 		});
+	}else if(top.dialog){
+		top.dialog({
+			title: '确认框',
+			content: message,
+			skin:"col-md-4",
+			ok: fn,
+			cancel: true,
+			okValue:"确认",
+			cancelValue:"取消",
+            fixed: true
+		}).show();
 	}else{
-		_default.fn(confirm(_default.message))
+		if(confirm(message)){
+			if(fn){
+				fn();
+			}
+		}
 	}
 }
 
@@ -1089,7 +1107,7 @@ Comm.ddConfig = function(){
 ;(function(){
 	var userAgentInfo = navigator.userAgent;
 	if(userAgentInfo.indexOf("DingTalk")!=-1 && location.href.indexOf("goto.html")==-1){
-		var No = Comm.cookie("No");		
+		var No = Comm.cookie("secretKey");		
 		if(!No){		
 			var url = baseUrl + "dingding/goto.html?url=" + encodeURIComponent(location.href);
 			location.href = url;	

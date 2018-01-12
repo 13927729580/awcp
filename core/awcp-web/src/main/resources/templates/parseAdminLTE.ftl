@@ -232,13 +232,16 @@
 <#macro convertDatetime c>
 	<div class="customGroup"  data-required="${c['required']!'0'}" data-placeholder="${c['placeholder']!''}" style="<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['hidden'])?? && status['</#noparse>${c['name']}<#noparse>']['hidden'] == 'true'>display:none;</#if></#noparse>">
 		<label class="control-label"><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
-		<input type='datetime' class='dataItemCode 
+		<input type='datetime' readonly='readonly' class='dataItemCode 
 		<#if c['css']?? && c['css']?length gt 0>
 			${c['css']}
 		<#else>
 			${"form-control"}
-		</#if>'
-		style='<#if c['style']?? >${c['style']}</#if>'
+		</#if>'	    
+		style='
+		<#noparse><#if ((status['</#noparse>${c['name']}<#noparse>']['readonly'])?? && status['</#noparse>${c['name']}<#noparse>']['readonly'] == 'true') || 
+					   ((status['</#noparse>${c['name']}<#noparse>']['disabled'])?? && status['</#noparse>${c['name']}<#noparse>']['disabled'] == 'true')><#else>background-color: #fff;</#if></#noparse>
+		<#if c['style']?? >${c['style']}</#if>'
 		<#if c['name']?? >
 			name='${c['name']}'
 		</#if>
@@ -453,7 +456,6 @@
 	 "
 		<#if c['style']?? >
 			style='${c['style']}'
-
 		</#if>
 		id="${(c['pageId'])!''}"
 
@@ -478,6 +480,8 @@
 		<#if c['name']?? >
 			name='${c['name']}'
 		</#if>
+		<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['disabled'])?? && status['</#noparse>${c['name']}<#noparse>']['disabled'] == 'true'>disabled="disabled"</#if></#noparse>
+		<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['readonly'])?? && status['</#noparse>${c['name']}<#noparse>']['readonly'] == 'true'>readonly="readonly"</#if></#noparse>
 		<#if c['dataItemCode']??   && c['dataItemCode']?length gt 0>
 				value="<#noparse>${(</#noparse>${c['dataItemCode']}<#noparse>)!''}</#noparse>"
 		</#if>
@@ -503,7 +507,10 @@
 							</div>
 							<input type="hidden" class="uploadType" value="${c['uploadType']!''}"/>
 							<input type="hidden" class="isIndex" value="${c['isIndex']!''}"/>
-							<input type="hidden" class="dataItemCode orgfile" name="${c['name']}" value="<#noparse>${(</#noparse>${c['dataItemCode']}<#noparse>)!''}</#noparse>" />
+							<input type="hidden" class="dataItemCode orgfile"
+							<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['disabled'])?? && status['</#noparse>${c['name']}<#noparse>']['disabled'] == 'true'>disabled="disabled"</#if></#noparse>
+							<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['readonly'])?? && status['</#noparse>${c['name']}<#noparse>']['readonly'] == 'true'>readonly="readonly"</#if></#noparse>
+							 name="${c['name']}" value="<#noparse>${(</#noparse>${c['dataItemCode']}<#noparse>)!''}</#noparse>" />
 		        			<input class="attachment" multiple type="file" name="file">  
 	        			</div>
 	        		</div>
@@ -523,6 +530,10 @@
 		var $uploadType=$parent.find(".uploadType");
 		var $isIndex=$parent.find(".isIndex");
 		var val=$orgfile.val();
+		var hiddenStyle = "";
+		if($orgfile.attr("disabled")){
+			hiddenStyle = 'style="display:none;"';
+		}
 		var allowedFileExtensions;
 		<#if c['componentType']=="1016" >
 			allowedFileExtensions=['jpg', 'gif', 'png'];
@@ -551,7 +562,7 @@
 						html.push('<div class="file-footer-caption" title="'+data.fileName+'">'+data.fileName+' <br><samp>('+(data.size/1000).toFixed(2)+' KB)</samp></div>');
 						html.push('<div class="file-actions">');
 						html.push('<div class="file-footer-buttons">');
-						html.push('<button type="button" class="kv-file-remove btn btn-xs btn-default" title="删除文件"><i class="glyphicon glyphicon-trash text-danger"></i></button>');
+						html.push('<button type="button" ' + hiddenStyle + ' class="kv-file-remove btn btn-xs btn-default" title="删除文件"><i class="glyphicon glyphicon-trash text-danger"></i></button>');
 						html.push('<button type="button" style="margin:0 3px;" class="kv-file-download btn btn-xs btn-default" title="下载"><i class="glyphicon glyphicon-download-alt"></i></button>');
 						html.push('<button type="button" class="kv-file-preview btn btn-xs btn-default" title="查看详情"><i class="glyphicon glyphicon-zoom-in"></i></button>');
 						html.push('</div>');
@@ -597,6 +608,9 @@
                     image: {width: "100px", height: "100px"},
                 }
             });
+            if($orgfile.attr("disabled")){
+            	$(".file-input").hide();
+            }           
 		//删除
 		$parent.on("click",".kv-file-remove",function(){
 			var $this = $(this);
@@ -671,7 +685,12 @@
 		   if(result.status==0){
 		       	 var arr = $orgfile.val().split(";");
 	             arr.push(result.data);
-	             $orgfile.val(arr.join(";"));
+	             var val=arr.join(";");
+	             //清除第一个多余的分号
+	             if(val.indexOf(";")==0){
+	             	val=val.substring(1);
+	             }
+	             $orgfile.val(val);
 	             $("#"+previewId+"").attr("valNum",result.data);
 		   }else{
 		      	Comm.alert(result.message);
@@ -750,65 +769,71 @@
 <#macro convertdataGridScript c >
 	(function(){
 		var basePath="<#noparse>${basePath}</#noparse>";
-		$("#dg_${c['pageId']}").datagrid({
-									  pageSize: 10,        //设置默认分页大小
-									  pagination: ("${c['hasPager']!'0'}"=="1"?true:false),//分页控件 
-	        						  rownumbers: true,//行号
-	        						  border: false, 
-	        						  collapsible: false,
-	        						  checkOnSelect:false,
-	        						  selectOnCheck:false,
-	        						  fitColumns:true,
-	   								  loadFilter:function(data){
-											var d={};
-							  				if(data.status==0){
-												d.rows=data.data;
-												d.total=data.total;  								  				
-							  				}else{
-							  					d.rows=[];
-							  					d.total=0;
-							  				}
-							  				return d;
-									  },     						  
-									  url:basePath+"document/refreshDataGrid.do?componentId=${c['pageId']}",
-									  queryParams:{<#if c['connditions']?? ><#list c['connditions'] as item>"${item['paramKey']!''}":
-									  <#if item['isFinal']?? && item['isFinal']=='1'>
-									 	 "${item['paramValue']!''}"
-									  <#else>
-									  	 "<#noparse>${(</#noparse>${item['paramValue']}<#noparse>)!''}</#noparse>"
-									  </#if>,</#list></#if>pageSize:10},
-									  columns:[[
-									  <#if c['columns']?? >
-									  	{field:'ck',checkbox:true}
-										 <#list c['columns'] as item>
-											,{
-											field:"${item['columnField']!''}",
-											title:"${item['columnTitle']!''}",
-											<#if item['editType']?? && item['editType']!='0'>
-												<#if item['editType']=='checkbox'>
-													editor:{
-														type:"checkbox",
-														options:{on:"${item['editValue']!''}",off:""}
-													},
-												<#elseif item['editType']?? && item['editType']=='combobox'>  
-													editor:{
-														type:"combobox",
-														options:getCombobox("${item['editValue']!''}")
-													},
-												<#else>  
-													editor:"${item['editType']}",
-												</#if>
-											</#if>  
-											<#if item['columnWidth']??>
-											width:"${item['columnWidth']!''}"
-											</#if>
-											}
-										</#list>
-									  </#if>
-									  ]],
-									  toolbar: "tb_${c['pageId']}",
-									  onClickCell:onClickCell,
-									  onLoadSuccess:onLoadSuccess
+		var $table=$("#dg_${c['pageId']}");
+		var pageSize=parseInt("${c['pageSize']!'10'}");
+		$table.datagrid({
+				  pagination: ("${c['hasPager']!'0'}"=="1"?true:false),//分页控件 
+				  pageSize:pageSize,
+				  rownumbers: true,//行号
+				  border: false, 
+				  collapsible: false,
+				  checkOnSelect:false,
+				  selectOnCheck:false,
+				  fitColumns:true,
+				  onBeforeLoad:function(param){
+					   param.pageSize=param.rows;
+					   param.currentPage=param.page;
+				  },
+				  loadFilter:function(data){
+						var d={};
+		  				if(data.status==0){
+							d.rows=data.data;
+							d.total=data.total;  								  				
+		  				}else{
+		  					d.rows=[];
+		  					d.total=0;
+		  				}
+		  				return d;
+				  },     						  
+				  url:basePath+"document/refreshDataGrid.do?componentId=${c['pageId']}" + ("${c['hasPager']!'0'}"!="1"?"&pageSize=9999":""),
+				  queryParams:{<#if c['connditions']?? ><#list c['connditions'] as item>"${item['paramKey']!''}":
+				  <#if item['isFinal']?? && item['isFinal']=='1'>
+				 	 "${item['paramValue']!''}"
+				  <#else>
+				  	 "<#noparse>${(</#noparse>${item['paramValue']}<#noparse>)!''}</#noparse>"
+				  </#if>,</#list></#if>pageSize:10},
+				  columns:[[
+				  <#if c['columns']?? >
+				  	{field:'ck',checkbox:true}
+					 <#list c['columns'] as item>
+						,{
+						field:"${item['columnField']!''}",
+						title:"${item['columnTitle']!''}",
+						<#if item['editType']?? && item['editType']!='0'>
+							<#if item['editType']=='checkbox'>
+								editor:{
+									type:"checkbox",
+									options:{on:"${item['editValue']!''}",off:""}
+								},
+							<#elseif item['editType']?? && item['editType']=='combobox'>  
+								editor:{
+									type:"combobox",
+									options:getCombobox("${item['editValue']!''}")
+								},
+							<#else>  
+								editor:"${item['editType']}",
+							</#if>
+						</#if>  
+						<#if item['columnWidth']??>
+						width:"${item['columnWidth']!''}"
+						</#if>
+						}
+					</#list>
+				  </#if>
+				  ]],
+				  toolbar: "tb_${c['pageId']}",
+				  onClickCell:onClickCell,
+				  onLoadSuccess:onLoadSuccess
 		});
 		function onLoadSuccess(){
 			<#if c['onchangeScript']??><#--onchange 事件 -->
@@ -843,9 +868,11 @@
 		var editIndex = undefined;
 		function endEditing(){
 			if (editIndex == undefined){return true}
-			if ($('#dg_${c['pageId']}').datagrid('validateRow', editIndex)){
-				$('#dg_${c['pageId']}').datagrid('endEdit', editIndex);
+			if ($table.datagrid('validateRow', editIndex)){
+				$table.datagrid('endEdit', editIndex);
 				editIndex = undefined;
+				//编辑完渲染后重新执行回调事件
+				onLoadSuccess();
 				return true;
 			} else {
 				return false;
@@ -854,15 +881,15 @@
 		function onClickCell(index, field){
 			if (editIndex != index){
 				if (endEditing()){
-					$('#dg_${c['pageId']}').datagrid('selectRow', index)
+					$table.datagrid('selectRow', index)
 							.datagrid('beginEdit', index);
 					editIndex = index;
 				}
 			}
 		}
-		var p = $('#dg_${c['pageId']}').datagrid('getPager');
+		var p = $table.datagrid('getPager');
 	    $(p).pagination({
-	        pageSize: 10,//每页显示的记录条数，默认为10 
+	    	pageSize:pageSize,
 	        pageList: [10, 20, 30, 40, 50],//可以设置每页记录条数的列表 
 	        beforePageText: '第',//页数文本框前显示的汉字 
 	        afterPageText: '页    共 {pages} 页',
@@ -920,6 +947,8 @@
 			}
 			//保存
 			else if($(this).hasClass("easyui-save")){
+				//先结束编辑
+				endEditing();
 				var rows = $("#dg_${c['pageId']}").datagrid('getChanges');
 				if(!rows||rows.length==0){
 					return;
@@ -937,6 +966,8 @@
 			}
 			//撤销
 			else if($(this).hasClass("easyui-undo")){
+				//先结束编辑
+				endEditing();
 				var rows = $("#dg_${c['pageId']}").datagrid('getChanges');
 				if(rows&&rows.length>0){
 					$("#dg_${c['pageId']}").datagrid('reload');
@@ -1124,8 +1155,14 @@
 		scriptFile["<#noparse>${basePath}</#noparse>venson/js/jquery/jquery.form.js"]=null;
 	</script>
 	<form style="display:inline-block;vertical-align:middle;" enctype="multipart/form-data">
-		<a id='${c.getPageId()}' class="${c.getCss()!''} btn <#if c.getStyle()??>${c.getStyle()}</#if>  <#if c.getColor()??>btn-${c.getColor()}</#if>"
-		 onclick="document.getElementById('import_${c.getPageId()}').click()"><i class="icon-arrow-up"></i>${c.getName()}</a>
+		<a  id='${c.getPageId()}' class="${c.getCss()!''} btn <#if c.getStyle()??>${c.getStyle()}</#if>  <#if c.getColor()??>btn-${c.getColor()}</#if>"
+		 onclick="document.getElementById('import_${c.getPageId()}').click()"
+		 <#noparse>
+			<#if (pageActStatus['</#noparse>${c.getPageId()}<#noparse>']['hidden'])?? && pageActStatus['</#noparse>${c.getPageId()}<#noparse>']['hidden']>
+				style="display:none;"
+			</#if>
+		</#noparse>
+		 ><i class="icon-arrow-up"></i>${c.getName()}</a>
 		<input type="file" style="display:none;"  name="file" id="import_${c.getPageId()}">
 		<span id="importTips_${c.getPageId()}"></span>
 	</form>
@@ -1160,6 +1197,7 @@
 			$tips=$("#importTips_${c.getPageId()}");
 			$tips.removeClass("text-success");
   			$tips.addClass("text-danger");
+  			$("#actId").val("${c.getPageId()}");
   			$tips.text("正在导入...")
     		if(!$.trim($(this).val())){
     			return;
@@ -1169,7 +1207,7 @@
 			        success: function(data){
 		  				$tips.text("");
 			        	if(data.status==0){
-				        	data=Comm.getData("api/document/executeAct",{"_method":"get","actId":"${c.getPageId()}","fileId":data.data})
+				        	data=Comm.getData("api/document/executeAct?"+$("#groupForm").serialize()+"&_method=get&fileId="+data.data)
 			        		${c.getClientScript()}
 			        	}else{
 				        	Comm.alert(data.message);

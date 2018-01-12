@@ -60,7 +60,7 @@
 		$(function(){
 			$("#tabProduct").bootstrapTable('destroy')
 	         .bootstrapTable({
-	        	 url:serverAddress+"api/workflow/wf/listPersonalTasks",
+	        	 url:baseUrl+"api/workflow/wf/listPersonalTasks",
 	        	 sidePagination:"server",
 	        	 pagination:true,
 	        	 responseHandler:function(res){
