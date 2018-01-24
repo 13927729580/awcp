@@ -619,7 +619,11 @@ public class DocumentController extends BaseController {
 			} catch (Exception e) {
 				logger.debug("ERROR", e);
 				jdbcTemplate.rollback();
-				result.setStatus(StatusCode.FAIL.setMessage("执行脚本出错"));
+				if(e instanceof PlatformException){
+					result.setStatus(StatusCode.FAIL.setMessage(e.getMessage()));
+				}else{
+					result.setStatus(StatusCode.FAIL.setMessage("执行脚本出错"));
+				}
 				return result;
 			}
 		} else {
@@ -945,7 +949,13 @@ public class DocumentController extends BaseController {
 		dataMap.putAll(optionMap);
 
 		String templetId = act.getExtbute().get("templet");
+		if (StringUtils.isBlank(templetId)) {
+			throw new PlatformException("打印模板不能为空");
+		}
 		StoreVO printManageVO = storeServiceImpl.findById(templetId);
+		if (printManageVO == null) {
+			throw new PlatformException("打印模板不能为空");
+		}
 		JSONObject printJson = JSON.parseObject(printManageVO.getContent());
 		String fileName = "申报书.pdf";
 		if (StringUtils.isNoneBlank(printJson.getString("pdfName"))) {

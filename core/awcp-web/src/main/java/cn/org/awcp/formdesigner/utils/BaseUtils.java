@@ -1392,4 +1392,50 @@ public abstract class BaseUtils {
 	public Cache getCache() {
 		return cache;
 	}
+
+	/**
+	 * 判断当前用户是否有权限处理待办件
+	 * 
+	 * @param WorkID
+	 *            工作ID
+	 * @param FK_Node
+	 *            节点ID
+	 * @return
+	 */
+	public boolean isCanDo(String WorkID, String FK_Node) {
+		if (StringUtils.isNumeric(WorkID) && StringUtils.isNotBlank(FK_Node))
+			return Dev2Interface.Flow_IsCanDoCurrentWork(FK_Node, Long.parseLong(WorkID),
+					ControllerHelper.getUser().getUserIdCardNumber());
+		return false;
+	}
+
+	/**
+	 * 
+	 * @param fk_flow	流程编号
+	 * @param FK_Node	流程节点
+	 * @param WorkID	工作ID
+	 * @return
+	 */
+	public boolean isCanDo(String fk_flow, String FK_Node, String WorkID) {
+		if (StringUtils.isNotBlank(fk_flow) && StringUtils.isNumeric(WorkID) && StringUtils.isNumeric(FK_Node))
+			return Dev2Interface.Flow_IsCanDoCurrentWork(fk_flow,Integer.parseInt(FK_Node), Long.parseLong(WorkID),
+					ControllerHelper.getUser().getUserIdCardNumber());
+		return false;
+	}
+	
+	/**
+	 * 判断当前用户是当前流程发起人
+	 * 
+	 * @param WorkID
+	 *            工作ID
+	 * @return
+	 */
+	public boolean isStarter(String WorkID) {
+		String userId = this.getUser().getUserIdCardNumber();
+		if (StringUtils.isNumeric(WorkID))
+			return this.jdbcTemplate.queryForObject(
+					"select count(1) from wf_generworkflow where workid=? and starter=? and wfsta<>1 ", Integer.class,
+					WorkID, userId) == 1;
+		return false;
+	}
 }

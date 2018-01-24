@@ -60,12 +60,12 @@
 						</ul>			               
 		            </div>
 		            <div class="panel-heading" id="search" style="display:block; background:none;">
-                       	<form class="form-condensed">
+                       	<!-- <form class="form-condensed"> -->
                        		<div class="input-group">
                             	<input type="text" placeholder="请输入姓或名" id="wq" class="form-control">
                                 <span class="input-group-btn"> <button class="btn btn-default" type="button" id="subeq" onclick="subSearch()"><i class="icon-search"></i></button> </span>
                             </div>
-                        </form>
+                        <!-- </form> -->
                   	</div>	
                   	 <div class="panel-body" id="tab1" style="min-height:320px;">
 		            	<ul id="tree1" class="ztree"></ul>
@@ -143,6 +143,14 @@
         	$(this).toggleClass("btn-info btn-default");
         	$(this).find("i").toggleClass("icon-check icon-check-empty");
     	});
+    	
+    	
+    	
+    	$("#wq").bind("keyup",function(event) {
+        	if (event.keyCode == 13) {
+        		subSearch();
+        	}
+        });
 	</script>	
 </body>
 </html>

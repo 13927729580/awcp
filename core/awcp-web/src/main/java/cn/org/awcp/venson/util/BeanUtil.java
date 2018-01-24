@@ -1,28 +1,19 @@
 package cn.org.awcp.venson.util;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
+import cn.org.awcp.venson.exception.PlatformException;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.jdbc.core.JdbcTemplate;
+
+import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.jdbc.core.JdbcTemplate;
-
-import cn.org.awcp.venson.exception.PlatformException;
+import java.util.*;
 
 public class BeanUtil {
 	public static final int INSERT = 0;
@@ -90,7 +81,7 @@ public class BeanUtil {
 	}
 
 	public static String getInsertSQL(Map<String, Object> map, String tableName) {
-		return getInsertSQL(map, tableName, false);
+		return getInsertSQL(map, tableName, null);
 	}
 
 	/**
@@ -99,21 +90,17 @@ public class BeanUtil {
 	 * @param map
 	 * @param tableName
 	 *            表名
-	 * @param isDelete
+	 * @param idKey 主键名称
 	 *            是否要创建删除语句
 	 * @return
 	 */
-	public static String getInsertSQL(Map<String, Object> map, String tableName, boolean isDelete) {
+	public static String getInsertSQL(Map<String, Object> map, String tableName, String idKey) {
 		final StringBuffer buffer = new StringBuffer();
 		final StringBuffer values = new StringBuffer();
-		Object id = map.get("id");
-		if (id == null) {
-			id = map.get("ID");
-		}
-		if (isDelete) {
+		if (idKey!=null) {
 			// buffer.append("/*DELETE table `" + tableName + "` where id= " + id + " start
 			// */\n");
-			buffer.append("DELETE FROM `" + tableName + "` WHERE ID='" + id + "';\n");
+			buffer.append("DELETE FROM `" + tableName + "` WHERE "+idKey+"='" + map.get(idKey) + "';\n");
 		}
 		// buffer.append("/*backup table `" + tableName + "` where id= " + id + " start
 		// */\n");
@@ -168,7 +155,7 @@ public class BeanUtil {
 			// buffer.append("/*Table data for table `" + tableName + "` start */\n");
 			List<Map<String, Object>> data = jdbcTemplate.queryForList("select * from " + tableName);
 			for (Map<String, Object> map : data) {
-				buffer.append(BeanUtil.getInsertSQL(map, tableName, false));
+				buffer.append(BeanUtil.getInsertSQL(map, tableName, null));
 			}
 		}
 		String str = buffer.toString();

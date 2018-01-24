@@ -1,9 +1,8 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-	pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <%@ taglib prefix="sc" uri="szcloud"%>
-<%@page isELIgnored="false"%>
+<%@ page isELIgnored="false"%>
 <%
 	String path = request.getContextPath();
 	String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
@@ -11,25 +10,20 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="renderer" content="webkit">
-<title>组信息编辑</title>
-<%-- <jsp:include page="" flush=”true”/> --%>
-<%@ include file="/resources/include/common_lte_css.jsp"%>
-<link rel="stylesheet" href="<%=basePath%>resources/plugins/zTree_v3/css/zTreeStyle/zTreeStyle.css">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="renderer" content="webkit">
+	<title>组信息编辑</title>
+	<%@ include file="/resources/include/common_lte_css.jsp"%>
+	<link rel="stylesheet" href="<%=basePath%>resources/plugins/zTree_v3/css/zTreeStyle/zTreeStyle.css">
 </head>
 <body>
 	<section class="content">
 		<ul class="nav nav-tabs">
-			<li><a
-				href="<%=basePath%>unit/selfGroupGet.do">组织信息编辑</a>
-			</li>
+			<li><a href="<%=basePath%>unit/selfGroupGet.do">组织信息编辑</a></li>
 			<li class="active"><a href="javascript:;">组织树编辑</a></li>
-			<li><a
-				href="<%=basePath%>punPositionController/pageList.do?groupId=${vo.groupId}">职务</a>
-			</li>
+			<li><a href="<%=basePath%>punPositionController/pageList.do?groupId=${vo.groupId}">职务</a></li>
 		</ul>
 		<div style="margin-top: 20px;"></div>
 		<div class="row">
@@ -42,13 +36,12 @@
 			</div>
 		</div>
 	</section>
-
 	<script src="<%=basePath%>template/AdminLTE/js/jquery.min.js"></script>
-	<script type="text/javascript" src="<%=basePath%>resources/scripts/en_Us_error_message.js"></script>
-	<script type="text/javascript" src="<%=basePath%>base/resources/artDialog/dist/dialog-plus-min.js"></script>
+	<script src="<%=basePath%>resources/scripts/en_Us_error_message.js"></script>
+	<script src="<%=basePath%>base/resources/artDialog/dist/dialog-plus-min.js"></script>
 	<script src="<%=basePath%>venson/js/common.js"></script>	
-	<script type="text/javascript" src="<%=basePath%>resources/plugins/zTree_v3/js/jquery.ztree.all-3.5.js"></script>
-	<script language="javascript">
+	<script src="<%=basePath%>resources/plugins/zTree_v3/js/jquery.ztree.all-3.5.js"></script>
+	<script>
 		var groupId = ${vo.groupId};
 		var setting = {
 			view: {
@@ -82,35 +75,40 @@
 		
 		function zTreeOnRemove(event,treeId,treeNode){
 			$.ajax({
-				   type: "POST",
-				   url: "<%=basePath%>unit/punGroupAJAXDelete.do",
-				   data: "groupId="+treeNode.id,
-				   success: function(data){
-					    if(data.status==0){
-					    	var zTree = $.fn.zTree.getZTreeObj(treeId);
-					    	zTree.updateNode(treeNode);
-					    	if(!treeNode.pId){
-					    		$("#"+treeId).parent().remove();
-					    	}
-					    	Comm.alert("删除成功");
-					    }else{
-					    	Comm.alert(data.message);
+				type: "POST",
+				url: "<%=basePath%>unit/punGroupAJAXDelete.do",
+				data: "groupId="+treeNode.id,
+				success: function(data){
+					if(data.status==0){
+					    var zTree = $.fn.zTree.getZTreeObj(treeId);
+					    zTree.updateNode(treeNode);
+					    if(!treeNode.pId){
+					    	$("#"+treeId).parent().remove();
 					    }
-				   }
-				})	
+					    Comm.alert("删除成功");
+					}else{
+					    Comm.alert(data.message);
+					}
+				}
+			});
 		}
+		
 		function showIconForTree(treeId, treeNode) {
 			return !treeNode.isParent;
-		};
+		}
+		
 		function showRemoveBtn(treeId, treeNode) {
 			return !treeNode.isParent;
 		}
+		
 		function zTreeOnClick(event, treeId, treeNode,clickFlag) {
 			//location.href="<%=basePath%>punUserGroupController/getUserList.do?groupId=" + treeNode.id + "&rootGroupId="+groupId;
-		};
+		}
+		
 		function zTreeBeforeClick(treeId, treeNode, clickFlag) {
 		    return true;
-		};
+		}
+		
 		var newCount = 1;
 		function addHoverDom(treeId, treeNode) {
 			var sObj = $("#" + treeNode.tId + "_span");
@@ -137,8 +135,10 @@
 		        '<select name="groupType" class="form-control">';
 		        if(groupType=="2"){
 		        	content +='<option value="2" selected="selected">部门</option><option value="3">小组</option></select></div>';
-		        }else{
-		        	content +='<option value="2" >部门</option><option value="3" selected="selected">小组</option></select></div>';
+		        } else if(groupType=="3"){
+		        	content +='<option value="2">部门</option><option value="3" selected="selected">小组</option></select></div>';
+		        } else{
+		        	content +='<option value="3">小组</option><option value="2">部门</option></select></div>';
 		        }
 		        content += '<div class="input-group">'+
 						   '<span class="input-group-addon"><i class="icon-pencil"></i>&nbsp;&nbsp;序号</span>'+
@@ -229,8 +229,7 @@
 							   }
 							})		
 					        return true;
-				    	}
-				        
+				    	}				        
 				    },
 				    cancelValue: '取消',
 				    cancel: function () {}
@@ -243,16 +242,14 @@
 		function removeHoverDom(treeId, treeNode) {
 			$("#addBtn_"+treeNode.tId).unbind().remove();
 			$("#"+treeNode.tId+"_edit").unbind().remove();
-		};
+		}
+		
 		function creatGroup(){
 			var dataLi="";
 			var dataMap = ${groupJson};
-			/* $.each(dataMap,function(i,item){
-				dataLi ='<li class="list-group-item"><ul id="tree'+i+'" class="ztree"></ul></li>';
-				$(dataLi).appendTo(".CloudTreeGroup");
-			}); */
 			$.fn.zTree.init($("#groups"),setting,dataMap);
 		}
+		
 		$(document).ready(function(){
 			creatGroup();
 		});

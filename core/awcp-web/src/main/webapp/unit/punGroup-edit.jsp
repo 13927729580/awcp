@@ -1,43 +1,32 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-	pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
-<%@page isELIgnored="false"%>
+<%@ page isELIgnored="false"%>
 <%
 	String path = request.getContextPath();
-	String basePath = request.getScheme() + "://"
-			+ request.getServerName() + ":" + request.getServerPort()
-			+ path + "/";
+	String basePath = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + path + "/";
 %>
 <!DOCTYPE html>
 <html>
 <head>
-<base href="<%=basePath%>">
-<meta charset="utf-8">
-<title>组信息编辑</title>
-
-<%@ include file="/resources/include/common_lte_css.jsp"%>
-
+	<base href="<%=basePath%>">
+	<meta charset="utf-8">
+	<title>组信息编辑</title>
+	<%@ include file="/resources/include/common_lte_css.jsp"%>
 </head>
 <body>
-<section class="content">
+	<section class="content">
 		<ul class="nav nav-tabs">
 			<li class="active"><a href="javascript:;">组织信息编辑</a></li>
-			<li><a
-				href="<%=basePath%>unit/punGroupEdit.do?boxs=${vo.groupId}">组织树编辑</a>
-			</li>
-			<li><a
-				href="<%=basePath%>punPositionController/pageList.do?groupId=${vo.groupId}">职务</a>
-			</li>
+			<li><a href="<%=basePath%>unit/punGroupEdit.do?boxs=${vo.groupId}">组织树编辑</a></li>
+			<li><a href="<%=basePath%>punPositionController/pageList.do?groupId=${vo.groupId}">职务</a></li>
 		</ul>
 		<div style="margin-top:20px;"></div>
 		<div class="row">
 			<div class="col-md-12">
 				<div class="box box-info">
 					<div class="box-body">
-						<form class="form-horizontal" id="groupForm"
-							action="<%=basePath%>unit/punGroupSave.do" method="post">
-			
+						<form class="form-horizontal" id="groupForm" action="<%=basePath%>unit/punGroupSave.do" method="post">			
 							<div class="C_addForm">
 								<legend class=" text-center">
 									组织信息编辑

@@ -33,12 +33,12 @@
 			<button class="btn btn-info" id="export"><i class="icon-zoom-out"></i>预览</button>
 			<button class="btn btn-info" id="relation"><i class="icon-zoom-out"></i>引用关系</button>
 			<!-- <button class="btn btn-info" id="exportExcel"><i class="icon-plus-sign"></i>导出Excel</button> -->
-			<button class="btn btn-info" id="exportPage"><i class="icon-arrow-down"></i>导出</button>
+			<%--<button class="btn btn-info" id="exportPage"><i class="icon-arrow-down"></i>导出</button>
 			<form action="fd/importOrRestorePage.do" method="post" style="display:inline-block;vertical-align:middle;" enctype="multipart/form-data">
 				<input type="hidden" name="hasBack" value="false">
 				<a class="btn btn-info" onclick="document.getElementById('importOrRestorePage').click()"><i class="icon-arrow-up"></i>导入</a>
 				<input type="file" style="display:none;"  name="importOrRestorePage" id="importOrRestorePage" class="importOrRestorePage" value="导入">
-			</form>
+			</form>--%>
 			<!-- <form action="fd/importOrRestorePage.do" method="post" enctype="multipart/form-data">
 				<input type="hidden" name="hasBack" value="false">
 				<input type="file"  name="importOrRestorePage" class="importOrRestorePage" value="还原">

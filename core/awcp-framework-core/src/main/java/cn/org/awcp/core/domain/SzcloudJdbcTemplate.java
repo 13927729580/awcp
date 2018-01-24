@@ -12,26 +12,29 @@ public class SzcloudJdbcTemplate extends org.springframework.jdbc.core.JdbcTempl
 	private DefaultTransactionDefinition transactionDefinition;
 	private ThreadLocal<TransactionStatus> transcationStatus = new ThreadLocal<TransactionStatus>();
 
-	public synchronized void beginTranstaion() {
-		TransactionStatus tmp =transcationStatus.get();
-		if(tmp==null){
-			tmp =platformTransactionManager.getTransaction(transactionDefinition);
+	public void beginTranstaion() {
+		// TODO 改用双重锁模式
+		if (transcationStatus.get() == null) {
+			synchronized (this) {
+				if (transcationStatus.get() == null) {
+					transcationStatus.set(platformTransactionManager.getTransaction(transactionDefinition));
+				}
+			}
 		}
-		transcationStatus.set(tmp);
 	}
 
-	public void commit()  {
+	public void commit() {
 		TransactionStatus tmp = transcationStatus.get();
-		if(tmp==null){
+		if (tmp == null) {
 			return;
 		}
 		platformTransactionManager.commit(tmp);
 		transcationStatus.remove();
 	}
 
-	public void rollback(){
+	public void rollback() {
 		TransactionStatus tmp = transcationStatus.get();
-		if(tmp==null){
+		if (tmp == null) {
 			return;
 		}
 		platformTransactionManager.rollback(tmp);

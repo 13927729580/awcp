@@ -495,8 +495,9 @@ public class DocUtils {
 				}
 				// 执行隐藏脚本
 				Boolean hiddenStatus = (Boolean) engine.eval(hiddenScript);
-				if("1".equals(isRead) && !"返回".equals(act.getName()) 
-						&& !"关闭".equals(act.getName()) && !"打印".equals(act.getName())) {
+				String actName = act.getName();
+				if("1".equals(isRead) && !"返回".equals(actName) && actName.indexOf("导出")==-1 
+						&& !"关闭".equals(actName) && !"打印".equals(actName)) {
 					hiddenStatus = true;
 				}
 				actState.put("chooseValidate", chooseValidate);

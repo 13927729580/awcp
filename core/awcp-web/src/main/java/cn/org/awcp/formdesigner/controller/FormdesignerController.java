@@ -1,35 +1,5 @@
 package cn.org.awcp.formdesigner.controller;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
-import org.springframework.web.multipart.commons.CommonsMultipartResolver;
-import org.springframework.web.servlet.ModelAndView;
-
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.github.miemiedev.mybatis.paginator.domain.PageList;
-
 import cn.org.awcp.base.BaseController;
 import cn.org.awcp.core.domain.BaseExample;
 import cn.org.awcp.core.domain.Criteria;
@@ -43,17 +13,27 @@ import cn.org.awcp.formdesigner.application.vo.DynamicPageVO;
 import cn.org.awcp.formdesigner.application.vo.PageActVO;
 import cn.org.awcp.formdesigner.application.vo.StoreVO;
 import cn.org.awcp.formdesigner.core.constants.FormDesignGlobal;
-import cn.org.awcp.formdesigner.sync.SyncPage;
-import cn.org.awcp.formdesigner.sync.SyncPageService;
 import cn.org.awcp.metadesigner.application.MetaModelOperateService;
 import cn.org.awcp.unit.service.PunResourceService;
 import cn.org.awcp.unit.service.PunSystemService;
 import cn.org.awcp.unit.vo.PunGroupVO;
 import cn.org.awcp.unit.vo.PunSystemVO;
 import cn.org.awcp.venson.controller.base.ControllerHelper;
-import cn.org.awcp.venson.controller.base.ReturnResult;
-import cn.org.awcp.venson.controller.base.StatusCode;
-import cn.org.awcp.venson.util.BeanUtil;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.github.miemiedev.mybatis.paginator.domain.PageList;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.annotation.Resource;
+import java.util.*;
 
 /**
  * 表单设计Controller
@@ -475,7 +455,7 @@ public class FormdesignerController extends BaseController {
 	/**
 	 * 展示当前页面的直接父级和子级页面
 	 * 
-	 * @param ids
+	 * @param id
 	 * @return
 	 */
 	@RequestMapping(value = "/relation")
@@ -590,8 +570,6 @@ public class FormdesignerController extends BaseController {
 	 * 根据name查询动态页面，分页显示
 	 * 
 	 * @param name
-	 * @param currentPage
-	 * @param pageSize
 	 * @return
 	 */
 	@ResponseBody
@@ -698,81 +676,4 @@ public class FormdesignerController extends BaseController {
 		map.put("value", 1);
 		return map;
 	}
-
-	@Autowired
-	private SyncPageService syncPageService;
-
-	@RequestMapping(value = "exportPage")
-	public void exportPage(String[] pageId, HttpServletResponse response,
-			@RequestParam(value = "hasTable", defaultValue = "true") boolean hasTable,
-			@RequestParam(value = "hasTableData", defaultValue = "true") boolean hasTableData,
-			@RequestParam(value = "hasMeta", defaultValue = "true") boolean hasMeta,
-			@RequestParam(value = "hasTemplate", defaultValue = "true") boolean hasTemplate) {
-		try {
-			response.setContentType(ControllerHelper.CONTENT_TYPE_STREAM);
-			response.setHeader(ControllerHelper.CONTENT_DISPOSITION,
-					"attachment; filename=exportPage_" + Arrays.toString(pageId) + ".awcp");
-			List<? super SyncPage> syncs = syncPageService.exportPage(pageId, hasTable, hasTableData, hasMeta,
-					hasTemplate);
-			BeanUtil.writeObject(syncs, response.getOutputStream());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	@RequestMapping(value = "importOrRestorePage")
-	public void importOrRestorePage(@RequestParam(value = "hasBack", defaultValue = "false") boolean hasBack,
-			HttpServletRequest request, HttpServletResponse response) {
-		// 创建一个通用的多部分解析器
-		CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver(
-				request.getSession().getServletContext());
-		// 判断 request 是否有文件上传,即多部分请求
-		if (multipartResolver.isMultipart(request)) {
-			// 转换成多部分request
-			MultipartHttpServletRequest multiRequest = (MultipartHttpServletRequest) request;
-			// 取得request中的所有文件名
-			// 取得上传文件
-			MultipartFile file = multiRequest.getFile("importOrRestorePage");
-			try {
-				long time = System.currentTimeMillis();
-				logger.debug("开始导入----" + time);
-				Object obj = BeanUtil.readObject(file.getInputStream());
-				// 判断类型，实例为SyncPage则是还原
-				if (obj instanceof SyncPage) {
-					syncPageService.restorePage((SyncPage) obj);
-					ReturnResult result = ReturnResult.get();
-					result.setStatus(StatusCode.SUCCESS.setMessage("还原成功"));
-					ControllerHelper.renderJSON(null, result);
-				} else {
-					@SuppressWarnings("unchecked")
-					List<? extends SyncPage> syncs = (List<? extends SyncPage>) obj;
-					// 判断类型，实例为List<? extends SyncPage> 则是导入
-					String backup = syncPageService.importPage(syncs, hasBack);
-					// 导入查看是否有备份，有备份则输出备份文件
-					if (null != backup) {
-						List<String> ss = syncs.stream().map(s -> s.getPageId()).collect(Collectors.toList());
-						SyncPage sync = new SyncPage();
-						sync.setContent(backup);
-						response.setContentType(ControllerHelper.CONTENT_TYPE_STREAM);
-						response.setHeader(ControllerHelper.CONTENT_DISPOSITION,
-								"attachment; filename=backupPage_" + ss.toString() + ".awcp");
-						BeanUtil.writeObject(sync, response.getOutputStream());
-					} else {
-						ReturnResult result = ReturnResult.get();
-						result.setStatus(StatusCode.SUCCESS.setMessage("导入成功"));
-						ControllerHelper.renderJSON(null, result);
-					}
-				}
-				logger.debug("导入结束----耗时：" + (System.currentTimeMillis() - time) / 1000 + "S");
-			} catch (IOException e) {
-				ReturnResult result = ReturnResult.get();
-				result.setStatus(StatusCode.FAIL.setMessage("导入失败，请检查文件格式"));
-				try {
-					ControllerHelper.renderJSON(ControllerHelper.CONTENT_TYPE_JSON, result);
-				} catch (IOException e1) {
-				}
-			}
-		}
-	}
-
 }

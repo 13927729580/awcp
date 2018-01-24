@@ -112,13 +112,13 @@ public class AppController {
 				+ ((PunUserBaseInfoVO) DocumentUtils.getIntance().getUser()).getUserId() + "'\n" + "GROUP BY\n"
 				+ "	p_un_group.GROUP_ID\n" + "ORDER BY\n" + "	click_number DESC\n" + "LIMIT 15";
 
-		List<Map<String, Object>> deptlist = this.metaModelOperateServiceImpl.search(dept_sql, null);
+		List<Map<String, Object>> deptlist = this.metaModelOperateServiceImpl.search(dept_sql);
 		// 查出部门下所有人员
 		String mem_sql = "SELECT\n" + "	p_un_user_base_info.USER_ID,\n" + "	p_un_user_base_info.`NAME` USER_NAME,\n"
 				+ "	p_un_user_group.GROUP_ID\n" + "FROM\n" + "	p_un_user_base_info,\n" + "	p_un_user_group\n"
 				+ "WHERE\n" + "	p_un_user_base_info.USER_ID = p_un_user_group.USER_ID\n" + "GROUP BY\n"
 				+ "	p_un_user_base_info.USER_ID";
-		List<Map<String, Object>> memlist = this.metaModelOperateServiceImpl.search(mem_sql, null);
+		List<Map<String, Object>> memlist = this.metaModelOperateServiceImpl.search(mem_sql);
 
 		if (deptlist != null && deptlist.size() > 0) {
 			for (Map<String, Object> deptMap : deptlist) {

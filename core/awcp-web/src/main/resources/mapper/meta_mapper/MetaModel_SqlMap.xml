@@ -343,6 +343,7 @@
 		<include refid="Base_Column_List" />
 		from fw_mm_metamodel
 		<include refid="EQ_Where_Clause" />
+		order by seq desc
 	</select>
 	
 	<select id="eqQueryList" resultMap="BaseResultMap" parameterType="Object">

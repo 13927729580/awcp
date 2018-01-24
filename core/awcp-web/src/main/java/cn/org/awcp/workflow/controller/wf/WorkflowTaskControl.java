@@ -474,7 +474,7 @@ public class WorkflowTaskControl extends BaseController {
 						Long.parseLong(workItemId), WebUser.getNo()) == false) {
 					resultMap.put("success", false);
 					resultMap.put("message", ControllerHelper.getMessage("wf_not_can_do"));
-					jdbcTemplate1.commit();
+					jdbcTemplate1.rollback();
 					return resultMap;
 				}
 			}
@@ -895,27 +895,27 @@ public class WorkflowTaskControl extends BaseController {
 		String sql;
 		String wf_approval_result = ControllerHelper.getMessage(I18nKey.wf_approval_result);
 		String wf_approval_reject = ControllerHelper.getMessage(I18nKey.wf_approval_reject);
-		sql = "select starter FK_EMP,workid,FK_Node,RDT,FID,concat(title,(CASE wfstate WHEN 13 THEN '"
+		sql = "select starter FK_EMP,FK_Flow,workid,FK_Node,RDT,FID,concat(title,(CASE wfstate WHEN 13 THEN '"
 				+ wf_approval_reject + "' ELSE  '" + wf_approval_result
 				+ "' END)) title from wf_generworkflow where wfstate<>12 and workid=? and wfsta=1";
 		List<Map<String, Object>> emps = this.jdbcTemplate.queryForList(sql, workItemId);
 		if (!emps.isEmpty()) {
 			if ((emps.get(0).get("title") + "").contains(wf_approval_result)) {
-				sql = "select a.CCTo FK_EMP,a.workid,a.FK_Node,a.RDT,a.FID,concat(b.title,'"
+				sql = "select a.CCTo FK_EMP,b.FK_Flow,a.workid,a.FK_Node,a.RDT,a.FID,concat(b.title,'"
 						+ ControllerHelper.getMessage(I18nKey.wf_approval_CC)
 						+ "') title from wf_cclist a left join wf_generworkflow b on a.workid=b.workid where a.workid=?";
 				emps.addAll(this.jdbcTemplate.queryForList(sql, workItemId));
 			}
 		} else {
-			sql = "SELECT DISTINCT a.FID,a.FK_Node,a.workid,a.FK_EMP,a.RDT,b.title  FROM wf_generworkerlist a left join "
-					+ "wf_generworkflow b on a.workid=b.workid WHERE IsPass=0 AND (a.workid=? or a.FID=?) ";
+			sql = "SELECT DISTINCT a.FID,a.FK_Node,b.FK_Flow,a.workid,a.FK_EMP,a.RDT,b.title  FROM wf_generworkerlist a left join "
+					+ "wf_generworkflow b on a.workid=b.workid WHERE IsPass=0 AND (a.workid=? or a.FID=?) and b.FK_Node=a.FK_Node";
 			emps = jdbcTemplate.queryForList(sql, workItemId, workItemId);
 		}
 
-		if (!emps.isEmpty()) {
-			if (HttpRequestDeviceUtils.isDingDing(ControllerContext.getRequest())) {
+		if (!emps.isEmpty()) {	
+			//if (HttpRequestDeviceUtils.isDingDing(ControllerContext.getRequest())) {
 				pushByDD(vo, emps);
-			} else {
+			//} else {
 				String baseUrl = ControllerHelper.getBasePath();
 				String gotoUrl;
 				for (Map<String, Object> map : emps) {
@@ -927,8 +927,7 @@ public class WorkflowTaskControl extends BaseController {
 					DocumentUtils.getIntance().pushNotify(title, "您有新的流程待办，请及时处理！", PunNotification.KEY_FLOW, gotoUrl,
 							user);
 				}
-			}
-
+			//}
 		}
 	}
 
@@ -981,7 +980,7 @@ public class WorkflowTaskControl extends BaseController {
 			DocumentUtils.getIntance().sendMessage(gotoUrl, "0", content, title, user);
 		}
 	}
-
+	
 	private String dealSelectVal(List<Map<String, Object>> options, String val, String field) {
 		for (int i = 0; i < options.size(); i++) {
 			if (field.equals(options.get(i).get("fieldName"))) {

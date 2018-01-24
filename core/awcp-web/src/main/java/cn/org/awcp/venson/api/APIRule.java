@@ -1,9 +1,9 @@
 package cn.org.awcp.venson.api;
 
-import java.util.List;
-
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+
+import java.util.List;
 
 public class APIRule {
 
@@ -17,7 +17,7 @@ public class APIRule {
 
 	public static List<APIRule> get(String APIId, JdbcTemplate jdbcTemplate) {
 		String sql = "SELECT a.id,a.name,a.message,a.type,a.rules,a.describes,a.remark FROM p_fm_api_privilege a LEFT JOIN p_fm_api_privilege_relation b ON a.id=b.pri_id WHERE b.api_id=?";
-		return jdbcTemplate.query(sql, new BeanPropertyRowMapper<APIRule>(APIRule.class), APIId);
+		return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(APIRule.class), APIId);
 	}
 
 	public String getId() {

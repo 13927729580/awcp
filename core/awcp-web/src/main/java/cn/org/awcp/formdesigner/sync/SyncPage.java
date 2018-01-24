@@ -1,15 +1,14 @@
 package cn.org.awcp.formdesigner.sync;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.commons.lang3.StringUtils;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 同步动态页面实体类
@@ -22,8 +21,11 @@ public class SyncPage implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private String content;
 	private String pageId;
-	private String modelXml;
+	private String apiIds;
+	private List<String> modelCodes;
+	private List<String> tableNames;
 	private String templateId;
+	private String modelXml;
 	private List<String> sqls;
 
 	public String getContent() {
@@ -33,7 +35,6 @@ public class SyncPage implements Serializable {
 	public void setContent(String content) {
 		this.content = content;
 	}
-
 	public String getPageId() {
 		return pageId;
 	}
@@ -42,12 +43,36 @@ public class SyncPage implements Serializable {
 		this.pageId = pageId;
 	}
 
+    public String getApiIds() {
+        return apiIds;
+    }
+
+    public void setApiIds(String apiIds) {
+        this.apiIds = apiIds;
+    }
+
+	public List<String> getModelCodes() {
+		return modelCodes;
+	}
+
 	public String getModelXml() {
 		return modelXml;
 	}
 
 	public void setModelXml(String modelXml) {
 		this.modelXml = modelXml;
+	}
+
+	public void setModelCodes(List<String> modelCodes) {
+		this.modelCodes = modelCodes;
+	}
+
+	public List<String> getTableNames() {
+		return tableNames;
+	}
+
+	public void setTableNames(List<String> tableNames) {
+		this.tableNames = tableNames;
 	}
 
 	public String getTemplateId() {

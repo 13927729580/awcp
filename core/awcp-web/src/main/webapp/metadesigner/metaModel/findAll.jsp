@@ -44,9 +44,9 @@
 				<button type="button" class="btn btn-warning" id="updateBtn"><i class="icon-edit"></i>修改</button>
 				<button type="button" class="btn btn-warning" id="relationBtn"><i class="icon-edit"></i>关联属性</button>
 				<!-- <button type="button" class="btn btn-info" id="releaseBtn"><i class="icon-trash">发布</i></button> -->
+				<button type="button" class="btn btn-info" id="synMetaBtn"><i class="icon-trash">数据库同步到元数据</i></button>
 				<button type="button" class="btn btn-info" id="createTableBtn"><i class="icon-trash">元数据同步到数据库</i></button>
 				<!-- <button type="button" class="btn btn-info" id="batchUpdateDs"><i class="icon-trash">批量修改数据源</i></button> -->
-				<button type="button" class="btn btn-info" id="synMetaBtn"><i class="icon-trash">数据库同步到元数据</i></button>
 				<button type="button" class="btn btn-info" id="searchBtn" data-toggle="collapse" data-target="#collapseButton"><i class="icon-search"></i></button>
 			</div>
 			
@@ -227,21 +227,27 @@
           			alertMessage("请至少选择一项进行操作");
           			return false;
           		}
-          		$("#manuList").attr("action","<%=basePath%>metaModel/createTable.do").submit();
-          		return false;
+                if(confirm("此操作会覆盖数据库表，并清除数据")){
+                    $("#manuList").attr("action","<%=basePath%>metaModel/synchronizedMeta.do").submit();
+                }
+                return false;
           	});
-          	
-         	//synMeta
-          	$("#synMetaBtn").click(function(){
-          		$("#manuList").attr("action","<%=basePath%>metaModel/synchronizedMeta.do").submit();
-          		return false;
-          	});
-          	
-          	//update
+
+            $("#synMetaBtn").click(function(){
+                if(count<1){
+                    alertMessage("请至少选择一项进行操作");
+                    return false;
+                }
+                //synMeta
+                $("#manuList").attr("action","<%=basePath%>metaModel/createTable.do").submit();
+                return false;
+            });
+
       		$("#batchUpdateDs").click(function(){
-      			if(count>=1){
-      				var _selects=new Array();
-	
+                //update
+                if(count>=1){
+                    var _selects=new Array();
+
 					$("input[name='id']").each(function(){
 						var value=$(this).val();
 						_selects.push(value);

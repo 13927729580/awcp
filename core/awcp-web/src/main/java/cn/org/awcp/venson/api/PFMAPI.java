@@ -1,15 +1,14 @@
 package cn.org.awcp.venson.api;
 
-import java.io.Serializable;
-import java.util.List;
-
+import cn.org.awcp.core.domain.SzcloudJdbcTemplate;
+import cn.org.awcp.core.utils.Cache;
+import cn.org.awcp.core.utils.Springfactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 
-import cn.org.awcp.core.domain.SzcloudJdbcTemplate;
-import cn.org.awcp.core.utils.Cache;
-import cn.org.awcp.core.utils.Springfactory;
+import java.io.Serializable;
+import java.util.List;
 
 /**
  * api接口实体类
@@ -168,7 +167,7 @@ public class PFMAPI implements Serializable {
 				+ "API_State as APIState,API_Type as APIType,API_Table as APITable,API_IS_LOGIN as APIIsLogin,"
 				+ "API_Method as APIMethod,API_ISCACHE as APICache from p_fm_api where API_Name=?";
 		try {
-			PFMAPI result = jdbcTemplate.queryForObject(sql, new BeanPropertyRowMapper<PFMAPI>(PFMAPI.class), apiName);
+			PFMAPI result = jdbcTemplate.queryForObject(sql, new BeanPropertyRowMapper<>(PFMAPI.class), apiName);
 			result.setRules(APIRule.get(result.getAPIID(), jdbcTemplate));
 			cache.put(apiName, result);
 			return result;
@@ -187,7 +186,7 @@ public class PFMAPI implements Serializable {
 		}
 
 		String sql = "desc " + apiTable;
-		return jdbcTemplate.query(sql, new BeanPropertyRowMapper<TableDesc>(TableDesc.class));
+		return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(TableDesc.class));
 	}
 
 	public List<TableDesc> getAPITableFields() {

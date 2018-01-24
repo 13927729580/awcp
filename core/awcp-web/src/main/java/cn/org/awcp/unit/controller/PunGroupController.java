@@ -190,8 +190,8 @@ public class PunGroupController {
 			} else {
 				mv.addObject("vo", groupService.findById(boxs[0]));
 			}
-			List<Map<String, Object>> data = jdbcTemplate.queryForList(
-					"select group_id id,parent_group_id pId,group_ch_name name,number,group_type groupType from p_un_group");
+			List<Map<String, Object>> data = jdbcTemplate.queryForList("select group_id id,parent_group_id pId,"
+					+ "group_ch_name name,number,group_type groupType from p_un_group order by number");
 			mv.addObject("groupJson", JSON.toJSON(data));
 
 		} catch (Exception e) {

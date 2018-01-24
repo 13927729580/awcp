@@ -4,10 +4,10 @@
  */
 // 后台接口前缀
 
-var baseUrl = "//" + window.location.host + "/awcp/";
+var baseUrl = window.location.protocol + "//" + window.location.host + "/awcp/";
 var basePath = baseUrl;
 // 前台跳转前缀
-var baseUIUrl = "//" + window.location.host + "/awcp/";
+var baseUIUrl = window.location.protocol + "//" + window.location.host + "/awcp/";
 var Comm = {};
 
 
@@ -712,12 +712,12 @@ Comm.alert=function(message,fn){
 			_default.message=message;
 		}
 		dd.device.notification.alert(_default);
-	}else if(top.dialog){
+	}else if(top.hasOwnProperty("dialog")){
 		top.dialog({
 			title: '提示框',
 			content: message,
 			skin:"col-md-4",
-			ok: function () {},
+			ok: true,
 			okValue:"确定",
             fixed: true, 
 			onclose:fn
@@ -748,7 +748,7 @@ Comm.confirm=function(message,fn){
 		    },
 		    onFail : function(err) {}
 		});
-	}else if(top.dialog){
+	}else if(top.hasOwnProperty("dialog")){
 		top.dialog({
 			title: '确认框',
 			content: message,

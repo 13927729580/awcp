@@ -467,7 +467,9 @@
 	<select id="selectByExample_UserList_Order" resultMap="rm"
 		parameterType="cn.org.awcp.core.domain.BaseExample">
 		select p_un_user_base_info.USER_ID, USER_NAME, p_un_user_base_info.USER_PWD, USER_ID_CARD_NUMBER, p_un_user_base_info.NAME, 
-		USER_BIRTH_PLACE, USER_HOUSEHOLD_REGIST, USER_DOMICILE, USER_OFFICE_PHONE, 
+		(select GROUP_CONCAT(ROLE_NAME) from p_un_role_info where ROLE_ID in 
+		(select ROLE_ID from p_un_user_role where USER_ID=p_un_user_base_info.USER_ID)) as USER_BIRTH_PLACE,
+		 USER_HOUSEHOLD_REGIST, USER_DOMICILE, USER_OFFICE_PHONE, 
 		USER_HOUSE_PHONE, MOBILE, USER_FAX, USER_EMAIL, EMPLOYEE_ID,USER_STATUS, 
 		USER_DOSSIER_NUMBER, USER_OFFICE_NUM, p_un_user_base_info.LAST_EDIT_TIME, 
 		p_un_user_base_info.NUMBER,SIGNATURE_IMG,USER_HEAD_IMG,GROUP_CONCAT(p_un_group.GROUP_CH_NAME) as DEPT_NAME,

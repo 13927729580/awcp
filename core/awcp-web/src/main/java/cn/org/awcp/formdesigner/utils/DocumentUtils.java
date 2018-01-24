@@ -150,6 +150,11 @@ public class DocumentUtils extends BaseUtils {
 		return sendMessage(url, type, content, title, ids, null, null, null);
 	}
 
+	/**
+	 * @see  {@link cn.org.awcp.formdesigner.utils.BaseUtils#isCanDo}
+	 * @return
+	 */
+	@Deprecated
 	public boolean isCanDo() {
 		HttpServletRequest request = ControllerContext.getRequest();
 		String WorkID = request.getParameter("WorkID");
@@ -159,7 +164,12 @@ public class DocumentUtils extends BaseUtils {
 					ControllerHelper.getUser().getUserIdCardNumber());
 		return false;
 	}
-
+	
+	/**
+	 * @see  {@link cn.org.awcp.formdesigner.utils.BaseUtils#isStarter}
+	 * @return
+	 */
+	@Deprecated
 	public boolean isStarter() {
 		HttpServletRequest request = ControllerContext.getRequest();
 		String WorkID = request.getParameter("WorkID");

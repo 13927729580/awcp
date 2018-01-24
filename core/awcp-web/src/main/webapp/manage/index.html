@@ -288,7 +288,7 @@
 			setUserHeadImg(userInfo.userHeadImg);
 			//判断当前浏览器是否支持WebSocket
 			if ('WebSocket' in window && userInfo.userIdCardNumber) {
-			    var websocket = new WebSocket("ws:"+baseUrl+"websocket/"+userInfo.userIdCardNumber);
+			    var websocket = new WebSocket("ws:"+baseUrl.replace(window.location.protocol,"")+"websocket/"+userInfo.userIdCardNumber);
 			    //连接发生错误的回调方法
 			    websocket.onerror = function (event) {
 			        console.log(event);

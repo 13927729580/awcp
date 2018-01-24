@@ -190,7 +190,8 @@
 <#-------------------------------------------输入框组件begin---------------------------------------->
 <#macro convertInputext c >
 	<div class="customGroup"  data-required="${c['required']!'0'}" data-placeholder="${c['placeholder']!''}" style="<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['hidden'])?? && status['</#noparse>${c['name']}<#noparse>']['hidden'] == 'true'>display:none;</#if></#noparse>">
-		<label class="control-label"><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
+		<label class="control-label <#if c['required']?? && c['required']=='1'>required</#if>">
+			<#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
 		<input type='${c['textType']!'text'}' class='dataItemCode 
 		<#if c['css']?? && c['css']?length gt 0>
 			${c['css']}
@@ -231,7 +232,7 @@
 <#-------------------------------------------日期begin------------------------------------------>
 <#macro convertDatetime c>
 	<div class="customGroup"  data-required="${c['required']!'0'}" data-placeholder="${c['placeholder']!''}" style="<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['hidden'])?? && status['</#noparse>${c['name']}<#noparse>']['hidden'] == 'true'>display:none;</#if></#noparse>">
-		<label class="control-label"><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
+		<label class="control-label <#if c['required']?? && c['required']=='1'>required</#if>"><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
 		<input type='datetime' readonly='readonly' class='dataItemCode 
 		<#if c['css']?? && c['css']?length gt 0>
 			${c['css']}
@@ -261,54 +262,80 @@
 	(function(){
 		var dateType="${component['dateType']}";
 		var id='#${(component['pageId'])!""}';
-		var minView,startView;
-		if(dateType.length>10){
+		if(dateType=="yyyy-mm-dd" || dateType=="dd/mm/yyyy"){
 			$(id).datetimepicker({
-					language : 'zh-CN',
-					weekStart : 1,
-					todayBtn : 1,
-					autoclose : 1,
-					todayHighlight : 1,
-					startView : 2,
-					forceParse : 0,
-					showMeridian : 1,
-					format : dateType
+				language : 'zh-CN',
+				weekStart : 1,
+				todayBtn : 1,
+				autoclose : 1,
+				todayHighlight : 1,
+				startView : 2,
+				minView : 2,
+				format : dateType
 			});
-		}else if(dateType.length<10){
-				$(id).datetimepicker({
-						language : 'zh-CN',
-						weekStart : 1,
-						todayBtn : 1,
-						autoclose : 1,
-						todayHighlight : 1,
-						startView : 1,
-						minView : 0,
-						maxView : 1,
-						forceParse : 0,
-						format : 'hh:ii'
-				});
-		}else{
+		} else if(dateType=="yyyy-mm-dd HH:ii" || dateType=="dd/mm/yyyy HH:ii"){
 			$(id).datetimepicker({
-					language : 'zh-CN',
-					weekStart : 1,
-					todayBtn : 1,
-					autoclose : 1,
-					todayHighlight : 1,
-					startView : 2,
-					minView : 2,
-					forceParse : 0,
-					format : 'yyyy-mm-dd'
+				language : 'zh-CN',
+				weekStart : 1,
+				todayBtn : 1,
+				autoclose : 1,
+				todayHighlight : 1,
+				startView : 2,
+				minView : 0,
+				format : dateType
+			});
+		} else if(dateType=="yyyy-mm-dd HH:ii:ss"){
+			$(id).datetimepicker({
+				language : 'zh-CN',
+				weekStart : 1,
+				todayBtn : 1,
+				autoclose : 1,
+				todayHighlight : 1,
+				startView : 2,
+				minView : 0,
+				format : dateType
+			});
+		} else if(dateType=="HH:ii"){
+			$(id).datetimepicker({
+				language : 'zh-CN',
+				weekStart : 1,
+				todayBtn : 1,
+				autoclose : 1,
+				todayHighlight : 1,
+				startView : 1,
+				minView : 0,
+				format : dateType
+			});
+		} else if(dateType=="yyyy"){
+			$(id).datetimepicker({
+				language : 'zh-CN',
+				weekStart : 1,
+				todayBtn : 1,
+				autoclose : 1,
+				todayHighlight : 1,
+				startView : 4,
+				minView : 4,
+				format : dateType
+			});
+		} else if(dateType=="yyyy-mm"){
+			$(id).datetimepicker({
+				language : 'zh-CN',
+				weekStart : 1,
+				todayBtn : 1,
+				autoclose : 1,
+				todayHighlight : 1,
+				startView : 3,
+				minView : 3,
+				format : dateType
 			});
 		}
-		
-		
 	})();
 </#macro>
 <#-------------------------------------------日期end-------------------------------------------->
 <#-------------------------------------------多选框checkbook------------------------------------------>
 <#macro convertCheckbox c>
 	<div class="customGroup" data-required="${c['required']!'0'}" data-placeholder="${c['placeholder']!''}" class="form-group" style="<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['hidden'])?? && status['</#noparse>${c['name']}<#noparse>']['hidden'] == 'true'>display:none;</#if></#noparse>">
-		<label class="control-label"><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
+		<label class="control-label <#if c['required']?? && c['required']=='1'>required</#if>"><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
 		<div class="dataItemCode" data-type="checkbox" id="${c['pageId']}">
 			<#noparse><#if others??> ${others['</#noparse>${c['name']}<#noparse>']!''}</#if></#noparse>
 		</div>
@@ -337,7 +364,7 @@
 <#-------------------------------------------textarea begin------------------------------------------>
 <#macro convertTextarea c >
 	<div class="customGroup" data-required="${c['required']!'0'}" data-placeholder="${c['placeholder']!''}" style="<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['hidden'])?? && status['</#noparse>${c['name']}<#noparse>']['hidden'] == 'true'>display:none;</#if></#noparse>">
-		<label class="control-label"><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
+		<label class="control-label <#if c['required']?? && c['required']=='1'>required</#if>"><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
 		<textarea   class='dataItemCode 
 		<#if c['css']?? && c['css']?length gt 0>
 			${c['css']}
@@ -386,7 +413,7 @@
 <#-------------------------------------------下拉框select begin------------------------------------------->
 <#macro convertSelect c >
 	<div class="customGroup" data-required="${c['required']!'0'}" data-placeholder="${c['placeholder']!''}" style="<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['hidden'])?? && status['</#noparse>${c['name']}<#noparse>']['hidden'] == 'true'>display:none;</#if></#noparse>">
-		<label class="control-label"><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
+		<label class="control-label <#if c['required']?? && c['required']=='1'>required</#if>"><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
 		<select class='dataItemCode 
 		<#if c['css']?? && c['css']?length gt 0>
 			${c['css']}
@@ -420,23 +447,44 @@
 
 <#macro  convertSelectScript component  >
 	(function(){
+        var $select=$('#${(component['pageId'])!""}');
 		<#if component['supportMulti']?? && component['supportMulti']=='1'>
-			$('#${(component['pageId'])!""}').select2({
+			$select.children("option").eq(0).remove();
+			$select.select2({
 				 placeholder:'请选择',
 				 width:"100%",
 				 maximumSelectionLength:${(component['selectNumber'])},
 				 multiple: true,
 				 language:'zh-CN'
 			});
+
 		<#else>
-			$('#${(component['pageId'])!""}').select2({
+			$select.select2({
 				 width:"100%",
 				 placeholder:'请选择',
+				 allowClear:!0,
 				 language:'zh-CN'
 			});
 		</#if>
+ 		var val=$select.attr("value");
+		var arr=[];
+		if($.trim(val).length>0){
+			var arr1=val.split(";");
+			for(var i=0;i<arr1.length;i++){
+				if(arr1[i].length>0){
+					arr.push(arr1[i]);
+				}
+			}
+        }
+		debugger;
+		if(arr.length>0){
+			$select.val(arr).trigger("change");
+		}else{
+			 $select.val([]).trigger("change");
+		}
+
 		<#if component['onchangeScript']??><#--onchange 事件 -->
-			$('#${(component['pageId'])!""}').on("change",function(){
+			$select.on("change",function(){
 				${component['onchangeScript']}
 			});
 		</#if>
@@ -495,7 +543,7 @@
 <#-------------------------------------------文件上传框组件begin---------------------------------------->
 <#macro convertFile c >
 	<div class="customGroup" data-required="${c['required']!'0'}" data-placeholder="${c['placeholder']!''}" class="form-group" style="<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['hidden'])?? && status['</#noparse>${c['name']}<#noparse>']['hidden'] == 'true'>display:none;</#if></#noparse>">
-		<label class="control-label"><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
+		<label class="control-label <#if c['required']?? && c['required']=='1'>required</#if>"><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
 		<div class="content">
 			<div class="row" id="${(c['pageId'])!''}">
 				<div class="col-xs-12">
@@ -1004,7 +1052,7 @@
 
 <#macro convertkindEditor c >
 	<div class="customGroup" data-required="${c['required']!'0'}" data-placeholder="${c['placeholder']!''}" style="<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['hidden'])?? && status['</#noparse>${c['name']}<#noparse>']['hidden'] == 'true'>display:none;</#if></#noparse>">
-		<label class="control-label"><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
+		<label class="control-label <#if c['required']?? && c['required']=='1'>required</#if>"><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
 		<textarea id='${(c['pageId'])!""}'
 				<#if c['name']?? >
 					name='${c['name']}'
@@ -1082,7 +1130,7 @@
 <#-------------------------------------------用户选择框组件begin---------------------------------------->
 <#macro convertuserSelect c >
 	<div class="customGroup" data-required="${c['required']!'0'}" data-placeholder="${c['placeholder']!''}" style="<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['hidden'])?? && status['</#noparse>${c['name']}<#noparse>']['hidden'] == 'true'>display:none;</#if></#noparse>">
-		<label class="control-label"><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
+		<label class="control-label <#if c['required']?? && c['required']=='1'>required</#if>"><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
 		<input class="dataItemCode " type='hidden' data-input="chosen"
 		<#if c['isSingle']?? >
 			data-isSingle='${c['isSingle']}'

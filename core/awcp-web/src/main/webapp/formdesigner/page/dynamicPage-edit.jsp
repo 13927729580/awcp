@@ -145,6 +145,8 @@
 				});
 				showListConfig();
 				
+				 $("title").text( '[' + $("#name").val() + ']动态编辑');
+				
 				$("#savePage").click(function(){
 					var id = '${vo.id}';
 					$.ajax({

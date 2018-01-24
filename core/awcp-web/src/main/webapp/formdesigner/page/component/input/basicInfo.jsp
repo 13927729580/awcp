@@ -6,6 +6,8 @@
 			<select name="textType" class="form-control" id="textType" >
 				<option selected="selected" value="text">文本</option>
 				<option value="number">数字</option>
+				<option value="tel">电话</option>
+				<option value="email">邮箱</option>
 				<option value="password">密码</option>
 			</select>
 		</div>

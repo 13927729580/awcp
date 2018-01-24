@@ -57,8 +57,6 @@ import cn.org.awcp.unit.vo.PunSystemVO;
 public class DocumentServiceImpl implements DocumentService {
 	private static final Logger logger = LoggerFactory.getLogger(DocumentServiceImpl.class);
 
-	public static final String CACHE_KEY_PREFIX = "cache_key_pre_";
-
 	@Autowired
 	@Qualifier("queryChannel")
 	private QueryChannelService queryChannel;
@@ -408,14 +406,22 @@ public class DocumentServiceImpl implements DocumentService {
 				int type = c.getIntValue("componentType");
 				if (type == 1002) {
 					String dateType = c.getString("dateType");
-					if ("form-year-month".equals(dateType)) { // yyyy-MM
-						value = DateUtils.format(DateUtils.parseDate(value, "MM/yyyy"));
-					} else if ("form-year".equals(dateType)) {
-						value = DateUtils.format(DateUtils.parseDate(value, "yyyy"));
-					} else if ("form-english-date".equals(dateType)) {
+					if ("yyyy-mm-dd".equals(dateType)) { // yyyy-MM
+						value = DateUtils.format(DateUtils.parseDate(value, "yyyy-MM-dd"));
+					} else if ("dd/mm/yyyy".equals(dateType)) {
 						value = DateUtils.format(DateUtils.parseDate(value, "dd/MM/yyyy"));
-					} else if ("form-english-date-long".equals(dateType)) {
+					} else if ("yyyy-mm-dd HH:ii".equals(dateType)) {
+						value = DateUtils.format(DateUtils.parseDate(value, "yyyy-MM-dd HH:mm"));
+					} else if ("dd/mm/yyyy HH:ii".equals(dateType)) {
 						value = DateUtils.format(DateUtils.parseDate(value, "dd/MM/yyyy HH:mm"));
+					} else if ("yyyy-mm-dd HH:ii:ss".equals(dateType)) {
+						value = DateUtils.format(DateUtils.parseDate(value, "yyyy-MM-dd HH:mm:ss"));
+					} else if ("yyyy-mm".equals(dateType)) {
+						value = DateUtils.format(DateUtils.parseDate(value, "yyyy-MM"));
+					} else if ("yyyy".equals(dateType)) {
+						value = DateUtils.format(DateUtils.parseDate(value, "yyyy"));
+					} else if ("HH:ii".equals(dateType)) {
+						value = DateUtils.format(DateUtils.parseDate(value, "HH:mm"));
 					}
 				}
 				if (type == 1032) {
