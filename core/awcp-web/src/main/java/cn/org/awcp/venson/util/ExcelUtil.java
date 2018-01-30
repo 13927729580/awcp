@@ -3,6 +3,7 @@ package cn.org.awcp.venson.util;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -382,7 +383,9 @@ public class ExcelUtil {
 		String cellValue;
 		switch (cell.getCellTypeEnum()) { // 判断excel单元格内容的格式，并对其进行转换，以便插入数据库
 		case NUMERIC:
-			cellValue = String.valueOf(cell.getNumericCellValue());
+			DecimalFormat df = new DecimalFormat("0");
+			cellValue = df.format(cell.getNumericCellValue());
+			//cellValue = String.valueOf(cell.getNumericCellValue());
 			break;
 		case STRING:
 			cellValue = cell.getStringCellValue();
