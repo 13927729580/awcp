@@ -17,6 +17,28 @@ function updateAction(params){
 	$("#groupForm").attr("action",action);
 }
 
+function updateParamsToGroupForm(params){
+    var str = "";
+    var $groupForm = $("#groupForm");
+
+    for(var i=0;i<params.length;i++){
+        var key = params[i];
+        var val = Comm.getUrlParam(key);
+
+        if(val){
+            var $elem = $groupForm.find("input[name='"+key+"']");
+
+            if($elem.size() == 0){
+                var newInputStr = '<input type="hidden" name="'+ key +'" value="' + val + '" id="' +key+ '"/>';
+                $groupForm.prepend(newInputStr);
+            }
+            else{
+                $elem.val(val);
+            }
+        }
+    }
+}
+
 function saveFormPage(dynamicPageId,actId){
 	$("#buttons").find("button").attr("disabled",true);
 	$("#actId").val(actId);		

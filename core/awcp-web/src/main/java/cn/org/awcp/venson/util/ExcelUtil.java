@@ -12,14 +12,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.usermodel.HSSFFont;
-import org.apache.poi.hssf.usermodel.HSSFRichTextString;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
@@ -383,9 +378,14 @@ public class ExcelUtil {
 		String cellValue;
 		switch (cell.getCellTypeEnum()) { // 判断excel单元格内容的格式，并对其进行转换，以便插入数据库
 		case NUMERIC:
-			DecimalFormat df = new DecimalFormat("0");
-			cellValue = df.format(cell.getNumericCellValue());
-			//cellValue = String.valueOf(cell.getNumericCellValue());
+			if (HSSFDateUtil.isCellDateFormatted(cell)) {
+				Date date = cell.getDateCellValue();
+				cellValue = DateFormatUtils.format(date, "yyyy-MM-dd");
+			} else {
+				DecimalFormat df = new DecimalFormat("0");
+				cellValue = df.format(cell.getNumericCellValue());
+				//cellValue = String.valueOf(cell.getNumericCellValue());
+			}
 			break;
 		case STRING:
 			cellValue = cell.getStringCellValue();
