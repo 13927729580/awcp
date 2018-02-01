@@ -6,7 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 
 public class ComponentVO {
 		
-	private Integer componentType = Integer.MIN_VALUE;	//组件类型
+	private Integer componentType;	//组件类型
 	private String dynamicPageId;	// 所属页面
 	private String tittle;		//组件的额外信息
 	private String accessKey;	//激活元素的快捷键

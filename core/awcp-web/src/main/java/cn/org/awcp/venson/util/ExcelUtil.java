@@ -384,7 +384,6 @@ public class ExcelUtil {
 			} else {
 				DecimalFormat df = new DecimalFormat("0");
 				cellValue = df.format(cell.getNumericCellValue());
-				//cellValue = String.valueOf(cell.getNumericCellValue());
 			}
 			break;
 		case STRING:
