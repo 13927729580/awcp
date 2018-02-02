@@ -1,34 +1,32 @@
-<%@page import="BP.WF.Template.PubLib.BtnAttr"%>
-<%@page import="BP.WF.Template.PubLib.DelWorkFlowRole"%>
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-	pageEncoding="UTF-8"%>
-<%@ include file="/head/head.jsp"%>
+<%@page import="BP.WF.Template.BtnAttr"%>
+<%@page import="BP.WF.DelWorkFlowRole"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ include file="/WF/head/head2.jsp"%>
+<link href="<%=Glo.getCCFlowAppPath() %>DataUser/Style/table0.css" rel="stylesheet" type="text/css" />
+
 <%@page import="BP.Sys.*"%>
 <%
-	String FK_Node = request.getParameter("FK_Node") == null
-	? ""
-	: request.getParameter("FK_Node");
-	String FID = request.getParameter("FID") == null ? "" : request
-	.getParameter("FID");
-	String WorkID = request.getParameter("WorkID") == null
-	? ""
-	: request.getParameter("WorkID");
-	String FK_Flow = request.getParameter("FK_Flow") == null
-	? ""
-	: request.getParameter("FK_Flow");
+	String FK_Node = request.getParameter("FK_Node");
+	if (FK_Node == null){
+		out.print("FK_Node 不能为空！");
+		return;
+	}
+	String FID = request.getParameter("FID") == null ? "" : request.getParameter("FID");
+	String WorkID = request.getParameter("WorkID") == null ? "" : request.getParameter("WorkID");
+	String FK_Flow = request.getParameter("FK_Flow") == null ? "" : request.getParameter("FK_Flow");
 %>
 <script type="text/javascript">
 	function OnChange(ctrl) {
-		//        var text = ctrl.options[ctrl.selectedIndex].text;
-		//        var user = text.substring(0, text.indexOf('='));
-		//        var nodeName = text.substring(text.indexOf('>') + 1, 1000);
-		//        var objVal = '您好' + user + ':';
-		//        objVal += "  \t\n ";
-		//        objVal += "  \t\n ";
-		//        objVal += "   您处理的 “" + nodeName + "” 工作有错误，需要您重新办理． ";
-		//        objVal += "\t\n   \t\n 礼! ";
-		//        objVal += "  \t\n ";
-		//        document.getElementById('ContentPlaceHolder1_ReturnWork1_Pub1_TB_Doc').value = objVal;
+//        var text = ctrl.options[ctrl.selectedIndex].text;
+//        var user = text.substring(0, text.indexOf('='));
+//        var nodeName = text.substring(text.indexOf('>') + 1, 1000);
+//        var objVal = '您好' + user + ':';
+//        objVal += "  \t\n ";
+//        objVal += "  \t\n ";
+//        objVal += "   您处理的 “" + nodeName + "” 工作有错误，需要您重新办理． ";
+//        objVal += "\t\n   \t\n 礼! ";
+//        objVal += "  \t\n ";
+//        document.getElementById('ContentPlaceHolder1_ReturnWork1_Pub1_TB_Doc').value = objVal;
 	}
 </script>
 
@@ -36,22 +34,19 @@
 </head>
 <body topmargin="0" leftmargin="0" onkeypress="NoSubmit(event);">
 
-	<div class="admin-content">
-		<div class="am-cf am-padding">
-			<div class="am-fl am-cf">
-				<strong class="am-text-primary am-text-lg">首页</strong> / <small>工作删除</small>
-			</div>
-		</div>
-		<div class="divCenter2">
+	<table border=1px align=center width='100%'>
+		<Caption ><div class='' >工作删除</div></Caption>
+		
+		<!-- <div class="divCenter2"> -->
 			<form method="post"
 				action="<%=basePath%>WF/DeleteWorkFlow.do?FK_Node=<%=FK_Node%>&FID=<%=FID%>&WorkID=<%=WorkID%>&FK_Flow=<%=FK_Flow%>"
 				id="form1" onkeypress="NoSubmit(event);">
 				<input type="hidden" name="BtnID" id="BtnID" value="" />
 				<%
-					BP.WF.Template.Node nd = new BP.WF.Template.Node(FK_Node);
+					BP.WF.Node nd = new BP.WF.Node(FK_Node);
 				%>
-				<table
-					class="am-table am-table-bordered am-table-radius am-table-striped">
+				<!-- <table
+					class="am-table am-table-bordered am-table-radius am-table-striped"> -->
 					<tr>
 						<td colspan="2">删除方式: <select id='DDL1' name='DDL1'
 							onchange='OnChange(this);' data-am-selected>
@@ -115,7 +110,7 @@
 					<tr>
 						<td colspan="2">
 							<div class="am-form-group">
-								<textarea class="" rows="15" cols='110' id="TB_Doc"></textarea>
+								<textarea class="" rows="10" cols='110' id="TB_Doc" style="width=100%;"></textarea>
 							</div>
 						</td>
 					</tr>
@@ -127,9 +122,9 @@
 								class='am-btn am-btn-primary'
 								onclick="document.getElementById('BtnID').value='Btn_Cancel';">取消</button></td>
 					</tr>
-				</table>
+				<!-- </table> -->
 			</form>
-		</div>
-	</div>
+		<!-- </div> -->
+	</table>
 </body>
 </html>

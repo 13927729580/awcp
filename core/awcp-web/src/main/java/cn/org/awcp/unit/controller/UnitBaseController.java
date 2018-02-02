@@ -120,8 +120,7 @@ public class UnitBaseController {
 			if (StringUtils.isNotBlank(ALT)) {
 				String secretKey = CookieUtil.findCookie(SC.SECRET_KEY);
 				if (secretKey == null || !secretKey.equals(pvi.getUserIdCardNumber())) {
-					CookieUtil.addCookie(SC.SECRET_KEY,
-							MD5Util.getMD5StringWithSalt(pvi.getUserIdCardNumber(), SC.SALT));
+					CookieUtil.addCookie(SC.SECRET_KEY,ControllerHelper.getSecretKey(pvi.getUserIdCardNumber()));
 					CookieUtil.addCookie(SC.USER_ACCOUNT, pvi.getUserIdCardNumber());
 				}
 			}
@@ -376,9 +375,8 @@ public class UnitBaseController {
 			}
 		}
 		// 如果不存在已登录用户则进行校验key值得合法性
-		String body = MD5Util.getMD5StringWithSalt(uid, SC.SALT);
 		// 若返回值不为空则为合法操作
-		if (uid.equals(body)) {
+		if (uid.equals(ControllerHelper.getSecretKey(uid))) {
 			if (ControllerHelper.toLogin(uid, false) != null) {
 				return new ModelAndView("redirect:" + url);
 			}

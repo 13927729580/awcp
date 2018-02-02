@@ -6,43 +6,38 @@ import BP.En.Entities;
 import BP.En.EntityNoName;
 import BP.En.Map;
 
-/** 
-域
-
-*/
+/**
+ * 域
+ */
 public class Domain extends EntityNoName
 {
-/**
+	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 基本属性
+	
+	// 基本属性
 	public final String getDocs()
 	{
 		return this.GetValStringByKey(DomainAttr.DBLink);
 	}
+	
 	public final void setDocs(String value)
 	{
 		this.SetValByKey(DomainAttr.DBLink, value);
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
-
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 构造方法
-	/** 
-	 域
-	 
-	*/
+	
+	// 构造方法
+	/**
+	 * 域
+	 */
 	public Domain()
 	{
 	}
-
-	/** 
-	 EnMap
-	 
-	*/
+	
+	/**
+	 * EnMap
+	 */
 	@Override
 	public Map getEnMap()
 	{
@@ -53,25 +48,22 @@ public class Domain extends EntityNoName
 		Map map = new Map("Sys_Domain");
 		map.setDepositaryOfEntity(Depositary.None);
 		map.setDepositaryOfMap(Depositary.Application);
-
+		
 		map.setEnDesc("域");
 		map.setEnType(EnType.Sys);
 		map.AddTBStringPK(DomainAttr.No, null, "编号", false, false, 0, 30, 20);
 		map.AddTBString(DomainAttr.Name, null, "Name", false, false, 0, 30, 20);
-		map.AddTBString(DomainAttr.DBLink, null, "DBLink", false, false, 0, 130, 20);
-		 this.set_enMap(map);
+		map.AddTBString(DomainAttr.DBLink, null, "DBLink", false, false, 0,
+				130, 20);
+		this.set_enMap(map);
 		return this.get_enMap();
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
-
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 重写
+	
+	// 重写
 	@Override
 	public Entities getGetNewEntities()
 	{
 		return new Domains();
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion 重写
+	// 重写
 }

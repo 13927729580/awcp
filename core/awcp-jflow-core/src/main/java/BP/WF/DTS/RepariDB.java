@@ -1,15 +1,14 @@
 package BP.WF.DTS;
 
-import BP.DA.*;
-import BP.WF.Template.Node;
-
-import BP.Port.*;
-import BP.En.*;
-import BP.Sys.*;
-import BP.Sys.Frm.MapAttr;
-import BP.Sys.Frm.MapAttrAttr;
-import BP.Sys.Frm.MapData;
-import BP.Sys.Frm.MapDatas;
+import BP.En.FieldTypeS;
+import BP.En.Method;
+import BP.En.UIContralType;
+import BP.Sys.MapAttr;
+import BP.Sys.MapAttrAttr;
+import BP.Sys.MapData;
+import BP.Sys.MapDatas;
+import BP.Sys.PubClass;
+import BP.WF.Node;
 
 /** 
  修复数据库 的摘要说明
@@ -61,21 +60,21 @@ public class RepariDB extends Method
 		String rpt =PubClass.DBRpt(BP.DA.DBCheckLevel.High);
 
 		//// 手动升级. 2011-07-08 补充节点字段分组.
-		//string sql = "DELETE FROM Sys_EnCfg WHERE No='BP.WF.Template.Ext.NodeSheet'";
+		//string sql = "DELETE FROM Sys_EnCfg WHERE No='BP.WF.Template.NodeSheet'";
 		//BP.DA.DBAccess.RunSQL(sql);
 
-		//sql = "INSERT INTO Sys_EnCfg(No,GroupTitle) VALUES ('BP.WF.Template.Ext.NodeSheet','NodeID=基本配置@WarningDays=考核属性@SendLab=功能按钮标签与状态')";
+		//sql = "INSERT INTO Sys_EnCfg(No,GroupTitle) VALUES ('BP.WF.Template.NodeSheet','NodeID=基本配置@WarningHour=考核属性@SendLab=功能按钮标签与状态')";
 		//BP.DA.DBAccess.RunSQL(sql);
 
 		// 修复因bug丢失的字段.
 		MapDatas mds = new MapDatas();
 		mds.RetrieveAll();
-		for (MapData md : MapDatas.convertMapDatas(mds) )
+		for (MapData md : mds.ToJavaList())
 		{
 			String nodeid = md.getNo().replace("ND","");
 			try
 			{
-				Node nd = new Node(Integer.parseInt(nodeid));
+				BP.WF.Node nd = new Node(Integer.parseInt(nodeid));
 				nd.RepareMap();
 				continue;
 			}
@@ -87,11 +86,11 @@ public class RepariDB extends Method
 			MapAttr attr = new MapAttr();
 			if (attr.IsExit(MapAttrAttr.KeyOfEn, "OID", MapAttrAttr.FK_MapData, md.getNo()) == false)
 			{
-				attr.setFK_MapData ( md.getNo());
+				attr.setFK_MapData (md.getNo());
 				attr.setKeyOfEn ( "OID");
 				attr.setName("OID");
 				attr.setMyDataType ( BP.DA.DataType.AppInt);
-				attr.setUIContralType( UIContralType.TB);
+				attr.setUIContralType ( UIContralType.TB);
 				attr.setLGType ( FieldTypeS.Normal);
 				attr.setUIVisible ( false);
 				attr.setUIIsEnable ( false);

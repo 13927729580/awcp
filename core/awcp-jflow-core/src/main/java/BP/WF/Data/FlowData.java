@@ -1,23 +1,23 @@
 package BP.WF.Data;
 
-import javax.sound.sampled.Port;
+import java.io.IOException;
 
-import BP.En.*;
-import BP.Port.Depts;
-import BP.Sys.*;
-import BP.WF.Template.Flows;
+import BP.DA.Log;
+import BP.En.EnType;
+import BP.En.Map;
+import BP.En.RefMethod;
+import BP.En.UAC;
+import BP.Sys.PubClass;
+import BP.WF.Flows;
+import BP.WF.Glo;
 
 /** 
  报表
- 
 */
 public class FlowData extends BP.En.EntityOID
 {
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region attrs
 	/** 
 	 流程发起人
-	 
 	*/
 	public final String getFlowStarter()
 	{
@@ -27,6 +27,9 @@ public class FlowData extends BP.En.EntityOID
 	{
 		this.SetValByKey(FlowDataAttr.FlowStarter, value);
 	}
+	/** 
+	 流程发起时间
+	*/
 	public final String getFlowStartRDT()
 	{
 		return this.GetValStringByKey(FlowDataAttr.FlowStartRDT);
@@ -37,7 +40,6 @@ public class FlowData extends BP.En.EntityOID
 	}
 	/** 
 	 流程结束者
-	 
 	*/
 	public final String getFlowEnder()
 	{
@@ -48,8 +50,7 @@ public class FlowData extends BP.En.EntityOID
 		this.SetValByKey(FlowDataAttr.FlowEnder, value);
 	}
 	/** 
-	 流程结束时间
-	 
+	 流程最后处理时间
 	*/
 	public final String getFlowEnderRDT()
 	{
@@ -83,12 +84,9 @@ public class FlowData extends BP.En.EntityOID
 	{
 		this.SetValByKey(FlowDataAttr.FK_Flow, value);
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion attrs
 
 	/** 
 	 UI界面上的访问控制
-	 
 	*/
 	@Override
 	public UAC getHisUAC()
@@ -97,9 +95,6 @@ public class FlowData extends BP.En.EntityOID
 		uac.Readonly();
 		return uac;
 	}
-
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region attrs - attrs
 	public String RptName = null;
 	@Override
 	public Map getEnMap()
@@ -109,23 +104,22 @@ public class FlowData extends BP.En.EntityOID
 			return this.get_enMap();
 		}
 
-		Map map = new Map("V_FlowData");
-		map.setEnDesc( "流程数据");
-		map.setEnType (EnType.View);
+		Map map = new Map("V_FlowData", "流程数据");
+		map.Java_SetEnType(EnType.View);
 
 		map.AddTBIntPKOID(FlowDataAttr.OID, "WorkID");
 		map.AddTBInt(FlowDataAttr.FID, 0, "FID", false, false);
 
-		map.AddDDLEntities(FlowDataAttr.FK_Dept, null, "部门", new Depts(), false);
+		map.AddDDLEntities(FlowDataAttr.FK_Dept, null, "部门", new BP.GPM.Depts(), false);
 		map.AddTBString(FlowDataAttr.Title, null, "标题", true, true, 0, 100, 100,true);
 		map.AddTBString(FlowDataAttr.FlowStarter, null, "发起人", true, true, 0, 100, 100);
-		map.AddTBDateTime(FlowDataAttr.FlowStartRDT, null, "发起日期", true, true);
+		map.AddTBDateTime(FlowDataAttr.FlowStartRDT, null, "发起时间", true, true);
 		map.AddDDLSysEnum(FlowDataAttr.WFState, 0, "流程状态", true, true, "WFStateApp");
 		map.AddDDLEntities(FlowDataAttr.FK_NY, null, "年月", new BP.Pub.NYs(), false);
 		map.AddDDLEntities(FlowDataAttr.FK_Flow, null, "流程", new Flows(), false);
-		map.AddTBDateTime(FlowDataAttr.FlowEnderRDT, null, "结束日期", true, true);
+		map.AddTBDateTime(FlowDataAttr.FlowEnderRDT, null, "最后处理时间", true, true);
 		map.AddTBInt(FlowDataAttr.FlowEndNode, 0, "结束节点", true, true);
-		map.AddTBInt(FlowDataAttr.FlowDaySpan, 0, "跨度(天)", true, true);
+		map.AddTBFloat(FlowDataAttr.FlowDaySpan, 0, "跨度(天)", true, true);
 		map.AddTBInt(FlowDataAttr.MyNum, 1, "个数", true, true);
 		map.AddTBString(FlowDataAttr.FlowEmps, null, "参与人", false, false, 0, 100, 100);
 
@@ -133,22 +127,24 @@ public class FlowData extends BP.En.EntityOID
 		map.AddSearchAttr(FlowDataAttr.WFState);
 		map.AddSearchAttr(FlowDataAttr.FK_Flow);
 
-		map.AddHidden(FlowDataAttr.FlowEmps, " LIKE ", "'%@@WebUser.No%'");
+		map.AddHidden(FlowDataAttr.FlowEmps, " LIKE ", "'%@WebUser.No%'");
 
 		RefMethod rm = new RefMethod();
 		rm.Title = "流程运行轨迹";
 		rm.ClassMethodName = this.toString() + ".DoOpen";
 		map.AddRefMethod(rm);
 
-		this.set_enMap( map);
+		this.set_enMap(map);
 		return this.get_enMap();
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion attrs
 
 	public final String DoOpen()
 	{
-		return BP.WF.Glo.getCCFlowAppPath()+"WF/WorkOpt/OneWork/Track.jsp?WorkID=" + this.getOID() + "&FK_Flow=" + this.getFK_Flow();
-		
+		try {
+			PubClass.WinOpen(null,Glo.getCCFlowAppPath() + "WF/WorkOpt/OneWork/Track.jsp?WorkID=" + this.getOID() + "&FK_Flow=" + this.getFK_Flow(), 900, 600);
+		} catch (IOException e) {
+			Log.DebugWriteError("FlowData DoOpen"+ e);
+		}
+		return null;
 	}
 }

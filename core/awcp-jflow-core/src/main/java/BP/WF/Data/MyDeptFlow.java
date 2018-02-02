@@ -2,7 +2,7 @@ package BP.WF.Data;
 
 import java.io.IOException;
 
-import TL.ContextHolderUtils;
+import BP.DA.Log;
 import BP.En.AttrOfSearch;
 import BP.En.EnType;
 import BP.En.Entity;
@@ -10,22 +10,22 @@ import BP.En.Map;
 import BP.En.QueryObject;
 import BP.En.RefMethod;
 import BP.En.UAC;
-import BP.Port.WebUser;
 import BP.Sys.PubClass;
+import BP.Sys.SystemConfig;
+import BP.WF.Flows;
 import BP.WF.Glo;
-import BP.WF.Entity.TaskSta;
-import BP.WF.Entity.WFSta;
-import BP.WF.Template.Flows;
-import BP.WF.Template.PubLib.WFState;
+import BP.WF.TaskSta;
+import BP.WF.WFSta;
+import BP.WF.WFState;
+import cn.jflow.common.util.ContextHolderUtils;
 
 /** 
-我部门的流程
-
+ 我部门的流程
 */
 public class MyDeptFlow extends Entity
 {
 
-		///#region 基本属性
+		
 	@Override
 	public UAC getHisUAC()
 	{
@@ -35,7 +35,6 @@ public class MyDeptFlow extends Entity
 	}
 	/** 
 	 主键
-	 
 	*/
 	@Override
 	public String getPK()
@@ -44,7 +43,6 @@ public class MyDeptFlow extends Entity
 	}
 	/** 
 	 备注
-	 
 	*/
 	public final String getFlowNote()
 	{
@@ -56,7 +54,6 @@ public class MyDeptFlow extends Entity
 	}
 	/** 
 	 工作流程编号
-	 
 	*/
 	public final String getFK_Flow()
 	{
@@ -68,7 +65,6 @@ public class MyDeptFlow extends Entity
 	}
 	/** 
 	 BillNo
-	 
 	*/
 	public final String getBillNo()
 	{
@@ -80,7 +76,6 @@ public class MyDeptFlow extends Entity
 	}
 	/** 
 	 流程名称
-	 
 	*/
 	public final String getFlowName()
 	{
@@ -92,7 +87,6 @@ public class MyDeptFlow extends Entity
 	}
 	/** 
 	 优先级
-	 
 	*/
 	public final int getPRI()
 	{
@@ -104,7 +98,6 @@ public class MyDeptFlow extends Entity
 	}
 	/** 
 	 待办人员数量
-	 
 	*/
 	public final int getTodoEmpsNum()
 	{
@@ -116,7 +109,6 @@ public class MyDeptFlow extends Entity
 	}
 	/** 
 	 待办人员列表
-	 
 	*/
 	public final String getTodoEmps()
 	{
@@ -128,7 +120,6 @@ public class MyDeptFlow extends Entity
 	}
 	/** 
 	 参与人
-	 
 	*/
 	public final String getEmps()
 	{
@@ -140,7 +131,6 @@ public class MyDeptFlow extends Entity
 	}
 	/** 
 	 状态
-	 
 	*/
 	public final TaskSta getTaskSta()
 	{
@@ -152,7 +142,6 @@ public class MyDeptFlow extends Entity
 	}
 	/** 
 	 类别编号
-	 
 	*/
 	public final String getFK_FlowSort()
 	{
@@ -164,7 +153,6 @@ public class MyDeptFlow extends Entity
 	}
 	/** 
 	 部门编号
-	 
 	*/
 	public final String getFK_Dept()
 	{
@@ -176,7 +164,6 @@ public class MyDeptFlow extends Entity
 	}
 	/** 
 	 标题
-	 
 	*/
 	public final String getTitle()
 	{
@@ -188,7 +175,6 @@ public class MyDeptFlow extends Entity
 	}
 	/** 
 	 客户编号
-	 
 	*/
 	public final String getGuestNo()
 	{
@@ -200,7 +186,6 @@ public class MyDeptFlow extends Entity
 	}
 	/** 
 	 客户名称
-	 
 	*/
 	public final String getGuestName()
 	{
@@ -212,7 +197,6 @@ public class MyDeptFlow extends Entity
 	}
 	/** 
 	 产生时间
-	 
 	*/
 	public final String getRDT()
 	{
@@ -224,7 +208,6 @@ public class MyDeptFlow extends Entity
 	}
 	/** 
 	 节点应完成时间
-	 
 	*/
 	public final String getSDTOfNode()
 	{
@@ -236,7 +219,6 @@ public class MyDeptFlow extends Entity
 	}
 	/** 
 	 流程应完成时间
-	 
 	*/
 	public final String getSDTOfFlow()
 	{
@@ -248,7 +230,6 @@ public class MyDeptFlow extends Entity
 	}
 	/** 
 	 流程ID
-	 
 	*/
 	public final long getWorkID()
 	{
@@ -260,7 +241,6 @@ public class MyDeptFlow extends Entity
 	}
 	/** 
 	 主线程ID
-	 
 	*/
 	public final long getFID()
 	{
@@ -271,32 +251,7 @@ public class MyDeptFlow extends Entity
 		SetValByKey(MyDeptFlowAttr.FID, value);
 	}
 	/** 
-	 父节点ID 为或者-1.
-	 
-	*/
-	public final long getCWorkID()
-	{
-		return this.GetValInt64ByKey(MyDeptFlowAttr.CWorkID);
-	}
-	public final void setCWorkID(long value)
-	{
-		SetValByKey(MyDeptFlowAttr.CWorkID, value);
-	}
-	/** 
-	 PFlowNo
-	 
-	*/
-	public final String getCFlowNo()
-	{
-		return this.GetValStrByKey(MyDeptFlowAttr.CFlowNo);
-	}
-	public final void setCFlowNo(String value)
-	{
-		SetValByKey(MyDeptFlowAttr.CFlowNo, value);
-	}
-	/** 
 	 父节点流程编号.
-	 
 	*/
 	public final long getPWorkID()
 	{
@@ -308,7 +263,6 @@ public class MyDeptFlow extends Entity
 	}
 	/** 
 	 父流程调用的节点
-	 
 	*/
 	public final int getPNodeID()
 	{
@@ -320,7 +274,6 @@ public class MyDeptFlow extends Entity
 	}
 	/** 
 	 PFlowNo
-	 
 	*/
 	public final String getPFlowNo()
 	{
@@ -332,7 +285,6 @@ public class MyDeptFlow extends Entity
 	}
 	/** 
 	 吊起子流程的人员
-	 
 	*/
 	public final String getPEmp()
 	{
@@ -344,7 +296,6 @@ public class MyDeptFlow extends Entity
 	}
 	/** 
 	 发起人
-	 
 	*/
 	public final String getStarter()
 	{
@@ -356,7 +307,6 @@ public class MyDeptFlow extends Entity
 	}
 	/** 
 	 发起人名称
-	 
 	*/
 	public final String getStarterName()
 	{
@@ -380,7 +330,6 @@ public class MyDeptFlow extends Entity
 	}
 	/** 
 	 当前节点名称
-	 
 	*/
 	public final String getNodeName()
 	{
@@ -392,7 +341,6 @@ public class MyDeptFlow extends Entity
 	}
 	/** 
 	 当前工作到的节点
-	 
 	*/
 	public final int getFK_Node()
 	{
@@ -404,7 +352,6 @@ public class MyDeptFlow extends Entity
 	}
 	/** 
 	 工作流程状态
-	 
 	*/
 	public final WFState getWFState()
 	{
@@ -414,22 +361,21 @@ public class MyDeptFlow extends Entity
 	{
 		if (value == WFState.Complete)
 		{
-			SetValByKey(MyDeptFlowAttr.WFSta, WFSta.Complete.getValue());
+			SetValByKey(MyDeptFlowAttr.WFSta, getWFSta().Complete.getValue());
 		}
 		else if (value == WFState.Delete)
 		{
-			SetValByKey(MyDeptFlowAttr.WFSta, WFSta.Delete.getValue());
+			SetValByKey(MyDeptFlowAttr.WFSta, getWFSta().Etc.getValue());
 		}
 		else
 		{
-			SetValByKey(MyDeptFlowAttr.WFSta, WFSta.Runing.getValue());
+			SetValByKey(MyDeptFlowAttr.WFSta, getWFSta().Runing.getValue());
 		}
 
 		SetValByKey(MyDeptFlowAttr.WFState, value.getValue());
 	}
 	/** 
 	 状态(简单)
-	 
 	*/
 	public final WFSta getWFSta()
 	{
@@ -441,8 +387,8 @@ public class MyDeptFlow extends Entity
 	}
 	public final String getWFStateText()
 	{
-	
-		switch((WFState)this.getWFState())
+		BP.WF.WFState ws = (WFState)this.getWFState();
+		switch(ws)
 		{
 			case Complete:
 				return "已完成";
@@ -458,7 +404,6 @@ public class MyDeptFlow extends Entity
 	}
 	/** 
 	 GUID
-	 
 	*/
 	public final String getGUID()
 	{
@@ -468,11 +413,6 @@ public class MyDeptFlow extends Entity
 	{
 		SetValByKey(MyDeptFlowAttr.GUID, value);
 	}
-
-		///#endregion
-
-
-		///#region 参数属性.
 
 	public final String getParas_ToNodes()
 	{
@@ -485,7 +425,6 @@ public class MyDeptFlow extends Entity
 	}
 	/** 
 	 加签信息
-	 
 	*/
 
 	public final String getParas_AskForReply()
@@ -497,14 +436,9 @@ public class MyDeptFlow extends Entity
 	{
 		this.SetPara("AskForReply", value);
 	}
-
-		///#endregion 参数属性.
-
-
-		///#region 构造函数
+		
 	/** 
 	 产生的工作流程
-	 
 	*/
 	public MyDeptFlow()
 	{
@@ -520,14 +454,12 @@ public class MyDeptFlow extends Entity
 	}
 	/** 
 	 执行修复
-	 
 	*/
 	public final void DoRepair()
 	{
 	}
 	/** 
 	 重写基类方法
-	 
 	*/
 	@Override
 	public Map getEnMap()
@@ -537,9 +469,8 @@ public class MyDeptFlow extends Entity
 			return this.get_enMap();
 		}
 
-		Map map = new Map("WF_GenerWorkFlow");
-		map.setEnDesc("我部门的流程");
-		map.setEnType(EnType.View);
+		Map map = new Map("WF_GenerWorkFlow", "我部门的流程");
+		map.Java_SetEnType(EnType.View);
 
 		map.AddTBIntPK(MyDeptFlowAttr.WorkID, 0, "WorkID", true, true);
 		map.AddTBInt(MyDeptFlowAttr.FID, 0, "FID", false, false);
@@ -559,33 +490,26 @@ public class MyDeptFlow extends Entity
 		map.AddSearchAttr(MyDeptFlowAttr.WFSta);
 
 			//增加隐藏的查询条件.
-		AttrOfSearch search = new AttrOfSearch(MyDeptFlowAttr.FK_Dept, "部门", MyDeptFlowAttr.FK_Dept, "=", WebUser.getFK_Dept(), 0, true);
+		AttrOfSearch search = new AttrOfSearch(MyDeptFlowAttr.FK_Dept, "部门", MyDeptFlowAttr.FK_Dept, "=", BP.Web.WebUser.getFK_Dept(), 0, true);
 
 		map.getAttrsOfSearch().Add(search);
 
 		RefMethod rm = new RefMethod();
 		rm.Title = "流程轨迹";
 		rm.ClassMethodName = this.toString() + ".DoTrack";
-		rm.Icon = Glo.getCCFlowAppPath()+"WF/Img/FileType/doc.gif";
+		rm.Icon = Glo.getCCFlowAppPath() + "WF/Img/FileType/doc.gif";
 		map.AddRefMethod(rm);
 
 		this.set_enMap(map);
 		return this.get_enMap();
 	}
-
-		///#endregion
-
-
-		///#region 执行诊断
 	public final String DoTrack()
 	{
 		try {
-			PubClass.WinOpen(ContextHolderUtils.getResponse(), Glo.getCCFlowAppPath()+"WF/WFRpt.jsp?WorkID=" + this.getWorkID() + "&FID="+this.getFID()+"&FK_Flow="+this.getFK_Flow(),900,800);
+			PubClass.WinOpen(ContextHolderUtils.getResponse(),SystemConfig.getCCFlowWebPath() + "WF/WFRpt.jsp?WorkID=" + this.getWorkID() + "&FID=" + this.getFID() + "&FK_Flow=" + this.getFK_Flow(), 900, 800);
 		} catch (IOException e) {
-			e.printStackTrace();
+			Log.DebugWriteError("MyDeptFlow DoTrack()"+e);
 		}
 		return null;
 	}
-
-		///#endregion
 }

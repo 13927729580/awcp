@@ -1,34 +1,23 @@
 package BP.WF.Port;
 
-import java.util.ArrayList;
-
-import BP.DA.Cash;
-import BP.DA.Depositary;
-import BP.En.Entities;
-import BP.En.Entity;
-import BP.En.QueryObject;
+import BP.DA.*;
+import BP.En.*;
 
 /** 
  人员岗位 
- 
 */
 public class EmpStations extends Entities
 {
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 构造
-	public static ArrayList<EmpStation> convertEmpStations(Object obj) {
-		return (ArrayList<EmpStation>) obj;
-	}
+
+		
 	/** 
 	 工作人员岗位
-	 
 	*/
 	public EmpStations()
 	{
 	}
 	/** 
 	 工作人员与工作岗位集合
-	 
 	*/
 	public EmpStations(String stationNo)
 	{
@@ -36,28 +25,16 @@ public class EmpStations extends Entities
 		qo.AddWhere(EmpStationAttr.FK_Station, stationNo);
 		qo.DoQuery();
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
-
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 方法
 	/** 
 	 得到它的 Entity 
-	 
 	*/
 	@Override
 	public Entity getGetNewEntity()
 	{
 		return new EmpStation();
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
-
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 查询方法
 	/** 
 	 工作岗位对应的节点
-	 
 	 @param stationNo 工作岗位编号
 	 @return 节点s
 	*/
@@ -69,16 +46,15 @@ public class EmpStations extends Entities
 		qo.DoQuery();
 
 		Emps ens = new Emps();
-		for( Object  en : this)
+		for(EmpStation en : this.ToJavaList())
 		{
-			ens.AddEntity(new Emp(((EmpStation)en).getFK_Emp()));
+			ens.AddEntity(new Emp(en.getFK_Emp()));
 		}
 
 		return ens;
 	}
 	/** 
 	 工作人员岗位s
-	 
 	 @param empId empId
 	 @return 工作人员岗位s 
 	*/
@@ -95,14 +71,33 @@ public class EmpStations extends Entities
 			qo.AddWhere(EmpStationAttr.FK_Emp,empId);
 			qo.addOrderBy(EmpStationAttr.FK_Station);
 			qo.DoQuery();
-			for(Object en : this)
+			for(EmpStation en : this.ToJavaList())
 			{
-				ens.AddEntity(new Station(((EmpStation)en).getFK_Station()));
+				ens.AddEntity(new Station(en.getFK_Station()));
 			}
 			Cash.AddObj("EmpStationsOf"+empId,Depositary.Application,ens);
 			return ens;
 		}
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
+	/** 
+	 转化成 java list,C#不能调用.
+	 @return List
+	*/
+	public final java.util.List<EmpStation> ToJavaList()
+	{
+		return (java.util.List<EmpStation>)(Object)this;
+	}
+	/** 
+	 转化成list
+	 @return List
+	*/
+	public final java.util.ArrayList<EmpStation> Tolist()
+	{
+		java.util.ArrayList<EmpStation> list = new java.util.ArrayList<EmpStation>();
+		for (int i = 0; i < this.size(); i++)
+		{
+			list.add((EmpStation)this.get(i));
+		}
+		return list;
+	}
 }

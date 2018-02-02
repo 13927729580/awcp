@@ -1,16 +1,12 @@
 package BP.WF.DTS;
 
-import BP.DA.*;
-import BP.En.*;
-import BP.WF.*;
-import BP.Port.*;
-import BP.En.*;
-import BP.Sys.*;
-import BP.WF.Data.*;
-import BP.WF.Template.*;
-import BP.WF.Template.CC.CCLists;
-import BP.WF.Template.WorkBase.Work;
-import BP.DTS.*;
+import BP.DA.DBAccess;
+import BP.DTS.DataIOEn;
+import BP.DTS.DoType;
+import BP.WF.Node;
+import BP.WF.Nodes;
+import BP.WF.Work;
+import BP.WF.Template.CCLists;
 
 public class DelWorkFlowData extends DataIOEn
 {
@@ -25,20 +21,20 @@ public class DelWorkFlowData extends DataIOEn
 	@Override
 	public void Do() throws Exception
 	{
-		if ( ! WebUser.getNo().equals("admin"))
+		if ( ! BP.Web.WebUser.getNo().equals("admin"))
 		{
 			throw new RuntimeException("非法用户。");
 		}
 
-	  //  DA.DBAccess.RunSQL("DELETE FROM WF_CHOfFlow");
+	  //  DBAccess.RunSQL("DELETE FROM WF_CHOfFlow");
 		DBAccess.RunSQL("DELETE FROM WF_Bill");
 		DBAccess.RunSQL("DELETE FROM WF_GenerWorkerlist");
 		DBAccess.RunSQL("DELETE FROM WF_GenerWorkFlow");
-	  //  DA.DBAccess.RunSQL("DELETE FROM WF_WORKLIST");
+	  //  DBAccess.RunSQL("DELETE FROM WF_WORKLIST");
 		DBAccess.RunSQL("DELETE FROM WF_ReturnWork");
 		DBAccess.RunSQL("DELETE FROM WF_GECheckStand");
 		DBAccess.RunSQL("DELETE FROM WF_GECheckMul");
-	//    DA.DBAccess.RunSQL("DELETE FROM WF_ForwardWork");
+	//    DBAccess.RunSQL("DELETE FROM WF_ForwardWork");
 		DBAccess.RunSQL("DELETE FROM WF_SelectAccper");
 
 		// 删除.
@@ -49,7 +45,7 @@ public class DelWorkFlowData extends DataIOEn
 		nds.RetrieveAll();
 
 		String msg = "";
-		for (Node nd : Nodes.convertNodes(nds) )
+		for (Node nd : nds.ToJavaList())
 		{
 
 			Work wk = null;

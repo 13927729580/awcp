@@ -1,21 +1,17 @@
 package cn.org.awcp.venson.interceptor;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import cn.org.awcp.core.utils.SessionUtils;
 import cn.org.awcp.core.utils.constants.SessionContants;
 import cn.org.awcp.venson.controller.base.ReturnResult;
 import cn.org.awcp.venson.controller.base.StatusCode;
-
 import com.alibaba.fastjson.JSONObject;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
-import BP.Port.WebUser;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * 用户登录拦截器，
@@ -45,8 +41,7 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
 
 	private boolean filterCurrUrl(HttpServletRequest res) throws IOException {
 		Object user = SessionUtils.getObjectFromSession(SessionContants.CURRENT_USER);
-
-		if (null == user && WebUser.getName() == null) {
+		if (null == user) {
 			return true;
 		} else {
 			return false;

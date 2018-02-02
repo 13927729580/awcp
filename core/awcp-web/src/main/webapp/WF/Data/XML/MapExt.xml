@@ -2,22 +2,24 @@
 <NewDataSet>
 	<!-- 扩展  -->
   <FieldExt111 No="Back"     CH="返回"   DFor="TB,DDL,Checkbox" URL="Do.jsp?DoType=DobackToF" />
-    <FieldExt No="PageLoadFull"  CH="装载填充"   DFor="TB,DDL,Checkbox" URL="MapExt.jsp?s=34" />
-    <FieldExt No="AutoFull"      CH="数据获取"   DFor="TB,DDL,Checkbox" URL="AutoFull.jsp?s=3" />
-    <FieldExt No="ActiveDDL"     CH="级联下拉框" DFor="TB,DDL,Checkbox" URL="MapExt.jsp?s=3" />
-    <FieldExt No="InputCheck"    CH="脚本验证"  DFor="TB,DDL,Checkbox" URL="MapExt.jsp?s=3" />
-    <FieldExt No="TBFullCtrl"    CH="文本框自动完成"  DFor="TB,DDL,Checkbox" URL="MapExt.jsp?s=3" />
-    <FieldExt No="DDLFullCtrl"   CH="下拉框自动完成"  DFor="TB,DDL,Checkbox" URL="MapExt.jsp?s=3" />
-    <FieldExt No="AutoFullDLL"   CH="动态填充下拉框"  DFor="TB,DDL,Checkbox" URL="MapExt.jsp?s=3" />
-    <FieldExt No="Link"   CH="字段超连接"  DFor="TB" URL="MapExt.jsp?s=3" />
-    <FieldExt No="PopVal"        CH="Pop返回值" DFor="TB,DDL,Checkbox" URL="MapExt.jsp?s=3" />
-    <FieldExt No="AotuGenerNo"   CH="自动生成编号" DFor="TB,DDL,Checkbox" URL="MapExt.jsp?s=3" />
-    <FieldExt No="RegularExpression"   CH="正则表达式/事件" DFor="TB" URL="MapExt.jsp?s=3" />
+    <FieldExt No="PageLoadFull"  CH="装载填充"   DFor="TB,DDL,Checkbox" URL="MapExt.aspx?s=34" />
+  <FieldExt11 No="AutoFull"      CH="数据获取"   DFor="TB,DDL,Checkbox" URL="AutoFull.aspx?s=3" />
+  <FieldExt11 No="ActiveDDL"     CH="级联下拉框" DFor="TB,DDL,Checkbox" URL="MapExt.aspx?s=3" />
+    <FieldExt11 No="InputCheck"    CH="脚本验证"  DFor="TB,DDL,Checkbox" URL="MapExt.aspx?s=3" />
+    <FieldExt No="TBFullCtrl"    CH="文本框自动完成"  DFor="TB,DDL,Checkbox" URL="MapExt.aspx?s=3" />
+  <FieldExt11 No="DDLFullCtrl"   CH="下拉框自动完成"  DFor="TB,DDL,Checkbox" URL="MapExt.aspx?s=3" />
 
-  <FieldExt No="Func"          CH="功能执行"  DFor="TB,DDL,Checkbox" URL="MapExt.jsp?s=3" />
+  <!-- 为精英修改移动到字段属性里.  -->
+    <FieldExt11 No="AutoFullDLL"   CH="动态填充下拉框"  DFor="TB,DDL,Checkbox" URL="MapExt.aspx?s=3" />
+    <FieldExt11 No="Link"   CH="字段超连接"  DFor="TB" URL="MapExt.aspx?s=3" />
+    <FieldExt11 No="PopVal"        CH="Pop返回值" DFor="TB,DDL,Checkbox" URL="MapExt.aspx?s=3" />
+    <FieldExt No="AotuGenerNo"   CH="自动生成编号" DFor="TB,DDL,Checkbox" URL="MapExt.aspx?s=3" />
+  <FieldExt11 No="RegularExpression"   CH="正则表达式/事件" DFor="TB" URL="MapExt.aspx?s=3" />
 
-  <FieldExt No="WordFrm"          CH="Word表单属性"  URL="MapExt.jsp?s=3" />
-  <FieldExt No="ExcelFrm"          CH="Excel表单属性"  URL="MapExt.jsp?s=3" />
+  <FieldExt No="Func"          CH="功能执行"  DFor="TB,DDL,Checkbox" URL="MapExt.aspx?s=3" />
+
+  <FieldExt No="WordFrm"          CH="Word表单属性"  URL="MapExt.aspx?s=3" />
+  <FieldExt No="ExcelFrm"          CH="Excel表单属性"  URL="MapExt.aspx?s=3" />
 
 
   <ExpFunc No="Word"        CH="导出Word模板"  />

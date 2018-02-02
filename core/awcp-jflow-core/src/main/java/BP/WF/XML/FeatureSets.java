@@ -1,37 +1,27 @@
 package BP.WF.XML;
 
-import java.util.ArrayList;
+import java.util.List;
 
-import BP.DA.*;
-import BP.En.*;
-import BP.XML.*;
-import BP.Sys.*;
+import BP.En.Entities;
+import BP.Sys.SystemConfig;
+import BP.XML.XmlEn;
+import BP.XML.XmlEns;
 
 /** 
  个性化设置s
- 
 */
 public class FeatureSets extends XmlEns
 {
-	public static ArrayList<FeatureSet> convertFeatureSets(Object obj) {
-		return (ArrayList<FeatureSet>) obj;
-	}
-		///#region 构造
+
+		
 	/** 
 	 考核率的数据元素
-	 
 	*/
 	public FeatureSets()
 	{
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
-
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 重写基类属性或方法。
 	/** 
 	 得到它的 Entity 
-	 
 	*/
 	@Override
 	public XmlEn getGetNewEntity()
@@ -45,7 +35,6 @@ public class FeatureSets extends XmlEns
 	}
 	/** 
 	 物理表名
-	 
 	*/
 	@Override
 	public String getTableName()
@@ -57,7 +46,8 @@ public class FeatureSets extends XmlEns
 	{
 		return null;
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
-
+	public List<FeatureSet> ToJavaList()
+	{
+		return (List<FeatureSet>)(Object)this;
+	}
 }

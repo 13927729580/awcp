@@ -328,7 +328,7 @@
     <UIWidth>100</UIWidth>
     <UIHeight>23</UIHeight>
     <MinLen>0</MinLen>
-    <MaxLen>20</MaxLen>
+    <MaxLen>50</MaxLen>
     <UIBindKey />
     <UIRefKey />
     <UIRefKeyText />

@@ -43,8 +43,6 @@ public class SystemFilter implements Filter {
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
 		/*************** 将request,response保存到当前线程中去 *****************/
-		ControllerContext.setRequest(httpRequest);
-		ControllerContext.setResponse(httpResponse);
 		ControllerContext.setResult(new ReturnResult());
 		ContextContentUtils.setRequest(httpRequest);
 		ContextContentUtils.setResponse(httpResponse);

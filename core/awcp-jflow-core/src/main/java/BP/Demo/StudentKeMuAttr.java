@@ -3,8 +3,9 @@ package BP.Demo;
 /**
  * 学生科目对应 -属性
  */
-public class StudentKeMuAttr {
-
+public class StudentKeMuAttr
+{
+	
 	/**
 	 * 学生
 	 */

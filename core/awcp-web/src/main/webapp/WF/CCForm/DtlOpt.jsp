@@ -6,15 +6,15 @@
 <%@page import="BP.En.EntityNoName"%>
 <%@page import="BP.En.Attrs"%>
 <%@page import="BP.En.UIContralType"%>
-<%@page import="BP.WF.Template.Node"%>
-<%@page import="BP.Sys.Frm.*"%>
+<%@page import="BP.WF.Node"%>
+<%@page import="BP.Sys.*"%>
 <%@page import="java.util.*"%>
 <%@page import="BP.DA.*"%>
 <%@page import="BP.WF.*"%>
 <%@page import="BP.Sys.*"%>
 <%@page import="BP.Port.*"%>
 <%@page import="BP.Tools.StringHelper"%>
-<%@page import="org.jflow.framework.common.model.DtlOptModel"%>
+<%@page import="cn.jflow.common.model.DtlOptModel"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%
@@ -118,7 +118,50 @@
             }
             alert("不支持" + extension + "格式");
             return false;
-        }  
+        } 
+        
+        //DtlOptImport
+        function DtlOptImport(dtlId){
+        	var DDL_ImpWay = $("#DDL_ImpWay").val();
+        	if(DDL_ImpWay=="all"||DDL_ImpWay<0){
+        		alert("请选择导入方式.");
+        		return;
+        	}
+        	var fup = $("#fup").get(0).files[0];
+        	if(fup==undefined||"undefined"==fup||""==fup||fup==null){
+        		alert("请选择选择要上传的EXCEL文件");
+        		return;
+        	}else{
+        		var fileName = fup.name;
+        		var len = fileName.split(".").length-1;
+        		var ext = fileName.split(".")[len];
+        		if(ext.indexOf("xls")<0){
+        			alert("上传文件必须是EXCEL格式文件");
+            		return;
+        		}
+        	}
+        	// 上传EXCEL文件
+        	//$.ajax(settings) /WF/CCForm DtlOptImport
+        	var para = window.location.search;
+        	var url = "<%=basePath%>WF/CCForm/DtlOptImport.do"+para;
+        	$("#form2").attr("action", url);
+			$("#form2").attr("enctype", "multipart/form-data");
+			$("#form2").submit();
+			alert("上传成功.");
+			location.reload();
+        	<%-- $.ajax({
+    				type: "POST",
+    				dataType : 'json',
+    				url : '<%=basePath%>WF/CCForm/DtlOptImport.do',
+    				data : $('#form2').serialize(),
+    				success : function(data) {
+    					if (null != data || "" != data) {
+    						alert(data);
+    						location.reload();
+    					}
+    				}
+    		}); --%>
+        }
     </script>
 </head>
 <body topmargin="0" leftmargin="0" onkeypress="NoSubmit(event);" class="easyui-layout">

@@ -1,84 +1,70 @@
 package BP.En;
 
-/** 
- DDLShowType
- 
-*/
+/**
+ * DDLShowType
+ */
 public enum DDLShowType_del
 {
-	/** 
-	 None
-	 
-	*/
+	/**
+	 * None
+	 */
 	None(0),
-	/** 
-	 Gender
-	 
-	*/
+	/**
+	 * Gender
+	 */
 	Gender(1),
-	/** 
-	 Boolean
-	 
-	*/
+	/**
+	 * Boolean
+	 */
 	Boolean(2),
-	/** 
-	 Year
-	 
-	*/
+	/**
+	 * Year
+	 */
 	Year(3),
-	/** 
-	 Month
-	 
-	*/
+	/**
+	 * Month
+	 */
 	Month(4),
-	/** 
-	 Day
-	 
-	*/
+	/**
+	 * Day
+	 */
 	Day(5),
-	/** 
-	 hh
-	 
-	*/
+	/**
+	 * hh
+	 */
 	hh(6),
-	/** 
-	 mm
-	 
-	*/
+	/**
+	 * mm
+	 */
 	mm(7),
-	/** 
-	 季度
-	 
-	*/
+	/**
+	 * 季度
+	 */
 	Quarter(8),
-	/** 
-	 Week
-	 
-	*/
+	/**
+	 * Week
+	 */
 	Week(9),
-	/** 
-	 系统枚举类型 SelfBindKey="系统枚举Key"
-	 
-	*/
+	/**
+	 * 系统枚举类型 SelfBindKey="系统枚举Key"
+	 */
 	SysEnum(10),
-	/** 
-	 Self
-	 
-	*/
+	/**
+	 * Self
+	 */
 	Self(11),
-	/** 
-	 实体集合
-	 
-	*/
+	/**
+	 * 实体集合
+	 */
 	Ens(12),
-	/** 
-	 与Table 相关联
-	 
-	*/
+	/**
+	 * 与Table 相关联
+	 */
 	BindTable(13);
-
+	
 	private int intValue;
 	private static java.util.HashMap<Integer, DDLShowType_del> mappings;
+	
 	private synchronized static java.util.HashMap<Integer, DDLShowType_del> getMappings()
 	{
 		if (mappings == null)
@@ -87,18 +73,18 @@ public enum DDLShowType_del
 		}
 		return mappings;
 	}
-
+	
 	private DDLShowType_del(int value)
 	{
 		intValue = value;
 		DDLShowType_del.getMappings().put(value, this);
 	}
-
+	
 	public int getValue()
 	{
 		return intValue;
 	}
-
+	
 	public static DDLShowType_del forValue(int value)
 	{
 		return getMappings().get(value);

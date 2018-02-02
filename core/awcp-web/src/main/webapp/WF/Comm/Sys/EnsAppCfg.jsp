@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<%@ include file="/head/head1.jsp"%>
+<%@ include file="/WF/head/head1.jsp"%>
     <%
     EnsAppCfgModel ens=new EnsAppCfgModel(request,response);
     ens.init();
@@ -22,7 +22,7 @@
 	}
     </script>
 </head>
-<body>
+<body topmargin="0" leftmargin="0">
     <form id="form1" action="EnsAppCfg.jsp?EnsName=<%=ens.getEnsName() %>" method="post">
     <input id="FormHtml" name="FormHtml" type="hidden">
         <%=ens.getUcSys1() %>

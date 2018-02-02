@@ -1,20 +1,14 @@
 package cn.org.awcp.workflow.controller.wf;
 
-import java.util.Date;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.jdbc.core.JdbcTemplate;
-
-import BP.Port.WebUser;
-import BP.WF.Dev2Interface;
-import BP.WF.SendReturnObjs;
-import BP.WF.Template.Node;
-import BP.WF.Template.PubLib.AskforHelpSta;
-import BP.WF.Template.PubLib.WFState;
+import BP.DA.DBAccess;
+import BP.DA.DataRow;
+import BP.DA.DataTable;
+import BP.DA.Paras;
+import BP.Port.Emp;
+import BP.Sys.*;
+import BP.Tools.DateUtils;
+import BP.WF.*;
+import BP.Web.WebUser;
 import cn.org.awcp.core.utils.SessionUtils;
 import cn.org.awcp.core.utils.Springfactory;
 import cn.org.awcp.core.utils.constants.SessionContants;
@@ -23,6 +17,11 @@ import cn.org.awcp.formdesigner.utils.DocumentUtils;
 import cn.org.awcp.unit.vo.PunUserBaseInfoVO;
 import cn.org.awcp.venson.common.I18nKey;
 import cn.org.awcp.venson.controller.base.ControllerHelper;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.jdbc.core.JdbcTemplate;
+
+import java.util.*;
+
 
 public class JFlowAdapter {
 
@@ -50,6 +49,125 @@ public class JFlowAdapter {
 			resultMap.put("success", false);
 			resultMap.put("message", ControllerHelper.getMessage(I18nKey.wf_send_fail));
 		}
+	}
+
+	/**
+	 * 执行流程结束:强制的流程结束.
+	 *
+	 * @param flowNo
+	 *            流程编号
+	 * @param flowNo
+	 *            当前节点编号
+	 * @param workID
+	 *            工作ID
+	 * @param fid
+	 *            工作ID
+	 * @param state
+	 *            流程状态
+	 * @return 执行强制结束流程
+	 */
+	public static void Flow_DoFlowOverByCoercion(String flowNo, int nodeid, long workID, long fid, WFState state) {
+		// 转化成编号.
+		WorkFlow wf = new WorkFlow(flowNo, workID);
+
+		Node currNode = new Node(nodeid);
+
+		// 处理明细数据的copy问题。 首先检查：当前节点（最后节点）是否有明细表。
+		MapDtls dtls = currNode.getMapData().getMapDtls(); // new MapDtls("ND" +
+		int i = 0;
+		for (MapDtl dtl : MapDtls.convertMapDtls(dtls)) {
+			i++;
+			// 查询出该明细表中的数据。
+			GEDtls dtlDatas = new GEDtls(dtl.getNo());
+			dtlDatas.Retrieve(GEDtlAttr.RefPK, wf.getWorkID());
+
+			GEDtl geDtl = null;
+			try {
+				// 创建一个Rpt对象。
+				geDtl = new GEDtl(
+						"ND" + Integer.parseInt(wf.getHisFlow().getNo()) + "RptDtl" + (new Integer(i)).toString());
+				geDtl.ResetDefaultVal();
+			} catch (java.lang.Exception e) {
+				/// #warning 此处需要修复。
+				continue;
+			}
+		}
+		wf._IsComplete = 1;
+		/// #endregion 处理明细表的汇总.
+
+		/// #region 处理后续的业务.
+
+		String dbstr = BP.Sys.SystemConfig.getAppCenterDBVarStr();
+		Paras ps = new Paras();
+		ps.SQL = "DELETE FROM WF_GenerFH WHERE FID=" + dbstr + "FID";
+		ps.Add(GenerFHAttr.FID, wf.getWorkID());
+		DBAccess.RunSQL(ps);
+
+		// 求出参与人,以方便已经完成的工作查询.
+		ps = new Paras();
+		ps.SQL = "SELECT EmpFrom FROM ND" + Integer.parseInt(wf.getHisFlow().getNo()) + "Track WHERE WorkID=" + dbstr
+				+ "WorkID OR FID=" + dbstr + "FID ";
+		ps.Add("WorkID", wf.getWorkID());
+		ps.Add("FID", wf.getWorkID());
+		DataTable dt = BP.DA.DBAccess.RunSQLReturnTable(ps);
+		String emps = "";
+		for (DataRow dr : dt.Rows) {
+			if (emps.contains("@" + dr.getValue(0).toString()) == true) {
+				continue;
+			}
+			emps += "@" + dr.getValue(0).toString();
+		}
+		emps = emps + "@";
+
+		// 更新流程注册信息.
+		ps = new Paras();
+		ps.SQL = "UPDATE WF_GenerWorkFlow SET WFState=" + dbstr + "WFState,WFSta=" + dbstr + "WFSta,Emps=" + dbstr
+				+ "Emps,MyNum=1 WHERE WorkID=" + dbstr + "WorkID ";
+		ps.Add("WFState", state.getValue());
+		ps.Add("WFSta", WFSta.Complete.getValue());
+		ps.Add("Emps", emps);
+		ps.Add("WorkID", wf.getWorkID());
+		DBAccess.RunSQL(ps);
+
+		// 清除工作者.
+		ps = new Paras();
+		ps.SQL = "DELETE FROM WF_GenerWorkerlist WHERE WorkID=" + dbstr + "WorkID1 OR FID=" + dbstr + "WorkID2 ";
+		ps.Add("WorkID1", wf.getWorkID());
+		ps.Add("WorkID2", wf.getWorkID());
+		DBAccess.RunSQL(ps);
+
+		// 设置流程完成状态.
+		ps = new Paras();
+		ps.SQL = "UPDATE " + wf.getHisFlow().getPTable() + " SET WFState=" + dbstr + "WFState WHERE OID=" + dbstr
+				+ "OID";
+		ps.Add("WFState", WFState.Complete.getValue());
+		ps.Add("OID", wf.getWorkID());
+		DBAccess.RunSQL(ps);
+
+		// 加入轨迹.
+		WorkNode wn = new WorkNode(wf.getWorkID(), wf.getHisGenerWorkFlow().getFK_Node());
+		wn.AddToTrack(ActionType.FlowOverByCoercion, WebUser.getNo(), WebUser.getName(), wn.getHisNode().getNodeID(),
+				wn.getHisNode().getName(), "");
+
+		/// #endregion 处理后续的业务.
+
+		// string dbstr = BP.Sys.SystemConfig.AppCenterDBVarStr;
+
+		/// #region 处理审核问题,更新审核组件插入的审核意见中的 到节点，到人员。
+		ps = new Paras();
+		ps.SQL = "UPDATE ND" + Integer.parseInt(currNode.getFK_Flow()) + "Track SET NDTo=" + dbstr + "NDTo,NDToT="
+				+ dbstr + "NDToT,EmpTo=" + dbstr + "EmpTo,EmpToT=" + dbstr + "EmpToT WHERE NDFrom=" + dbstr
+				+ "NDFrom AND EmpFrom=" + dbstr + "EmpFrom AND WorkID=" + dbstr + "WorkID AND ActionType="
+				+ ActionType.WorkCheck.getValue();
+		ps.Add(TrackAttr.NDTo, currNode.getNodeID());
+		ps.Add(TrackAttr.NDToT, "");
+		ps.Add(TrackAttr.EmpTo, "");
+		ps.Add(TrackAttr.EmpToT, "");
+
+		ps.Add(TrackAttr.NDFrom, currNode.getNodeID());
+		ps.Add(TrackAttr.EmpFrom, WebUser.getNo());
+		ps.Add(TrackAttr.WorkID, wf.getWorkID());
+		BP.DA.DBAccess.RunSQL(ps);
 	}
 
 	public static void Flow_DoUnSend(Map resultMap, String flowNo, String workID) throws Exception {
@@ -139,11 +257,6 @@ public class JFlowAdapter {
 	 *            返回结果
 	 * @param docVo
 	 *            文档类
-	 * @param fk_flow
-	 *            流程编号
-	 * @param workID
-	 *            流程实例编号
-	 * @param fk_node
 	 *            流程节点编号
 	 * @param toUsers
 	 *            下一步接收用户，如果为空则根据流程设置条件查找
@@ -188,9 +301,6 @@ public class JFlowAdapter {
 	 * @param user
 	 * @param resultMap
 	 * @param docVo
-	 * @param fk_flow
-	 * @param workID
-	 * @param fk_node
 	 * @param toUsers
 	 * @throws Exception
 	 */
@@ -199,11 +309,17 @@ public class JFlowAdapter {
 		resultMap.put("act", 1);
 		String fk_node = docVo.getEntryId();
 		String workID = docVo.getWorkItemId();
-		Dev2Interface.Node_Askfor(Long.parseLong(workID), AskforHelpSta.AfterDealSend, toUsers, fk_node);
+		String result=Dev2Interface.Node_Askfor(Long.parseLong(workID), AskforHelpSta.AfterDealSend, toUsers, fk_node);
 		boolean flag = saveExecuteData(utils, docVo, masterDataSource);
 		if (flag) {
 			resultMap.put("success", true);
-			resultMap.put("message", ControllerHelper.getMessage(I18nKey.wf_send_success));
+			String nextExecutor = result;
+			if(StringUtils.isNotBlank(nextExecutor)){
+				nextExecutor = "," + ControllerHelper.getMessage("wf_next_step_executor") + nextExecutor;
+			} else{
+				nextExecutor = "";
+			}
+			resultMap.put("message", ControllerHelper.getMessage(I18nKey.wf_send_success) + nextExecutor);
 		} else {
 			resultMap.put("success", false);
 			resultMap.put("message", ControllerHelper.getMessage(I18nKey.wf_send_fail));

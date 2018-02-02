@@ -2,18 +2,14 @@ package BP.WF.Data;
 
 import BP.En.Entities;
 import BP.En.Entity;
-
 /** 
-我部门的流程s
-
+ 我部门的流程s
 */
 public class MyDeptFlows extends Entities
 {
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 方法
+
 	/** 
 	 得到它的 Entity 
-	 
 	*/
 	@Override
 	public Entity getGetNewEntity()
@@ -27,6 +23,25 @@ public class MyDeptFlows extends Entities
 	public MyDeptFlows()
 	{
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
+	/** 
+	 转化成 java list,C#不能调用.
+	 @return List
+	*/
+	public final java.util.List<MyDeptFlow> ToJavaList()
+	{
+		return (java.util.List<MyDeptFlow>)(Object)this;
+	}
+	/** 
+	 转化成list
+	 @return List
+	*/
+	public final java.util.ArrayList<MyDeptFlow> Tolist()
+	{
+		java.util.ArrayList<MyDeptFlow> list = new java.util.ArrayList<MyDeptFlow>();
+		for (int i = 0; i < this.size(); i++)
+		{
+			list.add((MyDeptFlow)this.get(i));
+		}
+		return list;
+	}
 }

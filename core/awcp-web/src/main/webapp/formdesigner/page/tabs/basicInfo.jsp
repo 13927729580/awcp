@@ -93,8 +93,8 @@
 	<div class='col-md-4'>
     	<!-- 样式库  -->
     	<div class="input-group">
-    		<select  id="styleId" class=" form-control"  data-placeholder="输入样式名称..." tabindex="2" name="styleId">
-				<option value="${vo.styleId}"></option>
+    		<select  id="styleId" class="form-control" data-value="${vo.styleId }" data-placeholder="输入样式名称..." tabindex="2" name="styleId">
+				<option></option>
 			</select>
       	 	<span class="input-group-btn"> 
       	 		<button id="addStyle" class="btn btn-default" type="button">新增</button>

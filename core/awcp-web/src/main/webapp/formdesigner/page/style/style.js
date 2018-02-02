@@ -15,6 +15,7 @@ function initStyle(){
 					$("#styleId").append("<option value=\""+item.pageId+"\">"+item.name+"</option>");
 				}
 			});
+			$("#styleId").val($("#styleId").attr("data-value"));
 		},
 	    error: function (XMLHttpRequest, textStatus, errorThrown) { 
               alert(errorThrown); 

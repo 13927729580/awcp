@@ -1,25 +1,23 @@
 package BP.WF.Data;
 
-import BP.DA.*;
-import BP.En.*;
+import BP.En.Entity;
+import BP.En.SimpleNoNames;
 
-/** 
- 单据类型
- 
-*/
+/**
+ * 单据类型
+ */
 public class BillTypes extends SimpleNoNames
 {
-	/** 
-	 单据类型s
-	 
-	*/
+	/**
+	 * 单据类型s
+	 */
 	public BillTypes()
 	{
 	}
-	/** 
-	 得到它的 Entity 
-	 
-	*/
+	
+	/**
+	 * 得到它的 Entity
+	 */
 	@Override
 	public Entity getGetNewEntity()
 	{

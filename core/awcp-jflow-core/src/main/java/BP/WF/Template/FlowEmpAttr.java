@@ -1,8 +1,5 @@
 package BP.WF.Template;
 
-import BP.DA.*;
-import BP.En.*;
-import BP.Port.*;
 
 /** 
  流程岗位属性属性	  

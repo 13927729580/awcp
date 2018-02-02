@@ -1,11 +1,10 @@
 package BP.WF.Template;
 
-import java.util.ArrayList;
-
 import BP.En.Entities;
 import BP.En.Entity;
 import BP.En.QueryObject;
-import BP.WF.Template.PubLib.NodeAttr;
+import BP.WF.Node;
+import BP.WF.Nodes;
 
  /** 
   节点方向
@@ -19,10 +18,6 @@ public class Directions extends Entities
 	*/
 	public Directions()
 	{
-	}
-	@SuppressWarnings("unchecked")
-	public static ArrayList<Direction> convertDirections(Object obj) {
-		return (ArrayList<Direction>) obj;
 	}
 	/** 
 	 方向
@@ -83,11 +78,39 @@ public class Directions extends Entities
 		qo.AddWhere(DirectionAttr.ToNode,nodeID);
 		qo.DoQuery();
 		Nodes ens = new Nodes();
-		for(Direction en : convertDirections(this))
+		for(Direction en : this.ToJavaList())
 		{
 			ens.AddEntity(new Node(en.getNode()));
 		}
 		return ens;
 	}
+
+
+		///#region 为了适应自动翻译成java的需要,把实体转换成List.
+	/** 
+	 转化成 java list,C#不能调用.
+	 
+	 @return List
+	*/
+	public final java.util.List<Direction> ToJavaList()
+	{
+		return (java.util.List<Direction>)(Object)this;
+	}
+	/** 
+	 转化成list
+	 
+	 @return List
+	*/
+	public final java.util.ArrayList<Direction> Tolist()
+	{
+		java.util.ArrayList<Direction> list = new java.util.ArrayList<Direction>();
+		for (int i = 0; i < this.size(); i++)
+		{
+			list.add((Direction)this.get(i));
+		}
+		return list;
+	}
+
+		///#endregion 为了适应自动翻译成java的需要,把实体转换成List.
 
 }

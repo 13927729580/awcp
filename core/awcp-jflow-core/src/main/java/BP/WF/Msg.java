@@ -1,6 +1,5 @@
 package BP.WF;
 
-import BP.Web.*;
 
 /** 
  Msg 的摘要说明。
@@ -8,13 +7,13 @@ import BP.Web.*;
 */
 public class Msg
 {
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 属性
+
+		
 	/** 
 	 声音文件
 	 
 	*/
-	private String _SoundUrl="/WF/Sound/ring.wav";
+	private String _SoundUrl = Glo.getCCFlowAppPath() + "WF/Sound/ring.wav";
 	/** 
 	 声音文件
 	 
@@ -25,26 +24,26 @@ public class Msg
 	}
 	public final void setSoundUrl(String value)
 	{
-		_SoundUrl=value;
+		_SoundUrl = value;
 	}
 	/** 
 	 _IsOpenSound
 	 
 	*/
-	private boolean _IsOpenSound=true;
+	private boolean _IsOpenSound = true;
 	/** 
 	 IsOpenSound
 	 
 	*/
 	public final boolean getIsOpenSound()
 	{
-		if (this._IsOpenSound==false)
+		if (this._IsOpenSound == false)
 		{
 			return false;
 		}
 		else
 		{
-			this._IsOpenSound=false;
+			this._IsOpenSound = false;
 			return true;
 		}
 	}
@@ -52,22 +51,22 @@ public class Msg
 	 _WorkID
 	 
 	*/
-	private int _WorkID=0;
+	private int _WorkID = 0;
 	/** 
 	 _NodeId
 	 
 	*/
-	private int _NodeId=0;
+	private int _NodeId = 0;
 	/** 
 	 _Info
 	 
 	*/
-	private String _Info="";
+	private String _Info = "";
 	/** 
 	 _ToEmpId
 	 
 	*/
-	private int _ToEmpId=0;
+	private int _ToEmpId = 0;
 	/** 
 	 信息
 	 
@@ -78,7 +77,7 @@ public class Msg
 	}
 	public final void setInfo(String value)
 	{
-		_Info=value;
+		_Info = value;
 	}
 	/** 
 	 工作ID
@@ -90,7 +89,7 @@ public class Msg
 	}
 	public final void setWorkID(int value)
 	{
-		_WorkID=value;
+		_WorkID = value;
 	}
 	/** 
 	 NodeID
@@ -102,7 +101,7 @@ public class Msg
 	}
 	public final void setNodeId(int value)
 	{
-		_NodeId=value;
+		_NodeId = value;
 	}
 	/** 
 	 ToEmpId
@@ -114,9 +113,9 @@ public class Msg
 	}
 	public final void setToEmpId(int value)
 	{
-		_ToEmpId=value;
+		_ToEmpId = value;
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
+
 		///#endregion
 
 	/** 

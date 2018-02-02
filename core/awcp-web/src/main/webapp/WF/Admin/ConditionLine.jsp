@@ -3,7 +3,7 @@
 <%@page import="BP.DA.DataTable"%>
 <%@page import="java.util.HashMap"%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-<%@ page import="org.jflow.framework.common.model.ConditionLineModel"%>
+<%@ page import="cn.jflow.common.model.ConditionLineModel"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%
@@ -32,7 +32,7 @@
 	rel="stylesheet" type="text/css" />
 <link href="<%=basePath%>WF/Scripts/easyUI/themes/icon.css"
 	rel="stylesheet" type="text/css" />
-<script src="<%=basePath%>resources/JqEdition/jquery-1.8.0.min.js"
+<script src="<%=basePath%>WF/Scripts/easyUI/jquery-1.8.0.min.js"
 	type="text/javascript"></script>
 <script src="<%=basePath%>WF/Scripts/easyUI/jquery.easyui.min.js"
 	type="text/javascript"></script>
@@ -76,7 +76,7 @@
 						<li>
 							<div>
 								<a id='a<%=dr.getValue("ToNode")%>' href="javascript:void(0)"
-									onclick="OpenUrlInRightFrame(this, 'Condition.jsp?CondType= <%=CondType%>&FK_Flow=<%=FK_Flow%>&FK_MainNode=<%=dr.getValue("Node")%>&FK_Node=<%=dr.getValue("Node")%>&FK_Attr=<%=FK_Attr%>&DirType=<%=dr.getValue("DirType")%>&ToNodeID=<%=dr.getValue("ToNode")%>')">
+									onclick="OpenUrlInRightFrame(this, 'Condition.jsp?CondType=<%=CondType%>&FK_Flow=<%=FK_Flow%>&FK_MainNode=<%=dr.getValue("Node")%>&FK_Node=<%=dr.getValue("Node")%>&FK_Attr=<%=FK_Attr%>&DirType=<%=dr.getValue("DirType")%>&ToNodeID=<%=dr.getValue("ToNode")%>')">
 									<span class="nav">到:<%=dr.getValue("ToNodeName")%></span>
 								</a>
 							</div>

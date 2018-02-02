@@ -1,6 +1,6 @@
 <%@ page language="java" isELIgnored="false" import="java.util.*"
 	pageEncoding="utf-8"%>
-<%@ include file="/head/head1.jsp"%>
+<%@ include file="/WF/head/head1.jsp"%>
 <style type="text/css">
 ul.alphalist {
 	list-style-type: none;

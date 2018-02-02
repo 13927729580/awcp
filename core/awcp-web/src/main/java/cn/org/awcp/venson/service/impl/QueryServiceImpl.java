@@ -1,28 +1,19 @@
 package cn.org.awcp.venson.service.impl;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Resource;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import BP.WF.Port.AuthorWay;
-import BP.WF.Template.PubLib.WFState;
+import BP.WF.WFState;
 import cn.org.awcp.core.utils.MySqlSmartCountUtil;
 import cn.org.awcp.metadesigner.application.MetaModelOperateService;
 import cn.org.awcp.venson.common.SC;
 import cn.org.awcp.venson.service.QueryService;
 import cn.org.awcp.venson.util.DateFormaterUtil;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
+import java.util.*;
 @Service
 @Transactional(readOnly = true)
 public class QueryServiceImpl implements QueryService {
@@ -47,7 +38,7 @@ public class QueryServiceImpl implements QueryService {
 	/** 拒绝件 */
 	private static final String REJECT = "5";
 
-	public Map<String, Object> getUntreatedData(int limit, int offset, String FK_Flow, String workItemName,
+	public Map<String, Object> getUntreatedData(int limit, int offset, String[] includeFlow,String[] excludeFlow, String workItemName,
 			String userName, boolean hasReturn) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		Map<String, Object> params = new HashMap<>();
@@ -67,9 +58,18 @@ public class QueryServiceImpl implements QueryService {
 		// 包含授权
 		includeAuth(userName, builder, params);
 
-		if (StringUtils.isNotBlank(FK_Flow)) {
-			params.put("FK_Flow", FK_Flow);
-			builder.append(" and a.FK_Flow=:FK_Flow ");
+		if (includeFlow!=null&&includeFlow.length>0) {
+			for(int i=includeFlow.length-1;i>-1;i--){
+				params.put("FK_Flow"+i, includeFlow[i]);
+				builder.append(" and a.FK_Flow=:FK_Flow"+i+" ");
+			}
+		}
+		
+		if (excludeFlow!=null&&excludeFlow.length>0) {
+			for(int i=excludeFlow.length-1;i>-1;i--){
+				params.put("FK_Flow"+i, excludeFlow[i]);
+				builder.append(" and a.FK_Flow<>:FK_Flow"+i+" ");
+			}
 		}
 
 		if (StringUtils.isNotBlank(workItemName)) {
@@ -198,7 +198,7 @@ public class QueryServiceImpl implements QueryService {
 		builder.append(
 				"(SELECT c.DYNAMICPAGE_ID,c.RECORD_ID,a.FK_Flow,a.FlowName,a.StarterName,a.FK_Node,a.FID,a.WorkID,"
 						+ HANDLED + " as WFState,a.title,a.nodeName,a.RDT,concat(a.todoemps,B.FK_Emp) as userName"
-						+ ",( CASE WHEN NOW()>DATE_ADD(a.RDT, INTERVAL ( SELECT DeductDays FROM wf_node WHERE nodeid=a.FK_Node) "
+						+ ",( CASE WHEN NOW()>DATE_ADD(a.RDT, INTERVAL ( SELECT TimeLimit FROM wf_node WHERE nodeid=a.FK_Node) "
 						+ FLOW_OVERTIME_VALUE + ") THEN 1 ELSE 0 END) isovertime "
 						+ " FROM WF_GenerWorkFlow A left join WF_GenerWorkerlist B on A.WorkID=B.WorkID "
 						+ " left join p_fm_document c on A.WorkID=c.WORKITEM_ID where  B.IsEnable=1 AND B.IsPass=1 ) ");
@@ -209,7 +209,7 @@ public class QueryServiceImpl implements QueryService {
 		builder.append(
 				"(SELECT c.DYNAMICPAGE_ID,c.RECORD_ID,b.FK_Flow,b.FlowName,b.StarterName,b.FK_Node,b.FID,b.WorkID,"
 						+ HANDLED + " as WFState,b.title,b.nodeName,b.RDT,a.CCTo as userName,"
-						+ "( CASE WHEN NOW()>DATE_ADD(b.RDT, INTERVAL ( SELECT DeductDays FROM wf_node WHERE nodeid=b.FK_Node) "
+						+ "( CASE WHEN NOW()>DATE_ADD(b.RDT, INTERVAL ( SELECT TimeLimit FROM wf_node WHERE nodeid=b.FK_Node) "
 						+ FLOW_OVERTIME_VALUE + ") THEN 1 ELSE 0 END)  isovertime"
 						+ " FROM wf_cclist a left join wf_generworkflow b on a.WorkID=b.WorkID "
 						+ "left join p_fm_document c on a.WorkID=c.WORKITEM_ID where a.Sta!=0 AND b.WFSta=0 )");
@@ -327,7 +327,7 @@ public class QueryServiceImpl implements QueryService {
 		// 已办件
 		builder.append("(SELECT a.FK_Flow,a.FlowName ,a.StarterName,a.FK_Node,a.FID,a.WorkID," + HANDLED
 				+ " as WFState,a.title,a.nodeName,a.RDT,b.FK_Emp as userName,"
-				+ "( CASE WHEN NOW()>DATE_ADD(a.RDT, INTERVAL ( SELECT DeductDays FROM wf_node WHERE nodeid=a.FK_Node) "
+				+ "( CASE WHEN NOW()>DATE_ADD(a.RDT, INTERVAL ( SELECT TimeLimit FROM wf_node WHERE nodeid=a.FK_Node) "
 				+ FLOW_OVERTIME_VALUE + ") THEN 1 ELSE 0 END) isovertime "
 				+ "FROM WF_GenerWorkerlist B LEFT JOIN WF_GenerWorkFlow a ON A.WorkID=B.WorkID where  B.IsEnable=1 AND B.IsPass=1 and a.wfsta=0 )  ");
 		builder.append(" ) d  where 1=1 ");

@@ -6,15 +6,14 @@
 <%@page import="BP.En.EntityNoName"%>
 <%@page import="BP.En.Attrs"%>
 <%@page import="BP.En.UIContralType"%>
-<%@page import="BP.WF.Template.Node"%>
-<%@page import="BP.Sys.Frm.*"%>
+<%@page import="BP.WF.Node"%>
 <%@page import="java.util.*"%>
 <%@page import="BP.DA.*"%>
 <%@page import="BP.WF.*"%>
 <%@page import="BP.Sys.*"%>
 <%@page import="BP.Port.*"%>
 <%@page import="BP.Tools.StringHelper"%>
-<%@page import="org.jflow.framework.common.model.DtlControlModel"%>
+<%@page import="cn.jflow.common.model.DtlControlModel"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%
@@ -39,7 +38,14 @@
 	refPKVal = request.getParameter("RefPKVal");
 	// 是否可读
 	if(!StringHelper.isNullOrEmpty(request.getParameter("IsReadonly"))){
-		isReadonly = Integer.parseInt(request.getParameter("IsReadonly"));
+		String isRead = request.getParameter("IsReadonly");
+		if(isRead.equals("false")){
+			isReadonly = 0;
+		}else if(isRead.equals("true")){
+			isReadonly = 1;
+		}else{
+			isReadonly = Integer.parseInt(isRead);
+		}
 	}
 	rowCount = request.getParameter("rowCount");
 	AddRowNum = request.getParameter("AddRowNum");
@@ -114,10 +120,15 @@
 
         	isChange = value;
         }
-        function DtlOpt(workId, fk_mapdtl) {
+        /* function DtlOpt(workId, fk_mapdtl) {
             //var url = 'DtlOpt.jsp?WorkID=' + workId + '&FK_MapDtl=' + fk_mapdtl;
             //var b = window.showModalDialog(url, 'ass', 'dialogHeight: 400px; dialogWidth: 600px;center: yes; help: no');
             //window.location.href = 'Dtl2.jsp?EnsName=' + fk_mapdtl + '&RefPKVal=' + workId;
+        } */
+        function DtlOpt(workId, fk_mapdtl) {
+            var url = 'DtlOpt.jsp?WorkID=' + workId + '&FK_MapDtl=' + fk_mapdtl;
+            var b = window.showModalDialog(url, 'ass', 'dialogHeight: 400px; dialogWidth: 600px;center: yes; help: no');
+            window.location.href = 'Dtl2.jsp?EnsName=' + fk_mapdtl + '&RefPKVal=' + workId;
         }
     </script>
    <%-- <style type="text/css">

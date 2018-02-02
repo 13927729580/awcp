@@ -1,22 +1,17 @@
 package BP.WF.Data;
 
-import BP.DA.*;
-import BP.En.*;
-import BP.WF.*;
-import BP.Port.*;
-import BP.En.*;
+import BP.En.EntityMyPK;
+import BP.En.Map;
 
 /** 
  工作质量评价
- 
 */
 public class Eval extends EntityMyPK
 {
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 基本属性
+
+		
 	/** 
 	 流程标题
-	 
 	*/
 	public final String getTitle()
 	{
@@ -28,7 +23,6 @@ public class Eval extends EntityMyPK
 	}
 	/** 
 	 工作ID
-	 
 	*/
 	public final long getWorkID()
 	{
@@ -40,7 +34,6 @@ public class Eval extends EntityMyPK
 	}
 	/** 
 	 节点编号
-	 
 	*/
 	public final int getFK_Node()
 	{
@@ -52,7 +45,6 @@ public class Eval extends EntityMyPK
 	}
 	/** 
 	 节点名称
-	 
 	*/
 	public final String getNodeName()
 	{
@@ -64,7 +56,6 @@ public class Eval extends EntityMyPK
 	}
 	/** 
 	 被评估人员名称
-	 
 	*/
 	public final String getEvalEmpName()
 	{
@@ -76,7 +67,6 @@ public class Eval extends EntityMyPK
 	}
 	/** 
 	 记录日期
-	 
 	*/
 	public final String getRDT()
 	{
@@ -88,7 +78,6 @@ public class Eval extends EntityMyPK
 	}
 	/** 
 	 流程隶属部门
-	 
 	*/
 	public final String getFK_Dept()
 	{
@@ -100,7 +89,6 @@ public class Eval extends EntityMyPK
 	}
 	/** 
 	 部门名称
-	 
 	*/
 	public final String getDeptName()
 	{
@@ -136,7 +124,6 @@ public class Eval extends EntityMyPK
 	}
 	/** 
 	 流程名称
-	 
 	*/
 	public final String getFlowName()
 	{
@@ -148,7 +135,6 @@ public class Eval extends EntityMyPK
 	}
 	/** 
 	 评价人
-	 
 	*/
 	public final String getRec()
 	{
@@ -160,7 +146,6 @@ public class Eval extends EntityMyPK
 	}
 	/** 
 	 评价人名称
-	 
 	*/
 	public final String getRecName()
 	{
@@ -172,7 +157,6 @@ public class Eval extends EntityMyPK
 	}
 	/** 
 	 评价内容
-	 
 	*/
 	public final String getEvalNote()
 	{
@@ -184,7 +168,6 @@ public class Eval extends EntityMyPK
 	}
 	/** 
 	 被考核的人员编号
-	 
 	*/
 	public final String getEvalEmpNo()
 	{
@@ -196,7 +179,6 @@ public class Eval extends EntityMyPK
 	}
 	/** 
 	 评价分值
-	 
 	*/
 	public final String getEvalCent()
 	{
@@ -206,21 +188,14 @@ public class Eval extends EntityMyPK
 	{
 		this.SetValByKey(EvalAttr.EvalCent, value);
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
-
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 构造函数
 	/** 
 	 工作质量评价
-	 
 	*/
 	public Eval()
 	{
 	}
 	/** 
 	 工作质量评价
-	 
 	 @param workid
 	 @param FK_Node
 	*/
@@ -232,7 +207,6 @@ public class Eval extends EntityMyPK
 	}
 	/** 
 	 重写基类方法
-	 
 	*/
 	@Override
 	public Map getEnMap()
@@ -241,9 +215,7 @@ public class Eval extends EntityMyPK
 		{
 			return this.get_enMap();
 		}
-		Map map = new Map("WF_CHEval");
-		map.setEnDesc( "工作质量评价");
-		map.setEnType ( EnType.App);
+		Map map = new Map("WF_CHEval", "工作质量评价");
 
 		map.AddMyPK();
 		map.AddTBString(EvalAttr.Title, null, "标题", false, true, 0, 500, 10);
@@ -271,6 +243,4 @@ public class Eval extends EntityMyPK
 		this.set_enMap(map);
 		return this.get_enMap();
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
 }

@@ -1,9 +1,8 @@
 package BP.WF.Template;
 
-import BP.DA.*;
-import BP.En.*;
-import BP.En.*;
-import BP.Port.*;
+import BP.En.EntityMM;
+import BP.En.Map;
+import BP.En.UAC;
 
 /** 
  可退回的节点
@@ -14,8 +13,8 @@ import BP.Port.*;
 */
 public class NodeReturn extends EntityMM
 {
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 基本属性
+
+		
 	/** 
 	 UI界面上的访问控制
 	 
@@ -51,11 +50,11 @@ public class NodeReturn extends EntityMM
 	{
 		this.SetValByKey(NodeReturnAttr.FK_Node, value);
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
+
 		///#endregion
 
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 构造方法
+
+		
 	/** 
 	 可退回的节点
 	 
@@ -75,11 +74,7 @@ public class NodeReturn extends EntityMM
 			return this.get_enMap();
 		}
 
-		Map map = new Map("WF_NodeReturn");
-		map.setEnDesc("可退回的节点");
-
-		map.setDepositaryOfEntity(Depositary.None);
-		map.setDepositaryOfMap(Depositary.Application);
+		Map map = new Map("WF_NodeReturn", "可退回的节点");
 
 		map.AddTBIntPK(NodeReturnAttr.FK_Node, 0, "节点", true, true);
 		map.AddTBIntPK(NodeReturnAttr.ReturnTo, 0, "退回到", true, true);
@@ -88,6 +83,6 @@ public class NodeReturn extends EntityMM
 		this.set_enMap(map);
 		return this.get_enMap();
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
+
 		///#endregion
 }

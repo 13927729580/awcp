@@ -1,29 +1,28 @@
 package BP.Sys;
 
-import BP.En.Entities;
+import BP.En.EntitiesMyPK;
 import BP.En.Entity;
 
-/** 
- 列选择s
- 
-*/
-public class CFields extends Entities
+/**
+ * 列选择s
+ */
+public class CFields extends EntitiesMyPK
 {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	/** 
-	 列选择s
-	 
-	*/
+	
+	/**
+	 * 列选择s
+	 */
 	public CFields()
 	{
 	}
-	/** 
-	 得到它的 Entity
-	 
-	*/
+	
+	/**
+	 * 得到它的 Entity
+	 */
 	@Override
 	public Entity getGetNewEntity()
 	{

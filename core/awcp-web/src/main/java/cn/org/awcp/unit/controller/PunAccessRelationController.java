@@ -1,12 +1,6 @@
 package cn.org.awcp.unit.controller;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 
 import javax.annotation.Resource;
 
@@ -134,20 +128,20 @@ public class PunAccessRelationController {
 	 * @修改记录（修改时间、作者、原因）：
 	 */
 	@RequestMapping(value = "punRoleMenuAccessEdit")
-	public ModelAndView punRoleMenuAccessEdit(Long roleId,String moduleId) {
+	public ModelAndView punRoleMenuAccessEdit(Long roleId,Integer moduleId) {
 		PunSystemVO sysVO = (PunSystemVO) SessionUtils.getObjectFromSession(SessionContants.CURRENT_SYSTEM);
 		Long sysId = sysVO.getSysId();
 		ModelAndView mv = new ModelAndView();
 		mv.setViewName("unit/dev/accessAuthor");
 		try {
-			List<PunMenuVO> resoVOs = menuService.getPunMenuBySys(sysVO);
-			List<PunMenuVO> accVOS = new ArrayList<PunMenuVO>();
+			List<PunMenuVO> resoVOs = menuService.findAll();
+			List<PunMenuVO> accVOS = new ArrayList<>();
 			if (roleId != null) {
 				PunRoleInfoVO vo = new PunRoleInfoVO();
 				vo.setRoleId(roleId);
 				vo.setSysId(sysId);
 				mv.addObject("roleName", jdbcTemplate.queryForObject(
-						"select ROLE_NAME from p_un_role_info where ROLE_ID=" + roleId, String.class));
+						"select ROLE_NAME from p_un_role_info where ROLE_ID=?", String.class,roleId));
 				mv.addObject("vo", vo);
 				accVOS = menuService.getByRoleAndSys(vo, sysVO);
 			}
@@ -155,7 +149,7 @@ public class PunAccessRelationController {
 			this.setAccessRight(resoVOs, accVOS);
 			ResourceTreeUtils rtu = new ResourceTreeUtils();
 			List<PunMenuVO[]> list = rtu.generateTreeView(resoVOs);
-			Map<Integer, List<PunResourceTreeNode>> resultMap = new HashMap<Integer, List<PunResourceTreeNode>>();
+			Map<Integer, List<PunResourceTreeNode>> resultMap = new HashMap<>();
 			Integer index = 1;
 			for (PunMenuVO[] prvo : list) {
 				// 以目录根节点的index为key，以manyNodeTree为value
@@ -166,8 +160,8 @@ public class PunAccessRelationController {
 			JsonFactory factory = new JsonFactory();
 			mv.addObject("menuJson", factory.encode2Json(resultMap));
 
-			String sql = "";
-			if(StringUtils.isNoneBlank(moduleId)){
+			String sql;
+			if(moduleId!=null){
 				sql = "select id from p_fm_dynamicpage where modular=" + moduleId;
 			}
 			else{
@@ -183,16 +177,16 @@ public class PunAccessRelationController {
 			// 3、查找已授权的资源
 			Map<String, List<StoreVO>> buttonMap = formdesignerServiceImpl.getSystemActs(dynamicPageIds);
 
-			Map<String, Object> params = new HashMap<String, Object>();
+			Map<String, Object> params = new HashMap<>();
 			params.put("sysId", sysId);
 			params.put("resouType", ResourceTypeEnum.RESO_BUTTON.getkey());
 
 			Map<String, PunResourceVO> buttonResos = resoService.queryButtonMap("eqQueryList", params);
-			Map<String, List<PunResourceVO>> resultsMap = new TreeMap<String, List<PunResourceVO>>();
+			Map<String, List<PunResourceVO>> resultsMap = new TreeMap<>();
 			Set<String> keys = buttonMap.keySet();
 			// 将按钮按照动态表单名称划分
 			for (Iterator<String> it = keys.iterator(); it.hasNext();) {
-				String s = (String) it.next();
+				String s =  it.next();
 				List<StoreVO> storeVOs = buttonMap.get(s);
 				for (StoreVO storeVO : storeVOs) {
 					// 如果resouce中有按钮ID
@@ -201,14 +195,14 @@ public class PunAccessRelationController {
 							List<PunResourceVO> newVos = resultsMap.get(s);
 							newVos.add(buttonResos.get(storeVO.getId()));
 						} else {
-							List<PunResourceVO> temVOs = new ArrayList<PunResourceVO>();
+							List<PunResourceVO> temVOs = new ArrayList<>();
 							temVOs.add(buttonResos.get(storeVO.getId()));
 							resultsMap.put(s, temVOs);
 						}
 					}
 				}
 			}
-			Map<String, Object> authorParams = new HashMap<String, Object>();
+			Map<String, Object> authorParams = new HashMap<>();
 			authorParams.put("sysId", sysId);
 			authorParams.put("roleId", roleId);
 			// 排除菜单地址和动态表单

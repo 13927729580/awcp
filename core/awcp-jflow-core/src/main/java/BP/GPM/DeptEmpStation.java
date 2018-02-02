@@ -6,19 +6,11 @@ import BP.En.UAC;
 
 /** 
  部门岗位人员对应 的摘要说明。
- 
 */
 public class DeptEmpStation extends EntityMyPK
 {
-/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 基本属性
 	/** 
 	 UI界面上的访问控制
-	 
 	*/
 	@Override
 	public UAC getHisUAC()
@@ -29,7 +21,6 @@ public class DeptEmpStation extends EntityMyPK
 	}
 	/** 
 	 人员
-	 
 	*/
 	public final String getFK_Emp()
 	{
@@ -42,7 +33,6 @@ public class DeptEmpStation extends EntityMyPK
 	}
 	/** 
 	 部门
-	 
 	*/
 	public final String getFK_Dept()
 	{
@@ -55,11 +45,12 @@ public class DeptEmpStation extends EntityMyPK
 	}
 	public final String getFK_StationT()
 	{
-		return this.GetValRefTextByKey(DeptEmpStationAttr.FK_Station);
+			//return this.GetValRefTextByKey(DeptEmpStationAttr.FK_Station);
+
+		return this.GetValStringByKey(DeptEmpStationAttr.FK_Station);
 	}
 	/** 
 	岗位
-	 
 	*/
 	public final String getFK_Station()
 	{
@@ -70,21 +61,14 @@ public class DeptEmpStation extends EntityMyPK
 		SetValByKey(DeptEmpStationAttr.FK_Station, value);
 		this.setMyPK(this.getFK_Dept() + "_" + this.getFK_Emp() + "_" + this.getFK_Station());
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
-
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 构造函数
 	/** 
 	 工作部门岗位人员对应
-	  
 	*/
 	public DeptEmpStation()
 	{
 	}
 	/** 
 	 重写基类方法
-	 
 	*/
 	@Override
 	public Map getEnMap()
@@ -96,9 +80,7 @@ public class DeptEmpStation extends EntityMyPK
 
 		Map map = new Map("Port_DeptEmpStation");
 		map.setEnDesc("部门岗位人员对应");
-
 		map.AddMyPK();
-
 		map.AddTBString(DeptEmpStationAttr.FK_Dept, null, "部门", false, false, 1, 50, 1);
 		map.AddTBString(DeptEmpStationAttr.FK_Station, null, "岗位", false, false, 1, 50, 1);
 		map.AddTBString(DeptEmpStationAttr.FK_Emp, null, "操作员", false, false, 1, 50, 1);
@@ -106,12 +88,8 @@ public class DeptEmpStation extends EntityMyPK
 		this.set_enMap(map);
 		return this.get_enMap();
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
-
 	/** 
 	 更新删除前做的事情
-	 
 	 @return 
 	*/
 	@Override

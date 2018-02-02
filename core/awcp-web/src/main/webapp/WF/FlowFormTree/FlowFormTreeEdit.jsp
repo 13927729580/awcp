@@ -1,4 +1,4 @@
-<%@page import="org.jflow.framework.common.model.FlowFormTreeEditModel"%>
+<%@page import="cn.jflow.common.model.FlowFormTreeEditModel"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
     

@@ -1,11 +1,5 @@
 package BP.WF.Template;
 
-import BP.DA.*;
-import BP.En.*;
-import BP.En.*;
-import BP.WF.Port.*;
-
-//using BP.ZHZS.Base;
 
 /** 
  节点工作岗位属性	  

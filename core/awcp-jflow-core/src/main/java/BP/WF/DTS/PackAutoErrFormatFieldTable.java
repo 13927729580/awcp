@@ -1,12 +1,9 @@
 package BP.WF.DTS;
 
-import BP.DA.*;
-
-import BP.Port.*;
-import BP.En.*;
-import BP.Sys.*;
-import BP.Sys.Frm.MapAttr;
-import BP.Sys.Frm.MapAttrs;
+import BP.DA.DBAccess;
+import BP.En.Method;
+import BP.Sys.MapAttr;
+import BP.Sys.MapAttrs;
 
 /** 
  修复非法字段名称
@@ -58,17 +55,17 @@ public class PackAutoErrFormatFieldTable extends Method
 			DBAccess.RunSQL("update sys_mapattr set keyofen=REPLACE(keyofen,'" + c + "' , '')");
 		}
 
-		MapAttrs attrs = new MapAttrs();
+		BP.Sys.MapAttrs attrs = new MapAttrs();
 		attrs.RetrieveAll();
 		int idx = 0;
 		String msg = "";
-		for (MapAttr item :MapAttrs.convertMapAttrs(attrs) )
+		for (BP.Sys.MapAttr item : attrs.ToJavaList())
 		{
-			String f = new String(item.getKeyOfEn());
+			String f = item.getKeyOfEn();
 			try
 			{
 				int i = Integer.parseInt(item.getKeyOfEn().substring(0, 1));
-				item.setKeyOfEn( "F" + item.getKeyOfEn());
+				item.setKeyOfEn ("F" + item.getKeyOfEn());
 				try
 				{
 					MapAttr itemCopy = new MapAttr();

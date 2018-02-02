@@ -41,15 +41,6 @@ public class ComponentVO {
 		return result;
 	}
 
-	//				COMPONENT_TYPES.put("1008","ColumnComponent");
-	//				COMPONENT_TYPES.put("1006","SelectComponent");
-	//				COMPONENT_TYPES.put("1001","InputTextComponent");
-	//				COMPONENT_TYPES.put("1002","DateTimeComponent");
-	//				COMPONENT_TYPES.put("1003","CheckBoxComponent");
-	//				COMPONENT_TYPES.put("1004","RadioComponent");
-	//				COMPONENT_TYPES.put("1005","TextAreaComponent");
-	//				COMPONENT_TYPES.put("1007","PasswordComponent");
-	//				COMPONENT_TYPES.put("1009","LabelComponent");
 	public boolean isValueType(){
 		int componentType = this.componentType;
 		return  componentType==1001 || componentType==1002 ||componentType==1003

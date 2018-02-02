@@ -2,15 +2,14 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:mvc="http://www.springframework.org/schema/mvc"
 	xmlns:p="http://www.springframework.org/schema/p"
-	xmlns:aop="http://www.springframework.org/schema/aop"
 	xmlns:context="http://www.springframework.org/schema/context"
+	default-lazy-init="true"
+	xmlns:aop="http://www.springframework.org/schema/aop"
 	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
-		http://www.springframework.org/schema/aop   
-		http://www.springframework.org/schema/aop/spring-aop-4.0.xsd  
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
-		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd" 
-		default-lazy-init="true">
-
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd">
+	<import resource="spring-mvc-jflow.xml"/>
 	<!-- 把标记了@Controller注解的类转换为bean -->
 	<mvc:annotation-driven>
 		<mvc:message-converters>
@@ -60,16 +59,20 @@
 	<bean id="mappingJacksonJsonView"
 		class="org.springframework.web.servlet.view.json.MappingJackson2JsonView"></bean>
 
-	<bean id="multipartResolver"
-		class="org.springframework.web.multipart.commons.CommonsMultipartResolver"
-		p:defaultEncoding="utf-8" />
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<!-- 设置上传文件的最大尺寸为50M -->
+		<property name="maxUploadSize" value="52428800"/>
+		<property name="maxInMemorySize" value="4096"/>
+		<property name="defaultEncoding" value="UTF-8"/>
+	</bean>
+	<!-- 设置全局异常处理bean -->
+	<bean id="exceptionHandler" class="cn.org.awcp.venson.interceptor.ExceptionHandler"></bean>
 
-
-	<context:component-scan base-package="cn.org.awcp,org.jflow" >
+	<context:component-scan base-package="cn.org.awcp" >
 		<!-- 只扫描controller -->
 		<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
 	</context:component-scan>
-
+	
 	<mvc:default-servlet-handler />
 
 	<mvc:interceptors>

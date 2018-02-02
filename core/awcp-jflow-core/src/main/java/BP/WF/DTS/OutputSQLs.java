@@ -1,18 +1,16 @@
 package BP.WF.DTS;
 
 import BP.DA.DBUrlType;
-import BP.DA.DataType;
 import BP.DA.Log;
 import BP.DA.LogType;
 import BP.DTS.DataIOEn;
 import BP.DTS.DoType;
 import BP.DTS.RunTimeType;
 import BP.En.Map;
-import BP.Port.WebUser;
 import BP.Sys.PubClass;
-import BP.WF.Template.Node;
-import BP.WF.Template.Nodes;
-import BP.WF.Template.PubLib.WFState;
+import BP.WF.Node;
+import BP.WF.Nodes;
+import BP.WF.WFState;
 
 public class OutputSQLs extends DataIOEn
 {
@@ -29,18 +27,14 @@ public class OutputSQLs extends DataIOEn
 		this.ToDBUrl = DBUrlType.AppCenterDSN;
 	}
 	@Override
-	public void Do()
+	public void Do() throws Exception
 	{
 		String sql = this.GenerSqls();
-		try {
-			PubClass.ResponseWriteBlueMsg(sql.replace("\n", "<BR>"));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		PubClass.ResponseWriteBlueMsg(sql.replace("\n", "<BR>"));
 	}
 	public final String GenerSqls()
 	{
-		Log.DefaultLogWriteLine(LogType.Info, WebUser.getName() + "开始调度考核信息:" + DataType.getCurrentDateByFormart("yyyy-MM-dd HH:mm:ss"));
+		Log.DefaultLogWriteLine(LogType.Info, BP.Web.WebUser.getName() + "开始调度考核信息:" + new java.util.Date());//.ToString("yyyy-MM-dd HH:mm:ss"));
 		String infoMsg = "", errMsg = "";
 
 		Nodes nds = new Nodes();
@@ -56,7 +50,7 @@ public class OutputSQLs extends DataIOEn
 
 		String sqls = "";
 		int i = 0;
-		for (Node nd :Nodes.convertNodes(nds) )
+		for (Node nd : nds.ToJavaList())
 		{
 			if (nd.getIsPCNode()) // 如果是计算机节点.
 			{

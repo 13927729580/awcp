@@ -31,7 +31,7 @@
 	
 %>
 
-<%@ include file="/head/head.jsp"%>
+<%@ include file="/WF/head/head2.jsp"%>
 <title><%=title %></title>
 
 </head>

@@ -1,8 +1,6 @@
 package BP.WF.DTS;
 
 import BP.En.Method;
-import BP.Port.WebUser;
-import BP.WF.Template.FlowSheets;
 
 /** 
  重新生成标题
@@ -12,7 +10,6 @@ public class GenerTitle extends Method
 {
 	/** 
 	 重新生成标题
-	 
 	*/
 	public GenerTitle()
 	{
@@ -21,16 +18,11 @@ public class GenerTitle extends Method
 	}
 	/** 
 	 设置执行变量
-	 
 	 @return 
 	*/
 	@Override
 	public void Init()
 	{
-		//this.Warning = "您确定要执行吗？";
-		//HisAttrs.AddTBString("P1", null, "原密码", true, false, 0, 10, 10);
-		//HisAttrs.AddTBString("P2", null, "新密码", true, false, 0, 10, 10);
-		//HisAttrs.AddTBString("P3", null, "确认", true, false, 0, 10, 10);
 	}
 	/** 
 	 当前的操纵员是否可以执行这个方法
@@ -39,7 +31,7 @@ public class GenerTitle extends Method
 	@Override
 	public boolean getIsCanDo()
 	{
-		if (WebUser.getNo().equals("admin"))
+		if (BP.Web.WebUser.getNo().equals("admin"))
 		{
 			return true;
 		}
@@ -54,7 +46,7 @@ public class GenerTitle extends Method
 	public Object Do()
 	{
 		BP.WF.Template.FlowSheets ens = new BP.WF.Template.FlowSheets();
-		for (BP.WF.Template.FlowSheet en :FlowSheets.convertFlowSheets(ens))
+		for (BP.WF.Template.FlowSheet en : ens.ToJavaList())
 		{
 			en.DoGenerTitle();
 		}

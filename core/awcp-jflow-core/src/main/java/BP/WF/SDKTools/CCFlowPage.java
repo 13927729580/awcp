@@ -1,17 +1,16 @@
 package BP.WF.SDKTools;
 
+import cn.jflow.common.util.ContextHolderUtils;
 import BP.En.Entities;
 import BP.En.Entity;
 import BP.Sys.Glo;
-import TL.ContextHolderUtils;
 
-/** 
- PortalPage 的摘要说明。
- 
-*/
+/**
+ * PortalPage 的摘要说明。
+ */
 public class CCFlowPage
 {
-		///#region 属性
+	// 属性
 	public final String getRequestParas()
 	{
 		String urlExt = "";
@@ -28,23 +27,23 @@ public class CCFlowPage
 		}
 		return urlExt;
 	}
-	/** 
-	 key.
-	 
-	*/
+	
+	/**
+	 * key.
+	 */
 	public final String getKey()
 	{
 		return getParamter("Key");
 	}
-	/** 
-	 _HisEns
-	 
-	*/
+	
+	/**
+	 * _HisEns
+	 */
 	public Entities _HisEns = null;
-	/** 
-	 他的相关功能
-	 
-	*/
+	
+	/**
+	 * 他的相关功能
+	 */
 	public final Entities getHisEns()
 	{
 		if (this.getEnsName() != null)
@@ -56,12 +55,13 @@ public class CCFlowPage
 		}
 		return _HisEns;
 	}
+	
 	private Entity _HisEn = null;
 	private int PageIdx;
-	/** 
-	 他的相关功能
-	 
-	*/
+	
+	/**
+	 * 他的相关功能
+	 */
 	public final Entity getHisEn()
 	{
 		if (_HisEn == null)
@@ -70,13 +70,13 @@ public class CCFlowPage
 		}
 		return _HisEn;
 	}
-		///#endregion
-
-		///#region 属性.
+	
+	// 属性.
 	public final String getPageID()
 	{
 		return this.getCurrPage();
 	}
+	
 	public final String getCurrPage()
 	{
 		String url = BP.Sys.Glo.getRequest().getRequestURL().toString();
@@ -87,12 +87,13 @@ public class CCFlowPage
 			url = url.substring(i);
 			url = url.substring(0, url.indexOf(".jsp"));
 			return url;
-		}
-		catch (RuntimeException ex)
+		} catch (RuntimeException ex)
 		{
-			throw new RuntimeException(ex.getMessage() + url + " i=" + i + " i2=" + i2);
+			throw new RuntimeException(ex.getMessage() + url + " i=" + i
+					+ " i2=" + i2);
 		}
 	}
+	
 	public final String getDoType()
 	{
 		String str = getParamter("DoType");
@@ -102,6 +103,7 @@ public class CCFlowPage
 		}
 		return str;
 	}
+	
 	public final String getEnsName()
 	{
 		String s = getParamter("EnsName");
@@ -109,9 +111,10 @@ public class CCFlowPage
 		{
 			s = getParamter("EnsName");
 		}
-
+		
 		return s;
 	}
+	
 	public final String getEnName()
 	{
 		String s = getParamter("EnName");
@@ -121,6 +124,7 @@ public class CCFlowPage
 		}
 		return s;
 	}
+	
 	public final String getRefPK()
 	{
 		
@@ -129,16 +133,18 @@ public class CCFlowPage
 		{
 			s = getParamter("PK");
 		}
-
+		
 		return s;
 	}
-	private String getParamter(String key){
+	
+	private String getParamter(String key)
+	{
 		return ContextHolderUtils.getRequest().getParameter(key);
 	}
-	/** 
-	 页面Index.
-	 
-	*/
+	
+	/**
+	 * 页面Index.
+	 */
 	public final int getPageIdx()
 	{
 		String str = getParamter("PageIdx");
@@ -148,10 +154,11 @@ public class CCFlowPage
 		}
 		return Integer.parseInt(str);
 	}
-//	public final void setPageIdx(int value)
-//	{
-//		PageIdx = value;
-//	}
+	
+	// public final void setPageIdx(int value)
+	// {
+	// PageIdx = value;
+	// }
 	public final String getRefNo()
 	{
 		String s = getParamter("RefNo");
@@ -159,26 +166,25 @@ public class CCFlowPage
 		{
 			s = getParamter("No");
 		}
-
+		
 		if (s == null || s.equals(""))
 		{
 			s = null;
 		}
 		return s;
 	}
-	/** 
-	 当前页面的参数．
-	  
-	*/
+	
+	/**
+	 * 当前页面的参数．
+	 */
 	public final String getParas()
 	{
-//		String str = "";
-//		for (String s : this.Request.QueryString)
-//		{
-//			str += "&" + s + "=" + getParamter(s);
-//		}
+		// String str = "";
+		// for (String s : this.Request.QueryString)
+		// {
+		// str += "&" + s + "=" + getParamter(s);
+		// }
 		return Glo.getRequest().getQueryString();
 	}
-		///#endregion 属性.
-
+	// 属性.
 }

@@ -1,175 +1,187 @@
 package BP.WF.Entity;
 
-import BP.DA.*;
-import BP.En.*;
-import BP.Port.GuestUser;
-import BP.Port.WebUser;
-import BP.Sys.*;
+import BP.DA.DBAccess;
+import BP.DA.DBUrl;
+import BP.DA.DBUrlType;
+import BP.DA.DataTable;
+import BP.DA.DataType;
+import BP.DA.Log;
+import BP.DA.Paras;
+import BP.En.EnType;
+import BP.En.Map;
+import BP.En.SqlBuilder;
+import BP.Sys.SystemConfig;
 import BP.Tools.StringHelper;
-import BP.WF.Template.*;
-import BP.WF.Template.PubLib.ActionType;
+import BP.WF.ActionType;
+import BP.Web.GuestUser;
+import BP.Web.WebUser;
 
-/** 
- 轨迹
- 
-*/
+/**
+ * 轨迹
+ */
 public class Track extends BP.En.Entity
 {
 	private Map _enMap;
+	
 	@Override
 	public String getPK()
 	{
 		return "MyPK";
 	}
-
+	
 	@Override
 	public String getPKField()
 	{
 		return "MyPK";
 	}
-
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region attrs
-
-	/** 
-	 节点从
-	 
-	*/
+	
+	// attrs
+	
+	/**
+	 * 节点从
+	 */
 	public final int getNDFrom()
 	{
 		return this.GetValIntByKey(TrackAttr.NDFrom);
 	}
+	
 	public final void setNDFrom(int value)
 	{
 		this.SetValByKey(TrackAttr.NDFrom, value);
 	}
-
-	/** 
-	 节点到
-	 
-	*/
+	
+	/**
+	 * 节点到
+	 */
 	public final int getNDTo()
 	{
 		return this.GetValIntByKey(TrackAttr.NDTo);
 	}
+	
 	public final void setNDTo(int value)
 	{
 		this.SetValByKey(TrackAttr.NDTo, value);
 	}
-	/** 
-	 从人员
-	 
-	*/
+	
+	/**
+	 * 从人员
+	 */
 	public final String getEmpFrom()
 	{
 		return this.GetValStringByKey(TrackAttr.EmpFrom);
 	}
+	
 	public final void setEmpFrom(String value)
 	{
 		this.SetValByKey(TrackAttr.EmpFrom, value);
 	}
-	///// <summary>
-	///// 内部的PK.
-	///// </summary>
-	//public string InnerKey_del
-	//{
-	//    get
-	//    {
-	//        return this.GetValStringByKey(TrackAttr.InnerKey);
-	//    }
-	//    set
-	//    {
-	//        this.SetValByKey(TrackAttr.InnerKey, value);
-	//    }
-	//}
-	/** 
-	 到人员
-	 
-	*/
+	
+	// 内部的PK.
+	// public string InnerKey_del
+	// {
+	// get
+	// {
+	// return this.GetValStringByKey(TrackAttr.InnerKey);
+	// }
+	// set
+	// {
+	// this.SetValByKey(TrackAttr.InnerKey, value);
+	// }
+	// }
+	/**
+	 * 到人员
+	 */
 	public final String getEmpTo()
 	{
 		return this.GetValStringByKey(TrackAttr.EmpTo);
 	}
+	
 	public final void setEmpTo(String value)
 	{
 		this.SetValByKey(TrackAttr.EmpTo, value);
 	}
+	
 	public final String getTag()
 	{
 		return this.GetValStringByKey(TrackAttr.Tag);
 	}
+	
 	public final void setTag(String value)
 	{
 		this.SetValByKey(TrackAttr.Tag, value);
 	}
-	/** 
-	 记录日期
-	 
-	*/
+	
+	/**
+	 * 记录日期
+	 */
 	public final String getRDT()
 	{
 		return this.GetValStringByKey(TrackAttr.RDT);
 	}
+	
 	public final void setRDT(String value)
 	{
 		this.SetValByKey(TrackAttr.RDT, value);
 	}
-
-	/** 
-	 fid
-	 
-	*/
+	
+	/**
+	 * fid
+	 */
 	public final long getFID()
 	{
 		return this.GetValInt64ByKey(TrackAttr.FID);
 	}
+	
 	public final void setFID(long value)
 	{
 		this.SetValByKey(TrackAttr.FID, value);
 	}
-	/** 
-	 工作ID
-	 
-	*/
+	
+	/**
+	 * 工作ID
+	 */
 	public final long getWorkID()
 	{
 		return this.GetValInt64ByKey(TrackAttr.WorkID);
 	}
+	
 	public final void setWorkID(long value)
 	{
 		this.SetValByKey(TrackAttr.WorkID, value);
 	}
-	/** 
-	 CWorkID
-	 
-	*/
+	
+	/**
+	 * CWorkID
+	 */
 	public final long getCWorkID()
 	{
 		return this.GetValInt64ByKey(TrackAttr.CWorkID);
 	}
+	
 	public final void setCWorkID(long value)
 	{
 		this.SetValByKey(TrackAttr.CWorkID, value);
 	}
-	/** 
-	 活动类型
-	 
-	*/
+	
+	/**
+	 * 活动类型
+	 */
 	public final ActionType getHisActionType()
 	{
 		return ActionType.forValue(this.GetValIntByKey(TrackAttr.ActionType));
 	}
+	
 	public final void setHisActionType(ActionType value)
 	{
 		this.SetValByKey(TrackAttr.ActionType, value.getValue());
 	}
-
-	/** 
-	 获取动作文本
-	 
-	 @param at
-	 @return 
-	*/
+	
+	/**
+	 * 获取动作文本
+	 * 
+	 * @param at
+	 * @return
+	 */
 	public static String GetActionTypeT(ActionType at)
 	{
 		switch (at)
@@ -228,176 +240,186 @@ public class Track extends BP.En.Entity
 				return "未知";
 		}
 	}
-
+	
 	public final String getActionTypeText()
 	{
 		return this.GetValStringByKey(TrackAttr.ActionTypeText);
 	}
+	
 	public final void setActionTypeText(String value)
 	{
 		this.SetValByKey(TrackAttr.ActionTypeText, value);
 	}
-
-	/** 
-	 节点数据
-	 
-	*/
+	
+	/**
+	 * 节点数据
+	 */
 	public final String getNodeData()
 	{
 		return this.GetValStringByKey(TrackAttr.NodeData);
 	}
+	
 	public final void setNodeData(String value)
 	{
 		this.SetValByKey(TrackAttr.NodeData, value);
 	}
-
+	
 	public final String getExer()
 	{
 		return this.GetValStringByKey(TrackAttr.Exer);
 	}
+	
 	public final void setExer(String value)
 	{
 		this.SetValByKey(TrackAttr.Exer, value);
 	}
-
-	/** 
-	 审核意见
-	 
-	*/
+	
+	/**
+	 * 审核意见
+	 */
 	public final String getMsg()
 	{
 		return this.GetValStringByKey(TrackAttr.Msg);
 	}
+	
 	public final void setMsg(String value)
 	{
 		this.SetValByKey(TrackAttr.Msg, value);
 	}
-
+	
 	public final String getMsgHtml()
 	{
 		return this.GetValHtmlStringByKey(TrackAttr.Msg);
 	}
-
+	
 	public final String getEmpToT()
 	{
 		return this.GetValStringByKey(TrackAttr.EmpToT);
 	}
+	
 	public final void setEmpToT(String value)
 	{
 		this.SetValByKey(TrackAttr.EmpToT, value);
 	}
-
+	
 	public final String getEmpFromT()
 	{
 		return this.GetValStringByKey(TrackAttr.EmpFromT);
 	}
+	
 	public final void setEmpFromT(String value)
 	{
 		this.SetValByKey(TrackAttr.EmpFromT, value);
 	}
-
+	
 	public final String getNDFromT()
 	{
 		return this.GetValStringByKey(TrackAttr.NDFromT);
 	}
+	
 	public final void setNDFromT(String value)
 	{
 		this.SetValByKey(TrackAttr.NDFromT, value);
 	}
-
+	
 	public final String getNDToT()
 	{
 		return this.GetValStringByKey(TrackAttr.NDToT);
 	}
+	
 	public final void setNDToT(String value)
 	{
 		this.SetValByKey(TrackAttr.NDToT, value);
 	}
-
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion attrs
-
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 属性
-
+	
+	// attrs
+	
+	// 属性
+	
 	public String RptName = null;
-
+	
 	@Override
 	public Map getEnMap()
 	{
-		if (this._enMap != null)
+		if (this.get_enMap() != null)
 		{
-			return this._enMap;
+			return this.get_enMap();
 		}
-
+		
 		Map map = new Map();
-
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-			///#region 基本属性
-
-		map.setEnDBUrl(new DBUrl(DBUrlType.AppCenterDSN)); //要连接的数据源（表示要连接到的那个系统数据库）。
+		
+		// 基本属性
+		
+		map.setEnDBUrl(new DBUrl(DBUrlType.AppCenterDSN)); // 要连接的数据源（表示要连接到的那个系统数据库）。
 		map.setPhysicsTable("WF_Track"); // 要物理表。
 		map.setEnDesc("轨迹表");
 		map.setEnType(EnType.App);
-
-			///#endregion 基本属性
-
-			///#region 字段
-
-			//增加一个自动增长的列.
+		
+		// 基本属性
+		
+		// 字段
+		
+		// 增加一个自动增长的列.
 		map.AddTBIntPK(TrackAttr.MyPK, 0, "MyPK", true, false);
-
+		
 		map.AddTBInt(TrackAttr.ActionType, 0, "类型", true, false);
-		map.AddTBString(TrackAttr.ActionTypeText, null, "类型(名称)", true, false, 0, 30, 100);
+		map.AddTBString(TrackAttr.ActionTypeText, null, "类型(名称)", true, false,
+				0, 30, 100);
 		map.AddTBInt(TrackAttr.FID, 0, "流程ID", true, false);
 		map.AddTBInt(TrackAttr.WorkID, 0, "工作ID", true, false);
-		  //  map.AddTBInt(TrackAttr.CWorkID, 0, "CWorkID", true, false);
-
+		// map.AddTBInt(TrackAttr.CWorkID, 0, "CWorkID", true, false);
+		
 		map.AddTBInt(TrackAttr.NDFrom, 0, "从节点", true, false);
-		map.AddTBString(TrackAttr.NDFromT, null, "从节点(名称)", true, false, 0, 300, 100);
-
+		map.AddTBString(TrackAttr.NDFromT, null, "从节点(名称)", true, false, 0,
+				300, 100);
+		
 		map.AddTBInt(TrackAttr.NDTo, 0, "到节点", true, false);
-		map.AddTBString(TrackAttr.NDToT, null, "到节点(名称)", true, false, 0, 999, 900);
-
+		map.AddTBString(TrackAttr.NDToT, null, "到节点(名称)", true, false, 0, 999,
+				900);
+		
 		map.AddTBString(TrackAttr.EmpFrom, null, "从人员", true, false, 0, 20, 100);
-		map.AddTBString(TrackAttr.EmpFromT, null, "从人员(名称)", true, false, 0, 30, 100);
-
+		map.AddTBString(TrackAttr.EmpFromT, null, "从人员(名称)", true, false, 0,
+				30, 100);
+		
 		map.AddTBString(TrackAttr.EmpTo, null, "到人员", true, false, 0, 2000, 100);
-		map.AddTBString(TrackAttr.EmpToT, null, "到人员(名称)", true, false, 0, 2000, 100);
-
+		map.AddTBString(TrackAttr.EmpToT, null, "到人员(名称)", true, false, 0,
+				2000, 100);
+		
 		map.AddTBString(TrackAttr.RDT, null, "日期", true, false, 0, 20, 100);
 		map.AddTBFloat(TrackAttr.WorkTimeSpan, 0, "时间跨度(天)", true, false);
 		map.AddTBStringDoc(TrackAttr.Msg, null, "消息", true, false);
 		map.AddTBStringDoc(TrackAttr.NodeData, null, "节点数据(日志信息)", true, false);
 		map.AddTBString(TrackAttr.Tag, null, "参数", true, false, 0, 300, 3000);
 		map.AddTBString(TrackAttr.Exer, null, "执行人", true, false, 0, 200, 100);
-		 //   map.AddTBString(TrackAttr.InnerKey, null, "内部的Key,用于防止插入重复", true, false, 0, 200, 100);
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-			///#endregion 字段
-
-		this._enMap = map;
-		return this._enMap;
+		// map.AddTBString(TrackAttr.InnerKey, null, "内部的Key,用于防止插入重复", true,
+		// false, 0, 200, 100);
+		// 字段
+		
+		this.set_enMap(map);
+		return this.get_enMap();
 	}
-
+	
 	public String FK_Flow = null;
-
-	/** 
-	 轨迹
-	 
-	*/
+	
+	/**
+	 * 轨迹
+	 */
 	public Track()
 	{
 	}
-
-	/** 
-	 轨迹
-	 
-	 @param flowNo 流程编号
-	 @param mypk 主键
-	*/
+	
+	/**
+	 * 轨迹
+	 * 
+	 * @param flowNo
+	 *            流程编号
+	 * @param mypk
+	 *            主键
+	 */
 	public Track(String flowNo, String mypk)
 	{
-		String sql = "SELECT * FROM ND" + Integer.parseInt(flowNo) + "Track WHERE MyPK='" + mypk + "'";
+		String sql = "SELECT * FROM ND" + Integer.parseInt(flowNo)
+				+ "Track WHERE MyPK='" + mypk + "'";
 		DataTable dt = DBAccess.RunSQLReturnTable(sql);
 		if (dt.Rows.size() == 0)
 		{
@@ -405,61 +427,37 @@ public class Track extends BP.En.Entity
 		}
 		this.getRow().LoadDataTable(dt, dt.Rows.get(0));
 	}
-
-	/** 
-	 创建track.
-	 
-	 @param fk_flow 流程编号
-	*/
+	
+	/**
+	 * 创建track.
+	 * 
+	 * @param fk_flow
+	 *            流程编号
+	 */
 	public static void CreateOrRepairTrackTable(String fk_flow)
 	{
 		String ptable = "ND" + Integer.parseInt(fk_flow) + "Track";
-
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-			///#region 检查是否有此表.
-		if (BP.DA.DBAccess.IsExitsObject(ptable))
-		{
-			try
-			{
-				//增加特殊的列。
-				DBAccess.RunSQL("ALTER TABLE  " + ptable + " ADD Tag NVARCHAR(4000) DEFAULT '' NULL");
-			}
-			catch (java.lang.Exception e)
-			{
-			}
+		if (DBAccess.IsExitsObject(ptable))
 			return;
-		}
-
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-			///#endregion 检查是否有此表.
-
-		try
-		{
-			//如果不存在指定的表,就创建它.
-			BP.DA.DBAccess.RunSQL("DROP TABLE WF_Track");
-		}
-		catch (java.lang.Exception e2)
-		{
-		}
-
+	 	
 		Track tk = new Track();
 		tk.CheckPhysicsTable();
-
+		
 		String sqlRename = "";
 		switch (SystemConfig.getAppCenterDBType())
 		{
 			case MSSQL:
 				sqlRename = "EXEC SP_RENAME WF_Track, " + ptable;
 				break;
-
+			
 			case Informix:
 				sqlRename = "RENAME TABLE WF_Track TO " + ptable;
 				break;
-
+			
 			case Oracle:
 				sqlRename = "ALTER TABLE WF_Track rename to " + ptable;
 				break;
-
+			
 			case MySQL:
 				sqlRename = "ALTER TABLE WF_Track rename to " + ptable;
 				break;
@@ -467,13 +465,14 @@ public class Track extends BP.En.Entity
 				throw new RuntimeException("@未涉及到此类型.");
 		}
 		DBAccess.RunSQL(sqlRename);
-
+		
 	}
-	/** 
-	 插入
-	 
-	 @param mypk
-	*/
+	
+	/**
+	 * 插入
+	 * 
+	 * @param mypk
+	 */
 	public final void DoInsert(long mypk)
 	{
 		String ptable = "ND" + Integer.parseInt(this.FK_Flow) + "Track";
@@ -498,7 +497,7 @@ public class Track extends BP.En.Entity
 		sql += "" + TrackAttr.Msg + ",";
 		sql += "" + TrackAttr.NodeData + ",";
 		sql += "" + TrackAttr.Tag + ",";
-
+		
 		sql += "" + TrackAttr.Exer + "";
 		sql += ") VALUES (";
 		sql += dbstr + TrackAttr.MyPK + ",";
@@ -521,34 +520,32 @@ public class Track extends BP.En.Entity
 		sql += dbstr + TrackAttr.Tag + ",";
 		sql += dbstr + TrackAttr.Exer + "";
 		sql += ")";
-
-		//如果这里是空的，就认为它是，从系统里面取出。
+		
+		// 如果这里是空的，就认为它是，从系统里面取出。
 		if (StringHelper.isNullOrEmpty(this.getActionTypeText()))
 		{
 			this.setActionTypeText(Track.GetActionTypeT(this.getHisActionType()));
 		}
-
+		
 		if (mypk == 0)
 		{
 			this.SetValByKey(TrackAttr.MyPK, DBAccess.GenerOIDByGUID());
-			//this.SetValByKey(TrackAttr.MyPK, DBAccess.GenerGUID());
-
-		}
-		else
+			// this.SetValByKey(TrackAttr.MyPK, DBAccess.GenerGUID());
+			
+		} else
 		{
 			DBAccess.RunSQL("DELETE  FROM " + ptable + " WHERE MyPK=" + mypk);
 			this.SetValByKey(TrackAttr.MyPK, mypk);
 		}
-
+		
 		this.setRDT(DataType.getCurrentDataTimess());
-
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-			///#region 执行保存
+		
+		// 执行保存
 		try
 		{
 			Paras ps = SqlBuilder.GenerParas(this, null);
 			ps.SQL = sql;
-
+			
 			switch (SystemConfig.getAppCenterDBType())
 			{
 				case MSSQL:
@@ -562,52 +559,51 @@ public class Track extends BP.En.Entity
 				default:
 					ps.SQL = ps.SQL.replace("[", "").replace("]", "");
 					this.RunSQL(ps); // 运行sql.
-					//  this.RunSQL(sql.Replace("[", "").Replace("]", ""), SqlBuilder.GenerParas(this, null));
+					// this.RunSQL(sql.replace("[", "").replace("]", ""),
+					// SqlBuilder.GenerParas(this, null));
 					break;
 			}
-		}
-		catch (RuntimeException ex)
+		} catch (RuntimeException ex)
 		{
 			// 写入日志.
-			Log.DefaultLogWriteLineError(ex.getMessage());
-
-			//创建track.
+			Log.DefaultLogWriteLineError("DoInsert "+ex.getMessage());
+			
+			// 创建track.
 			Track.CreateOrRepairTrackTable(this.FK_Flow);
 			throw ex;
 		}
-
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-			///#endregion 执行保存
+		
+		// 执行保存
 	}
-
-	/** 
-	 增加授权人
-	 
-	 @return 
-	*/
+	
+	/**
+	 * 增加授权人
+	 * 
+	 * @return
+	 */
 	@Override
 	protected boolean beforeInsert()
 	{
 		if (WebUser.getNo().equals("Guest"))
 		{
 			this.setExer(GuestUser.getName());
-		}
-		else
+		} else
 		{
 			if (WebUser.getIsAuthorize())
 			{
-				this.setExer(BP.WF.Glo.DealUserInfoShowModel(WebUser.getAuthorizerEmpID(),WebUser.getAuth()));
-			}
-			else
+				this.setExer(BP.WF.Glo.DealUserInfoShowModel(
+						WebUser.getAuthorizerEmpID(), WebUser.getAuth()));
+			} else
 			{
-				this.setExer(BP.WF.Glo.DealUserInfoShowModel(WebUser.getNo(),WebUser.getName()));
+				this.setExer(BP.WF.Glo.DealUserInfoShowModel(WebUser.getNo(),
+						WebUser.getName()));
 			}
 		}
-
+		
 		this.setRDT(BP.DA.DataType.getCurrentDataTimess());
-
+		
 		this.DoInsert(0);
 		return false;
 	}
-		///#endregion 属性
+	// 属性
 }

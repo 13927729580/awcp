@@ -222,7 +222,7 @@
 		$("#listPersonalTasks").on("click",function(){
 				 top.addTabs({
 				  		id:"10624",
-				        url: baseUrl+"workflow/wf/listPersonalTasks.html",
+				        url: baseUrl+"venson/listPersonalTasks.html",
 				        title: "待办件",
 				        icon:"fa-bell",
 				        close:true
@@ -231,7 +231,7 @@
 		rendererFlow(5);
 		function rendererFlow(pageSize){
 			 //获取待办
-			 var flow=Comm.getData("api/workflow/wf/listPersonalTasks",{"_method":"get","pageSize":pageSize});
+			 var flow=Comm.getData("api/workflow/wf/listPersonalTasks",{"_method":"get","pageSize":pageSize,"excludeFlow":"005"});
 			 var flowHtml=[];//判断是否有数据
 			 if(flow&&flow.length>0){
 			  var now=new Date().getTime();
@@ -259,7 +259,7 @@
 				  flowHtml.push('<i class="fa fa-ellipsis-v"></i>');
 				  flowHtml.push('<i class="fa fa-ellipsis-v"></i>');
 				  flowHtml.push('</span>');
-				  flowHtml.push('<span class="text"><a href="javascript:void(0)" data-id="'+e.WorkID+e.FK_Node+'" data-url="workflow/wf/openWorkFlow.do?id='+e.RECORD_ID+'&dynamicPageId='+e.DYNAMICPAGE_ID+'&FK_Flow='+
+				  flowHtml.push('<span class="text"><a href="javascript:void(0)" data-id="'+e.WorkID+e.FK_Node+'" data-url="api/workflow/wf/openTask?id='+e.RECORD_ID+'&dynamicPageId='+e.DYNAMICPAGE_ID+'&FK_Flow='+
 						  e.FK_Flow+'&FK_Node='+e.FK_Node+'&WorkID='+e.WorkID+'&FID='+e.FID+'&WFState='+e.WFState+'">'+e.title+'</a></span><small class="label '+color+' "><i class="fa fa-clock-o"></i> '+min+'</small>');
 			  })
 			 }else{

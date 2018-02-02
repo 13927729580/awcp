@@ -50,9 +50,63 @@ navlist垂直导航列表样式
     font-weight: bold;
 }
 
-/*select样式,！！！！不管用
-select
-{
-    border:1px solid #95b8e7;
-}
+/*
+hornavlist水平导航列表样式
 */
+
+.hornavlist
+{
+    list-style-type: none;
+    margin: 0;
+    padding: 5px;
+}
+.hornavlist li
+{
+    padding: 0;
+    float:left;
+    margin:0 5px;
+    text-align:center;
+    width:80px;
+}
+.hornavlist li a
+{
+    line-height: 24px;
+    color: #0066CC;
+    text-decoration: none;
+    display:block;
+    width:100%;
+    text-align:center;
+}
+.hornavlist li div
+{
+    border-bottom: 1px dashed #99bbe8;
+    margin: 0;
+    padding:0 10px;
+    text-align:center;
+}
+.hornavlist li div:hover
+{
+    border-bottom: 2px solid #99bbe8;    
+    cursor: pointer;
+    font-weight: bold;
+    text-align:center;
+}
+.hornavlist li div:hover a
+{
+    color: #416aa3;
+    display:block;
+    width:100%;
+}
+.hornavlist li div.selected
+{
+    border-bottom: 2px solid #99bbe8;
+    cursor: default;
+    font-weight:bold;
+    text-align:center;
+}
+.hornavlist li div.selected a
+{
+    color: #416aa3;
+    font-weight: bold;
+    text-align:center;
+}

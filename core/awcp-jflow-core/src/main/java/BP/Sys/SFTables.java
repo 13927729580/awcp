@@ -1,24 +1,15 @@
 package BP.Sys;
 
-import java.util.ArrayList;
-
-import BP.En.EntitiesNoName;
-import BP.En.Entity;
+import BP.En.*;
 
 /** 
-用户自定义表s
-
+ 用户自定义表s
+ 
 */
 public class SFTables extends EntitiesNoName
 {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	public static ArrayList<SFTable> convertSFTables(Object obj) {
-		return (ArrayList<SFTable>) obj;
-	}
-		///#region 构造
+
+		
 	/** 
 	 用户自定义表s
 	 
@@ -35,6 +26,25 @@ public class SFTables extends EntitiesNoName
 	{
 		return new SFTable();
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
+	/** 
+	 转化成 java list,C#不能调用.
+	 @return List
+	*/
+	public final java.util.List<SFTable> ToJavaList()
+	{
+		return (java.util.List<SFTable>)(Object)this;
+	}
+	/** 
+	 转化成list
+	 @return List
+	*/
+	public final java.util.ArrayList<SFTable> Tolist()
+	{
+		java.util.ArrayList<SFTable> list = new java.util.ArrayList<SFTable>();
+		for (int i = 0; i < this.size(); i++)
+		{
+			list.add((SFTable)this.get(i));
+		}
+		return list;
+	}
 }

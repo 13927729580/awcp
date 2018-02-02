@@ -67,7 +67,7 @@ function callBack(jsonData, scope) {
                        //                       + ".png' id=" + rowdata.MyPK + ">" + rowdata.Title + "</a>日期:" + rowdata.RDT;
                        //                       return Title;   
 
-                       var h = "../WF/WFRpt.aspx?WorkID=" + rowdata.OID + "&FK_Flow=" + fk_flow + "&FID=" + rowdata.FID + "&T=" + dateNow;
+                       var h = "../WF/WFRpt.jsp?WorkID=" + rowdata.OID + "&FK_Flow=" + fk_flow + "&FID=" + rowdata.FID + "&T=" + dateNow;
                        return "<a href='javascript:void(0);' onclick=WinOpenWindow('" + h + "')>" + rowdata.Title + "</a>";
                                    
                        return rowdata.Title;

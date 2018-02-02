@@ -476,7 +476,6 @@
 				}
 			}
         }
-		debugger;
 		if(arr.length>0){
 			$select.val(arr).trigger("change");
 		}else{

@@ -11,10 +11,6 @@ import BP.En.Entity;
 */
 public class StationTypes extends EntitiesNoName
 {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 	/** 
 	 岗位类型s
 	 
@@ -22,18 +18,38 @@ public class StationTypes extends EntitiesNoName
 	public StationTypes()
 	{
 	}
-	
-	public static ArrayList<StationType> convertStationTypes(Object obj) {
-		return (ArrayList<StationType>) obj;
-	}
-	
 	/** 
 	 得到它的 Entity 
-	 
 	*/
 	@Override
 	public Entity getGetNewEntity()
 	{
 		return new StationType();
+	}
+
+	/** 
+	 转化成 java list,C#不能调用.
+	 @return List
+	*/
+	public static ArrayList<StationType> convertStationTypes(Object obj)
+	{
+		return (ArrayList<StationType>) obj;
+	}
+	public final java.util.List<StationType> ToJavaList()
+	{
+		return (java.util.List<StationType>)(Object)this;
+	}
+	/** 
+	 转化成list
+	 @return List
+	*/
+	public final java.util.ArrayList<StationType> Tolist()
+	{
+		java.util.ArrayList<StationType> list = new java.util.ArrayList<StationType>();
+		for (int i = 0; i < this.size(); i++)
+		{
+			list.add((StationType)this.get(i));
+		}
+		return list;
 	}
 }

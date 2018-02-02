@@ -4,13 +4,10 @@ import BP.En.EnType;
 import BP.En.Map;
 
 /** 
-报表
-
+ 报表
 */
 public class MyDeptEmp extends BP.En.EntityNoName
 {
-
-		///#region attrs - attrs
 	public String RptName = null;
 	@Override
 	public Map getEnMap()
@@ -20,9 +17,8 @@ public class MyDeptEmp extends BP.En.EntityNoName
 			return this.get_enMap();
 		}
 
-		Map map = new Map("Port_Emp");
-		map.setEnDesc("流程数据");
-		map.setEnType(EnType.View);
+		Map map = new Map("Port_Emp", "流程数据");
+		map.Java_SetEnType(EnType.View);
 
 		map.AddTBStringPK(MyDeptEmpAttr.No, null, "编号", false, false, 0, 100, 100);
 		map.AddTBString(MyDeptEmpAttr.Name, null, "名称", false, false, 0, 100, 100);
@@ -31,7 +27,4 @@ public class MyDeptEmp extends BP.En.EntityNoName
 		this.set_enMap(map);
 		return this.get_enMap();
 	}
-
-		///#endregion attrs
-
 }

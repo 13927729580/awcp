@@ -224,7 +224,7 @@ public class PunRoleInfoController {
 	/**
 	 * 根据ID查找
 	 * 
-	 * @param id
+	 * @param boxs
 	 * @return
 	 */
 	@RequestMapping(value = "punRoleInfoGet", method = RequestMethod.POST)
@@ -293,7 +293,6 @@ public class PunRoleInfoController {
 	/**
 	 * 角色管理
 	 * 
-	 * @param boxs
 	 * @return
 	 */
 	@RequestMapping(value = "manageRole")
@@ -358,31 +357,29 @@ public class PunRoleInfoController {
 	 * 根据SystemId及roleId赋予资源权限
 	 * 
 	 * @author wsh
-	 * @param vo
+	 * @param boxs
 	 * @return
 	 */
 	@RequestMapping(value = "punRoleMenuAccessEdit")
-	public ModelAndView punRoleMenuAccessEdit(Long boxs, Long sysId, String moduleId) {
-		PunSystemVO sysVO = punSystemService.findById(sysId);
+	public ModelAndView punRoleMenuAccessEdit(Long boxs, Integer moduleId) {
 		ModelAndView mv = new ModelAndView();
 		mv.setViewName("unit/dev/accessAuthor");
 		try {
-			List<PunMenuVO> resoVOs = menuService.getPunMenuBySys(sysVO);
-			List<PunMenuVO> accVOS = new ArrayList<PunMenuVO>();
+			List<PunMenuVO> resoVOs = menuService.findAll();
+			List<PunMenuVO> accVOS = new ArrayList<>();
 			if (boxs != null) {
 				PunRoleInfoVO vo = new PunRoleInfoVO();
 				vo.setRoleId(boxs);
-				vo.setSysId(sysId);
 				mv.addObject("roleName", jdbcTemplate
 						.queryForObject("select ROLE_NAME from p_un_role_info where ROLE_ID=" + boxs, String.class));
 				mv.addObject("vo", vo);
-				accVOS = menuService.getByRoleAndSys(vo, sysVO);
+				accVOS = menuService.getByRoleAndSys(vo, null);
 			}
 
 			this.setAccessRight(resoVOs, accVOS);
 			ResourceTreeUtils rtu = new ResourceTreeUtils();
 			List<PunMenuVO[]> list = rtu.generateTreeView(resoVOs);
-			Map<Integer, List<PunResourceTreeNode>> resultMap = new HashMap<Integer, List<PunResourceTreeNode>>();
+			Map<Integer, List<PunResourceTreeNode>> resultMap = new HashMap<>();
 			Integer index = 1;
 			for (PunMenuVO[] prvo : list) {
 				// 以目录根节点的index为key，以manyNodeTree为value
@@ -393,13 +390,9 @@ public class PunRoleInfoController {
 			JsonFactory factory = new JsonFactory();
 			mv.addObject("menuJson", factory.encode2Json(resultMap));
 
-			String sql = "";
-			if (StringUtils.isNoneBlank(moduleId)) {
-				sql = "select id from p_fm_dynamicpage where modular=" + moduleId;
-			} else {
-				sql = "select id from p_fm_dynamicpage where modular=(select ID from p_fm_modular limit 1)";
-			}
-			List<String> dynamicPageIds = jdbcTemplate.queryForList(sql, String.class);
+			String sql = "select id from p_fm_dynamicpage where modular=?";
+
+			List<String> dynamicPageIds = jdbcTemplate.queryForList(sql, String.class,moduleId);
 			sql = "select ID,modularName from p_fm_modular order by ID ";
 			mv.addObject("modules", jdbcTemplate.queryForList(sql));
 			mv.addObject("moduleId", moduleId);
@@ -409,16 +402,15 @@ public class PunRoleInfoController {
 			// 3、查找已授权的资源
 			Map<String, List<StoreVO>> buttonMap = formdesignerServiceImpl.getSystemActs(dynamicPageIds);
 
-			Map<String, Object> params = new HashMap<String, Object>();
-			params.put("sysId", sysId);
+			Map<String, Object> params = new HashMap<>();
 			params.put("resouType", ResourceTypeEnum.RESO_BUTTON.getkey());
 
 			Map<String, PunResourceVO> buttonResos = resoService.queryButtonMap("eqQueryList", params);
-			Map<String, List<PunResourceVO>> resultsMap = new HashMap<String, List<PunResourceVO>>();
+			Map<String, List<PunResourceVO>> resultsMap = new HashMap<>();
 			Set<String> keys = buttonMap.keySet();
 			// 将按钮按照动态表单名称划分
 			for (Iterator<String> it = keys.iterator(); it.hasNext();) {
-				String s = (String) it.next();
+				String s =    it.next();
 				List<StoreVO> storeVOs = buttonMap.get(s);
 				for (StoreVO storeVO : storeVOs) {
 					// 如果resouce中有按钮ID
@@ -435,8 +427,7 @@ public class PunRoleInfoController {
 				}
 			}
 
-			Map<String, Object> authorParams = new HashMap<String, Object>();
-			authorParams.put("sysId", sysId);
+			Map<String, Object> authorParams = new HashMap<>();
 			authorParams.put("roleId", boxs);
 			// 排除菜单地址和动态表单
 			authorParams.put("resouType", ResourceTypeEnum.RESO_BUTTON.getkey());

@@ -11,25 +11,23 @@ import BP.En.UAC;
 
 public class City extends EntityNoName
 {
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-	///#region 基本属性
+	// 基本属性
 	public final String getNames()
 	{
 		return this.GetValStrByKey(CityAttr.Names);
 	}
+	
 	public final String getFK_PQ()
 	{
 		return this.GetValStrByKey(CityAttr.FK_PQ);
 	}
+	
 	public final String getFK_SF()
 	{
 		return this.GetValStrByKey(CityAttr.FK_SF);
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-	///#endregion
-
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-	///#region 构造函数
+	
+	// 构造函数
 	@Override
 	public UAC getHisUAC()
 	{
@@ -37,21 +35,22 @@ public class City extends EntityNoName
 		uac.OpenForSysAdmin();
 		return uac;
 	}
-	/** 
-	 城市
-	 		
-	*/
+	
+	/**
+	 * 城市
+	 */
 	public City()
 	{
 	}
+	
 	public City(String no)
 	{
 		super(no);
 	}
-	/** 
-	 Map
-	 
-	*/
+	
+	/**
+	 * Map
+	 */
 	@Override
 	public Map getEnMap()
 	{
@@ -60,9 +59,8 @@ public class City extends EntityNoName
 			return this.get_enMap();
 		}
 		Map map = new Map();
-
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 基本属性
+		
+		// 基本属性
 		map.setEnDBUrl(new DBUrl(DBUrlType.AppCenterDSN));
 		map.setPhysicsTable("CN_City");
 		map.setAdjunctType(AdjunctType.AllType);
@@ -72,28 +70,19 @@ public class City extends EntityNoName
 		map.setEnDesc("城市");
 		map.setEnType(EnType.App);
 		map.setCodeStruct("4");
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
-
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 字段
+		
+		// 字段
 		map.AddTBStringPK(CityAttr.No, null, "编号", true, false, 0, 50, 50);
 		map.AddTBString(CityAttr.Name, null, "名称", true, false, 0, 50, 200);
 		map.AddTBString(CityAttr.Names, null, "小名", true, false, 0, 50, 200);
 		map.AddTBInt(CityAttr.Grade, 0, "Grade", false, false);
-
+		
 		map.AddDDLEntities(CityAttr.FK_SF, null, "省份", new SFs(), true);
 		map.AddDDLEntities(CityAttr.FK_PQ, null, "片区", new PQs(), true);
-
+		
 		map.AddSearchAttr(CityAttr.FK_SF);
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
-
+		
 		this.set_enMap(map);
 		return this.get_enMap();
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-	///#endregion
-
 }
-

@@ -1,22 +1,18 @@
 package BP.WF.DTS;
 
-import BP.DA.*;
-import BP.WF.Entity.Track;
-import BP.WF.Template.Flow;
-import BP.WF.Template.Flows;
-
-import BP.Port.*;
-import BP.En.*;
+import BP.DA.DataTable;
+import BP.En.Method;
+import BP.WF.Flow;
+import BP.WF.Flows;
+import BP.WF.Track;
 
 /** 
  升级ccflow6 要执行的调度
- 
 */
 public class UpTrack extends Method
 {
 	/** 
 	 不带有参数的方法
-	 
 	*/
 	public UpTrack()
 	{
@@ -25,7 +21,6 @@ public class UpTrack extends Method
 	}
 	/** 
 	 设置执行变量
-	 
 	 @return 
 	*/
 	@Override
@@ -34,12 +29,11 @@ public class UpTrack extends Method
 	}
 	/** 
 	 当前的操纵员是否可以执行这个方法
-	 
 	*/
 	@Override
 	public boolean getIsCanDo()
 	{
-		if (WebUser.getNo().equals("admin"))
+		if (BP.Web.WebUser.getNo().equals("admin"))
 		{
 			return true;
 		}
@@ -50,7 +44,6 @@ public class UpTrack extends Method
 	}
 	/** 
 	 执行
-	 
 	 @return 返回执行结果
 	*/
 	@Override
@@ -60,7 +53,7 @@ public class UpTrack extends Method
 		fls.RetrieveAllFromDBSource();
 
 		String info = "";
-		for (Flow fl :Flows.convertFlows(fls) )
+		for (Flow fl : fls.ToJavaList())
 		{
 			// 检查报表.
 			Track.CreateOrRepairTrackTable(fl.getNo());

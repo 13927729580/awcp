@@ -1,32 +1,33 @@
 package BP.WF.Data;
 
-import BP.DA.*;
-import BP.En.*;
+import BP.DA.Depositary;
+import BP.En.EntityNoName;
+import BP.En.Map;
+import BP.En.SimpleNoNameAttr;
+import BP.En.UAC;
 
-/** 
-  单据类型
- 
-*/
+/**
+ * 单据类型
+ */
 public class BillType extends EntityNoName
 {
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 属性.
-	/** 
-	 流程编号
-	 
-	*/
+	// 属性.
+	/**
+	 * 流程编号
+	 */
 	public final String getFK_Flow()
 	{
 		return this.GetValStrByKey("FK_Flow");
 	}
+	
 	public final void setFK_Flow(String value)
 	{
 		this.SetValByKey("FK_Flow", value);
 	}
-	/** 
-	 UI界面上的访问控制
-	 
-	*/
+	
+	/**
+	 * UI界面上的访问控制
+	 */
 	@Override
 	public UAC getHisUAC()
 	{
@@ -34,31 +35,28 @@ public class BillType extends EntityNoName
 		uac.OpenForSysAdmin();
 		return uac;
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion 属性.
-
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 构造方法
-	/** 
-	 单据类型
-	 
-	*/
+	
+	// 构造方法
+	/**
+	 * 单据类型
+	 */
 	public BillType()
 	{
 	}
-	/** 
-	 单据类型
-	 
-	 @param _No
-	*/
+	
+	/**
+	 * 单据类型
+	 * 
+	 * @param _No
+	 */
 	public BillType(String _No)
 	{
 		super(_No);
 	}
-	/** 
-	 单据类型Map
-	 
-	*/
+	
+	/**
+	 * 单据类型Map
+	 */
 	@Override
 	public Map getEnMap()
 	{
@@ -72,15 +70,14 @@ public class BillType extends EntityNoName
 		map.setDepositaryOfEntity(Depositary.None);
 		map.setDepositaryOfMap(Depositary.Application);
 		map.setIsAutoGenerNo(true);
-
+		
 		map.AddTBStringPK(SimpleNoNameAttr.No, null, "编号", true, true, 2, 2, 2);
-		map.AddTBString(SimpleNoNameAttr.Name, null, "名称", true, false, 1, 50, 50);
+		map.AddTBString(SimpleNoNameAttr.Name, null, "名称", true, false, 1, 50,
+				50);
 		map.AddTBString("FK_Flow", null, "流程", true, false, 1, 50, 50);
-
+		
 		map.AddTBInt("IDX", 0, "IDX", false, false);
 		this.set_enMap(map);
 		return this.get_enMap();
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
 }

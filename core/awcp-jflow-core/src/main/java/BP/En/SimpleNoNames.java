@@ -1,21 +1,18 @@
 package BP.En;
 
-
-/** 
- SimpleNoNames
- 
-*/
+/**
+ * SimpleNoNames
+ */
 public abstract class SimpleNoNames extends EntitiesNoName
 {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-
-	/** 
-	 SimpleNoNames
-	 
-	*/
+	
+	/**
+	 * SimpleNoNames
+	 */
 	public SimpleNoNames()
 	{
 	}

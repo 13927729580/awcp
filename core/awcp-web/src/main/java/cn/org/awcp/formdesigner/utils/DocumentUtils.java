@@ -1,36 +1,13 @@
 package cn.org.awcp.formdesigner.utils;
 
-import java.io.File;
-import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang3.StringUtils;
-import org.quartz.CronScheduleBuilder;
-import org.quartz.CronTrigger;
-import org.quartz.JobBuilder;
-import org.quartz.JobDataMap;
-import org.quartz.JobDetail;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-import org.quartz.TriggerBuilder;
-import org.quartz.impl.StdSchedulerFactory;
-
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-
-import BP.WF.Dev2Interface;
-import cn.org.awcp.core.utils.Springfactory;
-import cn.org.awcp.formdesigner.application.vo.DocumentVO;
 import cn.org.awcp.venson.concurrent.TaskReminder;
 import cn.org.awcp.venson.concurrent.TaskRepeater;
-import cn.org.awcp.venson.controller.base.ControllerContext;
-import cn.org.awcp.venson.controller.base.ControllerHelper;
 import cn.org.awcp.venson.dingding.Env;
 import cn.org.awcp.venson.dingding.helper.AuthHelper;
 import cn.org.awcp.venson.dingding.message.OAMessage;
@@ -38,8 +15,17 @@ import cn.org.awcp.venson.dingding.message.OAMessage.Body;
 import cn.org.awcp.venson.dingding.message.OAMessage.Body.Form;
 import cn.org.awcp.venson.dingding.message.OAMessage.Head;
 import cn.org.awcp.venson.dingding.service.DDRequestService;
-import cn.org.awcp.venson.service.FileService;
 import cn.org.awcp.venson.util.LocalStorage;
+import com.alibaba.fastjson.JSONObject;
+import org.apache.commons.lang3.StringUtils;
+
+import com.alibaba.fastjson.JSON;
+
+import cn.org.awcp.formdesigner.application.vo.DocumentVO;
+import cn.org.awcp.venson.controller.base.ControllerContext;
+import cn.org.awcp.venson.controller.base.ControllerHelper;
+import org.quartz.*;
+import org.quartz.impl.StdSchedulerFactory;
 
 /**
  * 文档操作
@@ -64,79 +50,6 @@ public class DocumentUtils extends BaseUtils {
 		return ControllerContext.getDoc();
 	}
 
-	// *******************************欧盛文档管理-begin************************************************
-	/**
-	 * 获取某个父节点下面的所有子节点
-	 * 
-	 * @param menuList
-	 * @param pid
-	 * @return
-	 */
-	public List<Map<String, Object>> treeMenuList(List<Map<String, Object>> menuList, String pid) {
-		List<Map<String, Object>> childMenu = new ArrayList<Map<String, Object>>();
-		for (Map<String, Object> mu : menuList) {
-			// 遍历出父id等于参数的id，add进子节点集合
-			if (pid.equals(mu.get("pid").toString())) {
-				// 递归遍历下一级
-				List<Map<String, Object>> temp = treeMenuList(menuList, mu.get("ID").toString());
-				childMenu.add(mu);
-				childMenu.addAll(temp);
-			}
-		}
-		return childMenu;
-	}
-
-	/**
-	 * oa_os_directory中获取当前节点所有子节点
-	 * 
-	 * @param id
-	 * @return
-	 */
-	public String getchild(String id) {
-		String parentIds = "";
-		String sql = "select ID ,name,IFNULL(pid,'') as pid from oa_os_directory";
-		List<Map<String, Object>> menuList = this.excuteQueryForList(sql);
-		List<Map<String, Object>> list = treeMenuList(menuList, id);
-		for (Map<String, Object> mu : list) {
-			parentIds += mu.get("ID") + ",";
-		}
-		return parentIds.substring(0, parentIds.length() - 0);
-	}
-
-	/**
-	 * oa_os_directorytemplate中获取所有子节点
-	 * 
-	 * @param id
-	 * @return
-	 */
-	public String getDirTemplateChild(String id) {
-		String parentIds = "";
-		String sql = "select ID ,name,IFNULL(pid,'') as pid from oa_os_directorytemplate";
-		List<Map<String, Object>> menuList = this.excuteQueryForList(sql);
-		List<Map<String, Object>> list = treeMenuList(menuList, id);
-		for (Map<String, Object> mu : list) {
-			parentIds += mu.get("ID") + ",";
-		}
-		return parentIds.substring(0, parentIds.length() - 0);
-	}
-
-	/**
-	 * 判断路径是否属于目录
-	 * 
-	 * @param path
-	 * @return
-	 */
-	public String isFilePath(String path) {
-		String message = "1";
-		File file = new File(path);
-		if (!file.isDirectory()) {
-			message = "2";
-		}
-		return message;
-	}
-
-	// *******************************欧盛业务管理-end************************************************
-
 	// *******************************钉钉发送OA消息-begin************************************************
 	public boolean sendMessage(String url, String type, String json, String title, String ids, String agentId) {
 		return sendMessage(url, type, JSON.parseObject(json, Map.class), title, ids, agentId, null, null);
@@ -150,36 +63,6 @@ public class DocumentUtils extends BaseUtils {
 		return sendMessage(url, type, content, title, ids, null, null, null);
 	}
 
-	/**
-	 * @see  {@link cn.org.awcp.formdesigner.utils.BaseUtils#isCanDo}
-	 * @return
-	 */
-	@Deprecated
-	public boolean isCanDo() {
-		HttpServletRequest request = ControllerContext.getRequest();
-		String WorkID = request.getParameter("WorkID");
-		String FK_Node = request.getParameter("FK_Node");
-		if (StringUtils.isNumeric(WorkID) && StringUtils.isNotBlank(FK_Node))
-			return Dev2Interface.Flow_IsCanDoCurrentWork(FK_Node, Long.parseLong(WorkID),
-					ControllerHelper.getUser().getUserIdCardNumber());
-		return false;
-	}
-	
-	/**
-	 * @see  {@link cn.org.awcp.formdesigner.utils.BaseUtils#isStarter}
-	 * @return
-	 */
-	@Deprecated
-	public boolean isStarter() {
-		HttpServletRequest request = ControllerContext.getRequest();
-		String WorkID = request.getParameter("WorkID");
-		String userId = this.getUser().getUserIdCardNumber();
-		if (StringUtils.isNumeric(WorkID))
-			return this.jdbcTemplate.queryForObject(
-					"select count(1) from wf_generworkflow where workid=? and starter=? and wfsta<>1 ", Integer.class,
-					WorkID, userId) == 1;
-		return false;
-	}
 
 	/**
 	 * 钉钉OA消息发送
@@ -304,12 +187,7 @@ public class DocumentUtils extends BaseUtils {
 	 *            主键值
 	 */
 	public Object queryObjectById(String table, String field, String idName, Object value) {
-		try {
-			return this.excuteQuery("select " + field + " from " + table + " where " + idName + "='" + value + "'")
-					.get(field);
-		} catch (Exception e) {
-			return null;
-		}
+		return this.excuteQueryForObject("select " + field + " from " + table + " where " + idName + "=?", value);
 	}
 
 	public void addReminder(String id, int type) {
@@ -350,97 +228,4 @@ public class DocumentUtils extends BaseUtils {
 		LocalStorage.remove(Env.CORP_ID);
 	}
 
-	/**
-	 * crmtile中佣金发放
-	 * @param receiptId	: 收据ID
-	 * @param money : 收据金额
-	 * @param orderId : 订单ID
-	 */
-	public void setCommission(String receiptId,Double money,String orderId){
-		String sql = "select salesman,shoppingGuide,designer,sender,customerType from crmtile_order where ID=?";
-		Map<String,Object> orderInfo = jdbcTemplate.queryForMap(sql,orderId);
-		long salesman =  orderInfo.get("salesman")==null?0:(long)orderInfo.get("salesman");
-		long shoppingGuide = orderInfo.get("shoppingGuide")==null?0:(long)orderInfo.get("shoppingGuide");
-		long designer =orderInfo.get("designer")==null?0:(long)orderInfo.get("designer");
-		long sender = orderInfo.get("sender")==null?0:(long)orderInfo.get("sender");
-		String customerType = orderInfo.get("customerType")==null?"":(String) orderInfo.get("customerType");
-		String subSql = "";
-		if("1".equals(customerType)){//整装客户
-			subSql = "(select all_proportion from crmtile_employee_wages_info where user_id=?) ";
-		} else{
-			subSql = "(select half_proportion from crmtile_employee_wages_info where user_id=?) ";
-		}		
-		if(StringUtils.isNotBlank(receiptId)){//当订单审核通过后，分配佣金
-			sql = "insert into crmtile_employee_commission_record(ID,receiptId,money,type) values(uuid(),?,?,?)";
-			jdbcTemplate.update(sql,receiptId,money,"1");
-			jdbcTemplate.update(sql,receiptId,money,"2");
-			jdbcTemplate.update(sql,receiptId,money,"3");
-			jdbcTemplate.update(sql,receiptId,money,"4");			
-		} 
-		sql = "update crmtile_employee_commission_record set user_id=?,created=?,money=money*" + subSql + 
-			  "where receiptId in (select ID from crmtile_receipt where orderId=?) and type=? and user_id is null";
-		if(salesman!=0 && salesman!=shoppingGuide){
-			jdbcTemplate.update(sql,salesman,new Date(),salesman,orderId,"1");
-		}
-		if(shoppingGuide!=0){
-			jdbcTemplate.update(sql,shoppingGuide,new Date(),shoppingGuide,orderId,"2");
-		}
-		if(designer!=0){
-			jdbcTemplate.update(sql,designer,new Date(),designer,orderId,"3");
-		}
-		if(sender!=0){
-			jdbcTemplate.update(sql,sender,new Date(),sender,orderId,"4");
-		}		
-	}
-	
-	/**
-	 * 手机端保存明细时设置订单的价格
-	 * @param orderId
-	 */
-	public void setOrderTotalPrice(String orderId){
-		String sql = "select ifnull(slFee,0)+ifnull(jgFee,0) as fee from crmtile_order where ID=?";
-		double fee = jdbcTemplate.queryForObject(sql, Double.class,orderId);
-		sql = "select ifnull(sum(ifnull(total_price,0)),0) as items from crmtile_order_item where orderID=?";
-		double items = jdbcTemplate.queryForObject(sql, Double.class,orderId);
-		sql = "update crmtile_order set totalPrice=? where ID=?";
-		jdbcTemplate.update(sql, fee+items,orderId);
-	}
-	
-	/**
-	 * 删除订单
-	 * @param orderId
-	 */
-	public void deleteWf(String[] ids){		
-		String countSql = "select count(*) from crmtile_order where ID=? and state in ('0','2')";
-		String updateCustomer = "update crmtile_customer set hasOrder='N' "
-				+ "where ID=(select customerId from crmtile_order where ID=? and state in ('0','2'))";
-		String delOrderSql = "delete from crmtile_order where ID=? and state in ('0','2')";		
-		String sql = "select WORKITEM_ID,WORKFLOW_ID from p_fm_document where RECORD_ID=?";
-		String delDoc = "delete from p_fm_document where RECORD_ID=?";
-		Map<String,Object> map = null;
-		for (String id : ids) {
-			int count = jdbcTemplate.queryForObject(countSql, Integer.class,id);
-			if(count==1){
-				excuteUpdate(updateCustomer, id);
-				excuteUpdate(delOrderSql,id);			
-				map = excuteQuery(sql,id);
-				if(map!=null){
-					String flowNo = (String) map.get("WORKFLOW_ID");
-					long workID = Long.parseLong((String)map.get("WORKITEM_ID"));
-					Dev2Interface.Flow_DoDeleteFlowByReal(flowNo,workID,false);
-				}			
-				excuteUpdate(delDoc,id);
-			}		
-		}
-	}
-	
-	/**
-	 * 通过fileId获取其输入流
-	 * @param fileId
-	 * @return
-	 */
-	public InputStream getInputStream(String fileId){
-		FileService fileService = Springfactory.getBean("IFileService");
-		return fileService.getInputStream(fileService.get(fileId));
-	}
 }

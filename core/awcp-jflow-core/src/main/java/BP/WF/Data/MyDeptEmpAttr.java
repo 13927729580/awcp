@@ -1,8 +1,9 @@
 package BP.WF.Data;
 
-/** 
-属性 
 
+/** 
+  属性 
+ 
 */
 public class MyDeptEmpAttr extends BP.En.EntityNoNameAttr
 {

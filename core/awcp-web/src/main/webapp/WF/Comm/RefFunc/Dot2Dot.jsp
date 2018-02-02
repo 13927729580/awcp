@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<%@ include file="/head/head1.jsp"%>
+<%@ include file="/WF/head/head1.jsp"%>
 <%
 	RefLeftModel RefLeft = new RefLeftModel(request, basePath);
 	RefLeft.init();

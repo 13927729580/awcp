@@ -1,13 +1,14 @@
 package BP.WF.Data;
 
-/** 
-我发起的流程
 
+/** 
+ 我发起的流程
+ 
 */
 public class MyStartFlowAttr
 {
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 基本属性
+
+		
 	/** 
 	 工作ID
 	 
@@ -179,16 +180,6 @@ public class MyStartFlowAttr
 	*/
 	public static final String TaskSta = "TaskSta";
 	/** 
-	 延续流程编号
-	 
-	*/
-	public static final String CFlowNo = "CFlowNo";
-	/** 
-	 延续流程ID
-	 
-	*/
-	public static final String CWorkID = "CWorkID";
-	/** 
 	 临时存放的参数
 	 
 	*/
@@ -203,7 +194,6 @@ public class MyStartFlowAttr
 	 
 	*/
 	public static final String GUID = "GUID";
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
+
 		///#endregion
 }
-

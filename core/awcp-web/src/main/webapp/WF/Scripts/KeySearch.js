@@ -10,7 +10,7 @@ function callBack(jsonData, scope) {
         var grid = $("#maingrid").ligerGrid({
             columns: [
                    { display: '标题', name: 'Title', width: 380, align: 'left', render: function (rowdata, rowindex) {
-                       var h = "../WF/WFRpt.aspx?WorkID=" + rowdata.OID + "&FK_Flow=" + rowdata.FK_Flow + "&FK_Node=" + rowdata.FlowEndNode+"&T="+dateNow;
+                       var h = "../WF/WFRpt.jsp?WorkID=" + rowdata.OID + "&FK_Flow=" + rowdata.FK_Flow + "&FK_Node=" + rowdata.FlowEndNode+"&T="+dateNow;
                        return "<a href='javascript:void(0);' onclick=OpenIt('" + h + "') >" + rowdata.Title + "</a>";
                    }
                    },
@@ -39,7 +39,7 @@ function callBack(jsonData, scope) {
             groupColumnName: 'FlowName',
             groupColumnDisplay: '流程类型',
             onDblClickRow: function (rowdata, rowindex) {
-                OpenIt("../WF/WFRpt.aspx?WorkID=" + rowdata.OID + "&FK_Flow=" + rowdata.FK_Flow + "&FK_Node=" + rowdata.FlowEndNode+"&T="+dateNow);
+                OpenIt("../WF/WFRpt.jsp?WorkID=" + rowdata.OID + "&FK_Flow=" + rowdata.FK_Flow + "&FK_Node=" + rowdata.FlowEndNode+"&T="+dateNow);
             }
         });
         $("#pageloading").hide();

@@ -1,4 +1,4 @@
-<%@page import="org.jflow.framework.common.model.ContrastDtlModel"%>
+<%@page import="cn.jflow.common.model.ContrastDtlModel"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%

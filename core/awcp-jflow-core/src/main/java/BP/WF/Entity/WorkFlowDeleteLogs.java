@@ -1,32 +1,27 @@
 package BP.WF.Entity;
 
-import BP.En.*;
+import BP.En.Entities;
+import BP.En.Entity;
 
-
-/** 
- 流程删除日志s 
- 
-*/
+/**
+ * 流程删除日志s
+ */
 public class WorkFlowDeleteLogs extends Entities
 {
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 构造
-	/** 
-	 流程删除日志s
-	 
-	*/
+	// 构造
+	/**
+	 * 流程删除日志s
+	 */
 	public WorkFlowDeleteLogs()
 	{
 	}
-	/** 
-	 得到它的 Entity
-	 
-	*/
+	
+	/**
+	 * 得到它的 Entity
+	 */
 	@Override
 	public Entity getGetNewEntity()
 	{
 		return new WorkFlowDeleteLog();
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
 }

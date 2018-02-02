@@ -1,19 +1,15 @@
 package BP.WF.Port;
 
-import java.util.ArrayList;
-
 import BP.En.EntitiesNoName;
 import BP.En.Entity;
 
 /** 
  工作人员
- 
 */
 public class Emps extends EntitiesNoName
 {
 	/** 
 	 得到它的 Entity 
-	 
 	*/
 	@Override
 	public Entity getGetNewEntity()
@@ -22,27 +18,29 @@ public class Emps extends EntitiesNoName
 	}
 	/** 
 	 工作人员s
-	 
 	*/
 	public Emps()
 	{
 	}
 	/** 
-	 查询全部
-	 
-	 @return 
+	 转化成 java list,C#不能调用.
+	 @return List
 	*/
-	@Override
-	public int RetrieveAll()
+	public final java.util.List<Emp> ToJavaList()
 	{
-	   return super.RetrieveAll();
-
-		//QueryObject qo = new QueryObject(this);
-		//qo.AddWhere(EmpAttr.FK_Dept, " like ", BP.Web.WebUser.FK_Dept + "%");
-		//qo.addOrderBy(EmpAttr.No);
-		//return qo.DoQuery();
+		return (java.util.List<Emp>)(Object)this;
 	}
-	public static ArrayList<Emp> convertEmps(Object sts) {
-		return (ArrayList<Emp>)sts;
+	/** 
+	 转化成list
+	 @return List
+	*/
+	public final java.util.ArrayList<Emp> Tolist()
+	{
+		java.util.ArrayList<Emp> list = new java.util.ArrayList<Emp>();
+		for (int i = 0; i < this.size(); i++)
+		{
+			list.add((Emp)this.get(i));
+		}
+		return list;
 	}
 }

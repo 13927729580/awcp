@@ -5,7 +5,8 @@ import BP.En.EntityNoNameAttr;
 /**
  * 学生 属性
  */
-public class StudentAttr extends EntityNoNameAttr {
+public class StudentAttr extends EntityNoNameAttr
+{
 	/**
 	 * 性别
 	 */
@@ -14,10 +15,6 @@ public class StudentAttr extends EntityNoNameAttr {
 	 * 地址
 	 */
 	public static final String Addr = "Addr";
-	/**
-	 * 班级
-	 */
-	public static final String FJ_BanJi = "FJ_BanJi";
 	/**
 	 * 年龄
 	 */
@@ -44,4 +41,35 @@ public class StudentAttr extends EntityNoNameAttr {
 	public static final String JD = "JD";
 	
 	public static final String SQ = "SQ";
+	
+	/**
+	 * 是否特困生？
+	 */
+    public static final String IsTeKunSheng = "IsTeKunSheng";
+    /**
+     * 是否有重大疾病史？
+     */
+    public static final String IsJiBing = "IsJiBing";
+   /**
+    * 是否偏远山区？
+    */
+    public static final String IsPianYuanShanQu = "IsPianYuanShanQu";
+    /**
+     * 是否独生子
+     */
+    public static final String IsDuShengZi = "IsDuShengZi";
+    /**
+     * 政治面貌
+     */
+    public static final String ZZMM = "ZZMM";
+	
+	/** 
+	 登录系统密码
+	*/
+	public static final String PWD = "PWD";
+	/** 
+	 班级
+	*/
+	public static final String FK_BanJi = "FK_BanJi";
+
 }

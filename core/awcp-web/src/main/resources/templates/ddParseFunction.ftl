@@ -145,7 +145,7 @@
 		<#local placeholder = c['placeholder'] />			
 	</#if>
 	<div class="colSecond" >
-     	<span data-id='${placeholder + c['required']}' class='awcp_fun <#if c['css']?? && c['css']?length gt 0>${c['css']}</#if>'  
+     	<span data-id='${placeholder + c['required']!''}' class='awcp_fun <#if c['css']?? && c['css']?length gt 0>${c['css']}</#if>'  
      		<#if c['style']?? >style='margin-left: 0px;${c['style']}'</#if>><#if c['extra']?? && c['extra']?length gt 0 >
 			<#noparse>${(</#noparse>${c['extra']}<#noparse>)!""}</#noparse>	
 		</#if></span>
@@ -203,7 +203,7 @@
 		<#local placeholder = c['placeholder'] />			
 	</#if>
 	<div class="colSecond" >
-     	<span data-id='${placeholder+c['required']}' class='dd_select <#if c['css']?? && c['css']?length gt 0>${c['css']}</#if>'  
+     	<span data-id='${placeholder+c['required']!''}' class='dd_select <#if c['css']?? && c['css']?length gt 0>${c['css']}</#if>'  
      		<#if c['style']?? >style='float:right;margin-right: 15px;${c['style']}'</#if>><#if c['dataItemCode']?? && c['dataItemCode']?length gt 0 >
 			<#noparse>${(</#noparse>${c['dataItemCode']}<#noparse>)!""}</#noparse>	
 		</#if></span>
@@ -294,7 +294,7 @@
 	</#if>
 	<div class="colSecond">
 	    <span class='dd_select <#if c['css']?? && c['css']?length gt 0>${c['css']}</#if>'  <#if c['style']?? >style='float:right;margin-right: 15px;${c['style']}'</#if>
-	    data-id='<#noparse><#if (</#noparse>${c['dataItemCode']}<#noparse>)?? && (</#noparse>${c['dataItemCode']}<#noparse>)?length gt 0 ><#else></#noparse>${placeholder+c['required']}<#noparse></#if></#noparse>'
+	    data-id='<#noparse><#if (</#noparse>${c['dataItemCode']}<#noparse>)?? && (</#noparse>${c['dataItemCode']}<#noparse>)?length gt 0 ><#else></#noparse>${placeholder+c['required']!''}<#noparse></#if></#noparse>'
 	    >    
 	    </span>
      	<input  class='<#if c['required']?? && c['required'] == '1'>required</#if>'  type='hidden' id='${(c['pageId'])!""}'
@@ -332,7 +332,7 @@
 		id='${(c['pageId'])!""}'
 		style='<#if c['style']?? >${c['style']}</#if>'
 		<#if c['name']?? >name='${c['name']}'</#if>
-		data-placeholder='${placeholder+c['required']}'
+		data-placeholder='${placeholder+c['required']!''}'
 		><#if c['dataItemCode']?? && c['dataItemCode']?length gt 0 ><#noparse>${(</#noparse>${c['dataItemCode']}<#noparse>)!''}</#noparse></#if></textarea>
 	</div>
 </#macro>
@@ -349,7 +349,7 @@
 		</div>
 	</#if>
 	<div class="colSecond">
-		<span data-id='<#noparse><#if (</#noparse>${c['dataItemCode']}<#noparse>)?? && (</#noparse>${c['dataItemCode']}<#noparse>)?length gt 0 ><#else></#noparse>${placeholder+c['required']}<#noparse></#if></#noparse>' 
+		<span data-id='<#noparse><#if (</#noparse>${c['dataItemCode']}<#noparse>)?? && (</#noparse>${c['dataItemCode']}<#noparse>)?length gt 0 ><#else></#noparse>${placeholder+c['required']!''}<#noparse></#if></#noparse>' 
 			style='float:right;margin-right: 15px;' class='
 			<#if c['css']?? && c['css']?length gt 0>
 				${c['css']}
@@ -392,7 +392,7 @@
 		style='<#if c['style']?? >${c['style']}</#if>'
 		id='${(c['pageId'])!""}'
 		<#if c['name']?? >name='${c['name']}'</#if>	
-		data-placeholder='${placeholder+c['required']}'
+		data-placeholder='${placeholder+c['required']!''}'
 		/>
 	</div>
 </#macro>

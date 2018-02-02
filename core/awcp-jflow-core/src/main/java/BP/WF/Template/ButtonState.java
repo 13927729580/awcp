@@ -1,17 +1,14 @@
 package BP.WF.Template;
 
-import BP.DA.*;
-import BP.*;
-import BP.Port.WebUser;
-import BP.Sys.*;
+import BP.DA.DBAccess;
+import BP.DA.DataTable;
+import BP.WF.GenerWorkerList;
+import BP.WF.GenerWorkerListAttr;
+import BP.WF.Node;
 import BP.WF.WorkNode;
-import BP.WF.Entity.GenerWorkerList;
-import BP.WF.Entity.GenerWorkerListAttr;
-import BP.En.*;
 
 /** 
  按钮状态
- 
 */
 public class ButtonState
 {
@@ -31,15 +28,12 @@ public class ButtonState
 			this.Btn_Save = true;
 			return;
 		}
-
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-			///#region 判断是否可以撤销发送.
 		WorkNode wn = new WorkNode(this.WorkID, this.CurrNodeIDOfFlow);
 		WorkNode wnPri = wn.GetPreviousWorkNode();
 
 		// 判断它是否可以处理上一步工作.
 		GenerWorkerList wl = new GenerWorkerList();
-		int num = wl.Retrieve(GenerWorkerListAttr.FK_Emp, WebUser.getNo(), GenerWorkerListAttr.FK_Node, wnPri.getHisNode().getNodeID(), GenerWorkerListAttr.WorkID, this.WorkID);
+		int num = wl.Retrieve(GenerWorkerListAttr.FK_Emp, BP.Web.WebUser.getNo(), GenerWorkerListAttr.FK_Node, wnPri.getHisNode().getNodeID(), GenerWorkerListAttr.WorkID, this.WorkID);
 		if (num >= 1)
 		{
 			//如果能够处理上一步工作
@@ -51,8 +45,6 @@ public class ButtonState
 			this.Btn_Send = true;
 			this.Btn_Save = true;
 		}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-			///#endregion
 	}
 	public final void InitNodeIsNotCurr()
 	{
@@ -83,7 +75,7 @@ public class ButtonState
 		}
 
 		// 设置当前流程节点。
-		this.CurrNodeIDOfFlow = Integer.parseInt(dt.getValue(0,0).toString());
+		this.CurrNodeIDOfFlow = Integer.parseInt(dt.Rows.get(0).getValue(0).toString());
 
 		if (this.CurrNodeIDOfUI == this.CurrNodeIDOfFlow)
 		{
@@ -97,42 +89,34 @@ public class ButtonState
 	}
 	/** 
 	 保存按钮
-	 
 	*/
 	public boolean Btn_Send = false;
 	/** 
 	 保存按钮
-	 
 	*/
 	public boolean Btn_Save = false;
 	/** 
 	 转发
-	 
 	*/
 	public boolean Btn_Forward = false;
 	/** 
 	 退回
-	 
 	*/
 	public boolean Btn_Return = false;
 	/** 
 	 撤销发送
-	 
 	*/
 	public boolean Btn_UnSend = false;
 	/** 
 	 删除流程
-	 
 	*/
 	public boolean Btn_DelFlow = false;
 	/** 
 	 新建流程
-	 
 	*/
 	public boolean Btn_NewFlow = false;
 	/** 
 	 工作轨迹
-	 
 	*/
 	public boolean Btn_Track = false;
 }

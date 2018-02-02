@@ -13,11 +13,11 @@
  */
 package cn.org.awcp.core.utils;
 
-import java.security.MessageDigest;
-import java.util.Random;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.security.MessageDigest;
+import java.util.Random;
 
 /**
  * A class that provides easy Blowfish encryption.<p>
@@ -31,6 +31,14 @@ public class Blowfish {
 
     private BlowfishCBC m_bfish;
     private static Random m_rndGen = new Random();
+
+    public static final String KEY_STRING="awcp";
+
+    private static Blowfish instance=new Blowfish(KEY_STRING);
+
+    public static Blowfish getInstance(){
+        return instance;
+    }
 
     /**
      * Creates a new Blowfish object using the specified key (oversized

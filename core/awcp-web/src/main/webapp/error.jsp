@@ -10,7 +10,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta name="format-detection" content="telephone=no,email=no,adress=no"/>
-    <title>500</title>
+    <title>啊哦，系统升级中</title>
     <script>
         (function () {
             document.documentElement.style.fontSize=document.documentElement.clientWidth / 1080 * 100 + "px";

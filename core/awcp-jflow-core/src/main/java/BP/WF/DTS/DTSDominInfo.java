@@ -1,10 +1,7 @@
 package BP.WF.DTS;
 
-import BP.DA.*;
-
-import BP.Port.*;
-import BP.En.*;
-import BP.Sys.*;
+import BP.DA.DBAccess;
+import BP.En.Method;
 
 // using Security.Principal.WindowsIdentity;
 
@@ -50,17 +47,16 @@ public class DTSDominInfo extends Method
 	@Override
 	public Object Do()
 	{
-		return "功能未实现。";
 
-//		String domainHost = "127.0.0.1";
-//
-//		String sqls = "";
-//		sqls += "@DELETE FROM Port_Emp";
-//		sqls += "@DELETE FROM Port_Dept";
-//		sqls += "@DELETE FROM Port_Station";
-//		sqls += "@DELETE FROM Port_EmpStation";
-//		sqls += "@DELETE FROM Port_EmpDept";
-//		DBAccess.RunSQLs(sqls);
+		String domainHost = "127.0.0.1";
+
+		String sqls = "";
+		sqls += "@DELETE FROM Port_Emp";
+		sqls += "@DELETE FROM Port_Dept";
+		sqls += "@DELETE FROM Port_Station";
+		sqls += "@DELETE FROM Port_EmpStation";
+	   
+		DBAccess.RunSQLs(sqls);
 
 
 		// 把部门导入里面去。
@@ -84,13 +80,13 @@ public class DTSDominInfo extends Method
 		//    strArray = res.Path.Split(',');
 		//    for (int j = strArray.Length; j > 0; j--)
 		//    {
-		//        if (strArray[j - 1].Substring(0, 3) == "OU=")
+		//        if (strArray[j - 1].substing(0, 3) == "OU=")
 		//        {
-		//            str = "└" + strArray[j - 1].Replace("OU=", "");
+		//            str = "└" + strArray[j - 1].replace("OU=", "");
 		//        }
 		//    }
 		//}
 
-//		return "生成成功，请打开 。<br>如果您想共享出来请压缩后发送到template＠ccflow.org";
+		return "生成成功，请打开 。<br>如果您想共享出来请压缩后发送到template＠ccflow.org";
 	}
 }

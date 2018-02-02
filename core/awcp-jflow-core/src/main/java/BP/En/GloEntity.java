@@ -1,9 +1,11 @@
 package BP.En;
 
-import BP.En.*;
-import BP.DA.*;
-import BP.Sys.*;
-import BP.Port.*;
+import BP.DA.DataColumn;
+import BP.DA.DataRow;
+import BP.DA.DataSet;
+import BP.DA.DataTable;
+import BP.Sys.SysFileManager;
+import BP.Sys.SysFileManagers;
 
 /** 
   关于对Entity扩展，的方法。
@@ -11,7 +13,6 @@ import BP.Port.*;
 */
 public class GloEntity
 {
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
 		///#region 用到ddl 的方法。
 	public static String GetTextByValue(Entities ens, String no, String isNullAsVal)
 	{
@@ -42,7 +43,6 @@ public class GloEntity
 			throw new RuntimeException("@没有找到No=" + no + "在实体里面");
 		}
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
 		///#endregion
 
 	public static String GetEnFilesUrl(Entity en)
@@ -58,10 +58,8 @@ public class GloEntity
 		return str;
 	}
 
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
 		///#region 关于对entity 的处理
 
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
 		///#region 转换dataset
 	/** 
 	 把指定的ens 转换为 dataset
@@ -88,7 +86,7 @@ public class GloEntity
 			dt = spens.ToDataTableField();
 		}
 		dt.TableName = en.getEnDesc(); //设定主表的名称。
-//C# TO JAVA CONVERTER TODO TASK: Java has no equivalent to C#-style event wireups:
+
 		dt.RowChanged += new DataRowChangeEventHandler(dt_RowChanged);
 
 		//dt.RowChanged+=new DataRowChangeEventHandler(dt_RowChanged);
@@ -163,7 +161,7 @@ public class GloEntity
 						dr["tmp" + attr.getKey()] = false;
 					}
 				}
-				dt.Columns.Remove(attr.getKey());
+				dt.Columns.remove(attr.getKey());
 				dt.Columns["tmp" + attr.getKey()].ColumnName = attr.getKey();
 				continue;
 			}
@@ -193,7 +191,7 @@ public class GloEntity
 					}
 
 				}
-				dt.Columns.Remove(attr.getKey());
+				dt.Columns.remove(attr.getKey());
 				dt.Columns["tmp" + attr.getKey()].ColumnName = attr.getKey();
 				continue;
 			}
@@ -211,7 +209,6 @@ public class GloEntity
 //		throw new RuntimeException(sender.toString() + "  rows change ." + e.Row.toString());
 //	}
 
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
 		///#endregion
 
 	/** 
@@ -406,10 +403,8 @@ public class GloEntity
 		}
 		return dt;
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
 		///#endregion
 
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
 		///#region 张
 	/** 
 	 通过一个集合，一个key，一个分割符号，获得这个属性的子串。
@@ -447,6 +442,5 @@ public class GloEntity
 	{
 		return GetEnsString(ens, ens.getGetNewEntity().getPK(), ";");
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
 		///#endregion
 }

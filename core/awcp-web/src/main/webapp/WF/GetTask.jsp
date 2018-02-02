@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=utf-8"
 	pageEncoding="utf-8"%>
-<%@ include file="/head/head.jsp"%>
+<%@ include file="/WF/head/head2.jsp"%>
+<link href="<%=Glo.getCCFlowAppPath() %>DataUser/Style/table0.css" rel="stylesheet" type="text/css" />
 <%
 	String PageSmall = null;
 	String PageID = Glo.getCurrPageID();
@@ -33,41 +34,12 @@ function Tackback(fk_flow, fk_node, toNode, workid) {
 					+ '&WorkID=' + workid;
 			window.location.href = url;
 		}
-		//  var v = window.showModalDialog(url, 'sd', 'dialogHeight: 400px; dialogWidth: 500px; dialogTop: 100px; dialogLeft: 150px; center: yes; help: no');
-		// window.location.href = window.location.href;
 	}
 </script>
 </head>
-<body>
-	<!-- 内容 -->
-	<!-- 表格数据 -->
-	<div class="admin-content">
-
-		<div class="am-cf am-padding">
-			<div class="am-fl am-cf">
-				<strong class="am-text-primary am-text-lg">首页</strong> / <small>取回审批</small>
-			</div>
-		</div>
-
-		<!-- 数据 -->
-
-		<div class="am-g">
-			<div class="am-u-sm-12">
-				<form class="am-form">
-					<%=model.Pub1%>
-				</form>
-				<!-- <ul class="am-pagination am-pagination-right">
-					<li class="am-disabled"><a href="#">&laquo;</a></li>
-					<li class="am-active"><a href="#">1</a></li>
-					<li><a href="#">2</a></li>
-					<li><a href="#">3</a></li>
-					<li><a href="#">4</a></li>
-					<li><a href="#">5</a></li>
-					<li><a href="#">&raquo;</a></li>
-				</ul> -->
-			</div>
-		</div>
-
-	</div>
+<body style="margin: 1px;">
+<table border=1px align=center width='100%'>
+	<%=model.Pub1%>
+</table>
 </body>
 </html>

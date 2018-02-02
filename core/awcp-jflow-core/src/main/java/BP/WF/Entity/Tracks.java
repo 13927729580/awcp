@@ -1,26 +1,31 @@
 package BP.WF.Entity;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import BP.En.Entity;
-/** 
- 轨迹集合
- 
-*/
+import BP.Sys.MapExt;
+
+/**
+ * 轨迹集合
+ */
 public class Tracks extends BP.En.Entities
 {
-	public static ArrayList<Track> convertTracks(Object obj) {
+	public static ArrayList<Track> convertTracks(Object obj)
+	{
 		return (ArrayList<Track>) obj;
 	}
-	
-	/** 
-	 轨迹集合
-	 
-	*/
+	public List<Track> ToJavaList()
+	{
+		return (List<Track>)(Object)this;
+	}
+	/**
+	 * 轨迹集合
+	 */
 	public Tracks()
 	{
 	}
-
+	
 	@Override
 	public Entity getGetNewEntity()
 	{

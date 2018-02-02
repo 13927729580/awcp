@@ -1,22 +1,22 @@
 package BP.WF.Data;
 
-import BP.DA.Depositary;
 import BP.En.EntityMyPK;
 import BP.En.Map;
 import BP.En.RefMethod;
 import BP.En.RefMethodType;
 import BP.En.UAC;
-import BP.WF.Comm.CHSta;
-import BP.WF.Template.Flows;
+import BP.Sys.SystemConfig;
+import BP.WF.Flows;
+import BP.WF.Glo;
 
 /** 
-时效考核
- 
+ 时效考核
+  
 */
 public class CHExt extends EntityMyPK
 {
 
-		///#region 基本属性
+		
 	/** 
 	 考核状态
 	 
@@ -105,13 +105,13 @@ public class CHExt extends EntityMyPK
 	 限期
 	 
 	*/
-	public final float getTSpan()
+	public final int getTimeLimit()
 	{
-		return this.GetValFloatByKey(CHAttr.TSpan);
+		return this.GetValIntByKey(CHAttr.TimeLimit);
 	}
-	public final void setTSpan(float value)
+	public final void setTimeLimit(int value)
 	{
-		this.SetValByKey(CHAttr.TSpan, value);
+		this.SetValByKey(CHAttr.TimeLimit, value);
 	}
 	/** 
 	 操作人员
@@ -225,7 +225,7 @@ public class CHExt extends EntityMyPK
 		///#endregion
 
 
-		///#region 构造方法
+		
 	/** 
 	 UI界面上的访问控制
 	 
@@ -272,10 +272,8 @@ public class CHExt extends EntityMyPK
 		{
 			return this.get_enMap();
 		}
-		Map map = new Map("WF_CH");
-		map.setDepositaryOfMap(Depositary.None);
-		map.setEnDesc("时效考核");
 
+		Map map = new Map("WF_CH", "时效考核");
 
 		map.AddTBString(CHAttr.Title, null, "标题", true, true, 0, 900, 5,true);
 
@@ -287,17 +285,15 @@ public class CHExt extends EntityMyPK
 		map.AddTBString(CHAttr.DTTo, null, "到", true, true, 0, 50, 5);
 		map.AddTBString(CHAttr.SDT, null, "应完成日期", true, true, 0, 50, 5);
 
+		map.AddTBString(CHAttr.TimeLimit, null, "限期", true, true, 0, 50, 5);
 
-		map.AddTBString(CHAttr.TSpan, null, "限期", true, true, 0, 50, 5);
-		map.AddTBString(CHAttr.UseTime, null, "用时", true, true, 0, 50, 5);
-		map.AddTBString(CHAttr.OverTime, null, "逾期", true, true, 0, 50, 5);
+		map.AddTBString(CHAttr.UseDays, null, "用时", true, true, 0, 50, 5);
+		map.AddTBString(CHAttr.OverDays, null, "逾期", true, true, 0, 50, 5);
 
 		map.AddDDLSysEnum(CHAttr.CHSta, 0, "状态", true, true, CHAttr.CHSta, "@0=及时完成@1=按期完成@2=逾期完成@3=超期完成");
 
 		map.AddDDLEntities(CHAttr.FK_Dept, null, "隶属部门", new BP.Port.Depts(), false);
-
 		map.AddDDLEntities(CHAttr.FK_Emp, null, "当事人", new BP.Port.Emps(), false);
-
 		map.AddDDLEntities(CHAttr.FK_NY, null, "月份", new BP.Pub.NYs(), false);
 
 		map.AddTBIntMyNum();
@@ -315,8 +311,8 @@ public class CHExt extends EntityMyPK
 		RefMethod rm = new RefMethod();
 		rm.Title = "打开流程轨迹";
 		rm.ClassMethodName = this.toString() + ".DoOpen";
-		rm.refMethodType=RefMethodType.RightFrameOpen;
-		rm.Icon = "/WF/Img/FileType/doc.gif";
+		rm.refMethodType = RefMethodType.RightFrameOpen;
+		rm.Icon = Glo.getCCFlowAppPath() + "WF/Img/FileType/doc.gif";
 		rm.IsForEns = false;
 		map.AddRefMethod(rm);
 
@@ -334,10 +330,6 @@ public class CHExt extends EntityMyPK
 
 	public final String DoOpen()
 	{
-		return "/WF/WFRpt.aspx?FK_Flow"+this.getFK_Flow()+"&WorkID="+this.getWorkID()+"&OID="+this.getWorkID();
+		return Glo.getCCFlowAppPath() + "WF/WFRpt.jsp?FK_Flow" + this.getFK_Flow() + "&WorkID=" + this.getWorkID() + "&OID=" + this.getWorkID();
 	}
 }
-/** 
-时效考核s
-
-*/

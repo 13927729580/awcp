@@ -28,7 +28,7 @@ public interface QueryService {
 	 *            是否包括退回件
 	 * @return
 	 */
-	Map<String, Object> getUntreatedData(int limit, int offset, String FK_Flow, String workItemName, String userName,
+	Map<String, Object> getUntreatedData(int limit, int offset, String[] includeFlow,String[] excludeFlow, String workItemName, String userName,
 			boolean hasReturn);
 
 	/**

@@ -1,6 +1,6 @@
 <%@page import="BP.WF.Glo"%>
 <%@page import="BP.En.UAC"%>
-<%@page import="org.jflow.framework.common.model.CommSearchModel"%>
+<%@page import="cn.jflow.common.model.CommSearchModel"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
     <%
@@ -27,7 +27,7 @@
 			errmsg = "@对不起，您没有查看的权限！";
 	}
 	csm.init();
-	String basePath = Glo.getCCFlowAppPath();
+//String basePath = Glo.getCCFlowAppPath();
 %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -35,16 +35,8 @@
 <base target=_self  />
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>驰骋技术</title>
-<link href="../Scripts/easyUI/themes/default/easyui.css" rel="stylesheet" type="text/css" />
-<link href="../Scripts/easyUI/themes/icon.css" rel="stylesheet" type="text/css" />
-<script src="../Scripts/easyUI/jquery-1.8.0.min.js" type="text/javascript"></script>
-<script src="../Scripts/easyUI/jquery.easyui.min.js" type="text/javascript"></script>
-<script language="JavaScript" src="JScript.js" type="text/javascript"></script>
-<script language="JavaScript" src="Menu.js" type="text/javascript"></script>
-<script language="JavaScript" src="ShortKey.js" type="text/javascript"></script>
-<script src="./JS/Calendar/WdatePicker.js" type="text/javascript"></script>
-<link href="./JS/Calendar/skin/WdatePicker.css" rel="stylesheet" type="text/css" />
-<link href='./Style/Table0.css' rel='stylesheet' type='text/css' />
+<link href="<%=Glo.getCCFlowAppPath() %>DataUser/Style/table0.css" rel="stylesheet" type="text/css" />
+<%@ include file="/WF/head/head1.jsp"%>
 <script type="text/javascript">
 document.onkeydown = function () {
     if (window.event && window.event.keyCode == 13) {
@@ -53,12 +45,10 @@ document.onkeydown = function () {
 }
 </script>
 </head>
-<body>
+<body onkeypress="Esc()" onkeydown="DoKeyDown();" topmargin="0" leftmargin="0">
 <span style="color: red;"><%=errmsg %></span>
 	<table id="Table1" align="left" CellSpacing="1" CellPadding="1" border="0" width="100%">
-		 <caption >
-				<%=csm.getLable1() %>
-                      </caption>
+		<caption> <%=csm.getLable1() %></caption> 
 		<TR>
 			<TD class="ToolBar">
 			<form id="search_from">
@@ -90,26 +80,26 @@ document.onkeydown = function () {
 	function ShowEn(url, wName, h, w) {
 		var s = "dialogWidth=" + parseInt(w) + "px;dialogHeight="
 				+ parseInt(h) + "px;resizable:yes";
-		var val = window.showModalDialog(url, null, s);
+		var val = window.open(url, null, s);
 		window.location.href = window.location.href;
 	}
 	function RefMethod1(path, index, warning, target, ensName, keys) {
 	    if (warning != null && warning != '' && warning != 'null' &&  warning !== undefined) {
 	        if (confirm(warning)){
-	        	 var url = "../Comm/RefMethod.jsp?Index=" + index + "&EnsName=" + ensName + keys;
+	        	 var url = path+"WF/Comm/RefMethod.jsp?Index=" + index + "&EnsName=" + ensName + keys;
 	        	 if (target == null || target == '')
 	        	 	var b = WinOpen(url, 'remmed');
 	        	 else
 	        	    var a = WinOpen(url, target);
-	        	 window.location.href = window.location.href;
+	        	// window.location.href = window.location.href;
 	        }
 	    }else{
-	    	 var url = "../Comm/RefMethod.jsp?Index=" + index + "&EnsName=" + ensName + keys;
+	    	 var url = path+"WF/WorkOpt/OneWork/Track.jsp?Index=" + index + "&EnsName=" + ensName + keys;
 	    	 if (target == null || target == '')
 	    	 	var b = WinOpen(url, 'remmed');
 	    	 else
 	    	 	var a = WinOpen(url, target);
-	    	 window.location.href = window.location.href;
+	    	// window.location.href = window.location.href;
 	    }
 	}
 	function ImgClick() {
@@ -118,7 +108,7 @@ document.onkeydown = function () {
 		var url = './Sys/EnsAppCfg.jsp?EnsName=' + ensName;
 		var s = 'dialogWidth=680px;dialogHeight=480px;status:no;center:1;resizable:yes'
 				.toString();
-		val = window.showModalDialog(url, null, s);
+		val = window.open(url, null, s);
 		window.location.href = window.location.href;
 	}
 	function DDL_mvals_OnChange(ctrl, ensName, attrKey) {
@@ -145,7 +135,7 @@ document.onkeydown = function () {
 		$.ajax({
 			cache: true,
 			type: "POST",
-	        url:"<%=basePath%>WF/Comm/Search.do?EnsName=<%=csm.getEnsName()%>",
+	        url:"<%=basePath%>WF/Comm/SearchUI.do?EnsName=<%=csm.getEnsName()%>",
 			data:$('#search_from').serialize(),
 		    success: function(data) {
 				var obj=eval("("+data+")");

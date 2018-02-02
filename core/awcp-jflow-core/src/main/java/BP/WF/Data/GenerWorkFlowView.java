@@ -1,27 +1,34 @@
 package BP.WF.Data;
 
+import java.io.IOException;
+
+import BP.DA.Log;
 import BP.En.Entity;
 import BP.En.Map;
 import BP.En.QueryObject;
 import BP.En.RefMethod;
 import BP.En.UAC;
-import BP.WF.Entity.TaskSta;
-import BP.WF.Entity.WFSta;
+import BP.Sys.PubClass;
+import BP.Sys.SystemConfig;
+import BP.WF.Flows;
+import BP.WF.Glo;
+import BP.WF.HuiQianTaskSta;
+import BP.WF.TaskSta;
+import BP.WF.WFSta;
+import BP.WF.WFState;
 import BP.WF.Template.FlowSorts;
-import BP.WF.Template.Flows;
-import BP.WF.Template.PubLib.WFState;
+import cn.jflow.common.util.ContextHolderUtils;
 
 /** 
-流程实例
-
+ 流程实例
+ 
 */
 public class GenerWorkFlowView extends Entity
 {
 
-		///#region 基本属性
+		
 	/** 
 	 主键
-	 
 	*/
 	@Override
 	public String getPK()
@@ -30,7 +37,6 @@ public class GenerWorkFlowView extends Entity
 	}
 	/** 
 	 备注
-	 
 	*/
 	public final String getFlowNote()
 	{
@@ -42,7 +48,6 @@ public class GenerWorkFlowView extends Entity
 	}
 	/** 
 	 工作流程编号
-	 
 	*/
 	public final String getFK_Flow()
 	{
@@ -54,7 +59,6 @@ public class GenerWorkFlowView extends Entity
 	}
 	/** 
 	 BillNo
-	 
 	*/
 	public final String getBillNo()
 	{
@@ -66,7 +70,6 @@ public class GenerWorkFlowView extends Entity
 	}
 	/** 
 	 流程名称
-	 
 	*/
 	public final String getFlowName()
 	{
@@ -78,7 +81,6 @@ public class GenerWorkFlowView extends Entity
 	}
 	/** 
 	 优先级
-	 
 	*/
 	public final int getPRI()
 	{
@@ -90,7 +92,6 @@ public class GenerWorkFlowView extends Entity
 	}
 	/** 
 	 待办人员数量
-	 
 	*/
 	public final int getTodoEmpsNum()
 	{
@@ -102,7 +103,6 @@ public class GenerWorkFlowView extends Entity
 	}
 	/** 
 	 待办人员列表
-	 
 	*/
 	public final String getTodoEmps()
 	{
@@ -114,7 +114,6 @@ public class GenerWorkFlowView extends Entity
 	}
 	/** 
 	 参与人
-	 
 	*/
 	public final String getEmps()
 	{
@@ -126,7 +125,6 @@ public class GenerWorkFlowView extends Entity
 	}
 	/** 
 	 状态
-	 
 	*/
 	public final TaskSta getTaskSta()
 	{
@@ -138,7 +136,6 @@ public class GenerWorkFlowView extends Entity
 	}
 	/** 
 	 类别编号
-	 
 	*/
 	public final String getFK_FlowSort()
 	{
@@ -150,7 +147,6 @@ public class GenerWorkFlowView extends Entity
 	}
 	/** 
 	 部门编号
-	 
 	*/
 	public final String getFK_Dept()
 	{
@@ -162,7 +158,6 @@ public class GenerWorkFlowView extends Entity
 	}
 	/** 
 	 标题
-	 
 	*/
 	public final String getTitle()
 	{
@@ -174,7 +169,6 @@ public class GenerWorkFlowView extends Entity
 	}
 	/** 
 	 客户编号
-	 
 	*/
 	public final String getGuestNo()
 	{
@@ -186,7 +180,6 @@ public class GenerWorkFlowView extends Entity
 	}
 	/** 
 	 客户名称
-	 
 	*/
 	public final String getGuestName()
 	{
@@ -198,7 +191,6 @@ public class GenerWorkFlowView extends Entity
 	}
 	/** 
 	 产生时间
-	 
 	*/
 	public final String getRDT()
 	{
@@ -210,7 +202,6 @@ public class GenerWorkFlowView extends Entity
 	}
 	/** 
 	 节点应完成时间
-	 
 	*/
 	public final String getSDTOfNode()
 	{
@@ -222,7 +213,6 @@ public class GenerWorkFlowView extends Entity
 	}
 	/** 
 	 流程应完成时间
-	 
 	*/
 	public final String getSDTOfFlow()
 	{
@@ -234,7 +224,6 @@ public class GenerWorkFlowView extends Entity
 	}
 	/** 
 	 流程ID
-	 
 	*/
 	public final long getWorkID()
 	{
@@ -246,7 +235,6 @@ public class GenerWorkFlowView extends Entity
 	}
 	/** 
 	 主线程ID
-	 
 	*/
 	public final long getFID()
 	{
@@ -257,32 +245,7 @@ public class GenerWorkFlowView extends Entity
 		SetValByKey(GenerWorkFlowViewAttr.FID, value);
 	}
 	/** 
-	 父节点ID 为或者-1.
-	 
-	*/
-	public final long getCWorkID()
-	{
-		return this.GetValInt64ByKey(GenerWorkFlowViewAttr.CWorkID);
-	}
-	public final void setCWorkID(long value)
-	{
-		SetValByKey(GenerWorkFlowViewAttr.CWorkID, value);
-	}
-	/** 
-	 PFlowNo
-	 
-	*/
-	public final String getCFlowNo()
-	{
-		return this.GetValStrByKey(GenerWorkFlowViewAttr.CFlowNo);
-	}
-	public final void setCFlowNo(String value)
-	{
-		SetValByKey(GenerWorkFlowViewAttr.CFlowNo, value);
-	}
-	/** 
 	 父节点流程编号.
-	 
 	*/
 	public final long getPWorkID()
 	{
@@ -294,7 +257,6 @@ public class GenerWorkFlowView extends Entity
 	}
 	/** 
 	 父流程调用的节点
-	 
 	*/
 	public final int getPNodeID()
 	{
@@ -306,7 +268,6 @@ public class GenerWorkFlowView extends Entity
 	}
 	/** 
 	 PFlowNo
-	 
 	*/
 	public final String getPFlowNo()
 	{
@@ -318,7 +279,6 @@ public class GenerWorkFlowView extends Entity
 	}
 	/** 
 	 吊起子流程的人员
-	 
 	*/
 	public final String getPEmp()
 	{
@@ -330,7 +290,6 @@ public class GenerWorkFlowView extends Entity
 	}
 	/** 
 	 发起人
-	 
 	*/
 	public final String getStarter()
 	{
@@ -342,7 +301,6 @@ public class GenerWorkFlowView extends Entity
 	}
 	/** 
 	 发起人名称
-	 
 	*/
 	public final String getStarterName()
 	{
@@ -354,7 +312,6 @@ public class GenerWorkFlowView extends Entity
 	}
 	/** 
 	 发起人部门名称
-	 
 	*/
 	public final String getDeptName()
 	{
@@ -366,7 +323,6 @@ public class GenerWorkFlowView extends Entity
 	}
 	/** 
 	 当前节点名称
-	 
 	*/
 	public final String getNodeName()
 	{
@@ -378,7 +334,6 @@ public class GenerWorkFlowView extends Entity
 	}
 	/** 
 	 当前工作到的节点
-	 
 	*/
 	public final int getFK_Node()
 	{
@@ -387,10 +342,16 @@ public class GenerWorkFlowView extends Entity
 	public final void setFK_Node(int value)
 	{
 		SetValByKey(GenerWorkFlowViewAttr.FK_Node, value);
+        this.HuiQianTaskSta(0);
+
 	}
+	public final void HuiQianTaskSta(int value)
+	{
+		  this.SetPara("HuiQianTaskSta",0);
+	}
+	 
 	/** 
 	 工作流程状态
-	 
 	*/
 	public final WFState getWFState()
 	{
@@ -400,15 +361,15 @@ public class GenerWorkFlowView extends Entity
 	{
 		if (value == WFState.Complete)
 		{
-			SetValByKey(GenerWorkFlowViewAttr.WFSta, WFSta.Complete.getValue());
+			SetValByKey(GenerWorkFlowViewAttr.WFSta, getWFSta().Complete.getValue());
 		}
 		else if (value == WFState.Delete)
 		{
-			SetValByKey(GenerWorkFlowViewAttr.WFSta, WFSta.Delete.getValue());
+			SetValByKey(GenerWorkFlowViewAttr.WFSta, getWFSta().Etc.getValue());
 		}
 		else
 		{
-			SetValByKey(GenerWorkFlowViewAttr.WFSta, WFSta.Runing.getValue());
+			SetValByKey(GenerWorkFlowViewAttr.WFSta, getWFSta().Runing.getValue());
 		}
 
 		SetValByKey(GenerWorkFlowViewAttr.WFState, value.getValue());
@@ -427,8 +388,8 @@ public class GenerWorkFlowView extends Entity
 	}
 	public final String getWFStateText()
 	{
-	
-		switch((WFState)this.getWFState())
+		BP.WF.WFState ws = (WFState)this.getWFState();
+		switch(ws)
 		{
 			case Complete:
 				return "已完成";
@@ -444,7 +405,6 @@ public class GenerWorkFlowView extends Entity
 	}
 	/** 
 	 GUID
-	 
 	*/
 	public final String getGUID()
 	{
@@ -454,11 +414,7 @@ public class GenerWorkFlowView extends Entity
 	{
 		SetValByKey(GenerWorkFlowViewAttr.GUID, value);
 	}
-
-		///#endregion
-
-
-		///#region 参数属性.
+		
 
 	public final String getParas_ToNodes()
 	{
@@ -487,7 +443,11 @@ public class GenerWorkFlowView extends Entity
 		///#endregion 参数属性.
 
 
-		///#region 构造函数
+		
+	/** 
+	 访问权限
+	 
+	*/
 	@Override
 	public UAC getHisUAC()
 	{
@@ -502,6 +462,11 @@ public class GenerWorkFlowView extends Entity
 	public GenerWorkFlowView()
 	{
 	}
+	/** 
+	 产生的工作流程
+	 
+	 @param workId
+	*/
 	public GenerWorkFlowView(long workId)
 	{
 		QueryObject qo = new QueryObject(this);
@@ -530,66 +495,150 @@ public class GenerWorkFlowView extends Entity
 			return this.get_enMap();
 		}
 
-		Map map = new Map("WF_GenerWorkFlow");
-		map.setEnDesc("流程查询");
+		Map map = new Map("WF_GenerWorkFlow", "流程查询");
+
+		   // map.AddTBIntPK("WorkID", 0, "WorkID", true, true);
 		map.AddTBIntPK(GenerWorkFlowViewAttr.WorkID, 0, "WorkID", true, true);
 
 
 		map.AddTBString(GenerWorkFlowViewAttr.StarterName, null, "发起人", true, false, 0, 30, 10);
 		map.AddTBString(GenerWorkFlowViewAttr.Title, null, "标题", true, false, 0, 100, 10,true);
 		map.AddDDLSysEnum(GenerWorkFlowViewAttr.WFSta, 0, "流程状态", true, false, GenerWorkFlowViewAttr.WFSta, "@0=运行中@1=已完成@2=其他");
+		map.AddDDLSysEnum(GenerWorkFlowViewAttr.WFState, 0, "流程状态", true, false, MyStartFlowAttr.WFState);
 		map.AddTBString(GenerWorkFlowViewAttr.NodeName, null, "当前节点名称", true, false, 0, 100, 10);
 		map.AddTBDateTime(GenerWorkFlowViewAttr.RDT, "记录日期", true, true);
 		map.AddTBString(GenerWorkFlowViewAttr.BillNo, null, "单据编号", true, false, 0, 100, 10);
 		map.AddTBStringDoc(GenerWorkFlowViewAttr.FlowNote, null, "备注", true, false,true);
-
 		map.AddDDLEntities(GenerWorkFlowViewAttr.FK_FlowSort, null, "类别", new FlowSorts(), false);
 		map.AddDDLEntities(GenerWorkFlowViewAttr.FK_Flow, null, "流程", new Flows(), false);
 		map.AddDDLEntities(GenerWorkFlowViewAttr.FK_Dept, null, "部门", new BP.Port.Depts(), false);
-
 		map.AddTBInt(GenerWorkFlowViewAttr.FID, 0, "FID", false, false);
 		map.AddTBInt(GenerWorkFlowViewAttr.FK_Node, 0, "FK_Node", false, false);
-
-
 		map.AddDDLEntities(GenerWorkFlowViewAttr.FK_NY, null, "月份", new GenerWorkFlowViewNYs(), false);
-
 		map.AddTBMyNum();
-
 			//map.AddSearchAttr(GenerWorkFlowViewAttr.FK_Dept);
 		map.AddSearchAttr(GenerWorkFlowViewAttr.FK_Flow);
 		map.AddSearchAttr(GenerWorkFlowViewAttr.WFSta);
 		map.AddSearchAttr(GenerWorkFlowViewAttr.FK_NY);
 
+			//把不等于 0 的去掉.
+		map.AddHidden(GenerWorkFlowViewAttr.WFState, "!=", "0");
+
 
 		RefMethod rm = new RefMethod();
-		rm.Title = "轨迹";
-		rm.ClassMethodName = this.toString() + ".DoTrack";
-		rm.Icon = "/WF/Img/Track.png";
-		map.AddRefMethod(rm);
+//		rm.Title = "轨迹";
+//		rm.ClassMethodName = this.toString() + ".DoTrack";
+//		rm.Icon = Glo.getCCFlowAppPath() + "WF/Img/Track.png";
+//		map.AddRefMethod(rm);
 
 		rm = new RefMethod();
 		rm.Title = "删除";
-		rm.ClassMethodName = this.toString() + ".DoDel";
+		rm.ClassMethodName = this.toString() + ".DoDelete";
 		rm.Warning = "您确定要删除吗？";
-		rm.Icon = "/WF/Img/Btn/Delete.gif";
+		rm.Icon = Glo.getCCFlowAppPath() + "WF/Img/Btn/Delete.gif";
 		rm.IsForEns = false;
 		map.AddRefMethod(rm);
 
 		rm = new RefMethod();
-		rm.Icon = BP.WF.Glo.getCCFlowAppPath() + "WF/Img/Btn/CC.gif";
+		rm.Icon = Glo.getCCFlowAppPath() + "WF/Img/Btn/CC.gif";
 		rm.Title = "移交";
 		rm.IsForEns = false;
 		rm.ClassMethodName = this.toString() + ".DoShift";
 		rm.getHisAttrs().AddTBString("ToEmp", null, "移交给", true, false, 0, 300, 100);
-		   // rm.HisAttrs.AddDDLEntities("ToEmp", null, "移交给:", new BP.WF.Flows(), true);
 		rm.getHisAttrs().AddTBString("Note", null, "移交原因", true, false, 0, 300, 100);
 		map.AddRefMethod(rm);
+//
+//		rm = new RefMethod();
+//		rm.Icon = Glo.getCCFlowAppPath() + "WF/Img/Btn/Back.png";
+//		rm.Title = "回滚";
+//		rm.ClassMethodName = this.toString() + ".DoRollback";
+//		rm.getHisAttrs().AddTBInt("NodeID", 0, "回滚到节点", true, false);
+//		rm.getHisAttrs().AddTBString("Note", null, "回滚原因", true, false, 0, 300, 100);		map.AddRefMethod(rm);
 
 		this.set_enMap(map);
 		return this.get_enMap();
 	}
+	public final String DoTrack()
+	{
+		try {
+			PubClass.WinOpen(ContextHolderUtils.getResponse(),SystemConfig.getCCFlowWebPath() + "WF/WFRpt.jsp?WorkID=" + this.getWorkID() + "&FID=" + this.getFID() + "&FK_Flow=" + this.getFK_Flow(), 900, 800);
+		} catch (IOException e) {
+			Log.DebugWriteError("GenerWorkFlowView DoTrack() " + e);
+		}
+		return null;
+	}
+	/** 
+	 执行移交
+	 @param ToEmp
+	 @param Note
+	 @return 
+	*/
+	public final String DoShift(String ToEmp, String Note)
+	{
+		try {
+			if (BP.WF.Dev2Interface.Flow_IsCanViewTruck(this.getFK_Flow(), this.getWorkID(), this.getFID()) == false)
+			{
+				return "您没有操作该流程数据的权限.";
+			}
+		} catch (Exception e) {
+			Log.DebugWriteError("GenerWorkFlowView DoShift(ToEmp,Note)"+ e);
+		}
+		try
+		{
+			BP.WF.Dev2Interface.Node_Shift(this.getFK_Flow(), this.getFK_Node(), this.getWorkID(), this.getFID(), ToEmp, Note);
+			return "移交成功";
+		}
+		catch (RuntimeException ex)
+		{
+			return "移交失败@" + ex.getMessage();
+		}
+	}
+	/** 
+	 执行删除
+	 
+	 @return 
+	*/
+	public final String DoDelete()
+	{
+		try {
+			if (BP.WF.Dev2Interface.Flow_IsCanViewTruck(this.getFK_Flow(), this.getWorkID(), this.getFID()) == false)
+			{
+				return "您没有操作该流程数据的权限.";
+			}
+		} catch (Exception e) {
+			Log.DebugWriteError("GenerWorkFlowView DoDelete()" + e);
+		}
+
+		try
+		{
+			BP.WF.Dev2Interface.Flow_DoDeleteFlowByReal(this.getFK_Flow(), this.getWorkID(), true);
+			return "删除成功";
+		}
+		catch (RuntimeException ex)
+		{
+			return "删除失败@" + ex.getMessage();
+		}
+	}
+	public final String DoSkip()
+	{
+		try {
+			PubClass.WinOpen(ContextHolderUtils.getResponse(),SystemConfig.getCCFlowWebPath() + "WF/Admin/FlowDB/FlowSkip.jsp?WorkID=" + this.getWorkID() + "&FID=" + this.getFID() + "&FK_Flow=" + this.getFK_Flow() + "&FK_Node=" + this.getFK_Node(), 900, 800);
+		} catch (IOException e) {
+			Log.DebugWriteError("GenerWorkFlowView DoSkip() " + e);
+		}
+		return null;
+	}
+
+	/** 
+	 回滚流程
+	 
+	 @return 
+	*/
+	public final String Rollback()
+	{
+		return Glo.getCCFlowAppPath() + "WF/Admin/Rollback.htm?WorkID=" + this.getWorkID() + "&FID=" + this.getFID() + "&FK_Flow=" + this.getFK_Flow() + "&FK_Node=" + this.getFK_Node();
+	}
 
 		///#endregion
-
 
 }

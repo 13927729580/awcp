@@ -1,6 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=utf-8"
 	pageEncoding="utf-8"%>
-	<%@ include file="/head/head.jsp"%>
+<%@ include file="/WF/head/head2.jsp"%>
+<link href="<%=Glo.getCCFlowAppPath() %>DataUser/Style/table0.css" rel="stylesheet" type="text/css" />
+
 <%
 	FlowSearchModel model = new FlowSearchModel(request, response);
 	String htmlStr = model.init();
@@ -48,13 +50,8 @@
 <body>
 	<!-- 内容 -->
 	<!-- 表格数据 -->
-	<div class="admin-content">
-
-		<div class="am-cf am-padding">
-			<div class="am-fl am-cf">
-				<strong class="am-text-primary am-text-lg">首页</strong> / <small>流程查询</small>
-			</div>
-		</div>
+	<table border=1px align=center width='100%'>
+		<Caption ><div class='' >流程查询</div></Caption>
 
 		<!-- 数据 -->
 
@@ -66,7 +63,6 @@
 			</div>
 		</div>
 
-	</div>
-	</div>
+	</table>
 </body>
 </html>

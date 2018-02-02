@@ -1,18 +1,16 @@
 package BP.WF.DTS;
 
-import BP.DA.*;
-import BP.Port.*;
-import BP.En.*;
-import BP.Sys.*;
-import BP.Sys.Frm.MapData;
-import BP.Sys.Frm.MapDatas;
-import BP.Sys.Frm.MapDtl;
-import BP.Sys.Frm.MapDtls;
-import BP.WF.Template.Flow;
-import BP.WF.Template.Flows;
-import BP.WF.Template.Node;
-import BP.WF.Template.Nodes;
-import BP.WF.Template.WorkBase.Work;
+import BP.DA.DBAccess;
+import BP.En.Method;
+import BP.Sys.MapData;
+import BP.Sys.MapDatas;
+import BP.Sys.MapDtl;
+import BP.Sys.MapDtls;
+import BP.WF.Flow;
+import BP.WF.Flows;
+import BP.WF.Node;
+import BP.WF.Nodes;
+import BP.WF.Work;
 
 /** 
  Method 的摘要说明
@@ -61,12 +59,13 @@ public class ClearDB extends Method
 	@Override
 	public Object Do()
 	{
-		if ( ! WebUser.getNo().equals("admin"))
-		{
-			return "非法的用户执行。";
-		}
+//		TODO 去除无效判断
+// 		if ( ! BP.Web.WebUser.getNo().equals("admin"))
+//		{
+//			return "非法的用户执行。";
+//		}
 
-		//DA.DBAccess.RunSQL("DELETE FROM WF_CHOfFlow");
+		//DBAccess.RunSQL("DELETE FROM WF_CHOfFlow");
 
 		DBAccess.RunSQL("DELETE FROM WF_Bill");
 		DBAccess.RunSQL("DELETE FROM WF_GenerWorkerlist");
@@ -78,10 +77,11 @@ public class ClearDB extends Method
 		DBAccess.RunSQL("DELETE FROM WF_RememberMe");
 		DBAccess.RunSQL("DELETE FROM Sys_FrmAttachmentDB");
 		DBAccess.RunSQL("DELETE FROM WF_CCList");
+		DBAccess.RunSQL("DELETE FROM WF_CH"); //删除考核.
 
 		Flows fls = new Flows();
 		fls.RetrieveAll();
-		for (Flow item : Flows.convertFlows(fls))
+		for (Flow item : fls.ToJavaList())
 		{
 			try
 			{
@@ -93,7 +93,7 @@ public class ClearDB extends Method
 		}
 
 		Nodes nds = new Nodes();
-		for (Node nd : Nodes.convertNodes(nds))
+		for (Node nd : nds.ToJavaList())
 		{
 			try
 			{
@@ -120,7 +120,7 @@ public class ClearDB extends Method
 
 		MapDtls dtls = new MapDtls();
 		dtls.RetrieveAll();
-		for (MapDtl dtl : MapDtls.convertMapDtls(dtls))
+		for (MapDtl dtl : dtls.ToJavaList())
 		{
 			try
 			{

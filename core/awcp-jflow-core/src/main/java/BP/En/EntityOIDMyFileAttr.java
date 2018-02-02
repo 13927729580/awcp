@@ -1,25 +1,20 @@
 package BP.En;
 
-
-/** 
- 属性列表
- 
-*/
+/**
+ * 属性列表
+ */
 public class EntityOIDMyFileAttr extends EntityOIDAttr
 {
-	/** 
-	 MyFileName
-	 
-	*/
+	/**
+	 * MyFileName
+	 */
 	public static final String MyFileName = "MyFileName";
-	/** 
-	 MyFilePath
-	 
-	*/
+	/**
+	 * MyFilePath
+	 */
 	public static final String MyFilePath = "MyFilePath";
-	/** 
-	 MyFileExt
-	 
-	*/
+	/**
+	 * MyFileExt
+	 */
 	public static final String MyFileExt = "MyFileExt";
 }

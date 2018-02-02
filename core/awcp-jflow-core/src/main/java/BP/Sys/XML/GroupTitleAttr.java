@@ -1,10 +1,8 @@
 package BP.Sys.XML;
 
-
-/** 
- 属性
- 
-*/
+/**
+ * 属性
+ */
 public class GroupTitleAttr
 {
 	public static final String For = "For";

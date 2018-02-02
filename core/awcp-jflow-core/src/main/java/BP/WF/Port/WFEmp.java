@@ -1,29 +1,26 @@
 package BP.WF.Port;
 
-import BP.DA.*;
-import BP.En.*;
+import BP.DA.DataRow;
+import BP.DA.DataTable;
+import BP.DA.DataType;
+import BP.En.EntityNoName;
+import BP.En.Map;
 import BP.Tools.StringHelper;
-import BP.WF.*;
-import BP.Port.*;
-import BP.Port.*;
-import BP.En.*;
-import BP.Web.*;
 
 /** 
  操作员
- 
 */
 public class WFEmp extends EntityNoName
 {
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 基本属性
+
+		
 	public final String getHisAlertWayT()
 	{
 		return this.GetValRefTextByKey(WFEmpAttr.AlertWay);
 	}
 	public final AlertWay getHisAlertWay()
 	{
-		return AlertWay.forValue(this.GetValIntByKey(WFEmpAttr.AlertWay)) ;
+		return AlertWay.forValue(this.GetValIntByKey(WFEmpAttr.AlertWay));
 	}
 	public final void setHisAlertWay(AlertWay value)
 	{
@@ -31,7 +28,6 @@ public class WFEmp extends EntityNoName
 	}
 	/** 
 	 用户状态
-	 
 	*/
 	public final int getUseSta()
 	{
@@ -67,7 +63,6 @@ public class WFEmp extends EntityNoName
 	}
 	/** 
 	 微信号的OpenID.
-	 
 	*/
 	public final String getOpenID()
 	{
@@ -101,7 +96,7 @@ public class WFEmp extends EntityNoName
 		}
 		else
 		{
-			return "<a href=\"javascript:WinOpen('./Msg/SMS.aspx?Tel=" + this.getTel() + "');\"  ><img src='/WF/Img/SMS.gif' border=0/>" + this.getTel() + "</a>";
+			return "<a href=\"javascript:WinOpen('./Msg/SMS.jsp?Tel=" + this.getTel() + "');\"  ><img src='../WF/Img/sms.gif' border=0/>" + this.getTel() + "</a>";
 		}
 	}
 	public final String getEmailHtml()
@@ -112,7 +107,7 @@ public class WFEmp extends EntityNoName
 		}
 		else
 		{
-			return "<a href='Mailto:" + this.getEmail() + "' ><img src='/WF/Img/SMS.gif' border=0/>" + this.getEmail() + "</a>";
+			return "<a href='Mailto:" + this.getEmail() + "' ><img src='/WF/Img/sms.gif' border=0/>" + this.getEmail() + "</a>";
 		}
 	}
 	public final String getEmail()
@@ -149,7 +144,6 @@ public class WFEmp extends EntityNoName
 	}
 	/** 
 	 授权的流程
-	 
 	*/
 	public final String getAuthorFlows()
 	{
@@ -168,7 +162,6 @@ public class WFEmp extends EntityNoName
 		{
 			SetValByKey(WFEmpAttr.AuthorFlows, "");
 		}
-			//SetValByKey(WFEmpAttr.AuthorFlows, value.Substring(1));
 	}
 	public final String getFtpUrl()
 	{
@@ -185,14 +178,14 @@ public class WFEmp extends EntityNoName
 		{
 			EmpStations ess = new EmpStations();
 			ess.Retrieve(EmpStationAttr.FK_Emp, this.getNo());
-			for (EmpStation es : EmpStations.convertEmpStations(ess))
+			for (EmpStation es : ess.ToJavaList())
 			{
 				s += es.getFK_StationT() + ",";
 			}
 
 			if (ess.size() != 0)
 			{
-				this.setStas(s);
+				  //  this.Stas = s;
 				this.Update();
 					//this.Update(WFEmpAttr.Stas, s);
 			}
@@ -203,13 +196,13 @@ public class WFEmp extends EntityNoName
 			return s;
 		}
 	}
-	public final void setStas(String value)
+	public final void setStas_(String value)
 	{
 		SetValByKey(WFEmpAttr.Stas, value);
 	}
+
 	/** 
 	 授权方式
-	 
 	*/
 	public final AuthorWay getHisAuthorWay()
 	{
@@ -237,7 +230,7 @@ public class WFEmp extends EntityNoName
 
 		if (this.getAuthorToDate().length() < 4)
 		{
-			return false; //没有填写时间
+			return true; //没有填写时间,当做无期限
 		}
 
 		java.util.Date dt = DataType.ParseSysDateTime2DateTime(this.getAuthorToDate());
@@ -248,21 +241,27 @@ public class WFEmp extends EntityNoName
 
 		return true;
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
-
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 构造函数
+	
+	/** 发起流程.
+	 
+	*/
+	public final String getStartFlows()
+	{
+		return this.GetValStrByKey(WFEmpAttr.StartFlows);
+	}
+	public final void setStartFlows(String value)
+	{
+		SetValByKey(WFEmpAttr.StartFlows, value);
+	}
+			
 	/** 
 	 操作员
-	 
 	*/
 	public WFEmp()
 	{
 	}
 	/** 
 	 操作员
-	 
 	 @param no
 	*/
 	public WFEmp(String no)
@@ -284,7 +283,6 @@ public class WFEmp extends EntityNoName
 	}
 	/** 
 	 重写基类方法
-	 
 	*/
 	@Override
 	public Map getEnMap()
@@ -294,10 +292,7 @@ public class WFEmp extends EntityNoName
 			return this.get_enMap();
 		}
 
-		Map map = new Map();
-		map.setPhysicsTable("WF_Emp");
-		map.setEnDesc("操作员");
-		map.setEnType(EnType.App);
+		Map map = new Map("WF_Emp", "操作员");
 
 		map.AddTBStringPK(WFEmpAttr.No, null, "No", true, true, 1, 50, 36);
 		map.AddTBString(WFEmpAttr.Name, null, "Name", true,false, 0, 50, 20);
@@ -318,18 +313,17 @@ public class WFEmp extends EntityNoName
 		map.AddTBString(WFEmpAttr.AuthorFlows, null, "可以执行的授权流程", true, true, 0, 1000, 20);
 
 		map.AddTBString(WFEmpAttr.Stas, null, "岗位s", true, true, 0, 3000, 20);
+		map.AddTBString(WFEmpAttr.Depts, null, "Deptss", true, true, 0, 100, 36);
+
 		map.AddTBString(WFEmpAttr.FtpUrl, null, "FtpUrl", true, true, 0, 50, 20);
 		map.AddTBString(WFEmpAttr.Msg, null, "Msg", true, true, 0, 4000, 20);
 		map.AddTBString(WFEmpAttr.Style, null, "Style", true, true, 0, 4000, 20);
+		map.AddTBString(WFEmpAttr.StartFlows, null, "可以发起的流程", true, true, 0, 4000, 20);
+		
 		map.AddTBInt(WFEmpAttr.Idx, 0, "Idx", false, false);
 		this.set_enMap(map);
 		return this.get_enMap();
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
-
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 方法
 	@Override
 	protected boolean beforeUpdate()
 	{
@@ -346,14 +340,14 @@ public class WFEmp extends EntityNoName
 		//        msg += "错误：您设置了用短信接收信息，但是您没有设置手机号。";
 		//}
 
-		EmpStations ess = new EmpStations();
-		ess.Retrieve(EmpStationAttr.FK_Emp, this.getNo());
-		String sts = "";
-		for (EmpStation es : EmpStations.convertEmpStations(ess))
-		{
-			sts += es.getFK_StationT() + " ";
-		}
-		this.setStas(sts);
+		//EmpStations ess = new EmpStations();
+		//ess.Retrieve(EmpStationAttr.FK_Emp, this.No);
+		//string sts = "";
+		//foreach (EmpStation es in ess)
+		//{
+		//    sts += es.FK_StationT + " ";
+		//}
+		//this.Stas = sts;
 
 		if (!msg.equals(""))
 		{
@@ -368,11 +362,8 @@ public class WFEmp extends EntityNoName
 		this.setUseSta(1);
 		return super.beforeInsert();
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
-
 	public static void DTSData()
-	{   
+	{
 		String sql = "select No from Port_Emp where No not in (select No from WF_Emp)";
 		DataTable dt = BP.DA.DBAccess.RunSQLReturnTable(sql);
 		for (DataRow dr : dt.Rows)

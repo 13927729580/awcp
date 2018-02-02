@@ -5,7 +5,7 @@ var highlightindex = -1;
 function DoAnscToFillDiv(sender, e, tbid, fk_mapExt) {
 
     openDiv(sender, tbid);
-    var myEvent = event || window.event;
+    var myEvent = window.event || arguments[0];
     var myKeyCode = myEvent.keyCode;
     // 获得ID为divinfo里面的DIV对象 .  
     var autoNodes = $("#divinfo").children("div");
@@ -64,11 +64,9 @@ function DoAnscToFillDiv(sender, e, tbid, fk_mapExt) {
         if (e != oldValue) {
             $("#divinfo").empty();
             var url = GetLocalWFPreHref();
-            var json_data = { "Key": e, "FK_MapExt": fk_mapExt, "KVs": kvs };
             $.ajax({
                 type: "get",
-                url: url + "/WF/CCForm/HanderMapExt.do",
-                data: json_data,
+                url: url + "/WF/CCForm/Handler.ashx?DoType=HandlerMapExt&Key=" + e + "&FK_MapExt=" + fk_mapExt + "&KVs=" + kvs,
                 beforeSend: function (XMLHttpRequest, fk_mapExt) {
                     //ShowLoading();
                 },
@@ -81,6 +79,8 @@ function DoAnscToFillDiv(sender, e, tbid, fk_mapExt) {
                         $.each(dataObj.Head, function (idx, item) {
                             $("#divinfo").append("<div style='" + itemStyle + "' name='" + idx + "' onmouseover='MyOver(this)' onmouseout='MyOut(this)' onclick=\"ItemClick('" + sender.id + "','" + item.No + "','" + tbid + "','" + fk_mapExt + "');\" value='" + item.No + "'>" + item.No + '|' + item.Name + "</div>");
                         });
+                    } else {
+                        document.getElementById("divinfo").style.display = "none";
                     }
                 },
                 complete: function (XMLHttpRequest, textStatus) {
@@ -98,7 +98,7 @@ function DoAnscToFillDiv(sender, e, tbid, fk_mapExt) {
 }
 
 function FullIt(oldValue, tbid, fk_mapExt) {
-	
+
     if (oid == null)
         oid = GetQueryString('OID');
 
@@ -121,24 +121,6 @@ function FullIt(oldValue, tbid, fk_mapExt) {
     FullM2M(oldValue, fk_mapExt);
 }
 //打开div.
-function openDiv_bak(e, tbID) {
-
-    //alert(document.getElementById("divinfo").style.display);
-    if (document.getElementById("divinfo").style.display == "none") {
-        var txtObject = document.getElementById(tbID);
-        var orgObject = document.getElementById("divinfo");
-
-        var rect = getoffset(txtObject);
-        orgObject.style.top = rect[0] + 22;
-        orgObject.style.left = rect[1];
-
-        //        orgObject.style.top =  $("#" + tbID).attr("top") + 22;
-        //        orgObject.style.left = $("#" + tbID).attr("left");
-
-        orgObject.style.display = "block";
-        txtObject.focus();
-    }
-}
 function openDiv(e, tbID) {
 
     //alert(document.getElementById("divinfo").style.display);
@@ -159,10 +141,16 @@ function openDiv(e, tbID) {
 function getoffset(e) {
     var t = e.offsetTop;
     var l = e.offsetLeft;
+    //top
     while (e = e.offsetParent) {
         t += e.offsetTop;
-        l += e.offsetLeft;
+        if (t > 0)
+            break;
     }
+    //left
+    while (e = e.offsetParent) {
+        l += e.offsetLeft;
+    }    
     var rec = new Array(1);
     rec[0] = t;
     rec[1] = l;
@@ -170,35 +158,71 @@ function getoffset(e) {
 }
 
 /* 内置的Pop自动返回值. */
-function ReturnValCCFormPopVal(ctrl, fk_mapExt, refEnPK) {
+function ReturnValCCFormPopVal(ctrl, fk_mapExt, refEnPK, width, height, title) {
     //update by dgq 修改路径
-    //url = 'CCForm/FrmPopVal.jsp?FK_MapExt=' + fk_mapExt + '&RefPK=' + refEnPK + '&CtrlVal=' + ctrl.value;
+    //url = 'CCForm/FrmPopVal.aspx?FK_MapExt=' + fk_mapExt + '&RefPK=' + refEnPK + '&CtrlVal=' + ctrl.value;
+
     var wfpreHref = GetLocalWFPreHref();
-    url = wfpreHref + '/WF/CCForm/FrmPopVal.jsp?FK_MapExt=' + fk_mapExt + '&RefPK=' + refEnPK + '&CtrlVal=' + ctrl.value;
-    var v = window.showModalDialog(url, 'opp', 'scrollbars=yes;resizable=yes;center=yes;minimize:yes;maximize:yes;dialogHeight: 650px; dialogWidth: 850px; dialogTop: 100px; dialogLeft: 150px;');
-    if (v == null || v == '' || v == 'NaN') {
-        return;
-    }
-    ctrl.value = v;
-    return;
+    url = wfpreHref + '/WF/CCForm/PopVal.htm?FK_MapExt=' + fk_mapExt + '&RefPK=' + refEnPK + '&CtrlVal=' + ctrl.value + "&CtrlId=" + ctrl.id;
+    //var v = window.showModalDialog(url, 'opp', 'scrollbars=yes;resizable=yes;center=yes;minimize:yes;maximize:yes;dialogHeight: ' + (height || 600) + 'px; dialogWidth: ' + (width || 850) + 'px; dialogTop: 100px; dialogLeft: 150px;');
+    var v = window.open(url, 'opp', 'dialogHeight: ' + (height || 600) + 'px; dialogWidth: ' + (width || 850) + 'px; toolbar=no, menubar=no, scrollbars=yes, resizable=yes,location=no, status=no;top: 100px; left: 150px;');
+    //if (v == null || v == '' || v == 'NaN') {
+
+    //}
+    //ctrl.value = v.value;
+    //return;
 }
 
+//根据Name设置元素的值  分为 tb,ddl,rd
+function SetEleValByName(eleName, val) {
+    var ele = $('[name$=_' + eleName + ']');
+    if (ele != undefined && ele.length > 0) {
+        switch (ele[0].tagName.toUpperCase()) {
+            case "INPUT":
+                switch (ele[0].type.toUpperCase()) {
+                    case "CHECKBOX": //复选框  0:false  1:true
+                        val.indexOf('1') >= 0 ? $(ele).attr('checked', true) : $(ele).attr('checked', false);
+                        break;
+                    case "TEXT": //文本框
+                        $(ele).val(val);
+                        break;
+                    case "RADIO": //单选钮
+                        $(ele).attr('checked', false);
+                        $('[name=RB_' + eleName + '][value=' + val + ']').attr('checked', true);
+                        break;
+                    case "HIDDEN":
+                        $(ele).val(val);
+                        break;
+                }
+                break;
+            //下拉框 
+            case "SELECT":
+                $(ele).val(val);
+                break;
+            //文本区域 
+            case "TEXTAREA":
+                $(ele).val(val);
+                break;
+        }
+    }
+}
 
 /*  ReturnValTBFullCtrl */
 function ReturnValTBFullCtrl(ctrl, fk_mapExt) {
     var wfPreHref = GetLocalWFPreHref();
-    var url = wfPreHref + '/WF/CCForm/FrmReturnValTBFullCtrl.jsp?CtrlVal=' + ctrl.value + '&FK_MapExt=' + fk_mapExt;
+    var url = wfPreHref + '/WF/CCForm/FrmReturnValTBFullCtrl.aspx?CtrlVal=' + ctrl.value + '&FK_MapExt=' + fk_mapExt;
     var v = window.showModalDialog(url, 'wd', 'scrollbars=yes;resizable=yes;center=yes;minimize:yes;maximize:yes;dialogHeight: 650px; dialogWidth: 850px; dialogTop: 100px; dialogLeft: 150px;');
     if (v == null || v == '' || v == 'NaN') {
         return;
     }
     ctrl.value = v;
     // 填充.
-    FullIt(oldValue, ctrl.id, fk_mapExt);
+    FullIt(ctrl.value, ctrl.id, fk_mapExt);
     return;
 }
 
 var kvs = null;
+
 function GenerPageKVs() {
     var ddls = null;
     ddls = parent.document.getElementsByTagName("select");
@@ -226,6 +250,46 @@ function GenerPageKVs() {
     return kvs;
 }
 
+//根据一行数据获得其他列的字段信息.
+function GenerRowKVs(rowPK) {
+    var ddls = null;
+    ddls = document.getElementsByTagName("select");
+    kvs = "";
+    for (var i = 0; i < ddls.length; i++) {
+
+        var id = ddls[i].name;
+        if (id == null)
+            continue;
+
+        if (id.indexOf('DDL_') == -1) {
+            continue;
+        }
+
+        if (id.indexOf('_' + rowPK) == -1 || (id.indexOf('_' + rowPK) + ('_' + rowPK).length) != id.length) {
+            continue;
+        }
+
+        var myid = id.substring(id.indexOf('DDL_') + 4);
+
+        myid = myid.replace('_' + rowPK, '');
+
+        kvs += '~' + myid + '=' + ddls[i].value;
+
+    }
+    return kvs;
+
+    //    ddls = document.getElementsByTagName("select");
+    //    for (var i = 0; i < ddls.length; i++) {
+    //        var id = ddls[i].name;
+
+    //        if (id.indexOf('DDL_') == -1) {
+    //            continue;
+    //        }
+    //        var myid = id.substring(id.indexOf('DDL_') + 4);
+    //        kvs += '~' + myid + '=' + ddls[i].value;
+    //    }
+}
+
 //var kvs = null;
 //function GenerPageKVs() {
 //    var ddls = document.getElementsByTagName("select");
@@ -238,27 +302,66 @@ function GenerPageKVs() {
 //        //}
 //    }
 //}
-/* 自动填充 */
-function DDLFullCtrl(e, ddlChild, fk_mapExt) {
+
+/*装载填充*/
+function AutoFullDLL(e, ddl_Id, fk_mapExt) {
     GenerPageKVs();
     var url = GetLocalWFPreHref();
     var json_data = { "Key": e, "FK_MapExt": fk_mapExt, "KVs": kvs };
     $.ajax({
         type: "get",
-        url: url + "/WF/CCForm/HanderMapExt.do?KVs=" + kvs,
+        url: url + "/WF/CCForm/Handler.ashx?DoType=HandlerMapExt",
         data: json_data,
         beforeSend: function (XMLHttpRequest) {
             //ShowLoading();
         },
         success: function (data, textStatus) {
-            if (data) {
+            // 获取原来选择值.
+            var oldVal = null;
+            var ddl = document.getElementById(ddl_Id);
+            var mylen = ddl.options.length - 1;
+            while (mylen >= 0) {
+                if (ddl.options[mylen].selected) {
+                    oldVal = ddl.options[mylen].value;
+                }
+                mylen--;
+            }
 
-                var dataObj = eval("(" + data + ")"); //转换为json对象 
-                for (var i in dataObj.Head) {
-                    if (typeof (i) == "function")
-                        continue;
-                    FullIt(e, ddlChild, fk_mapExt);
-                    return;
+            //清空
+            $("#" + ddl_Id).empty();
+            if (data == "") {
+                //无数据返回时，提示显示无数据，并将与此关联的下级下拉框也处理一遍，edited by liuxc,2015-10-22
+                $("#" + ddl).append("<option value='' selected='selected' >无数据</option");
+                var chg = $("#" + ddl_Id).attr("onchange");
+                if (typeof chg == "function") {
+                    $("#" + ddl_Id).change();
+                }
+                return;
+            }
+
+            var dataObj = eval("(" + data + ")"); //转换为json对象.
+            $.each(dataObj.Head, function (idx, item) {
+                $("#" + ddl_Id).append("<option value='" + item.No + "'>" + item.Name + "</option");
+            });
+
+            var isInIt = false;
+            mylen = ddl.options.length - 1;
+            while (mylen >= 0) {
+                if (ddl.options[mylen].value == oldVal) {
+                    ddl.options[mylen].selected = true;
+                    isInIt = true;
+                    break;
+                }
+                mylen--;
+            }
+            if (isInIt == false) {
+                //此处修改，去掉直接选中上次的结果，避免错误数据的产生，edited by liuxc,2015-10-22
+                $("#" + ddl_Id).prepend("<option value='' selected='selected' >*请选择</option");
+                $("#" + ddl_Id).val('');
+
+                var chg = $("#" + ddl_Id).attr("onchange");
+                if (typeof chg == "function") {
+                    $("#" + ddl_Id).change();
                 }
             }
         },
@@ -270,15 +373,62 @@ function DDLFullCtrl(e, ddlChild, fk_mapExt) {
         }
     });
 }
-/* 级联下拉框*/
-function DDLAnsc(e, ddlChild, fk_mapExt) {
+
+/* 自动填充 */
+function DDLFullCtrl(e, ddlChild, fk_mapExt) {
+
     GenerPageKVs();
     var url = GetLocalWFPreHref();
     var json_data = { "Key": e, "FK_MapExt": fk_mapExt, "KVs": kvs };
+
+    //alert(kvs);
+
     $.ajax({
         type: "get",
-        url: url + "/WF/CCForm/HanderMapExt.do",
-        data: json_data,
+        url: url + "/WF/CCForm/Handler.ashx?DoType=HandlerMapExt&Key=" + e + "&FK_MapExt=" + fk_mapExt + "&KVs=" + kvs,
+        beforeSend: function (XMLHttpRequest) {
+            //ShowLoading();
+        },
+        success: function (data, textStatus) {
+            if (data) {
+                var dataObj = eval("(" + data + ")"); //转换为json对象 
+                for (var i in dataObj.Head) {
+                    if (typeof (i) == "function")
+                        continue;
+                    FullIt(e, ddlChild, fk_mapExt);
+                    return;
+                }
+            }
+        },
+        complete: function (XMLHttpRequest, textStatus) {
+            //HideLoading();
+            //alert(XMLHttpRequest);
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            //请求出错处理
+            var msg = textStatus;
+        }
+    });
+}
+/* 级联下拉框 */
+function DDLAnsc(e, ddlChild, fk_mapExt, rowPK) {
+
+    var strs = "";
+    if (rowPK == 'undefined' || rowPK == null) {
+        strs = GenerPageKVs();
+    }
+    else {
+        strs = GenerRowKVs(rowPK);
+        // alert(strs);
+    }
+
+    var url = GetLocalWFPreHref();
+    //alert(kvs);
+
+    var json_data = { "Key": e, "FK_MapExt": fk_mapExt, "KVs": strs };
+    $.ajax({
+        type: "get",
+        url: url + "/WF/CCForm/Handler.ashx?DoType=HandlerMapExt&Key=" + e + "&FK_MapExt=" + fk_mapExt + "&KVs=" + strs,
         beforeSend: function (XMLHttpRequest) {
             //ShowLoading();
         },
@@ -303,8 +453,17 @@ function DDLAnsc(e, ddlChild, fk_mapExt) {
 
             $("#" + ddlChild).empty();
 
-            if (data == "")
+            if (data == "") {
+                //无数据返回时，提示显示无数据，并将与此关联的下级下拉框也处理一遍，edited by liuxc,2015-10-22
+                $("#" + ddlChild).append("<option value='' selected='selected' >无数据</option");
+                var chg = $("#" + ddlChild).attr("onchange");
+
+                if (typeof chg == "function") {
+                    $("#" + ddlChild).change();
+                }
+
                 return;
+            }
 
             var dataObj = eval("(" + data + ")"); //转换为json对象.
 
@@ -323,9 +482,17 @@ function DDLAnsc(e, ddlChild, fk_mapExt) {
                 mylen--;
             }
             if (isInIt == false) {
+                //此处修改，去掉直接选中上次的结果，避免错误数据的产生，edited by liuxc,2015-10-22
+                $("#" + ddlChild).prepend("<option value='' selected='selected' >*请选择</option");
+                $("#" + ddlChild).val('');
+                //                $("#" + ddlChild).append("<option value='" + oldVal + "' selected='selected' >*请选择</option");
+                //                $("#" + ddlChild).attr("value", oldVal);
 
-                $("#" + ddlChild).append("<option value='" + oldVal + "' selected='selected' >*请选择</option");
-				$("#" + ddlChild).attr("value",oldVal);
+                var chg = $("#" + ddlChild).attr("onchange");
+
+                if (typeof chg == "function") {
+                    $("#" + ddlChild).change();
+                }
             }
             //  alert(oldVal);
         },
@@ -346,7 +513,7 @@ function FullM2M(key, fk_mapExt) {
     var json_data = { "Key": key, "FK_MapExt": fk_mapExt, "DoType": "ReqM2MFullList", "OID": oid, "KVs": kvs };
     $.ajax({
         type: "get",
-        url: url + "/WF/CCForm/HanderMapExt.do",
+        url: url + "/WF/CCForm/Handler.ashx?DoType=HandlerMapExt",
         data: json_data,
         beforeSend: function (XMLHttpRequest) {
             //ShowLoading();
@@ -394,7 +561,7 @@ function FullDtl(key, fk_mapExt) {
     var json_data = { "Key": key, "FK_MapExt": fk_mapExt, "DoType": "ReqDtlFullList", "OID": oid, "KVs": kvs };
     $.ajax({
         type: "get",
-        url: url + "/WF/CCForm/HanderMapExt.do",
+        url: url + "/WF/CCForm/Handler.ashx?DoType=HandlerMapExt",
         data: json_data,
         beforeSend: function (XMLHttpRequest) {
             //ShowLoading();
@@ -437,7 +604,7 @@ function FullCtrlDDL(key, ctrlIdBefore, fk_mapExt) {
     var json_data = { "Key": key, "FK_MapExt": fk_mapExt, "DoType": "ReqDDLFullList", "KVs": kvs };
     $.ajax({
         type: "get",
-        url: url + "/WF/CCForm/HanderMapExt.do",
+        url: url + "/WF/CCForm/Handler.ashx?DoType=HandlerMapExt",
         data: json_data,
         beforeSend: function (XMLHttpRequest) {
             //ShowLoading();
@@ -477,7 +644,7 @@ function FullCtrlDDLDB(e, ddlID, ctrlIdBefore, endID, fk_mapExt) {
     var json_data = { "Key": e, "FK_MapExt": fk_mapExt, "DoType": "ReqDDLFullListDB", "MyDDL": ddlID, "KVs": kvs };
     $.ajax({
         type: "get",
-        url: url + "/WF/CCForm/HanderMapExt.do",
+        url: url + "/WF/CCForm/Handler.ashx?DoType=HandlerMapExt",
         data: json_data,
         beforeSend: function (XMLHttpRequest) {
             //ShowLoading();
@@ -495,20 +662,12 @@ function FullCtrlDDLDB(e, ddlID, ctrlIdBefore, endID, fk_mapExt) {
             var id = ctrlIdBefore + "DDL_" + ddlID + "" + endID;
             // alert('FullCtrlDDLDB:' + id);
 
-            $("#" + id).empty();
+            $("*[id$=" + id + "]").empty();
+            //$("#" + id).empty();
             var dataObj = eval("(" + data + ")"); //转换为json对象 
-            //alert(data);
-            //alert( $("#" + id) );
-            //            $.each(dataObj.Head, function (idx, item) {
-            //                $("#" + ddlChild).append("<option value='" + item.No + "'>" + item.Name + "</option");
-            //            });
 
             $.each(dataObj.Head, function (idx, item) {
-                //                alert(idx);
-                //                alert(item.No);
-                //                alert(item.Name);
-                $("#" + id).append("<option value='" + item.No + "'>" + item.Name + "</option");
-                //$("#" + id).append("<option value='" + item.No + "'>" + item.Name + "</option");
+                $("*[id$=" + id + "]").append("<option value='" + item.No + "'>" + item.Name + "</option");
             });
         },
         complete: function (XMLHttpRequest, textStatus) {
@@ -527,7 +686,7 @@ function FullCtrl(e, ctrlIdBefore, fk_mapExt) {
     var json_data = { "Key": e, "FK_MapExt": fk_mapExt, "DoType": "ReqCtrl", "KVs": kvs };
     $.ajax({
         type: "get",
-        url: url + "/WF/CCForm/HanderMapExt.do",
+        url: url + "/WF/CCForm/Handler.ashx?DoType=HandlerMapExt",
         data: json_data,
         beforeSend: function (XMLHttpRequest) {
             //ShowLoading();
@@ -680,11 +839,11 @@ function EleInputCheck2(ele, filter, message) {
     }
 }
 
-function EleSubmitCheck(ele,message) {
-        ele.title = message;
-        ele.style.border = "2";
-        ele.style.backgroundColor = "#FFDEAD";
-        ele.style.borderBottomColor = "Red";
+function EleSubmitCheck(ele, message) {
+    ele.title = message;
+    ele.style.border = "2";
+    ele.style.backgroundColor = "#FFDEAD";
+    ele.style.borderBottomColor = "Red";
 }
 
 //保存检查
@@ -692,9 +851,7 @@ function EleSubmitCheck(ele, filter, message) {
     if (ele == null) return;
     if (CheckInput(ele.value, filter) == true) {
         ele.title = "";
-        ele.style.border = "1";
-        ele.style.backgroundColor = "White";
-        ele.style.borderBottomColor = "Black";
+        ele.className = "TB";
         return true;
     }
     else {
@@ -712,7 +869,7 @@ function TB_ClickNum(ele, defVal) {
         ele.value = defVal;
         return;
     }
-    
+
     //赋值
     if (ele.value == "0") ele.value = "";
     if (ele.value == "0.00") ele.value = "";
@@ -720,7 +877,7 @@ function TB_ClickNum(ele, defVal) {
     var pointNum = ele.value.split('.');
     if (pointNum) {
         if (pointNum.length > 2) {
-            ele.value = pointNum[0] +"."+ pointNum[1];
+            ele.value = pointNum[0] + "." + pointNum[1];
         }
     }
 }
@@ -731,6 +888,8 @@ function GetLocalWFPreHref() {
     if (url.indexOf('/WF/') >= 0) {
         var index = url.indexOf('/WF/');
         url = url.substring(0, index);
+    } else {
+        url = "";
     }
     return url;
 }

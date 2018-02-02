@@ -1,10 +1,9 @@
 package BP.WF.Data;
 
-import BP.En.EntityNoNameAttr;
+import BP.En.*;
 
 /** 
-月份
-
+ 月份
 */
 public class GenerWorkFlowViewNYAttr extends EntityNoNameAttr
 {

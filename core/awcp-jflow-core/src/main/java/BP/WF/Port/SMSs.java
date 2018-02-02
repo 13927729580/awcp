@@ -1,14 +1,10 @@
 package BP.WF.Port;
 
-import BP.DA.*;
-import BP.En.*;
-import BP.Web.*;
-import BP.Sys.*;
-import BP.WF.Port.*;
+import BP.En.Entities;
+import BP.En.Entity;
 
 /** 
  消息s
-  
 */
 public class SMSs extends Entities
 {

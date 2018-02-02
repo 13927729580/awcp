@@ -1,7 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"	pageEncoding="UTF-8"%>
 <%@page import="BP.DA.*"%>
-<%@page import="BP.Port.WebUser"%>
-<%@page import="BP.WF.Template.Flow"%>
+<%@page import="BP.Web.WebUser"%>
+<%@page import="BP.WF.Flow"%>
 <%@page import="BP.WF.Template.StartGuideWay"%>
 <%
 	String path = request.getContextPath();
@@ -93,7 +93,8 @@ function onSubmit(){
 					<input name="TB_Key" type="text" id="TB_Key" />
 					<input type="button" name="Btn1" value="查询" id="Btn1" onclick="onSearch();"/>
 					<%
-						if(StartGuideWay.BySystemUrlOne != startGuidWay && StartGuideWay.BySystemUrlOneEntity != startGuidWay){
+						//if(StartGuideWay.BySystemUrlOne != startGuidWay && StartGuideWay.BySystemUrlOneEntity != startGuidWay){
+						if(StartGuideWay.BySystemUrlOneEntity != startGuidWay){
 					%>
 						<input type="button" name="Btn2" value="启动流程" id="Btn2" onclick="onSubmit();"/>
 					<%} %>
@@ -118,7 +119,8 @@ function onSubmit(){
                         sql = sql.replace("@WebUser.FK_DeptName", WebUser.getFK_DeptName());
                         DataTable dt = DBAccess.RunSQLReturnTable(sql);
                         
-                	    if(StartGuideWay.BySystemUrlOne == startGuidWay || StartGuideWay.BySystemUrlOneEntity == startGuidWay){
+                	    //if(StartGuideWay.BySystemUrlOne == startGuidWay || StartGuideWay.BySystemUrlOneEntity == startGuidWay){
+                	    if(StartGuideWay.BySystemUrlOneEntity == startGuidWay){
 					%>
 						<Table width='100%' >
 		            		<TR>
@@ -137,7 +139,7 @@ function onSubmit(){
 							<%
 								// 输出数据.
 	                    		int idx1 = 0; 
-								String url1 = basePath+"WF/MyFlow.jsp?FK_Flow="+FK_Flow+"&FK_Node="+Integer.valueOf(FK_Flow)+"01&WorkID=0&IsCheckGuide=1";
+								String url1 = basePath+"WF/MyFlow.htm?FK_Flow="+FK_Flow+"&FK_Node="+Integer.valueOf(FK_Flow)+"01&WorkID=0&IsCheckGuide=1";
 								for(DataRow dr : dt.Rows){
 		            	    		idx1++;
 							%>

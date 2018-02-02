@@ -1,24 +1,33 @@
 package cn.org.awcp.formdesigner.utils;
 
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
-import javax.servlet.http.HttpServletRequest;
-
+import BP.WF.Dev2Interface;
+import BP.WF.Flow;
+import BP.WF.Work;
+import cn.org.awcp.core.utils.*;
+import cn.org.awcp.core.utils.constants.SessionContants;
+import cn.org.awcp.formdesigner.application.service.DocumentService;
+import cn.org.awcp.formdesigner.application.vo.DocumentVO;
+import cn.org.awcp.formdesigner.application.vo.DynamicPageVO;
+import cn.org.awcp.formdesigner.core.domain.Document;
+import cn.org.awcp.metadesigner.application.MetaModelOperateService;
+import cn.org.awcp.metadesigner.application.MetaModelService;
+import cn.org.awcp.metadesigner.vo.MetaModelVO;
+import cn.org.awcp.unit.message.PunNotificationService;
+import cn.org.awcp.unit.service.PunGroupService;
+import cn.org.awcp.unit.service.PunPositionService;
+import cn.org.awcp.unit.service.PunUserBaseInfoService;
+import cn.org.awcp.unit.service.PunUserGroupService;
+import cn.org.awcp.unit.vo.*;
+import cn.org.awcp.venson.common.SC;
+import cn.org.awcp.venson.controller.base.ControllerContext;
+import cn.org.awcp.venson.controller.base.ControllerHelper;
+import cn.org.awcp.venson.exception.PlatformException;
+import cn.org.awcp.venson.util.*;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.github.miemiedev.mybatis.paginator.domain.PageList;
+import com.github.miemiedev.mybatis.paginator.domain.Paginator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,47 +42,14 @@ import org.apache.http.util.EntityUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.util.CollectionUtils;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.github.miemiedev.mybatis.paginator.domain.PageList;
-import com.github.miemiedev.mybatis.paginator.domain.Paginator;
-
-import BP.WF.Dev2Interface;
-import BP.WF.Template.Flow;
-import BP.WF.Template.WorkBase.Work;
-import cn.org.awcp.core.utils.Cache;
-import cn.org.awcp.core.utils.DateUtils;
-import cn.org.awcp.core.utils.Security;
-import cn.org.awcp.core.utils.SessionUtils;
-import cn.org.awcp.core.utils.Springfactory;
-import cn.org.awcp.core.utils.constants.SessionContants;
-import cn.org.awcp.formdesigner.application.service.DocumentService;
-import cn.org.awcp.formdesigner.application.vo.DocumentVO;
-import cn.org.awcp.formdesigner.application.vo.DynamicPageVO;
-import cn.org.awcp.formdesigner.core.domain.Document;
-import cn.org.awcp.metadesigner.application.MetaModelOperateService;
-import cn.org.awcp.metadesigner.application.MetaModelService;
-import cn.org.awcp.metadesigner.vo.MetaModelVO;
-import cn.org.awcp.unit.message.PunNotificationService;
-import cn.org.awcp.unit.service.PunGroupService;
-import cn.org.awcp.unit.service.PunPositionService;
-import cn.org.awcp.unit.service.PunUserBaseInfoService;
-import cn.org.awcp.unit.service.PunUserGroupService;
-import cn.org.awcp.unit.vo.PunGroupVO;
-import cn.org.awcp.unit.vo.PunPositionVO;
-import cn.org.awcp.unit.vo.PunRoleInfoVO;
-import cn.org.awcp.unit.vo.PunUserBaseInfoVO;
-import cn.org.awcp.unit.vo.PunUserGroupVO;
-import cn.org.awcp.venson.common.SC;
-import cn.org.awcp.venson.controller.base.ControllerContext;
-import cn.org.awcp.venson.controller.base.ControllerHelper;
-import cn.org.awcp.venson.exception.PlatformException;
-import cn.org.awcp.venson.util.DateFormaterUtil;
-import cn.org.awcp.venson.util.HttpUtils;
-import cn.org.awcp.venson.util.LocalStorage;
-import cn.org.awcp.venson.util.MD5Util;
-import cn.org.awcp.venson.util.PlatfromProp;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("unchecked")
 public abstract class BaseUtils {
@@ -944,7 +920,8 @@ public abstract class BaseUtils {
 	/**
 	 * 删除个数据源中的数据 限定该数据源必须为非自定义类型的
 	 * 
-	 * @param name
+	 * @param page
+	 * @param recordId
 	 * @return
 	 */
 	public boolean deleteData(DynamicPageVO page, String recordId) {
@@ -1403,26 +1380,13 @@ public abstract class BaseUtils {
 	 * @return
 	 */
 	public boolean isCanDo(String WorkID, String FK_Node) {
-		if (StringUtils.isNumeric(WorkID) && StringUtils.isNotBlank(FK_Node))
-			return Dev2Interface.Flow_IsCanDoCurrentWork(FK_Node, Long.parseLong(WorkID),
-					ControllerHelper.getUser().getUserIdCardNumber());
+		if (StringUtils.isNumeric(WorkID) && StringUtils.isNumeric(FK_Node)){
+			return Dev2Interface.Flow_IsCanDoCurrentWork(null,Integer.parseInt(FK_Node), Long.parseLong(WorkID),ControllerHelper.getUser().getUserIdCardNumber()+"");
+		}
 		return false;
 	}
 
-	/**
-	 * 
-	 * @param fk_flow	流程编号
-	 * @param FK_Node	流程节点
-	 * @param WorkID	工作ID
-	 * @return
-	 */
-	public boolean isCanDo(String fk_flow, String FK_Node, String WorkID) {
-		if (StringUtils.isNotBlank(fk_flow) && StringUtils.isNumeric(WorkID) && StringUtils.isNumeric(FK_Node))
-			return Dev2Interface.Flow_IsCanDoCurrentWork(fk_flow,Integer.parseInt(FK_Node), Long.parseLong(WorkID),
-					ControllerHelper.getUser().getUserIdCardNumber());
-		return false;
-	}
-	
+
 	/**
 	 * 判断当前用户是当前流程发起人
 	 * 

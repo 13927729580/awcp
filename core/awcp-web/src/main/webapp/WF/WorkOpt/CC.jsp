@@ -1,6 +1,8 @@
 <%@ page language="java" contentType="text/html;charset=UTF-8"
 	pageEncoding="UTF-8"%>
-<%@ include file="/head/head.jsp"%>
+<%@ include file="/WF/head/head2.jsp"%>
+<link href="<%=Glo.getCCFlowAppPath() %>DataUser/Style/table0.css" rel="stylesheet" type="text/css" />
+
 <%
 	String FK_Flow = (String) request.getParameter("FK_Flow");
 	String WorkID = request.getParameter("WorkID");
@@ -58,20 +60,12 @@
 </script>
 </head>
 <body>
-	<div class="am-cf am-padding">
-		<div class="am-fl am-cf">
-			<%
-				String str = new String(WebUser.getName().getBytes("ISO-8859-1"),
-						"UTF-8");
-			%>
-			<strong class="am-text-primary am-text-lg">您好：<%=Glo.GenerUserImgSmallerHtml(WebUser.getNo(),
-					WebUser.getName())%></strong>
-		</div>
-	</div>
+	<table border=1px align=center width='100%'>
+		<Caption ><div class='' >您好：<%=Glo.GenerUserImgSmallerHtml(WebUser.getNo(),WebUser.getName())%></div></Caption>
 
-	<div class="divCenter2">
+	<!-- <div class="divCenter2"> -->
 			<form method="post" action="" class="am-form" id="form1">
-				<table class="am-table am-table-striped am-table-hover table-main">
+				<!-- <table class="am-table am-table-striped am-table-hover table-main"> -->
 					<thead>
 						<tr>
 							<th class="table-check" colspan="3">
@@ -110,8 +104,8 @@
 								class="am-btn am-btn-primary am-btn-xs" /></td>
 						</tr>
 					</thead>
-				</table>
+				<!-- </table> -->
 			</form>
-		</div>
+		</table>
 </body>
 </html>

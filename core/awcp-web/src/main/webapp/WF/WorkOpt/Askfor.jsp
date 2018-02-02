@@ -1,5 +1,7 @@
 <%@ page language="java" isELIgnored="false" import="java.util.*" pageEncoding="utf-8"%>
-<%@ include file="/head/head.jsp"%>
+<%@ include file="/WF/head/head2.jsp"%>
+<link href="<%=Glo.getCCFlowAppPath() %>DataUser/Style/table0.css" rel="stylesheet" type="text/css" />
+
 <%
 	 String errMsg = request.getParameter("errMsg")==null?"":request.getParameter("errMsg");
 	 if(null != errMsg && "" != errMsg){
@@ -39,7 +41,7 @@ function onCancel(){
 	var FID = '<%=FID%>';
 	var FK_Flow = '<%=FK_Flow%>';
 	
-	var url = "<%=basePath%>WF/MyFlow.jsp?FK_Node="+FK_Node+"&WorkID="+WorkID+"&FID="+FID+"&FK_Flow="+FK_Flow;
+	var url = "<%=basePath%>WF/MyFlow.htm?FK_Node="+FK_Node+"&WorkID="+WorkID+"&FID="+FID+"&FK_Flow="+FK_Flow;
 	window.location.href = url;
 }
 function onSubmit(){
@@ -103,17 +105,12 @@ function checkEmp(){
 <body>
 	<!-- 内容 -->
 	<!-- 表格数据 -->
-	<div class="admin-content">
-
-		<div class="am-cf am-padding">
-			<div class="am-fl am-cf">
-				<strong class="am-text-primary am-text-lg">您好：<%=Glo.GenerUserImgSmallerHtml(WebUser.getNo(),WebUser.getName())%></strong>
-			</div>
-		</div>
+	<table border=1px align=center width='100%'>
+		<Caption ><div class='' >您好：<%=Glo.GenerUserImgSmallerHtml(WebUser.getNo(),WebUser.getName())%></div></Caption>
 		
-			<div class="divCenter2">
+			<!-- <div class="divCenter2"> -->
 				<form method="post" action="" class="am-form" id="form1">
-					<table class="am-table am-table-striped am-table-hover table-main">
+					<!-- <table class="am-table am-table-striped am-table-hover table-main"> -->
 						<thead>
 							<tr>
 								<th class="table-check" colspan="3" nowrap="nowrap">工作加签</th>
@@ -129,7 +126,7 @@ function checkEmp(){
 				 		    <tr>
 				 		       <td colspan="3" nowrap="nowrap">
 				 		    	加签原因说明：<br>
-				 		    	<textarea name="TB_Note" rows="5" cols="70" id="TB_Note">您好：&#10;&#13;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;现把工作向您请示. &#10;&#13;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<%=WebUser.getName() %></textarea>
+									<textarea name="TB_Note" rows="5" cols="70" id="TB_Note">您好： 现把工作向您请示. <%=WebUser.getName() %></textarea>
 							   </td>
 				 		    </tr>
 				 		    <tr>
@@ -147,7 +144,7 @@ function checkEmp(){
 								</td>
 							</tr>
 						</thead>
-					</table>
+					<!-- </table> -->
 					<%
 		 				String sql = "SELECT  * FROM ND"+Integer.parseInt(FK_Flow)+"Track WHERE ActionType=24 AND WorkID="+WorkID+" AND (EmpFrom='"+WebUser.getNo()+"' OR EmpTo='"+WebUser.getNo()+"')";
 		 		    	DataTable dt = DBAccess.RunSQLReturnTable(sql);
@@ -163,7 +160,7 @@ function checkEmp(){
 	 			    </fieldset>
 	 				<%}%>
 				</form>
-			</div>
-		</div>
+			<!-- </div> -->
+		</table>
 </body>
 </html>

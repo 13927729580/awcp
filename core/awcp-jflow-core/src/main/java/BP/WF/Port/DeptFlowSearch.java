@@ -1,8 +1,8 @@
 package BP.WF.Port;
 
-import BP.DA.*;
-import BP.En.*;
-import BP.Port.WebUser;
+import BP.En.EntityMyPK;
+import BP.En.Map;
+import BP.En.UAC;
 
 /** 
  流程部门数据查询权限 的摘要说明。
@@ -12,13 +12,12 @@ public class DeptFlowSearch extends EntityMyPK
 {
 	/** 
 	 UI界面上的访问控制
-	 
 	*/
 	@Override
 	public UAC getHisUAC()
 	{
 		UAC uac = new UAC();
-		if (WebUser.getNo().equals("admin"))
+		if (BP.Web.WebUser.getNo().equals("admin"))
 		{
 			uac.IsView = true;
 			uac.IsDelete = true;
@@ -29,11 +28,10 @@ public class DeptFlowSearch extends EntityMyPK
 		return uac;
 	}
 
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 基本属性
+
+		
 	/** 
 	 工作人员ID
-	 
 	*/
 	public final String getFK_Emp()
 	{
@@ -45,7 +43,6 @@ public class DeptFlowSearch extends EntityMyPK
 	}
 	/** 
 	部门
-	 
 	*/
 	public final String getFK_Dept()
 	{
@@ -57,7 +54,6 @@ public class DeptFlowSearch extends EntityMyPK
 	}
 	/** 
 	 流程编号
-	 
 	*/
 	public final String getFK_Flow()
 	{
@@ -67,21 +63,14 @@ public class DeptFlowSearch extends EntityMyPK
 	{
 		this.SetValByKey(DeptFlowSearchAttr.FK_Flow, value);
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
-
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 构造函数
 	/** 
 	 流程部门数据查询权限
-	  
 	*/
 	public DeptFlowSearch()
 	{
 	}
 	/** 
 	 重写基类方法
-	 
 	*/
 	@Override
 	public Map getEnMap()
@@ -91,16 +80,12 @@ public class DeptFlowSearch extends EntityMyPK
 			return this.get_enMap();
 		}
 
-		Map map = new Map("WF_DeptFlowSearch");
-		map.setEnDesc ( "流程部门数据查询权限");
+		Map map = new Map("WF_DeptFlowSearch", "流程部门数据查询权限");
 		map.AddMyPK();
 		map.AddTBString(DeptFlowSearchAttr.FK_Emp, null, "操作员", true, true, 1, 50, 11);
 		map.AddTBString(DeptFlowSearchAttr.FK_Flow, null, "流程编号", true, true, 1, 50, 11);
 		map.AddTBString(DeptFlowSearchAttr.FK_Dept, null, "部门编号", true, true, 1, 100, 11);
-		this.set_enMap (map);
+		this.set_enMap(map);
 		return this.get_enMap();
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
-
 }

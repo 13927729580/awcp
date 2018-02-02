@@ -1,20 +1,16 @@
 package BP.WF.XML;
 
-import BP.DA.*;
-import BP.En.*;
-import BP.XML.*;
-import BP.Port.WebUser;
-import BP.Sys.*;
+import BP.XML.XmlEnNoName;
+import BP.XML.XmlEns;
 
 /** 
  流程一户式
- 
 */
 public class RptXml extends XmlEnNoName
 {
 	public final String getName()
 	{
-		return this.GetValStringByKey(WebUser.getSysLang());
+		return this.GetValStringByKey(BP.Web.WebUser.getSysLang());
 	}
 	public final String getURL()
 	{
@@ -24,25 +20,18 @@ public class RptXml extends XmlEnNoName
 	{
 		return this.GetValStringByKey("ICON");
 	}
-
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 构造
 	/** 
 	 节点扩展信息
-	 
 	*/
 	public RptXml()
 	{
 	}
 	/** 
 	 获取一个实例
-	 
 	*/
 	@Override
 	public XmlEns getGetNewEntities()
 	{
 		return new RptXmls();
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
 }

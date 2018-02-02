@@ -5,7 +5,8 @@ import BP.En.EntityNoNameAttr;
 /**
  * 班级 属性
  */
-public class BanJiAttr extends EntityNoNameAttr {
+public class BanJiAttr extends EntityNoNameAttr
+{
 	/**
 	 * 班主任
 	 */

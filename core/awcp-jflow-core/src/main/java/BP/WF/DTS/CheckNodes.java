@@ -1,14 +1,7 @@
 package BP.WF.DTS;
 
-import BP.DA.*;
-import BP.En.*;
-import BP.WF.*;
-import BP.Port.*;
-import BP.En.*;
-import BP.Sys.*;
-import BP.WF.Data.*;
-import BP.WF.Template.*;
-import BP.DTS.*;
+import BP.DA.DBUrlType;
+import BP.DTS.DoType;
 
 public class CheckNodes extends BP.DTS.DataIOEn
 {
@@ -36,7 +29,7 @@ public class CheckNodes extends BP.DTS.DataIOEn
 		//gd.Do();
 
 		// 调度人员信息。
-		// Emp emp = new Emp(Web.WebUser.No);
+		// Emp emp = new Emp(Web.WebUser.getNo());
 		// emp.DoDTSEmpDeptStation();
 	}
 }

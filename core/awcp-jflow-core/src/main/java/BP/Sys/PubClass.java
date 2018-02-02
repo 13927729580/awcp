@@ -1,18 +1,22 @@
 package BP.Sys;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Properties;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import javax.mail.BodyPart;
 import javax.mail.Message;
 import javax.mail.Multipart;
@@ -24,7 +28,8 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
+import org.springframework.http.HttpRequest;
+import cn.jflow.common.util.ContextHolderUtils;
 import BP.DA.DBAccess;
 import BP.DA.DBCheckLevel;
 import BP.DA.DBType;
@@ -41,22 +46,23 @@ import BP.En.EnType;
 import BP.En.Entities;
 import BP.En.Entity;
 import BP.En.FieldType;
+import BP.En.Map;
 import BP.En.QueryObject;
 import BP.En.UIContralType;
-import BP.Port.WebUser;
-import BP.Sys.Frm.GroupField;
-import BP.Sys.Frm.MapAttr;
-import BP.Sys.Frm.MapData;
-import BP.Sys.Frm.MapDatas;
-import BP.Sys.Frm.MapDtl;
-import BP.Sys.Frm.MapDtls;
-import TL.ContextHolderUtils;
+import BP.Sys.GroupField;
+import BP.Sys.MapAttr;
+import BP.Sys.MapData;
+import BP.Sys.MapDatas;
+import BP.Sys.MapDtl;
+import BP.Sys.MapDtls;
+import BP.Tools.StringHelper;
+import BP.Web.WebUser;
 
 /**
  * PageBase 的摘要说明。
- * 
  */
 public class PubClass {
+	
 	private static final String Color = null;
 
 	/**
@@ -135,62 +141,50 @@ public class PubClass {
 	}
 
 	public static String ToHtmlColor(String colorName) throws Exception {
-		return "Black";
-		// throw new Exception("");
-		// try
-		// {
-		// if (colorName.startsWith("#"))
-		// {
-		// colorName = colorName.replace("#", "");
-		// }
-		// int v = Integer.parseInt(colorName,
-		// System.Globalization.NumberStyles.HexNumber);
-		//
-		// ColorSpace col = Color.FromArgb (Byte.parseByte((v >> 24) & 255),
-		// Byte.parseByte((v >> 16) & 255), Byte.parseByte((v >> 8) & 255),
-		// Byte.parseByte((v >> 0) & 255));
-		//
-		// int alpha = col.A;
-		//// C# TO JAVA CONVERTER TODO TASK: There is no equivalent to implicit
-		// typing in Java:
-		// var red = String.valueOf(col.R, 16);
-		// ;
-		//// C# TO JAVA CONVERTER TODO TASK: There is no equivalent to implicit
-		// typing in Java:
-		// var green = String.valueOf(col.G, 16);
-		//// C# TO JAVA CONVERTER TODO TASK: There is no equivalent to implicit
-		// typing in Java:
-		// var blue = String.valueOf(col.B, 16);
-		// return String.format("#%1$s%2$s%3$s", red, green, blue);
-		// }
-		// catch (java.lang.Exception e)
-		// {
-		// return "black";
-		// }
+		try
+		{
+			if (colorName.startsWith("#"))
+			{
+				colorName = colorName.replace("#", "");
+				//update by dgq 六位颜色不需要转换
+				if (colorName.length() == 6||colorName.length() == 3)
+				{
+					return "#" + colorName;
+				}else if(colorName.length() == 8){
+					return "#" + colorName.substring(2, 8);
+				}else{
+					return "#" + colorName;
+				}
+			}else{
+				return colorName;
+			}
+		}
+		catch (java.lang.Exception e)
+		{
+			return "black";
+		}
 	}
 
 	public static void InitFrm(String fk_mapdata) {
 		// 删除数据.
-		BP.Sys.Frm.FrmLabs labs = new BP.Sys.Frm.FrmLabs();
+		BP.Sys.FrmLabs labs = new BP.Sys.FrmLabs();
 		try {
-			labs.Delete(BP.Sys.Frm.FrmLabAttr.FK_MapData, fk_mapdata);
+			labs.Delete(BP.Sys.FrmLabAttr.FK_MapData, fk_mapdata);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-		BP.Sys.Frm.FrmLines lines = new BP.Sys.Frm.FrmLines();
+		BP.Sys.FrmLines lines = new BP.Sys.FrmLines();
 		try {
-			lines.Delete(BP.Sys.Frm.FrmLabAttr.FK_MapData, fk_mapdata);
+			lines.Delete(BP.Sys.FrmLabAttr.FK_MapData, fk_mapdata);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-		BP.Sys.Frm.MapData md = new BP.Sys.Frm.MapData();
+		BP.Sys.MapData md = new BP.Sys.MapData();
 		md.setNo(fk_mapdata);
 		if (md.RetrieveFromDBSources() == 0) {
-			BP.Sys.Frm.MapDtl mdtl = new BP.Sys.Frm.MapDtl();
+			BP.Sys.MapDtl mdtl = new BP.Sys.MapDtl();
 			mdtl.setNo(fk_mapdata);
 			if (mdtl.RetrieveFromDBSources() == 0) {
 				throw new RuntimeException("@对:" + fk_mapdata + "的映射信息不存在.");
@@ -199,8 +193,8 @@ public class PubClass {
 			}
 		}
 
-		BP.Sys.Frm.MapAttrs mattrs = new BP.Sys.Frm.MapAttrs(fk_mapdata);
-		BP.Sys.Frm.GroupFields gfs = new BP.Sys.Frm.GroupFields(fk_mapdata);
+		BP.Sys.MapAttrs mattrs = new BP.Sys.MapAttrs(fk_mapdata);
+		BP.Sys.GroupFields gfs = new BP.Sys.GroupFields(fk_mapdata);
 
 		int tableW = 700;
 		int padingLeft = 3;
@@ -212,7 +206,7 @@ public class PubClass {
 		// table 标题。
 		int currX = 0;
 		int currY = 0;
-		BP.Sys.Frm.FrmLab lab = new BP.Sys.Frm.FrmLab();
+		BP.Sys.FrmLab lab = new BP.Sys.FrmLab();
 		lab.setText(md.getName());
 		lab.setFontSize(20);
 		lab.setX(200);
@@ -225,7 +219,7 @@ public class PubClass {
 
 		// 表格头部的横线.
 		currY += 20;
-		BP.Sys.Frm.FrmLine lin = new BP.Sys.Frm.FrmLine();
+		BP.Sys.FrmLine lin = new BP.Sys.FrmLine();
 		lin.setX1(0);
 		lin.setX2(tableW);
 		lin.setY1(currY);
@@ -240,7 +234,7 @@ public class PubClass {
 		int i = 2;
 		for (Object gf : gfs) {
 			i++;
-			lab = new BP.Sys.Frm.FrmLab();
+			lab = new BP.Sys.FrmLab();
 			lab.setX(0);
 			lab.setY(currY);
 			lab.setText(((GroupField) gf).getLab());
@@ -250,7 +244,7 @@ public class PubClass {
 			lab.Insert();
 
 			currY += 15;
-			lin = new BP.Sys.Frm.FrmLine();
+			lin = new BP.Sys.FrmLine();
 			lin.setX1(padingLeft);
 			lin.setX2(tableW);
 			lin.setY1(currY);
@@ -269,7 +263,7 @@ public class PubClass {
 
 				idx++;
 				if (isLeft) {
-					lin = new BP.Sys.Frm.FrmLine();
+					lin = new BP.Sys.FrmLine();
 					lin.setX1(0);
 					lin.setX2(tableW);
 					lin.setY1(currY);
@@ -279,7 +273,7 @@ public class PubClass {
 					lin.Insert();
 					currY += 14; // 画一横线.
 
-					lab = new BP.Sys.Frm.FrmLab();
+					lab = new BP.Sys.FrmLab();
 					lab.setX(lin.getX1() + padingLeft);
 					lab.setY(currY);
 					lab.setText(((MapAttr) attr).getName());
@@ -287,7 +281,7 @@ public class PubClass {
 					lab.setMyPK("Lab" + keyID + (new Integer(i)).toString() + idx);
 					lab.Insert();
 
-					lin = new BP.Sys.Frm.FrmLine();
+					lin = new BP.Sys.FrmLine();
 					lin.setX1(leftCtrlX);
 					lin.setY1(currY - 14);
 
@@ -304,7 +298,7 @@ public class PubClass {
 					currY += 14;
 				} else {
 					currY = currY - 14;
-					lab = new BP.Sys.Frm.FrmLab();
+					lab = new BP.Sys.FrmLab();
 					lab.setX(tableW / 2 + padingLeft);
 					lab.setY(currY);
 					lab.setText(((MapAttr) attr).getName());
@@ -312,7 +306,7 @@ public class PubClass {
 					lab.setMyPK("Lab" + keyID + (new Integer(i)).toString() + idx);
 					lab.Insert();
 
-					lin = new BP.Sys.Frm.FrmLine();
+					lin = new BP.Sys.FrmLine();
 					lin.setX1(tableW / 2);
 					lin.setY1(currY - 14);
 
@@ -322,7 +316,7 @@ public class PubClass {
 					lin.setMyPK("Lin" + keyID + (new Integer(i)).toString() + idx);
 					lin.Insert(); // 画一 竖线
 
-					lin = new BP.Sys.Frm.FrmLine();
+					lin = new BP.Sys.FrmLine();
 					lin.setX1(rightCtrlX);
 					lin.setY1(currY - 14);
 					lin.setX2(rightCtrlX);
@@ -341,7 +335,7 @@ public class PubClass {
 			}
 		}
 		// table bottom line.
-		lin = new BP.Sys.Frm.FrmLine();
+		lin = new BP.Sys.FrmLine();
 		lin.setX1(0);
 		lin.setY1(currY);
 
@@ -354,7 +348,7 @@ public class PubClass {
 
 		currY = currY - 28 - 18;
 		// 处理结尾. table left line
-		lin = new BP.Sys.Frm.FrmLine();
+		lin = new BP.Sys.FrmLine();
 		lin.setX1(0);
 		lin.setY1(50);
 		lin.setX2(0);
@@ -365,7 +359,7 @@ public class PubClass {
 		lin.Insert();
 
 		// table right line.
-		lin = new BP.Sys.Frm.FrmLine();
+		lin = new BP.Sys.FrmLine();
 		lin.setX1(tableW);
 		lin.setY1(50);
 		lin.setX2(tableW);
@@ -405,8 +399,7 @@ public class PubClass {
 		try {
 			int a = Integer.parseInt(s);
 			fd = "F" + fd;
-		} catch (java.lang.Exception e) {
-		}
+		} catch (java.lang.Exception e) {}
 		return fd;
 	}
 
@@ -414,8 +407,7 @@ public class PubClass {
 
 	public static String getKeyFields() {
 		if (_KeyFields == null) {
-			_KeyFields = BP.DA.DataType.ReadTextFile(
-					SystemConfig.getPathOfData() + File.separator + "Sys" + File.separator + "FieldKeys.txt");
+			_KeyFields = BP.DA.DataType.ReadTextFile(SystemConfig.getPathOfData() + "/Sys/FieldKeys.txt");
 		}
 		return _KeyFields;
 	}
@@ -450,23 +442,13 @@ public class PubClass {
 
 	public static boolean IsImg(String ext) {
 		ext = ext.replace(".", "").toLowerCase();
-		// C# TO JAVA CONVERTER NOTE: The following 'switch' operated on a
-		// string member and was converted to Java 'if-else' logic:
-		// switch (ext)
-		// ORIGINAL LINE: case "gif":
 		if (ext.equals("gif")) {
 			return true;
-		}
-		// ORIGINAL LINE: case "jpg":
-		else if (ext.equals("jpg")) {
+		} else if (ext.equals("jpg")) {
 			return true;
-		}
-		// ORIGINAL LINE: case "bmp":
-		else if (ext.equals("bmp")) {
+		} else if (ext.equals("bmp")) {
 			return true;
-		}
-		// ORIGINAL LINE: case "png":
-		else if (ext.equals("png")) {
+		} else if (ext.equals("png")) {
 			return true;
 		} else {
 			return false;
@@ -530,15 +512,14 @@ public class PubClass {
 		String path = BP.Sys.Glo.getRequest().getRemoteHost();
 
 		for (Object file : ens) {
-			strs += "<img src='/WF/Img/FileType/" + ((SysFileManager) file).getMyFileExt().replace(".", "")
-					+ ".gif' border=0 /><a href='" + path + ((SysFileManager) file).getMyFilePath()
-					+ "' target='_blank' >" + ((SysFileManager) file).getMyFileName()
+			strs += "<img src='/WF/Img/FileType/" + ((SysFileManager) file).getMyFileExt().replace(".", "") + ".gif' border=0 /><a href='" + path
+					+ ((SysFileManager) file).getMyFilePath() + "' target='_blank' >" + ((SysFileManager) file).getMyFileName()
 					+ ((SysFileManager) file).getMyFileExt() + "</a>&nbsp;";
 			if (WebUser.getNo().equals(((SysFileManager) file).getRec())) {
-				strs += "<a title='打开它' href=\"javascript:DoAction('" + path + "Comm/Do.jsp?ActionType=1&OID="
-						+ ((SysFileManager) file).getOID() + "&EnsName=" + enName + "&PK=" + pk + "','删除文件《"
-						+ ((SysFileManager) file).getMyFileName() + ((SysFileManager) file).getMyFileExt()
-						+ "》')\" ><img src='" + path + "/WF/Img/Btn/delete.gif' border=0 alt='删除此附件' /></a>&nbsp;";
+				strs += "<a title='打开它' href=\"javascript:DoAction('" + path + "Comm/Do.jsp?ActionType=1&OID=" + ((SysFileManager) file).getOID()
+						+ "&EnsName=" + enName + "&PK=" + pk + "','删除文件《" + ((SysFileManager) file).getMyFileName()
+						+ ((SysFileManager) file).getMyFileExt() + "》')\" ><img src='" + path
+						+ "../Img/Btn/delete.gif' border=0 alt='删除此附件' /></a>&nbsp;";
 			}
 		}
 		return strs;
@@ -556,8 +537,7 @@ public class PubClass {
 		str += "<TR   >";
 		str += "<TD  >";
 		str += "<IMG src='" + path + "/Images/DG_Title_Left.gif' border='0'></TD>";
-		str += "<TD style='font-size:14px'  vAlign='bottom' noWrap background='" + path
-				+ "/Images/DG_Title_BG.gif'>&nbsp;";
+		str += "<TD style='font-size:14px'  vAlign='bottom' noWrap background='" + path + "/Images/DG_Title_BG.gif'>&nbsp;";
 		str += " &nbsp;<b>" + title + "</b>&nbsp;&nbsp;";
 		str += "</TD>";
 		str += "<TD>";
@@ -589,7 +569,7 @@ public class PubClass {
 		// 标题
 		str += "<TR>";
 		for (DataColumn dc : dt.Columns) {
-			str += "<TD class='DGCellOfHeader" + BP.Port.WebUser.getStyle() + "' nowrap >" + dc.ColumnName + "</TD>";
+			str += "<TD class='DGCellOfHeader" + BP.Web.WebUser.getStyle() + "' nowrap >" + dc.ColumnName + "</TD>";
 		}
 		str += "</TR>";
 
@@ -598,7 +578,7 @@ public class PubClass {
 			str += "<TR>";
 
 			for (DataColumn dc : dt.Columns) {
-				// string doc=dr[dc.ColumnName];
+				// string doc=dr.getValue(dc.ColumnName);
 				str += "<TD nowrap=true >&nbsp;" + dr.getValue(dc.ColumnName) + "</TD>";
 			}
 			str += "</TR>";
@@ -615,7 +595,7 @@ public class PubClass {
 	 */
 	public static String GenerTempFileName(String hz) {
 		SimpleDateFormat formatter = new SimpleDateFormat("MMddhhmmss");
-		return BP.Port.WebUser.getNo() + formatter.format(new Date()) + "." + hz;
+		return BP.Web.WebUser.getNo() + formatter.format(new Date()) + "." + hz;
 	}
 
 	public static void DeleteTempFiles() {
@@ -629,7 +609,6 @@ public class PubClass {
 
 	/**
 	 * 重新建立索引
-	 * 
 	 */
 	public static void ReCreateIndex() {
 		java.util.ArrayList als = ClassFactory.GetObjects("BP.En.Entity");
@@ -639,8 +618,8 @@ public class PubClass {
 			if (en.getEnMap().getEnType() == EnType.View) {
 				continue;
 			}
-			sql += "IF EXISTS( SELECT name  FROM  sysobjects WHERE  name='" + en.getEnMap().getPhysicsTable()
-					+ "') <BR> DROP TABLE " + en.getEnMap().getPhysicsTable() + "<BR>";
+			sql += "IF EXISTS( SELECT name  FROM  sysobjects WHERE  name='" + en.getEnMap().getPhysicsTable() + "') <BR> DROP TABLE "
+					+ en.getEnMap().getPhysicsTable() + "<BR>";
 			sql += "CREATE TABLE " + en.getEnMap().getPhysicsTable() + " ( <BR>";
 			sql += "";
 		}
@@ -654,7 +633,6 @@ public class PubClass {
 
 	/**
 	 * 检查所有的物理表
-	 * 
 	 */
 	public static void CheckAllPTable(String nameS) {
 		java.util.ArrayList al = BP.En.ClassFactory.GetObjects("BP.En.Entities");
@@ -667,7 +645,7 @@ public class PubClass {
 				Entity en = ((Entities) ens).getGetNewEntity();
 				en.CheckPhysicsTable();
 			} catch (java.lang.Exception e) {
-
+				
 			}
 
 		}
@@ -688,8 +666,7 @@ public class PubClass {
 				continue;
 			}
 
-			// C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-			/// #region create table
+			// create table
 			switch (dbtype) {
 
 			case Oracle:
@@ -697,8 +674,7 @@ public class PubClass {
 
 					// DBAccessOfOracle.RunSQL("drop table " +
 					// myen.getEnMap().getPhysicsTable());
-				} catch (java.lang.Exception e) {
-				}
+				} catch (java.lang.Exception e) {}
 				try {
 					// DBAccessOfOracle.RunSQL(SqlBuilder.GenerCreateTableSQLOfOra_OK(myen));
 				} catch (java.lang.Exception e2) {
@@ -719,8 +695,7 @@ public class PubClass {
 					//
 					// DBAccessOfMSMSSQL.RunSQL("drop table " +
 					// myen.getEnMap().getPhysicsTable());
-				} catch (java.lang.Exception e3) {
-				}
+				} catch (java.lang.Exception e3) {}
 				// DBAccessOfMSMSSQL.RunSQL(SqlBuilder.GenerCreateTableSQLOfMS(myen));
 				break;
 			case Informix:
@@ -737,24 +712,20 @@ public class PubClass {
 					//
 					// DBAccessOfMSMSSQL.RunSQL("drop table " +
 					// myen.getEnMap().getPhysicsTable());
-				} catch (java.lang.Exception e4) {
-				}
+				} catch (java.lang.Exception e4) {}
 				// DBAccessOfMSMSSQL.RunSQL(SqlBuilder.GenerCreateTableSQLOfInfoMix(myen));
 				break;
 			case Access:
 				try {
 					// DBAccessOfOLE.RunSQL("drop table " +
 					// myen.getEnMap().getPhysicsTable());
-				} catch (java.lang.Exception e5) {
-				}
+				} catch (java.lang.Exception e5) {}
 				// DBAccessOfOLE.RunSQL(SqlBuilder.GenerCreateTableSQLOf_OLE(myen));
 				break;
 			default:
 				throw new RuntimeException("error :");
 
 			}
-			// C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-			/// #endregion
 
 			if (creatTableOnly) {
 				return;
@@ -768,8 +739,7 @@ public class PubClass {
 				continue;
 			}
 
-			// C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-			/// #region insert data
+			// insert data
 			for (Object en : ((Entities) ens)) {
 				try {
 					switch (dbtype) {
@@ -790,8 +760,6 @@ public class PubClass {
 					Log.DefaultLogWriteLineError(dbtype.toString() + "bak出现错误：" + ex.getMessage());
 				}
 			}
-			// C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-			/// #endregion
 		}
 	}
 
@@ -874,20 +842,18 @@ public class PubClass {
 		}
 	}
 
-	// C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-	/// #region 系统调度
+	// 系统调度
 	public static String GenerDBOfOreacle() {
 		java.util.ArrayList als = ClassFactory.GetObjects("BP.En.Entity");
 		String sql = "";
 		for (Object obj : als) {
 			Entity en = (Entity) obj;
-			sql += "IF EXISTS( SELECT name  FROM  sysobjects WHERE  name='" + en.getEnMap().getPhysicsTable()
-					+ "') <BR> DROP TABLE " + en.getEnMap().getPhysicsTable() + "<BR>";
+			sql += "IF EXISTS( SELECT name  FROM  sysobjects WHERE  name='" + en.getEnMap().getPhysicsTable() + "') <BR> DROP TABLE "
+					+ en.getEnMap().getPhysicsTable() + "<BR>";
 			sql += "CREATE TABLE " + en.getEnMap().getPhysicsTable() + " ( <BR>";
 			sql += "";
 		}
-		// DA.Log.DefaultLogWriteLine(LogType.Error,msg.Replace("<br>@","\n") );
-		// //
+		// DA.Log.DefaultLogWriteLine(LogType.Error,msg.replace("<br>@","\n") );
 		return sql;
 	}
 
@@ -911,7 +877,6 @@ public class PubClass {
 				try {
 					((MapData) md).getHisGEEn().CheckPhysicsTable();
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				PubClass.AddComment(((MapData) md).getHisGEEn());
@@ -927,7 +892,6 @@ public class PubClass {
 				try {
 					((MapDtl) dtl).getHisGEDtl().CheckPhysicsTable();
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				PubClass.AddComment(((MapDtl) dtl).getHisGEDtl());
@@ -936,8 +900,7 @@ public class PubClass {
 			}
 		}
 
-		// C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		/// #region 检查处理必要的基础数据 Pub_Day .
+		// 检查处理必要的基础数据 Pub_Day .
 		String sql = "";
 		String sqls = "";
 		sql = "SELECT count(*) Num FROM Pub_Day";
@@ -953,8 +916,7 @@ public class PubClass {
 					sqls += "@INSERT INTO Pub_Day(No,Name)VALUES('" + d.toString() + "','" + d.toString() + "')";
 				}
 			}
-		} catch (java.lang.Exception e) {
-		}
+		} catch (java.lang.Exception e) {}
 
 		sql = "SELECT count(*) Num FROM Pub_YF";
 		try {
@@ -968,8 +930,7 @@ public class PubClass {
 					sqls += "@INSERT INTO Pub_YF(No,Name)VALUES('" + d1.toString() + "','" + d1.toString() + "')";
 				}
 			}
-		} catch (java.lang.Exception e2) {
-		}
+		} catch (java.lang.Exception e2) {}
 
 		sql = "SELECT count(*) Num FROM Pub_ND";
 		try {
@@ -998,17 +959,14 @@ public class PubClass {
 					}
 				}
 			}
-		} catch (java.lang.Exception e4) {
-		}
+		} catch (java.lang.Exception e4) {}
 
 		try {
 			DBAccess.RunSQLs(sqls);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		// C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		/// #endregion 检查处理必要的基础数据。
+		// 检查处理必要的基础数据。
 		return msg;
 	}
 
@@ -1026,9 +984,7 @@ public class PubClass {
 	}
 
 	private static void RepleaceFieldDesc(Entity en) {
-		String tableId = DBAccess
-				.RunSQLReturnVal(
-						"select ID from sysobjects WHERE name='" + en.getEnMap().getPhysicsTable() + "' AND xtype='U'")
+		String tableId = DBAccess.RunSQLReturnVal("select ID from sysobjects WHERE name='" + en.getEnMap().getPhysicsTable() + "' AND xtype='U'")
 				.toString();
 
 		if (tableId == null || tableId.equals("")) {
@@ -1064,7 +1020,13 @@ public class PubClass {
 			} catch (java.lang.Exception e) {
 				continue;
 			}
-			msg += AddComment(en);
+			//sunxd 
+			//增加en为空的判断
+			if(en.getEnMap().getPhysicsTable() != null && !en.getEnMap().getPhysicsTable().equals("null")){
+				msg += AddComment(en);
+			}
+			
+			
 		}
 		return msg;
 	}
@@ -1075,6 +1037,9 @@ public class PubClass {
 			case Oracle:
 				AddCommentForTable_Ora(en);
 				break;
+			case MySQL:
+                AddCommentForTable_MySql(en);
+                break;
 			default:
 				AddCommentForTable_MS(en);
 				break;
@@ -1083,7 +1048,6 @@ public class PubClass {
 		} catch (RuntimeException ex) {
 			return "<hr>" + en.toString() + "体检失败:" + ex.getMessage();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return null;
 		}
@@ -1099,34 +1063,30 @@ public class PubClass {
 			}
 			switch (attr.getMyFieldType()) {
 			case PK:
-				en.RunSQL("comment on column  " + en.getEnMap().getPhysicsTable() + "." + attr.getField() + " IS '"
-						+ attr.getDesc() + " - 主键'");
+				en.RunSQL("comment on column  " + en.getEnMap().getPhysicsTable() + "." + attr.getField() + " IS '" + attr.getDesc() + " - 主键'");
 				break;
 			case Normal:
-				en.RunSQL("comment on column  " + en.getEnMap().getPhysicsTable() + "." + attr.getField() + " IS '"
-						+ attr.getDesc() + "'");
+				en.RunSQL("comment on column  " + en.getEnMap().getPhysicsTable() + "." + attr.getField() + " IS '" + attr.getDesc() + "'");
 				break;
 			case Enum:
 				ses = new SysEnums(attr.getKey(), attr.UITag);
-				en.RunSQL("comment on column  " + en.getEnMap().getPhysicsTable() + "." + attr.getField() + " IS '"
-						+ attr.getDesc() + ",枚举类型:" + ses.ToDesc() + "'");
+				en.RunSQL("comment on column  " + en.getEnMap().getPhysicsTable() + "." + attr.getField() + " IS '" + attr.getDesc() + ",枚举类型:"
+						+ ses.ToDesc() + "'");
 				break;
 			case PKEnum:
 				ses = new SysEnums(attr.getKey(), attr.UITag);
-				en.RunSQL("comment on column  " + en.getEnMap().getPhysicsTable() + "." + attr.getField() + " IS '"
-						+ attr.getDesc() + ", 主键:枚举类型:" + ses.ToDesc() + "'");
+				en.RunSQL("comment on column  " + en.getEnMap().getPhysicsTable() + "." + attr.getField() + " IS '" + attr.getDesc() + ", 主键:枚举类型:"
+						+ ses.ToDesc() + "'");
 				break;
 			case FK:
 				Entity myen = attr.getHisFKEn(); // ClassFactory.GetEns(attr.UIBindKey).GetNewEntity;
-				en.RunSQL("comment on column  " + en.getEnMap().getPhysicsTable() + "." + attr.getField() + " IS "
-						+ attr.getDesc() + ", 外键:对应物理表:" + myen.getEnMap().getPhysicsTable() + ",表描述:"
-						+ myen.getEnDesc());
+				en.RunSQL("comment on column  " + en.getEnMap().getPhysicsTable() + "." + attr.getField() + " IS '" + attr.getDesc() + ", 外键:对应物理表:"
+						+ myen.getEnMap().getPhysicsTable() + ",表描述:" + myen.getEnDesc() + "'");
 				break;
 			case PKFK:
 				Entity myen1 = attr.getHisFKEn(); // ClassFactory.GetEns(attr.UIBindKey).GetNewEntity;
-				en.RunSQL("comment on column  " + en.getEnMap().getPhysicsTable() + "." + attr.getField() + " IS '"
-						+ attr.getDesc() + ", 主外键:对应物理表:" + myen1.getEnMap().getPhysicsTable() + ",表描述:"
-						+ myen1.getEnDesc() + "'");
+				en.RunSQL("comment on column  " + en.getEnMap().getPhysicsTable() + "." + attr.getField() + " IS '" + attr.getDesc() + ", 主外键:对应物理表:"
+						+ myen1.getEnMap().getPhysicsTable() + ",表描述:" + myen1.getEnDesc() + "'");
 				break;
 			default:
 				break;
@@ -1134,26 +1094,73 @@ public class PubClass {
 		}
 	}
 
-	private static void AddColNote(Entity en, String table, String col, String note) {
-		try {
-			String sql = "execute  sp_dropextendedproperty 'MS_Description','user',dbo,'table','" + table
-					+ "','column'," + col;
-			en.RunSQL(sql);
-		} catch (RuntimeException ex) {
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public static void AddCommentForTable_MySql(Entity en)
+	{
+		//MySql.Data.MySqlClient.MySqlConnection conn = new MySql.Data.MySqlClient.MySqlConnection(BP.Sys.SystemConfig.AppCenterDSN);
+		String database = BP.Sys.SystemConfig.getAppCenterDBDatabase();
+		en.RunSQL("alter table " + database + "." + en.getEnMap().getPhysicsTable() + " comment = '" + en.getEnDesc() + "'");
+		//获取当前实体对应表的所有字段结构信息
+		DataTable cols = DBAccess.RunSQLReturnTable("select column_name,column_default,is_nullable,character_set_name,column_type from information_schema.columns where table_schema = '" + database + "' and table_name='" + en.getEnMap().getPhysicsTable() + "'");
+		SysEnums ses = new SysEnums();
+		String sql = "";
+		DataRow row = null;
 
-		try {
-			String sql = "execute  sp_addextendedproperty 'MS_Description', '" + note + "', 'user', dbo, 'table', '"
-					+ table + "', 'column', '" + col + "'";
-			en.RunSQL(sql);
-		} catch (RuntimeException ex) {
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		for (Attr attr : en.getEnMap().getAttrs())
+		{
+			if (attr.getMyFieldType() == FieldType.RefText)
+			{
+				continue;
+			}
+
+			row = cols.select(String.format("column_name='%1$s'", attr.getField())).get(0);
+			sql = String.format("ALTER TABLE %1$s.%2$s CHANGE COLUMN %3$s %3$s %4$s%5$s%6$s%7$s COMMENT ", database, en.getEnMap().getPhysicsTable(), attr.getField(), row.getValue("column_type").toString().toUpperCase(), row.getValue("character_set_name").equals("utf8") ? " CHARACTER SET 'utf8'" : "", row.getValue("is_nullable").equals("YES") ? " NULL" : " NOT NULL", row.getValue("column_default").equals("NULL") ? " DEFAULT NULL" : (row.getValue("").equals("") ? "" : " DEFAULT " + row.getValue((""))));
+
+			switch (attr.getMyFieldType())
+			{
+				case PK:
+					en.RunSQL(sql + String.format("'%1$s - 主键'", attr.getDesc()));
+					break;
+				case Normal:
+					en.RunSQL(sql + String.format("'%1$s'", attr.getDesc()));
+					break;
+				case Enum:
+					ses = new SysEnums(attr.getKey(), attr.UITag);
+					en.RunSQL(sql + String.format("'%1$s,枚举类型:%2$s'", attr.getDesc(), ses.ToDesc()));
+					break;
+				case PKEnum:
+					ses = new SysEnums(attr.getKey(), attr.UITag);
+					en.RunSQL(sql + String.format("'%1$s,主键:枚举类型:%2$s'", attr.getDesc(), ses.ToDesc()));
+					break;
+				case FK:
+					Entity myen = attr.getHisFKEn(); // ClassFactory.GetEns(attr.UIBindKey).GetNewEntity;
+					en.RunSQL(sql + String.format("'%1$s,外键:对应物理表:%2$s,表描述:%3$s'", attr.getDesc(), myen.getEnMap().getPhysicsTable(), myen.getEnDesc()));
+					break;
+				case PKFK:
+					Entity myen1 = attr.getHisFKEn(); // ClassFactory.GetEns(attr.UIBindKey).GetNewEntity;
+					en.RunSQL(sql + String.format("'%1$s,主外键:对应物理表:%2$s,表描述:%3$s'", attr.getDesc(), myen1.getEnMap().getPhysicsTable(), myen1.getEnDesc()));
+					break;
+				default:
+					break;
+			}
 		}
+	}
+	
+	private static void AddColNote(Entity en, String table, String col, String note) {
+		return;
+//		try {
+//			String sql = "execute  sp_dropextendedproperty 'MS_Description','user',dbo,'table','" + table + "','column'," + col;
+//			en.RunSQL(sql);
+//		} catch (RuntimeException ex) {} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//
+//		try {
+//			String sql = "execute  sp_addextendedproperty 'MS_Description', '" + note + "', 'user', dbo, 'table', '" + table + "', 'column', '" + col
+//					+ "'";
+//			en.RunSQL(sql);
+//		} catch (RuntimeException ex) {} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 	}
 
 	/**
@@ -1162,28 +1169,28 @@ public class PubClass {
 	 * @param en
 	 */
 	public static void AddCommentForTable_MS(Entity en) {
+		
+		if(1==1)
+		return;
+		
 		if (en.getEnMap().getEnType() == EnType.View || en.getEnMap().getEnType() == EnType.ThirdPartApp) {
 			return;
 		}
 
 		try {
-			String sql = "execute  sp_dropextendedproperty 'MS_Description','user',dbo,'table','"
-					+ en.getEnMap().getPhysicsTable() + "'";
+			String sql = "execute  sp_dropextendedproperty 'MS_Description','user',dbo,'table','" + en.getEnMap().getPhysicsTable() + "'";
 			en.RunSQL(sql);
-		} catch (RuntimeException ex) {
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
+		} catch (RuntimeException ex) {} catch (Exception e) {
 			e.printStackTrace();
 		}
 
 		try {
-			String sql = "execute  sp_addextendedproperty 'MS_Description', '" + en.getEnDesc()
-					+ "', 'user', dbo, 'table', '" + en.getEnMap().getPhysicsTable() + "'";
+			String sql = "execute  sp_addextendedproperty 'MS_Description', '" + en.getEnDesc() + "', 'user', dbo, 'table', '"
+					+ en.getEnMap().getPhysicsTable() + "'";
 			en.RunSQL(sql);
 		} catch (RuntimeException ex) {
 
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -1200,36 +1207,35 @@ public class PubClass {
 			case Normal:
 				AddColNote(en, en.getEnMap().getPhysicsTable(), attr.getField(), attr.getDesc());
 				// en.RunSQL("comment on table "+
-				// en.EnMap.PhysicsTable+"."+attr.Field +" IS '"+en.EnDesc+"'");
+				// en.getEnMap().getPhysicsTable()+"."+attr.Field
+				// +" IS '"+en.EnDesc+"'");
 				break;
 			case Enum:
 				ses = new SysEnums(attr.getKey(), attr.UITag);
 				// en.RunSQL("comment on table "+
-				// en.EnMap.PhysicsTable+"."+attr.Field +" IS '"++"'" );
-				AddColNote(en, en.getEnMap().getPhysicsTable(), attr.getField(),
-						attr.getDesc() + ",枚举类型:" + ses.ToDesc());
+				// en.getEnMap().getPhysicsTable()+"."+attr.Field +" IS '"++"'" );
+				AddColNote(en, en.getEnMap().getPhysicsTable(), attr.getField(), attr.getDesc() + ",枚举类型:" + ses.ToDesc());
 				break;
 			case PKEnum:
 				ses = new SysEnums(attr.getKey(), attr.UITag);
-				AddColNote(en, en.getEnMap().getPhysicsTable(), attr.getField(),
-						attr.getDesc() + ",主键:枚举类型:" + ses.ToDesc());
+				AddColNote(en, en.getEnMap().getPhysicsTable(), attr.getField(), attr.getDesc() + ",主键:枚举类型:" + ses.ToDesc());
 				// en.RunSQL("comment on table "+
-				// en.EnMap.PhysicsTable+"."+attr.Field +" IS '"+en.EnDesc+",
-				// 主键:枚举类型:"+ses.ToDesc()+"'" );
+				// en.getEnMap().getPhysicsTable()+"."+attr.Field
+				// +" IS '"+en.EnDesc+", 主键:枚举类型:"+ses.ToDesc()+"'" );
 				break;
 			case FK:
 				Entity myen = attr.getHisFKEn(); // ClassFactory.GetEns(attr.UIBindKey).GetNewEntity;
-				AddColNote(en, en.getEnMap().getPhysicsTable(), attr.getField(), attr.getDesc() + ", 外键:对应物理表:"
-						+ myen.getEnMap().getPhysicsTable() + ",表描述:" + myen.getEnDesc());
+				AddColNote(en, en.getEnMap().getPhysicsTable(), attr.getField(), attr.getDesc() + ", 外键:对应物理表:" + myen.getEnMap().getPhysicsTable()
+						+ ",表描述:" + myen.getEnDesc());
 				// en.RunSQL("comment on table "+
-				// en.EnMap.PhysicsTable+"."+attr.Field +" IS "+ );
+				// en.getEnMap().getPhysicsTable()+"."+attr.Field +" IS "+ );
 				break;
 			case PKFK:
 				Entity myen1 = attr.getHisFKEn(); // ClassFactory.GetEns(attr.UIBindKey).GetNewEntity;
-				AddColNote(en, en.getEnMap().getPhysicsTable(), attr.getField(), attr.getDesc() + ", 主外键:对应物理表:"
-						+ myen1.getEnMap().getPhysicsTable() + ",表描述:" + myen1.getEnDesc());
+				AddColNote(en, en.getEnMap().getPhysicsTable(), attr.getField(), attr.getDesc() + ", 主外键:对应物理表:" + myen1.getEnMap().getPhysicsTable()
+						+ ",表描述:" + myen1.getEnDesc());
 				// en.RunSQL("comment on table "+
-				// en.EnMap.PhysicsTable+"."+attr.Field +" IS '"+ );
+				// en.getEnMap().getPhysicsTable()+"."+attr.Field +" IS '"+ );
 				break;
 			default:
 				break;
@@ -1264,7 +1270,6 @@ public class PubClass {
 		try {
 			en.CheckPhysicsTable();
 		} catch (Exception e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 
@@ -1275,8 +1280,7 @@ public class PubClass {
 		// {
 		// try
 		// {
-		// DBAccess.RunSQL("update pub_emp set AuthorizedAgent='1' WHERE
-		// AuthorizedAgent='0' ");
+		// DBAccess.RunSQL("update pub_emp set AuthorizedAgent='1' WHERE AuthorizedAgent='0' ");
 		// }
 		// catch
 		// {
@@ -1297,145 +1301,101 @@ public class PubClass {
 
 			String enMsg = "";
 			try {
-				// C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in
-				// Java:
-				/// #region 更新他们，去掉左右空格，因为外键不能包含左右空格。
+				// 更新他们，去掉左右空格，因为外键不能包含左右空格。
 				if (level == DBCheckLevel.Middle || level == DBCheckLevel.High) {
 					// 如果是高中级别,就去掉左右空格
 					if (attr.getMyDataType() == DataType.AppString) {
-						DBAccess.RunSQL("UPDATE " + en.getEnMap().getPhysicsTable() + " SET " + attr.getField()
-								+ " = rtrim( ltrim(" + attr.getField() + ") )");
+						DBAccess.RunSQL("UPDATE " + en.getEnMap().getPhysicsTable() + " SET " + attr.getField() + " = rtrim( ltrim("
+								+ attr.getField() + ") )");
 					}
 				}
-				// C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in
-				// Java:
-				/// #endregion
 
-				// C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in
-				// Java:
-				/// #region 处理关联表的情况.
+				// 处理关联表的情况.
 				Entities refEns = attr.getHisFKEns(); // ClassFactory.GetEns(attr.UIBindKey);
 				Entity refEn = refEns.getGetNewEntity();
 
 				// 取出关联的表。
 				String reftable = refEn.getEnMap().getPhysicsTable();
-				// sql="SELECT COUNT(*) FROM "+en.EnMap.PhysicsTable+" WHERE
-				// "+attr.Key+" is null or len("+attr.Key+") < 1 ";
+				// sql="SELECT COUNT(*) FROM "+en.getEnMap().getPhysicsTable()+" WHERE "+attr.Key+" is null or len("+attr.Key+") < 1 ";
 				// 判断外键表是否存在。
 
 				sql = "SELECT COUNT(*) FROM  sysobjects  WHERE  name = '" + reftable + "'";
 				// num=DA.DBAccess.RunSQLReturnValInt(sql,0);
 				if (!DBAccess.IsExitsObject(reftable)) {
 					// 报告错误信息
-					enMsg += "<br>@检查实体：" + en.getEnDesc() + ",字段 " + attr.getKey() + " , 字段描述:" + attr.getDesc()
-							+ " , 外键物理表:" + reftable + "不存在:" + sql;
+					enMsg += "<br>@检查实体：" + en.getEnDesc() + ",字段 " + attr.getKey() + " , 字段描述:" + attr.getDesc() + " , 外键物理表:" + reftable + "不存在:"
+							+ sql;
 				} else {
-					Attr attrRefKey = refEn.getEnMap().GetAttrByKey(attr.getUIRefKeyValue()); // 去掉主键的左右
-																								// 空格．
+					Attr attrRefKey = refEn.getEnMap().GetAttrByKey(attr.getUIRefKeyValue()); // 去掉主键的左右 空格．
 					if (attrRefKey.getMyDataType() == DataType.AppString) {
 						if (level == DBCheckLevel.Middle || level == DBCheckLevel.High) {
 							// 如果是高中级别,就去掉左右空格
-							DBAccess.RunSQL("UPDATE " + reftable + " SET " + attrRefKey.getField() + " = rtrim( ltrim("
-									+ attrRefKey.getField() + ") )");
+							DBAccess.RunSQL("UPDATE " + reftable + " SET " + attrRefKey.getField() + " = rtrim( ltrim(" + attrRefKey.getField()
+									+ ") )");
 						}
 					}
 
-					Attr attrRefText = refEn.getEnMap().GetAttrByKey(attr.getUIRefKeyText()); // 去掉主键
-																								// Text
-																								// 的左右
-																								// 空格．
+					Attr attrRefText = refEn.getEnMap().GetAttrByKey(attr.getUIRefKeyText()); // 去掉主键 Text 的左右 空格．
 
 					if (level == DBCheckLevel.Middle || level == DBCheckLevel.High) {
 						// 如果是高中级别,就去掉左右空格
-						DBAccess.RunSQL("UPDATE " + reftable + " SET " + attrRefText.getField() + " = rtrim( ltrim("
-								+ attrRefText.getField() + ") )");
+						DBAccess.RunSQL("UPDATE " + reftable + " SET " + attrRefText.getField() + " = rtrim( ltrim(" + attrRefText.getField() + ") )");
 					}
 
 				}
-				// C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in
-				// Java:
-				/// #endregion
-
-				// C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in
-				// Java:
-				/// #region 外键的实体是否为空
+				// 外键的实体是否为空
 				switch (en.getEnMap().getEnDBUrl().getDBType()) {
 				case Oracle:
-					sql = "SELECT COUNT(*) FROM " + en.getEnMap().getPhysicsTable() + " WHERE " + attr.getField()
-							+ " is null or length(" + attr.getField() + ") < 1 ";
+					sql = "SELECT COUNT(*) FROM " + en.getEnMap().getPhysicsTable() + " WHERE " + attr.getField() + " is null or length("
+							+ attr.getField() + ") < 1 ";
 					break;
 				default:
-					sql = "SELECT COUNT(*) FROM " + en.getEnMap().getPhysicsTable() + " WHERE " + attr.getField()
-							+ " is null or len(" + attr.getField() + ") < 1 ";
+					sql = "SELECT COUNT(*) FROM " + en.getEnMap().getPhysicsTable() + " WHERE " + attr.getField() + " is null or len("
+							+ attr.getField() + ") < 1 ";
 					break;
 				}
 
 				num = BP.DA.DBAccess.RunSQLReturnValInt(sql, 0);
-				if (num == 0) {
-				} else {
-					enMsg += "<br>@检查实体：" + en.getEnDesc() + ",物理表:" + en.getEnMap().getPhysicsTable() + "出现"
-							+ attr.getKey() + "," + attr.getDesc() + "不正确,共有[" + num + "]行记录没有数据。" + sql;
+				if (num == 0) {} else {
+					enMsg += "<br>@检查实体：" + en.getEnDesc() + ",物理表:" + en.getEnMap().getPhysicsTable() + "出现" + attr.getKey() + "," + attr.getDesc()
+							+ "不正确,共有[" + num + "]行记录没有数据。" + sql;
 				}
-				// C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in
-				// Java:
-				/// #endregion
-
-				// C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in
-				// Java:
-				/// #region 是否能够对应到外键
+				// 是否能够对应到外键
 				// 是否能够对应到外键。
-				sql = "SELECT COUNT(*) FROM " + en.getEnMap().getPhysicsTable() + " WHERE " + attr.getField()
-						+ " NOT IN ( SELECT " + refEn.getEnMap().GetAttrByKey(attr.getUIRefKeyValue()).getField()
-						+ " FROM " + reftable + "	 ) ";
+				sql = "SELECT COUNT(*) FROM " + en.getEnMap().getPhysicsTable() + " WHERE " + attr.getField() + " NOT IN ( SELECT "
+						+ refEn.getEnMap().GetAttrByKey(attr.getUIRefKeyValue()).getField() + " FROM " + reftable + "	 ) ";
 				num = BP.DA.DBAccess.RunSQLReturnValInt(sql, 0);
-				if (num == 0) {
-				} else {
+				if (num == 0) {} else {
 					// 如果是高中级别.
-					String delsql = "DELETE FROM " + en.getEnMap().getPhysicsTable() + " WHERE " + attr.getField()
-							+ " NOT IN ( SELECT " + refEn.getEnMap().GetAttrByKey(attr.getUIRefKeyValue()).getField()
-							+ " FROM " + reftable + "	 ) ";
+					String delsql = "DELETE FROM " + en.getEnMap().getPhysicsTable() + " WHERE " + attr.getField() + " NOT IN ( SELECT "
+							+ refEn.getEnMap().GetAttrByKey(attr.getUIRefKeyValue()).getField() + " FROM " + reftable + "	 ) ";
 					// int i =DBAccess.RunSQL(delsql);
-					enMsg += "<br>@" + en.getEnDesc() + ",物理表:" + en.getEnMap().getPhysicsTable() + "出现" + attr.getKey()
-							+ "," + attr.getDesc() + "不正确,共有[" + num + "]行记录没有关联到数据，请检查物理表与外键表。" + sql
-							+ "如果您想删除这些对应不上的数据请运行如下SQL: " + delsql + " 请慎重执行.";
+					enMsg += "<br>@" + en.getEnDesc() + ",物理表:" + en.getEnMap().getPhysicsTable() + "出现" + attr.getKey() + "," + attr.getDesc()
+							+ "不正确,共有[" + num + "]行记录没有关联到数据，请检查物理表与外键表。" + sql + "如果您想删除这些对应不上的数据请运行如下SQL: " + delsql + " 请慎重执行.";
 				}
-				// C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in
-				// Java:
-				/// #endregion
 
-				// C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in
-				// Java:
-				/// #region 判断 主键
+				// 判断 主键
 				// DBAccess.IsExits("");
-				// C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in
-				// Java:
-				/// #endregion
 			} catch (RuntimeException ex) {
 				enMsg += "<br>@" + ex.getMessage();
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
 			if (!enMsg.equals("")) {
-				msg += "<BR><b>-- 检查[" + en.getEnDesc() + "," + en.getEnMap().getPhysicsTable() + "]出现如下问题,类名称:"
-						+ en.toString() + "</b>";
+				msg += "<BR><b>-- 检查[" + en.getEnDesc() + "," + en.getEnMap().getPhysicsTable() + "]出现如下问题,类名称:" + en.toString() + "</b>";
 				msg += enMsg;
 			}
 		}
 		return msg;
 	}
-	// C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-	/// #endregion
 
-	// C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-	/// #region 转化格式 chen
+	// 转化格式 chen
 	/**
 	 * 将某控件中的数据转化为Excel文件
 	 * 
 	 * @param ctl
 	 */
-
 	// public static void ToExcel(System.Web.UI.Control ctl, String filename)
 	// {
 	// HttpContext.Current.Response.Charset ="GB2312";
@@ -1476,28 +1436,127 @@ public class PubClass {
 	// HttpContext.Current.Response.Write(tw.toString());
 	// }
 
-	// public static void OpenExcel(String filepath, String tempName)
-	// {
-	// tempName = HttpUtility.UrlEncode(tempName);
-	// HttpContext.Current.Response.Charset = "GB2312";
-	// HttpContext.Current.Response.AppendHeader("Content-Disposition",
-	// "attachment;filename=" + tempName);
-	// HttpContext.Current.Response.ContentEncoding =
-	// System.Text.Encoding.GetEncoding("GB2312");
-	// HttpContext.Current.Response.ContentType = "application/ms-excel";
-	// HttpContext.Current.Response.WriteFile(filepath);
-	// HttpContext.Current.Response.End();
-	// HttpContext.Current.Response.Close();
-	// }
+	 public static void OpenExcel(String filepath, String tempName) throws IOException
+	 {
+		 /*tempName = HttpUtility.UrlEncode(tempName);
+		 HttpContext.Current.Response.Charset = "GB2312";
+		 HttpContext.Current.Response.AppendHeader("Content-Disposition",
+		 "attachment;filename=" + tempName);
+		 HttpContext.Current.Response.ContentEncoding =
+		 System.Text.Encoding.GetEncoding("GB2312");
+		 HttpContext.Current.Response.ContentType = "application/ms-excel";
+		 HttpContext.Current.Response.WriteFile(filepath);
+		 HttpContext.Current.Response.End();
+		 HttpContext.Current.Response.Close();*/
+		 
+		// 设置文件MIME类型
+			HttpServletResponse response = ContextHolderUtils.getResponse();
+			HttpServletRequest request = ContextHolderUtils.getRequest();
+
+			response.setContentType("application/ms-excel;charset=UTF-8");
+			response.setCharacterEncoding("UTF-8");
+			response.setHeader("Content-Disposition", "inline;filename=" + new String(tempName.getBytes("UTF-8"), "ISO-8859-1"));
+
+			BufferedOutputStream bos = null;
+			FileInputStream fis = null;
+			try {
+				File file = new File(filepath);
+				//System.out.println("文件路径:"+filepath);
+				if (!file.exists()) {
+					throw new Exception("找不到指定文件：" + filepath);
+				}
+				// 开始下载
+				fis = new FileInputStream(file);
+				bos = new BufferedOutputStream(response.getOutputStream());
+				byte[] b = new byte[8192];
+				int data = 0;
+				while ((data = fis.read(b)) != -1) {
+					bos.write(b, 0, data);
+				}
+				// 刷新流
+				bos.flush();
+			} catch (Exception e) {} finally {
+				if (bos != null)
+					bos.close();
+				if (fis != null)
+					fis.close();
+			}
+	 }
+
+	public static String toUtf8String(String s) {
+
+		StringBuffer sb = new StringBuffer();
+		for (int i = 0; i < s.length(); i++) {
+			char c = s.charAt(i);
+			if (c >= 0 && c <= 255) {
+				sb.append(c);
+			} else {
+				byte[] b;
+				try {
+					b = Character.toString(c).getBytes("utf-8");
+				} catch (Exception ex) {
+					// exceptionUtil.error("将文件名中的汉字转为UTF8编码的串时错误，输入的字符串为：" +
+					// s);
+					b = new byte[0];
+				}
+				for (int j = 0; j < b.length; j++) {
+					int k = b[j];
+					if (k < 0)
+						k += 256;
+					sb.append("%" + Integer.toHexString(k).toUpperCase());
+				}
+			}
+		}
+		return sb.toString();
+	}
+
+	// 不同浏览器编码问题 add by qin 15.10.20
+	public static String toUtf8String(HttpServletRequest request, String s) {
+		String agent = request.getHeader("User-Agent");
+		try {
+			boolean isFireFox = (agent != null && agent.toLowerCase().indexOf("firefox") != -1);
+			if (isFireFox) {
+				s = new String(s.getBytes("UTF-8"), "ISO8859-1");
+			} else {
+				s = toUtf8String(s);
+				if ((agent != null && agent.indexOf("MSIE") != -1)) {
+					// see http://support.microsoft.com/default.aspx?kbid=816868
+					if (s.length() > 150) {
+						// 根据request的locale 得出可能的编码
+						s = new String(s.getBytes("UTF-8"), "ISO8859-1");
+					}
+				}
+			}
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		return s;
+	}
 
 	public static void DownloadFile(String filepath, String tempName) throws IOException {
 
 		// 设置文件MIME类型
 		HttpServletResponse response = ContextHolderUtils.getResponse();
-		response.setContentType("text/html;charset=utf-8");
-		// 设置Content-Disposition
-		String fileName = new String(tempName.getBytes("utf-8"), "ISO_8859_1");
-		response.setHeader("Content-Disposition", "attachment;filename=" + fileName);
+		HttpServletRequest request = ContextHolderUtils.getRequest();
+
+		tempName = toUtf8String(request, tempName);
+
+		// String agent = request.getHeader("User-Agent");
+
+		// if (request.getHeader("User-Agent").toLowerCase().indexOf("firefox")
+		// > 0)
+		// tempName = new String(tempName.getBytes("UTF-8"), "ISO8859-1");//
+		// firefox浏览器
+		// else if
+		// (request.getHeader("User-Agent").toUpperCase().indexOf("MSIE") > 0) {
+		// // tempName = URLEncoder.encode(tempName, "UTF-8");// IE浏览器
+		// tempName = new String(tempName.getBytes("UTF-8"), "ISO8859-1");//
+		// firefox浏览器
+		// }
+		response.reset();
+		response.setContentType("application/octet-stream");
+		response.setHeader("Content-Disposition", "attachment;filename=" + tempName);
+		response.setHeader("Connection", "close");
 		// 读取目标文件，通过response将目标文件写到客户端
 		// 读取文件
 		InputStream in = new FileInputStream(new File(filepath));
@@ -1509,101 +1568,9 @@ public class PubClass {
 		}
 		in.close();
 		out.close();
-
-		//
-		// ContextHolderUtils.getResponse().setContentType("text/html;charset=utf-8");
-		// ContextHolderUtils.getRequest().setCharacterEncoding("UTF-8");
-		// java.io.BufferedInputStream bis = null;
-		// java.io.BufferedOutputStream bos = null;
-		//
-		//// String ctxPath =
-		// ContextHolderUtils.getRequest().getSession().getServletContext().getRealPath(
-		//// "/")
-		//// + "\\" + "DataUser\\UploadFile";
-		//// String downLoadPath = filepath + tempName;
-		//// logger.debug(downLoadPath);
-		// try {
-		// long fileLength = new File(filepath).length();
-		// ContextHolderUtils.getResponse().setContentType("application/x-msdownload;");
-		// ContextHolderUtils.getResponse().setHeader("Content-disposition",
-		// "attachment; filename="
-		// + new String(tempName.getBytes("utf-8"), "ISO8859-1"));
-		// ContextHolderUtils.getResponse().setHeader("Content-Length",
-		// String.valueOf(fileLength));
-		// bis = new BufferedInputStream(new FileInputStream(filepath));
-		// //ContextHolderUtils.getResponse().getWriter();
-		// bos = new
-		// BufferedOutputStream(ContextHolderUtils.getResponse().getOutputStream());
-		// byte[] buff = new byte[2048];
-		// int bytesRead;
-		// while (-1 != (bytesRead = bis.read(buff, 0, buff.length))) {
-		// bos.write(buff, 0, bytesRead);
-		// }
-		// } catch (Exception e) {
-		// e.printStackTrace();
-		// } finally {
-		// if (bis != null)
-		// bis.close();
-		// if (bos != null){
-		// bos.flush();
-		// bos.close();
-		// }
-		// }
-		// tempName = HttpUtility.UrlEncode(tempName);
-		// HttpContext.Current.Response.Charset = "GB2312";
-		// HttpContext.Current.Response.AppendHeader("Content-Disposition",
-		// "attachment;filename=" + tempName);
-		// HttpContext.Current.Response.ContentEncoding =
-		// System.Text.Encoding.GetEncoding("GB2312");
-		//
-		// //HttpContext.Current.Response.ContentType = "application/ms-msword";
-		// //image/JPEG;text/HTML;image/GIF;application/ms-excel
-		// //HttpContext.Current.EnableViewState =false;
-		//
-		// HttpContext.Current.Response.WriteFile(filepath);
-		// HttpContext.Current.Response.End();
-		// HttpContext.Current.Response.Close();
 	}
 
-	// public static void DownloadFileV2(String filepath, String tempName)
-	// {
 	//
-	// FileInfo fileInfo = new FileInfo(filepath);
-	// if (fileInfo.Exists)
-	// {
-	// byte[] buffer = new byte[102400];
-	// HttpContext.Current.Response.Clear();
-	//// C# TO JAVA CONVERTER NOTE: The following 'using' block is replaced by
-	// its Java equivalent:
-	//// using (FileStream iStream = File.OpenRead(fileInfo.FullName))
-	// FileStream iStream = File.OpenRead(fileInfo.FullName);
-	// try
-	// {
-	// long dataLengthToRead = iStream.getLength(); //获取下载的文件总大小
-	//
-	// HttpContext.Current.Response.ContentType = "application/octet-stream";
-	// HttpContext.Current.Response.AddHeader("Content-Disposition",
-	// "attachment; filename=" + HttpUtility.UrlEncode(tempName,
-	// System.Text.Encoding.UTF8));
-	// while (dataLengthToRead > 0 &&
-	// HttpContext.Current.Response.IsClientConnected)
-	// {
-	// int lengthRead = iStream.Read(buffer, 0, Integer.parseInt(102400));
-	// //'读取的大小
-	//
-	// HttpContext.Current.Response.OutputStream.Write(buffer, 0, lengthRead);
-	// HttpContext.Current.Response.Flush();
-	// dataLengthToRead = dataLengthToRead - lengthRead;
-	// }
-	// HttpContext.Current.Response.Close();
-	// HttpContext.Current.Response.End();
-	// }
-	// finally
-	// {
-	// iStream.dispose();
-	// }
-	// }
-	// }
 	// public static void OpenWordDoc(String filepath, String tempName)
 	// {
 	// tempName = HttpUtility.UrlEncode(tempName);
@@ -1620,52 +1587,83 @@ public class PubClass {
 	// HttpContext.Current.Response.End();
 	// HttpContext.Current.Response.Close();
 	// }
-	public static void OpenWordDocV2(String filepath, String tempName) {
-		// //tempName = HttpUtility.UrlEncode(tempName);
-		//
-		// FileInfo fileInfo = new FileInfo(filepath);
-		// HttpContext.Current.Response.Clear();
-		// HttpContext.Current.Response.ClearHeaders();
-		// HttpContext.Current.Response.Buffer = false;
-		// HttpContext.Current.Response.ContentType =
-		// "application/octet-stream";
-		// HttpContext.Current.Response.Charset = "UTF-8";
-		// HttpContext.Current.Response.AppendHeader("Content-Disposition",
-		// "attachment;filename=" + HttpUtility.UrlEncode(tempName,
-		// System.Text.Encoding.UTF8));
-		// HttpContext.Current.Response.AppendHeader("Content-Length",
-		// fileInfo.getLength().toString());
-		// HttpContext.Current.Response.WriteFile(fileInfo.FullName);
-		// HttpContext.Current.Response.Flush();
-		// HttpContext.Current.Response.End();
+	public static void OpenWordDocV2(String filepath, String tempName) throws IOException {
+		// 设置文件MIME类型
+		HttpServletResponse response = ContextHolderUtils.getResponse();
+		HttpServletRequest request = ContextHolderUtils.getRequest();
+
+		response.setContentType("application/msword;charset=UTF-8");
+		response.setCharacterEncoding("UTF-8");
+		response.setHeader("Content-Disposition", "inline;filename=" + new String(filepath.getBytes("GB2312"), "ISO-8859-1"));
+
+		BufferedOutputStream bos = null;
+		FileInputStream fis = null;
+		try {
+			File file = new File(filepath);
+			if (!file.exists()) {
+				throw new Exception("找不到指定文件：" + filepath);
+			}
+			// 开始下载
+			fis = new FileInputStream(file);
+			bos = new BufferedOutputStream(response.getOutputStream());
+			byte[] b = new byte[8192];
+			int data = 0;
+			while ((data = fis.read(b)) != -1) {
+				bos.write(b, 0, data);
+			}
+			// 刷新流
+			bos.flush();
+		} catch (Exception e) {} finally {
+			if (bos != null)
+				bos.close();
+			if (fis != null)
+				fis.close();
+		}
+	}
+	
+	/**
+	 * 转换
+	 * @param ht
+	 * @return
+	 */
+	@SuppressWarnings("rawtypes")
+	public static DataTable HashtableToDataTable(Hashtable ht)
+	{
+				DataTable dt = new DataTable();
+				dt.TableName = "Hashtable";
+				Set<String> keys = ht.keySet();
+				for (String key : keys)
+				{
+					dt.Columns.Add(key, String.class);
+				}
+
+				DataRow dr = dt.NewRow();
+				for (String key : keys)	
+				{
+					 dr.setValue(key,ht.get(key));
+				}
+				dt.Rows.add(dr);
+				return dt;
 	}
 
-	//// C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-	// ///#endregion
-	//
-	//// C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-	// ///#region
-	//
-	//// C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-	// ///#region
+	
 	// public static void To(String url)
 	// {
 	// System.Web.HttpContext.Current.Response.Redirect(url,true);
 	// }
 	public static void Print(String url) {
 		try {
-			ContextHolderUtils.getResponse().getWriter()
-					.write("<script language='JavaScript'> var newWindow =window.open('" + url
+			ContextHolderUtils
+					.getResponse()
+					.getWriter()
+					.write("<script language='JavaScript'> var newWindow =window.open('"
+							+ url
 							+ "','p','width=0,top=10,left=10,height=1,scrollbars=yes,resizable=yes,toolbar=yes,location=yes,menubar=yes') ; newWindow.focus(); </script> ");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
-	// public static BP.En.Entity CopyFromRequest(BP.En.Entity en)
-	// {
-	// return CopyFromRequest(en, BP.Sys.Glo.getRequest());
-	// }
 	/**
 	 * 通过request 设置Entity值
 	 * 
@@ -1675,7 +1673,6 @@ public class PubClass {
 	 */
 	public static BP.En.Entity copyFromRequest(BP.En.Entity en, HttpServletRequest reqest) {
 		ArrayList<String> requestKeys = new ArrayList<String>();
-
 		Enumeration enu = reqest.getParameterNames();
 		while (enu.hasMoreElements()) {
 			// 判断是否有内容，hasNext()
@@ -1689,16 +1686,16 @@ public class PubClass {
 			String relKey = null;
 			switch (item.getUIContralType()) {
 			case TB:
-				relKey = "TB_" + item.getKeyLowerCase();
+				relKey = "TB_" + item.getKey(); // 不要改成小写，否则表单数据无法保存
 				break;
 			case CheckBok:
-				relKey = "CB_" + item.getKeyLowerCase();
+				relKey = "CB_" + item.getKey(); // 不要改成小写，否则表单数据无法保存
 				break;
 			case DDL:
-				relKey = "DDL_" + item.getKeyLowerCase();
+				relKey = "DDL_" + item.getKey(); // 不要改成小写，否则表单数据无法保存
 				break;
 			case RadioBtn:
-				relKey = "RB_" + item.getKeyLowerCase();
+				relKey = "RB_" + item.getKey(); // 不要改成小写，否则表单数据无法保存
 				break;
 			default:
 				break;
@@ -1717,57 +1714,55 @@ public class PubClass {
 				if (item.getUIContralType() == UIContralType.CheckBok) {
 					String val = reqest.getParameter(myK);
 					if (val.equals("on") || val.equals("1")) {
-						en.SetValByKey(item.getKeyLowerCase(), 1);
+						en.SetValByKey(item.getKey(), 1);
 					} else {
-						en.SetValByKey(item.getKeyLowerCase(), 0);
+						en.SetValByKey(item.getKey(), 0);
 					}
 				} else {
 					String value = reqest.getParameter(myK).trim();
-					en.SetValByKey(item.getKeyLowerCase(), value);
+					en.SetValByKey(item.getKey(), value);
 				}
 				continue;
 			} else {
 				if (null != relKey && relKey.contains("CB_")) {
-					en.SetValByKey(item.getKeyLowerCase(), 0);
+					en.SetValByKey(item.getKey(), 0);
 				}
 			}
 		}
 		return en;
 	}
-
-	public static void WinClose(String returnVal) {
-		String clientscript = "<script language='javascript'> window.returnValue = '" + returnVal
-				+ "'; window.close(); </script>";
-		// System.Web.HttpContext.Current.Response.Write(clientscript);
+	public static void WinClose() {
+		String clientscript = "<script language='javascript'> window.close(); </script>";
+		try {
+			ContextHolderUtils.getResponse().setContentType("text/html; charset=utf-8");
+			ContextHolderUtils.getResponse().getWriter().write(clientscript);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	// public static void WinCloseAndReParent(String returnVal)
 	// {
-	// String clientscript = "<script language='javascript'>
-	// window.opener.location.reload(); window.close(); </script>";
+	// String clientscript =
+	// "<script language='javascript'> window.opener.location.reload(); window.close(); </script>";
 	// System.Web.HttpContext.Current.Response.Write(clientscript);
 	// }
 	// public static void WinClose()
 	// {
-	// System.Web.HttpContext.Current.Response.Write("<script
-	// language='JavaScript'> window.close(); </script> ");
+	// System.Web.HttpContext.Current.Response.Write("<script language='JavaScript'>  window.close(); </script> ");
 	// }
 	// public static void Open(String url)
 	// {
-	// // System.Web.HttpContext.Current.Response.Write("<script
-	// language='JavaScript'> newWindow =window.open('" + url + "','" + winName
-	// + "','width=" + width + ",top=" + top +
-	// ",scrollbars=yes,resizable=yes,toolbar=false,location=false') ;
-	// newWindow.focus(); </script> ");
-	// System.Web.HttpContext.Current.Response.Write("<script
-	// language='JavaScript'> var newWindow =window.open('" + url + "','p' ) ;
-	// newWindow.focus(); </script> ");
+	// //
+	// System.Web.HttpContext.Current.Response.Write("<script language='JavaScript'> newWindow =window.open('"
+	// + url + "','" + winName + "','width=" + width + ",top=" + top +
+	// ",scrollbars=yes,resizable=yes,toolbar=false,location=false') ; newWindow.focus(); </script> ");
+	// System.Web.HttpContext.Current.Response.Write("<script language='JavaScript'> var newWindow =window.open('"
+	// + url + "','p' ) ; newWindow.focus(); </script> ");
 	// }
 	// public static void WinReload()
 	// {
-	// System.Web.HttpContext.Current.Response.Write("<script
-	// language='JavaScript'>window.parent.main.document.location.reload();
-	// </script> ");
+	// System.Web.HttpContext.Current.Response.Write("<script language='JavaScript'>window.parent.main.document.location.reload(); </script> ");
 	// }
 	public static void WinOpen(HttpServletResponse response, String url) throws IOException {
 		java.text.DateFormat df = new java.text.SimpleDateFormat("MMddHHmmss");
@@ -1779,18 +1774,16 @@ public class PubClass {
 		PubClass.WinOpen(response, url, "", "msg" + df.format(new java.util.Date()), w, h);
 	}
 
-	public static void WinOpen(HttpServletResponse response, String url, String title, String winName, int width,
-			int height) throws IOException {
+	public static void WinOpen(HttpServletResponse response, String url, String title, String winName, int width, int height) throws IOException {
 		PubClass.WinOpen(response, url, title, winName, width, height, 100, 200);
 	}
 
-	public static void WinOpen(HttpServletResponse response, String url, String title, int width, int height)
-			throws IOException {
+	public static void WinOpen(HttpServletResponse response, String url, String title, int width, int height) throws IOException {
 		PubClass.WinOpen(response, url, title, "ActivePage", width, height, 100, 200);
 	}
 
-	public static void WinOpen(HttpServletResponse response, String url, String title, String winName, int width,
-			int height, int top, int left) throws IOException {
+	public static void WinOpen(HttpServletResponse response, String url, String title, String winName, int width, int height, int top, int left)
+			throws IOException {
 		url = url.replace("<", "[");
 		url = url.replace(">", "]");
 		url = url.trim();
@@ -1798,16 +1791,14 @@ public class PubClass {
 		title = title.replace(">", "]");
 		title = title.replace("\"", "‘");
 		if (top == 0 && left == 0) {
-			response.getWriter()
-					.write("<script language='JavaScript'> var newWindow =window.open('" + url + "','" + winName
-							+ "','width=" + width + ",top=" + top
+			response.getWriter().write(
+					"<script language='JavaScript'> var newWindow =window.open('" + url + "','" + winName + "','width=" + width + ",top=" + top
 							+ ",scrollbars=yes,resizable=yes,toolbar=false,location=false') ; </script> ");
 			response.getWriter().flush();
 		} else {
-			response.getWriter()
-					.write("<script language='JavaScript'> var newWindow =window.open('" + url + "','" + winName
-							+ "','width=" + width + ",top=" + top + ",left=" + left + ",height=" + height
-							+ ",scrollbars=yes,resizable=yes,toolbar=false,location=false');</script>");
+			response.getWriter().write(
+					"<script language='JavaScript'> var newWindow =window.open('" + url + "','" + winName + "','width=" + width + ",top=" + top
+							+ ",left=" + left + ",height=" + height + ",scrollbars=yes,resizable=yes,toolbar=false,location=false');</script>");
 			response.getWriter().flush();
 		}
 	}
@@ -1819,8 +1810,7 @@ public class PubClass {
 	// */
 	// protected final void ResponseWriteRedMsg(String msg)
 	// {
-	// //this.Response.Write("<BR><font color='red'
-	// size='"+MsgFontSize.ToString()+"' > <b>"+msg+"</b></font>");
+	// //this.Response.Write("<BR><font color='red' size='"+MsgFontSize.ToString()+"' > <b>"+msg+"</b></font>");
 	// //if (msg.Length < 200)
 	// // return ;
 	// msg = msg.replace("@", "<BR>@");
@@ -1885,8 +1875,7 @@ public class PubClass {
 	// */
 	// public static void ResponseWriteBlackMsg(String msg)
 	// {
-	// System.Web.HttpContext.Current.Response.Write("<font color='Black' size=5
-	// ><b>"+msg+"</b></font>");
+	// System.Web.HttpContext.Current.Response.Write("<font color='Black' size=5 ><b>"+msg+"</b></font>");
 	// }
 	// public static void ResponseSript(String Sript)
 	// {
@@ -1928,8 +1917,6 @@ public class PubClass {
 			e.printStackTrace();
 		}
 	}
-	// C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-	/// #endregion
 
 	// /**
 	// 转到一个页面上。 '_top'
@@ -1947,8 +1934,7 @@ public class PubClass {
 	// path = "";
 	// }
 	//
-	// System.Web.HttpContext.Current.Response.Redirect(path+"Comm/Port/InfoPage.jsp
-	// target='_top'");
+	// System.Web.HttpContext.Current.Response.Redirect(path+"Comm/Port/InfoPage.jsp target='_top'");
 	// }
 	// public static void AlertSaveOK()
 	// {
@@ -1978,7 +1964,225 @@ public class PubClass {
 			e.printStackTrace();
 		}
 	}
-	// C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-	/// #endregion
 
+	public static Entity CopyDtlFromRequests(Entity en, String pk, Map map) {
+		String allKeys = ";";
+		if (pk == null || pk.equals("")) {
+			pk = "";
+		}
+		else {
+			pk = "_" + pk;
+		}
+
+		for (Iterator iter = Glo.getRequest().getParameterMap().keySet().iterator(); iter.hasNext();) {  
+			String myK= (String) iter.next();  
+			allKeys += myK + ";";
+		}
+
+		Attrs attrs = map.getAttrs();
+		for (Attr attr : attrs) {
+			String relKey = null;
+			switch (attr.getUIContralType()) {
+				case TB:
+					relKey = "TB_" + attr.getKey() + pk;
+					break;
+				case CheckBok:
+					relKey = "CB_" + attr.getKey() + pk;
+					break;
+				case DDL:
+					relKey = "DDL_" + attr.getKey() + pk;
+					break;
+				case RadioBtn:
+					relKey = "RB_" + attr.getKey() + pk;
+					break;
+				default:
+					break;
+			}
+
+			if (relKey == null) {
+				continue;
+			}
+
+			if (allKeys.contains(relKey + ";")) {
+				//说明已经找到了这个字段信息。
+				for (Iterator iter = Glo.getRequest().getParameterMap().keySet().iterator(); iter.hasNext();) {  
+					String myK= (String) iter.next(); 
+					if (myK == null || "".equals(myK)) {
+						continue;
+					}
+
+					if (myK.endsWith(relKey)) {
+						if (attr.getUIContralType() == UIContralType.CheckBok) {
+							String val = Glo.getRequest().getParameter(myK);
+							if (val.equals("on") || val.equals("1") || val.contains(",on")) {
+								en.SetValByKey(attr.getKey(), 1);
+							}
+							else {
+								en.SetValByKey(attr.getKey(), 0);
+							}
+						}
+						else {
+							en.SetValByKey(attr.getKey(), Glo.getRequest().getParameter(myK));
+						}
+					}
+				}
+				continue;
+			}
+		}
+		if (map.getIsHaveAutoFull() == false) {
+			return en;
+		}
+		en.AutoFull();
+		return en;
+	}
+	
+	public static BP.En.Entity CopyFromRequest(BP.En.Entity en) {
+		return CopyFromRequest(en, Glo.getRequest());
+	}
+	public static BP.En.Entity CopyFromRequest(BP.En.Entity en, HttpServletRequest reqest) {
+		String allKeys = ";";
+		//for (String myK : reqest.Params.keySet()) {
+		for (Iterator iter = Glo.getRequest().getParameterMap().keySet().iterator(); iter.hasNext();) {  
+			String myK= (String) iter.next();  
+			allKeys += myK + ";";
+		}
+
+		// 给每个属性值.            
+		Attrs attrs = en.getEnMap().getAttrs();
+		for (Attr item : attrs) {
+			String relKey = null;
+			switch (item.getUIContralType()) {
+				case TB:
+					relKey = "TB_" + item.getKey();
+					break;
+				case CheckBok:
+					relKey = "CB_" + item.getKey();
+					break;
+				case DDL:
+					relKey = "DDL_" + item.getKey();
+					break;
+				case RadioBtn:
+					relKey = "RB_" + item.getKey();
+					break;
+				default:
+					break;
+			}
+
+			if (relKey == null) {
+				continue;
+			}
+
+			if (allKeys.contains(relKey + ";")) {
+				//说明已经找到了这个字段信息。
+				/*for (String myK : BP.Sys.Glo.Request.Params.keySet()) {
+					if (myK == null || myK.equals("")) {
+						continue;
+					}*/
+				for (Iterator iter = Glo.getRequest().getParameterMap().keySet().iterator(); iter.hasNext();) {  
+					String myK= (String) iter.next(); 
+					if (myK == null || "".equals(myK)) {
+						continue;
+					}
+					if (myK.endsWith(relKey)) {
+						if (item.getUIContralType() == UIContralType.CheckBok) {
+							String val = Glo.getRequest().getParameter(myK);
+							if (val.equals("on") || val.equals("1") || val.contains(",on")) {
+								en.SetValByKey(item.getKey(), 1);
+							}
+							else {
+								en.SetValByKey(item.getKey(), 0);
+							}
+						}
+						else {
+							en.SetValByKey(item.getKey(), Glo.getRequest().getParameter(myK));
+						}
+					}
+				}
+				continue;
+			}
+		}
+		return en;
+	}
+
+	public static BP.En.Entity CopyFromRequestByPost(BP.En.Entity en, HttpServletRequest reqest) {		
+	
+		String allKeys = ";";
+		//获取传递来的所有的checkbox ids 用于设置该属性为false.
+        String checkBoxIDs = Glo.getRequest().getParameter("CheckBoxIDs");
+        if(checkBoxIDs!=null)
+        {
+            String[] strs = checkBoxIDs.split(",");
+            for(String str : strs)
+            {
+                if (str == null || "".equals(str))
+                    continue;
+
+                if (str.contains("CBPara"))
+                {
+                    /*如果是参数字段.*/
+                 	en.getRow().SetValByKey(str.replace("CBPara_",""),0);
+                }
+                else
+                {
+                    //设置该属性为false.
+                	en.getRow().SetValByKey(str.replace("CB_",""),0);
+                }
+
+            }
+        }
+
+		for (Iterator iter = Glo.getRequest().getParameterMap().keySet().iterator(); iter.hasNext();) {  
+			String myK= (String) iter.next();  
+			allKeys += myK + ";";
+		}
+
+		// 给每个属性值.            
+		Attrs attrs = en.getEnMap().getAttrs();
+		for (Attr item : attrs) {
+			String relKey = null;
+			switch (item.getUIContralType()) {
+				case TB:
+					relKey = "TB_" + item.getKey();
+					break;
+				case CheckBok:
+					relKey = "CB_" + item.getKey();
+					break;
+				case DDL:
+					relKey = "DDL_" + item.getKey();
+					break;
+				case RadioBtn:
+					relKey = "RB_" + item.getKey();
+					break;
+				default:
+					break;
+			}
+
+			if (relKey == null) {
+				continue;
+			}
+
+			if (allKeys.contains(relKey + ";")) {
+				//说明已经找到了这个字段信息。
+				for (Iterator iter = Glo.getRequest().getParameterMap().keySet().iterator(); iter.hasNext();) {  
+					String myK= (String) iter.next(); 
+					if (myK == null || "".equals(myK)) {
+						continue;
+					}
+					String val = Glo.getRequest().getParameter(myK);
+					if (myK.endsWith(relKey)) {
+						if (item.getUIContralType() == UIContralType.CheckBok) {							
+							if (myK.indexOf("CB_") == 0 || myK.indexOf("CBPara_") == 0) {
+								en.SetValByKey(item.getKey(), 1);
+							 }							
+						   }else {
+							en.SetValByKey(item.getKey(), val);
+						}
+					}
+				}
+				continue;
+			}
+		}
+		return en;
+	}
+	
 }

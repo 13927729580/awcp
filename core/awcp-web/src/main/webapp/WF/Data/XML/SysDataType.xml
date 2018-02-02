@@ -13,5 +13,16 @@
   <MapMenu No="FK" Name="外键型" Desc="" />
   <MapMenu No="FK" Name="外键型" Desc="" />
 
+  <MsgType No="All" Name="全部" Desc="" />
+  <MsgType No="Self" Name="自定义消息" Desc="" />
+  <MsgType No="CC" Name="抄送消息" Desc="" />
+  <MsgType No="ToDo" Name="待办消息" Desc="" />
+  <MsgType No="Etc" Name="其他" Desc="" />
+
+  <CCMenu No="-1" Name="全部" Desc="" />
+  <CCMenu No="0" Name="已读" Desc="" />
+  <CCMenu No="1" Name="未读" Desc="" />
+  <CCMenu11 No="2" Name="删除" Desc="" />
+
 </DS>
 

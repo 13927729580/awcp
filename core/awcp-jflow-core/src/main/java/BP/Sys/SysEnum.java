@@ -1,9 +1,7 @@
 package BP.Sys;
 
-import BP.DA.Depositary;
-import BP.En.EnType;
-import BP.En.EntityMyPK;
-import BP.En.Map;
+import BP.DA.*;
+import BP.En.*;
 
 /** 
  SysEnum
@@ -11,13 +9,8 @@ import BP.En.Map;
 */
 public class SysEnum extends EntityMyPK
 {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 	/** 
 	 得到一个String By LabKey.
-	 
 	 @param EnumKey
 	 @param intKey
 	 @return 
@@ -27,12 +20,8 @@ public class SysEnum extends EntityMyPK
 		SysEnum en = new SysEnum(EnumKey, intKey);
 		return en.getLab();
 	}
-
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 实现基本的方方法
 	/** 
 	 标签
-	 
 	*/
 	public final String getLab()
 	{
@@ -44,7 +33,6 @@ public class SysEnum extends EntityMyPK
 	}
 	/** 
 	 标签
-	 
 	*/
 	public final String getLang()
 	{
@@ -56,7 +44,6 @@ public class SysEnum extends EntityMyPK
 	}
 	/** 
 	 Int val
-	 
 	*/
 	public final int getIntKey()
 	{
@@ -68,7 +55,6 @@ public class SysEnum extends EntityMyPK
 	}
 	/** 
 	 EnumKey
-	 
 	*/
 	public final String getEnumKey()
 	{
@@ -92,39 +78,34 @@ public class SysEnum extends EntityMyPK
 	//        this.SetValByKey(SysEnumAttr.Style,value);
 	//    }
 	//}
-
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
-
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 构造方法
 	/** 
 	 SysEnum
-	 
 	*/
 	public SysEnum()
 	{
 	}
 	/** 
 	 税务编号
-	 
 	 @param _No 编号
 	*/
-	public SysEnum(String EnumKey, int val)
+	public SysEnum(String enumKey, int val)
 	{
-		this.setEnumKey(EnumKey);
-		this.setLang(BP.Port.WebUser.getSysLang());
+		this.setEnumKey(enumKey);
+		this.setLang(BP.Web.WebUser.getSysLang());
 		this.setIntKey(val);
 		this.setMyPK(this.getEnumKey() + "_" + this.getLang() + "_" + this.getIntKey());
 		int i = this.RetrieveFromDBSources();
 		if (i == 0)
 		{
-			i = this.Retrieve(SysEnumAttr.EnumKey, EnumKey, SysEnumAttr.Lang, BP.Port.WebUser.getSysLang(), SysEnumAttr.IntKey, this.getIntKey());
+			i = this.Retrieve(SysEnumAttr.EnumKey, enumKey, SysEnumAttr.Lang, BP.Web.WebUser.getSysLang(), SysEnumAttr.IntKey, this.getIntKey());
 			SysEnums ses = new SysEnums();
-			ses.Full(EnumKey);
+			ses.Full(enumKey);
 			if (i == 0)
 			{
-				throw new RuntimeException("@ EnumKey=" + EnumKey+ " Val=" + val + " Lang="+BP.Port.WebUser.getSysLang()+" ...Error");
+				//尝试注册系统的枚举的配置.
+				BP.Sys.SysEnums myee = new SysEnums(enumKey);
+
+				throw new RuntimeException("@ EnumKey=" + getEnumKey() + " Val=" + val + " Lang=" + BP.Web.WebUser.getSysLang() + " ...Error");
 			}
 		}
 	}
@@ -150,7 +131,6 @@ public class SysEnum extends EntityMyPK
 	}
 	/** 
 	 Map
-	 
 	*/
 	@Override
 	public Map getEnMap()
@@ -159,31 +139,24 @@ public class SysEnum extends EntityMyPK
 		{
 			return this.get_enMap();
 		}
-		Map map = new Map("Sys_Enum");
-		map.setDepositaryOfEntity(Depositary.None);
-		map.setDepositaryOfMap(Depositary.Application);
-		map.setEnDesc("枚举");
-		map.setEnType(EnType.Sys);
+		Map map = new Map("Sys_Enum", "枚举数据");
+		map.Java_SetDepositaryOfEntity(Depositary.None);
+		map.Java_SetDepositaryOfMap(Depositary.Application);
+		map.Java_SetEnType(EnType.Sys);
 		map.AddMyPK();
-
-		map.AddTBString(SysEnumAttr.Lab, null, "Lab", true, false, 1, 80, 8);
+		map.AddTBString(SysEnumAttr.Lab, null, "Lab", true, false, 1, 200, 8);
 		map.AddTBString(SysEnumAttr.EnumKey, null, "EnumKey", true, false, 1, 40, 8);
 		map.AddTBInt(SysEnumAttr.IntKey, 0, "Val", true, false);
 		map.AddTBString(SysEnumAttr.Lang, "CH", "语言", true, false, 0, 10, 8);
-
 		this.set_enMap(map);
 		return this.get_enMap();
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
-
-
 	@Override
 	protected boolean beforeUpdateInsertAction()
 	{
 		if (this.getLang() == null && this.getLang().equals(""))
 		{
-			this.setLang(BP.Port.WebUser.getSysLang());
+			this.setLang(BP.Web.WebUser.getSysLang());
 		}
 
 		this.setMyPK(this.getEnumKey() + "_" + this.getLang() + "_" + this.getIntKey());

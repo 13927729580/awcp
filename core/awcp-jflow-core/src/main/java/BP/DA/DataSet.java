@@ -9,34 +9,33 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.dom4j.Attribute;
 import org.dom4j.Document;
+import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import BP.Tools.StringHelper;
 
 public class DataSet {
-	/**
-	 * 日志对象
-	 */
-	private static final Logger logger = LoggerFactory.getLogger(DataSet.class);
+
 	private String name;
 
 	public List<DataTable> Tables;
 
 	public Hashtable<String, DataTable> hashTables;
 
-	private XmlWriteMode xmlWriteMode = XmlWriteMode.IgnoreSchema;
+//	private XmlWriteMode xmlWriteMode = XmlWriteMode.IgnoreSchema;
 
 	public DataSet() {
 		if (Tables == null) {
@@ -59,7 +58,7 @@ public class DataSet {
 	 * @param file
 	 */
 	public void WriteXml(String file) {
-		// WriteXml(file, XmlWriteMode.IgnoreSchema);
+		WriteXml(file, XmlWriteMode.IgnoreSchema, new DataSet("NewDataSet"));
 	}
 
 	/**
@@ -68,12 +67,12 @@ public class DataSet {
 	 * @param path
 	 * @param mode
 	 *            暂不支持DiffGram格式
+	 * @throws Exception
 	 */
 	public void WriteXml(String path, XmlWriteMode mode, DataSet ds) {
-		StringBuilder str = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
+		StringBuilder str = new StringBuilder("<?xml version=\"1.0\" standalone=\"yes\"?>");
 		str.append("<NewDataSet>");
 		// 输出表架构
-		// if(mode == XmlWriteMode.WriteSchema){
 		for (int i = 0; i < ds.Tables.size(); i++) {
 			DataTable dt = ds.Tables.get(i);
 			for (int k = 0; k < dt.Rows.size(); k++) {
@@ -87,7 +86,16 @@ public class DataSet {
 					str.append(dc.ColumnName);
 					str.append(">");
 					try {
-						str.append(dt.Rows.get(i).getValue(dc));
+						Object value = dt.Rows.get(k).getValue(dc);
+						if (value.toString().contains(">") || value.toString().contains("<") || value.toString().contains("&")
+								|| value.toString().contains("'") || value.toString().contains("\"")) {
+							value = value.toString().replace(">", "&gt;");
+							value = value.toString().replace("<", "&lt;");
+							value = value.toString().replace("&", "&amp;");
+							value = value.toString().replace("'", "&apos;");
+							value = value.toString().replace("\"", "&quot;");
+						}
+						str.append(value);
 					} catch (Exception e) {
 
 					}
@@ -103,8 +111,9 @@ public class DataSet {
 		}
 		// }
 		str.append("</NewDataSet>");
-		// String str=this.ConvertDataSetToXml(ds);
-		logger.debug(str.toString());
+		String temp = str.toString();
+		// String temp = formatXml(str.toString());
+
 		// 写入文件
 		File file = new File(path);
 		try {
@@ -112,9 +121,9 @@ public class DataSet {
 				file.createNewFile();
 			}
 			FileOutputStream fos = new FileOutputStream(file);
-			OutputStreamWriter osw = new OutputStreamWriter(fos);
+			OutputStreamWriter osw = new OutputStreamWriter(fos, "utf-8");
 			BufferedWriter br = new BufferedWriter(osw);
-			br.write(str.toString());
+			br.write(temp.toString());
 			fos.flush();
 			br.close();
 			fos.close();
@@ -125,15 +134,29 @@ public class DataSet {
 		}
 	}
 
+	public String formatXml(String str) throws Exception {
+		Document document = null;
+		document = DocumentHelper.parseText(str);
+		// 格式化输出格式
+		OutputFormat format = OutputFormat.createPrettyPrint();
+		format.setEncoding("gbk");
+		StringWriter writer = new StringWriter();
+		// 格式化输出流
+		XMLWriter xmlWriter = new XMLWriter(writer, format);
+		// 将document写入到输出流
+		xmlWriter.write(document);
+		xmlWriter.close();
+
+		return writer.toString();
+	}
+
 	public void readXmls(String xmlPath) throws Exception {
 		if (StringHelper.isNullOrEmpty(xmlPath)) {
 			return;
 		}
-		XMLWriter writer = null;// 声明写XML的对象
-		SAXReader reader = new SAXReader();
 
-		OutputFormat format = OutputFormat.createPrettyPrint();
-		format.setEncoding("UTF-8");// 设置XML文件的编码格式
+//		XMLWriter writer = null;// 声明写XML的对象
+		SAXReader reader = new SAXReader();
 
 		File file = new File(xmlPath);
 		// DataSet ds=new DataSet();
@@ -242,23 +265,11 @@ public class DataSet {
 		this.hashTables = hashTables;
 	}
 
-	// public static void main(String[] args) {
-	// DataSet set = new DataSet();
-	// String xml =
-	// "<NewDataSet><Table><DATAID>1</DATAID>
-	// <XTSJBH>1</XTSJBH><CODE>01</CODE><YYBH>000000000000000001715130000618</YYBH><ZT>1000000000</ZT>"
-	// +
-	// "<ID>94899</ID><XM>徐宁</XM><CSNY>1983-06-02T00:00:00+08:00</CSNY><JG>411302</JG><MZ>01</MZ><CJGZSJ>2007-09-01T00:00:00+08:00</CJGZSJ><JRBXTGZSJ>2007-09-01T00:00:00+08:00</JRBXTGZSJ></Table></NewDataSet>";
-	//
-	// set.readXml(xml);
-	// logger.debug("sssssssssss");
-	// }
-
-	public void writeXml(String string) throws Exception {
-		throw new Exception("");
-
-	}
-
+	/**
+	 * 获取文件的XML文件内容。
+	 * @param path xml文件路径
+	 * @return xml文件内容
+	 */
 	public String xmlToString(String path) {
 		String line = null;
 		StringBuffer strBuffer = new StringBuffer();
@@ -273,58 +284,70 @@ public class DataSet {
 				}
 				read.close();
 			} else {
-				logger.debug("找不到指定的文件！");
+				System.out.println("找不到指定的文件！" + path);
 			}
 		} catch (Exception e) {
-			logger.debug("读取文件内容操作出错");
-			e.printStackTrace();
+			System.out.println("读取文件内容操作出错！" + e.getMessage());
 		}
 		return strBuffer.toString();
 	}
 
+	/**
+	 * 读取XML文件
+	 * @param xmlpath xml文件路径
+	 * @author ThinkGem
+	 */
+	@SuppressWarnings("rawtypes")
 	public void readXml(String xmlpath) {
-		if (StringHelper.isNullOrEmpty(xmlpath))
+		if (StringHelper.isNullOrEmpty(xmlpath)){
 			return;
+		}
 		try {
 			String xml = xmlToString(xmlpath);
-			// 创建xml解析对象
-			SAXReader reader = new SAXReader();
-			// 定义一个文档
-			Document document = null;
-			// 将字符串转换为
-			document = reader.read(new ByteArrayInputStream(xml.getBytes("UTF-8")));
-			@SuppressWarnings("unchecked")
-			Element ele = document.getRootElement();
-			String name = "";
-			for (Iterator e = ele.elementIterator(); e.hasNext();) {
-				Element el = (Element) e.next();
-				if (!el.getName().equals(name)) {
-					name = el.getName();
-					List<Element> elements = document.selectNodes("//NewDataSet/" + name);
-					DataTable oratb = new DataTable();
-					for (Element element : elements) {
-						DataRow dr = oratb.NewRow();
-						List attrList = element.attributes();
-						for (int i = 0; i < attrList.size(); i++) {
-							// 属性的取得
-							Attribute item = (Attribute) attrList.get(i);
-							// if (!isContains(oratb.Columns.subList(0,
-							// oratb.Columns.size()), item.getName())) {
-							if (!isContains(oratb.Columns.subList(0, oratb.Columns.size()),
-									item.getName().toLowerCase())) {
+			Document document = new SAXReader().read(new ByteArrayInputStream(xml.getBytes("UTF-8")));
+			Element element = document.getRootElement();
+			
+			// 遍历 DataTable
+			for (Iterator iterator = element.elementIterator(); iterator.hasNext();) {
+				Element el = (Element) iterator.next();
+//				System.out.println(" ===================== " + el.getName());
+				
+				// 如果没有获取到DataTable则新建一个
+				DataTable dt = hashTables.get(el.getName());
+				if (dt == null){
+					dt = new DataTable(el.getName());
+					hashTables.put(el.getName(), dt);
+					Tables.add(dt);
+				}
+				
+				// 新增一行数据
+				DataRow dr = dt.NewRow();
+				dt.Rows.add(dr);
 
-								oratb.Columns.Add(item.getName());
-							}
-							dr.setValue(item.getName(), item.getValue());
-
-						}
-						if (dr.getValue("Enable") == null) {
-							dr.setValue("Enable", "");
-						}
-						oratb.Rows.add(dr);
+				// 遍历该DataTable的属性
+				for (Iterator it = el.attributeIterator(); it.hasNext();) {
+					Attribute at = (Attribute)it.next();
+//					System.out.println(" ======= " + at.getName());
+					//sunxd 修改
+					//由于"at.getName().toLowerCase()"语句导至  isContains 方法判断永远不成立，会给TABLE插入很多重复列
+					//将at.getName().toLowerCase() 修改为  at.getName()
+					if (!isContains(dt.Columns.subList(0, dt.Columns.size()), at.getName())) {
+						dt.Columns.Add(at.getName());
 					}
-					this.hashTables.put(name, oratb);
-					this.Tables.add(oratb);
+					dr.setValue(at.getName(), at.getValue());
+				}
+				
+				// 遍历该DataTable的子元素
+				for (Iterator it = el.elementIterator(); it.hasNext();) {
+					Element at = (Element) it.next();
+//					System.out.println(" ======= " + at.getName());
+					//sunxd 修改
+					//由于"at.getName().toLowerCase()"语句导至  isContains 方法判断永远不成立，会给TABLE插入很多重复列
+					//将at.getName().toLowerCase() 修改为  at.getName()
+					if (!isContains(dt.Columns.subList(0, dt.Columns.size()), at.getName())) {
+						dt.Columns.Add(at.getName());
+					}
+					dr.setValue(at.getName(), at.getText());
 				}
 			}
 		} catch (Exception e) {
@@ -343,7 +366,7 @@ public class DataSet {
 
 	public static String ConvertDataSetToXml(DataSet dataSet) {
 		if (dataSet != null) {
-			String str = "<?xml version=\"1.0\" encoding=\"GBK\"?>";
+			String str = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 			str += "<xs:schema id=\"NewDataSet\" xmlns=\"\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:msdata=\"urn:schemas-microsoft-com:xml-msdata\">";
 
 			str += "<xs:element name=\"NewDataSet\" msdata:IsDataSet=\"true\" msdata:UseCurrentLocale=\"true\">";
@@ -405,11 +428,38 @@ public class DataSet {
 		return null;
 	}
 
+	public static String IsType(String name) {
+		if (name.equals("class java.lang.Integer")) {
+			name = "xs:int";
+		}
+		if (name.equals("class java.lang.Long")) {
+			name = "xs:long";
+		}
+		if (name.equals("class java.lang.Float")) {
+			name = "xs:float";
+		}
+		if (name.equals("class java.lang.Double")) {
+			name = "xs:double";
+		}
+		if (name.equals("class java.lang.String")) {
+			name = "xs:string";
+		}
+		if (name.equals("class java.math.BigDecimal")) {
+			name = "xs:int";
+		}
+		return name;
+	}
+
+	//	public static void main(String[] args) {
+	//		DataSet set = new DataSet();
+	//		String xml = "<NewDataSet><Table><DATAID>1</DATAID> <XTSJBH>1</XTSJBH><CODE>01</CODE><YYBH>000000000000000001715130000618</YYBH><ZT>1000000000</ZT>"
+	//				+ "<ID>94899</ID><XM>徐宁</XM><CSNY>1983-06-02T00:00:00+08:00</CSNY><JG>411302</JG><MZ>01</MZ><CJGZSJ>2007-09-01T00:00:00+08:00</CJGZSJ><JRBXTGZSJ>2007-09-01T00:00:00+08:00</JRBXTGZSJ></Table></NewDataSet>";
+	//		set.readXml(xml);
+	//		System.out.println("sssssssssss");
+	//	}
+
 	public static void main(String[] args) throws Exception {
 
-		// DataSet set = new DataSet();
-		// set.readXmls("D:/android
-		// workspace/jflow/jflow-web/src/main/webapp/DataUser/Temp/TempleteSheetOfStartNode.xml");
 		// List<DataTable> tableList = new ArrayList<DataTable>();
 		// DataTable table = new DataTable("Emp");
 		// DataColumn col = new DataColumn("id", Integer.class);
@@ -450,30 +500,14 @@ public class DataSet {
 		// tableList.add(table);
 		// tableList.add(dept);
 		// set.setTables(tableList);
-		// logger.debug(ConvertDataSetToXml(set));
+		// System.out.println(ConvertDataSetToXml(set));
+		
+		DataSet set = new DataSet();
+		set.readXml("D:/JFlow/JFlow/jflow-web/src/main/webapp/WF/Data/FlowDemo/Flow/01.线性流程/表单数据copy测试案例.xml");
+		DataSet set2 = new DataSet();
+		set2.readXml("D:/JFlow/JFlow/jflow-web/src/main/webapp/DataUser/XML/RegularExpression.xml");
+		System.out.println();
 
-	}
-
-	public static String IsType(String name) {
-		if (name.equals("class java.lang.Integer")) {
-			name = "xs:int";
-		}
-		if (name.equals("class java.lang.Long")) {
-			name = "xs:long";
-		}
-		if (name.equals("class java.lang.Float")) {
-			name = "xs:float";
-		}
-		if (name.equals("class java.lang.Double")) {
-			name = "xs:double";
-		}
-		if (name.equals("class java.lang.String")) {
-			name = "xs:string";
-		}
-		if (name.equals("class java.math.BigDecimal")) {
-			name = "xs:int";
-		}
-		return name;
 	}
 
 }

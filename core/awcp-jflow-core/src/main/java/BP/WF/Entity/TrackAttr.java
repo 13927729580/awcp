@@ -1,138 +1,114 @@
 package BP.WF.Entity;
 
-import BP.En.*;
+import BP.En.EntityMyPKAttr;
 
-/** 
-  属性
- 
-*/
+/**
+ * 属性
+ */
 public class TrackAttr extends EntityMyPKAttr
 {
-	/** 
-	 记录日期
-	 
-	*/
+	/**
+	 * 记录日期
+	 */
 	public static final String RDT = "RDT";
-	/** 
-	 完成日期
-	 
-	*/
+	/**
+	 * 完成日期
+	 */
 	public static final String CDT = "CDT";
-	/** 
-	 FID
-	 
-	*/
+	/**
+	 * FID
+	 */
 	public static final String FID = "FID";
-	/** 
-	 WorkID
-	 
-	*/
+	/**
+	 * WorkID
+	 */
 	public static final String WorkID = "WorkID";
-	/** 
-	 CWorkID
-	 
-	*/
+	/**
+	 * CWorkID
+	 */
 	public static final String CWorkID = "CWorkID";
-	/** 
-	 活动类型
-	 
-	*/
+	/**
+	 * 活动类型
+	 */
 	public static final String ActionType = "ActionType";
-	/** 
-	 活动类型名称
-	 
-	*/
+	/**
+	 * 活动类型名称
+	 */
 	public static final String ActionTypeText = "ActionTypeText";
-
-	/** 
-	 时间跨度
-	 
-	*/
+	
+	/**
+	 * 时间跨度
+	 */
 	public static final String WorkTimeSpan = "WorkTimeSpan";
-
-	/** 
-	 节点数据
-	 
-	*/
+	
+	/**
+	 * 节点数据
+	 */
 	public static final String NodeData = "NodeData";
-
-	/** 
-	 轨迹字段
-	 
-	*/
+	
+	/**
+	 * 轨迹字段
+	 */
 	public static final String TrackFields = "TrackFields";
-
-	/** 
-	 备注
-	 
-	*/
+	
+	/**
+	 * 备注
+	 */
 	public static final String Note = "Note";
-
-	/** 
-	 从节点
-	 
-	*/
+	
+	/**
+	 * 从节点
+	 */
 	public static final String NDFrom = "NDFrom";
-
-	/** 
-	 到节点
-	 
-	*/
+	
+	/**
+	 * 到节点
+	 */
 	public static final String NDTo = "NDTo";
-
-	/** 
-	 从人员
-	 
-	*/
+	
+	/**
+	 * 从人员
+	 */
 	public static final String EmpFrom = "EmpFrom";
-
-	/** 
-	 到人员
-	 
-	*/
+	
+	/**
+	 * 到人员
+	 */
 	public static final String EmpTo = "EmpTo";
-
-	/** 
-	 审核
-	 
-	*/
+	
+	/**
+	 * 审核
+	 */
 	public static final String Msg = "Msg";
-
-	/** 
-	 EmpFromT
-	 
-	*/
+	
+	/**
+	 * EmpFromT
+	 */
 	public static final String EmpFromT = "EmpFromT";
-
-	/** 
-	 NDFromT
-	 
-	*/
+	
+	/**
+	 * NDFromT
+	 */
 	public static final String NDFromT = "NDFromT";
-
-	/** 
-	 NDToT
-	 
-	*/
+	
+	/**
+	 * NDToT
+	 */
 	public static final String NDToT = "NDToT";
-	/** 
-	 EmpToT
-	 
-	*/
+	/**
+	 * EmpToT
+	 */
 	public static final String EmpToT = "EmpToT";
-	/** 
-	 实际执行人员
-	 
-	*/
+	/**
+	 * 实际执行人员
+	 */
 	public static final String Exer = "Exer";
-	/** 
-	 参数信息
-	 
-	*/
+	/**
+	 * 参数信息
+	 */
 	public static final String Tag = "Tag";
-	/** 
-	 内部的键值
-	 
-	*/
+	/**
+	 * 内部的键值
+	 */
 	public static final String InnerKey_del = "InnerKey";
 }

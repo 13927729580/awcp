@@ -1,9 +1,5 @@
 package BP.WF.XML;
 
-import BP.DA.*;
-import BP.En.*;
-import BP.Sys.*;
-import BP.XML.*;
 
 /** 
  公文右边谓词

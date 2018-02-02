@@ -1,4 +1,4 @@
-<%@page import="org.jflow.framework.common.model.FormTreeBaseModel"%>
+<%@page import="cn.jflow.common.model.FormTreeBaseModel"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%

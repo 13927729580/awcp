@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
-<%@ include file="/head/head.jsp"%>
+<%@ include file="/WF/head/head1.jsp"%>
 <%
 	FrmPopValModel frmPop = new FrmPopValModel(request, response);
 	frmPop.init();
@@ -56,18 +56,34 @@ $(document).ready(function() {
 //     }
 // }
 
-function SetSelected(cb_selectAll) {
+function SetSelected(cb_selectAll,group) {
     var arrObj = document.all;
     if (cb_selectAll.checked) {
         for (var i = 0; i < arrObj.length; i++) {
-            if (typeof arrObj[i].type != "undefined" && arrObj[i].type == 'checkbox') {
-                arrObj[i].checked = true;
-            }
+        	if(group!='01'){
+        		if (typeof arrObj[i].type != "undefined" && arrObj[i].type == 'checkbox' && arrObj[i].title==group) {
+                    arrObj[i].checked = true;
+                }
+        	}else{
+        		if (typeof arrObj[i].type != "undefined" && arrObj[i].type == 'checkbox') {
+                    arrObj[i].checked = true;
+                }
+        	}
+            
         }
     } else {
         for (var i = 0; i < arrObj.length; i++) {
-            if (typeof arrObj[i].type != "undefined" && arrObj[i].type == 'checkbox')
-                arrObj[i].checked = false;
+        	if(!group!='01'){
+        		if (typeof arrObj[i].type != "undefined" && arrObj[i].type == 'checkbox'&& arrObj[i].title==group){
+               	 arrObj[i].checked = false;
+               }
+        	}else{
+        		if (typeof arrObj[i].type != "undefined" && arrObj[i].type == 'checkbox'){
+               	 arrObj[i].checked = false;
+               }
+        	}
+            
+               
         }
     }
 }

@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import cn.org.awcp.unit.core.domain.PunSystem;
+import cn.org.awcp.venson.controller.base.ReturnResult;
+import cn.org.awcp.venson.controller.base.StatusCode;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -155,6 +158,18 @@ public class PageActController extends BaseController {
 	public String getPageActByAjax(String id) {
 		StoreVO vo = storeService.findById(id);
 		return vo.getContent();
+	}
+	/**
+	 * 将按钮同步到p_un_resource表，方便用shrio进行权限控制
+	 *
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/syncResource")
+	public ReturnResult syncResource() {
+		String sql="INSERT INTO p_un_resource(RELATE_RESO_ID,RESOURCE_NAME,RESOURCE_TYPE,SYS_ID) SELECT id RELATE_RESO_ID,NAME RESOURCE_NAME ,'3' AS RESOURCE_TYPE, "+ControllerHelper.getSystemId()+" AS SYS_ID FROM p_fm_store WHERE system_id=110 AND id NOT IN(SELECT RELATE_RESO_ID FROM p_un_resource WHERE RESOURCE_TYPE='3') AND CODE LIKE '0.1.5.%'";
+		PunSystem.getRepository().excuteSql(sql);
+		return ReturnResult.get().setStatus(StatusCode.SUCCESS);
 	}
 
 	/**

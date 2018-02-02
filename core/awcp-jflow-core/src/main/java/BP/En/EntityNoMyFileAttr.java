@@ -1,22 +1,18 @@
 package BP.En;
 
-
 public class EntityNoMyFileAttr extends EntityNoAttr
 {
-	/** 
-	 MyFileName
-	 
-	*/
+	/**
+	 * MyFileName
+	 */
 	public static final String MyFileName = "MyFileName";
-	/** 
-	 MyFilePath
-	 
-	*/
+	/**
+	 * MyFilePath
+	 */
 	public static final String MyFilePath = "MyFilePath";
-	/** 
-	 MyFileExt
-	 
-	*/
+	/**
+	 * MyFileExt
+	 */
 	public static final String MyFileExt = "MyFileExt";
 	public static final String WebPath = "WebPath";
 	public static final String MyFileH = "MyFileH";

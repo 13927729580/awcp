@@ -1,13 +1,9 @@
 package BP.WF.DTS;
 
-import BP.DA.*;
-import BP.WF.Template.Node;
-
-import BP.Port.*;
-import BP.En.*;
-import BP.Sys.*;
-import BP.Sys.Frm.MapData;
-import BP.Sys.Frm.MapDatas;
+import BP.En.Method;
+import BP.Sys.MapData;
+import BP.Sys.MapDatas;
+import BP.WF.Node;
 
 /** 
  生成模版的垃圾数据 
@@ -22,7 +18,7 @@ public class GenerDBTemplete extends Method
 	public GenerDBTemplete()
 	{
 		this.Title = "生成模版的垃圾数据";
-		this.Help = "可以手工的查看并清楚他们.";
+		this.Help = "可以手工的查看并清除他们.";
 	}
 	/** 
 	 设置执行变量
@@ -60,9 +56,9 @@ public class GenerDBTemplete extends Method
 
 		String msg = "";
 		Node nd = new Node();
-		for (MapData item :MapDatas.convertMapDatas(mds))
+		for (MapData item : mds.ToJavaList())
 		{
-			if (!item.getNo().contains("ND"))
+			if (item.getNo().contains("ND") == false)
 			{
 				continue;
 			}
@@ -79,7 +75,7 @@ public class GenerDBTemplete extends Method
 			}
 
 			nd.setNodeID(nodeID);
-			if (!nd.getIsExits())
+			if (nd.getIsExits() == false)
 			{
 				msg += "@" + item.getNo() + "," + item.getName();
 				//删除该模版.

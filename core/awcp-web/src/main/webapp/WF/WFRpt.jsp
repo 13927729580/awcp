@@ -1,8 +1,9 @@
+<%@page import="cn.jflow.common.model.BaseModel"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"	pageEncoding="UTF-8"%>
 <%@page import="BP.Sys.SystemConfig"%>
 <%@page import="BP.WF.Dev2Interface"%>
 <%@page import="BP.Tools.StringHelper"%>
-<%@page import="org.jflow.framework.common.model.WfrptModel"%>
+<%@page import="cn.jflow.common.model.WfrptModel"%>
 <%
 	String path = request.getContextPath();
 	String basePath = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()	+ path + "/";
@@ -10,10 +11,15 @@
 	String Width = "0";
 	String Height = "";
 	String BtnWord = "";
-	String fk_node = request.getParameter("FK_Node")==null?"0":request.getParameter("FK_Node");
-	int FK_Node=Integer.valueOf(fk_node);
 	
-	String FK_Flow = request.getParameter("FK_Flow")==null?"":request.getParameter("FK_Flow");
+	String FK_Flow = request.getParameter("FK_Flow");
+	if (FK_Flow == null){
+		out.print("FK_Flow 不能为空！");
+		return;
+	}
+	
+	int FK_Node=Integer.valueOf(request.getParameter("FK_Node")==null?"0":request.getParameter("FK_Node"));
+	
 	String DoType = request.getParameter("DoType")==null?"":request.getParameter("DoType");
 	
 	int StartNodeID = Integer.parseInt(FK_Flow+"01");
@@ -40,7 +46,8 @@
 	String ViewWork = request.getParameter("ViewWork")==null?"":request.getParameter("ViewWork");
 	
 	if("".equals(DoType) && "".equals(ViewWork)){
-		response.sendRedirect(basePath+"WF/WorkOpt/OneWork/Track.jsp?FK_Flow="+Dev2Interface.TurnFlowMarkToFlowNo(FK_Flow)+"&FK_Node="+FK_Node+ "&WorkID=" + WorkID);
+		//response.sendRedirect(basePath+"WF/WorkOpt/OneWork/Track.jsp?FK_Flow="+Dev2Interface.TurnFlowMarkToFlowNo(FK_Flow)+"&FK_Node="+FK_Node+ "&WorkID=" + WorkID);
+		response.sendRedirect(basePath+"WF/WorkOpt/OneWork/OneWork.htm?FK_Flow="+Dev2Interface.TurnFlowMarkToFlowNo(FK_Flow)+"&FK_Node="+FK_Node+ "&WorkID=" + WorkID);
 	}
 	
 	WfrptModel model = new WfrptModel(basePath, FK_Flow, FK_Node,DoType, StartNodeID, WorkID, CWorkID,

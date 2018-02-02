@@ -1,40 +1,32 @@
 package BP.Sys.XML;
 
-
-/** 
- 属性
- 
-*/
+/**
+ * 属性
+ */
 public class ActiveAttrAttr
 {
-	/** 
-	 AttrKey
-	 
-	*/
+	/**
+	 * AttrKey
+	 */
 	public static final String AttrKey = "AttrKey";
-	/** 
-	 表达式
-	 
-	*/
+	/**
+	 * 表达式
+	 */
 	public static final String AttrName = "AttrName";
-	/** 
-	 描述
-	 
-	*/
+	/**
+	 * 描述
+	 */
 	public static final String Exp = "Exp";
-	/** 
-	 ExpApp
-	 
-	*/
+	/**
+	 * ExpApp
+	 */
 	public static final String ExpApp = "ExpApp";
-	/** 
-	 for
-	 
-	*/
+	/**
+	 * for
+	 */
 	public static final String For = "For";
-	/** 
-	 条件
-	 
-	*/
+	/**
+	 * 条件
+	 */
 	public static final String Condition = "Condition";
 }

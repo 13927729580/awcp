@@ -1,42 +1,36 @@
 package BP.Rpt;
 
-/** 
-柱状图显示类型
-
-*/
+/**
+ * 柱状图显示类型
+ */
 public enum ColumnChartShowType
 {
-	/** 
-	 不显示
-	 
-	*/
+	/**
+	 * 不显示
+	 */
 	None,
-	/** 
-	 横向
-	 
-	*/
+	/**
+	 * 横向
+	 */
 	HengXiang,
-	/** 
-	 竖向
-	 
-	*/
+	/**
+	 * 竖向
+	 */
 	ShuXiang,
-	/** 
-	 横向叠加
-	 
-	*/
+	/**
+	 * 横向叠加
+	 */
 	HengXiangAdd,
-	/** 
-	 竖向叠加
-	 
-	*/
+	/**
+	 * 竖向叠加
+	 */
 	ShuXiangAdd;
-
+	
 	public int getValue()
 	{
 		return this.ordinal();
 	}
-
+	
 	public static ColumnChartShowType forValue(int value)
 	{
 		return values()[value];

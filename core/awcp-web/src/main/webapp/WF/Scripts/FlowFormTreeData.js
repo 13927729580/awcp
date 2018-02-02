@@ -1,4 +1,7 @@
-﻿var DefuaultUrl = "Base/FormTreeBase.jsp";
+﻿var DefuaultUrl = "Base/FormTreeBase.aspx";
+
+
+
 
 ccflowFormTree = {}
 Application = {}
@@ -47,26 +50,24 @@ ccflowFormTree.Data = function (url) {
         queryData(tUrl, params, callback, scope);
     }
     //获取左边表单树
-    this.getFlowFormTree = function (flowId, nodeId, callback, scope) {
-        var tUrl = this.url;
+    this.getFlowFormTree = function (url, callback, scope) {
+        var tUrl = url ? url : this.url;
         var params = {
-            method: "getflowformtree",
-            flowId: flowId,
-            nodeId: nodeId
+            method: "getflowformtree"
         };
         queryData(tUrl, params, callback, scope);
     }
     //接收人选择
-    this.checkAccepter = function (FK_Node, WorkID, callback, scope) {
+    this.checkAccepter = function (FK_Node, WorkID, FID, callback, scope) {
         var tUrl = this.url;
         var params = {
             method: "checkaccepter",
             FK_Node: FK_Node,
-            WorkID: WorkID
+            WorkID: WorkID,
+            FID: FID
         };
         queryData(tUrl, params, callback, scope);
     }
-    
     //执行发送
     this.sendCase = function (FK_Flow, FK_Node, WorkID, DoFunc, CFlowNo, WorkIDs, callback, scope) {
         var tUrl = this.url;
@@ -81,7 +82,7 @@ ccflowFormTree.Data = function (url) {
         };
         queryData(tUrl, params, callback, scope);
     }
-    
+
     this.saveBlank = function (fk_flow, fk_node, workid, callback, scope) {
         var tUrl = this.url;
         var params = {
@@ -143,11 +144,12 @@ ccflowFormTree.Data = function (url) {
         queryData(tUrl, params, callback, scope);
     }
     //结束流程
-    this.endCase = function (flowId, workId, callback, scope) {
+    this.endCase = function (flowId, FK_Node, workId, callback, scope) {
         var tUrl = this.url;
         var params = {
             method: "endcase",
             flowId: flowId,
+            FK_Node: FK_Node,
             workId: workId
         };
         queryData(tUrl, params, callback, scope);

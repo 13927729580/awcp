@@ -112,7 +112,7 @@ package BP.WF;
 //					i++;
 //				}
 //				byte[] data = requestEncoding.GetBytes(buffer.toString());
-////C# TO JAVA CONVERTER NOTE: The following 'using' block is replaced by its Java equivalent:
+//
 ////				using (Stream stream = request.GetRequestStream())
 //				Stream stream = request.GetRequestStream();
 //				try

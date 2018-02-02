@@ -1,15 +1,13 @@
 package BP.WF;
 
 import java.util.ArrayList;
-
+import java.util.List;
 
 /** 
  工作发送返回对象集合.
- 
 */
 public class SendReturnObjs extends ArrayList<SendReturnObj>
 {
-		///#region 获取系统变量.
 	public final long getVarWorkID()
 	{
 		for (SendReturnObj item : this)
@@ -42,7 +40,6 @@ public class SendReturnObjs extends ArrayList<SendReturnObj>
 
 	/** 
 	 到达节点ID
-	 
 	*/
 	public final int getVarToNodeID()
 	{
@@ -57,7 +54,6 @@ public class SendReturnObjs extends ArrayList<SendReturnObj>
 	}
 	/** 
 	 到达节点IDs
-	 
 	*/
 	public final String getVarToNodeIDs()
 	{
@@ -72,7 +68,6 @@ public class SendReturnObjs extends ArrayList<SendReturnObj>
 	}
 	/** 
 	 到达节点名称
-	 
 	*/
 	public final String getVarToNodeName()
 	{
@@ -87,7 +82,6 @@ public class SendReturnObjs extends ArrayList<SendReturnObj>
 	}
 	/** 
 	 到达的节点名称
-	 
 	*/
 	public final String getVarCurrNodeName()
 	{
@@ -113,7 +107,6 @@ public class SendReturnObjs extends ArrayList<SendReturnObj>
 	}
 	/** 
 	 接受人
-	 
 	*/
 	public final String getVarAcceptersName()
 	{
@@ -128,7 +121,6 @@ public class SendReturnObjs extends ArrayList<SendReturnObj>
 	}
 	/** 
 	 接受人IDs
-	 
 	*/
 	public final String getVarAcceptersID()
 	{
@@ -142,8 +134,22 @@ public class SendReturnObjs extends ArrayList<SendReturnObj>
 		return null;
 	}
 	/** 
+	 文本提示信息.
+	*/
+	public final String getMsgOfText()
+	{
+		for (SendReturnObj item : this)
+		{
+			if (SendReturnMsgFlag.MsgOfText.equals(item.MsgFlag))
+			{
+				return item.MsgOfText;
+			}
+		}
+		return null;
+	}
+
+	/** 
 	 分流向子线程发送时产生的子线程的WorkIDs, 多个有逗号分开.
-	 
 	*/
 	public final String getVarTreadWorkIDs()
 	{
@@ -156,16 +162,26 @@ public class SendReturnObjs extends ArrayList<SendReturnObj>
 		}
 		return null;
 	}
-		///#endregion
-
+	/** 
+	 构造
+	*/
+	public SendReturnObjs()
+	{
+	}
+	/** 
+	 根据指定格式的字符串生成一个事例获取相关变量
+	 @param specText 指定格式的字符串
+	*/
+	public SendReturnObjs(String specText)
+	{
+		this.LoadSpecText(specText);
+	}
 	/** 
 	 输出text消息
-	 
 	*/
 	public String OutMessageText = null;
 	/** 
 	 输出html信息
-	 
 	*/
 	public String OutMessageHtml = null;
 	/** 
@@ -198,7 +214,6 @@ public class SendReturnObjs extends ArrayList<SendReturnObj>
 	}
 	/** 
 	 转化成特殊的格式
-	 
 	 @return 
 	*/
 	public final String ToMsgOfSpecText()
@@ -208,19 +223,31 @@ public class SendReturnObjs extends ArrayList<SendReturnObj>
 		{
 			if (item.MsgOfText != null)
 			{
-				msg += "$" + item.MsgFlag + "^" + item.MsgOfText;
+				msg += "$" + item.MsgFlag + "^" +item.HisSendReturnMsgType + "^" + item.MsgOfText;
 			}
 		}
 
 		//增加上 text信息。
-		msg += "$" + BP.WF.SendReturnMsgFlag.MsgOfText + "^" + this.ToMsgOfText();
+		msg += "$MsgOfText^"+SendReturnMsgType.Info.getValue() +"^" + this.ToMsgOfText();
 
 		msg.replace("@@", "@");
 		return msg;
 	}
 	/** 
+	 装载指定的文本，生成这个对象。
+	 @param text 指定格式的文本
+	*/
+	public final void LoadSpecText(String text)
+	{
+		String[] strs = text.split("[$]", -1);
+		for (String str : strs)
+		{
+			String[] sp=str.split("[^]", -1);
+			this.AddMsg(sp[0], sp[2], null, SendReturnMsgType.forValue(Integer.parseInt(sp[1])));
+		}
+	}
+	/** 
 	 转化成text方式的消息，以方便识别不出来html的设备输出.
-	 
 	 @return 
 	*/
 	public final String ToMsgOfText()
@@ -250,8 +277,7 @@ public class SendReturnObjs extends ArrayList<SendReturnObj>
 			{
 				if (item.MsgOfText.contains("<"))
 				{
-///#warning 不应该出现.
-					BP.DA.Log.DefaultLogWriteLineWarning("@文本信息里面有html标记:" + item.MsgOfText);
+				  //  BP.DA.Log.DefaultLogWriteLineWarning("@文本信息里面有html标记:" + item.MsgOfText);
 					continue;
 				}
 				msg += "@" + item.MsgOfText;
@@ -264,7 +290,6 @@ public class SendReturnObjs extends ArrayList<SendReturnObj>
 	}
 	/** 
 	 转化成html方式的消息，以方便html的信息输出.
-	 
 	 @return 
 	*/
 	public final String ToMsgOfHtml()
@@ -296,7 +321,6 @@ public class SendReturnObjs extends ArrayList<SendReturnObj>
 		}
 		msg = msg.replace("@@", "@");
 		msg = msg.replace("@@", "@");
-		msg = msg.replaceAll("\"","\\\\\"");
 		if (msg.equals("@"))
 		{
 			return "@流程已经完成.";
@@ -304,42 +328,8 @@ public class SendReturnObjs extends ArrayList<SendReturnObj>
 
 		return msg;
 	}
-	
-	public final String ToMsgOfHtmlSz()
+	public List<SendReturnObj> ToJavaList()
 	{
-		if (this.OutMessageHtml != null)
-		{
-			return this.OutMessageHtml;
-		}
-
-		String msg = "";
-		for (SendReturnObj item : this)
-		{
-			if (item.HisSendReturnMsgType != SendReturnMsgType.Info)
-			{
-				continue;
-			}
-
-			if (item.MsgOfHtml != null)
-			{
-				msg += "@" + item.MsgOfHtml;
-				continue;
-			}
-
-			if (item.MsgOfText != null)
-			{
-				msg += "@" + item.MsgOfText;
-				continue;
-			}
-		}
-		msg = msg.replace("@@", "@");
-		msg = msg.replace("@@", "@");
-		if (msg.equals("@"))
-		{
-			return "@流程已经完成.";
-		}
-
-		return msg;
+		return (List<SendReturnObj>)(Object)this;
 	}
-
 }

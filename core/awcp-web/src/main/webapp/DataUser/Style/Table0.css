@@ -1,10 +1,33 @@
-/*  Table ï¿½ï¿½ï¿½  */
+/*  Table ·ç¸ñ  */
 body
 {
-   font-size: 14px;
+    font-size: 14px;
 }
 
+/* °´Å¥·ç¸ñ */
+input[type="button"], input[type="submit"]
+{
+    border: 0;
+    background: #4D77A7;
+    color: #FFF;
+    font-size: 12px;
+    padding: 4px 8px;
+    margin: 5px 3px 5px 3px;
+}
 
+/* ÎÄ±¾¿òÖ»¶Á·ç¸ñ. */
+.TBReadonly
+{
+    font-size: 12px;
+    text-align: left;
+    float: left;
+    clear: left;
+    width: 100%;
+    border-width: 0px 0px 1px 0px;
+    background-color: #FAFAFA;
+    word-break: keep-all;
+    border-style: dotted none;
+}
 
 .HBtn
 {
@@ -12,21 +35,19 @@ body
     height: 1px;
     display: none;
 }
-/*  table ï¿½ï¿½ï¿½Í·ï¿½ï¿½ */
+
+/*  table ÀàÐÍ·ç¸ñ */
 table
 {
-    border: 1px outset #CCCCCC;
+    border: 1px outset #C0C0C0;
     padding: inherit;
     margin: 0;
-    margin-bottom: 0px;
     border-collapse: collapse;
 }
 
-/*  Ê±Ñ§Òµï¿½ï¿½ï¿½ ï¿½ï¿½Ê¼Î»ï¿½ï¿½ */
+/*  Ê±Ñ§ÒµÌí¼Ó ¿ªÊ¼Î»ÖÃ */
 
-
-
-/*ï¿½ï¿½Õ¹Ó¦ï¿½ï¿½ï¿½ï¿½Ï¸ï¿½ï¿½ï¿½ï¿½à¸½ï¿½ï¿½.*/
+/*À©Õ¹Ó¦ÓÃÃ÷Ï¸±íÓë¶à¸½¼þ.*/
 .TitleExt
 {
     background-color: #f4f4f4;
@@ -41,36 +62,18 @@ table
 }
 
 
-/*  Ê±Ñ§Òµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½ */
-
+/*  Ê±Ñ§ÒµÌí¼Ó ½áÊøÎ»ÖÃ */
 th, .Title
 {
-    text-align: center;
-    border-width: 1px;
-    border-color: #C2D5E3;
-    border-style: solid;
-    line-height: 25px;
-    color: 0a0a0a;
-    white-space: nowrap;
-    padding: 0 2px;
-    background-color: #e0ecff;
-    font-size: 14px;
-    text-align: left;
+   background-color: #f4f4f4;
     font-size: 12px;
-    font-weight: normal;
-}
-.MultiLineTitle
-{
-    font-size: 12px;
-    font-weight: bold;
     border: 1px solid #C2D5E3;
     text-align: center;
-    height: 25px;
-    line-height: 25px;
-    color: #336699;
-    white-space: nowrap;
-    padding: 0 2px;
-    background-image: url('titleBig.jpg');
+    height: 20px;
+    line-height: 20px;
+    padding: 3px;
+    font-style: normal;
+    color: #333333;
 }
 
 .Idx
@@ -79,7 +82,7 @@ th, .Title
     border: 1px solid #ccc;
     text-align: center;
     font-weight: bold;
-    width:20px;
+    width: 20px;
 }
 
 .Sum
@@ -108,7 +111,7 @@ td
 td a
 {
     text-decoration: none;
-    font-size:12px;
+    font-size: 12px;
 }
 
 
@@ -121,6 +124,7 @@ td a
     color: #333333;
     font-weight: bold;
 }
+
 .tdHJNum
 {
     border: 1px solid #D6DDE6;
@@ -151,34 +155,6 @@ td input
     word-break: keep-all;
 }
 
-
-/*  input ï¿½ï¿½ï¿½Í·ï¿½ï¿½ */
-input[type="button"], .Btn, input[type="submit"]
-{
-   border: 0;
-    background: #4D77A7;
-    color: #FFF;
-    font-size: 12px;
-    padding: 6px 10px;
-    margin: 7px 3px 7px 3px;
-}
-
-/*  input ï¿½ï¿½ï¿½Í·ï¿½ï¿½_OLD */
-ssssinput[type="button"]
-{
-    padding: 0 3px;
-    margin: 3px;
-    height: 26px;
-    border-right: #256db5 1px;
-    border-top: #256db5 1px;
-    font-size: 12px;
-    line-height: 26px;
-    border-left: #256db5 1px;
-    cursor: hand;
-    border-bottom: #256db5 1px;
-    background-image: url('../Img/Btn.jpg');
-}
-
 .TBcalendar
 {
     background-position: left center;
@@ -205,9 +181,9 @@ ssssinput[type="button"]
     vertical-align: middle;
 }
 
-caption
+caption, .caption
 {
-    vertical-align: middle;
+    vertical-align: bottom;
     text-align: left;
     height: 32px;
     line-height: 20px;
@@ -215,7 +191,7 @@ caption
     background: url('/DataUser/Style/Img/TitleBG.png') repeat-x;
     height: 30px;
     padding-left: 10px;
-    font-family: ï¿½ï¿½ï¿½ï¿½;
+    font-family: ºÚÌå;
     font-weight: bolder;
     color: #333333;
 }
@@ -231,7 +207,7 @@ caption
     text-align: center;
     vertical-align: middle;
     height: 30px;
-    font-family: ï¿½ï¿½ï¿½ï¿½;
+    font-family: ºÚÌå;
     font-weight: bolder;
     color: #FFFFFF;
     background: url('/DataUser/Style/Img/TitleMsg.png');
@@ -242,13 +218,10 @@ caption
     background-attachment: fixed;
 }
 
-
-.CaptionMsg  a:hover
+.CaptionMsg a:hover
 {
     color: white;
 }
-
-
 
 .CaptionMsgLong
 {
@@ -261,7 +234,7 @@ caption
     text-align: center;
     vertical-align: middle;
     height: 30px;
-    font-family: ï¿½ï¿½ï¿½ï¿½;
+    font-family: ºÚÌå;
     font-weight: bolder;
     color: #FFFFFF;
     background: url('/DataUser/Style/Img/TitleMsgLong.png');
@@ -270,20 +243,57 @@ caption
     padding-left: 0px;
     background-repeat: no-repeat;
     background-attachment: fixed;
-    text-align:center;
+    text-align: center;
+}
+/*¿É±ä³¤¶ÈCaptionÑùÊ½£¬Èý¶ÎÊ½Æ´½Ó*/
+.CapLeft
+{
+    margin-left: -10px;
+    width: 40px;
+    height: 30px;
+    background-position: 0 0;
+    line-height: 30px;
+    font-size: 12px;
+    background: url('/DataUser/Style/Img/TitleMsg.png');
+    background-repeat: no-repeat;
+    float: left;
 }
 
+.CapCenter
+{
+    text-align: left;
+    height: 30px;
+    background-position: left top;
+    line-height: 30px;
+    font-size: 12px;
+    font-family: ºÚÌå;
+    font-weight: bolder;
+    color: #FFFFFF;
+    background: url('/DataUser/Style/Img/TitleMsgCenterBg.png');
+    background-repeat: repeat-x;
+    float: left;
+}
+
+.CapRight
+{
+    width: 20px;
+    height: 30px;
+    line-height: 30px;
+    background-image: url('/DataUser/Style/Img/TitleMsgRightBg.png');
+    background-repeat: no-repeat;
+    background-position: 0 0;
+    float: left;
+}
+/*¿É±ä³¤¶ÈCaptionÑùÊ½£¬Èý¶ÎÊ½Æ´½Ó Íê³É*/
 .TBDoc
 {
-   /*border-style: dotted; */
+    /*border-style: dotted; */
     border-width: 1px;
-    border-color: #CCCCCC;
-  /*  overflow: visible;*/
+    border-color: #CCCCCC; /*  overflow: visible;*/
     width: 100%;
     margin: 0px;
-    padding: 0px; 
-    display:block;
-    overflow:auto;
+    padding: 0px;
+    display: block;
 }
 
 .TB
@@ -297,10 +307,7 @@ caption
 }
 
 
-/*  input ï¿½ï¿½ï¿½Í·ï¿½ï¿½ */
-
-
-/** ï¿½ï¿½ï¿½ï¿½  */
+/** ÆäËü  */
 .ToolBar
 {
     background-color: #d8edff;
@@ -330,15 +337,14 @@ caption
     font-weight: bold;
     color: #006666;
 }
- 
 
 .Icon
 {
-    width:12px;
-    height:12px;
-    margin-right:5px;
-    text-align:center;
-    vertical-align:middle;
+    width: 12px;
+    height: 12px;
+    margin-right: 5px;
+    text-align: center;
+    vertical-align: middle;
 }
 
 .GroupField a
@@ -346,7 +352,7 @@ caption
     font-weight: bold;
 }
 
-/* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½Ö¶ï¿½ï¿½ï¿½Æ£ï¿½ï¿½ï¿½Ôªï¿½ï¿½Ê½ï¿½Ä·ï¿½ï¿½ */
+/* ÔÚÊäÈëÐÅÏ¢×Ö¶ÎÃû³Æ£¬µ¥Ôª¸ñÊ½µÄ·ç¸ñ */
 .FDesc
 {
     padding: 4px;
@@ -374,18 +380,6 @@ caption
     word-break: keep-all;
 }
 
-.TBReadonly
-{
-    font-size: 12px;
-    text-align: left;
-    float: left;
-    clear: left;
-    width: 100%;
-    border-width: 0px 0px 1px 0px;
-    background-color: #FAFAFA;
-    word-break: keep-all;
-    border-style: dotted none;
-}
 
 .TBNumReadonly
 {
@@ -413,17 +407,16 @@ caption
     background-color: #FFFFFF;
     border-bottom-style: double;
     border-bottom-width: 2px;
-    border-bottom-color: #0066CC;
-     border-right-style: none;
+    border-bottom-color: #C0C0C0;
+    border-right-style: none;
     border-left-style: none;
-    
 }
 
 .BigDoc
 {
 }
 
-/* ï¿½Ú²ï¿½ï¿½ï¿½Ç©ï¿½ï¿½ï¿½ */
+/* ÄÚ²¿±êÇ©·ç¸ñ */
 fieldset
 {
     margin: 5px;
@@ -437,7 +430,6 @@ legend
     color: green;
     font-style: inherit;
     font-weight: bold;
-    
 }
 
 .FieldsetInfo
@@ -463,9 +455,15 @@ Img
     background-color: #FFFFFF;
 }
 
-/*ï¿½ï¿½ï¿½ï¿½Æ¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï£ï¿½ï¿½Ð±ï¿½ï¿½ï¿½É«ï¿½ä»¯*/
+/*Êó±êÒÆ¶¯µ½ÐÐÉÏ£¬ÐÐ±³¾°É«±ä»¯*/
 .tr_hover
 {
     background: none repeat scroll 0 0 #e0ecff;
 }
+
+/*´Ó±íÉ¾³ý°´Å¥*/
+.delRow {
+    margin-left:6px;
+}
+
 

@@ -1,4 +1,4 @@
-<%@page import="org.jflow.framework.common.model.TestFlowModel"%>
+<%@page import="cn.jflow.common.model.TestFlowModel"%>
 <%@ page language="java" contentType="text/html; charset=utf-8"
 	pageEncoding="utf-8"%>
 
@@ -6,7 +6,8 @@
 	TestFlowModel testFlowModel = new TestFlowModel(request, response);
 	testFlowModel.loadPage();
 %>
-<%@ include file="/head/head.jsp"%>
+<%@ include file="/WF/head/head2.jsp"%>
+<link href="<%=Glo.getCCFlowAppPath() %>DataUser/Style/table0.css" rel="stylesheet" type="text/css" />
 <title>感谢您选择驰骋工作流程引擎-流程设计&测试界面</title>
 <script type="text/javascript" language="javascript">
 	function Del(mypk, fk_flow, refoid) {
@@ -86,13 +87,14 @@
 	}
 </script>
 </head>
-<body style="background-color: white; margin: auto; width: 700px"
-	align="center">
+<body style="background-color:Silver; margin-top:0px;text-align:center;"	topmargin="0" leftmargin="0">
+<center>
 	<form id="form1" class="am-form">
 		<div>
 			<%=testFlowModel.pub.toString()%>
 		</div>
 	</form>
+</center>
 </body>
 </html>
 

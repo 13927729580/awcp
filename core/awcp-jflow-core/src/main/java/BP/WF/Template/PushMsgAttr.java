@@ -1,9 +1,5 @@
 package BP.WF.Template;
 
-import BP.DA.*;
-import BP.En.*;
-import BP.Port.*;
-import BP.Sys.*;
 
 /** 
  消息推送属性
@@ -11,6 +7,11 @@ import BP.Sys.*;
 */
 public class PushMsgAttr
 {
+	/** 
+	 流程编号
+	 
+	*/
+	public static final String FK_Flow = "FK_Flow";
 	/** 
 	 节点
 	 
@@ -37,13 +38,13 @@ public class PushMsgAttr
 	*/
 	public static final String Tag = "Tag";
 
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
+
 		///#region 消息设置.
 	/** 
 	 是否启用发送邮件
 	 
 	*/
-	public static final String MsgMailEnable = "MsgMailEnable";
+	public static final String MailEnable = "MailEnable";
 	/** 
 	 消息标题
 	 
@@ -69,7 +70,38 @@ public class PushMsgAttr
 	 
 	*/
 	public static final String MobilePushEnable = "MobilePushEnable";
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
+
 		///#endregion 消息设置.
+
+	/** 
+	 短信字段
+	 
+	*/
+	public static final String SMSField = "SMSField";
+	/** 
+	 接受短信的节点.
+	 
+	*/
+	public static final String SMSNodes = "SMSNodes";
+	/** 
+	 推送方式
+	 
+	*/
+	public static final String SMSPushWay = "SMSPushWay";
+	/** 
+	 邮件字段
+	 
+	*/
+	public static final String MailAddress = "MailAddress";
+	/** 
+	 邮件推送方式
+	 
+	*/
+	public static final String MailPushWay = "MailPushWay";
+	/** 
+	 推送邮件的节点s
+	 
+	*/
+	public static final String MailNodes = "MailNodes";
 
 }

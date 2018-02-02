@@ -1,8 +1,5 @@
 package BP.WF.Data;
 
-import BP.En.*;
-import BP.WF.Template.*;
-import BP.Sys.*;
 
 /** 
  报表基类s

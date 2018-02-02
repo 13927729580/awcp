@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=utf-8"
 	pageEncoding="utf-8"%>
-<%@ include file="/head/head1.jsp"%>
+<%@ include file="/WF/head/head1.jsp"%>
 <%
 	CondModel condModel = new CondModel(request, response,basePath);
 	condModel.Page_Load();

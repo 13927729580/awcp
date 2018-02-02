@@ -1,15 +1,12 @@
 package BP.En;
 
-
-/** 
- 属性列表
- 
-*/
+/**
+ * 属性列表
+ */
 public class EntityOIDAttr
 {
-	/** 
-	 OID
-	 
-	*/
+	/**
+	 * OID
+	 */
 	public static final String OID = "OID";
 }

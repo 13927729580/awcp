@@ -1,7 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=utf-8"
     pageEncoding="utf-8"%>
 </head>
-<%@ include file="/head/head1.jsp"%>
+<%@ include file="/WF/head/head1.jsp"%>
 <%
 	CondByUrlModel condModel=new CondByUrlModel(request,response);
 condModel.Page_Load();

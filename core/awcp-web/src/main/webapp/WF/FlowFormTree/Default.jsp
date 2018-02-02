@@ -1,14 +1,8 @@
-<%@page import="org.jflow.framework.common.model.DefaultModel"%>
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-	pageEncoding="UTF-8"%>
-<%-- <%@page import="BP.DA.*"%>
-<%@page import="BP.WF.*"%>
-<%@page import="BP.Port.*"%> --%>
+<%@page import="cn.jflow.common.model.DefaultModel"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ include file="/WF/head/head1.jsp"%>
 <%
-	String path = request.getContextPath();
-	String basePath = request.getScheme() + "://"
-			+ request.getServerName() + ":" + request.getServerPort()
-			+ path + "/";
+	
 	String fkFlow = request.getParameter("FK_Flow");
 	DefaultModel dm = new DefaultModel(request, response);
 	dm.Page_Load();
@@ -21,19 +15,18 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="renderer" content="webkit">
-
-<link href="<%=basePath%>WF/Style/themes/default/easyui.css"
+<link href="<%=basePath%>WF/Style/themes/icon.css" rel="stylesheet" type="text/css" />
+<%-- <link href="<%=basePath%>WF/Style/themes/default/easyui.css"
 	rel="stylesheet" type="text/css" />
 <link href="<%=basePath%>WF/Style/themes/default/datagrid.css"
 	rel="stylesheet" type="text/css" />
-<link href="<%=basePath%>WF/Style/themes/icon.css" rel="stylesheet"
-	type="text/css" />
+
 <script src="<%=basePath%>WF/Scripts/jquery-1.7.2.min.js"
 	type="text/javascript"></script>
 <script src="<%=basePath%>WF/Scripts/jquery.easyui.min.js"
-	type="text/javascript"></script>
-<script src="<%=basePath%>WF/Scripts/FlowFormTreeData.js"
-	type="text/javascript"></script>
+	type="text/javascript"></script> --%>
+	
+<script src="<%=basePath%>WF/Scripts/FlowFormTreeData.js" type="text/javascript"></script>
 <script type="text/javascript">
         	/*  浏览器最大化.*/
         function ResizeWindow() {
@@ -256,14 +249,39 @@ a:active {
                 });
             }
         }
-
+        /*火狐,谷歌不支持onblur的处理   qin 15.9.21*/
+        function isIeOrNot(){
+        	var explorer = window.navigator.userAgent ;
+        	if (explorer.indexOf("MSIE") <0) {
+        		return true;
+        		}
+        		else{
+        	return false;
+        	}
+        }
+        var ifraObj;
+       function   loadJsNotForIE(ifra){
+    	   if(isIeOrNot()){
+    		      ifraObj=ifra;
+		    	  if (document.all) {
+		                document.getElementById(ifra.id).attachEvent("onblur", OnTabChange);
+		            } else {
+		                document.getElementById(ifra.id).contentWindow.addEventListener("blur", OnTabChange, false);
+		            }
+    	   }
+     }
+       var ifraIndex=0;
         function createFrame(url) {
-            var s = '<iframe scrolling="auto" frameborder="0" Onblur="OnTabChange(this)"  src="' + url + '" style="width:100%;height:100%;"></iframe>';
+        	ifraIndex+=1;
+            var s = '<iframe id="'+ifraIndex+'_ifra"  scrolling="auto" frameborder="0" onload="loadJsNotForIE(this);" Onblur="OnTabChange(this)"  src="' + url + '" style="width:100%;height:100%;"></iframe>';
             return s;
         }
 
         /* //tab切换事件 */
         function OnTabChange(scope) {
+        	if(isIeOrNot()){
+        		scope=ifraObj;
+        	}
             var p = $(parent.document.getElementById("tabs")).find("li");
             var tabText = "";
             $.each(p, function (i, val) {
@@ -595,14 +613,7 @@ a:active {
                         }, this);
                     }
                     break;
-                case "save": //保存qin
-                
-                //var tab = $('#tabs').tabs('getSelected');  
-                //var tbId = tab.attr("id");  
-                //获取tab的iframe对象  
-                //var tbIframe = $("#"+tbId+" iframe:first-child");  
-                //$('#qinqin',tbIframe).click();
-                
+                case "save": 
                 Application.data.saveBlank(args.FK_Flow, args.FK_Node, args.WorkID, function (data) {
                         if (data.indexOf("true") == 0)
                             $.messager.alert('提示', '保存成功！', 'info');
@@ -875,7 +886,7 @@ a:active {
                     i++;
                     if (i == 3) {
                         var isEdit = node.attributes.IsEdit;
-                        var url = "<%=basePath%>WF/CCForm/Frm.aspx?FK_MapData=" + node.id + "&IsEdit=" + isEdit + "&IsPrint=0" + urlExt;
+                        var url = "<%=basePath%>WF/CCForm/Frm.jsp?FK_MapData=" + node.id + "&IsEdit=" + isEdit + "&IsPrint=0" + urlExt;
                         addTab(node.id, node.text, url);
                     }
                     return node.text;

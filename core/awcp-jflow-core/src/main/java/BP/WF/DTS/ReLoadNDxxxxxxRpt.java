@@ -1,11 +1,8 @@
 package BP.WF.DTS;
 
-import BP.DA.*;
-import BP.WF.Template.Flow;
-import BP.WF.Template.Flows;
-
-import BP.Port.*;
-import BP.En.*;
+import BP.En.Method;
+import BP.WF.Flow;
+import BP.WF.Flows;
 
 /** 
  修复表单物理表字段长度 的摘要说明
@@ -38,7 +35,7 @@ public class ReLoadNDxxxxxxRpt extends Method
 	@Override
 	public boolean getIsCanDo()
 	{
-		if (WebUser.getNo().equals("admin"))
+		if (BP.Web.WebUser.getNo().equals("admin"))
 		{
 			return true;
 		}
@@ -60,7 +57,7 @@ public class ReLoadNDxxxxxxRpt extends Method
 
 		Flows fls = new Flows();
 		fls.RetrieveAllFromDBSource();
-		for (Flow fl :Flows.convertFlows(fls) )
+		for (Flow fl : fls.ToJavaList())
 		{
 			try
 			{

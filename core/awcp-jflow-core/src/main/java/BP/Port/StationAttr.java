@@ -2,10 +2,9 @@ package BP.Port;
 
 import BP.En.EntityNoNameAttr;
 
-/** 
- 岗位属性
- 
-*/
+/**
+ * 岗位属性
+ */
 public class StationAttr extends EntityNoNameAttr
 {
 	public static final String StaGrade = "StaGrade";

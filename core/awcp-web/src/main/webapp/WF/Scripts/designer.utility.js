@@ -266,3 +266,31 @@ Array.prototype.remove = function (obj) {
         this.length -= 1
     }
 }
+
+Array.prototype.findByField = function (field, value) {
+    /// <summary>检索数组中的对象，找出对象中指定属性指定值的对象</summary>
+    /// <param name="field" Type="String">属性名</param>
+    /// <param name="value" Type="Object">属性值</param>
+    for (var i = 0; i < this.length; i++) {
+        if (this[i][field] != undefined && this[i][field] == value) {
+            return this[i];
+        }
+    }
+
+    return null;
+}
+
+Array.prototype.findBy2Field = function (field1, value1, field2, value2) {
+    /// <summary>检索数组中的对象，找出对象中指定属性指定值的对象</summary>
+    /// <param name="field1" Type="String">属性名</param>
+    /// <param name="value1" Type="Object">属性值</param>
+    /// <param name="field2" Type="String">属性名</param>
+    /// <param name="value2" Type="Object">属性值</param>
+    for (var i = 0; i < this.length; i++) {
+        if (this[i][field1] != undefined && this[i][field1] == value1 && this[i][field2] != undefined && this[i][field2] == value2) {
+            return this[i];
+        }
+    }
+
+    return null;
+}

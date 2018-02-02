@@ -1,10 +1,13 @@
 package BP.WF.Template;
 
-import java.util.ArrayList;
-
-import BP.DA.*;
-import BP.En.*;
-import BP.Port.*;
+import BP.En.EntitiesMM;
+import BP.En.Entity;
+import BP.En.QueryObject;
+import BP.Port.Emp;
+import BP.Port.Station;
+import BP.Port.Stations;
+import BP.WF.Node;
+import BP.WF.Nodes;
 
 /** 
  流程岗位属性
@@ -19,7 +22,7 @@ public class FlowEmps extends EntitiesMM
 	public final Stations getHisStations()
 	{
 		Stations ens = new Stations();
-		for (FlowEmp ns :convertFlowEmps(this))
+		for (FlowEmp ns : this.ToJavaList())
 		{
 			ens.AddEntity(new Station(ns.getFK_Emp()));
 		}
@@ -32,7 +35,7 @@ public class FlowEmps extends EntitiesMM
 	public final Nodes getHisNodes()
 	{
 		Nodes ens = new Nodes();
-		for (FlowEmp ns : convertFlowEmps(this))
+		for (FlowEmp ns : this.ToJavaList())
 		{
 			ens.AddEntity(new Node(ns.getFK_Flow()));
 		}
@@ -51,12 +54,6 @@ public class FlowEmps extends EntitiesMM
 	 
 	 @param NodeID 流程ID
 	*/
-	
-	
-	public static ArrayList<FlowEmp> convertFlowEmps(Object obj) {
-		return (ArrayList<FlowEmp>) obj;
-	}
-
 	public FlowEmps(int NodeID)
 	{
 		QueryObject qo = new QueryObject(this);
@@ -93,10 +90,10 @@ public class FlowEmps extends EntitiesMM
 	{
 		Nodes nds = new Nodes();
 		Nodes tmp = new Nodes();
-		for (Station st : Stations.convertStations(sts))
+		for (Station st : sts.ToJavaList())
 		{
 			tmp = this.GetHisNodes(st.getNo());
-			for (Node nd : Nodes.convertNodes(tmp))
+			for (Node nd : tmp.ToJavaList())
 			{
 				if (nds.Contains(nd))
 				{
@@ -131,7 +128,7 @@ public class FlowEmps extends EntitiesMM
 		qo.DoQuery();
 
 		Nodes ens = new Nodes();
-		for (FlowEmp en : convertFlowEmps(this))
+		for (FlowEmp en : this.ToJavaList())
 		{
 			ens.AddEntity(new Node(en.getFK_Flow()));
 		}
@@ -150,10 +147,40 @@ public class FlowEmps extends EntitiesMM
 		qo.DoQuery();
 
 		Stations ens = new Stations();
-		for (FlowEmp en : convertFlowEmps(this))
+		for (FlowEmp en : this.ToJavaList())
 		{
 			ens.AddEntity(new Station(en.getFK_Emp()));
 		}
 		return ens;
 	}
+
+
+
+		///#region 为了适应自动翻译成java的需要,把实体转换成List.
+	/** 
+	 转化成 java list,C#不能调用.
+	 
+	 @return List
+	*/
+	public final java.util.List<FlowEmp> ToJavaList()
+	{
+		return (java.util.List<FlowEmp>)(Object)this;
+	}
+	/** 
+	 转化成list
+	 
+	 @return List
+	*/
+	public final java.util.ArrayList<FlowEmp> Tolist()
+	{
+		java.util.ArrayList<FlowEmp> list = new java.util.ArrayList<FlowEmp>();
+		for (int i = 0; i < this.size(); i++)
+		{
+			list.add((FlowEmp)this.get(i));
+		}
+		return list;
+	}
+
+		///#endregion 为了适应自动翻译成java的需要,把实体转换成List.
+
 }

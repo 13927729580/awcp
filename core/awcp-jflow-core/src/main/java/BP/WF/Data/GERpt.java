@@ -1,28 +1,20 @@
 package BP.WF.Data;
 
-import BP.DA.DataRow;
-import BP.En.*;
-import BP.WF.Entity.GenerWorkFlowAttr;
-import BP.WF.Entity.WFSta;
-import BP.WF.Template.*;
-import BP.WF.Template.PubLib.WFState;
-import BP.WF.Template.WorkBase.WorkAttr;
-import BP.Sys.*;
-import BP.Sys.Frm.MapData;
-
+import BP.En.Attr;
+import BP.En.Attrs;
+import BP.En.Entity;
+import BP.En.Map;
+import BP.Sys.MapData;
+import BP.WF.Node;
+import BP.WF.WFSta;
+import BP.WF.WFState;
+import BP.WF.WorkAttr;
 
 /** 
  报表
- 
 */
 public class GERpt extends BP.En.EntityOID
 {
-/**
-	 * 
-	 */
-	private static final long serialVersionUID = 7870529974406664671L;
-	//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region attrs
 	public final long getOID()
 	{
 		return this.GetValInt64ByKey(GERptAttr.OID);
@@ -33,13 +25,12 @@ public class GERpt extends BP.En.EntityOID
 	}
 	/** 
 	 流程时间跨度
-	 
 	*/
-	public final int getFlowDaySpan()
+	public final float getFlowDaySpan()
 	{
-		return this.GetValIntByKey(GERptAttr.FlowDaySpan);
+		return this.GetValFloatByKey(GERptAttr.FlowDaySpan);
 	}
-	public final void setFlowDaySpan(int value)
+	public final void setFlowDaySpan(float value)
 	{
 		this.SetValByKey(GERptAttr.FlowDaySpan, value);
 	}
@@ -53,7 +44,6 @@ public class GERpt extends BP.En.EntityOID
 	}
 	/** 
 	 主流程ID
-	 
 	*/
 	public final long getFID()
 	{
@@ -73,7 +63,6 @@ public class GERpt extends BP.En.EntityOID
 	}
 	/** 
 	 流程参与人员
-	 
 	*/
 	public final String getFlowEmps()
 	{
@@ -85,7 +74,6 @@ public class GERpt extends BP.En.EntityOID
 	}
 	/** 
 	 流程备注
-	 
 	*/
 	public final String getFlowNote()
 	{
@@ -97,7 +85,6 @@ public class GERpt extends BP.En.EntityOID
 	}
 	/** 
 	 客户编号
-	 
 	*/
 	public final String getGuestNo()
 	{
@@ -109,7 +96,6 @@ public class GERpt extends BP.En.EntityOID
 	}
 	/** 
 	 客户名称
-	 
 	*/
 	public final String getGuestName()
 	{
@@ -129,7 +115,6 @@ public class GERpt extends BP.En.EntityOID
 	}
 	/** 
 	 流程发起人
-	 
 	*/
 	public final String getFlowStarter()
 	{
@@ -140,8 +125,7 @@ public class GERpt extends BP.En.EntityOID
 		this.SetValByKey(GERptAttr.FlowStarter, value);
 	}
 	/** 
-	 流程发起日期
-	 
+	 流程发起时间
 	*/
 	public final String getFlowStartRDT()
 	{
@@ -153,7 +137,6 @@ public class GERpt extends BP.En.EntityOID
 	}
 	/** 
 	 流程结束者
-	 
 	*/
 	public final String getFlowEnder()
 	{
@@ -164,8 +147,7 @@ public class GERpt extends BP.En.EntityOID
 		this.SetValByKey(GERptAttr.FlowEnder, value);
 	}
 	/** 
-	 流程结束时间
-	 
+	 流程最后处理时间
 	*/
 	public final String getFlowEnderRDT()
 	{
@@ -190,7 +172,6 @@ public class GERpt extends BP.En.EntityOID
 	}
 	/** 
 	 流程标题
-	 
 	*/
 	public final String getTitle()
 	{
@@ -202,7 +183,6 @@ public class GERpt extends BP.En.EntityOID
 	}
 	/** 
 	 隶属年月
-	 
 	*/
 	public final String getFK_NY()
 	{
@@ -214,7 +194,6 @@ public class GERpt extends BP.En.EntityOID
 	}
 	/** 
 	 发起人部门
-	 
 	*/
 	public final String getFK_Dept()
 	{
@@ -226,7 +205,6 @@ public class GERpt extends BP.En.EntityOID
 	}
 	/** 
 	 流程状态
-	 
 	*/
 	public final WFState getWFState()
 	{
@@ -241,21 +219,20 @@ public class GERpt extends BP.En.EntityOID
 		switch (value)
 		{
 			case Complete:
-				SetValByKey(GenerWorkFlowAttr.WFSta, WFSta.Complete.getValue());
+				SetValByKey(BP.WF.GenerWorkFlowAttr.WFSta, WFSta.Complete.getValue());
 				break;
 			case Delete:
 			case Blank:
-				SetValByKey(GenerWorkFlowAttr.WFSta, WFSta.Delete.getValue());
+				SetValByKey(BP.WF.GenerWorkFlowAttr.WFSta, WFSta.Etc.getValue());
 				break;
 			default:
-				SetValByKey(GenerWorkFlowAttr.WFSta, WFSta.Runing.getValue());
+				SetValByKey(BP.WF.GenerWorkFlowAttr.WFSta, WFSta.Runing.getValue());
 				break;
 		}
 
 	}
 	/** 
 	 父流程WorkID
-	 
 	*/
 	public final long getPWorkID()
 	{
@@ -267,7 +244,6 @@ public class GERpt extends BP.En.EntityOID
 	}
 	/** 
 	 发出的节点
-	 
 	*/
 	public final int getPNodeID()
 	{
@@ -279,7 +255,6 @@ public class GERpt extends BP.En.EntityOID
 	}
 	/** 
 	 父流程流程编号
-	 
 	*/
 	public final String getPFlowNo()
 	{
@@ -298,32 +273,7 @@ public class GERpt extends BP.En.EntityOID
 		this.SetValByKey(GERptAttr.PEmp, value);
 	}
 	/** 
-	 延续流程WorkID
-	 
-	*/
-	public final long getCWorkID()
-	{
-		return this.GetValInt64ByKey(GERptAttr.CWorkID);
-	}
-	public final void setCWorkID(long value)
-	{
-		this.SetValByKey(GERptAttr.CWorkID, value);
-	}
-	/** 
-	 延续流程流程编号
-	 
-	*/
-	public final String getCFlowNo()
-	{
-		return this.GetValStringByKey(GERptAttr.CFlowNo);
-	}
-	public final void setCFlowNo(String value)
-	{
-		this.SetValByKey(GERptAttr.CFlowNo, value);
-	}
-	/** 
 	 项目编号
-	 
 	*/
 	public final String getPrjNo()
 	{
@@ -341,18 +291,14 @@ public class GERpt extends BP.En.EntityOID
 	{
 		this.SetValByKey(GERptAttr.PrjName, value);
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion attrs
-
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 重写。
-
 	@Override
-	public void Copy(DataRow dr)
+	public void Copy(BP.DA.DataRow dr)
 	{
 		for (Attr attr : this.getEnMap().getAttrs())
 		{
-			if (WorkAttr.CDT.equals(attr.getKey()) || WorkAttr.RDT.equals(attr.getKey()) || WorkAttr.Rec.equals(attr.getKey()) || WorkAttr.FID.equals(attr.getKey()) || WorkAttr.OID.equals(attr.getKey()) || WorkAttr.Emps.equals(attr.getKey()) || GERptAttr.AtPara.equals(attr.getKey()) || GERptAttr.BillNo.equals(attr.getKey()) || GERptAttr.CFlowNo.equals(attr.getKey()) || GERptAttr.CWorkID.equals(attr.getKey()) || GERptAttr.FID.equals(attr.getKey()) || GERptAttr.FK_Dept.equals(attr.getKey()) || GERptAttr.FK_NY.equals(attr.getKey()) || GERptAttr.FlowDaySpan.equals(attr.getKey()) || GERptAttr.FlowEmps.equals(attr.getKey()) || GERptAttr.FlowEnder.equals(attr.getKey()) || GERptAttr.FlowEnderRDT.equals(attr.getKey()) || GERptAttr.FlowEndNode.equals(attr.getKey()) || GERptAttr.FlowNote.equals(attr.getKey()) || GERptAttr.FlowStarter.equals(attr.getKey()) || GERptAttr.GuestName.equals(attr.getKey()) || GERptAttr.GuestNo.equals(attr.getKey()) || GERptAttr.GUID.equals(attr.getKey()) || GERptAttr.PEmp.equals(attr.getKey()) || GERptAttr.PFlowNo.equals(attr.getKey()) || GERptAttr.PNodeID.equals(attr.getKey()) || GERptAttr.PWorkID.equals(attr.getKey()) || GERptAttr.Title.equals(attr.getKey()) || GERptAttr.PrjNo.equals(attr.getKey()) || GERptAttr.PrjName.equals(attr.getKey()) || attr.getKey().equals("No") || attr.getKey().equals("Name"))
+				  //|| attr.Key == GERptAttr.CFlowNo
+				  //|| attr.Key == GERptAttr.CWorkID
+			if (WorkAttr.CDT.equals(attr.getKey()) || WorkAttr.RDT.equals(attr.getKey()) || WorkAttr.Rec.equals(attr.getKey()) || WorkAttr.FID.equals(attr.getKey()) || WorkAttr.OID.equals(attr.getKey()) || WorkAttr.Emps.equals(attr.getKey()) || GERptAttr.AtPara.equals(attr.getKey()) || GERptAttr.BillNo.equals(attr.getKey()) || GERptAttr.FID.equals(attr.getKey()) || GERptAttr.FK_Dept.equals(attr.getKey()) || GERptAttr.FK_NY.equals(attr.getKey()) || GERptAttr.FlowDaySpan.equals(attr.getKey()) || GERptAttr.FlowEmps.equals(attr.getKey()) || GERptAttr.FlowEnder.equals(attr.getKey()) || GERptAttr.FlowEnderRDT.equals(attr.getKey()) || GERptAttr.FlowEndNode.equals(attr.getKey()) || GERptAttr.FlowNote.equals(attr.getKey()) || GERptAttr.FlowStarter.equals(attr.getKey()) || GERptAttr.GuestName.equals(attr.getKey()) || GERptAttr.GuestNo.equals(attr.getKey()) || GERptAttr.GUID.equals(attr.getKey()) || GERptAttr.PEmp.equals(attr.getKey()) || GERptAttr.PFlowNo.equals(attr.getKey()) || GERptAttr.PNodeID.equals(attr.getKey()) || GERptAttr.PWorkID.equals(attr.getKey()) || GERptAttr.Title.equals(attr.getKey()) || GERptAttr.PrjNo.equals(attr.getKey()) || GERptAttr.PrjName.equals(attr.getKey()) || attr.getKey().equals("No") || attr.getKey().equals("Name"))
 			{
 				continue;
 			}
@@ -383,7 +329,9 @@ public class GERpt extends BP.En.EntityOID
 		Attrs attrs = fromEn.getEnMap().getAttrs();
 		for (Attr attr : attrs)
 		{
-			if (WorkAttr.CDT.equals(attr.getKey()) || WorkAttr.RDT.equals(attr.getKey()) || WorkAttr.Rec.equals(attr.getKey()) || WorkAttr.FID.equals(attr.getKey()) || WorkAttr.OID.equals(attr.getKey()) || WorkAttr.Emps.equals(attr.getKey()) || GERptAttr.AtPara.equals(attr.getKey()) || GERptAttr.BillNo.equals(attr.getKey()) || GERptAttr.CFlowNo.equals(attr.getKey()) || GERptAttr.CWorkID.equals(attr.getKey()) || GERptAttr.FID.equals(attr.getKey()) || GERptAttr.FK_Dept.equals(attr.getKey()) || GERptAttr.FK_NY.equals(attr.getKey()) || GERptAttr.FlowDaySpan.equals(attr.getKey()) || GERptAttr.FlowEmps.equals(attr.getKey()) || GERptAttr.FlowEnder.equals(attr.getKey()) || GERptAttr.FlowEnderRDT.equals(attr.getKey()) || GERptAttr.FlowEndNode.equals(attr.getKey()) || GERptAttr.FlowNote.equals(attr.getKey()) || GERptAttr.FlowStarter.equals(attr.getKey()) || GERptAttr.GuestName.equals(attr.getKey()) || GERptAttr.GuestNo.equals(attr.getKey()) || GERptAttr.GUID.equals(attr.getKey()) || GERptAttr.PEmp.equals(attr.getKey()) || GERptAttr.PFlowNo.equals(attr.getKey()) || GERptAttr.PNodeID.equals(attr.getKey()) || GERptAttr.PWorkID.equals(attr.getKey()) || GERptAttr.Title.equals(attr.getKey()) || GERptAttr.PrjNo.equals(attr.getKey()) || GERptAttr.PrjName.equals(attr.getKey()) || attr.getKey().equals("No") || attr.getKey().equals("Name"))
+				//|| attr.Key == GERptAttr.CFlowNo
+				//|| attr.Key == GERptAttr.CWorkID
+			if (WorkAttr.CDT.equals(attr.getKey()) || WorkAttr.RDT.equals(attr.getKey()) || WorkAttr.Rec.equals(attr.getKey()) || WorkAttr.FID.equals(attr.getKey()) || WorkAttr.OID.equals(attr.getKey()) || WorkAttr.Emps.equals(attr.getKey()) || GERptAttr.AtPara.equals(attr.getKey()) || GERptAttr.BillNo.equals(attr.getKey()) || GERptAttr.FID.equals(attr.getKey()) || GERptAttr.FK_Dept.equals(attr.getKey()) || GERptAttr.FK_NY.equals(attr.getKey()) || GERptAttr.FlowDaySpan.equals(attr.getKey()) || GERptAttr.FlowEmps.equals(attr.getKey()) || GERptAttr.FlowEnder.equals(attr.getKey()) || GERptAttr.FlowEnderRDT.equals(attr.getKey()) || GERptAttr.FlowEndNode.equals(attr.getKey()) || GERptAttr.FlowNote.equals(attr.getKey()) || GERptAttr.FlowStarter.equals(attr.getKey()) || GERptAttr.GuestName.equals(attr.getKey()) || GERptAttr.GuestNo.equals(attr.getKey()) || GERptAttr.GUID.equals(attr.getKey()) || GERptAttr.PEmp.equals(attr.getKey()) || GERptAttr.PFlowNo.equals(attr.getKey()) || GERptAttr.PNodeID.equals(attr.getKey()) || GERptAttr.PWorkID.equals(attr.getKey()) || GERptAttr.Title.equals(attr.getKey()) || GERptAttr.PrjNo.equals(attr.getKey()) || GERptAttr.PrjName.equals(attr.getKey()) || attr.getKey().equals("No") || attr.getKey().equals("Name"))
 			{
 				continue;
 			}
@@ -397,11 +345,7 @@ public class GERpt extends BP.En.EntityOID
 			this.SetValByKey(attr.getKey(), fromEn.GetValByKey(attr.getKey()));
 		}
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
 
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region attrs - attrs
 	private String _RptName = null;
 	public final String getRptName()
 	{
@@ -413,7 +357,7 @@ public class GERpt extends BP.En.EntityOID
 
 		this._SQLCash = null;
 		this.set_enMap(null);
-		this.setRow (null);
+		this.setRow(null);
 	}
 	@Override
 	public String toString()
@@ -432,7 +376,6 @@ public class GERpt extends BP.En.EntityOID
 	}
 	/** 
 	 Map
-	 
 	*/
 	@Override
 	public Map getEnMap()
@@ -445,14 +388,13 @@ public class GERpt extends BP.En.EntityOID
 
 		if (this.get_enMap() == null)
 		{
-			this.set_enMap( MapData.GenerHisMap(this.getRptName()));
+			this.set_enMap(MapData.GenerHisMap(this.getRptName()));
 		}
 
 		return this.get_enMap();
 	}
 	/** 
 	 报表
-	 
 	 @param rptName
 	*/
 	public GERpt(String rptName)
@@ -464,7 +406,6 @@ public class GERpt extends BP.En.EntityOID
 	}
 	/** 
 	 报表
-	 
 	 @param rptName
 	 @param oid
 	*/
@@ -474,6 +415,6 @@ public class GERpt extends BP.En.EntityOID
 		this.setOID((int)oid);
 		this.Retrieve();
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
+
 		///#endregion attrs
 }

@@ -1,10 +1,6 @@
 package BP.WF.Template;
 
-import BP.DA.*;
-import BP.En.*;
-import BP.WF.*;
-import BP.WF.Template.*;
-import BP.Port.*;
+import BP.En.EntityMyPKAttr;
 
 /** 
  挂起 属性
@@ -12,8 +8,8 @@ import BP.Port.*;
 */
 public class HungUpAttr extends EntityMyPKAttr
 {
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 基本属性
+
+		
 	public static final String Title = "Title";
 	/** 
 	 工作ID
@@ -65,6 +61,6 @@ public class HungUpAttr extends EntityMyPKAttr
 	 
 	*/
 	public static final String DTOfUnHungUpPlan = "DTOfUnHungUpPlan";
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
+
 		///#endregion
 }

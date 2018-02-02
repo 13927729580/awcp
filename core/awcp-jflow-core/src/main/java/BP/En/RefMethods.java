@@ -12,11 +12,13 @@ public class RefMethods extends ArrayList<RefMethod>
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	/** 
-	 加入
-	 
-	 @param attr attr
-	*/
+	
+	/**
+	 * 加入
+	 * 
+	 * @param attr
+	 *            attr
+	 */
 	public final void Add(RefMethod en)
 	{
 		if (this.IsExits(en))
@@ -26,15 +28,17 @@ public class RefMethods extends ArrayList<RefMethod>
 		en.Index = this.size();
 		this.add(en);
 		/*
-		 * warning en.Index = this.InnerList.size();
-		this.InnerList.Add(en);*/
+		 * warning en.Index = this.InnerList.size(); this.add(en);
+		 */
 	}
-	/** 
-	 是不是存在集合里面
-	 
-	 @param en 要检查的RefMethod
-	 @return true/false
-	*/
+	
+	/**
+	 * 是不是存在集合里面
+	 * 
+	 * @param en
+	 *            要检查的RefMethod
+	 * @return true/false
+	 */
 	public final boolean IsExits(RefMethod en)
 	{
 		for (RefMethod dtl : this)
@@ -46,10 +50,10 @@ public class RefMethods extends ArrayList<RefMethod>
 		}
 		return false;
 	}
-	/** 
-	 能够看到的属性
-	 
-	*/
+	
+	/**
+	 * 能够看到的属性
+	 */
 	public final int getCountOfVisable()
 	{
 		int i = 0;
@@ -62,14 +66,15 @@ public class RefMethods extends ArrayList<RefMethod>
 		}
 		return i;
 	}
-	/** 
-	 根据索引访问集合内的元素Attr。
-	 
-	*/
+	
+	/**
+	 * 根据索引访问集合内的元素Attr。
+	 */
 	public final RefMethod getItem(int index)
 	{
 		return this.get(index);
 		/*
-		 * warning return (RefMethod)this.InnerList[index];*/
+		 * warning return (RefMethod)this.get(index);
+		 */
 	}
 }

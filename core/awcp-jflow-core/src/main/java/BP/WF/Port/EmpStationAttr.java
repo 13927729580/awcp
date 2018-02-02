@@ -1,7 +1,5 @@
 package BP.WF.Port;
 
-import BP.DA.*;
-import BP.En.*;
 
 /** 
  人员岗位
@@ -9,8 +7,8 @@ import BP.En.*;
 */
 public class EmpStationAttr
 {
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 基本属性
+
+		
 	/** 
 	 工作人员ID
 	 
@@ -21,6 +19,6 @@ public class EmpStationAttr
 	 
 	*/
 	public static final String FK_Station="FK_Station";
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
+
 		///#endregion
 }

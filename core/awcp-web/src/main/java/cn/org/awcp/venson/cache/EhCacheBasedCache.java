@@ -21,24 +21,21 @@ public class EhCacheBasedCache implements Cache {
 	 */
 	private net.sf.ehcache.Cache cache;
 
+
 	/**
 	 * 使用指定的名字构建一个缓存，name对应ehcache.xml中的配置
 	 * 
-	 * @param name
-	 * @throws Exception
+	 * @param cacheName
 	 */
-	public EhCacheBasedCache() {
-		cache = CacheManager.create(this.getClass().getResource("/conf/ehcache.xml")).getCache("cacheData");
-		if (cache == null) {
-			throw new RuntimeException("缓存创建失败，未找到缓存配置文件");
-		}
+	public EhCacheBasedCache(CacheManager cacheManager, String cacheName) {
+		cache = cacheManager.getCache(cacheName);
 	}
 
 	/**
 	 * 从缓存中获取一个KEY值
 	 */
 	public Object get(String key) {
-		Element el = (Element) cache.get(key);
+		Element el =  cache.get(key);
 		if (el != null) {
 			return el.getObjectValue();
 		}

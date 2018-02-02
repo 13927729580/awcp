@@ -1,9 +1,9 @@
-<%@page import="BP.Port.WebUser"%>
-<%@page import="org.jflow.framework.common.model.M2mmModel"%>
+<%@page import="BP.Web.WebUser"%>
+<%@page import="cn.jflow.common.model.M2mmModel"%>
 <%@ page language="java" isELIgnored="false" import="java.util.*"
 	pageEncoding="utf-8"%>
 <%@page
-	import="org.jflow.framework.common.model.SingleAttachmentUploadModel"%>
+	import="cn.jflow.common.model.SingleAttachmentUploadModel"%>
 <%
 	String path = request.getContextPath();
 	String basePath = request.getScheme() + "://"
@@ -43,7 +43,7 @@ body {
 	function Del(id, ens) {
 		if (window.confirm('您确定要执行删除吗？') == false)
 			return;
-		var url = 'Do.aspx?DoType=DelDtl&OID=' + id + '&EnsName=' + ens;
+		var url = 'Do.jsp?DoType=DelDtl&OID=' + id + '&EnsName=' + ens;
 		var b = window
 				.showModalDialog(url, 'ass',
 						'dialogHeight: 400px; dialogWidth: 600px;center: yes; help: no');

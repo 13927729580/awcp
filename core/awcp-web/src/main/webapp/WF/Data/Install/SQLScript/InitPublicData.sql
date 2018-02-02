@@ -1,4 +1,3 @@
-﻿
 DELETE FROM Sys_SFTable WHERE No='CN_PQ';
 INSERT INTO Sys_SFTable (No,Name,FK_Val,TableDesc,DefVal)VALUES ('CN_PQ','地区','FK_DQ','华北、西北、西南。。。','');
 
@@ -27,8 +26,76 @@ INSERT INTO Sys_SFTable (No,Name,FK_Val,TableDesc,DefVal)VALUES ('BP.Pub.YFs','�
 DELETE FROM Sys_SFTable WHERE No='BP.Pub.NYs';
 INSERT INTO Sys_SFTable (No,Name,FK_Val,TableDesc,DefVal)VALUES ('BP.Pub.NYs','年月','FK_NY','年度与月份','');
 
-DELETE FROM Sys_SFTable WHERE No='BP.Pub.NDs';
-INSERT INTO Sys_SFTable (No,Name,FK_Val,TableDesc,DefVal)VALUES ('BP.Pub.NDs','年度','FK_ND','年度','');
+DELETE FROM Sys_SFTable WHERE No='Demo_Student';
+INSERT INTO Sys_SFTable (No,Name,FK_Val,TableDesc,DefVal,SrcType,FK_SFDBSrc)VALUES ('Demo_Student','学生','FK_Student','学生','',1,'local');
+
+DELETE FROM Sys_SFTable WHERE No='Demo_BanJi';
+INSERT INTO Sys_SFTable (No,Name,FK_Val,TableDesc,DefVal,SrcType,FK_SFDBSrc)VALUES ('Demo_BanJi','班级','FK_BJ','班级','',1,'local');
+
+DELETE FROM Sys_SFTable WHERE No='Port_Emp';
+INSERT INTO Sys_SFTable (No,Name,FK_Val,TableDesc,DefVal,SrcType,FK_SFDBSrc)VALUES ('Port_Emp','操作员','FK_Emp','操作员','',1,'local');
+
+DELETE FROM Sys_SFTable WHERE No='Port_Dept';
+INSERT INTO Sys_SFTable (No,Name,FK_Val,TableDesc,DefVal,SrcType,FK_SFDBSrc)VALUES ('Port_Dept','部门','FK_Dept','部门','',1,'local');
+
+DELETE FROM Sys_SFTable WHERE No='Port_Station';
+INSERT INTO Sys_SFTable (No,Name,FK_Val,TableDesc,DefVal,SrcType,FK_SFDBSrc)VALUES ('Port_Station','岗位','FK_Station','岗位','',1,'local');
+
+
+DELETE FROM Demo_Supplier ;
+INSERT INTO Demo_Supplier (No,Name,PWD,Tel,Email,Addr) VALUES('001','北京1所','123','010-61201120','ccflow@ccflow.org','北京xx区xx路xx号');
+INSERT INTO Demo_Supplier (No,Name,PWD,Tel,Email,Addr) VALUES('002','北京9所','123','010-61201220','ccflow@ccflow.org','北京xx区xx路xx号');
+
+DELETE FROM Demo_BanJi;
+INSERT INTO Demo_BanJi(No,Name,BZR) VALUES('001','一年级1班','张三');
+INSERT INTO Demo_BanJi(No,Name,BZR) VALUES('002','一年级2班','李四');
+INSERT INTO Demo_BanJi(No,Name,BZR) VALUES('003','一年级3班','王五');
+INSERT INTO Demo_BanJi(No,Name,BZR) VALUES('004','一年级4班','赵六');
+INSERT INTO Demo_BanJi(No,Name,BZR) VALUES('005','一年级5班','孙钱');
+INSERT INTO Demo_BanJi(No,Name,BZR) VALUES('006','一年级6班','刘备');
+
+DELETE FROM Demo_Student;
+INSERT INTO Demo_Student(No,Name,PWD,Addr,Tel,Email,FK_BanJi,Age,XB) VALUES('0001','熊大','123','山东.济南.高新区','88890089','s001@ccflow.org','001',8,1);
+INSERT INTO Demo_Student(No,Name,PWD,Addr,Tel,Email,FK_BanJi,Age,XB) VALUES('0002','熊二','123','山东.济南.高新区','88890080','s002@ccflow.org','001',8,1);
+INSERT INTO Demo_Student(No,Name,PWD,Addr,Tel,Email,FK_BanJi,Age,XB) VALUES('0003','光头强','123','山东.济南.高新区','88890081','s003@ccflow.org','001',8,1);
+INSERT INTO Demo_Student(No,Name,PWD,Addr,Tel,Email,FK_BanJi,Age,XB) VALUES('0004','大白','123','山东.济南.高新区','888900892','s004@ccflow.org','002',8,1);
+INSERT INTO Demo_Student(No,Name,PWD,Addr,Tel,Email,FK_BanJi,Age,XB) VALUES('0005','翠花','123','山东.济南.高新区','888900892','s004@ccflow.org','002',8,0);
+INSERT INTO Demo_Student(No,Name,PWD,Addr,Tel,Email,FK_BanJi,Age,XB) VALUES('0006','嘟嘟','123','山东.济南.高新区','888900892','s004@ccflow.org','002',8,0);
+INSERT INTO Demo_Student(No,Name,PWD,Addr,Tel,Email,FK_BanJi,Age,XB) VALUES('0007','大马猴','123','山东.济南.高新区','888900892','s004@ccflow.org','003',8,0);
+INSERT INTO Demo_Student(No,Name,PWD,Addr,Tel,Email,FK_BanJi,Age,XB) VALUES('0008','二狗子','123','山东.济南.高新区','888900892','s004@ccflow.org','003',8,0);
+INSERT INTO Demo_Student(No,Name,PWD,Addr,Tel,Email,FK_BanJi,Age,XB) VALUES('0009','拖拖','123','山东.济南.高新区','888900892','s004@ccflow.org','003',8,0);
+INSERT INTO Demo_Student(No,Name,PWD,Addr,Tel,Email,FK_BanJi,Age,XB) VALUES('0010','小狐狸','123','山东.济南.高新区','888900892','s004@ccflow.org','004',8,0);
+INSERT INTO Demo_Student(No,Name,PWD,Addr,Tel,Email,FK_BanJi,Age,XB) VALUES('0011','萝卜头','123','山东.济南.高新区','888900892','s004@ccflow.org','004',8,0);
+INSERT INTO Demo_Student(No,Name,PWD,Addr,Tel,Email,FK_BanJi,Age,XB) VALUES('0012','蹦蹦','123','山东.济南.高新区','888900892','s004@ccflow.org','004',8,1);
+INSERT INTO Demo_Student(No,Name,PWD,Addr,Tel,Email,FK_BanJi,Age,XB) VALUES('0013','吉吉','123','山东.济南.高新区','888900892','s004@ccflow.org','005',8,1);
+INSERT INTO Demo_Student(No,Name,PWD,Addr,Tel,Email,FK_BanJi,Age,XB) VALUES('0014','毛毛','123','山东.济南.高新区','888900892','s004@ccflow.org','005',8,0);
+INSERT INTO Demo_Student(No,Name,PWD,Addr,Tel,Email,FK_BanJi,Age,XB) VALUES('0015','嘟嘟','123','山东.济南.高新区','888900892','s004@ccflow.org','005',8,0);
+INSERT INTO Demo_Student(No,Name,PWD,Addr,Tel,Email,FK_BanJi,Age,XB) VALUES('0016','图图','123','山东.济南.高新区','888900892','s004@ccflow.org','005',8,1);
+INSERT INTO Demo_Student(No,Name,PWD,Addr,Tel,Email,FK_BanJi,Age,XB) VALUES('0017','团子','123','山东.济南.高新区','888900892','s004@ccflow.org','006',8,1);
+
+
+
+DELETE FROM Demo_StudentKeMu;
+INSERT INTO Demo_StudentKeMu(FK_Student,FK_KeMu) VALUES('0001','001');
+INSERT INTO Demo_StudentKeMu(FK_Student,FK_KeMu) VALUES('0001','002');
+INSERT INTO Demo_StudentKeMu(FK_Student,FK_KeMu) VALUES('0001','003');
+INSERT INTO Demo_StudentKeMu(FK_Student,FK_KeMu) VALUES('0001','004');
+INSERT INTO Demo_StudentKeMu(FK_Student,FK_KeMu) VALUES('0001','005');
+INSERT INTO Demo_StudentKeMu(FK_Student,FK_KeMu) VALUES('0001','006');
+
+INSERT INTO Demo_StudentKeMu(FK_Student,FK_KeMu) VALUES('0002','001');
+INSERT INTO Demo_StudentKeMu(FK_Student,FK_KeMu) VALUES('0002','002');
+INSERT INTO Demo_StudentKeMu(FK_Student,FK_KeMu) VALUES('0002','003');
+INSERT INTO Demo_StudentKeMu(FK_Student,FK_KeMu) VALUES('0002','004');
+INSERT INTO Demo_StudentKeMu(FK_Student,FK_KeMu) VALUES('0002','005');
+INSERT INTO Demo_StudentKeMu(FK_Student,FK_KeMu) VALUES('0002','006');
+
+INSERT INTO Demo_StudentKeMu(FK_Student,FK_KeMu) VALUES('0003','001');
+INSERT INTO Demo_StudentKeMu(FK_Student,FK_KeMu) VALUES('0003','002');
+INSERT INTO Demo_StudentKeMu(FK_Student,FK_KeMu) VALUES('0003','003');
+INSERT INTO Demo_StudentKeMu(FK_Student,FK_KeMu) VALUES('0003','004');
+INSERT INTO Demo_StudentKeMu(FK_Student,FK_KeMu) VALUES('0003','005');
+INSERT INTO Demo_StudentKeMu(FK_Student,FK_KeMu) VALUES('0003','006');
 
 
 DELETE FROM CN_PQ ;
@@ -524,7 +591,6 @@ INSERT INTO CN_City (No,Name,Names,Grade,FK_SF,FK_PQ) VALUES('2114','辽宁省�
 INSERT INTO CN_City (No,Name,Names,Grade,FK_SF,FK_PQ) VALUES('2201','吉林省长春市','长春','2','22','DB');
 INSERT INTO CN_City (No,Name,Names,Grade,FK_SF,FK_PQ) VALUES('2202','吉林省吉林市','吉林','2','22','DB');
 INSERT INTO CN_City (No,Name,Names,Grade,FK_SF,FK_PQ) VALUES('2203','吉林省四平市','四平','2','22','DB');
-
 
 
 DELETE FROM Demo_AnQuanItem;

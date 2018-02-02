@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
-<%@ include file="/head/head.jsp"%>
+<%@ include file="/WF/head/head2.jsp"%>
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -182,15 +182,15 @@ jQuery(function($){
 	    var url='Do.jsp?DoType=AutoTo&FK_Emp='+fk_emp;
 	    WinShowModalDialog(url,'');
 	    alert('授权成功，请别忘记收回。'); 
-	    window.location.href='../Tools.jsp';
+	    window.location.href='Tools.aspx';
 	}
 
 	function ExitAuth(fk_emp) {
-	    if (window.confirm('您确定要退出授权登陆模式吗？') == false)
+	    if (window.confirm('您确定要退出授权登录模式吗？') == false)
 	        return;
 	    var url = 'Do.jsp?DoType=ExitAuth&FK_Emp=' + fk_emp;
 	    WinShowModalDialog(url, '');
-	    window.location.href = '../Tools.jsp';
+	    window.location.href = 'Tools.aspx';
 	}
 
 	function TakeBack( fk_emp )
@@ -205,12 +205,12 @@ jQuery(function($){
 
 	function LogAs( fk_emp )
 	{
-	   if (window.confirm('您确定要以['+fk_emp+']授权方式登陆吗？')==false)
+	   if (window.confirm('您确定要以['+fk_emp+']授权方式登录吗？')==false)
 	       return;
 	       
 	    var url='Do.jsp?DoType=LogAs&FK_Emp='+fk_emp;
 	    WinShowModalDialog(url,'');
-	    alert('登陆成功，现在您可以以['+fk_emp+']处理工作。'); 
+	    alert('登录成功，现在您可以以['+fk_emp+']处理工作。'); 
 	    window.location.href='EmpWorks.aspx';
 	}
 
@@ -386,13 +386,13 @@ jQuery(function($){
 				<div class="span12">
 					<div class="jc-demo-box">
 						<img
-							src="<%=basePath%>/WF/DataUser/UserIcon/<%=WebUser.getNo()%>BigerCon.png"
+							src="<%=basePath%>/DataUser/UserIcon/<%=WebUser.getNo()%>BigerCon.png"
 							id="target" alt="[Jcrop Example]" />
 
 						<div id="preview-pane">
 							<div class="preview-container">
 								<img
-									src="<%=basePath%>/WF/DataUser/UserIcon/<%=WebUser.getNo()%>BigerCon.png"
+									src="<%=basePath%>/DataUser/UserIcon/<%=WebUser.getNo()%>BigerCon.png"
 									class="jcrop-preview" alt="Preview" name="imgNew" />
 							</div>
 							<div>

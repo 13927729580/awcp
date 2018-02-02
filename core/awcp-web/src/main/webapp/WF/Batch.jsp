@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=utf-8"
 	pageEncoding="utf-8"%>
-<%@ include file="/head/head.jsp"%>
+<%@ include file="/WF/head/head2.jsp"%>
+<link href="<%=Glo.getCCFlowAppPath() %>DataUser/Style/table0.css" rel="stylesheet" type="text/css" />
 <%
 	String fk_node = request.getParameter("FK_Node") == null?"0":request.getParameter("FK_Node");
 	int FK_Node = Integer.valueOf(fk_node);
@@ -14,6 +15,54 @@
 	BatchModel model = new BatchModel(basePath, FK_Node, FK_MapData, ListNum, Key, DoType, normMsg);
 	model.init();
 %>
+<style type="text/css">
+<!--
+body,td{
+ font-family:微软雅黑;
+ cursor:default;
+ font-size:12px;
+}
+a{
+ font-size:12px;
+ color:blue;
+ line-height:160%;
+ text-decoration:none;
+}
+a:link{
+ font-size:12px;
+ color:#006699;
+ line-height:160%;
+ text-decoration:none;
+}
+a:active{
+ font-size:12px;color:#990000;
+ line-height:160%;
+}
+a:hover{
+ font-size:12px; color:#3366ff;
+ line-height:160%;
+ text-decoration:none;
+}
+li{
+ list-style-type:square; 
+ margin:0px;
+ padding:0px;
+ height:15px;
+}
+.liOver{
+ background-color:#dddddd;
+ border:1px solid #000000;
+}
+.liout{
+ background-color:#f1f1f1;
+ border:1px solid #f1f1f1;
+}
+li span.lidown{
+ background-color:#00ff00;
+ border:1px solid #999999;
+}
+-->
+</style>
 <script type="text/javascript">
 function SelectAll() {
     var arrObj = document.all;
@@ -40,13 +89,11 @@ function Send_Click(){
 	var FK_Node = '<%=FK_Node%>';
 	var FK_MapData = '<%=FK_MapData%>';
 	var ListNum = '<%=ListNum%>';
-	
+	if(vailCheckBox()){
+		alert("您没有选择工作！");
+		return false;
+	}
 	if(confirm("您确定要执行吗？")){	
-		if(vailCheckBox()){
-			alert("您没有选择工作！");
-			return false;
-		}
-		
 		//$("#FormHtml").val($("#form1").html());
 		var url = "<%=basePath%>WF/BatchSend.do?FK_Node="+FK_Node+"&FK_MapData="+FK_MapData+"&ListNum="+ListNum;
 		$("#form1").attr("action", url);
@@ -57,13 +104,12 @@ function Group_Click(){
 	var FK_Node = '<%=FK_Node%>';
 	var FK_MapData = '<%=FK_MapData%>';
 	var ListNum = '<%=ListNum%>';
+	if(vailCheckBox()){
+		alert("您没有选择工作！");
+		return false;
+	}
 	
 	if(confirm("您确定要执行吗？")){	
-		if(vailCheckBox()){
-			alert("您没有选择工作！");
-			return false;
-		}
-		
 		var url = "<%=basePath%>WF/BatchGroup.do?FK_Node="+FK_Node+"&FK_MapData="+FK_MapData+"&ListNum="+ListNum;
 		$("#form1").attr("action", url);
 		$("#form1").submit();
@@ -73,13 +119,11 @@ function Return_Click(){
 	var FK_Node = '<%=FK_Node%>';
 	var FK_MapData = '<%=FK_MapData%>';
 	var ListNum = '<%=ListNum%>';
-	
+	if(vailCheckBox()){
+		alert("您没有选择工作！");
+		return false;
+	}
 	if(confirm("您确定要执行吗？")){	
-		if(vailCheckBox()){
-			alert("您没有选择工作！");
-			return false;
-		}
-		
 		var url = "<%=basePath%>WF/BatchReturn.do?FK_Node="+FK_Node+"&FK_MapData="+FK_MapData+"&ListNum="+ListNum;
 		$("#form1").attr("action", url);
 		$("#form1").submit();
@@ -89,13 +133,11 @@ function Delete_Click(){
 	var FK_Node = '<%=FK_Node%>';
 	var FK_MapData = '<%=FK_MapData%>';
 	var ListNum = '<%=ListNum%>';
-	
+	if(vailCheckBox()){
+		alert("您没有选择工作！");
+		return false;
+	}
 	if(confirm("您确定要执行吗？")){	
-		if(vailCheckBox()){
-			alert("您没有选择工作！");
-			return false;
-		}
-		
 		var url = "<%=basePath%>WF/BatchDelete.do?FK_Node=" + FK_Node
 					+ "&FK_MapData=" + FK_MapData + "&ListNum=" + ListNum;
 			$("#form1").attr("action", url);
@@ -128,39 +170,10 @@ function Delete_Click(){
 	}
 </script>
 </head>
-<body>
-	<!-- 内容 -->
-	<!-- 表格数据 -->
-	<div class="admin-content">
-
-		<div class="am-cf am-padding">
-			<div class="am-fl am-cf">
-				<strong class="am-text-primary am-text-lg">首页</strong> / <small>批处理列表</small>
-			</div>
-		</div>
-		<!-- 数据 -->
-		<div class="am-g">
-			<div class="am-u-sm-12">
-				<form method="post" action="" class="am-form" id="form1">
-					<!-- <input type="hidden" id="FormHtml" name="FormHtml" value=""></input> -->
-					<%=model.ui.ListToString()%>
-				</form>
-				<!-- <ul class="am-pagination am-pagination-right">
-					<li class="am-disabled"><a href="#">&laquo;</a></li>
-					<li class="am-active"><a href="#">1</a></li>
-					<li><a href="#">2</a></li>
-					<li><a href="#">3</a></li>
-					<li><a href="#">4</a></li>
-					<li><a href="#">5</a></li>
-					<li><a href="#">&raquo;</a></li>
-				</ul> -->
-			</div>
-		</div>
-	</div>
+<body style="margin: 1px;">
+<form method="post" action="" id="form1">
+	<!-- <input type="hidden" id="FormHtml" name="FormHtml" value=""></input> -->
+	<%=model.ui.ListToString()%>
+</form>
 </body>
-<script type="text/javascript">
-	$(document).ready(function() {
-		$('#Btn_Group').hide();
-	});
-</script>
 </html>

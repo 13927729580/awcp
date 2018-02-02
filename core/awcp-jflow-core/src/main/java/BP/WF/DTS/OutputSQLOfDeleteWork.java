@@ -5,8 +5,8 @@ import BP.DTS.DataIOEn;
 import BP.DTS.DoType;
 import BP.DTS.RunTimeType;
 import BP.Sys.PubClass;
-import BP.WF.Template.Node;
-import BP.WF.Template.Nodes;
+import BP.WF.Node;
+import BP.WF.Nodes;
 
 public class OutputSQLOfDeleteWork extends DataIOEn
 {
@@ -23,21 +23,17 @@ public class OutputSQLOfDeleteWork extends DataIOEn
 		this.ToDBUrl = DBUrlType.AppCenterDSN;
 	}
 	@Override
-	public void Do()
+	public void Do() throws Exception
 	{
 		String sql = this.GenerSqls();
-		try {
-			PubClass.ResponseWriteBlueMsg(sql.replace("\n", "<BR>"));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		PubClass.ResponseWriteBlueMsg(sql.replace("\n", "<BR>"));
 	}
 	public final String GenerSqls()
 	{
 		Nodes nds = new Nodes();
 		nds.RetrieveAll();
 		String delSQL = "";
-		for (Node nd :Nodes.convertNodes(nds) )
+		for (Node nd : nds.ToJavaList())
 		{
 			delSQL += "\n DELETE FROM " + nd.getPTable() + "  ; ";
 		}
@@ -72,7 +68,7 @@ public class OutputSQLOfDeleteWork extends DataIOEn
 //        //        string sql = "INSERT INTO WF_CHOfFlow SELECT OID WorkID, " + fl.No + " as FK_Flow, WFState, ltrim(rtrim(Title)) as Title, Rec as FK_Emp,"
 //        //            + " RDT, CDT, 0 as SpanDays,'' FK_Dept,"
 //        //            + "'' as FK_Dept,'' AS FK_NY,'' as FK_AP,'' AS FK_ND, '' AS FK_YF, Rec ,'' as FK_XJ, '' as FK_Station   "
-//        //            + " FROM " + nd.HisWork.EnMap.PhysicsTable + " WHERE RDT>='" + fromDateTime + "' AND OID NOT IN ( SELECT WorkID FROM WF_CHOfFlow  )";
+//        //            + " FROM " + nd.HisWork.getEnMap().getPhysicsTable() + " WHERE RDT>='" + fromDateTime + "' AND OID NOT IN ( SELECT WorkID FROM WF_CHOfFlow  )";
 //        //        DBAccess.RunSQL(sql);
 //        //    }
 //        //    catch (Exception ex)

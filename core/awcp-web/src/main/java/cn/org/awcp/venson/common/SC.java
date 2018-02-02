@@ -16,7 +16,7 @@ public class SC {
 	public static final String USER_INFO = "userInfo";
 	public static final String USER_IP_ADDRESS = "userIpAddress";
 	public static final String PRIVILEGES_ID = "privilegesID";
-	public static final String DEFAULT_PWD = "73ab6949fc707fa7baf2626984014323a0fbcbf51f61568a";
+	public static final String DEFAULT_PWD = "791013";
 	public static final String USER_GROUP = "user_group";
 	public static final String SALT = "awcp";
 	public static final String USER_STATUS_AUDIT = "0";

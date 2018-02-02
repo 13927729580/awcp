@@ -1,89 +1,97 @@
 package BP.WF.Template;
 
-import BP.DA.*;
-import BP.En.*;
-import BP.WF.*;
-import BP.Port.*;
+import BP.En.EnType;
+import BP.En.EntityMyPK;
+import BP.En.Map;
 
-/**
- * 任务
- */
-public class Task extends EntityMyPK {
-	// C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-	// /#region 属性
-	/**
-	 * 参数
-	 */
-	public final String getParas() {
+/** 
+ 任务
+ 
+*/
+public class Task extends EntityMyPK
+{
+
+		
+	/** 
+	 参数
+	 
+	*/
+	public final String getParas()
+	{
 		return this.GetValStringByKey(TaskAttr.Paras);
 	}
-
-	public final void setParas(String value) {
+	public final void setParas(String value)
+	{
 		this.SetValByKey(TaskAttr.Paras, value);
 	}
-
-	/**
-	 * 发起人
-	 */
-	public final String getStarter() {
+	/** 
+	 发起人
+	 
+	*/
+	public final String getStarter()
+	{
 		return this.GetValStringByKey(TaskAttr.Starter);
 	}
-
-	public final void setStarter(String value) {
+	public final void setStarter(String value)
+	{
 		this.SetValByKey(TaskAttr.Starter, value);
 	}
-
-	/**
-	 * 流程编号
-	 */
-	public final String getFK_Flow() {
+	/** 
+	 流程编号
+	 
+	*/
+	public final String getFK_Flow()
+	{
 		return this.GetValStringByKey(TaskAttr.FK_Flow);
 	}
-
-	public final void setFK_Flow(String value) {
+	public final void setFK_Flow(String value)
+	{
 		this.SetValByKey(TaskAttr.FK_Flow, value);
 	}
-
-	/**
-	 * 发起时间（可以为空）
-	 */
-	public final String getStartDT() {
+	/** 
+	 发起时间（可以为空）
+	 
+	*/
+	public final String getStartDT()
+	{
 		return this.GetValStringByKey(TaskAttr.StartDT);
 	}
-
-	public final void setStartDT(String value) {
+	public final void setStartDT(String value)
+	{
 		this.SetValByKey(TaskAttr.StartDT, value);
 	}
 
-	// C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-	// /#endregion
+		///#endregion
 
-	// C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-	// /#region 构造函数
-	/**
-	 * Task
-	 */
-	public Task() {
+
+		
+	/** 
+	 Task
+	 
+	*/
+	public Task()
+	{
 	}
-
-	/**
-	 * 重写基类方法
-	 */
+	/** 
+	 重写基类方法
+	 
+	*/
 	@Override
-	public Map getEnMap() {
-		if (this.get_enMap() != null) {
+	public Map getEnMap()
+	{
+		if (this.get_enMap() != null)
+		{
 			return this.get_enMap();
 		}
-		Map map = new Map("WF_Task");
-		map.setEnDesc("任务");
-		map.setEnType(EnType.Admin);
+		Map map = new Map("WF_Task", "任务");
+		map.Java_SetEnType(EnType.Admin);
 
-		map.AddMyPK(); // 唯一的主键.
+		map.AddMyPK(); //唯一的主键.
 		map.AddTBString(TaskAttr.FK_Flow, null, "流程编号", true, false, 0, 200, 10);
 		map.AddTBString(TaskAttr.Starter, null, "发起人", true, false, 0, 200, 10);
 		map.AddTBString(TaskAttr.Paras, null, "参数", true, false, 0, 4000, 10);
 
-		// TaskSta 0=未发起，1=成功发起，2=发起失败.
+			// TaskSta 0=未发起，1=成功发起，2=发起失败.
 		map.AddTBInt(TaskAttr.TaskSta, 0, "任务状态", true, false);
 
 		map.AddTBString(TaskAttr.Msg, null, "消息", true, false, 0, 4000, 10);
@@ -93,6 +101,6 @@ public class Task extends EntityMyPK {
 		this.set_enMap(map);
 		return this.get_enMap();
 	}
-	// C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-	// /#endregion
+
+		///#endregion
 }

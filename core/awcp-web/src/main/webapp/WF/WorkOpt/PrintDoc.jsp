@@ -3,10 +3,10 @@
 <%@page import="BP.DA.*"%>
 <%@page import="BP.WF.Glo"%>
 <%@page import="BP.Tools.StringHelper"%>
-<%@page import="BP.Port.WebUser"%>
+<%@page import="BP.Web.WebUser"%>
 <%@page import="BP.WF.Dev2Interface"%>
 <%@page import="BP.WF.Entity.FrmWorkCheck"%>
-<%@page import="org.jflow.framework.common.model.PrintDocModel"%>
+<%@page import="cn.jflow.common.model.PrintDocModel"%>
 <%
 	String path = request.getContextPath();
 	String basePath = request.getScheme() + "://" 
@@ -21,7 +21,7 @@
 <head>
 <base target="_self" />
 <title>打印</title>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=gb2312">
 <meta http-equiv="pragma" content="no-cache">
 <meta http-equiv="cache-control" content="no-cache">
 <meta http-equiv="expires" content="0">

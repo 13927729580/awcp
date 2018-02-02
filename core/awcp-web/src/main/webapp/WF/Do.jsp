@@ -1,27 +1,36 @@
-<%@page import="BP.WF.Template.CC.CCList"%>
-<%@page import="BP.WF.Template.CC.CCSta"%>
+<%@page import="BP.DA.DataColumn"%>
+<%@page import="BP.Sys.MapAttr"%>
+<%@page import="BP.DA.DataTable"%>
+<%@page import="BP.WF.HttpHandler.WF_RptDfine"%>
+<%@page import="BP.En.QueryObject"%>
+<%@page import="BP.Sys.GEEntitys"%>
+<%@page import="BP.Sys.MapAttrs"%>
+<%@page import="BP.Sys.MapData"%>
+<%@page import="BP.Sys.UserRegedit"%>
+<%@page import="BP.WF.Template.CCList"%>
+<%@page import="BP.WF.Template.CCSta"%>
 <%@page import="BP.WF.Glo"%>
-<%@page import="BP.WF.Template.Flow"%>
+<%@page import="BP.WF.Flow"%>
 <%@page import="BP.WF.Dev2Interface"%>
 <%@page import="BP.WF.WorkFlow"%>
 <%@page import="BP.DA.DataType"%>
-<%@page import="BP.Port.WebUser"%>
+<%@page import="BP.Web.WebUser"%>
 <%@page import="BP.DA.Log"%>
 <%@page import="BP.Port.Emp"%>
 <%@page import="BP.WF.Entity.GenerWorkerListAttr"%>
 <%@page import="BP.WF.Entity.GenerWorkerList"%>
-<%@page import="BP.WF.Template.Node"%>
+<%@page import="BP.WF.Node"%>
 <%@page import="BP.WF.Port.WFEmps"%>
 <%@page import="BP.WF.Port.WFEmp"%>
 <%@page import="BP.WF.XML.EventListDtlList"%>
-<%@page import="BP.Sys.Frm.FrmEvents"%>
+<%@page import="BP.Sys.FrmEvents"%>
 <%@page import="BP.Sys.GEDtl"%>
 <%@page import="BP.Sys.GEDtls"%>
 <%@page import="BP.WF.Data.Bill"%>
 <%@page import="BP.Tools.StringHelper"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"	pageEncoding="UTF-8"%>
-<%@page import="org.jflow.framework.system.ui.core.*"%>
-<%@page import="org.jflow.framework.system.ui.uc.*"%>
+<%@page import="cn.jflow.system.ui.core.*"%>
+<%@page import="cn.jflow.system.ui.uc.*"%>
 <%
 	String path = request.getContextPath();
 	String basePath = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()	+ path + "/";
@@ -213,7 +222,7 @@
 	
 				BP.Port.Emp empOF = new BP.Port.Emp(wl.getFK_Emp());
 				WebUser.SignInOfGener(empOF, true);
-				String u = "MyFlow.jsp?fk_flow=" + wl.getFK_Flow() + "&WorkID=" + wl.getWorkID()+"&FK_Node="+wl.getFK_Node()+"&FID="+wl.getFID();
+				String u = "MyFlow.htm?fk_flow=" + wl.getFK_Flow() + "&WorkID=" + wl.getWorkID()+"&FK_Node="+wl.getFK_Node()+"&FID="+wl.getFID();
 				out.println("<script> window.location.href='" + u + "'</script> *^_^*  <br><br>正在进入系统请稍后，如果长时间没有反应，请<a href='" + u + "'>点这里进入。</a>");
 				return;
 		} 
@@ -222,14 +231,13 @@
 				Emp emp = new Emp(fk_emp);
 				//首先退出，再进行登录
 				WebUser.Exit();
-				WebUser.SignInOfGener(emp);
+				WebUser.SignInOfGenerLang(emp,WebUser.getSysLang());
 				base.WinClose();
 				return;
 		}
 		else if (actionType.equals("LogAs"))
 		{
 				BP.WF.Port.WFEmp wfemp = new WFEmp(fk_emp);
-				System.out.println(wfemp.getAuthorIsOK());
 				if (wfemp.getAuthorIsOK() == false)
 				{
 					base.WinCloseWithMsg("授权失败");
@@ -309,8 +317,148 @@
 				wf.DoDeleteWorkFlowByReal(true);
 				Glo.ToMsg("流程删除成功",response);
 		}
-		else
+		else if (actionType.equals("Focus"))
 		{
+			 BP.WF.Dev2Interface.Flow_Focus(workId);	
+			 base.WinClose("ss");
+			return;
+		} else if (actionType.equals("DownFlowSearchExcel")) {
+			if (StringHelper.isNullOrEmpty(fk_flow)) {
+				throw new Exception("@参数FK_Flow不能为空");
+			}
+			String searchType = request.getParameter("SearchType");
+			if (StringHelper.isNullOrEmpty(searchType)) {
+				searchType = "My";
+			}
+			String rptmd = "ND" + fk_flow + "Rpt";
+			String rptNo = rptmd + searchType;
+			UserRegedit ur = new UserRegedit();
+			ur.setMyPK(WebUser.getNo() + rptNo + "_SearchAttrs");
+			ur.RetrieveFromDBSources();
+			MapData md = new MapData(rptNo);
+			MapAttrs attrs = new MapAttrs(rptNo);
+			GEEntitys ges = new GEEntitys(rptNo);
+			QueryObject qo = new QueryObject(ges);
+			if ("My".equals(searchType)) {
+				qo.AddWhere(BP.WF.Data.GERptAttr.FlowStarter, WebUser.getNo());
+			} else if ("MyDept".equals(searchType)) {
+				qo.AddWhere(BP.WF.Data.GERptAttr.FK_Dept, WebUser.getFK_Dept());
+			} else if ("MyJoin".equals(searchType)) {
+				qo.AddWhere(BP.WF.Data.GERptAttr.FlowEmps, " LIKE ", "%"
+						+ WebUser.getNo() + "%");
+			} else if ("Adminer".equals(searchType)) {
+
+			} else {
+				throw new Exception("err@" + searchType + "标记错误.");
+			}
+			WF_RptDfine wr = new WF_RptDfine();
+			qo = wr.InitQueryObject(qo, md, ges.getGetNewEntity().getEnMap().getAttrs(), attrs, ur);
+			DataTable dt = qo.DoQueryToTable();
+			DataTable myDT = new DataTable();
+			for (MapAttr attr : MapAttrs.convertMapAttrs(attrs)) {
+				if ("MyNum".equals(attr.getKeyOfEn())) {
+					continue;
+				}
+				Class<?> t = null;
+				switch (attr.getLGType()) {
+				case Normal:
+					switch (attr.getMyDataType()) {
+					case BP.DA.DataType.AppInt:
+						t = Integer.class;
+						break;
+					case BP.DA.DataType.AppFloat:
+					case BP.DA.DataType.AppDouble:
+					case BP.DA.DataType.AppMoney:
+						t = Double.class;
+						break;
+					default:
+						t = String.class;
+					}
+					break;
+				default:
+					t = String.class;
+				}
+				myDT.Columns.Add(new DataColumn(attr.getName(), t));
+				// myDT.Columns[attr.Name].ExtendedProperties.Add("width", attr.UIWidthInt);
+				// myDT.Columns.Add("width", attr.getUIWidthInt());
+				myDT.Columns.get(attr.getName()).ExtendedProperties.Add("width", attr.getUIWidthInt());
+				if (attr.getIsNum() && attr.getLGType() == BP.En.FieldTypeS.Normal && "OID,FID,PWorkID,FlowEndNode,PNodeID".indexOf(attr.getKeyOfEn()) == -1) {
+					// myDT.Columns[attr.Name].ExtendedProperties.Add("sum", attr.IsSum);
+					// myDT.Columns.Add("sum", attr.getIsSum());
+					myDT.Columns.get(attr.getName()).ExtendedProperties.Add("sum", attr.getIsSum());
+				}
+			}
+			for (BP.DA.DataRow dr : dt.Rows) {
+				BP.DA.DataRow myDR = myDT.NewRow();
+				for (MapAttr attr : MapAttrs.convertMapAttrs(attrs)) {
+					if ("MyNum".equals(attr.getKeyOfEn())) {
+						continue;
+					}
+					switch (attr.getLGType()) {
+					case Normal:
+						switch (attr.getMyDataType()) {
+						case BP.DA.DataType.AppString:
+						case BP.DA.DataType.AppDate:
+						case BP.DA.DataType.AppDateTime:
+						case BP.DA.DataType.AppInt:
+						case BP.DA.DataType.AppFloat:
+						case BP.DA.DataType.AppDouble:
+						case BP.DA.DataType.AppMoney:
+							myDR.setValue(attr.getName(), dr.getValue(attr.getField()));
+							break;
+						case BP.DA.DataType.AppBoolean:
+							if ("0".equals(dr.getValue(attr.getField()))) {
+								myDR.setValue(attr.getName(), "否");
+							} else {
+								myDR.setValue(attr.getName(), "是");
+							}
+							break;
+						}
+						break;
+					case Enum:
+						BP.Sys.SysEnum sem = new BP.Sys.SysEnum();
+						sem.Retrieve(BP.Sys.SysEnumAttr.EnumKey, attr.getKeyOfEn(), BP.Sys.SysEnumAttr.IntKey, dr.getValue(attr.getField()));
+						myDR.setValue(attr.getName(), sem.getLab());
+						break;
+					case FK:
+						try {
+							String tabName = attr.getUIBindKey();
+							if ("FK_NY".equals(attr.getKeyOfEn())) {
+								tabName = "Pub_NY";
+							} else if ("FK_Dept".equals(attr.getKeyOfEn())) {
+								tabName = "Port_Dept";
+							}
+							// !! SELECT * FROM BP.Port.Emps WHERE NO='admin'
+							DataTable drDt = BP.DA.DBAccess.RunSQLReturnTable("SELECT * FROM " + tabName + " WHERE NO='" + dr.getValue(attr.getField()) + "'");
+							if (drDt.Rows.size() > 0) {
+								myDR.setValue(attr.getName(), drDt.Rows.get(0).getValue("NAME").toString());
+							}
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+						break;
+					case WinOpen:
+						break;
+					}
+				}
+				myDT.Rows.add(myDR);
+			}
+			BP.WF.Flow flow = new BP.WF.Flow(fk_flow);
+			String name = null;
+			if ("My".equals(searchType)) {
+				name = "我发起的流程";
+			} else if ("MyDept".equals(searchType)) {
+				name = "部门发起的流程";
+			} else if ("MyJoin".equals(searchType)) {
+				name = "我审批的流程";
+			} else if ("Adminer".equals(searchType)) {
+				name = "高级查询";
+			}
+			name += "（" + flow.getName() + "）";
+			java.text.DateFormat df = new java.text.SimpleDateFormat("yyyy年MM月dd日");
+			String filename = cn.jflow.common.util.ContextHolderUtils.getRequest().getSession().getServletContext().getRealPath("/") + "/DataUser/UploadFile/" + name + "_" + df.format(System.currentTimeMillis()) + ".xls";
+			cn.jflow.controller.wf.comm.Utilities.NpoiFuncs.DataTableToExcel(request, response, myDT, filename, name, BP.Web.WebUser.getName(), true, true, true);
+		} else {
 				throw new RuntimeException("actionType error" + actionType);
 		}
 	}

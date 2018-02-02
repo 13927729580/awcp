@@ -1,27 +1,26 @@
 package BP.WF.Port;
 
-import java.util.ArrayList;
-
-import BP.DA.*;
-import BP.En.*;
-import BP.Port.*;
+import BP.DA.DBAccess;
+import BP.En.Entities;
+import BP.En.EntityNoName;
+import BP.En.Map;
+import BP.En.RefMethod;
+import BP.En.UAC;
+import BP.Sys.MapAttrs;
+import BP.Sys.MapData;
+import BP.WF.Flow;
+import BP.WF.Flows;
 
 /** 
  Emp 的摘要说明。
- 
 */
 public class Emp extends EntityNoName
 {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	public static ArrayList<Emp> convertEmps(Object obj) {
-		return (ArrayList<Emp>) obj;
-	}
+
+
+		
 	/** 
 	 主要的部门。
-	 
 	*/
 	public final Dept getHisDept()
 	{
@@ -37,7 +36,6 @@ public class Emp extends EntityNoName
 	}
 	/** 
 	 工作岗位集合。
-	 
 	*/
 	public final Stations getHisStations()
 	{
@@ -48,7 +46,6 @@ public class Emp extends EntityNoName
 	}
 	/** 
 	 部门
-	 
 	*/
 	public final String getFK_Dept()
 	{
@@ -64,7 +61,6 @@ public class Emp extends EntityNoName
 	}
 	/** 
 	 密码
-	 
 	*/
 	public final String getPass()
 	{
@@ -74,8 +70,6 @@ public class Emp extends EntityNoName
 	{
 		this.SetValByKey(EmpAttr.Pass, value);
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
 
 	public final boolean CheckPass(String pass)
 	{
@@ -87,14 +81,12 @@ public class Emp extends EntityNoName
 	}
 	/** 
 	 工作人员
-	 
 	*/
 	public Emp()
 	{
 	}
 	/** 
 	 工作人员编号
-	 
 	 @param _No No
 	*/
 	public Emp(String no)
@@ -119,7 +111,6 @@ public class Emp extends EntityNoName
 	}
 	/** 
 	 UI界面上的访问控制
-	 
 	*/
 	@Override
 	public UAC getHisUAC()
@@ -130,7 +121,6 @@ public class Emp extends EntityNoName
 	}
 	/** 
 	 重写基类方法
-	 
 	*/
 	@Override
 	public Map getEnMap()
@@ -140,20 +130,8 @@ public class Emp extends EntityNoName
 			return this.get_enMap();
 		}
 
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-			///#region 基本属性
-		Map map = new Map();
-		map.setEnDBUrl (new DBUrl(DBUrlType.AppCenterDSN)); //要连接的数据源（表示要连接到的那个系统数据库）。
-		map.setPhysicsTable ("Port_Emp"); // 要物理表。
-		map.setDepositaryOfMap (Depositary.Application); //实体map的存放位置.
-		map.setDepositaryOfEntity (Depositary.Application); //实体存放位置
-		map.setEnDesc("用户"); // "用户"; // 实体的描述.
-		map.setEnType( EnType.App); //实体类型。
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-			///#endregion
+		Map map = new Map("Port_Emp", "用户");
 
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-			///#region 字段
 			//关于字段属性的增加 
 		map.AddTBStringPK(EmpAttr.No, null, "编号", true, false, 1, 20, 100);
 		map.AddTBString(EmpAttr.Name, null, "名称", true, false, 0, 100, 100);
@@ -161,15 +139,10 @@ public class Emp extends EntityNoName
 		map.AddDDLEntities(EmpAttr.FK_Dept, null, "部门", new BP.Port.Depts(), true);
 		map.AddTBString(EmpAttr.SID, null, "SID", false, false, 0, 20, 10);
 
-		  //  map.AddTBString(EmpAttr.FK_Unit, "1", "隶属单位", false, false, 0, 50, 10);
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-			///#endregion 字段
-
 		map.AddSearchAttr(EmpAttr.FK_Dept); //查询条件.
 
 			//增加点对多属性 一个操作员的部门查询权限与岗位权限.
 		map.getAttrsOfOneVSM().Add(new EmpStations(), new Stations(), EmpStationAttr.FK_Emp, EmpStationAttr.FK_Station, DeptAttr.Name, DeptAttr.No, "岗位权限");
-		map.getAttrsOfOneVSM().Add(new EmpDepts(), new Depts(), EmpDeptAttr.FK_Emp, EmpDeptAttr.FK_Dept, DeptAttr.Name, DeptAttr.No, "工作部门");
 
 		RefMethod rm = new RefMethod();
 		rm.Title = "禁用";
@@ -181,12 +154,133 @@ public class Emp extends EntityNoName
 		rm.Warning = "您确定要执行吗?";
 		rm.ClassMethodName = this.toString() + ".DoEnableIt";
 		map.AddRefMethod(rm);
-		this.set_enMap (map);
+
+
+
+		rm = new RefMethod();
+		rm.Title = "更改登录帐号";
+		rm.Warning = "您确定要处理吗？如果确定，该用户当前的待办信息一起其他的流程信息都会被重置到新编号里。";
+		rm.getHisAttrs().AddTBString("FieldNew", null, "新帐号", true, false, 0, 100, 100);
+		rm.ClassMethodName = this.toString() + ".DoChangeUserNo";
+		map.AddRefMethod(rm);
+
+
+		this.set_enMap(map);
 		return this.get_enMap();
 	}
 	/** 
-	 执行禁用
+	 重置当前用户编号
 	 
+	 @param userNo 当前用户编号
+	 @return 返回重置信息
+	*/
+	public final String DoChangeUserNo(String userNo)
+	{
+		if ( ! BP.Web.WebUser.getNo().equals("admin"))
+		{
+			return "非超级管理员，不能执行。";
+		}
+
+		String msg = "";
+		int i = 0;
+		//更新待办.
+		String sql = "update wf_generworkerlist set fk_emp='"+userNo+"' where fk_emp='"+this.getNo()+"'";
+		i= BP.DA.DBAccess.RunSQL(sql);
+		if (i != 0)
+		{
+			msg += "@待办更新[" + i + "]个。";
+		}
+
+		sql = "UPDATE WF_GENERWORKFLOW  SET STARTER='"+userNo+"'  WHERE STARTER='"+this.getNo()+"'";
+		i = BP.DA.DBAccess.RunSQL(sql);
+		if (i != 0)
+		{
+			msg += "@流程注册更新[" + i + "]个。";
+		}
+
+
+		//更换流程信息的数据表
+		BP.WF.Flows fls = new Flows();
+		fls.RetrieveAll();
+		for (Flow fl : fls.ToJavaList())
+		{
+			sql = "UPDATE " + fl.getPTable() + " SET FlowEnder='" + userNo + "' WHERE FlowEnder='" + this.getNo() + "'";
+			i = DBAccess.RunSQL(sql);
+
+			if (i != 0)
+			{
+				msg += "@流程注册更新[" + i + "]个。";
+			}
+
+			sql = "UPDATE  " + fl.getPTable() + "  SET FlowStarter='" + userNo + "' WHERE FlowStarter='" + this.getNo() + "'";
+			i = DBAccess.RunSQL(sql);
+			if (i != 0)
+			{
+				msg += "@流程业务表发起人，更新了[" + i + "]个。";
+			}
+
+
+			sql = "UPDATE  " + fl.getPTable() + "  SET Rec='" + userNo + "' WHERE Rec='" + this.getNo() + "'";
+			i = DBAccess.RunSQL(sql);
+			if (i != 0)
+			{
+				msg += "@流程业务表记录人，更新了[" + i + "]个。";
+			}
+
+			String trackTable = "ND" + Integer.parseInt(fl.getNo()) + "Track";
+			sql = "UPDATE  " + trackTable + "  SET EmpFrom='" + userNo + "' WHERE EmpFrom='" + this.getNo() + "'";
+			i = DBAccess.RunSQL(sql);
+			if (i != 0)
+			{
+				msg += "@轨迹表 EmpFrom，更新了[" + i + "]个。";
+			}
+
+
+			sql = "UPDATE  " + trackTable + "  SET EmpTo='" + userNo + "' WHERE EmpTo='" + this.getNo() + "'";
+			i = DBAccess.RunSQL(sql);
+			if (i != 0)
+			{
+				msg += "@轨迹表 EmpTo，更新了[" + i + "]个。";
+			}
+
+
+			sql = "UPDATE  " + trackTable + "  SET Exer='" + userNo + "' WHERE Exer='" + this.getNo() + "'";
+			i = DBAccess.RunSQL(sql);
+			if (i != 0)
+			{
+				msg += "@轨迹表 Exer，更新了[" + i + "]个。";
+			}
+		}
+
+
+		//更新其他字段.
+		BP.Sys.MapAttrs attrs = new MapAttrs();
+		attrs.RetrieveAll();
+		for (BP.Sys.MapAttr attr : attrs.ToJavaList())
+		{
+			if (attr.getDefValReal().contains("WebUser.No") == true)
+			{
+				try
+				{
+					BP.Sys.MapData md = new MapData(attr.getFK_MapData());
+					sql = "UPDATE " + md.getPTable() + " SET " + attr.getKeyOfEn() + "='" + userNo + "' WHERE " + attr.getKeyOfEn() + "='" + this.getNo() + "'";
+					i = DBAccess.RunSQL(sql);
+					if (i != 0)
+					{
+						msg += "@表[" + md.getName() + "],[" + md.getPTable() + "] [" + attr.getKeyOfEn() + "]，更新了[" + i + "]个。";
+					}
+				}
+				catch (java.lang.Exception e)
+				{
+
+				}
+			}
+		}
+		//人员主表信息-手动修改
+		return msg;
+	}
+	/** 
+	 执行禁用
 	*/
 	public final String DoDisableIt()
 	{
@@ -197,7 +291,6 @@ public class Emp extends EntityNoName
 	}
 	/** 
 	 执行启用
-	 
 	*/
 	public final String DoEnableIt()
 	{

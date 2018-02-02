@@ -1,5 +1,7 @@
 package BP.WF;
 
+import java.security.MessageDigest;
+
 public class Cryptography{
 //	public static int HostToNetworkOrder(int inval)
 //	{
@@ -72,7 +74,7 @@ public class Cryptography{
 //		String[] arr = codeSerial.split("[,]", -1);
 //		String code = "";
 //		int randValue = -1;
-////C# TO JAVA CONVERTER TODO TASK: There is no Java equivalent to 'unchecked' in this context:
+////TASK: There is no Java equivalent to 'unchecked' in this context:
 ////ORIGINAL LINE: Random rand = new Random(unchecked((int)DateTime.Now.Ticks));
 //		java.util.Random rand = new java.util.Random((int)new java.util.Date().Ticks);
 //		for (int i = 0; i < codeLen; i++)
@@ -95,16 +97,16 @@ public class Cryptography{
 //		aes.Mode = CipherMode.CBC;
 //		aes.setKey(Key);
 //		aes.IV = Iv;
-////C# TO JAVA CONVERTER TODO TASK: There is no equivalent to implicit typing in Java:
+//
 //		var encrypt = aes.CreateEncryptor(aes.getKey(), aes.IV);
 //		byte[] xBuff = null;
 //
-////C# TO JAVA CONVERTER NOTE: The following 'using' block is replaced by its Java equivalent:
+//
 ////		using (var ms = new MemoryStream())
 //		MemoryStream ms = new MemoryStream();
 //		try
 //		{
-////C# TO JAVA CONVERTER NOTE: The following 'using' block is replaced by its Java equivalent:
+//
 ////			using (var cs = new CryptoStream(ms, encrypt, CryptoStreamMode.Write))
 //			CryptoStream cs = new CryptoStream(ms, encrypt, CryptoStreamMode.Write);
 //			try
@@ -139,32 +141,32 @@ public class Cryptography{
 //		aes.Mode = CipherMode.CBC;
 //		aes.setKey(Key);
 //		aes.IV = Iv;
-////C# TO JAVA CONVERTER TODO TASK: There is no equivalent to implicit typing in Java:
+//
 //		var encrypt = aes.CreateEncryptor(aes.getKey(), aes.IV);
 //		byte[] xBuff = null;
 //
-////C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-//			///#region 自己进行PKCS7补位，用系统自己带的不行
+//
+//		///#region 自己进行PKCS7补位，用系统自己带的不行
 //		byte[] msg = new byte[Input.length + 32 - Input.length % 32];
 //		System.arraycopy(Input, 0, msg, 0, Input.length);
 //		byte[] pad = KCS7Encoder(Input.length);
 //		System.arraycopy(pad, 0, msg, Input.length, pad.length);
-////C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-//			///#endregion
 //
-////C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-//			///#region 注释的也是一种方法，效果一样
+//		///#endregion
+//
+//
+//		///#region 注释的也是一种方法，效果一样
 //		//ICryptoTransform transform = aes.CreateEncryptor();
 //		//byte[] xBuff = transform.TransformFinalBlock(msg, 0, msg.Length);
-////C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-//			///#endregion
 //
-////C# TO JAVA CONVERTER NOTE: The following 'using' block is replaced by its Java equivalent:
+//		///#endregion
+//
+//
 ////		using (var ms = new MemoryStream())
 //		MemoryStream ms = new MemoryStream();
 //		try
 //		{
-////C# TO JAVA CONVERTER NOTE: The following 'using' block is replaced by its Java equivalent:
+//
 ////			using (var cs = new CryptoStream(ms, encrypt, CryptoStreamMode.Write))
 //			CryptoStream cs = new CryptoStream(ms, encrypt, CryptoStreamMode.Write);
 //			try
@@ -225,15 +227,15 @@ public class Cryptography{
 //		aes.Padding = PaddingMode.None;
 //		aes.setKey(Key);
 //		aes.IV = Iv;
-////C# TO JAVA CONVERTER TODO TASK: There is no equivalent to implicit typing in Java:
+//
 //		var decrypt = aes.CreateDecryptor(aes.getKey(), aes.IV);
 //		byte[] xBuff = null;
-////C# TO JAVA CONVERTER NOTE: The following 'using' block is replaced by its Java equivalent:
+//
 ////		using (var ms = new MemoryStream())
 //		MemoryStream ms = new MemoryStream();
 //		try
 //		{
-////C# TO JAVA CONVERTER NOTE: The following 'using' block is replaced by its Java equivalent:
+//
 ////			using (var cs = new CryptoStream(ms, decrypt, CryptoStreamMode.Write))
 //			CryptoStream cs = new CryptoStream(ms, decrypt, CryptoStreamMode.Write);
 //			try
@@ -266,4 +268,59 @@ public class Cryptography{
 //		System.arraycopy(decrypted, 0, res, 0, decrypted.length - pad);
 //		return res;
 //	}
+	/** 加密字符串
+	 
+	 @param encryptString 传入加密字符串
+	 @return 加密后字符
+*/
+	public static String EncryptString(String encryptString)
+	{
+		String strEncrypt = encryptString;
+		if (DotNetToJavaStringHelper.isNullOrEmpty(encryptString))
+		{
+			return encryptString;
+		}
+
+		strEncrypt = MD5_Encrypt(strEncrypt);
+		strEncrypt = MD5_Encrypt(strEncrypt);
+		return strEncrypt.toUpperCase();
+	}
+	
+	/** 使用指定的编码将字符串散列 
+	 
+	 @param encryptString 要散列的字符串 
+	 @return 散列后的字符串 
+*/
+	public static String MD5_Encrypt(String encryptString)
+	{
+		/*Cryptography.MD5 md5 = new System.Security.Cryptography.MD5CryptoServiceProvider();
+		byte[] source = md5.ComputeHash(Encoding.Default.GetBytes(encryptString));
+		StringBuilder sBuilder = new StringBuilder();
+		for (int i = 0; i < source.length; i++)
+		{
+			sBuilder.append(String.format("%02X", source[i]));
+		}*/
+		MessageDigest md5 = null;  
+        try{  
+            md5 = MessageDigest.getInstance("MD5");  
+        }catch (Exception e){  
+            System.out.println(e.toString());  
+            e.printStackTrace();  
+            return "";  
+        }  
+        char[] charArray = encryptString.toCharArray();  
+        byte[] byteArray = new byte[charArray.length];  
+  
+        for (int i = 0; i < charArray.length; i++)  
+            byteArray[i] = (byte) charArray[i];  
+        byte[] md5Bytes = md5.digest(byteArray);  
+        StringBuffer hexValue = new StringBuffer();  
+        for (int i = 0; i < md5Bytes.length; i++){  
+            int val = ((int) md5Bytes[i]) & 0xff;  
+            if (val < 16)  
+                hexValue.append("0");  
+            hexValue.append(Integer.toHexString(val));  
+        }  
+		return hexValue.toString();
+	}
 }

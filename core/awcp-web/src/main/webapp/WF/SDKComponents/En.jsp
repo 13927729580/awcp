@@ -1,12 +1,17 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-	pageEncoding="UTF-8"%>
-<%@ include file="/head/head.jsp"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%-- <%@ include file="/WF/head/head2.jsp"%> --%>
+<%@page import="cn.jflow.common.app.*"%>
+<%@page import="cn.jflow.common.model.*"%>
+<%@page import="cn.jflow.model.designer.*"%>
+<%@page import="cn.jflow.controller.wf.workopt.AllotTaskController" %>
+
 <%
+	String path = request.getContextPath();
+	String basePath = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()	+ path + "/";
 	EnModel enModel = new EnModel(request, response);
 	enModel.loadMyFlowEn();
 %>
 <link title="default" rel="stylesheet" type="text/css" href="<%=basePath%>WF/Style/style_oss.css" />
-
 <script type="text/javascript" src="<%=basePath%>WF/Scripts/main.js"></script>
 <script type="text/javascript" src="<%=basePath%>DataUser/PrintTools/LodopFuncs.js"></script>
 <script type="text/javascript" src="<%=basePath%>WF/SDKComponents/Base/SDKData.js"></script>
@@ -117,6 +122,22 @@
 		document.getElementById(id).value = newWindow;
 	  	 return;
 	}
+	function TBHelp(ctrl, enName) {
+        //alert(ctrl + "-" + enName);
+        var explorer = window.navigator.userAgent;
+        var str = "";
+        var url = "<%=basePath%>WF/Comm/HelperOfTBEUI.jsp?EnsName=" + enName + "&AttrKey=" + ctrl + "&WordsSort=0" + "&FK_MapData=" + enName + "&id=" + ctrl;
+        if (explorer.indexOf("Chrome") >= 0) {
+            window.open(url, "sd", "left=200,height=500,top=150,width=600,location=yes,menubar=no,resizable=yes,scrollbars=yes,status=no,toolbar=no");
+        }
+        else {
+            str = window.showModalDialog(url, 'sd', 'dialogHeight: 500px; dialogWidth:600px; dialogTop: 150px; dialogLeft: 200px; center: no; help: no');
+            if (str == undefined)
+                return;
+            ctrl = ctrl.replace("WorkCheck", "TB");
+            $("*[id$=" + ctrl + "]").focus().val(str);
+        }
+    }
 </script>
 <%=enModel.scriptsBlock.toString() %>
 </head>

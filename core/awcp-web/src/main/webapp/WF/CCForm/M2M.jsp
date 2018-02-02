@@ -1,7 +1,7 @@
-<%@page import="org.jflow.framework.common.model.M2mModel"%>
+<%@page import="cn.jflow.common.model.M2mModel"%>
 <%@ page language="java" isELIgnored="false" import="java.util.*"
 	pageEncoding="utf-8"%>
-<%@page import="org.jflow.framework.common.model.SingleAttachmentUploadModel"%>
+<%@page import="cn.jflow.common.model.SingleAttachmentUploadModel"%>
 <%
 	String path = request.getContextPath();
 	String basePath = request.getScheme() + "://" 

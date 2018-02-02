@@ -1,7 +1,8 @@
-<%@page import="BP.WF.Template.PubLib.StartGuideWay"%>
+<%@page import="BP.WF.Template.StartGuideWay"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"	pageEncoding="UTF-8"%>
 <%@page import="BP.DA.*"%>
-<%@page import="BP.Port.WebUser"%>
+<%@page import="BP.Web.WebUser"%>
+<%@page import="BP.WF.Flow"%>
 <%
 	String path = request.getContextPath();
 	String basePath = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()	+ path + "/";
@@ -106,7 +107,8 @@ function onSubmit(){
             	<hr>
             	<%
             		StartGuideWay startGuidWay = fl.getStartGuideWay();
-            	    if(StartGuideWay.BySystemUrlOne == startGuidWay || StartGuideWay.BySystemUrlOneEntity == startGuidWay){
+            	    //if(StartGuideWay.BySystemUrlOne == startGuidWay || StartGuideWay.BySystemUrlOneEntity == startGuidWay){
+            		if(StartGuideWay.BySystemUrlOneEntity == startGuidWay){
             	%>
 		            	<Table width='100%' >
 		            		<TR>
@@ -124,7 +126,7 @@ function onSubmit(){
 		            	    <%
 		            	    	// 输出数据.
 		                    	int idx1 = 0; 
-		            	    	String url1 = basePath+"WF/MyFlow.jsp?FK_Flow="+FK_Flow+"&FK_Node="+Integer.valueOf(FK_Flow)+"01&WorkID=0&IsCheckGuide=1";
+		            	    	String url1 = basePath+"WF/MyFlow.htm?FK_Flow="+FK_Flow+"&FK_Node="+Integer.valueOf(FK_Flow)+"01&WorkID=0&IsCheckGuide=1";
 		            	    	for(DataRow dr : dt.Rows){
 		            	    		idx1++;
 		            	    %>
@@ -166,7 +168,7 @@ function onSubmit(){
 	            	<%
             	 }else if(StartGuideWay.ByHistoryUrl == startGuidWay){
             	 			if(dt.Rows.size() == 0){
-            	 				String url = basePath+"WF/MyFlow.jsp?FK_Flow="+FK_Flow+"&FK_Node="+Integer.valueOf(FK_Flow)+"01&WorkID=0&IsCheckGuide=1";
+            	 				String url = basePath+"WF/MyFlow.htm?FK_Flow="+FK_Flow+"&FK_Node="+Integer.valueOf(FK_Flow)+"01&WorkID=0&IsCheckGuide=1";
             	 				response.sendRedirect(url);
             	 			}else{
             	 	%>		
@@ -186,7 +188,7 @@ function onSubmit(){
 				            	    <%
 				            	    	// 输出数据.
 				                    	int idx2 = 0; 
-				            	    	String url2 = basePath+"WF/MyFlow.jsp?FK_Flow="+FK_Flow+"&FK_Node="+Integer.valueOf(FK_Flow)+"01&WorkID=0&IsCheckGuide=1";
+				            	    	String url2 = basePath+"WF/MyFlow.htm?FK_Flow="+FK_Flow+"&FK_Node="+Integer.valueOf(FK_Flow)+"01&WorkID=0&IsCheckGuide=1";
 				            	    	for(DataRow dr : dt.Rows){
 				            	    		idx2++;
 				            	    %>

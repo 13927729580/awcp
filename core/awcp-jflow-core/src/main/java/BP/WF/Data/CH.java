@@ -1,21 +1,18 @@
 package BP.WF.Data;
 
-import BP.DA.Depositary;
 import BP.En.EntityMyPK;
 import BP.En.Map;
 import BP.En.UAC;
-import BP.WF.Comm.CHSta;
 
 /** 
-时效考核
- 
+ 时效考核
+  
 */
 public class CH extends EntityMyPK
 {
-		///#region 基本属性
+		
 	/** 
 	 考核状态
-	 
 	*/
 	public final CHSta getCHSta()
 	{
@@ -27,7 +24,6 @@ public class CH extends EntityMyPK
 	}
 	/** 
 	 时间到
-	 
 	*/
 	public final String getDTTo()
 	{
@@ -101,57 +97,61 @@ public class CH extends EntityMyPK
 	 限期
 	 
 	*/
-	public final String getTSpan()
+	public final int getTimeLimit()
 	{
-		return this.GetValStringByKey(CHAttr.TSpan);
+		return this.GetValIntByKey(CHAttr.TimeLimit);
 	}
-	public final void setTSpan(String value)
+	public final void setTimeLimit(int value)
 	{
-		this.SetValByKey(CHAttr.TSpan, value);
+		this.SetValByKey(CHAttr.TimeLimit, value);
 	}
 	/** 
 	 实际完成用时.
 	 
 	*/
-	public final int getUseMinutes()
+	public final float getUseDays()
 	{
-		return this.GetValIntByKey(CHAttr.UseMinutes);
+		return this.GetValFloatByKey(CHAttr.UseDays);
 	}
-	public final void setUseMinutes(int value)
+	public final void setUseDays(float value)
+	{
+		this.SetValByKey(CHAttr.UseDays, value);
+	}
+	/** 
+	 逾期时间
+	 
+	*/
+	public final float getOverDays()
+	{
+		return this.GetValFloatByKey(CHAttr.OverDays);
+	}
+	public final void setOverDays(float value)
+	{
+		this.SetValByKey(CHAttr.OverDays, value);
+	}
+	/** 
+	 用时（分钟）
+	 
+	*/
+	public final float getUseMinutes()
+	{
+		return this.GetValFloatByKey(CHAttr.UseMinutes);
+	}
+	public final void setUseMinutes(float value)
 	{
 		this.SetValByKey(CHAttr.UseMinutes, value);
 	}
-	public final String getUseTime()
-	{
-		return this.GetValStringByKey(CHAttr.UseTime);
-	}
-	public final void setUseTime(String value)
-	{
-		this.SetValByKey(CHAttr.UseTime, value);
-	}
 	/** 
-	 超过时限
+	 超时（分钟）
 	 
 	*/
-	public final int getOverMinutes()
+	public final float getOverMinutes()
 	{
-		return this.GetValIntByKey(CHAttr.OverMinutes);
+		return this.GetValFloatByKey(CHAttr.OverMinutes);
 	}
-	public final void setOverMinutes(int value)
+	public final void setOverMinutes(float value)
 	{
 		this.SetValByKey(CHAttr.OverMinutes, value);
-	}
-	/** 
-	 预期
-	 
-	*/
-	public final String getOverTime()
-	{
-		return this.GetValStringByKey(CHAttr.OverTime);
-	}
-	public final void setOverTime(String value)
-	{
-		this.SetValByKey(CHAttr.OverTime, value);
 	}
 	/** 
 	 操作人员
@@ -176,6 +176,42 @@ public class CH extends EntityMyPK
 	public final void setFK_EmpT(String value)
 	{
 		this.SetValByKey(CHAttr.FK_EmpT, value);
+	}
+	/** 
+	 相关当事人
+	 
+	*/
+	public final String getGroupEmps()
+	{
+		return this.GetValStringByKey(CHAttr.GroupEmps);
+	}
+	public final void setGroupEmps(String value)
+	{
+		this.SetValByKey(CHAttr.GroupEmps, value);
+	}
+	/** 
+	 相关当事人名称
+	 
+	*/
+	public final String getGroupEmpsNames()
+	{
+		return this.GetValStringByKey(CHAttr.GroupEmpsNames);
+	}
+	public final void setGroupEmpsNames(String value)
+	{
+		this.SetValByKey(CHAttr.GroupEmpsNames, value);
+	}
+	/** 
+	 相关当事人数量
+	 
+	*/
+	public final int getGroupEmpsNum()
+	{
+		return this.GetValIntByKey(CHAttr.GroupEmpsNum);
+	}
+	public final void setGroupEmpsNum(int value)
+	{
+		this.SetValByKey(CHAttr.GroupEmpsNum, value);
 	}
 	/** 
 	 部门
@@ -217,13 +253,13 @@ public class CH extends EntityMyPK
 	 周
 	 
 	*/
-	public final int getWeek()
+	public final int getWeekNum()
 	{
-		return this.GetValIntByKey(CHAttr.Week);
+		return this.GetValIntByKey(CHAttr.WeekNum);
 	}
-	public final void setWeek(int value)
+	public final void setWeekNum(int value)
 	{
-		this.SetValByKey(CHAttr.Week, value);
+		this.SetValByKey(CHAttr.WeekNum, value);
 	}
 	/** 
 	 工作ID
@@ -273,11 +309,11 @@ public class CH extends EntityMyPK
 	{
 		this.SetValByKey(CHAttr.FK_NodeT, value);
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
+
 		///#endregion
 
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 构造方法
+
+		
 	/** 
 	 UI界面上的访问控制
 	 
@@ -308,10 +344,10 @@ public class CH extends EntityMyPK
 	{
 		super(pk);
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
+
 		///#endregion
 
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
+
 		///#region Map
 	/** 
 	 EnMap
@@ -324,15 +360,12 @@ public class CH extends EntityMyPK
 		{
 			return this.get_enMap();
 		}
-		Map map = new Map("WF_CH");
-		map.setDepositaryOfMap(Depositary.None);
-		map.setEnDesc("时效考核");
+
+		Map map = new Map("WF_CH", "时效考核");
 
 		map.AddMyPK();
-
 		map.AddTBInt(CHAttr.WorkID, 0, "工作ID", false, true);
 		map.AddTBInt(CHAttr.FID, 0, "FID", false, true);
-
 		map.AddTBString(CHAttr.Title, null, "标题", false, false, 0, 900, 5);
 
 		map.AddTBString(CHAttr.FK_Flow, null, "流程", false, false, 3, 3, 3);
@@ -341,57 +374,41 @@ public class CH extends EntityMyPK
 		map.AddTBInt(CHAttr.FK_Node, 0, "节点", false, false);
 		map.AddTBString(CHAttr.FK_NodeT, null, "节点名称", true, true, 0, 50, 5);
 
+		map.AddTBString(CHAttr.FK_Emp, null, "当事人", true, true, 0, 30, 3);
+		map.AddTBString(CHAttr.FK_EmpT, null, "当事人名称", true, true, 0, 50, 5);
+
+			//为邓州增加的属性. 解决多人处理一个节点的工作的问题.
+		map.AddTBString(CHAttr.GroupEmps, null, "相关当事人", true, true, 0, 30, 3);
+		map.AddTBString(CHAttr.GroupEmpsNames, null, "相关当事人名称", true, true, 0, 30, 3);
+		map.AddTBInt(CHAttr.GroupEmpsNum, 1, "相关当事人数量", false, false);
+
+
 		map.AddTBString(CHAttr.DTFrom, null, "时间从", true, true, 0, 50, 5);
 		map.AddTBString(CHAttr.DTTo, null, "到", true, true, 0, 50, 5);
 		map.AddTBString(CHAttr.SDT, null, "应完成日期", true, true, 0, 50, 5);
 
-		map.AddTBString(CHAttr.TSpan, null, "规定限期", true, true, 0, 50, 5);
-
-		map.AddTBInt(CHAttr.UseMinutes, 0, "实际使用分钟", false, true);
-		map.AddTBString(CHAttr.UseTime, null, "实际使用时间", true, true, 0, 50, 5);
-
-		map.AddTBInt(CHAttr.OverMinutes, 0, "逾期分钟", false, true);
-		map.AddTBString(CHAttr.OverTime, null, "逾期", true, true, 0, 50, 5);
-
 		map.AddTBString(CHAttr.FK_Dept, null, "隶属部门", true, true, 0, 50, 5);
 		map.AddTBString(CHAttr.FK_DeptT, null, "部门名称", true, true, 0, 50, 5);
-
-		map.AddTBString(CHAttr.FK_Emp, null, "当事人", true, true, 0, 30, 3);
-		map.AddTBString(CHAttr.FK_EmpT, null, "当事人名称", true, true, 0, 50, 5);
-
 		map.AddTBString(CHAttr.FK_NY, null, "隶属月份", true, true, 0, 10, 10);
-		map.AddTBInt(CHAttr.Week, 0, "第几周", false, true);
 
-		map.AddTBInt(CHAttr.FID, 0, "FID", false, true);
+			///#endregion 基本属性.
+
+
+			///#region 计算属性.
+		map.AddTBString(CHAttr.TimeLimit, null, "规定限期", true, true, 0, 50, 5);
+		map.AddTBFloat(CHAttr.OverMinutes, 0, "逾期分钟", false, true);
+		map.AddTBFloat(CHAttr.UseDays, 0, "实际使用天", false, true);
+		map.AddTBFloat(CHAttr.OverDays, 0, "逾期天", false, true);
 		map.AddTBInt(CHAttr.CHSta, 0, "状态", true, true);
+		map.AddTBInt(CHAttr.WeekNum, 0, "第几周", false, true);
 		map.AddTBIntMyNum();
 
-			//map.AddSearchAttr(CHAttr.FK_Dept);
-			//map.AddSearchAttr(CHAttr.FK_NY);
-			//map.AddSearchAttr(CHAttr.FK_Emp);
-
-			//RefMethod rm = new RefMethod();
-			//rm.Title = "打开";
-			//rm.ClassMethodName = this.ToString() + ".DoOpen";
-			//rm.Icon = "/WF/Img/FileType/doc.gif";
-			//map.AddRefMethod(rm);
-
-			//rm = new RefMethod();
-			//rm.Title = "打开";
-			//rm.ClassMethodName = this.ToString() + ".DoOpenPDF";
-			//rm.Icon = "/WF/Img/FileType/pdf.gif";
-			//map.AddRefMethod(rm);
+			///#endregion 计算属性.
 
 		this.set_enMap(map);
 		return this.get_enMap();
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
+
 		///#endregion
 
-	@Override
-	protected boolean beforeUpdateInsertAction()
-	{
-		return super.beforeUpdateInsertAction();
-	}
 }
-

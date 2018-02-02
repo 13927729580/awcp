@@ -44,7 +44,7 @@ function callBack(jsonData, scope) {
             columns: [[
                    { title: '标题', field: 'Title', width: 340, align: 'left', formatter: function (value, rec) {
 
-                       var h = "../WF/WFRpt.aspx?WorkID=" + rec.WorkID + "&FK_Flow=" + rec.FK_Flow + "&FID=" + rec.FID + "&T=" + dateNow;
+                       var h = "../WF/WFRpt.jsp?WorkID=" + rec.WorkID + "&FK_Flow=" + rec.FK_Flow + "&FID=" + rec.FID + "&T=" + dateNow;
                        return "<a href='javascript:void(0);' onclick=winOpen('" + h + "')><img align='middle' border=0 width='20' height='20' src='Img/Menu/Runing.png'/>" + rec.Title + "</a>";
 
                    }

@@ -1,15 +1,13 @@
 package BP.WF.DTS;
 
-import BP.DA.*;
-
-import BP.WF.Template.Flow;
-import BP.WF.Template.Flows;
-import BP.WF.Template.PubLib.WFState;
-import BP.Port.*;
-import BP.En.*;
-import BP.Sys.*;
-import BP.Sys.Frm.MapData;
+import BP.DA.DBAccess;
+import BP.DA.DataTable;
+import BP.En.Method;
+import BP.Sys.MapData;
 import BP.Tools.StringHelper;
+import BP.WF.Flow;
+import BP.WF.Flows;
+import BP.WF.WFState;
 
 /** 
  Method 的摘要说明
@@ -23,7 +21,7 @@ public class GenerDustbinData extends Method
 	*/
 	public GenerDustbinData()
 	{
-		this.Title = "找出因为ccflow内部的错误而产生的垃圾数据";
+		this.Title = "找出因为ccbpm内部的错误而产生的垃圾数据";
 		this.Help = "系统不去自动修复它，需要手工的确定原因。";
 		this.Icon = "<img src='/WF/Img/Btn/Card.gif'  border=0 />";
 	}
@@ -61,7 +59,7 @@ public class GenerDustbinData extends Method
 		String msg = "";
 		Flows fls = new Flows();
 		fls.RetrieveAll();
-		for (Flow fl : Flows.convertFlows(fls) )
+		for (Flow fl : fls.ToJavaList())
 		{
 			String rptTable = "ND" + Integer.parseInt(fl.getNo()) + "Rpt";
 			String fk_mapdata = "ND" + Integer.parseInt(fl.getNo()) + "01";

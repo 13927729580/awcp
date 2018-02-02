@@ -6,7 +6,7 @@
 		helperOfDDLModel.loadPage();
 	%>
 	
-<%@ include file="/head/head1.jsp"%>
+<%@ include file="/WF/head/head1.jsp"%>
 <title>感谢您选择</title>
 <script type="text/javascript">
 	function Btn_OK_Click(){

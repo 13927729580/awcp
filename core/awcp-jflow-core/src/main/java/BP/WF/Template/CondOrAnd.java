@@ -1,9 +1,5 @@
 package BP.WF.Template;
 
-import BP.DA.*;
-import BP.Sys.*;
-import BP.En.*;
-import BP.WF.Port.*;
 
 /** 
  关系类型

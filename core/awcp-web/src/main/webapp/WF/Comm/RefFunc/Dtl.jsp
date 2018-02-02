@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<%@ include file="/head/head1.jsp"%>
+<%@ include file="/WF/head/head1.jsp"%>
 <%
 	RefLeftModel RefLeft = new RefLeftModel(request, basePath);
 	RefLeft.init();
@@ -65,7 +65,6 @@ function OpenUrlInRightFrame(ele, url) {
 //var fields = JSON.stringify($("input[name^='TB_Url_879']").serializeArray());
 function onSave(){
 	var param = window.location.search;
-	
 	$("#FormHtml").val($("#form1").html());
 	var url = "<%=basePath%>DES/DtlSave.do"+param;
 	$("#form1").attr("action", url);

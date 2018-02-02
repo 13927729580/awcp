@@ -7,19 +7,11 @@ import BP.En.UAC;
 
 /** 
  部门岗位对应 的摘要说明。
- 
 */
 public class DeptStation extends Entity
 {
-/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 基本属性
 	/** 
 	 UI界面上的访问控制
-	 
 	*/
 	@Override
 	public UAC getHisUAC()
@@ -31,7 +23,6 @@ public class DeptStation extends Entity
 	}
 	/** 
 	 部门
-	 
 	*/
 	public final String getFK_Dept()
 	{
@@ -47,7 +38,6 @@ public class DeptStation extends Entity
 	}
 	/** 
 	岗位
-	 
 	*/
 	public final String getFK_Station()
 	{
@@ -57,34 +47,22 @@ public class DeptStation extends Entity
 	{
 		SetValByKey(DeptStationAttr.FK_Station, value);
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
 
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 扩展属性
-
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
-
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 构造函数
 	/** 
 	 工作部门岗位对应
-	  
 	*/
 	public DeptStation()
 	{
 	}
 	/** 
 	 工作人员岗位对应
-	 
-	 @param _empoid 部门
-	 @param wsNo 岗位编号 	
+	 @param deptid 部门
+	 @param stationid 岗位编号 	
 	*/
-	public DeptStation(String _empoid, String wsNo)
+	public DeptStation(String deptid, String stationid)
 	{
-		this.setFK_Dept(_empoid);
-		this.setFK_Station(wsNo);
+		this.setFK_Dept(deptid);
+		this.setFK_Station(stationid);
 		if (this.Retrieve(DeptStationAttr.FK_Dept, this.getFK_Dept(), DeptStationAttr.FK_Station, this.getFK_Station()) == 0)
 		{
 			this.Insert();
@@ -92,7 +70,6 @@ public class DeptStation extends Entity
 	}
 	/** 
 	 重写基类方法
-	 
 	*/
 	@Override
 	public Map getEnMap()
@@ -104,15 +81,13 @@ public class DeptStation extends Entity
 
 		Map map = new Map("Port_DeptStation");
 		map.setEnDesc("部门岗位对应");
-		map.setEnType(EnType.Dot2Dot); //实体类型，admin 系统管理员表，PowerAble 权限管理表,也是用户表,你要想把它加入权限管理里面请在这里设置。。
+		map.Java_SetEnType(EnType.Dot2Dot); //实体类型，admin 系统管理员表，PowerAble 权限管理表,也是用户表,你要想把它加入权限管理里面请在这里设置。。
 
-		map.AddTBStringPK(DeptStationAttr.FK_Dept, null, "操作员", false, false, 1, 15, 1);
+		map.AddTBStringPK(DeptStationAttr.FK_Dept, null, "部门", false, false, 1, 15, 1);
 		map.AddDDLEntitiesPK(DeptStationAttr.FK_Station, null, "岗位", new Stations(), true);
 		map.AddSearchAttr(DeptStationAttr.FK_Station);
 
 		this.set_enMap(map);
 		return this.get_enMap();
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
 }

@@ -5,8 +5,9 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URL;
 
-public class SinoDetect {
-
+public class SinoDetect
+{
+	
 	static final int GB2312 = 0;
 	static final int GBK = 1;
 	static final int HZ = 2;
@@ -17,27 +18,25 @@ public class SinoDetect {
 	static final int UNICODE = 7;
 	static final int ASCII = 8;
 	static final int OTHER = 9;
-
+	
 	static final int TOTAL_ENCODINGS = 10;
-
-	// Frequency tables to hold the GB, Big5, and EUC-TW character
-	// frequencies
+	
 	int GBFreq[][];
 	int GBKFreq[][];
 	int Big5Freq[][];
 	int EUC_TWFreq[][];
 	// int UnicodeFreq[94][128];
-
+	
 	public static String[] nicename;
 	public static String[] codings;
-
-	public SinoDetect() {
-		// Initialize the Frequency Table for GB, Big5, EUC-TW
+	
+	public SinoDetect()
+	{
 		GBFreq = new int[94][94];
 		GBKFreq = new int[126][191];
 		Big5Freq = new int[94][158];
 		EUC_TWFreq = new int[94][94];
-
+		
 		codings = new String[TOTAL_ENCODINGS];
 		codings[GB2312] = "GB2312";
 		codings[GBK] = "GBK";
@@ -49,7 +48,7 @@ public class SinoDetect {
 		codings[UNICODE] = "Unicode";
 		codings[ASCII] = "ASCII";
 		codings[OTHER] = "OTHER";
-
+		
 		nicename = new String[TOTAL_ENCODINGS];
 		nicename[GB2312] = "GB2312";
 		nicename[GBK] = "GBK";
@@ -61,45 +60,51 @@ public class SinoDetect {
 		nicename[UNICODE] = "Unicode";
 		nicename[ASCII] = "ASCII";
 		nicename[OTHER] = "OTHER";
-
+		
 		initialize_frequencies();
 	}
 	
-	
-
-	public static String GetEncoding(String filepath) {
+	public static String GetEncoding(String filepath)
+	{
 		SinoDetect sinodetector;
 		int result = OTHER;
 		sinodetector = new SinoDetect();
-		if (filepath.startsWith("http://")) {
-			try {
+		if (filepath.startsWith("http://"))
+		{
+			try
+			{
 				result = sinodetector.detectEncoding(new URL(filepath));
-			} catch (Exception e) {
+			} catch (Exception e)
+			{
 				System.err.println("Bad URL " + e.toString());
 			}
-		} else {
+		} else
+		{
 			// result = sinodetector.detectEncoding(new File(argc[0]));
 			result = sinodetector.detectEncoding(new File(filepath));
 		}
 		return nicename[result];
 	}
-	public static String GetEncoding(FileInputStream stream) throws Exception {
+	
+	public static String GetEncoding(FileInputStream stream) throws Exception
+	{
 		throw new Exception("");
-//		SinoDetect sinodetector;
-//		int result = OTHER;
-//		sinodetector = new SinoDetect();
-//		if (filepath.startsWith("http://")) {
-//			try {
-//				result = sinodetector.detectEncoding(new URL(filepath));
-//			} catch (Exception e) {
-//				System.err.println("Bad URL " + e.toString());
-//			}
-//		} else {
-//			// result = sinodetector.detectEncoding(new File(argc[0]));
-//			result = sinodetector.detectEncoding(stream);
-//		}
-//		return nicename[result];
+		// SinoDetect sinodetector;
+		// int result = OTHER;
+		// sinodetector = new SinoDetect();
+		// if (filepath.startsWith("http://")) {
+		// try {
+		// result = sinodetector.detectEncoding(new URL(filepath));
+		// } catch (Exception e) {
+		// System.err.println("Bad URL " + e.toString());
+		// }
+		// } else {
+		// // result = sinodetector.detectEncoding(new File(argc[0]));
+		// result = sinodetector.detectEncoding(stream);
+		// }
+		// return nicename[result];
 	}
+	
 	/**
 	 * Function : detectEncoding Aruguments: URL Returns : One of the encodings
 	 * from the Encoding enumeration (GB2312, HZ, BIG5, EUC_TW, ASCII, or OTHER)
@@ -107,32 +112,36 @@ public class SinoDetect {
 	 * probability score for each encoding type. The encoding type with the
 	 * highest probability is returned.
 	 */
-
-	public int detectEncoding(URL testurl) {
+	
+	public int detectEncoding(URL testurl)
+	{
 		byte[] rawtext = new byte[10000];
 		int bytesread = 0, byteoffset = 0;
 		int guess = OTHER;
 		InputStream chinesestream;
-
-		try {
+		
+		try
+		{
 			chinesestream = testurl.openStream();
-
+			
 			while ((bytesread = chinesestream.read(rawtext, byteoffset,
-					rawtext.length - byteoffset)) > 0) {
+					rawtext.length - byteoffset)) > 0)
+			{
 				byteoffset += bytesread;
 			}
 			;
 			chinesestream.close();
 			guess = detectEncoding(rawtext);
-
-		} catch (Exception e) {
+			
+		} catch (Exception e)
+		{
 			System.err.println("Error loading or using URL " + e.toString());
 			guess = OTHER;
 		}
-
+		
 		return guess;
 	}
-
+	
 	/**
 	 * Function : detectEncoding Aruguments: File Returns : One of the encodings
 	 * from the Encoding enumeration (GB2312, HZ, BIG5, EUC_TW, ASCII, or OTHER)
@@ -140,22 +149,25 @@ public class SinoDetect {
 	 * score for each encoding type. The encoding type with the highest
 	 * probability is returned.
 	 */
-
-	public int detectEncoding(File testfile) {
+	
+	public int detectEncoding(File testfile)
+	{
 		FileInputStream chinesefile;
 		byte[] rawtext;
-
+		
 		rawtext = new byte[(int) testfile.length()];
-		try {
+		try
+		{
 			chinesefile = new FileInputStream(testfile);
 			chinesefile.read(rawtext);
-		} catch (Exception e) {
+		} catch (Exception e)
+		{
 			System.err.println("Error: " + e);
 		}
-
+		
 		return detectEncoding(rawtext);
 	}
-
+	
 	/**
 	 * Function : detectEncoding Aruguments: byte array Returns : One of the
 	 * encodings from the Encoding enumeration (GB2312, HZ, BIG5, EUC_TW, ASCII,
@@ -163,14 +175,15 @@ public class SinoDetect {
 	 * it a probability score for each encoding type. The encoding type with the
 	 * highest probability is returned.
 	 */
-
-	public int detectEncoding(byte[] rawtext) {
+	
+	public int detectEncoding(byte[] rawtext)
+	{
 		int[] scores;
 		int index, maxscore = 0;
 		int encoding_guess = OTHER;
-
+		
 		scores = new int[TOTAL_ENCODINGS];
-
+		
 		// Assign Scores
 		scores[GB2312] = gb2312_probability(rawtext);
 		scores[GBK] = gbk_probability(rawtext);
@@ -182,122 +195,143 @@ public class SinoDetect {
 		scores[UNICODE] = utf16_probability(rawtext);
 		scores[ASCII] = ascii_probability(rawtext);
 		scores[OTHER] = 0;
-
+		
 		// Tabulate Scores
-		for (index = 0; index < TOTAL_ENCODINGS; index++) {
-			if (scores[index] > maxscore) {
+		for (index = 0; index < TOTAL_ENCODINGS; index++)
+		{
+			if (scores[index] > maxscore)
+			{
 				encoding_guess = index;
 				maxscore = scores[index];
 			}
 		}
-
+		
 		// Return OTHER if nothing scored above 50
-		if (maxscore <= 50) {
+		if (maxscore <= 50)
+		{
 			encoding_guess = OTHER;
 		}
-
+		
 		return encoding_guess;
 	}
-
+	
 	/*
 	 * Function: gb2312_probability Argument: pointer to byte array Returns :
 	 * number from 0 to 100 representing probability text in array uses GB-2312
 	 * encoding
 	 */
-
-	int gb2312_probability(byte[] rawtext) {
+	
+	int gb2312_probability(byte[] rawtext)
+	{
 		int i, rawtextlen = 0;
-
+		
 		int dbchars = 1, gbchars = 1;
 		long gbfreq = 0, totalfreq = 1;
 		float rangeval = 0, freqval = 0;
 		int row, column;
-
+		
 		// Stage 1: Check to see if characters fit into acceptable ranges
-
+		
 		rawtextlen = rawtext.length;
-		for (i = 0; i < rawtextlen - 1; i++) {
+		for (i = 0; i < rawtextlen - 1; i++)
+		{
 			// System.err.println(rawtext[i]);
-			if (rawtext[i] >= 0) {
+			if (rawtext[i] >= 0)
+			{
 				// asciichars++;
-			} else {
+			} else
+			{
 				dbchars++;
 				if ((byte) 0xA1 <= rawtext[i] && rawtext[i] <= (byte) 0xF7
 						&& (byte) 0xA1 <= rawtext[i + 1]
-						&& rawtext[i + 1] <= (byte) 0xFE) {
+						&& rawtext[i + 1] <= (byte) 0xFE)
+				{
 					gbchars++;
 					totalfreq += 500;
 					row = rawtext[i] + 256 - 0xA1;
 					column = rawtext[i + 1] + 256 - 0xA1;
-					if (GBFreq[row][column] != 0) {
+					if (GBFreq[row][column] != 0)
+					{
 						gbfreq += GBFreq[row][column];
-					} else if (15 <= row && row < 55) {
+					} else if (15 <= row && row < 55)
+					{
 						gbfreq += 200;
 					}
-
+					
 				}
 				i++;
 			}
 		}
 		rangeval = 50 * ((float) gbchars / (float) dbchars);
 		freqval = 50 * ((float) gbfreq / (float) totalfreq);
-
+		
 		return (int) (rangeval + freqval);
 	}
-
+	
 	/*
 	 * Function: gb2312_probability Argument: pointer to byte array Returns :
 	 * number from 0 to 100 representing probability text in array uses GB-2312
 	 * encoding
 	 */
-
-	int gbk_probability(byte[] rawtext) {
+	
+	int gbk_probability(byte[] rawtext)
+	{
 		int i, rawtextlen = 0;
-
+		
 		int dbchars = 1, gbchars = 1;
 		long gbfreq = 0, totalfreq = 1;
 		float rangeval = 0, freqval = 0;
 		int row, column;
-
+		
 		// Stage 1: Check to see if characters fit into acceptable ranges
 		rawtextlen = rawtext.length;
-		for (i = 0; i < rawtextlen - 1; i++) {
+		for (i = 0; i < rawtextlen - 1; i++)
+		{
 			// System.err.println(rawtext[i]);
-			if (rawtext[i] >= 0) {
+			if (rawtext[i] >= 0)
+			{
 				// asciichars++;
-			} else {
+			} else
+			{
 				dbchars++;
 				if ((byte) 0xA1 <= rawtext[i] && rawtext[i] <= (byte) 0xF7
 						&& // Original GB range
 						(byte) 0xA1 <= rawtext[i + 1]
-						&& rawtext[i + 1] <= (byte) 0xFE) {
+						&& rawtext[i + 1] <= (byte) 0xFE)
+				{
 					gbchars++;
 					totalfreq += 500;
 					row = rawtext[i] + 256 - 0xA1;
 					column = rawtext[i + 1] + 256 - 0xA1;
-
-					// logger.debug("original row " + row + " column " +
+					
+					// System.out.println("original row " + row + " column " +
 					// column);
-					if (GBFreq[row][column] != 0) {
+					if (GBFreq[row][column] != 0)
+					{
 						gbfreq += GBFreq[row][column];
-					} else if (15 <= row && row < 55) {
+					} else if (15 <= row && row < 55)
+					{
 						gbfreq += 200;
 					}
-
+					
 				} else if ((byte) 0x81 <= rawtext[i]
 						&& rawtext[i] <= (byte) 0xFE && // Extended GB range
-						(((byte) 0x80 <= rawtext[i + 1] && rawtext[i + 1] <= (byte) 0xFE) || ((byte) 0x40 <= rawtext[i + 1] && rawtext[i + 1] <= (byte) 0x7E))) {
+						(((byte) 0x80 <= rawtext[i + 1] && rawtext[i + 1] <= (byte) 0xFE) || ((byte) 0x40 <= rawtext[i + 1] && rawtext[i + 1] <= (byte) 0x7E)))
+				{
 					gbchars++;
 					totalfreq += 500;
 					row = rawtext[i] + 256 - 0x81;
-					if (0x40 <= rawtext[i + 1] && rawtext[i + 1] <= 0x7E) {
+					if (0x40 <= rawtext[i + 1] && rawtext[i + 1] <= 0x7E)
+					{
 						column = rawtext[i + 1] - 0x40;
-					} else {
+					} else
+					{
 						column = rawtext[i + 1] + 256 - 0x80;
 					}
-					// logger.debug("extended row " + row + " column " +
+					// System.out.println("extended row " + row + " column " +
 					// column + " rawtext[i] " + rawtext[i]);
-					if (GBKFreq[row][column] != 0) {
+					if (GBKFreq[row][column] != 0)
+					{
 						gbfreq += GBKFreq[row][column];
 					}
 				}
@@ -306,125 +340,153 @@ public class SinoDetect {
 		}
 		rangeval = 50 * ((float) gbchars / (float) dbchars);
 		freqval = 50 * ((float) gbfreq / (float) totalfreq);
-
+		
 		// For regular GB files, this would give the same score, so I handicap
 		// it slightly
 		return (int) (rangeval + freqval) - 1;
 	}
-
+	
 	/*
 	 * Function: hz_probability Argument: byte array Returns : number from 0 to
 	 * 100 representing probability text in array uses HZ encoding
 	 */
-
-	int hz_probability(byte[] rawtext) {
+	
+	int hz_probability(byte[] rawtext)
+	{
 		int i, rawtextlen;
 		int hzchars = 0, dbchars = 1;
 		long hzfreq = 0, totalfreq = 1;
 		float rangeval = 0, freqval = 0;
 		int hzstart = 0, hzend = 0;
 		int row, column;
-
+		
 		rawtextlen = rawtext.length;
-
-		for (i = 0; i < rawtextlen; i++) {
-			if (rawtext[i] == '~') {
-				if (rawtext[i + 1] == '{') {
+		
+		for (i = 0; i < rawtextlen; i++)
+		{
+			if (rawtext[i] == '~')
+			{
+				if (rawtext[i + 1] == '{')
+				{
 					hzstart++;
 					i += 2;
-					while (i < rawtextlen - 1) {
-						if (rawtext[i] == 0x0A || rawtext[i] == 0x0D) {
+					while (i < rawtextlen - 1)
+					{
+						if (rawtext[i] == 0x0A || rawtext[i] == 0x0D)
+						{
 							break;
-						} else if (rawtext[i] == '~' && rawtext[i + 1] == '}') {
+						} else if (rawtext[i] == '~' && rawtext[i + 1] == '}')
+						{
 							hzend++;
 							i++;
 							break;
 						} else if ((0x21 <= rawtext[i] && rawtext[i] <= 0x77)
-								&& (0x21 <= rawtext[i + 1] && rawtext[i + 1] <= 0x77)) {
+								&& (0x21 <= rawtext[i + 1] && rawtext[i + 1] <= 0x77))
+						{
 							hzchars += 2;
 							row = rawtext[i] - 0x21;
 							column = rawtext[i + 1] - 0x21;
 							totalfreq += 500;
-							if (GBFreq[row][column] != 0) {
+							if (GBFreq[row][column] != 0)
+							{
 								hzfreq += GBFreq[row][column];
-							} else if (15 <= row && row < 55) {
+							} else if (15 <= row && row < 55)
+							{
 								hzfreq += 200;
 							}
 						} else if ((0xA1 <= rawtext[i] && rawtext[i] <= 0xF7)
-								&& (0xA1 <= rawtext[i + 1] && rawtext[i + 1] <= 0xF7)) {
+								&& (0xA1 <= rawtext[i + 1] && rawtext[i + 1] <= 0xF7))
+						{
 							hzchars += 2;
 							row = rawtext[i] + 256 - 0xA1;
 							column = rawtext[i + 1] + 256 - 0xA1;
 							totalfreq += 500;
-							if (GBFreq[row][column] != 0) {
+							if (GBFreq[row][column] != 0)
+							{
 								hzfreq += GBFreq[row][column];
-							} else if (15 <= row && row < 55) {
+							} else if (15 <= row && row < 55)
+							{
 								hzfreq += 200;
 							}
 						}
 						dbchars += 2;
 						i += 2;
 					}
-				} else if (rawtext[i + 1] == '}') {
+				} else if (rawtext[i + 1] == '}')
+				{
 					hzend++;
 					i++;
-				} else if (rawtext[i + 1] == '~') {
+				} else if (rawtext[i + 1] == '~')
+				{
 					i++;
 				}
 			}
-
+			
 		}
-
-		if (hzstart > 4) {
+		
+		if (hzstart > 4)
+		{
 			rangeval = 50;
-		} else if (hzstart > 1) {
+		} else if (hzstart > 1)
+		{
 			rangeval = 41;
-		} else if (hzstart > 0) { // Only 39 in case the sequence happened to
-									// occur
+		} else if (hzstart > 0)
+		{ // Only 39 in case the sequence happened to
+			// occur
 			rangeval = 39; // in otherwise non-Hz text
-		} else {
+		} else
+		{
 			rangeval = 0;
 		}
 		freqval = 50 * ((float) hzfreq / (float) totalfreq);
-
+		
 		return (int) (rangeval + freqval);
 	}
-
+	
 	/**
 	 * Function: big5_probability Argument: byte array Returns : number from 0
 	 * to 100 representing probability text in array uses Big5 encoding
 	 */
-
-	int big5_probability(byte[] rawtext) {
+	
+	int big5_probability(byte[] rawtext)
+	{
 		int score = 0;
 		int i, rawtextlen = 0;
 		int dbchars = 1, bfchars = 1;
 		float rangeval = 0, freqval = 0;
 		long bffreq = 0, totalfreq = 1;
 		int row, column;
-
+		
 		// Check to see if characters fit into acceptable ranges
-
+		
 		rawtextlen = rawtext.length;
-		for (i = 0; i < rawtextlen - 1; i++) {
-			if (rawtext[i] >= 0) {
+		for (i = 0; i < rawtextlen - 1; i++)
+		{
+			if (rawtext[i] >= 0)
+			{
 				// asciichars++;
-			} else {
+			} else
+			{
 				dbchars++;
 				if ((byte) 0xA1 <= rawtext[i]
 						&& rawtext[i] <= (byte) 0xF9
-						&& (((byte) 0x40 <= rawtext[i + 1] && rawtext[i + 1] <= (byte) 0x7E) || ((byte) 0xA1 <= rawtext[i + 1] && rawtext[i + 1] <= (byte) 0xFE))) {
+						&& (((byte) 0x40 <= rawtext[i + 1] && rawtext[i + 1] <= (byte) 0x7E) || ((byte) 0xA1 <= rawtext[i + 1] && rawtext[i + 1] <= (byte) 0xFE)))
+				{
 					bfchars++;
 					totalfreq += 500;
 					row = rawtext[i] + 256 - 0xA1;
-					if (0x40 <= rawtext[i + 1] && rawtext[i + 1] <= 0x7E) {
+					if (0x40 <= rawtext[i + 1] && rawtext[i + 1] <= 0x7E)
+					{
 						column = rawtext[i + 1] - 0x40;
-					} else {
+					} else
+					{
 						column = rawtext[i + 1] + 256 - 0x61;
 					}
-					if (Big5Freq[row][column] != 0) {
+					if (Big5Freq[row][column] != 0)
+					{
 						bffreq += Big5Freq[row][column];
-					} else if (3 <= row && row <= 37) {
+					} else if (3 <= row && row <= 37)
+					{
 						bffreq += 200;
 					}
 				}
@@ -433,31 +495,35 @@ public class SinoDetect {
 		}
 		rangeval = 50 * ((float) bfchars / (float) dbchars);
 		freqval = 50 * ((float) bffreq / (float) totalfreq);
-
+		
 		return (int) (rangeval + freqval);
 	}
-
+	
 	/*
 	 * Function: euc_tw_probability Argument: byte array Returns : number from 0
 	 * to 100 representing probability text in array uses EUC-TW (CNS 11643)
 	 * encoding
 	 */
-
-	int euc_tw_probability(byte[] rawtext) {
+	
+	int euc_tw_probability(byte[] rawtext)
+	{
 		int i, rawtextlen = 0;
 		int dbchars = 1, cnschars = 1;
 		long cnsfreq = 0, totalfreq = 1;
 		float rangeval = 0, freqval = 0;
 		int row, column;
-
+		
 		// Check to see if characters fit into acceptable ranges
 		// and have expected frequency of use
-
+		
 		rawtextlen = rawtext.length;
-		for (i = 0; i < rawtextlen - 1; i++) {
-			if (rawtext[i] >= 0) { // in ASCII range
+		for (i = 0; i < rawtextlen - 1; i++)
+		{
+			if (rawtext[i] >= 0)
+			{ // in ASCII range
 				// asciichars++;
-			} else { // high bit set
+			} else
+			{ // high bit set
 				dbchars++;
 				if (i + 3 < rawtextlen && (byte) 0x8E == rawtext[i]
 						&& (byte) 0xA1 <= rawtext[i + 1]
@@ -465,71 +531,83 @@ public class SinoDetect {
 						&& (byte) 0xA1 <= rawtext[i + 2]
 						&& rawtext[i + 2] <= (byte) 0xFE
 						&& (byte) 0xA1 <= rawtext[i + 3]
-						&& rawtext[i + 3] <= (byte) 0xFE) { // Planes 1 - 16
-
+						&& rawtext[i + 3] <= (byte) 0xFE)
+				{ // Planes 1 - 16
+				
 					cnschars++;
-					// logger.debug("plane 2 or above CNS char");
+					// System.out.println("plane 2 or above CNS char");
 					// These are all less frequent chars so just ignore freq
 					i += 3;
 				} else if ((byte) 0xA1 <= rawtext[i]
 						&& rawtext[i] <= (byte) 0xFE
 						&& // Plane 1
 						(byte) 0xA1 <= rawtext[i + 1]
-						&& rawtext[i + 1] <= (byte) 0xFE) {
+						&& rawtext[i + 1] <= (byte) 0xFE)
+				{
 					cnschars++;
 					totalfreq += 500;
 					row = rawtext[i] + 256 - 0xA1;
 					column = rawtext[i + 1] + 256 - 0xA1;
-					if (EUC_TWFreq[row][column] != 0) {
+					if (EUC_TWFreq[row][column] != 0)
+					{
 						cnsfreq += EUC_TWFreq[row][column];
-					} else if (35 <= row && row <= 92) {
+					} else if (35 <= row && row <= 92)
+					{
 						cnsfreq += 150;
 					}
 					i++;
 				}
 			}
 		}
-
+		
 		rangeval = 50 * ((float) cnschars / (float) dbchars);
 		freqval = 50 * ((float) cnsfreq / (float) totalfreq);
-
+		
 		return (int) (rangeval + freqval);
 	}
-
+	
 	/*
 	 * Function: iso_2022_cn_probability Argument: byte array Returns : number
 	 * from 0 to 100 representing probability text in array uses ISO 2022-CN
 	 * encoding WORKS FOR BASIC CASES, BUT STILL NEEDS MORE WORK
 	 */
-
-	int iso_2022_cn_probability(byte[] rawtext) {
+	
+	int iso_2022_cn_probability(byte[] rawtext)
+	{
 		int i, rawtextlen = 0;
 		int dbchars = 1, isochars = 1;
 		long isofreq = 0, totalfreq = 1;
 		float rangeval = 0, freqval = 0;
 		int row, column;
-
+		
 		// Check to see if characters fit into acceptable ranges
 		// and have expected frequency of use
-
+		
 		rawtextlen = rawtext.length;
-		for (i = 0; i < rawtextlen - 1; i++) {
-			if (rawtext[i] == (byte) 0x1B && i + 3 < rawtextlen) { // Escape
-																	// char ESC
+		for (i = 0; i < rawtextlen - 1; i++)
+		{
+			if (rawtext[i] == (byte) 0x1B && i + 3 < rawtextlen)
+			{ // Escape
+				// char ESC
 				if (rawtext[i + 1] == (byte) 0x24 && rawtext[i + 2] == 0x29
-						&& rawtext[i + 3] == (byte) 0x41) { // GB Escape $ ) A
+						&& rawtext[i + 3] == (byte) 0x41)
+				{ // GB Escape $ ) A
 					i += 4;
-					while (rawtext[i] != (byte) 0x1B) {
+					while (rawtext[i] != (byte) 0x1B)
+					{
 						dbchars++;
 						if ((0x21 <= rawtext[i] && rawtext[i] <= 0x77)
-								&& (0x21 <= rawtext[i + 1] && rawtext[i + 1] <= 0x77)) {
+								&& (0x21 <= rawtext[i + 1] && rawtext[i + 1] <= 0x77))
+						{
 							isochars++;
 							row = rawtext[i] - 0x21;
 							column = rawtext[i + 1] - 0x21;
 							totalfreq += 500;
-							if (GBFreq[row][column] != 0) {
+							if (GBFreq[row][column] != 0)
+							{
 								isofreq += GBFreq[row][column];
-							} else if (15 <= row && row < 55) {
+							} else if (15 <= row && row < 55)
+							{
 								isofreq += 200;
 							}
 							i++;
@@ -538,22 +616,27 @@ public class SinoDetect {
 					}
 				} else if (i + 3 < rawtextlen && rawtext[i + 1] == (byte) 0x24
 						&& rawtext[i + 2] == (byte) 0x29
-						&& rawtext[i + 3] == (byte) 0x47) {
+						&& rawtext[i + 3] == (byte) 0x47)
+				{
 					// CNS Escape $ ) G
 					i += 4;
-					while (rawtext[i] != (byte) 0x1B) {
+					while (rawtext[i] != (byte) 0x1B)
+					{
 						dbchars++;
 						if ((byte) 0x21 <= rawtext[i]
 								&& rawtext[i] <= (byte) 0x7E
 								&& (byte) 0x21 <= rawtext[i + 1]
-								&& rawtext[i + 1] <= (byte) 0x7E) {
+								&& rawtext[i + 1] <= (byte) 0x7E)
+						{
 							isochars++;
 							totalfreq += 500;
 							row = rawtext[i] - 0x21;
 							column = rawtext[i + 1] - 0x21;
-							if (EUC_TWFreq[row][column] != 0) {
+							if (EUC_TWFreq[row][column] != 0)
+							{
 								isofreq += EUC_TWFreq[row][column];
-							} else if (35 <= row && row <= 92) {
+							} else if (35 <= row && row <= 92)
+							{
 								isofreq += 150;
 							}
 							i++;
@@ -563,45 +646,50 @@ public class SinoDetect {
 				}
 				if (rawtext[i] == (byte) 0x1B && i + 2 < rawtextlen
 						&& rawtext[i + 1] == (byte) 0x28
-						&& rawtext[i + 2] == (byte) 0x42) { // ASCII: ESC ( B
+						&& rawtext[i + 2] == (byte) 0x42)
+				{ // ASCII: ESC ( B
 					i += 2;
 				}
 			}
 		}
 		rangeval = 50 * ((float) isochars / (float) dbchars);
 		freqval = 50 * ((float) isofreq / (float) totalfreq);
-
-		// logger.debug("isochars dbchars isofreq totalfreq " + isochars +
+		
+		// System.out.println("isochars dbchars isofreq totalfreq " + isochars +
 		// " " + dbchars + " " + isofreq + " " + totalfreq + " " + rangeval +
 		// " " + freqval);
-
+		
 		return (int) (rangeval + freqval);
 		// return 0;
 	}
-
+	
 	/*
 	 * Function: utf8_probability Argument: byte array Returns : number from 0
 	 * to 100 representing probability text in array uses UTF-8 encoding of
 	 * Unicode
 	 */
-
-	int utf8_probability(byte[] rawtext) {
+	
+	int utf8_probability(byte[] rawtext)
+	{
 		int score = 0;
 		int i, rawtextlen = 0;
 		int goodbytes = 0, asciibytes = 0;
-
+		
 		// Maybe also use UTF8 Byte Order Mark: EF BB BF
-
+		
 		// Check to see if characters fit into acceptable ranges
 		rawtextlen = rawtext.length;
-		for (i = 0; i < rawtextlen; i++) {
-			if ((rawtext[i] & (byte) 0x7F) == rawtext[i]) { // One byte
+		for (i = 0; i < rawtextlen; i++)
+		{
+			if ((rawtext[i] & (byte) 0x7F) == rawtext[i])
+			{ // One byte
 				asciibytes++;
 				// Ignore ASCII, can throw off count
 			} else if (-64 <= rawtext[i] && rawtext[i] <= -33
 					&& // Two bytes
 					i + 1 < rawtextlen && -128 <= rawtext[i + 1]
-					&& rawtext[i + 1] <= -65) {
+					&& rawtext[i + 1] <= -65)
+			{
 				goodbytes += 2;
 				i++;
 			} else if (-32 <= rawtext[i]
@@ -609,48 +697,55 @@ public class SinoDetect {
 					&& // Three bytes
 					i + 2 < rawtextlen && -128 <= rawtext[i + 1]
 					&& rawtext[i + 1] <= -65 && -128 <= rawtext[i + 2]
-					&& rawtext[i + 2] <= -65) {
+					&& rawtext[i + 2] <= -65)
+			{
 				goodbytes += 3;
 				i += 2;
 			}
 		}
-
-		if (asciibytes == rawtextlen) {
+		
+		if (asciibytes == rawtextlen)
+		{
 			return 0;
 		}
-
+		
 		score = (int) (100 * ((float) goodbytes / (float) (rawtextlen - asciibytes)));
-
+		
 		// If not above 98, reduce to zero to prevent coincidental matches
 		// Allows for some (few) bad formed sequences
-		if (score > 98) {
+		if (score > 98)
+		{
 			return score;
-		} else if (score > 95 && goodbytes > 30) {
+		} else if (score > 95 && goodbytes > 30)
+		{
 			return score;
-		} else {
+		} else
+		{
 			return 0;
 		}
-
+		
 	}
-
+	
 	/*
 	 * Function: utf16_probability Argument: byte array Returns : number from 0
 	 * to 100 representing probability text in array uses UTF-16 encoding of
 	 * Unicode, guess based on BOM // NOT VERY GENERAL, NEEDS MUCH MORE WORK
 	 */
-
-	int utf16_probability(byte[] rawtext) {
+	
+	int utf16_probability(byte[] rawtext)
+	{
 		// int score = 0;
 		// int i, rawtextlen = 0;
 		// int goodbytes = 0, asciibytes = 0;
-
+		
 		if (((byte) 0xFE == rawtext[0] && (byte) 0xFF == rawtext[1]) || // Big-endian
-				((byte) 0xFF == rawtext[0] && (byte) 0xFE == rawtext[1])) { // Little-endian
+				((byte) 0xFF == rawtext[0] && (byte) 0xFE == rawtext[1]))
+		{ // Little-endian
 			return 100;
 		}
-
+		
 		return 0;
-
+		
 		/*
 		 * // Check to see if characters fit into acceptable ranges rawtextlen =
 		 * rawtext.length; for (i = 0; i < rawtextlen; i++) { if ((rawtext[i] &
@@ -671,60 +766,73 @@ public class SinoDetect {
 		 * // If not above 90, reduce to zero to prevent coincidental matches if
 		 * (score > 90) { return score; } else { return 0; }
 		 */
-
+		
 	}
-
+	
 	/*
 	 * Function: ascii_probability Argument: byte array Returns : number from 0
 	 * to 100 representing probability text in array uses all ASCII Description:
 	 * Sees if array has any characters not in ASCII range, if so, score is
 	 * reduced
 	 */
-
-	int ascii_probability(byte[] rawtext) {
+	
+	int ascii_probability(byte[] rawtext)
+	{
 		int score = 70;
 		int i, rawtextlen;
-
+		
 		rawtextlen = rawtext.length;
-
-		for (i = 0; i < rawtextlen; i++) {
-			if (rawtext[i] < 0) {
+		
+		for (i = 0; i < rawtextlen; i++)
+		{
+			if (rawtext[i] < 0)
+			{
 				score = score - 5;
-			} else if (rawtext[i] == (byte) 0x1B) { // ESC (used by ISO 2022)
+			} else if (rawtext[i] == (byte) 0x1B)
+			{ // ESC (used by ISO 2022)
 				score = score - 5;
 			}
 		}
-
+		
 		return score;
 	}
-
-	void initialize_frequencies() {
+	
+	void initialize_frequencies()
+	{
 		int i, j;
-
-		for (i = 0; i < 93; i++) {
-			for (j = 0; j < 93; j++) {
+		
+		for (i = 0; i < 93; i++)
+		{
+			for (j = 0; j < 93; j++)
+			{
 				GBFreq[i][j] = 0;
 			}
 		}
-
-		for (i = 0; i < 126; i++) {
-			for (j = 0; j < 191; j++) {
+		
+		for (i = 0; i < 126; i++)
+		{
+			for (j = 0; j < 191; j++)
+			{
 				GBKFreq[i][j] = 0;
 			}
 		}
-
-		for (i = 0; i < 93; i++) {
-			for (j = 0; j < 157; j++) {
+		
+		for (i = 0; i < 93; i++)
+		{
+			for (j = 0; j < 157; j++)
+			{
 				Big5Freq[i][j] = 0;
 			}
 		}
-
-		for (i = 0; i < 93; i++) {
-			for (j = 0; j < 93; j++) {
+		
+		for (i = 0; i < 93; i++)
+		{
+			for (j = 0; j < 93; j++)
+			{
 				EUC_TWFreq[i][j] = 0;
 			}
 		}
-
+		
 		GBFreq[20][35] = 599;
 		GBFreq[49][26] = 598;
 		GBFreq[41][38] = 597;
@@ -1125,7 +1233,7 @@ public class SinoDetect {
 		GBFreq[20][24] = 202;
 		GBFreq[45][19] = 201;
 		GBFreq[18][53] = 200;
-
+		
 		Big5Freq[9][89] = 600;
 		Big5Freq[11][15] = 599;
 		Big5Freq[3][66] = 598;
@@ -1526,7 +1634,7 @@ public class SinoDetect {
 		Big5Freq[26][124] = 203;
 		Big5Freq[4][19] = 202;
 		Big5Freq[9][152] = 201;
-
+		
 		EUC_TWFreq[48][49] = 599;
 		EUC_TWFreq[35][65] = 598;
 		EUC_TWFreq[41][27] = 597;
@@ -1926,7 +2034,7 @@ public class SinoDetect {
 		EUC_TWFreq[74][69] = 203;
 		EUC_TWFreq[36][82] = 202;
 		EUC_TWFreq[46][59] = 201;
-
+		
 		GBKFreq[52][132] = 600;
 		GBKFreq[73][135] = 599;
 		GBKFreq[49][123] = 598;
@@ -2229,7 +2337,5 @@ public class SinoDetect {
 		GBKFreq[58][174] = 301;
 		GBKFreq[80][144] = 300;
 		GBKFreq[85][113] = 299;
-
 	}
-
 }

@@ -1,11 +1,10 @@
 package BP.WF.Template;
 
-import java.util.ArrayList;
-
-import BP.DA.*;
-import BP.En.*;
-import BP.En.*;
-import BP.Port.*;
+import BP.En.EntitiesMM;
+import BP.En.Entity;
+import BP.En.QueryObject;
+import BP.WF.Node;
+import BP.WF.Nodes;
 
 /** 
  属性
@@ -20,7 +19,7 @@ public class FlowNodes extends EntitiesMM
 	public final Nodes getHisNodes()
 	{
 		Nodes ens = new Nodes();
-		for (FlowNode ns : convertFlowNodes(this))
+		for (FlowNode ns : this.ToJavaList())
 		{
 			ens.AddEntity(new Node(ns.getFK_Node()));
 		}
@@ -33,13 +32,6 @@ public class FlowNodes extends EntitiesMM
 	public FlowNodes()
 	{
 	}
-	
-	
-	@SuppressWarnings("unchecked")
-	public static ArrayList<FlowNode> convertFlowNodes(Object obj) {
-		return (ArrayList<FlowNode>) obj;
-	}
-	
 	/** 
 	 流程抄送节点
 	 
@@ -81,10 +73,10 @@ public class FlowNodes extends EntitiesMM
 	{
 		Nodes nds = new Nodes();
 		Nodes tmp = new Nodes();
-		for (Node st :Nodes.convertNodes(sts))
+		for (Node st : sts.ToJavaList())
 		{
 			tmp = this.GetHisNodes(st.getNo());
-			for (Node nd : Nodes.convertNodes(tmp))
+			for (Node nd : tmp.ToJavaList())
 			{
 				if (nds.Contains(nd))
 				{
@@ -108,7 +100,7 @@ public class FlowNodes extends EntitiesMM
 		qo.DoQuery();
 
 		Nodes ens = new Nodes();
-		for (FlowNode en : convertFlowNodes(this))
+		for (FlowNode en : this.ToJavaList())
 		{
 			ens.AddEntity(new Node(en.getFK_Flow()));
 		}
@@ -127,10 +119,38 @@ public class FlowNodes extends EntitiesMM
 		qo.DoQuery();
 
 		Nodes ens = new Nodes();
-		for (FlowNode en : convertFlowNodes(this))
+		for (FlowNode en : this.ToJavaList())
 		{
 			ens.AddEntity(new Node(en.getFK_Node()));
 		}
 		return ens;
 	}
+
+
+		///#region 为了适应自动翻译成java的需要,把实体转换成List.
+	/** 
+	 转化成 java list,C#不能调用.
+	 
+	 @return List
+	*/
+	public final java.util.List<FlowNode> ToJavaList()
+	{
+		return (java.util.List<FlowNode>)(Object)this;
+	}
+	/** 
+	 转化成list
+	 
+	 @return List
+	*/
+	public final java.util.ArrayList<FlowNode> Tolist()
+	{
+		java.util.ArrayList<FlowNode> list = new java.util.ArrayList<FlowNode>();
+		for (int i = 0; i < this.size(); i++)
+		{
+			list.add((FlowNode)this.get(i));
+		}
+		return list;
+	}
+
+		///#endregion 为了适应自动翻译成java的需要,把实体转换成List.
 }

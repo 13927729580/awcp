@@ -2,7 +2,7 @@ package BP.WF.Data;
 
 import java.io.IOException;
 
-import TL.ContextHolderUtils;
+import BP.DA.Log;
 import BP.En.AttrOfSearch;
 import BP.En.EnType;
 import BP.En.Entity;
@@ -10,22 +10,24 @@ import BP.En.Map;
 import BP.En.QueryObject;
 import BP.En.RefMethod;
 import BP.En.UAC;
-import BP.Port.WebUser;
 import BP.Sys.PubClass;
+import BP.Sys.SystemConfig;
+import BP.WF.Flows;
 import BP.WF.Glo;
-import BP.WF.Entity.TaskSta;
-import BP.WF.Entity.WFSta;
-import BP.WF.Template.Flows;
-import BP.WF.Template.PubLib.WFState;
+import BP.WF.TaskSta;
+import BP.WF.WFSta;
+import BP.WF.WFState;
+import BP.WF.Template.FlowSheet;
+import cn.jflow.common.util.ContextHolderUtils;
 
 /** 
-我部门的待办
-
+ 我部门的待办
+ 
 */
 public class MyDeptTodolist extends Entity
 {
 
-		///#region 基本属性
+		
 	@Override
 	public UAC getHisUAC()
 	{
@@ -35,7 +37,6 @@ public class MyDeptTodolist extends Entity
 	}
 	/** 
 	 主键
-	 
 	*/
 	@Override
 	public String getPK()
@@ -44,7 +45,6 @@ public class MyDeptTodolist extends Entity
 	}
 	/** 
 	 工作流程编号
-	 
 	*/
 	public final String getFK_Flow()
 	{
@@ -56,7 +56,6 @@ public class MyDeptTodolist extends Entity
 	}
 	/** 
 	 BillNo
-	 
 	*/
 	public final String getBillNo()
 	{
@@ -68,7 +67,6 @@ public class MyDeptTodolist extends Entity
 	}
 	/** 
 	 流程名称
-	 
 	*/
 	public final String getFlowName()
 	{
@@ -80,7 +78,6 @@ public class MyDeptTodolist extends Entity
 	}
 	/** 
 	 优先级
-	 
 	*/
 	public final int getPRI()
 	{
@@ -92,7 +89,6 @@ public class MyDeptTodolist extends Entity
 	}
 	/** 
 	 待办人员数量
-	 
 	*/
 	public final int getTodoEmpsNum()
 	{
@@ -104,7 +100,6 @@ public class MyDeptTodolist extends Entity
 	}
 	/** 
 	 待办人员列表
-	 
 	*/
 	public final String getTodoEmps()
 	{
@@ -116,7 +111,6 @@ public class MyDeptTodolist extends Entity
 	}
 	/** 
 	 参与人
-	 
 	*/
 	public final String getEmps()
 	{
@@ -128,7 +122,6 @@ public class MyDeptTodolist extends Entity
 	}
 	/** 
 	 状态
-	 
 	*/
 	public final TaskSta getTaskSta()
 	{
@@ -140,7 +133,6 @@ public class MyDeptTodolist extends Entity
 	}
 	/** 
 	 类别编号
-	 
 	*/
 	public final String getFK_Emp()
 	{
@@ -152,7 +144,6 @@ public class MyDeptTodolist extends Entity
 	}
 	/** 
 	 部门编号
-	 
 	*/
 	public final String getFK_Dept()
 	{
@@ -164,7 +155,6 @@ public class MyDeptTodolist extends Entity
 	}
 	/** 
 	 标题
-	 
 	*/
 	public final String getTitle()
 	{
@@ -176,7 +166,6 @@ public class MyDeptTodolist extends Entity
 	}
 	/** 
 	 客户编号
-	 
 	*/
 	public final String getGuestNo()
 	{
@@ -188,7 +177,6 @@ public class MyDeptTodolist extends Entity
 	}
 	/** 
 	 客户名称
-	 
 	*/
 	public final String getGuestName()
 	{
@@ -200,7 +188,6 @@ public class MyDeptTodolist extends Entity
 	}
 	/** 
 	 产生时间
-	 
 	*/
 	public final String getRDT()
 	{
@@ -212,7 +199,6 @@ public class MyDeptTodolist extends Entity
 	}
 	/** 
 	 节点应完成时间
-	 
 	*/
 	public final String getSDTOfNode()
 	{
@@ -224,7 +210,6 @@ public class MyDeptTodolist extends Entity
 	}
 	/** 
 	 流程应完成时间
-	 
 	*/
 	public final String getSDTOfFlow()
 	{
@@ -257,30 +242,6 @@ public class MyDeptTodolist extends Entity
 	public final void setFID(long value)
 	{
 		SetValByKey(MyDeptTodolistAttr.FID, value);
-	}
-	/** 
-	 父节点ID 为或者-1.
-	 
-	*/
-	public final long getCWorkID()
-	{
-		return this.GetValInt64ByKey(MyDeptTodolistAttr.CWorkID);
-	}
-	public final void setCWorkID(long value)
-	{
-		SetValByKey(MyDeptTodolistAttr.CWorkID, value);
-	}
-	/** 
-	 PFlowNo
-	 
-	*/
-	public final String getCFlowNo()
-	{
-		return this.GetValStrByKey(MyDeptTodolistAttr.CFlowNo);
-	}
-	public final void setCFlowNo(String value)
-	{
-		SetValByKey(MyDeptTodolistAttr.CFlowNo, value);
 	}
 	/** 
 	 父节点流程编号.
@@ -402,22 +363,21 @@ public class MyDeptTodolist extends Entity
 	{
 		if (value == WFState.Complete)
 		{
-			SetValByKey(MyDeptTodolistAttr.WFSta, WFSta.Complete.getValue());
+			SetValByKey(MyDeptTodolistAttr.WFSta, getWFSta().Complete.getValue());
 		}
 		else if (value == WFState.Delete)
 		{
-			SetValByKey(MyDeptTodolistAttr.WFSta, WFSta.Delete.getValue());
+			SetValByKey(MyDeptTodolistAttr.WFSta, getWFSta().Etc.getValue());
 		}
 		else
 		{
-			SetValByKey(MyDeptTodolistAttr.WFSta, WFSta.Runing.getValue());
+			SetValByKey(MyDeptTodolistAttr.WFSta, getWFSta().Runing.getValue());
 		}
 
 		SetValByKey(MyDeptTodolistAttr.WFState, value.getValue());
 	}
 	/** 
 	 状态(简单)
-	 
 	*/
 	public final WFSta getWFSta()
 	{
@@ -429,8 +389,8 @@ public class MyDeptTodolist extends Entity
 	}
 	public final String getWFStateText()
 	{
-	
-		switch((WFState)this.getWFState())
+		BP.WF.WFState ws = (WFState)this.getWFState();
+		switch(ws)
 		{
 			case Complete:
 				return "已完成";
@@ -446,7 +406,6 @@ public class MyDeptTodolist extends Entity
 	}
 	/** 
 	 GUID
-	 
 	*/
 	public final String getGUID()
 	{
@@ -456,19 +415,8 @@ public class MyDeptTodolist extends Entity
 	{
 		SetValByKey(MyDeptTodolistAttr.GUID, value);
 	}
-
-		///#endregion
-
-
-		///#region 参数属性.
-
-		///#endregion 参数属性.
-
-
-		///#region 构造函数
 	/** 
 	 产生的工作流程
-	 
 	*/
 	public MyDeptTodolist()
 	{
@@ -484,14 +432,12 @@ public class MyDeptTodolist extends Entity
 	}
 	/** 
 	 执行修复
-	 
 	*/
 	public final void DoRepair()
 	{
 	}
 	/** 
 	 重写基类方法
-	 
 	*/
 	@Override
 	public Map getEnMap()
@@ -501,9 +447,8 @@ public class MyDeptTodolist extends Entity
 			return this.get_enMap();
 		}
 
-		Map map = new Map("WF_EmpWorks");
-		map.setEnDesc("我部门的待办");
-		map.setEnType(EnType.View);
+		Map map = new Map("WF_EmpWorks", "我部门的待办");
+		map.Java_SetEnType(EnType.View);
 
 		map.AddTBInt(MyDeptTodolistAttr.FID, 0, "FID", false, false);
 		map.AddTBString(MyDeptTodolistAttr.Title, null, "流程标题", true, false, 0, 300, 10, true);
@@ -527,77 +472,119 @@ public class MyDeptTodolist extends Entity
 		map.AddSearchAttr(MyDeptTodolistAttr.FK_Flow);
 		map.AddSearchAttr(MyDeptTodolistAttr.FK_Emp);
 
-
 			//增加隐藏的查询条件.
-		AttrOfSearch search = new AttrOfSearch(MyDeptTodolistAttr.WorkerDept, "部门", MyDeptTodolistAttr.WorkerDept, "=", WebUser.getFK_Dept(), 0, true);
+		AttrOfSearch search = new AttrOfSearch(MyDeptTodolistAttr.WorkerDept, "部门", MyDeptTodolistAttr.WorkerDept, "=", BP.Web.WebUser.getFK_Dept(), 0, true);
 		map.getAttrsOfSearch().Add(search);
 
 		RefMethod rm = new RefMethod();
 		rm.Title = "轨迹";
 		rm.ClassMethodName = this.toString() + ".DoTrack";
-		rm.Icon = Glo.getCCFlowAppPath()+"WF/Img/FileType/doc.gif";
+		rm.Icon = Glo.getCCFlowAppPath() + "WF/Img/FileType/doc.gif";
 		map.AddRefMethod(rm);
 
 		rm = new RefMethod();
-		rm.Icon = BP.WF.Glo.getCCFlowAppPath() + "WF/Img/Btn/CC.gif";
+		rm.Icon = Glo.getCCFlowAppPath() + "WF/Img/Btn/CC.gif";
 		rm.Title = "移交";
 		rm.ClassMethodName = this.toString() + ".DoShift";
-		rm.getHisAttrs().AddDDLEntities("ToEmp", null, "移交给:", new Flows(), true);
+		rm.getHisAttrs().AddDDLEntities("ToEmp", null, "移交给:", new BP.WF.Flows(), true);
 		rm.getHisAttrs().AddTBString("Note", null, "移交原因", true, false, 0, 300, 100);
 		map.AddRefMethod(rm);
 
-			//rm = new RefMethod();
-			//rm.Title = "跳转";
-			//rm.ClassMethodName = this.ToString() + ".DoSkip";
-			//rm.Icon = "/WF/Img/FileType/doc.gif";
-			//map.AddRefMethod(rm);
+		rm = new RefMethod();
+		rm.Icon = Glo.getCCFlowAppPath() + "WF/Img/Btn/Back.png";
+		rm.Title = "回滚";
+		rm.IsForEns = false;
+		rm.ClassMethodName = this.toString() + ".DoComeBack";
+		rm.getHisAttrs().AddTBInt("NodeID", 0, "回滚到节点", true, false);
+		rm.getHisAttrs().AddTBString("Note", null, "回滚原因", true, false, 0, 300, 100);
+		map.AddRefMethod(rm);
+
 
 		this.set_enMap(map);
 		return this.get_enMap();
 	}
-
-		///#endregion
-
-
-		///#region 执行诊断
 	public final String DoTrack()
 	{
 		try {
-			PubClass.WinOpen(ContextHolderUtils.getResponse(), Glo.getCCFlowAppPath()+"/WF/WFRpt.jsp?WorkID=" + this.getWorkID() + "&FID="+this.getFID()+"&FK_Flow="+this.getFK_Flow(),900,800);
+			PubClass.WinOpen(ContextHolderUtils.getResponse(),SystemConfig.getCCFlowWebPath() + "WF/WFRpt.jsp?WorkID=" + this.getWorkID() + "&FID=" + this.getFID() + "&FK_Flow=" + this.getFK_Flow(), 900, 800);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.DebugWriteError("MyDeptTodolist DoTrack "+ e);		
 		}
 		return null;
 	}
 	/** 
 	 执行移交
-	 
 	 @param ToEmp
 	 @param Note
 	 @return 
 	*/
 	public final String DoShift(String ToEmp, String Note)
 	{
+		try {
+			if (BP.WF.Dev2Interface.Flow_IsCanViewTruck(this.getFK_Flow(), this.getWorkID(), this.getFID()) == false)
+			{
+				return "您没有操作该流程数据的权限.";
+			}
+		} catch (Exception e) {
+			Log.DebugWriteError("MyDeptTodolist DoShift "+ e);
+		}
+
 		try
 		{
 			BP.WF.Dev2Interface.Node_Shift(this.getFK_Flow(), this.getFK_Node(), this.getWorkID(), this.getFID(), ToEmp, Note);
 			return "移交成功";
 		}
-		catch(RuntimeException ex)
+		catch (RuntimeException ex)
 		{
 			return "移交失败@" + ex.getMessage();
+		}
+	}
+	/** 
+	 执行删除
+	 
+	 @return 
+	*/
+	public final String DoDelete()
+	{
+		try {
+			if (BP.WF.Dev2Interface.Flow_IsCanViewTruck(this.getFK_Flow(), this.getWorkID(), this.getFID()) == false)
+			{
+				return "您没有操作该流程数据的权限.";
+			}
+		} catch (Exception e) {
+			Log.DebugWriteError("MyDeptTodolist DoDelete() " + e);
+		}
+
+		try
+		{
+			BP.WF.Dev2Interface.Flow_DoDeleteFlowByReal(this.getFK_Flow(), this.getWorkID(), true);
+			return "删除成功";
+		}
+		catch (RuntimeException ex)
+		{
+			return "删除失败@" + ex.getMessage();
 		}
 	}
 	public final String DoSkip()
 	{
 		try {
-			PubClass.WinOpen(ContextHolderUtils.getResponse(), Glo.getCCFlowAppPath()+"WF/Admin/FlowDB/FlowSkip.aspx?WorkID=" + this.getWorkID() + "&FID=" + this.getFID() + "&FK_Flow=" + this.getFK_Flow() + "&FK_Node=" + this.getFK_Node(), 900, 800);
+			PubClass.WinOpen(ContextHolderUtils.getResponse(),SystemConfig.getCCFlowWebPath() + "WF/Admin/FlowDB/FlowSkip.jsp?WorkID=" + this.getWorkID() + "&FID=" + this.getFID() + "&FK_Flow=" + this.getFK_Flow() + "&FK_Node=" + this.getFK_Node(), 900, 800);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.DebugWriteError("MyDeptTodolist DoSkip()" +e);
 		}
 		return null;
+	}
+	/** 
+	 回滚
+	 
+	 @param nodeid 节点ID
+	 @param note 回滚原因
+	 @return 回滚的结果
+	*/
+	public final String DoComeBack(int nodeid, String note)
+	{
+		BP.WF.Template.FlowSheet fl = new FlowSheet(this.getFK_Flow());
+		return fl.DoRebackFlowData(this.getWorkID(), nodeid, note);
 	}
 
 		///#endregion

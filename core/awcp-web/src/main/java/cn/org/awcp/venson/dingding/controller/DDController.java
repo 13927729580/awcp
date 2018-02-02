@@ -18,6 +18,7 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import cn.org.awcp.core.utils.Security;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -364,7 +365,6 @@ public class DDController {
 	/**
 	 * 
 	 * @param userIdCard
-	 * @param isUpdate
 	 */
 	private void createOrUpdateUser(String userIdCard) {
 		JSONObject userInfo = DDRequestService.getUserInfoByUId(AuthHelper.getAccessToken(), userIdCard);
@@ -416,7 +416,7 @@ public class DDController {
 		vo.setUserHeadImg(img);
 		vo.setUserEmail(email);
 		if (!isUpdate) {
-			vo.setUserPwd(SC.DEFAULT_PWD);
+			vo.setUserPwd(Security.encryptPassword(SC.DEFAULT_PWD));
 		}
 	}
 

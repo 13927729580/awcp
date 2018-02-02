@@ -1,7 +1,7 @@
 ﻿//设置
 function SetEntity() {
     var fk_MapData = $("#EnNo").val();
-    var url = "../MapDef/Rpt/Frm_ColsChose.aspx?FK_MapData=" + fk_MapData;
+    var url = "/WF/Admin/FoolFormDesigner/Rpt/Frm_ColsChose.aspx?FK_MapData=" + fk_MapData;
     $("<div id='dialogEnPanel'></div>").append($("<iframe width='100%' height='100%' frameborder=0 src='" + url + "'/>")).dialog({
         title: "窗口",
         width: 800,
@@ -81,7 +81,7 @@ function OpenDialog(oid, showModel) {
     strTimeKey += date.getHours(); //HH
     strTimeKey += date.getMinutes(); //MM
     strTimeKey += date.getSeconds(); //SS
-    var url = "../CCForm/Frm.aspx?FK_MapData=" + fk_MapData + "&WorkID=" + oid + "&T=" + strTimeKey;
+    var url = "../CCForm/Frm.htm?FK_MapData=" + fk_MapData + "&WorkID=" + oid + "&T=" + strTimeKey;
     var winWidth = document.body.clientWidth;
     //计算显示宽度
     winWidth = winWidth * 0.9;
@@ -217,7 +217,7 @@ function queryData(param, callback, scope, method, showErrMsg) {
         cache: false,
         complete: function () { }, //AJAX请求完成时隐藏loading提示
         error: function (XMLHttpRequest, errorThrown) {
-            $("body").html("<b>访问页面出错，传入参数错误。<b>");
+            $("body").html("<b>访问页面出错，传入参数错误.....<b>");
             //callback(XMLHttpRequest);
         },
         success: function (msg) {//msg为返回的数据，在这里做数据绑定

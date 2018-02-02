@@ -1,7 +1,5 @@
 package BP.WF.Data;
 
-import BP.En.*;
-import BP.Sys.*;
 
 /** 
   属性 
@@ -45,7 +43,7 @@ public class FlowDataAttr
 	*/
 	public static final String FlowStarter = "FlowStarter";
 	/** 
-	 流程发起日期
+	 流程发起时间
 	 
 	*/
 	public static final String FlowStartRDT = "FlowStartRDT";
@@ -70,7 +68,7 @@ public class FlowDataAttr
 	*/
 	public static final String FlowEnder = "FlowEnder";
 	/** 
-	 流程结束日期
+	 流程最后处理时间
 	 
 	*/
 	public static final String FlowEnderRDT = "FlowEnderRDT";

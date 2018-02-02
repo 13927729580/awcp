@@ -1,111 +1,114 @@
 package BP.Port;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import BP.DA.Cash;
 import BP.DA.Depositary;
 import BP.En.Entities;
 import BP.En.Entity;
 import BP.En.QueryObject;
+import BP.Sys.OSDBSrc;
 
-/** 
-人员岗位 
-
-*/
+/**
+ * 人员岗位
+ */
 public class EmpStations extends Entities
 {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	public static ArrayList<EmpStation> convertEmpStations(Object obj) {
+	
+	public static ArrayList<EmpStation> convertEmpStations(Object obj)
+	{
 		return (ArrayList<EmpStation>) obj;
 	}
-		///#region 构造
-	/** 
-	 工作人员岗位
-	 
-	*/
+	
+	public ArrayList<EmpStation> ToJavaList()
+	{
+		return (ArrayList<EmpStation>) (Object)this;
+	}
+
+	// 构造
+	/**
+	 * 工作人员岗位
+	 */
 	public EmpStations()
 	{
 	}
-	/** 
-	 工作人员与工作岗位集合
-	 
-	*/
-	public EmpStations(String stationNo)
+	
+	/**
+	 * 工作人员与工作岗位集合
+	 */
+	public EmpStations(String empNo)
 	{
-		QueryObject qo = new QueryObject(this);
-		qo.AddWhere(EmpStationAttr.FK_Station, stationNo);
-		qo.DoQuery();
+		if (BP.Sys.SystemConfig.getOSDBSrc() == OSDBSrc.Database){
+			this.Retrieve(EmpStationAttr.FK_Emp, empNo);
+		}
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
-
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 方法
-	/** 
-	 得到它的 Entity 
-	 
-	*/
+	
+	// 方法
+	/**
+	 * 得到它的 Entity
+	 */
 	@Override
 	public Entity getGetNewEntity()
 	{
 		return new EmpStation();
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
-
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 查询方法
-	/** 
-	 工作岗位对应的节点
-	 
-	 @param stationNo 工作岗位编号
-	 @return 节点s
-	*/
+	
+	
+	// 查询方法
+	/**
+	 * 工作岗位对应的节点
+	 * 
+	 * @param stationNo
+	 *            工作岗位编号
+	 * @return 节点s
+	 */
 	public final Emps GetHisEmps(String stationNo)
 	{
 		QueryObject qo = new QueryObject(this);
 		qo.AddWhere(EmpStationAttr.FK_Station, stationNo);
 		qo.addOrderBy(EmpStationAttr.FK_Station);
 		qo.DoQuery();
-
+		
 		Emps ens = new Emps();
-		for(Object en : this)
+		for (Object en : this)
 		{
-			ens.AddEntity(new Emp(((EmpStation)en).getFK_Emp()));
+			ens.AddEntity(new Emp(((EmpStation) en).getFK_Emp()));
 		}
-
+		
 		return ens;
 	}
-	/** 
-	 工作人员岗位s
-	 
-	 @param empId empId
-	 @return 工作人员岗位s 
-	*/
+	
+	/**
+	 * 工作人员岗位s
+	 * 
+	 * @param empId
+	 *            empId
+	 * @return 工作人员岗位s
+	 */
 	public final Stations GetHisStations(String empId)
 	{
 		Stations ens = new Stations();
-		if (Cash.IsExits("EmpStationsOf"+empId, Depositary.Application))
+		if (Cash.IsExits("EmpStationsOf" + empId, Depositary.Application))
 		{
-			return (Stations)Cash.GetObjFormApplication("EmpStationsOf"+empId, null);
-		}
-		else
+			return (Stations) Cash.GetObjFormApplication("EmpStationsOf"
+					+ empId, null);
+		} else
 		{
 			QueryObject qo = new QueryObject(this);
 			qo.AddWhere(EmpStationAttr.FK_Emp, empId);
 			qo.addOrderBy(EmpStationAttr.FK_Station);
 			qo.DoQuery();
-			for(Object en : this)
+			for (Object en : this)
 			{
-				ens.AddEntity(new Station(((EmpStation)en).getFK_Station()));
+				ens.AddEntity(new Station(((EmpStation) en).getFK_Station()));
 			}
-			Cash.AddObj("EmpStationsOf"+empId, Depositary.Application, ens);
+			Cash.AddObj("EmpStationsOf" + empId, Depositary.Application, ens);
 			return ens;
 		}
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
 }

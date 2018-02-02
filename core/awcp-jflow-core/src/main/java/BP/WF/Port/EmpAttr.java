@@ -1,8 +1,5 @@
 package BP.WF.Port;
 
-import BP.DA.*;
-import BP.En.*;
-import BP.Port.*;
 
 /** 
  工作人员属性
@@ -10,8 +7,8 @@ import BP.Port.*;
 */
 public class EmpAttr extends BP.En.EntityNoNameAttr
 {
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 基本属性
+
+		
 	/** 
 	 部门
 	 
@@ -31,6 +28,6 @@ public class EmpAttr extends BP.En.EntityNoNameAttr
 	 
 	*/
 	public static final String SID = "SID";
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
+
 		///#endregion
 }

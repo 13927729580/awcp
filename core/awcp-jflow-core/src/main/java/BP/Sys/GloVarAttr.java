@@ -2,25 +2,21 @@ package BP.Sys;
 
 import BP.En.EntityNoNameAttr;
 
-/** 
- 全局变量
- 
-*/
+/**
+ * 全局变量
+ */
 public class GloVarAttr extends EntityNoNameAttr
 {
-	/** 
-	 Val
-	 
-	*/
+	/**
+	 * Val
+	 */
 	public static final String Val = "Val";
-	/** 
-	 Note
-	 
-	*/
+	/**
+	 * Note
+	 */
 	public static final String Note = "Note";
-	/** 
-	 GroupKey
-	 
-	*/
+	/**
+	 * GroupKey
+	 */
 	public static final String GroupKey = "GroupKey";
 }

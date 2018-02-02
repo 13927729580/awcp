@@ -19,9 +19,6 @@ public class Security {
 	private static final Logger logger = LoggerFactory.getLogger(Security.class);
 	// public final static String ENCRYPTION_BASE64 = "base64";
 
-	private final static String KEY_STRING = "szcloud_1.0";
-	private static Blowfish cipher = null;
-
 	/**
 	 * Encrypt the string with the MD5 arithmetic
 	 * 
@@ -84,11 +81,7 @@ public class Security {
 		if (password == null) {
 			return null;
 		}
-		Blowfish cipher = getCipher();
-		if (cipher == null) {
-			throw new UnsupportedOperationException();
-		}
-		return cipher.encryptString(password);
+		return Blowfish.getInstance().encryptString(password);
 	}
 
 	/**
@@ -108,42 +101,9 @@ public class Security {
 		if (encryptedPassword == null) {
 			return null;
 		}
-		Blowfish cipher = getCipher();
-		if (cipher == null) {
-			throw new UnsupportedOperationException();
-		}
-		return cipher.decryptString(encryptedPassword);
+		return Blowfish.getInstance().decryptString(encryptedPassword);
 	}
 
-	/**
-	 * Returns a Blowfish cipher that can be used for encrypting and decrypting
-	 * passwords. The encryption key is stored as the Jive property
-	 * "passwordKey". If it's not present, it will be automatically generated.
-	 *
-	 * @return the Blowfish cipher, or <tt>null</tt> if Openfire is not able to
-	 *         create a Cipher; for example, during setup mode.
-	 */
-	private static synchronized Blowfish getCipher() {
-		if (cipher != null) {
-			return cipher;
-		}
-		// Get the password key, stored as a database property. Obviously,
-		// protecting your database is critical for making the
-		// encryption fully secure.
-		// String keyString;
-		try {
-			// keyString = "obpm";
-			/*
-			 * if (keyString == null) { // Check to make sure that setting the
-			 * property worked. It won't work, // for example, when in setup
-			 * mode. }
-			 */
-			cipher = new Blowfish(KEY_STRING);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return cipher;
-	}
 
 	public static void main(String[] args) {
 		try {

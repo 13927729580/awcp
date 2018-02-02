@@ -1,7 +1,5 @@
 package BP.WF.Port;
 
-import BP.DA.*;
-import BP.En.*;
 
 /** 
  流程部门数据查询权限
@@ -9,8 +7,8 @@ import BP.En.*;
 */
 public class DeptFlowSearchAttr
 {
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 基本属性
+
+		
 	/** 
 	 工作人员ID
 	 
@@ -26,6 +24,6 @@ public class DeptFlowSearchAttr
 	 
 	*/
 	public static final String FK_Flow = "FK_Flow";
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
+
 		///#endregion
 }

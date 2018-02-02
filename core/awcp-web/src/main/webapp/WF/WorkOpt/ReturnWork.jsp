@@ -1,23 +1,28 @@
 <%@page import="java.text.DateFormat"%>
+<%@page import="cn.jflow.model.wf.rpt.ReturnWorkModel"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
-<%@ include file="/head/head.jsp"%>
+<%@ include file="/WF/head/head2.jsp"%>
+<link href="<%=Glo.getCCFlowAppPath() %>DataUser/Style/table0.css" rel="stylesheet" type="text/css" />
 
 <%
-	System.out.println("basePath : "+basePath);
 	int FK_Node=Integer.valueOf(request.getParameter("FK_Node")==null?"0":request.getParameter("FK_Node"));
     long FID=Long.valueOf(request.getParameter("FID")==null?"0":request.getParameter("FID"));
     long WorkID=Long.valueOf(request.getParameter("WorkID")==null?"0":request.getParameter("WorkID"));
     String FK_Flow=request.getParameter("FK_Flow")==null?request.getParameter("FlowNo"):request.getParameter("FK_Flow");
     String userNo = WebUser.getNo();
     String userName = WebUser.getName();
-    
+    String isThread =request.getParameter("isThread")==null ? "notThread":request.getParameter("isThread");
+
+    ReturnWorkModel rw=new ReturnWorkModel(request,response);
+    rw.page_load();
+    /*     
     DataTable dt = null;
 
     dt = BP.WF.Dev2Interface.DB_GenerWillReturnNodes(FK_Node,WorkID,FID);
     if (dt.Rows.size() == 0)
     {
-        out.println("系统没有找到可以退回的节点.");
+        out.println("@系统没有找到可以退回的节点.");
         return;
     }
     
@@ -34,13 +39,12 @@
     }
     else
     {
-    	
    		  DateFormat format2 = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
           String reTime = format2.format(new Date());
         checkInfo = String.format("%s同志: \n  您处理的“%s”工作有错误，需要您重新办理．\n\n此致!!!   \n\n  %s", dt.getValue(0, "RecName"),
         		dt.getValue(0, "Name"), reTime);
 
-    }
+    } */
 %>
 <script type="text/javascript">
 
@@ -84,6 +88,22 @@
 		// $("*[id$=" + ctrl + "]").focus().val(str);
 		document.getElementById(ctrl).value = str;
 	}
+    function TBHelp(ctrl, enName) {
+        //alert(ctrl + "-" + enName);
+        var explorer = window.navigator.userAgent;
+        var str = "";
+        var url = "<%=basePath%>WF/Comm/HelperOfTBEUI.jsp?EnsName=" + enName + "&AttrKey=" + ctrl + "&WordsSort=0" + "&FK_MapData=" + enName + "&id=" + ctrl;
+        if (explorer.indexOf("Chrome") >= 0) {
+            window.open(url, "sd", "left=200,height=500,top=150,width=600,location=yes,menubar=no,resizable=yes,scrollbars=yes,status=no,toolbar=no");
+        }
+        else {
+            str = window.showModalDialog(url, 'sd', 'dialogHeight: 500px; dialogWidth:600px; dialogTop: 150px; dialogLeft: 200px; center: no; help: no');
+            if (str == undefined)
+                return;
+            ctrl = ctrl.replace("WorkCheck", "TB");
+            $("*[id$=" + ctrl + "]").focus().val(str);
+        }
+    }
 </script>
 <script type="text/javascript">
 	function NoSubmit(ev) {
@@ -99,75 +119,64 @@
 </script>
 </head>
 <body leftmargin="0" onkeypress="NoSubmit(event);" topmargin="0">
-	<div class="admin-content">
-
-		<div class="am-cf am-padding">
-			<div class="am-fl am-cf">
-				<strong class="am-text-primary am-text-lg">您好:<%=Glo.GenerUserImgSmallerHtml(WebUser.getNo(),WebUser.getName())%></strong>
-			</div>
-		</div>
-
-		<div class="divCenter2" style="background-color: white">
+	<table border=1px align=center width='100%'>
+		<Caption ><div class='' >您好:<%=Glo.GenerUserImgSmallerHtml(WebUser.getNo(),WebUser.getName())%></div></Caption>
 			<form method="post"
 				action="<%=basePath%>WF/WorkOpt/ReturnWork.do?FK_Node=<%=FK_Node%>&FID=<%=FID%>&WorkID=<%=WorkID%>&FK_Flow=<%=FK_Flow%>"
 				id="form1">
-					<table  class="am-table am-table-striped am-table-hover table-main"
-						>
+
+		
+
+
 						<tr></tr>
 						<tr>
 							<td>
 								<div align="center">
 									<div align="center" style='height: 30px;'>
-										<b>退回到:</b> <select name="DDL1" id="DDL1"
-											onchange="OnChange(this);">
+										<b>退回到:</b> <select name="DDL1" id="DDL1" onchange="OnChange(this);">
 											<%
-												for (DataRow dr : dt.Rows){
+												for (int i=0;i<rw.getList().size();i++){
+													DataRow dr=(DataRow)rw.getList().get(i);
 											%>
+											
 											<option
-												value="<%=dr.getValue("No")%>@<%=dr.getValue("Rec")%>"><%=dr.getValue("RecName")%>=><%=dr.getValue("Name")%></option>
+												value="<%=dr.getValue("no")%>@<%=dr.getValue("rec")%>"><%=dr.getValue("recname")%>=><%=dr.getValue("name")%></option>
 											<%
 												}
 											%>
 										</select> <input type="hidden" name="BtnID" id="BtnID" />
-										<!-- <button style="color: black;" type="button" name="Btn_OK"
-									onclick="if(confirm('您确定要执行吗?')){document.getElementById('BtnID').value='Btn_OK';return true;}else{return false;}"
-									class="am-btn am-btn-primary am-btn-xs" id="Btn_OK">确定</button> -->
 										<input type="submit" class="am-btn am-btn-primary am-btn-xs"
 											name="Btn_OK" value="确定"
 											onclick="if(confirm('您确定要执行吗?')){document.getElementById('BtnID').value='Btn_OK';return true;}else{return false;}"
 											id="Btn_OK" class="am-btn-primary Btn" />
-										<!-- <button style="color: black;" type="button" name="Btn_Cancel" value="取消"
-									onclick="document.getElementById('BtnID').value='Btn_Cancel';"
-									class="am-btn am-btn-primary am-btn-xs">取消</button> -->
 										<input type="submit" class="am-btn am-btn-primary am-btn-xs"
 											name="Btn_Cancel" value="取消"
 											onclick=" document.getElementById('BtnID').value='Btn_Cancel';"
 											class="am-btn-primary Btn" />
-										<%
-											if (nd.getIsBackTracking()) {
+										 <%
+											if ("true".equals(rw.getCb())) {
 										%>
 										<input id="CB_IsBackTracking" type="checkbox"
 											name="CB_IsBackTracking" /> <label for="CB_IsBackTracking">退回后是否要原路返回?</label>
 										<%
 											}
-										%>
+										%> 
 									</div>
 									<div style='height: 4px;'></div>
 									<div>
+										<textarea name="TB_Doc" rows="15" cols="68" id="TB_Doc"><%=rw.getTB_doc()%></textarea>
 										<div style='float: left; display: block; width: 100%'>
 											<a href="javascript:TBHelp('TB_Doc')"> <img
 												src='<%=basePath%>WF/Img/Emps.gif' align='middle' border=0 />选择词汇
 											</a>&nbsp;&nbsp;
 										</div>
-										<textarea name="TB_Doc" rows="15" cols="68" id="TB_Doc"><%=checkInfo%></textarea>
+									
 									</div>
 								</div>
 							</td>
 						</tr>
-					</table>
 			</form>
-		</div>
-	</div>
+	</table>
 </body>
 
 <script type="text/javascript">

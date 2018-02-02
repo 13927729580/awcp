@@ -33,13 +33,13 @@
 		
 			<div class="row" id="tab">
 				<ul class="nav nav-tabs"><!-- 标签页nav里面的 href的值对应的是 tab-content里面的tab-pane的id值 -->				
-					<li class="active"><a href="#tab2" data-toggle="tab">按钮</a></li>
-					<li class=""><a href="#tab1" data-toggle="tab">菜单</a></li>
+					<li class="active"><a href="#tab1" data-toggle="tab">菜单</a></li>
+					<li class=""><a href="#tab2" data-toggle="tab">按钮</a></li>
 				</ul>
 			</div>
 			<div class="row tab-content">
-				<div class="tab-pane active" id="tab2"><jsp:include page="/unit/componentAccess-edit.jsp"/></div> 
- 				<div class="tab-pane" id="tab1"><jsp:include page="/unit/punRoleMenuAccess-edit.jsp"/></div> 				
+ 				<div class="tab-pane active" id="tab1"><jsp:include page="/unit/punRoleMenuAccess-edit.jsp"/></div>
+				<div class="tab-pane" id="tab2"><jsp:include page="/unit/componentAccess-edit.jsp"/></div>
 			</div>
 		</div>
 		
@@ -186,8 +186,9 @@
 					});
 				});
 				
-				var moduleId = "${moduleId}"?"${moduleId}":11;
+				var moduleId = "${moduleId}"?"${moduleId}":"";
 				$("#modules").val(moduleId);
+				if(moduleId) $("#tab").find("a").eq(1).trigger("click");
 				$("#modules").bind("change",function(){
 					var moduleId = $("#modules").val();
 					location.href = "<%=basePath%>punAccessRelationController/punRoleMenuAccessEdit.do?roleId=" 

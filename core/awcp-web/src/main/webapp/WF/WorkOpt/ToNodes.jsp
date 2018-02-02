@@ -1,5 +1,7 @@
 <%@ page language="java" isELIgnored="false" import="java.util.*" pageEncoding="utf-8"%>
-<%@ include file="/head/head.jsp"%>
+<%@ include file="/WF/head/head2.jsp"%>
+<link href="<%=Glo.getCCFlowAppPath() %>DataUser/Style/table0.css" rel="stylesheet" type="text/css" />
+
 <%
 	 String errMsg = request.getParameter("errMsg")==null?"":request.getParameter("errMsg");
 	 if(null != errMsg && "" != errMsg){
@@ -61,7 +63,7 @@ function onCancel(){
 	var FID = '<%=FID%>';
 	var FK_Flow = '<%=FK_Flow%>';
 	
-	var url = "<%=basePath%>WF/MyFlow.jsp?FK_Node="+FK_Node+"&WorkID="+WorkID+"&FID="+FID+"&FK_Flow="+FK_Flow;
+	var url = "<%=basePath%>WF/MyFlow.htm?FK_Node="+FK_Node+"&WorkID="+WorkID+"&FID="+FID+"&FK_Flow="+FK_Flow;
 	window.location.href = url;
 }
 function onSubmit(){
@@ -90,18 +92,13 @@ function onSubmit(){
 <body>
 	<!-- 内容 -->
 	<!-- 表格数据 -->
-	<div class="admin-content">
-
-		<div class="am-cf am-padding">
-			<div class="am-fl am-cf">
-				<strong class="am-text-primary am-text-lg">您好：<%=Glo.GenerUserImgSmallerHtml(WebUser.getNo(),WebUser.getName())%>   --   请选择到达的节点</strong>
-			</div>
-		</div>
+	<table border=1px align=center width='100%'>
+		<Caption ><div class='' >您好：<%=Glo.GenerUserImgSmallerHtml(WebUser.getNo(),WebUser.getName())%></div></Caption>
 		
 		<div class="am-g">
 			<div class="am-u-sm-12">
 				<form method="post" action="" class="am-form" id="form1">
-					<table class="am-table am-table-striped am-table-hover table-main">
+					<!-- <table class="am-table am-table-striped am-table-hover table-main"> -->
 						<tr>
 							<!-- <td width="20%"></td> -->
 							<td>
@@ -110,7 +107,8 @@ function onSubmit(){
 									Nodes nds = Dev2Interface.WorkOpt_GetToNodes(FK_Flow, FK_Node, WorkID, FID);
 								 	//检查是否有异表单。
 					            	boolean isSubYBD = false; //异表单
-					            	for(Node mynd : Nodes.convertNodes(nds)){
+					            	boolean isFirstRow = true;
+					            	for(Node mynd : nds.ToJavaList()){
 					            		if(mynd.getNodeID() == 0){
 								%>
 									<span class="BPRadioButton0">
@@ -127,18 +125,18 @@ function onSubmit(){
 											<% 
 											 	if(mynd.getHisDeliveryWay() == DeliveryWay.BySelected){
 											%>
-												- <a href="javascript:WinShowModalDialog_Accepter('Accepter.jsp?FK_Flow=<%=FK_Flow %>&FK_Node=<%=FK_Node %>&ToNode=<%=mynd.getNodeID() %>&WorkID=<%=WorkID %>&FID=<%=FID %>&type=1')" >选择接受人</a>
+												- <a href="javascript:WinShowModalDialog_Accepter('AccepterOfGener.htm?FK_Flow=<%=FK_Flow %>&FK_Node=<%=FK_Node %>&ToNode=<%=mynd.getNodeID() %>&WorkID=<%=WorkID %>&FID=<%=FID %>&type=1')" >选择接受人</a>
 										    <%} %>
 										    	<br>
 										<%continue;}else{ %>
 											<span class="BPRadioButton0">
-												<input id="RB_<%=mynd.getNodeID() %>" type="radio" value="<%=mynd.getNodeID()%>" name="RB_Button" onclick="SetUnEable(this);" />
+												<input id="RB_<%=mynd.getNodeID() %>" type="radio" value="<%=mynd.getNodeID()%>" <%if(isFirstRow){ %>checked="checked"<%} %> name="RB_Button" onclick="SetUnEable(this);" />
 												<label for="RB_<%=mynd.getNodeID() %>"><%=mynd.getName() %></label>
 											</span>
 											<% 
 											 	if(mynd.getHisDeliveryWay() == DeliveryWay.BySelected){
 											%>
-												- <a href="javascript:WinShowModalDialog_Accepter('Accepter.jsp?FK_Flow=<%=FK_Flow %>&FK_Node=<%=FK_Node %>&ToNode=<%=mynd.getNodeID() %>&WorkID=<%=WorkID %>&FID=<%=FID %>&type=1')" >选择接受人</a>
+												- <a href="javascript:WinShowModalDialog_Accepter('AccepterOfGener.htm?FK_Flow=<%=FK_Flow %>&FK_Node=<%=FK_Node %>&ToNode=<%=mynd.getNodeID() %>&WorkID=<%=WorkID %>&FID=<%=FID %>&type=1')" >选择接受人</a>
 										    <%} %>
 										    	<br>
 										<%} %>
@@ -148,11 +146,11 @@ function onSubmit(){
 								<input type="button" name="Btn_Cancel" value="取消/返回" id="Btn_Cancel" onclick="onCancel();" class="am-btn am-btn-primary am-btn-xs"/>
 							</td>
 						</tr>
-					</table>	
+					<!-- </table> -->	
 				</form>
 			</div>
 		</div>
-	</div>	
+	</table>
 </body>
 <script type="text/javascript">
 function SubmitValue(){

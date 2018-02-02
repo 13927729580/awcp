@@ -3,26 +3,27 @@ package BP.Sys.XML;
 import BP.XML.XmlEn;
 import BP.XML.XmlEns;
 
-/** 
- AttrDesc 的摘要说明，属性的配置。
- 
-*/
+/**
+ * AttrDesc 的摘要说明，属性的配置。
+ */
 public class AttrDesc extends XmlEn
 {
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 属性
+	// 属性
 	public final String getAttr()
 	{
 		return this.GetValStringByKey(AttrDescAttr.Attr);
 	}
+	
 	public final String getFor()
 	{
 		return this.GetValStringByKey(AttrDescAttr.For);
 	}
+	
 	public final String getDesc()
 	{
 		return this.GetValStringByKey(AttrDescAttr.Desc);
 	}
+	
 	public final boolean getIsAcceptFile()
 	{
 		String s = this.GetValStringByKey(AttrDescAttr.IsAcceptFile);
@@ -30,9 +31,10 @@ public class AttrDesc extends XmlEn
 		{
 			return false;
 		}
-
+		
 		return true;
 	}
+	
 	public final int getHeight()
 	{
 		String str = this.GetValStringByKey(AttrDescAttr.Height);
@@ -42,23 +44,18 @@ public class AttrDesc extends XmlEn
 		}
 		return Integer.parseInt(str);
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
-
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 构造
+	
+	// 构造
 	public AttrDesc()
 	{
 	}
-	/** 
-	 获取一个实例
-	 
-	*/
+	
+	/**
+	 * 获取一个实例
+	 */
 	@Override
 	public XmlEns getGetNewEntities()
 	{
 		return new AttrDescs();
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
 }

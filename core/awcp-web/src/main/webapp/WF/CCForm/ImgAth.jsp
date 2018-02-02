@@ -1,13 +1,13 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<%@ include file="/head/head.jsp"%>
+<%@ include file="/WF/head/head1.jsp"%>
 <%  
 	ImgAthModel iam=new ImgAthModel(request,response);
 	String imgFile=request.getParameter("sourceFile");
 	iam.init();
 	String src=iam.getSourceFile().equals("")?iam.getMSG():iam.getSourceFile();
 	request.setAttribute("src",src);
-	System.out.print(src);
+// 	System.out.print(src);
 %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>

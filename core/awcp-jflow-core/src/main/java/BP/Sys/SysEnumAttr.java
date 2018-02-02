@@ -1,9 +1,7 @@
 package BP.Sys;
 
-
 /** 
  sss
- 
 */
 public class SysEnumAttr
 {

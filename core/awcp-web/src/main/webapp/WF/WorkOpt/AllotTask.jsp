@@ -1,7 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
-<%@ include file="/head/head.jsp"%>
-
+<%@ include file="/WF/head/head2.jsp"%>
+<link href="<%=Glo.getCCFlowAppPath() %>DataUser/Style/table0.css" rel="stylesheet" type="text/css" />
 <%
 	int FK_Node=Integer.valueOf(request.getParameter("NodeID"));
  	long FID=Long.valueOf(request.getParameter("FID") == null ? "0" :request.getParameter("FID"));
@@ -42,10 +42,13 @@
 	html.append("<ul>");
 	for (GenerWorkerList wl : GenerWorkerLists.convertGenerWorkerLists(wls))
 	{
-		ids += "," + "CB_" + wl.getFK_Emp();
-		html.append("<li>");
-		AllotTaskController.addCheckBox(wl,html);
-		html.append("</li>");
+		if(!WebUser.getNo().equals(wl.getFK_Emp()))
+		{
+			ids += "," + "CB_" + wl.getFK_Emp();
+			html.append("<li>");
+			AllotTaskController.addCheckBox(wl,html);
+			html.append("</li>");
+		}
 	
 	}
 	html.append("</ul>");
@@ -113,12 +116,12 @@
 					<div
 						style="text-align: center; position: absolute; background-color: white; height: 100%; left: 15%; right: 15%">
 
-
-						<table class="am-table am-table-striped am-table-hover table-main"
-							style="text-align: left; width: 100%">
-							<th class="table-title">您好:<%=Glo.GenerUserImgSmallerHtml(WebUser.getNo(),
+						<table border=1px align=center width='100%'>
+							<Caption ><div class='' >您好:<%=Glo.GenerUserImgSmallerHtml(WebUser.getNo(),
+					WebUser.getName())%></div></Caption>
+							<%-- <th class="table-title">您好:<%=Glo.GenerUserImgSmallerHtml(WebUser.getNo(),
 					WebUser.getName())%>
-							</th>
+							</th> --%>
 							<tr>
 								<td nowrap="nowrap"><%=html.toString()%></td>
 							</tr>

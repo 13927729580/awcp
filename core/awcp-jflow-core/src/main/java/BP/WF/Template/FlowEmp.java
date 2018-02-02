@@ -1,8 +1,10 @@
 package BP.WF.Template;
 
-import BP.DA.*;
-import BP.En.*;
-import BP.Port.*;
+import BP.En.EntityMM;
+import BP.En.Map;
+import BP.En.UAC;
+import BP.Port.Emps;
+import BP.WF.Flows;
 
 /** 
  流程岗位属性
@@ -13,8 +15,8 @@ import BP.Port.*;
 */
 public class FlowEmp extends EntityMM
 {
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 基本属性
+
+		
 	/** 
 	 UI界面上的访问控制
 	 
@@ -50,11 +52,11 @@ public class FlowEmp extends EntityMM
 	{
 		this.SetValByKey(FlowEmpAttr.FK_Emp, value);
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
+
 		///#endregion
 
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 构造方法
+
+		
 	/** 
 	 流程岗位属性
 	 
@@ -74,11 +76,8 @@ public class FlowEmp extends EntityMM
 			return this.get_enMap();
 		}
 
-		Map map = new Map("WF_FlowEmp");
-		map.setEnDesc("流程岗位属性信息");
+		Map map = new Map("WF_FlowEmp", "流程岗位属性信息");
 
-		map.setDepositaryOfEntity(Depositary.None);
-		map.setDepositaryOfMap (Depositary.Application);
 
 		map.AddDDLEntitiesPK(FlowEmpAttr.FK_Flow, null, "FK_Flow", new Flows(), true);
 		map.AddDDLEntitiesPK(FlowEmpAttr.FK_Emp, null, "人员", new Emps(), true);
@@ -86,6 +85,6 @@ public class FlowEmp extends EntityMM
 
 		return this.get_enMap();
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
+
 		///#endregion
 }

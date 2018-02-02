@@ -10,6 +10,6 @@
   ExpApp=" case when @NumOfSQ@=0 then 0 else  @NumOfAdjust@/@NumOfSQ@*100 end "  For="BP.ZF1.DDETZs"   Desc="调整率" />
   
   <Item AttrKey="RateOfTZ"  AttrName="" Exp="(SUM(NumOfAdjust) /DSWF.IsZeroAsVal( SUM(NumOfSQ), 1 )  )*100" 
- ExpApp="  @NumOfAdjust@/@NumOfSQ@*100"  Condition=" and NumOfSQ > 0 "  For="BP.ZF1.DDETZs_del"   Desc="调整率" />
+ ExpApp="  @NumOfAdjust@/@NumOfSQ@*100"  Condition=" AND NumOfSQ > 0 "  For="BP.ZF1.DDETZs_del"   Desc="调整率" />
   
 </NewDataSet>

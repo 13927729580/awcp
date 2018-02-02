@@ -1,22 +1,24 @@
 package BP.En;
 
 import java.util.ArrayList;
+import java.util.List;
 
-/** 
- 查询属性s
- 
-*/
+/**
+ * 查询属性s
+ */
 public class AttrSearchs extends ArrayList<AttrSearch>
 {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-
+	
 	public AttrSearchs()
 	{
 	}
-	public final void Add(Attr attr, boolean isShowSelectedAll, String relationalDtlKey)
+	
+	public final void Add(Attr attr, boolean isShowSelectedAll,
+			String relationalDtlKey)
 	{
 		AttrSearch en = new AttrSearch();
 		en.HisAttr = attr;
@@ -25,11 +27,13 @@ public class AttrSearchs extends ArrayList<AttrSearch>
 		en.Key = attr.getKey();
 		this.add(en);
 		/*
-		 * warning en.setKey(attr.getKey());
-		   this.InnerList.Add(en);*/
+		 * warning en.setKey(attr.getKey()); this.add(en);
+		 */
 	}
-
-	public final void addChild(Attr attr, boolean isShowSelectedAll, String reationChildKey){
+	
+	public final void addChild(Attr attr, boolean isShowSelectedAll,
+			String reationChildKey)
+	{
 		AttrSearch en = new AttrSearch();
 		en.HisAttr = attr;
 		en.IsShowAll = isShowSelectedAll;
@@ -38,7 +42,9 @@ public class AttrSearchs extends ArrayList<AttrSearch>
 		this.add(en);
 	}
 	
-	public final void addGrandChild(Attr attr, boolean isShowSelectedAll, String reationChildKey, String reationGrandChildKey){
+	public final void addGrandChild(Attr attr, boolean isShowSelectedAll,
+			String reationChildKey, String reationGrandChildKey)
+	{
 		AttrSearch en = new AttrSearch();
 		en.HisAttr = attr;
 		en.IsShowAll = isShowSelectedAll;
@@ -48,7 +54,9 @@ public class AttrSearchs extends ArrayList<AttrSearch>
 		this.add(en);
 	}
 	
-	public final void addParentAndChild(Attr attr, boolean isShowSelectedAll, String reationParentKey, String reationChildKey){
+	public final void addParentAndChild(Attr attr, boolean isShowSelectedAll,
+			String reationParentKey, String reationChildKey)
+	{
 		AttrSearch en = new AttrSearch();
 		en.HisAttr = attr;
 		en.IsShowAll = isShowSelectedAll;
@@ -58,7 +66,9 @@ public class AttrSearchs extends ArrayList<AttrSearch>
 		this.add(en);
 	}
 	
-	public final void addParent(Attr attr, boolean isShowSelectedAll, String reationParentKey){
+	public final void addParent(Attr attr, boolean isShowSelectedAll,
+			String reationParentKey)
+	{
 		AttrSearch en = new AttrSearch();
 		en.HisAttr = attr;
 		en.IsShowAll = isShowSelectedAll;
@@ -67,12 +77,15 @@ public class AttrSearchs extends ArrayList<AttrSearch>
 		this.add(en);
 	}
 	
-	
-	
 	public final void Add(AttrSearch attr)
 	{
 		this.add(attr);
 		/*
-		 * warning this.InnerList.Add(attr);*/
+		 * warning this.add(attr);
+		 */
+	}
+	
+	public List<AttrSearch> toList(){
+		return (List)(Object)this;
 	}
 }

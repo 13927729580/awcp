@@ -1,38 +1,23 @@
 package BP.WF.Port;
 
-import java.util.ArrayList;
-
-import BP.DA.*;
-import BP.En.*;
-import BP.WF.*;
-import BP.Port.*;
-import BP.Port.*;
-import BP.En.*;
-import BP.Web.*;
+import BP.En.EntitiesNoName;
+import BP.En.Entity;
 
 /** 
  操作员s 
- 
 */
 public class WFEmps extends EntitiesNoName
 {
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 构造
-	
-	public static ArrayList<WFEmp> convertWFEmps(Object obj) {
-		// TODO Auto-generated method stub
-		return (ArrayList<WFEmp>)obj;
-	}
+
+		
 	/** 
 	 操作员s
-	 
 	*/
 	public WFEmps()
 	{
 	}
 	/** 
 	 得到它的 Entity
-	 
 	*/
 	@Override
 	public Entity getGetNewEntity()
@@ -45,6 +30,26 @@ public class WFEmps extends EntitiesNoName
 	{
 		return super.RetrieveAll("FK_Dept","Idx");
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
+	/** 
+	 转化成 java list,C#不能调用.
+	 @return List
+	*/
+	public final java.util.List<WFEmp> ToJavaList()
+	{
+		return (java.util.List<WFEmp>)(Object)this;
+	}
+	/** 
+	 转化成list
+	 @return List
+	*/
+	public final java.util.ArrayList<WFEmp> Tolist()
+	{
+		java.util.ArrayList<WFEmp> list = new java.util.ArrayList<WFEmp>();
+		for (int i = 0; i < this.size(); i++)
+		{
+			list.add((WFEmp)this.get(i));
+		}
+		return list;
+	}
+
 }

@@ -1,44 +1,46 @@
 package BP.DA;
 
-/** 
- DBUrl 的摘要说明。
- 
-*/
+/**
+ * DBUrl 的摘要说明。
+ */
 public class DBUrl
 {
-	/** 
-	 连接
-	 
-	*/
+	/**
+	 * 连接
+	 */
 	public DBUrl()
 	{
 	}
-	/** 
-	 连接
-	 
-	 @param type 连接type
-	*/
+	
+	/**
+	 * 连接
+	 * 
+	 * @param type
+	 *            连接type
+	 */
 	public DBUrl(DBUrlType type)
 	{
 		this.setDBUrlType(type);
 	}
-	/** 
-	 默认值
-	 
-	*/
-	public DBUrlType _DBUrlType=DBUrlType.AppCenterDSN;
-	/** 
-	 要连接的到的库。
-	 
-	*/
+	
+	/**
+	 * 默认值
+	 */
+	public DBUrlType _DBUrlType = DBUrlType.AppCenterDSN;
+	
+	/**
+	 * 要连接的到的库。
+	 */
 	public final DBUrlType getDBUrlType()
 	{
 		return _DBUrlType;
 	}
+	
 	public final void setDBUrlType(DBUrlType value)
 	{
-		_DBUrlType=value;
+		_DBUrlType = value;
 	}
+	
 	public final String getDBVarStr()
 	{
 		switch (this.getDBType())
@@ -55,13 +57,13 @@ public class DBUrl
 				return "@";
 		}
 	}
-	/** 
-	 数据库类型
-	 
-	*/
+	
+	/**
+	 * 数据库类型
+	 */
 	public final DBType getDBType()
 	{
-		switch(this.getDBUrlType())
+		switch (this.getDBUrlType())
 		{
 			case AppCenterDSN:
 				return DBAccess.getAppCenterDBType();

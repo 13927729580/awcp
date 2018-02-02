@@ -58,6 +58,7 @@
 						            </div>
 				<button type="button" class="btn btn-info" id="deleteBtn"><i class="icon-trash"></i>删除</button>
 				<button type="button" class="btn btn-warning" id="updateBtn"><i class="icon-edit"></i>修改</button>
+				<button type="button" class="btn btn-danger" id="syncBtn"><i class="icon-refresh"></i>同步到资源库</button>
 			</div>
 			
 			<div class="row" id="searchform">
@@ -168,6 +169,18 @@
     		}
 			return false;
     	});
+    	//syncResource
+    	$("#syncBtn").click(function(){
+
+    		$.get("<%=basePath%>fd/act/syncResource.do",function(data){
+                if(data.status==0){
+                    alertMessage("同步成功");
+				}else{
+                    alertMessage(data.message);
+				}
+			})
+    	});
+
     	
     });
 	</script>

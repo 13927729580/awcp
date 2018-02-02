@@ -510,22 +510,18 @@ Comm.post = function (url, response, params) {
 
 Comm.fileTypeJudge=function(file,str){
 	var $file=$(file);
-	var flag=true; 
-	var rightFileType;  
+	var rightFileType;
     var pojo;  
     if (str == "photo") {  
-        rightFileType = ["jpg", "png","jpeg"];  
+        rightFileType = ["jpg","png","jpeg"];
         pojo = "图片";  
     } else if (str == "doc") {  
-        rightFileType = ["docx", "doc", "txt"];  
+        rightFileType = ["docx","doc","xls","xlsx","ppt","htm","html","txt","zip"];
         pojo = "文档";  
-    }else if (str == "excel") {  
-        rightFileType = ["xls", "xlsx"];  
-        pojo = "excel";  
-    }else if (str == "word") {  
-        rightFileType = ["docx", "doc"];  
-        pojo = "word文档";  
-    }else {  
+    }else if (str == "media") {
+        rightFileType = ["swf","flv","mp3","mp4","m4v","wav","wma","wmv","mid","avi","mpg","asf","rmvb","rm"];
+        pojo = "音频";
+    }else {
         return;  
     }  
     var fileType = $file.val().substring($file.val().lastIndexOf(".") + 1);  
@@ -538,7 +534,7 @@ Comm.fileTypeJudge=function(file,str){
             }  
         }  
     }  
-    alert("请上传"+pojo+"格式文件！");
+    this.alert("请上传"+pojo+"格式文件！");
     $file.val("");
     return false;  
 }
@@ -554,11 +550,11 @@ Comm.uploadFile = function (handle, tag,type) {
     var url = "";
     tag=tag||$("#uploadForm");
     if (type == "photo") {
-        url = "attachment/uploadImg";
-    } else if (type == "excel") {
-        url = "attachment/excelUpload";
-    } else if (type == "word") {
-        url = "attachment/wordUpload";
+        url = "common/file/uploadImg.do?dir=image";
+    } else if (type == "doc") {
+        url = "common/file/uploadImg.do?dir=file";
+    } else if (type == "media") {
+        url = "common/file/uploadImg.do?dir=media";
     } else {
         url = "common/file/upload.do";
     }

@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=utf-8"
     pageEncoding="utf-8"%>
-<%@ include file="/head/head1.jsp"%>
+<%@ include file="/WF/head/head1.jsp"%>
 <%
 	String CondType=request.getParameter("CondType");
 	String FK_Flow=request.getParameter("FK_Flow");
@@ -12,6 +12,7 @@
 	String CurrentCond="";
 	ConditionModel cmodel=new ConditionModel(CurrentCond,CondType,FK_Flow,FK_MainNode,FK_Node,FK_Attr,DirType,ToNodeID);
 	cmodel.init();
+	CurrentCond=cmodel.CurrentCond;
 %>
  <script type="text/javascript">
  function SelectAll(cb_selectAll) {
@@ -59,13 +60,13 @@
 			            <div data-options="region:'north',border:false" style="height:35px; padding:5px">
 			                <label for="">
 			                    	请选择方向条件设置类型：</label>
-			                <select id="cond" class="easyui-combobox" name="cond" data-options="onSelect:function(rec){ changeCond(rec); }">
-			                    <option value="Cond">表单条件</option>
-			                    <option value="CondStation">岗位条件</option>
-			                    <option value="CondDept">部门条件</option>
-			                    <option value="CondBySQL">SQL条件</option>
-			                    <option value="CondByPara">开发者参数</option>
-			                    <option value="CondByUrl">Url条件</option>
+			                <select id="cond" class="easyui-combobox" name="cond" style="width: 300px;" data-options="editable:false,onSelect:function(rec){ changeCond(rec); }">
+			                    <option value="Cond">按表单条件计算</option>
+			                    <option value="CondStation">按指定操作员的岗位条件</option>
+			                    <option value="CondDept">按指定操作员的部门条件</option>
+			                    <option value="CondBySQL">按SQL条件计算</option>
+			                    <option value="CondByPara">按开发者参数计算</option>
+			                    <option value="CondByUrl">按Url条件计算</option>
 			                </select>
 			            </div>
 			            <div data-options="region:'center',title:' '" style="overflow-y:hidden;">

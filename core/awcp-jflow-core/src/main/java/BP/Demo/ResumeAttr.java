@@ -3,12 +3,13 @@ package BP.Demo;
 /**
  * 简历 属性
  */
-public class ResumeAttr {
+public class ResumeAttr
+{
 	/**
 	 * 人员
 	 */
-	public static final String FK_Emp = "FK_Emp";
-	/**
+	public static final String RefPK = "RefPK";
+		/**
 	 * 单位
 	 */
 	public static final String GongZuoDanWei = "GongZuoDanWei";
@@ -24,6 +25,4 @@ public class ResumeAttr {
 	 * 年月
 	 */
 	public static final String NianYue = "NianYue";
-	// C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-	// /#endregion
 }

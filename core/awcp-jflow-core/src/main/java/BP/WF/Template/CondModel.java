@@ -1,9 +1,5 @@
 package BP.WF.Template;
 
-import BP.DA.*;
-import BP.Sys.*;
-import BP.En.*;
-import BP.WF.Port.*;
 
 /** 
  方向条件控制规则
@@ -20,7 +16,12 @@ public enum CondModel
 	 按照用户选择计算
 	 
 	*/
-	ByUserSelected;
+	ByUserSelected,
+	/** 
+	 发送按钮旁下拉框选择
+	 
+	*/
+	SendButtonSileSelect;
 
 	public int getValue()
 	{

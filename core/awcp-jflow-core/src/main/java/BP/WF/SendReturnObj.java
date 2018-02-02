@@ -22,7 +22,7 @@ public class SendReturnObj
 			throw new RuntimeException("@没有标记");
 		}
 
-//C# TO JAVA CONVERTER NOTE: The following 'switch' operated on a string member and was converted to Java 'if-else' logic:
+
 //		switch (MsgFlag)
 //ORIGINAL LINE: case SendReturnMsgFlag.VarAcceptersID:
 		if (MsgFlag.equals(SendReturnMsgFlag.VarAcceptersID))

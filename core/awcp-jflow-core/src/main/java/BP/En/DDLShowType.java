@@ -1,52 +1,43 @@
 package BP.En;
 
-/** 
- DDLShowType
- 
-*/
+/**
+ * DDLShowType
+ */
 public enum DDLShowType
 {
-	/** 
-	 None
-	 
-	*/
+	/**
+	 * None
+	 */
 	None,
-	/** 
-	 Gender
-	 
-	*/
+	/**
+	 * Gender
+	 */
 	Gender,
-	/** 
-	 Boolean
-	 
-	*/
+	/**
+	 * Boolean
+	 */
 	Boolean,
 	/** 
-	 
-	  
 	*/
 	SysEnum,
-	/** 
-	 Self
-	 
-	*/
+	/**
+	 * Self
+	 */
 	Self,
-	/** 
-	 实体集合
-	 
-	*/
+	/**
+	 * 实体集合
+	 */
 	Ens,
-	/** 
-	 与Table 相关联
-	 
-	*/
+	/**
+	 * 与Table 相关联
+	 */
 	BindTable;
-
+	
 	public int getValue()
 	{
 		return this.ordinal();
 	}
-
+	
 	public static DDLShowType forValue(int value)
 	{
 		return values()[value];

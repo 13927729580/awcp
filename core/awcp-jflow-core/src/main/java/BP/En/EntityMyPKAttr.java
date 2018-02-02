@@ -1,16 +1,13 @@
 package BP.En;
 
-
-/** 
- EntityMyPKAttr
- 
-*/
+/**
+ * EntityMyPKAttr
+ */
 public class EntityMyPKAttr
 {
-	/** 
-	 className
-	 
-	*/
+	/**
+	 * className
+	 */
 	public static final String MyPK = "MyPK";
 	public static final String NoInt = "NoInt";
 }

@@ -26,7 +26,6 @@ import cn.org.awcp.venson.exception.PlatformException;
  * @author Venson
  *
  */
-@Component
 public class ExceptionHandler implements HandlerExceptionResolver {
 	/**
 	 * 日志对象
@@ -62,7 +61,6 @@ public class ExceptionHandler implements HandlerExceptionResolver {
 
 		if (ex instanceof MaxUploadSizeExceededException) {
 			result.setStatus(StatusCode.FAIL.setMessage("文件过大，请重新上传"));
-
 		} else if (ex instanceof UncategorizedSQLException) {
 			result.setStatus(StatusCode.NO_ACCESS.setMessage("检测到非法字符，禁止访问"));
 		} else if (ex instanceof PlatformException) {

@@ -1,6 +1,7 @@
 package BP.WF.Comm;
 
-public enum CHSta {
+public enum CHSta
+{
 	/**
 	 * 及时完成
 	 */
@@ -17,12 +18,14 @@ public enum CHSta {
 	 * 超期完成
 	 */
 	ChaoQi;
-
-	public int getValue() {
+	
+	public int getValue()
+	{
 		return this.ordinal();
 	}
-
-	public static CHSta forValue(int value) {
+	
+	public static CHSta forValue(int value)
+	{
 		return values()[value];
 	}
 }

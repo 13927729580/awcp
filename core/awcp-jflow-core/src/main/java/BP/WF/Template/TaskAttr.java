@@ -1,9 +1,6 @@
 package BP.WF.Template;
 
-import BP.DA.*;
-import BP.En.*;
-import BP.WF.*;
-import BP.Port.*;
+import BP.En.EntityMyPKAttr;
 
 /** 
  任务 属性
@@ -11,8 +8,8 @@ import BP.Port.*;
 */
 public class TaskAttr extends EntityMyPKAttr
 {
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 基本属性
+
+		
 	/** 
 	 发起人
 	 
@@ -48,6 +45,6 @@ public class TaskAttr extends EntityMyPKAttr
 	 
 	*/
 	public static final String RDT = "RDT";
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
+
 		///#endregion
 }

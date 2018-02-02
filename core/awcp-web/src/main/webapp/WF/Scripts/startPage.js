@@ -149,7 +149,7 @@ function LoadEasyUiHistoryGrid(flowNo) {
                 url: '/AppDemoLigerUI/Base/DataService.aspx?method=historystartflow&FK_Flow=' + flowNo,
                 columns: [[
             { title: '标题', field: 'Title', width: 320, align: 'left', formatter: function (value, rec) {
-                var h = "../WF/WFRpt.aspx?WorkID=" + rec.OID + "&FK_Flow=" + flowNo + "&FID=" + rec.FID + "&T=" + strTimeKey;
+                var h = "../WF/WFRpt.jsp?WorkID=" + rec.OID + "&FK_Flow=" + flowNo + "&FID=" + rec.FID + "&T=" + strTimeKey;
                 return "<a href='javascript:void(0);' onclick=WinOpenWindow('" + h + "')>" + rec.Title + "</a>";
             }
             },

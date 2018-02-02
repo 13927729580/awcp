@@ -1,5 +1,7 @@
 <%@ page language="java" isELIgnored="false" import="java.util.*" pageEncoding="utf-8"%>
-<%@ include file="/head/head.jsp"%>
+<%@ include file="/WF/head/head2.jsp"%>
+<link href="<%=Glo.getCCFlowAppPath() %>DataUser/Style/table0.css" rel="stylesheet" type="text/css" />
+
 <%
 	 String errMsg = request.getParameter("errMsg")==null?"":request.getParameter("errMsg");
 	 if(null != errMsg && "" != errMsg){
@@ -31,18 +33,13 @@ function onSubmit(){
 <body>
 	<!-- 内容 -->
 	<!-- 表格数据 -->
-	<div class="admin-content">
-
-		<div class="am-cf am-padding">
-			<div class="am-fl am-cf">
-				<strong class="am-text-primary am-text-lg">您好：<%=Glo.GenerUserImgSmallerHtml(WebUser.getNo(),WebUser.getName())%></strong>
-			</div>
-		</div>
+	<table border=1px align="center" width='100%'>
+		<Caption ><div class='' >您好：<%=Glo.GenerUserImgSmallerHtml(WebUser.getNo(),WebUser.getName())%></div></Caption>
 		
 		<div class="am-g">
 			<div class="am-u-sm-12">
 				<form method="post" action="" class="am-form" id="form1">
-					<table class="am-table am-table-striped am-table-hover table-main">
+					<!-- <table class="am-table am-table-striped am-table-hover table-main"> -->
 						<thead>
 							<tr>
 								<th class="table-check" nowrap="nowrap">填写回复意见</th>
@@ -59,10 +56,10 @@ function onSubmit(){
 							   </td>
 				 		    </tr>
 						</thead>
-					</table>
+					<!-- </table> -->
 				</form>
 			</div>
 		</div>
-	</div>	
+	</table>
 </body>
 </html>

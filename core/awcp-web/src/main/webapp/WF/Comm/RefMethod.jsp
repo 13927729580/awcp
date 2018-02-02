@@ -1,4 +1,4 @@
-<%@page import="org.jflow.framework.common.model.RefMethodModel"%>
+<%@page import="cn.jflow.common.model.RefMethodModel"%>
 <%@ page language="java" contentType="text/html; charset=utf-8"
 	pageEncoding="utf-8"%>
 <%
@@ -27,6 +27,7 @@
     <input type="hidden" name="EnsName" value="<%=request.getParameter("EnsName")%>">
     <input type="hidden" name="Index" value="<%=request.getParameter("Index")%>">
     <input type="hidden" name="No" value="<%=request.getParameter("No")%>">
+    <input type="hidden" name="WorkID" value="<%=request.getParameter("WorkID")%>">
     <table id="Table1" cellspacing="1" cellpadding="1" width="100%" border="1" class="Table"
         border="0">
        <caption class=ToolBar >

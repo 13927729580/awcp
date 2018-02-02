@@ -1,8 +1,5 @@
 package BP.WF.Data;
 
-import BP.En.*;
-import BP.WF.Template.*;
-import BP.Sys.*;
 
 /** 
   报表基类属性
@@ -20,6 +17,11 @@ public class NDXRptBaseAttr
 	 
 	*/
 	public static final String FlowEmps = "FlowEmps";
+	/** 
+	 紧急程度
+	 
+	*/
+	public static final String PRI = "PRI";
 	/** 
 	 流程ID
 	 
@@ -41,7 +43,7 @@ public class NDXRptBaseAttr
 	*/
 	public static final String FlowStarter = "FlowStarter";
 	/** 
-	 发起日期
+	 发起时间
 	 
 	*/
 	public static final String FlowStartRDT = "FlowStartRDT";
@@ -72,7 +74,7 @@ public class NDXRptBaseAttr
 	*/
 	public static final String FlowEnder = "FlowEnder";
 	/** 
-	 最后活动日期
+	 最后处理时间
 	 
 	*/
 	public static final String FlowEnderRDT = "FlowEnderRDT";
@@ -86,17 +88,6 @@ public class NDXRptBaseAttr
 	 
 	*/
 	public static final String FlowEndNode = "FlowEndNode";
-
-	/** 
-	 延续流程WorkID
-	 
-	*/
-	public static final String CWorkID = "CWorkID";
-	/** 
-	 延续流程编号
-	 
-	*/
-	public static final String CFlowNo = "CFlowNo";
 	/** 
 	 客户编号
 	 
@@ -113,7 +104,7 @@ public class NDXRptBaseAttr
 	*/
 	public static final String BillNo = "BillNo";
 
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
+
 		///#region 父子流程属性.
 	/** 
 	 父流程WorkID
@@ -125,6 +116,8 @@ public class NDXRptBaseAttr
 	 
 	*/
 	public static final String PFlowNo = "PFlowNo";
+
+
 	/** 
 	 调用子流程的节点
 	 
@@ -140,6 +133,6 @@ public class NDXRptBaseAttr
 	 
 	*/
 	public static final String AtPara = "AtPara";
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
+
 		///#endregion 父子流程属性.
 }

@@ -1,43 +1,36 @@
 package BP.En;
 
-
-/** 
- 编辑器类型
- 
-*/
+/**
+ * 编辑器类型
+ */
 public enum EditerType
 {
-	/** 
-	 无编辑器
-	 
-	*/
+	/**
+	 * 无编辑器
+	 */
 	None,
-	/** 
-	 Sina编辑器
-	 
-	*/
+	/**
+	 * Sina编辑器
+	 */
 	Sina,
-	/** 
-	 FKEditer
-	 
-	*/
+	/**
+	 * FKEditer
+	 */
 	FKEditer,
-	/** 
-	 KindEditor
-	 
-	*/
+	/**
+	 * KindEditor
+	 */
 	KindEditor,
-	/** 
-	 百度的UEditor
-	 
-	*/
+	/**
+	 * 百度的UEditor
+	 */
 	UEditor;
-
+	
 	public int getValue()
 	{
 		return this.ordinal();
 	}
-
+	
 	public static EditerType forValue(int value)
 	{
 		return values()[value];

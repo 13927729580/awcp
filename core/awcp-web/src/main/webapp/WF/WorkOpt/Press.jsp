@@ -1,5 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ include file="/head/head.jsp"%>
+<%@ include file="/WF/head/head2.jsp"%>
+<link href="<%=Glo.getCCFlowAppPath() %>DataUser/Style/table0.css" rel="stylesheet" type="text/css" />
+
 <%
 	 String workId = request.getParameter("WorkID")==null?"0":request.getParameter("WorkID");
 	 long WorkID=Long.valueOf(workId);
@@ -17,18 +19,13 @@
 <body>
 	<!-- 内容 -->
 	<!-- 表格数据 -->
-	<div class="admin-content">
-
-		<div class="am-cf am-padding">
-			<div class="am-fl am-cf">
-				<strong class="am-text-primary am-text-lg">您好：<%=Glo.GenerUserImgSmallerHtml(WebUser.getNo(),WebUser.getName())%>   --   请输入催办消息</strong>
-			</div>
-		</div>
+	<table border=1px align=center width='100%'>
+		<Caption ><div class='' >您好：<%=Glo.GenerUserImgSmallerHtml(WebUser.getNo(),WebUser.getName())%></div></Caption>
 		
 		<div class="am-g">
 			<div class="am-u-sm-12">
 				<form method="post" action="Press.do?WorkID=<%=WorkID%>&FK_Flow=<%=FK_Flow %>" class="am-form" id="form1">
-					<table class="am-table am-table-striped am-table-hover table-main">
+					<!-- <table class="am-table am-table-striped am-table-hover table-main"> -->
 						<tr>
 							<!-- <td width="20%"></td> -->
 							<td>
@@ -37,10 +34,10 @@
 							      <input type="button" name="Btn_Cancel" value=" 取消 " onclick="window.close();" id="Btn_Cancel" class="am-btn am-btn-primary am-btn-xs"/>
 							</td>
 						</tr>
-					</table>	
+					<!-- </table>	 -->
 				</form>
 			</div>
 		</div>
-	</div>	
+	</table>
 </body>
 </html>

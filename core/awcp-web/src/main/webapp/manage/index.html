@@ -51,17 +51,18 @@
                         <!-- Menu Toggle Button -->
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                             <!-- The user image in the navbar-->
-                            <img src="../template/AdminLTE/images/user2-160x160.jpg" class="user-image userHeadImg" alt="User Image">
+                            <img src="../template/AdminLTE/images/user2-160x160.jpg" class="user-image userHeadImg" alt="">
                             <!-- hidden-xs hides the username on small devices so only the image appears. -->
                             <span class="hidden-xs" id="userName"></span>
                         </a>
                         <ul class="dropdown-menu">
                             <!-- The user image in the menu -->
                             <li class="user-header" onclick="document.getElementById('upload_userHeadImg').click()">
-                                <img src="../template/AdminLTE/images/user2-160x160.jpg" class="img-circle userHeadImg" alt="User Image">
+                                <img src="../template/AdminLTE/images/user2-160x160.jpg" class="img-circle userHeadImg" alt="">
                                 <p id="userInfo"></p>
                                 <form style="display:inline-block;vertical-align:middle;" enctype="multipart/form-data">
-									<input type="file" style="display:none;"  accept=".jpg,.gif,.png" name="file" id="upload_userHeadImg">
+                                    <input type="hidden" name="uploadType" value="1"/>
+									<input type="file" style="display:none;"  accept=".jpg,.gif,.png" name="imgFile" id="upload_userHeadImg">
 								</form>
                             </li>
                             <!-- Menu Footer-->
@@ -320,13 +321,13 @@
 			if($.trim($(this).val()).length>2){
 				var $form=$(this).parent("form");
 				Comm.uploadFile(function(data){
-					if(data.status==0){
-						setUserHeadImg(data.data);
-						$.get(baseUrl+"api/userHeadImg",{"userHeadImg":data.data});
+					if(data.error==0){
+						setUserHeadImg(data.url);
+						$.get(baseUrl+"api/userHeadImg",{"userHeadImg":data.url});
 					}else{
 						Comm.alert(data.message);
 					}
-				},$form)
+				},$form,"photo");
 			}
 		})
 		//修改密码
@@ -399,12 +400,15 @@
 		});
 		
 		function setUserHeadImg(userHeadImg){
-			if(userHeadImg){
-				var file=Comm.getData("api/common/file/get",{"_method":"get","id":userHeadImg})
-				if(file!=-1){
-					$(".userHeadImg").attr("src",baseUrl+"api/common/file/showPicture?id="+userHeadImg);
-				}
-			}
+            if(userHeadImg.indexOf("http")==0){
+                $(".userHeadImg").attr("src",userHeadImg);
+            }else{
+                $.get(baseUrl+"api/common/file/get",{"id":userHeadImg},function(data){
+                    if(data.data!=-1){
+                        $(".userHeadImg").attr("src",baseUrl+"api/common/file/showPicture?id="+userHeadImg);
+                    }
+                })
+            }
 		}
     });
 </script>

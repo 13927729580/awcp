@@ -1,7 +1,7 @@
-<%@page import="BP.WF.Template.CC.CCListAttr"%>
+<%@page import="BP.WF.Template.CCListAttr"%>
 <%@ page language="java" contentType="text/html; charset=utf-8"
 	pageEncoding="utf-8"%>
-<%@page import="BP.Port.WebUser"%>
+<%@page import="BP.Web.WebUser"%>
 <%@page import="BP.DA.DataRow"%>
 <%@page import="BP.DA.DataType"%>
 <%@page import="BP.DA.DataTable"%>
@@ -92,12 +92,10 @@
 	}
 
 	public String GenerMenu(String basePath, String FK_Flow) {
-		String msg = "<a href='" + basePath + "WF/CC.jsp?Sta=-1&FK_Flow="
-				+ FK_Flow + "' >全部</a> - " + "<a href='" + basePath
-				+ "WF/CC.jsp?Sta=0&FK_Flow=" + FK_Flow + "' >未读</a> - "
-				+ "<a href='" + basePath + "WF/CC.jsp?Sta=1&FK_Flow=" + FK_Flow
-				+ "' >已读</a> - " + "<a href='" + basePath
-				+ "WF/CC.jsp?Sta=2&FK_Flow=" + FK_Flow + "' >删除</a>";
+		String msg = "<a href='CC.jsp?Sta=-1&FK_Flow="
+				+ FK_Flow + "' >全部</a> - " + "<a href='CC.jsp?Sta=0&FK_Flow=" + FK_Flow + "' >未读</a> - "
+				+ "<a href='CC.jsp?Sta=1&FK_Flow=" + FK_Flow
+				+ "' >已读</a> - " + "<a href='CC.jsp?Sta=2&FK_Flow=" + FK_Flow + "' >删除</a>";
 		return msg;
 	}
 
@@ -110,7 +108,7 @@
 			groupVals += "@" + dr.getValue(GroupBy) + ",";
 		}
 		int colspan = 9;
-		this.AddTable("align=left");
+		//this.AddTable("align=left");
 		this.AddCaption("<img src='" + basePath + "WF/Img/CCSta/CC.gif' >"
 				+ GenerMenu(basePath, FK_Flow));
 		this.AddTR();
@@ -119,18 +117,15 @@
 		this.AddTDTitle("内容");
 
 		if (!"FlowName".equals(GroupBy))
-			this.AddTDTitle("<a href='" + basePath
-					+ "WF/CC.jsp?GroupBy=FlowName&DoType=CC&Sta=" + Sta
+			this.AddTDTitle("<a href='CC.jsp?GroupBy=FlowName&DoType=CC&Sta=" + Sta
 					+ "&FK_Flow=" + FK_Flow + "' >流程</a>");
 
 		if (!"NodeName".equals(GroupBy))
-			this.AddTDTitle("<a href='" + basePath
-					+ "WF/CC.jsp?GroupBy=NodeName&DoType=CC&Sta=" + Sta
+			this.AddTDTitle("<a href='CC.jsp?GroupBy=NodeName&DoType=CC&Sta=" + Sta
 					+ "&FK_Flow=" + FK_Flow + "' >节点</a>");
 
 		if (!"Rec".equals(GroupBy))
-			this.AddTDTitle("<a href='" + basePath
-					+ "WF/CC.jsp?GroupBy=Rec&DoType=CC&Sta=" + Sta
+			this.AddTDTitle("<a href='CC.jsp?GroupBy=Rec&DoType=CC&Sta=" + Sta
 					+ "&FK_Flow=" + FK_Flow + "' >抄送人</a>");
 
 		if ("1".equals(Sta))
@@ -247,7 +242,7 @@
 		this.AddTRSum();
 		this.AddTD("colspan=" + colspan, "&nbsp;");
 		this.AddTREnd();
-		this.AddTableEnd();
+		//this.AddTableEnd();
 	}
 %>
 <form class="am-form">

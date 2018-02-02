@@ -1,9 +1,6 @@
 package BP.WF.Template;
 
-import BP.DA.*;
-import BP.En.*;
-import BP.Port.*;
-import BP.Sys.*;
+import BP.En.EntityTreeAttr;
 
 /** 
  流程类别属性
@@ -11,4 +8,6 @@ import BP.Sys.*;
 */
 public class FlowSortAttr extends EntityTreeAttr
 {
+
+	public static final String OrgNo = "OrgNo";
 }

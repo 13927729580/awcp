@@ -1,11 +1,9 @@
 package BP.DTS;
 
-
-/** 
- 调度
- 
-*/
+/**
+ * 调度
+ */
 public abstract class DataIOEn extends DataIOEn2
 {
-	public boolean Enable=true;
+	public boolean Enable = true;
 }

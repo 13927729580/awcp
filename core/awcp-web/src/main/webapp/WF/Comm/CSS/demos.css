@@ -71,7 +71,7 @@ div#interface.span3 fieldset legend {
   padding: 1em 2em 2em;
 }
 form {
-  margin: 1.5em 0;
+/*   margin: 1.5em 0; */
 }
 form.coords label {
   margin-right: 1em;

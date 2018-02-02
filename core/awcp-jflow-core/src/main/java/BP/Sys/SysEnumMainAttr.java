@@ -1,6 +1,6 @@
 package BP.Sys;
 
-import BP.En.EntityNoNameAttr;
+import BP.En.*;
 
 /** 
  sss

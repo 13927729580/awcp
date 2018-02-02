@@ -1,15 +1,15 @@
 package BP.Sys;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import BP.En.EntitiesNoName;
 import BP.En.Entity;
-import BP.En.EntityNoName;
+import BP.WF.Entity.GenerWorkFlow;
 
-/** 
- GENoNames
- 
-*/
+/**
+ * GENoNames
+ */
 public class GENoNames extends EntitiesNoName
 {
 	/**
@@ -18,33 +18,39 @@ public class GENoNames extends EntitiesNoName
 	private static final long serialVersionUID = 1L;
 	
 	@SuppressWarnings("unchecked")
-	public static ArrayList<GENoName> convertGENoNames(Object obj) {
+	public static ArrayList<GENoName> convertGENoNames(Object obj)
+	{
 		return (ArrayList<GENoName>) obj;
 	}
-	/** 
-	 物理表
-	 
-	*/
+	public List<GENoName> ToJavaList()
+	{
+		return (List<GENoName>)(Object)this;
+	}
+	/**
+	 * 物理表
+	 */
 	public String SFTable = null;
 	public String Desc = null;
-
-	/** 
-	 GENoNames
-	 
-	*/
+	
+	/**
+	 * GENoNames
+	 */
 	public GENoNames()
 	{
 	}
+	
 	public GENoNames(String sftable, String tableDesc)
 	{
 		this.SFTable = sftable;
 		this.Desc = tableDesc;
 	}
+	
 	@Override
 	public Entity getGetNewEntity()
 	{
 		return new GENoName(this.SFTable, this.Desc);
 	}
+	
 	@Override
 	public int RetrieveAll()
 	{

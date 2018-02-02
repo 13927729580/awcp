@@ -1,40 +1,6 @@
 package cn.org.awcp.venson.controller.base;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.lang.reflect.Field;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.ResourceBundle;
-
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authc.UsernamePasswordToken;
-import org.apache.shiro.subject.Subject;
-import org.springframework.util.ReflectionUtils;
-
-import com.alibaba.fastjson.JSONObject;
-import com.github.miemiedev.mybatis.paginator.domain.PageList;
-
-import BP.Port.Emp;
-import BP.Port.WebUser;
+import BP.WF.Dev2Interface;
 import cn.org.awcp.core.utils.SessionUtils;
 import cn.org.awcp.core.utils.Springfactory;
 import cn.org.awcp.core.utils.constants.SessionContants;
@@ -45,15 +11,30 @@ import cn.org.awcp.unit.service.PunSystemService;
 import cn.org.awcp.unit.service.PunUserGroupService;
 import cn.org.awcp.unit.shiro.ShiroDbRealm;
 import cn.org.awcp.unit.utils.WhichEndEnum;
-import cn.org.awcp.unit.vo.PunGroupVO;
-import cn.org.awcp.unit.vo.PunRoleInfoVO;
-import cn.org.awcp.unit.vo.PunSystemVO;
-import cn.org.awcp.unit.vo.PunUserBaseInfoVO;
-import cn.org.awcp.unit.vo.PunUserGroupVO;
+import cn.org.awcp.unit.vo.*;
 import cn.org.awcp.venson.common.SC;
 import cn.org.awcp.venson.exception.PlatformException;
 import cn.org.awcp.venson.util.CookieUtil;
 import cn.org.awcp.venson.util.MD5Util;
+import com.alibaba.fastjson.JSONObject;
+import com.github.miemiedev.mybatis.paginator.domain.PageList;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.subject.Subject;
+import org.springframework.util.ReflectionUtils;
+
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
+import java.lang.reflect.Field;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * controller助手，该类包含了controller类常用的一些常量以及方法
@@ -158,37 +139,6 @@ public final class ControllerHelper {
 		return basePath;
 	}
 
-	public static void doLoginSuccess(PunUserBaseInfoVO pvi) {
-		PunGroupService groupService = Springfactory.getBean("punGroupServiceImpl");
-		PunRoleInfoService roleService = Springfactory.getBean("punRoleInfoServiceImpl");
-		PunUserGroupService usergroupService = Springfactory.getBean("punUserGroupServiceImpl");
-		Map<String, Object> gParams = new HashMap<String, Object>();
-		Emp emp = new Emp(pvi.getUserIdCardNumber());
-		WebUser.SignInOfGener(emp);
-		gParams.put("parentGroupId", 0);
-		List<PunGroupVO> groups = groupService.queryResult("eqQueryList", gParams);
-		if (groups.isEmpty() || groups.size() != 1) {
-			throw new PlatformException("组织架构为空");
-		}
-		SessionUtils.addObjectToSession(SessionContants.CURRENT_USER, pvi);// 用户
-		SessionUtils.addObjectToSession(SessionContants.CURRENT_USER_GROUP, groups.get(0));// 组
-		gParams.clear();
-		gParams.put("userId", pvi.getUserId());
-		PageList<PunUserGroupVO> userGroup = usergroupService.selectPagedByExample("queryList", gParams, 0, 1, null);
-		if (userGroup != null && !userGroup.isEmpty()) {
-			SessionUtils.addObjectToSession(SC.USER_GROUP, userGroup);// 组
-		}
-
-		PunSystemService sysService = Springfactory.getBean("punSystemServiceImpl");
-		List<PunSystemVO> system = sysService.findAll();
-		SessionUtils.addObjectToSession(SessionContants.CURRENT_SYSTEM, system.get(0));
-		SessionUtils.addObjectToSession(SessionContants.TARGET_SYSTEM, system.get(0));
-
-		gParams.put("sysId", system.get(0).getSysId());
-		List<PunRoleInfoVO> roles = (List<PunRoleInfoVO>) roleService.queryResult("queryBySysIdAndUserId", gParams);
-		SessionUtils.addObjectToSession(SessionContants.CURRENT_ROLES, roles);
-	}
-
 	public static List<PunUserGroupVO> getUserGroup() {
 		return (List<PunUserGroupVO>) SessionUtils.getObjectFromSession(SC.USER_GROUP);
 	}
@@ -244,7 +194,7 @@ public final class ControllerHelper {
 	 */
 	public static String processFileName(String fileNames) {
 		HttpServletRequest request = ControllerContext.getRequest();
-		String codedfilename = null;
+		String codedfilename=null;
 		try {
 			String agent = request.getHeader("USER-AGENT");
 			if (null != agent && -1 != agent.indexOf("MSIE") || null != agent && -1 != agent.indexOf("Trident")) {// ie
@@ -290,62 +240,28 @@ public final class ControllerHelper {
 		makeAttachment(contentType, header, IOUtils.toByteArray(new FileInputStream(filePath)));
 	}
 
-	/**
-	 * 渲染JSON数据
-	 * 
-	 * @param contentType
-	 *            文件类型
-	 * @param error
-	 *            信息
-	 * @param logger
-	 *            日志
-	 */
-	public static boolean renderJSON(String contentType, String error, Log logger) throws IOException {
-		contentType = StringUtils.defaultString(contentType, CONTENT_TYPE_JSON);
-		ReturnResult returnResult = ReturnResult.get();
-		HttpServletResponse response = ControllerContext.getResponse();
-		returnResult.setStatus(StatusCode.NO_ACCESS.setMessage(error));
-		response.setContentType(contentType + "; charset=UTF-8");
-		PrintWriter out = response.getWriter();
-		out.print(JSONObject.toJSON(returnResult));
-		out.close();
 
-		return false;
-	}
 
-	public static boolean renderJSON(String error, Log logger) throws IOException {
-		return renderJSON(null, error, logger);
-	}
 
 	public static void renderJSON(String contentType) throws IOException {
-		contentType = StringUtils.defaultString((String) contentType, CONTENT_TYPE_JSON);
-		ReturnResult returnResult = ReturnResult.get();
-		HttpServletResponse response = ControllerContext.getResponse();
-		response.setContentType(contentType + "; charset=UTF-8");
-		PrintWriter out = response.getWriter();
-		out.print(JSONObject.toJSON(returnResult));
-		out.close();
+		renderJSON(contentType,ReturnResult.get());
 	}
 
+	/**
+	 * 渲染JSON数据
+	 *
+	 * @param contentType
+	 *            文件类型
+	 * @param obj
+	 *            渲染对象
+	 */
 	public static void renderJSON(String contentType, Object obj) throws IOException {
-		contentType = StringUtils.defaultString((String) contentType, CONTENT_TYPE_JSON);
+		contentType = StringUtils.defaultString(contentType, CONTENT_TYPE_JSON);
 		HttpServletResponse response = ControllerContext.getResponse();
 		response.setContentType(contentType + "; charset=UTF-8");
 		PrintWriter out = response.getWriter();
-		out.print(JSONObject.toJSON(obj));
+		out.write(JSONObject.toJSONString(obj));
 		out.close();
-	}
-
-	public static void renderJSON(String contentType, Object obj, OutputStream out) throws IOException {
-		contentType = StringUtils.defaultString((String) contentType, CONTENT_TYPE_JSON);
-		HttpServletResponse response = ControllerContext.getResponse();
-		response.setContentType(contentType + "; charset=UTF-8");
-		out.write(JSONObject.toJSONString(obj).getBytes());
-		IOUtils.closeQuietly(out);
-	}
-
-	public static void renderJSON(Object obj, OutputStream out) throws IOException {
-		renderJSON(null, obj, out);
 	}
 
 	/**
@@ -370,14 +286,18 @@ public final class ControllerHelper {
 	}
 
 	public static PunUserBaseInfoVO getUser() {
-		return (PunUserBaseInfoVO) DocumentUtils.getIntance().getUser();
+		return DocumentUtils.getIntance().getUser();
+	}
+
+	public static String getSecretKey(String uid){
+		return MD5Util.getMD5StringWithSalt(uid,SC.SALT);
 	}
 
 	public static boolean loginByCookie() {
 		HttpServletRequest request = ControllerContext.getRequest();
 		// 尝试从参数中获取
-		String secretKey = request.getParameter("uid");
-		String userAccount = request.getParameter("key");
+		String secretKey = request.getParameter("key");
+		String userAccount = request.getParameter("uid");
 		// 如果为空则从cookie中获取
 		if (secretKey == null || userAccount == null) {
 			String secretKeyCookie = CookieUtil.findCookie(SC.SECRET_KEY);
@@ -388,9 +308,8 @@ public final class ControllerHelper {
 			}
 		}
 		if (secretKey != null && userAccount != null) {
-			String data = MD5Util.getMD5StringWithSalt(userAccount, SC.SALT);
 			// 若返回值不为空则为合法操作
-			if (userAccount.equals(data)) {
+			if (secretKey.equals(getSecretKey(userAccount))) {
 				return toLogin(userAccount, false) != null;
 			}
 		}
@@ -410,10 +329,41 @@ public final class ControllerHelper {
 		}
 		ControllerHelper.doLoginSuccess(pvi);
 		if (isRemember) {
-			CookieUtil.addCookie(SC.SECRET_KEY, MD5Util.getMD5StringWithSalt(pvi.getUserIdCardNumber(), SC.SALT));
+			CookieUtil.addCookie(SC.SECRET_KEY,getSecretKey(pvi.getUserIdCardNumber()));
 			CookieUtil.addCookie(SC.USER_ACCOUNT, pvi.getUserIdCardNumber());
 		}
 		return pvi;
+	}
+
+	public static void doLoginSuccess(PunUserBaseInfoVO pvi) {
+		PunGroupService groupService = Springfactory.getBean("punGroupServiceImpl");
+		PunRoleInfoService roleService = Springfactory.getBean("punRoleInfoServiceImpl");
+		PunUserGroupService usergroupService = Springfactory.getBean("punUserGroupServiceImpl");
+		Map<String, Object> gParams = new HashMap<>();
+		//JFLOW登录用户
+		Dev2Interface.Port_Login(pvi.getUserIdCardNumber());
+		gParams.put("parentGroupId", 0);
+		List<PunGroupVO> groups = groupService.queryResult("eqQueryList", gParams);
+		if (groups.isEmpty() || groups.size() != 1) {
+			throw new PlatformException("组织架构为空");
+		}
+		SessionUtils.addObjectToSession(SessionContants.CURRENT_USER, pvi);// 用户
+		SessionUtils.addObjectToSession(SessionContants.CURRENT_USER_GROUP, groups.get(0));// 组
+		gParams.clear();
+		gParams.put("userId", pvi.getUserId());
+		PageList<PunUserGroupVO> userGroup = usergroupService.selectPagedByExample("queryList", gParams, 0, 1, null);
+		if (userGroup != null && !userGroup.isEmpty()) {
+			SessionUtils.addObjectToSession(SC.USER_GROUP, userGroup);// 组
+		}
+
+		PunSystemService sysService = Springfactory.getBean("punSystemServiceImpl");
+		List<PunSystemVO> system = sysService.findAll();
+		SessionUtils.addObjectToSession(SessionContants.CURRENT_SYSTEM, system.get(0));
+		SessionUtils.addObjectToSession(SessionContants.TARGET_SYSTEM, system.get(0));
+
+		gParams.put("sysId", system.get(0).getSysId());
+		List<PunRoleInfoVO> roles =  roleService.queryResult("queryBySysIdAndUserId", gParams);
+		SessionUtils.addObjectToSession(SessionContants.CURRENT_ROLES, roles);
 	}
 
 	public static Long getUserId() {

@@ -1,10 +1,5 @@
 package BP.WF;
 
-import BP.WF.*;
-import BP.Web.*;
-import BP.En.*;
-import BP.DA.*;
-import BP.En.*;
 
 /** 
  执行内容列表
@@ -15,6 +10,7 @@ public class DoWhatList
 	public static final String DoNode = "DoNode";
 	public static final String Start = "Start";
 	public static final String Start5 = "Start5";
+	public static final String StartSimple = "StartSimple";
 	public static final String JiSu = "JiSu";
 	public static final String Amaze = "Amaze";
 	public static final String StartLigerUI = "StartLigerUI";
@@ -32,12 +28,17 @@ public class DoWhatList
 	public static final String DealWork = "DealWork";
 	public static final String DealWorkInSmall = "DealWorkInSmall";
 	public static final String DealWorkInSmallSingle = "DealWorkInSmallSingle";
-	public static final String Tools = "Tools";
-	public static final String ToolsSmall = "ToolsSmall";
-	public static final String Runing = "Runing";
 	public static final String EmpWorksSmall = "EmpWorksSmall";
 	public static final String EmpWorksSmallSingle = "EmpWorksSmallSingle";
 	public static final String RuningSmall = "RuningSmall";
+	/** 
+	 处理消息连接
+	 
+	*/
+	public static final String DealMsg = "DealMsg";
+	public static final String Tools = "Tools";
+	public static final String ToolsSmall = "ToolsSmall";
+	public static final String Runing = "Runing";
 	/** 
 	 工作处理器
 	 

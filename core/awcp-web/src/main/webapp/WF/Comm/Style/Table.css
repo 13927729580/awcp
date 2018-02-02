@@ -1,4 +1,4 @@
-/*  Table é£æ ¼  */
+/*  Table ·ç¸ñ  */
 body
 {
     font-size: 12px;
@@ -7,7 +7,7 @@ body
 .MasterPage
 {
 	background-color: #FFFFFF;
-	font-family: å®‹ä½“;
+	font-family: ËÎÌå;
 	font-size: 12px;
 	border-left-style: double;
 	border-right-style: double;
@@ -72,7 +72,7 @@ body
 }
  
 
-/* åœ¨è¾“å…¥ä¿¡æ¯å­—æ®µåç§°ï¼Œå•å…ƒæ ¼å¼çš„é£æ ¼ */
+/* ÔÚÊäÈëĞÅÏ¢×Ö¶ÎÃû³Æ£¬µ¥Ôª¸ñÊ½µÄ·ç¸ñ */
 .FDesc
 {
 	padding: 4px;
@@ -84,7 +84,7 @@ body
 	border-top:none;
 }
 
-/* æ–‡æœ¬æ¡† */
+/* ÎÄ±¾¿ò */
 .TB
 {
 	font-size: 12px;
@@ -94,8 +94,10 @@ body
     width:100%;
     border-width:0px;
 }
+    
 
-/* æ•°å€¼ç±»å‹æ–‡æœ¬æ¡† */
+
+/* ÊıÖµÀàĞÍÎÄ±¾¿ò */
 .TBNum
 {
     font-size: 12px;
@@ -106,7 +108,7 @@ body
     border-width:0px;
 }
  
-/* åªè¯»æ–‡æœ¬æ¡† */
+/* Ö»¶ÁÎÄ±¾¿ò */
  .TBReadonly
 {
     border-style: dashed;
@@ -119,7 +121,7 @@ body
     background-color: #F7F7F7;
 }
 
-/* æ•°å€¼åªè¯»æ–‡æœ¬æ¡† */
+/* ÊıÖµÖ»¶ÁÎÄ±¾¿ò */
 .TBNumReadonly
 {
 	font-size: 12px;
@@ -132,19 +134,19 @@ body
 	text-align:right;
 }
 
-/* Table ä¸­çš„ TR */
+/* Table ÖĞµÄ TR */
 .TR
 {
 }
 
-/* Table ä¸­çš„ æ•°æ®æ±‡æ€»TR åœ¨ä¸€ä¸ªè¡¨æ ¼ä¸­çš„æœ€åä¸€åˆ—,åˆè®¡,å°è®¡... */
+/* Table ÖĞµÄ Êı¾İ»ã×ÜTR ÔÚÒ»¸ö±í¸ñÖĞµÄ×îºóÒ»ÁĞ,ºÏ¼Æ,Ğ¡¼Æ... */
 .TRSum
 {
     font-size: 12px;
-    background-color:Blue;
+    background-color: #C0C0C0;
 }
 
-/* Table ä¸­çš„ TD å•å…ƒæ ¼ */
+/* Table ÖĞµÄ TD µ¥Ôª¸ñ */
 .TD
 {
 	border: lightgrey 1px solid;
@@ -155,7 +157,7 @@ body
     text-align: left;
 }
 
-/* Table ä¸­çš„ æ•°å­— TD å•å…ƒæ ¼ */
+/* Table ÖĞµÄ Êı×Ö TD µ¥Ôª¸ñ */
 .TDNum
 {
     border: lightgrey 1px solid;
@@ -166,7 +168,7 @@ body
 	text-align: right;
 }
 
-/* Table ä¸­çš„ TD å¤§æ–‡æœ¬è¾“å‡º */
+/* Table ÖĞµÄ TD ´óÎÄ±¾Êä³ö */
 .BigDoc
 {
     border: lightgrey 1px solid;
@@ -177,7 +179,7 @@ body
     text-align: left;
 }
 
-/* å†…éƒ¨æ ‡ç­¾é£æ ¼ */
+/* ÄÚ²¿±êÇ©·ç¸ñ */
 fieldset
 {
     table-layout: auto;
@@ -192,7 +194,7 @@ legend
     font-weight: bold;
 }
 
-/* Table ä¸­çš„ å­—æ®µåˆ†ç»„é£æ ¼ */
+/* Table ÖĞµÄ ×Ö¶Î·Ö×é·ç¸ñ */
 .ToolBar, Toolbar
 {
     background-color: #d8edff;
@@ -203,7 +205,7 @@ legend
     padding: 2px;
 }
 
-/* Table ä¸­çš„ æ ‡é¢˜åˆ†ç»„é£æ ¼ */
+/* Table ÖĞµÄ ±êÌâ·Ö×é·ç¸ñ */
 .GroupTitle
 {
 	background-color: #d8edff;
@@ -215,7 +217,7 @@ legend
 	font-weight:bolder;
 }
 
-/* Table ä¸­çš„ å­—æ®µåˆ†ç»„é£æ ¼ */
+/* Table ÖĞµÄ ×Ö¶Î·Ö×é·ç¸ñ */
 .GroupField
 {
 	background-color: #E1E1E1;
@@ -235,7 +237,7 @@ legend
 	padding: 1px;
 }
 
-/* Table ä¸­çš„ TD å±…ä¸­é£æ ¼ */
+/* Table ÖĞµÄ TD ¾ÓÖĞ·ç¸ñ */
 .TDCenter
 {
     background-color: #E1E1E1;
@@ -255,13 +257,13 @@ legend
     padding: 1px;
 }
 
-/*æ•´ä½“å›¾ç‰‡é£æ ¼*/
+/*ÕûÌåÍ¼Æ¬·ç¸ñ*/
 Img
 {
     border:0px;
 }
 
-/* ICON é£æ ¼.*/
+/* ICON ·ç¸ñ.*/
 .Icon
 {
     border:0px;
@@ -269,3 +271,12 @@ Img
     height:16px;
 }
     
+.Btn
+{
+    border: 0;
+    background: #4D77A7;
+    color: #FFF;
+    font-size: 12px;
+    padding: 6px 10px;
+    margin: 3px 3px 3px 3px;
+}

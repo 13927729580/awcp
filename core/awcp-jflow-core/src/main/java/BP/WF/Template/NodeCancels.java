@@ -1,11 +1,10 @@
 package BP.WF.Template;
 
-import java.util.ArrayList;
-
-import BP.DA.*;
-import BP.En.*;
-import BP.En.*;
-import BP.Port.*;
+import BP.En.EntitiesMM;
+import BP.En.Entity;
+import BP.En.QueryObject;
+import BP.WF.Node;
+import BP.WF.Nodes;
 
 /** 
  可撤销的节点
@@ -13,6 +12,8 @@ import BP.Port.*;
 */
 public class NodeCancels extends EntitiesMM
 {
+
+		///#region 构造与属性.
 	/** 
 	 他的撤销到
 	 
@@ -20,7 +21,7 @@ public class NodeCancels extends EntitiesMM
 	public final Nodes getHisNodes()
 	{
 		Nodes ens = new Nodes();
-		for (NodeCancel ns : convertNodeCancels(this))
+		for (NodeCancel ns : this.ToJavaList())
 		{
 			ens.AddEntity(new Node(ns.getCancelTo()));
 		}
@@ -33,13 +34,6 @@ public class NodeCancels extends EntitiesMM
 	public NodeCancels()
 	{
 	}
-	
-	
-	@SuppressWarnings("unchecked")
-	public static ArrayList<NodeCancel> convertNodeCancels(Object obj) {
-		return (ArrayList<NodeCancel>) obj;
-	}
-	
 	/** 
 	 可撤销的节点
 	 
@@ -71,6 +65,11 @@ public class NodeCancels extends EntitiesMM
 	{
 		return new NodeCancel();
 	}
+
+		///#endregion 构造与属性.
+
+
+		///#region 公共方法.
 	/** 
 	 可撤销的节点s
 	 
@@ -81,10 +80,10 @@ public class NodeCancels extends EntitiesMM
 	{
 		Nodes nds = new Nodes();
 		Nodes tmp = new Nodes();
-		for (Node st : Nodes.convertNodes(sts))
+		for (Node st : sts.ToJavaList())
 		{
 			tmp = this.GetHisNodes(st.getNo());
-			for (Node nd : Nodes.convertNodes(tmp))
+			for (Node nd : tmp.ToJavaList())
 			{
 				if (nds.Contains(nd))
 				{
@@ -108,7 +107,7 @@ public class NodeCancels extends EntitiesMM
 		qo.DoQuery();
 
 		Nodes ens = new Nodes();
-		for (NodeCancel en : convertNodeCancels(this))
+		for (NodeCancel en : this.ToJavaList())
 		{
 			ens.AddEntity(new Node(en.getFK_Node()));
 		}
@@ -127,10 +126,40 @@ public class NodeCancels extends EntitiesMM
 		qo.DoQuery();
 
 		Nodes ens = new Nodes();
-		for (NodeCancel en : convertNodeCancels(this))
+		for (NodeCancel en : this.ToJavaList())
 		{
 			ens.AddEntity(new Node(en.getCancelTo()));
 		}
 		return ens;
 	}
+
+		///#endregion 公共方法.
+
+
+		///#region 为了适应自动翻译成java的需要,把实体转换成List.
+	/** 
+	 转化成 java list,C#不能调用.
+	 
+	 @return List
+	*/
+	public final java.util.List<NodeCancel> ToJavaList()
+	{
+		return (java.util.List<NodeCancel>)(Object)this;
+	}
+	/** 
+	 转化成list
+	 
+	 @return List
+	*/
+	public final java.util.ArrayList<NodeCancel> Tolist()
+	{
+		java.util.ArrayList<NodeCancel> list = new java.util.ArrayList<NodeCancel>();
+		for (int i = 0; i < this.size(); i++)
+		{
+			list.add((NodeCancel)this.get(i));
+		}
+		return list;
+	}
+
+		///#endregion 为了适应自动翻译成java的需要,把实体转换成List.
 }

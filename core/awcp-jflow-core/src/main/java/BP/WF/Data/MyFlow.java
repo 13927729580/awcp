@@ -2,7 +2,7 @@ package BP.WF.Data;
 
 import java.io.IOException;
 
-import TL.ContextHolderUtils;
+import BP.DA.Log;
 import BP.En.AttrOfSearch;
 import BP.En.EnType;
 import BP.En.Entity;
@@ -10,22 +10,23 @@ import BP.En.Map;
 import BP.En.QueryObject;
 import BP.En.RefMethod;
 import BP.En.UAC;
-import BP.Port.WebUser;
 import BP.Sys.PubClass;
+import BP.Sys.SystemConfig;
+import BP.WF.Flows;
 import BP.WF.Glo;
-import BP.WF.Entity.TaskSta;
-import BP.WF.Entity.WFSta;
-import BP.WF.Template.Flows;
-import BP.WF.Template.PubLib.WFState;
+import BP.WF.TaskSta;
+import BP.WF.WFSta;
+import BP.WF.WFState;
+import cn.jflow.common.util.ContextHolderUtils;
 
 /** 
-我参与的流程
-
+ 我参与的流程
+ 
 */
 public class MyFlow extends Entity
 {
 
-		///#region 基本属性
+		
 	@Override
 	public UAC getHisUAC()
 	{
@@ -271,30 +272,6 @@ public class MyFlow extends Entity
 		SetValByKey(MyFlowAttr.FID, value);
 	}
 	/** 
-	 父节点ID 为或者-1.
-	 
-	*/
-	public final long getCWorkID()
-	{
-		return this.GetValInt64ByKey(MyFlowAttr.CWorkID);
-	}
-	public final void setCWorkID(long value)
-	{
-		SetValByKey(MyFlowAttr.CWorkID, value);
-	}
-	/** 
-	 PFlowNo
-	 
-	*/
-	public final String getCFlowNo()
-	{
-		return this.GetValStrByKey(MyFlowAttr.CFlowNo);
-	}
-	public final void setCFlowNo(String value)
-	{
-		SetValByKey(MyFlowAttr.CFlowNo, value);
-	}
-	/** 
 	 父节点流程编号.
 	 
 	*/
@@ -414,22 +391,21 @@ public class MyFlow extends Entity
 	{
 		if (value == WFState.Complete)
 		{
-			SetValByKey(MyFlowAttr.WFSta, WFSta.Complete.getValue());
+			SetValByKey(MyFlowAttr.WFSta, getWFSta().Complete.getValue());
 		}
 		else if (value == WFState.Delete)
 		{
-			SetValByKey(MyFlowAttr.WFSta, WFSta.Delete.getValue());
+			SetValByKey(MyFlowAttr.WFSta, getWFSta().Etc.getValue());
 		}
 		else
 		{
-			SetValByKey(MyFlowAttr.WFSta, WFSta.Runing.getValue());
+			SetValByKey(MyFlowAttr.WFSta, getWFSta().Runing.getValue());
 		}
 
 		SetValByKey(MyFlowAttr.WFState, value.getValue());
 	}
 	/** 
 	 状态(简单)
-	 
 	*/
 	public final WFSta getWFSta()
 	{
@@ -441,8 +417,8 @@ public class MyFlow extends Entity
 	}
 	public final String getWFStateText()
 	{
-		
-		switch((WFState)this.getWFState())
+		BP.WF.WFState ws = (WFState)this.getWFState();
+		switch(ws)
 		{
 			case Complete:
 				return "已完成";
@@ -458,7 +434,6 @@ public class MyFlow extends Entity
 	}
 	/** 
 	 GUID
-	 
 	*/
 	public final String getGUID()
 	{
@@ -468,11 +443,6 @@ public class MyFlow extends Entity
 	{
 		SetValByKey(MyFlowAttr.GUID, value);
 	}
-
-		///#endregion
-
-
-		///#region 参数属性.
 
 	public final String getParas_ToNodes()
 	{
@@ -485,7 +455,6 @@ public class MyFlow extends Entity
 	}
 	/** 
 	 加签信息
-	 
 	*/
 
 	public final String getParas_AskForReply()
@@ -497,14 +466,8 @@ public class MyFlow extends Entity
 	{
 		this.SetPara("AskForReply", value);
 	}
-
-		///#endregion 参数属性.
-
-
-		///#region 构造函数
 	/** 
 	 产生的工作流程
-	 
 	*/
 	public MyFlow()
 	{
@@ -520,14 +483,12 @@ public class MyFlow extends Entity
 	}
 	/** 
 	 执行修复
-	 
 	*/
 	public final void DoRepair()
 	{
 	}
 	/** 
 	 重写基类方法
-	 
 	*/
 	@Override
 	public Map getEnMap()
@@ -537,9 +498,10 @@ public class MyFlow extends Entity
 			return this.get_enMap();
 		}
 
-		Map map = new Map("WF_GenerWorkFlow");
-		map.setEnDesc("我参与的流程");
-		map.setEnType(EnType.View);
+		Map map = new Map("WF_GenerWorkFlow", "我参与的流程");
+
+		map.Java_SetEnType(EnType.View);
+
 		map.AddTBIntPK(MyFlowAttr.WorkID, 0, "WorkID", false, false);
 		map.AddTBInt(MyFlowAttr.FID, 0, "FID", false, false);
 
@@ -553,13 +515,13 @@ public class MyFlow extends Entity
 
 		map.AddTBDateTime(MyFlowAttr.RDT, "发起日期", true, true);
 		map.AddDDLSysEnum(MyFlowAttr.WFSta, 0, "状态", true, false, MyFlowAttr.WFSta, "@0=运行中@1=已完成@2=其他");
-
+		map.AddDDLSysEnum(MyFlowAttr.WFState, 0, "流程状态", true, false, MyFlowAttr.WFState);
 		map.AddDDLSysEnum(MyFlowAttr.TSpan, 0, "时间段", true, false, MyFlowAttr.TSpan, "@0=本周@1=上周@2=两周以前@3=三周以前@4=更早");
-		map.AddTBString(MyFlowAttr.NodeName, null, "当前节点", true, false, 0, 100, 10,true);
-		map.AddTBString(MyStartFlowAttr.TodoEmps, null, "当前处理人", true, false, 0, 100, 10,true);
+		map.AddTBString(MyFlowAttr.NodeName, null, "当前节点", true, false, 0, 100, 10, true);
+		map.AddTBString(MyStartFlowAttr.TodoEmps, null, "当前处理人", true, false, 0, 100, 10, true);
 
 		map.AddTBString(MyFlowAttr.Emps, null, "参与人", true, false, 0, 4000, 10, true);
-		map.AddTBStringDoc(MyFlowAttr.FlowNote, null, "备注", true, false,true);
+		map.AddTBStringDoc(MyFlowAttr.FlowNote, null, "备注", true, false, true);
 
 
 		map.AddTBMyNum();
@@ -570,32 +532,25 @@ public class MyFlow extends Entity
 
 
 			//增加隐藏的查询条件.
-		AttrOfSearch search = new AttrOfSearch(MyFlowAttr.Emps, "人员", MyFlowAttr.Emps, " LIKE ", "%"+WebUser.getNo()+"%", 0, true);
+		AttrOfSearch search = new AttrOfSearch(MyFlowAttr.Emps, "人员", MyFlowAttr.Emps, " LIKE ", "%" + BP.Web.WebUser.getNo() + "%", 0, true);
 		map.getAttrsOfSearch().Add(search);
 
 		RefMethod rm = new RefMethod();
 		rm.Title = "流程轨迹";
 		rm.ClassMethodName = this.toString() + ".DoTrack";
-		rm.Icon = Glo.getCCFlowAppPath()+"WF/Img/FileType/doc.gif";
+		rm.Icon = Glo.getCCFlowAppPath() + "WF/Img/FileType/doc.gif";
 		map.AddRefMethod(rm);
 
 		this.set_enMap(map);
 		return this.get_enMap();
 	}
-
-		///#endregion
-
-
-		///#region 执行诊断
 	public final String DoTrack()
 	{
 		try {
-			PubClass.WinOpen(ContextHolderUtils.getResponse(), Glo.getCCFlowAppPath()+"WF/WFRpt.aspx?WorkID=" + this.getWorkID() + "&FID="+this.getFID()+"&FK_Flow="+this.getFK_Flow(),900,800);
+			PubClass.WinOpen(ContextHolderUtils.getResponse(),SystemConfig.getCCFlowWebPath() + "WF/WFRpt.jsp?WorkID=" + this.getWorkID() + "&FID=" + this.getFID() + "&FK_Flow=" + this.getFK_Flow(), 900, 800);
 		} catch (IOException e) {
-			e.printStackTrace();
+			Log.DebugWriteError("MyFlow DoTrack() " + e);
 		}
 		return null;
 	}
-
-		///#endregion
 }

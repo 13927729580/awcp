@@ -1,6 +1,7 @@
 <%@ page language="java" isELIgnored="false" import="java.util.*"
 	pageEncoding="utf-8"%>
-<%@ include file="/head/head.jsp"%>
+<%@ include file="/WF/head/head2.jsp"%>
+<link href="<%=Glo.getCCFlowAppPath() %>DataUser/Style/table0.css" rel="stylesheet" type="text/css" />
 <%
 	String errMsg = request.getParameter("errMsg")==null?"":request.getParameter("errMsg");
 	 if(null != errMsg && "" != errMsg){
@@ -18,7 +19,7 @@
 	 String info = request.getParameter("Info")==null?"":request.getParameter("Info");
 %>
 <script type="text/javascript">
-function TBHelp(ctrl, enName, attrKey) {
+<%-- function TBHelp(ctrl, enName, attrKey) {
     var explorer = window.navigator.userAgent;
     var url = "<%=basePath%>WF/Comm/HelperOfTBEUI.jsp?EnsName=" + enName + "&AttrKey=" + attrKey;
     var str = "";
@@ -34,7 +35,24 @@ function TBHelp(ctrl, enName, attrKey) {
     if (str == undefined) return;
    // $("*[id$=" + ctrl + "]").focus().val(str);
     document.getElementById(ctrl).value = str;
+} --%>
+
+
+function TBHelp(ctrl, enName) {
+    var explorer = window.navigator.userAgent;
+    var url = "<%=basePath%>WF/Comm/HelperOfTBEUI.jsp?EnsName=" + enName + "&AttrKey=" + ctrl + "&WordsSort=2" + "&FK_MapData=" + enName + "&id=" + ctrl;
+    var str = "";
+    if (explorer.indexOf("Chrome") >= 0) {//谷歌的
+        window.open(url, "sd", "left=200,height=500,top=150,width=600,location=yes,menubar=no,resizable=yes,scrollbars=yes,status=no,toolbar=no");
+    }
+    else {//IE,火狐的
+        str = window.showModalDialog(url, "sd", "dialogHeight:500px;dialogWidth:600px;dialogTop:150px;dialogLeft:200px;center:no;help:no");
+        if (str == undefined) return;
+        ctrl = ctrl.replace("Forward", "TB");
+        $("*[id$=" + ctrl + "]").focus().val(str);
+    }
 }
+
 function onSelect(){
 	var FK_Dept = $.trim($("#DDL_Dept").val());
 	
@@ -87,18 +105,13 @@ function onSubmit(){
 </script>
 </head>
 <body>
-	<div class="admin-content">
-
-		<div class="am-cf am-padding">
-			<div class="am-fl am-cf">
-				<strong class="am-text-primary am-text-lg">您好：<%=Glo.GenerUserImgSmallerHtml(WebUser.getNo(),WebUser.getName())%></strong>
-			</div>
-		</div>
+	<table border=1px align=center width='100%'>
+		<Caption ><div class='' >您好：<%=Glo.GenerUserImgSmallerHtml(WebUser.getNo(),WebUser.getName())%></div></Caption>
 
 		<div class="am-g">
-			<div class="divCenter2">
+			<!-- <div class="divCenter2"> -->
 				<form method="post" action="" class="am-form" id="form1">
-					<table class="am-table am-table-striped am-table-hover table-main">
+					<!-- <table class="am-table am-table-striped am-table-hover table-main"> -->
 						<thead>
 							<tr>
 								<td valign="top" style="text-align: left">
@@ -172,17 +185,16 @@ function onSubmit(){
 												</script>
 
 									<div style='float: left; display: block; width: 100%'>
-										<a href="javascript:TBHelp('TB_Doc')"> <img
+										<a href="javascript:TBHelp('Forward_Doc','ND<%=fk_node%>')"> <img
 											src='<%=basePath%>WF/Img/Emps.gif' align='middle' border=0 />选择词汇
 										</a>&nbsp;&nbsp;
 									</div> <textarea id="TB_Doc" name="TB_Doc" rows="10" cols="70"></textarea>
 									<script type="text/javascript">
-													
-												<%Node nd = new Node(nodeID);
+												<%if(nodeID>0){Node nd = new Node(nodeID);
 								            	if(!"".equals(nd.getFocusField())){
 								            		String str = "$('#TB_Doc').val("+info+");";
 								            		out.println(str);
-								            	}%>
+								            	}}%>
 													
 												</script>
 								</td>
@@ -196,12 +208,12 @@ function onSubmit(){
 									class="am-btn am-btn-primary am-btn-xs" /></td>
 							</tr>
 						</thead>
-					</table>
+					<!-- </table> -->
 
 				</form>
-			</div>
+			<!-- </div> -->
 		</div>
-	</div>
+	</table>
 
 </body>
 </html>

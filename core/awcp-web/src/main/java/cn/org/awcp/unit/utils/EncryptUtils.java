@@ -1,7 +1,6 @@
 package cn.org.awcp.unit.utils;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import cn.org.awcp.core.utils.Security;
 
 /**
  * 
@@ -19,40 +18,10 @@ public class EncryptUtils {
 	 */
 	public static String encrypt(String inStr) {
 		return Security.encryptPassword(inStr);
-		/*MessageDigest md = null;// 加密算法
-		String out = null;// 加密后的字符串
-		try {
-			md = MessageDigest.getInstance("MD5");// 定义加密算法
-			byte[] digest = md.digest(inStr.getBytes());// 用MD5进行加密
-			out = byte2hex(digest);// 转码
-		} catch (NoSuchAlgorithmException e) {
-			logger.info("ERROR", e);
-		}
-		return out;*/
 	}
 	
 	public static String decript(String inStr){
 		return Security.decryptPassword(inStr);
 	}
 
-	/**
-	 * 本方法实现转码
-	 * 
-	 * @param b
-	 *            转码前的数组
-	 * @return 转码后的String
-	 */
-	private static String byte2hex(byte[] b) {
-		String hs = "";
-		String stmp = "";
-		for (int n = 0; n < b.length; n++) {
-			stmp = (java.lang.Integer.toHexString(b[n] & 0XFF));
-			if (stmp.length() == 1) {
-				hs = hs + "0" + stmp;
-			} else {
-				hs = hs + stmp;
-			}
-		}
-		return hs.toUpperCase();
-	}
 }

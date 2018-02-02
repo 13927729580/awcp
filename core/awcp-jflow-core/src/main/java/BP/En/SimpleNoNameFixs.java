@@ -1,24 +1,20 @@
 package BP.En;
 
-
-/** 
- SimpleNoNameFixs
- 
-*/
+/**
+ * SimpleNoNameFixs
+ */
 public abstract class SimpleNoNameFixs extends EntitiesNoName
 {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-
-	/** 
-	 SimpleNoNameFixs
-	 
-	*/
+	
+	/**
+	 * SimpleNoNameFixs
+	 */
 	public SimpleNoNameFixs()
 	{
 	}
-
-
+	
 }

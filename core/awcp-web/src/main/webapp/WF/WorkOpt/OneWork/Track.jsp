@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=utf-8"
 	pageEncoding="utf-8"%>
-<%@ include file="/head/head.jsp"%>
+<%@ include file="/WF/head/head1.jsp"%>
+<link rel='stylesheet' type='text/css' href='<%=basePath%>WF/Comm/track/trackStyle.css'/>
 <%
 	TruakModel tm = new TruakModel(request, response);
 	tm.init();
@@ -114,7 +115,7 @@
 			window.location.href = window.location.href;
 			return;
 		}
-		url = 'OP.jsp?DoType=' + doType + '&WorkID=' + workid + '&FK_Flow='
+		url = '<%=basePath%>WF/WorkOpt/OneWork/OP.jsp?DoType=' + doType + '&WorkID=' + workid + '&FK_Flow='
 				+ fk_flow + '&FK_Node=' + fk_node;
 		window.location.href = url;
 	}
@@ -128,26 +129,24 @@
 	}
 	function UnSend(fk_flow, workID, fid) {
 
-		//            var url = "CancelWork.aspx?WorkID=" + workID + "&FK_Flow=" + fk_flow+"&FID="+fid+"&FK_Node="+"";
-		//            WinShowModalDialog_Accepter(url);
+//            var url = "CancelWork.aspx?WorkID=" + workID + "&FK_Flow=" + fk_flow+"&FID="+fid+"&FK_Node="+"";
+//            WinShowModalDialog_Accepter(url);
 
 		if (confirm('您确定要执行撤销吗?') == false)
 			return;
 
-		<%-- var url = "<%=basePath%>WF/OP.jsp?DoType=UnSend&FK_Node=<%=FK_Node%>&FK_Flow=" + fk_flow
+		<%-- var url = "<%=basePath%>WF/WorkOpt/OneWork/OP.jsp?DoType=UnSend&FK_Node=<%=FK_Node%>&FK_Flow=" + fk_flow
  				+ "&WorkID=" + workID + "&FID=" + fid; --%>
 // 		$.post(url, null, function(msg) {
 // 			$('#winMsg').html(msg);
 // 			$('#winMsg').window('open');
 // 		});
 		var url = "<%=basePath%>WF/Do.jsp?DoType=UnSend&FK_Flow=" + fk_flow
-		+ "&WorkID=" + workID + "&FID=" + fid+"&PageID=002";
-		var v = window
-		.showModalDialog(url, 'sd',
-				'dialogHeight: 300px; dialogWidth: 700px;center: yes; help: no');
+			+ "&WorkID=" + workID + "&FID=" + fid+"&PageID=002";
+		var v = window.showModalDialog(url, 'sd', 'dialogHeight: 300px; dialogWidth: 700px;center: yes; help: no');
 	}
 </script>
-<script language="javascript" type="text/javascript">
+<script type="text/javascript">
 	var kvs = null;
 	function GenerPageKVs() {
 		var ddls = null;
@@ -234,31 +233,21 @@
 		}, function() {
 			$(this).removeClass("tr_hover");
 		});
-		$('#tab1').load('<%=basePath %>WF/Admin/CCFlowDesigner/Truck.html?FID=<%=fid %>&FK_Flow=<%=FK_Flow %>&WorkID=<%=WorkID %>');
-	});
-	$(document).ready(function() {
-		$('#someTabs').tabs({noSwipe: 1});
+		<%-- $('#tab1').load('<%=basePath %>WF/Admin/CCFlowDesigner/Truck.html?FID=<%=fid %>&FK_Flow=<%=FK_Flow %>&WorkID=<%=WorkID %>'); --%>
+		showDiv('2');
 	});
 
 	function WinOpen(url, winName) {
 		var newWindow = window
-				.open(
-						url,
-						winName,
-						'height=800,width=1030,top='
-								+ (window.screen.availHeight - 800)
-								/ 2
-								+ ',left='
-								+ (window.screen.availWidth - 1030)
-								/ 2
-								+ ',scrollbars=yes,resizable=yes,toolbar=false,location=false,center=yes,center: yes;');
+				.open(url,winName,'height=800,width=1030,top=' + (window.screen.availHeight - 800) / 2
+						+ ',left=' + (window.screen.availWidth - 1030) / 2
+						+ ',scrollbars=yes,resizable=yes,toolbar=false,location=false,center=yes,center: yes;');
 		newWindow.focus();
 		return;
 	}
 
 	function ReinitIframe(frmID, tdID) {
 		try {
-
 			var iframe = document.getElementById(frmID);
 			var tdF = document.getElementById(tdID);
 			iframe.height = iframe.contentWindow.document.body.scrollHeight;
@@ -268,117 +257,122 @@
 			} else {
 				iframe.width = tdF.width;
 			}
-
 			tdF.height = iframe.height;
 			return;
-
 		} catch (ex) {
-
 			return;
 		}
 		return;
 	}
+	
+	
+	function showDiv(v){
+		if(v==1){
+			 $("#d1").addClass("selected");  
+			 $("#d2").removeClass("selected");  
+			 $("#lcrz_div").css("display","none");  
+			 $("#d3").removeClass("selected");  
+			 $("#d4").removeClass("selected");  
+			 var adminUrl='<%=basePath %>WF/Admin/CCFlowDesigner/Truck.html?FID=<%=fid %>&FK_Flow=<%=FK_Flow %>&WorkID=<%=WorkID %>';
+			 $('#mainFrame').attr("src", adminUrl);
+			 $("#mainFrame").height(document.body.scrollHeight-50);
+		}
+		else if(v==2){
+			 $('#mainFrame').attr("src",'');
+			 $("#d2").addClass("selected");  
+			 $("#lcrz_div").css("display","block");
+			 $("#d1").removeClass("selected");  
+			 $("#d3").removeClass("selected");  
+			 $("#d4").removeClass("selected");
+		}
+		else if(v==3){
+			 $("#d2").removeClass("selected");  
+			 $("#lcrz_div").css("display","none");
+			 $("#d1").removeClass("selected");  
+			 $("#d3").addClass("selected");  
+			 $("#d4").removeClass("selected");
+			 var adminUrl='<%=basePath %>WF/WorkOpt/OneWork/Ath.jsp?FK_Node=<%=FK_Node %>&WorkID=<%=WorkID %>&FK_Flow=<%=FK_Flow %>&FID=<%=fid %>';
+			 $('#mainFrame').attr("src", adminUrl);
+			 $("#mainFrame").height(document.body.scrollHeight-50);
+		}
+		else if(v==4){
+			 $("#d2").removeClass("selected");  
+			 $("#lcrz_div").css("display","none");
+			 $("#d1").removeClass("selected");  
+			 $("#d3").removeClass("selected");  
+			 $("#d4").addClass("selected");  
+			 var adminUrl='<%=basePath %>WF/WorkOpt/OneWork/OP.jsp?FK_Node=<%=FK_Node%>&WorkID=<%=WorkID %>&FK_Flow=<%=FK_Flow %>&FID=<%=fid %>';
+			 $('#mainFrame').attr("src", adminUrl);
+			 $("#mainFrame").height(document.body.scrollHeight-50);
+		}
+		else if(v==5){ 
+			 var adminUrl='<%=basePath %>WF/WorkOpt/OneWork/FlowBBS.htm?FK_Node=<%=FK_Node%>&WorkID=<%=WorkID %>&FK_Flow=<%=FK_Flow %>&FID=<%=fid %>';
+			 WinOpen(adminUrl);
+		}
+	}
 </script>
+<script type="text/javascript">
+    window.onload = function () {
+        var op = $("#ContentPlaceHolder1_TruakUC1_HiddenField1").val();
+        $('#flowNote').append(op);
 
-<body>
+        $(".main .year .list").each(function (e, target) {
+            var $target = $(target),
+	        $ul = $target.find("ul");
+            $target.height($ul.outerHeight()), $ul.css("position", "absolute");
+        });
+        $(".main .year>h2>a").click(function (e) {
+            e.preventDefault();
+            $(this).parents(".year").toggleClass("close");
+        });
+    }
+</script>
+<body class="easyui-layout">
+	<div data-options="region:'north',split:false,noheader:true,border:false" style="height: 35px;overflow-y:hidden;">
+        <ul class="hornavlist">
+            <li><div id="d1"><a href="javascript:showDiv('1');" ><span class='nav'>轨迹图</span></a></div>
+			</li> 	
+			<li><div id="d2"><a href="javascript:showDiv('2');" ><span class='nav'>流程日志</span></a></div>
+			</li> 	
+			<li><div id="d3"><a href="javascript:showDiv('3');" ><span class='nav'>流程附件</span></a></div>
+			</li> 	
+			<li><div id="d4"><a href="javascript:showDiv('4');" ><span class='nav'>操作</span></a></div>
+			</li> 	
+			<li><div id="d4"><a href="javascript:showDiv('5');" ><span class='nav'>流程评论</span></a></div>
+			</li> 	
+        </ul>
+    </div>
+    <div data-options="region:'center',noheader:true" style="overflow-y:auto;">
+        <div class="easyui-layout" data-options="fit:true" style="overflow-y:auto;">
+        
+	        <div id="aa" data-options="region:'center'" style="padding: 5px;border: 0;">
+		        <iframe id="mainFrame" name="mainFrame" style="overflow:visible;"
+					scrolling="yes" frameborder="no" width="100%" ></iframe>
+	      	</div>
+	      
+	        <!-- 流程日志 -->
+	        <div data-options="region:'center',fit:true" id="flowNote" >
+	            <div id="lcrz_div" style="display: none;padding-left:20%; vertical-align: top; height:inherit; overflow: auto;">
+					<%=tm.Pub1.toString()%>
+					<%=tm.UCEn1.Pub.toString()%>
+					<div style="clear:both;"></div>
+				</div>
+	        </div> 
+	    </div>
+    </div>
 
-	<div class="am-tabs am-margin" data-am-tabs="{noSwipe: 1}">
-		<ul class="am-tabs-nav am-nav am-nav-tabs">
-			<li><a href="#tab1">轨迹图</a></li>
-			<li><a href="#tab2">流程日志</a></li>
-			<li><a href="#tab3">流程附件</a></li>
-			<li><a href="#tab4">操作</a></li>
-		</ul>
-
-		<div class="am-tabs-bd">
-			<div class="am-tab-panel am-fade am-in am-active" id="tab1">
-				
+		<%--   <!--  <!-- 轨迹图 
+           <div id="lcgjt_div" style="display: none;"><iframe id="mainFrame" name="mainFrame" style="overflow:visible;"
+			scrolling="yes" frameborder="no" width="100%" ></iframe></div> -->
 			
-				<%-- <div id="silverlightControlHost"
-					style="height: 100%; width: 100%; text-align: center;">
-					<object data="data:application/x-silverlight-2,"
-						type="application/x-silverlight-2" width="100%" height="450">
-						<param name="source"
-							value="<%=basePath%>ClientBin/CCFlowDesigner.xap" />
-						<param name="onLoad" value="appLoad" />
-						<param name="onerror" value="onSilverlightError" />
-						<param name="background" value="white" />
-						<param name="minRuntimeVersion" value="2.0.31005.0" />
-						<param name="initParams" value="platForm=JAVA,appName=">
-						<param name="windowless" value="true" />
-						<param name="autoUpgrade" value="true" />
-						<a href="http://go.microsoft.com/fwlink/?LinkID=124807"
-							style="text-decoration: none;"> <img
-							src="http://go.microsoft.com/fwlink/?LinkId=108181"
-							alt="Get Microsoft Silverlight" style="border-style: none" />
-						</a>
-					</object>
-				</div> --%>
+			<!-- 流程附件 -->
+			<div id="lcfj_div" style="display: none;">
+				<%=am.Pub1.toString()%>
 			</div>
-
-			<div class="am-tab-panel am-fade am-in am-active" id="tab2">
-				<div class="am-g" style="overflow-x:auto ">
-					<div class="am-u-sm-12">
-						<form class="am-form">
-							<input type="hidden" id="FormHtml" name="FormHtml" value=""></input>
-							<div class="txt">
-								<%=tm.Pub1.toString()%>
-								<%=tm.UCEn1.Pub.toString()%>
-							</div>
-						</form>
-					</div>
-				</div>
-			</div>
-
-			<div class="am-tab-panel am-fade am-in am-active" id="tab3">
-				<div class="am-g">
-					<div class="am-u-sm-12">
-						<form method="post"
-							action="Track.do?FK_Flow=002&amp;FK_Node=&amp;WorkID=103"
-							id="am-form">
-							<%=am.Pub1.toString()%>
-						</form>
-					</div>
-				</div>
-			</div>
-
-			<div class="am-tab-panel am-fade am-in am-active" id="tab4">
-				<div class="am-g">
-					<div class="am-u-sm-12">
-						<form method="post"
-							action="Track.jsp?FK_Node=&amp;WorkID=101&amp;FK_Flow=001&amp;FID="
-					 		id="am-form">
-							<%=op.Pub2.toString()%>
-						</form>
-					</div>
-				</div>
-			</div>
-
-		</div>
-	</div>
-
-
-
-	<%-- <!-- 左侧菜单 -->
-	<!-- 左侧菜单栏 -->
-	<div class="admin-sidebar am-offcanvas" id="admin-offcanvas">
-		<div class="am-offcanvas-bar admin-offcanvas-bar">
-			<ul class="am-list admin-sidebar-list">
-				<li><a
-					href='<%=basePath%>WF/track/ChartTrack.jsp?FK_Node=<%=tm.getFK_Node()%>&WorkID=<%=tm.getWorkID()%>&FK_Flow=<%=tm.getFK_Flow()%>&FID='><span>轨迹图</span></a>
-				</li>
-				<li><a
-					href='<%=basePath%>UI/WorkOpt/OneWork/Track.jsp?FK_Node=<%=tm.getFK_Node()%>&WorkID=<%=tm.getWorkID()%>&FK_Flow=<%=tm.getFK_Flow()%>'><span>流程日志</span></a>
-				</li>
-				<li><a
-					href='<%=basePath%>WF/Ath.jsp?FK_Node=&WorkID=103&FK_Flow=002&FID='><span>流程附件</span></a>
-				</li>
-				<li><a
-					href='<%=basePath%>WF/OP.jsp?FK_Node=&WorkID=103&FK_Flow=002&FID='><span>操作</span></a>
-				</li>
-			</ul>
-		</div>
-	</div> --%>
-
+			
+			<!-- 操作 -->
+			<div id="caozuo_div" style="display: none;">
+				<%=op.Pub2.toString()%>
+			</div> --%>
 </body>
 </html>

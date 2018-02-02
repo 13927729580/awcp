@@ -3,11 +3,11 @@
 <%@page import="BP.DA.*"%>
 <%@page import="BP.WF.Glo"%>
 <%@page import="BP.Tools.StringHelper"%>
-<%@page import="BP.Port.WebUser"%>
+<%@page import="BP.Web.WebUser"%>
 <%@page import="BP.WF.Dev2Interface"%>
 <%@page import="BP.WF.Entity.FrmWorkCheck"%>
-<%@page import="org.jflow.framework.common.model.WorkCheckModel" %>
-<%@page import="org.jflow.framework.common.model.AttachmentUploadModel "%>
+<%@page import="cn.jflow.common.model.WorkCheckModel" %>
+<%@page import="cn.jflow.common.model.AttachmentUploadModel"%>
 <%
 	String path = request.getContextPath();
 	String basePath = request.getScheme() + "://" 
@@ -62,6 +62,12 @@
         var url = '<%=basePath %>WF/WorkOpt/FilesView.jsp?DoType=view&DelPKVal=' + delPKVal + '&PKVal=' + pkVal;
         window.open(url, '_blank', 'height=600,width=850,top=50,left=50,toolbar=no,menubar=no,scrollbars=yes, resizable=yes,location=no, status=no');
     }
+
+    function setIframeHeight() {
+		$("#" + window.frameElement.getAttribute("id"), parent.document).height(Math.max($(document).height(), $("body").height(), $("#attachmentContainer table").height()) +  + ($(".Idx").length * 2));
+	}
+
+	$(setIframeHeight);
 </script>
 
 <style  type="text/css">
@@ -82,15 +88,15 @@
    }
 </style>
 
-    <script language="JavaScript" src="<%=basePath %>WF/Comm/JS/Calendar/WdatePicker.js" type="text/javascript"
+    <script language="JavaScript"  src="<%=basePath %>WF/Comm/JS/Calendar/WdatePicker.js" type="text/javascript"
         defer="defer"></script>
     <script language="JavaScript" src="<%=basePath %>WF/Comm/JScript.js" type="text/javascript"></script>
     <link href="<%=basePath %>WF/Comm/Style/Table0.css" rel="stylesheet" type="text/css" /><link href="../Comm/Style/Tabs.css" rel="stylesheet" type="text/css" />
     <base target="_self" />
 </head>
 <body onkeypress="Esc();" style="padding:0px;margin:0px;">
-    <form method="post" action="<%=basePath %>WF/CCForm/AttachmentUpload.do?PKVal=<%=PKVal %>&Ath=<%=Ath %>&FK_FrmAttachment=<%=FK_FrmAttachment %>&FK_Flow=<%=FK_Flow %>&DoWhat=<%=DoWhat %>&UserNo=<%=UserNo %>&Lang=<%=Lang %>&Type=<%=Type %>&FK_Node=<%=FK_Node %>"  id="form1"  name="form1" enctype="multipart/form-data">
-    <div style="position: fixed; height: 100%; height: 100%; width: 100%;overflow-x:hidden;overflow-y:auto;">
+    <form method="post" action="<%=basePath %>WF/CCForm/AttachmentUploadS.do?PKVal=<%=PKVal %>&Ath=<%=Ath %>&FK_FrmAttachment=<%=FK_FrmAttachment %>&FK_Flow=<%=FK_Flow %>&DoWhat=<%=DoWhat %>&UserNo=<%=UserNo %>&Lang=<%=Lang %>&Type=<%=Type %>&FK_Node=<%=FK_Node %>"  id="form1"  name="form1" enctype="multipart/form-data">
+    <div id="attachmentContainer" style="position: fixed; height: 100%; height: 100%; width: 100%;overflow-x:hidden;overflow-y:auto;">
         
    <%=au.Pub1.toString() %>
     <input type="submit" name="Btn_Upload" value="" id="Btn_Upload" style="display:none;" />

@@ -9,14 +9,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class FileAccess {
-	/**
-	 * 日志对象
-	 */
-	private static final Logger logger = LoggerFactory.getLogger(FileAccess.class);
 
 	public static boolean Move(File srcFile, String destPath) {
 		// Destination directory
@@ -42,70 +35,104 @@ public class FileAccess {
 	}
 
 	public static void Copy(String oldPath, String newPath) {
+		InputStream inStream = null;
+		FileOutputStream fs = null;
+		
 		try {
 			int bytesum = 0;
 			int byteread = 0;
 			File oldfile = new File(oldPath);
 			if (oldfile.exists()) {
-				InputStream inStream = new FileInputStream(oldPath);
-				FileOutputStream fs = new FileOutputStream(newPath);
+				inStream =  new FileInputStream(oldPath);
+				fs = new FileOutputStream(newPath);
 				byte[] buffer = new byte[1444];
 				while ((byteread = inStream.read(buffer)) != -1) {
 					bytesum += byteread;
-					logger.debug(bytesum + "");
 					fs.write(buffer, 0, byteread);
 				}
-				inStream.close();
-				fs.close();
 			}
 		} catch (Exception e) {
-			logger.debug("error  ");
 			e.printStackTrace();
+		}finally{
+			try {
+				if(null != fs)
+				{
+					fs.close();
+				}
+				if(null != inStream)
+				{
+					inStream.close();
+				} 
+				}catch (IOException e2) {
+					e2.printStackTrace();
+			}
 		}
 	}
 
 	public static void Copy(File oldfile, String newPath) {
+		InputStream inStream = null;
+		FileOutputStream fs = null;
 		try {
 			int bytesum = 0;
 			int byteread = 0;
-			// File oldfile = new File(oldPath);
 			if (oldfile.exists()) {
-				InputStream inStream = new FileInputStream(oldfile);
-				FileOutputStream fs = new FileOutputStream(newPath);
+				inStream = new FileInputStream(oldfile);
+				fs = new FileOutputStream(newPath);
 				byte[] buffer = new byte[1444];
 				while ((byteread = inStream.read(buffer)) != -1) {
 					bytesum += byteread;
-					logger.debug(bytesum + "");
 					fs.write(buffer, 0, byteread);
 				}
-				inStream.close();
-				fs.close();
 			}
 		} catch (Exception e) {
-			logger.debug("error  ");
 			e.printStackTrace();
+		}finally{
+			try {
+				if(null != fs)
+				{
+					fs.close();
+				}
+				if(null != inStream)
+				{
+					inStream.close();
+				} 
+				}catch (IOException e2) {
+					e2.printStackTrace();
+			}
 		}
 	}
-
-	public static void Copy(InputStream inStream, String newPath) {
+	
+	public static void Copy(InputStream inStream, String newPath){
+		FileOutputStream fs = null;
 		try {
 			int bytesum = 0;
 			int byteread = 0;
-			FileOutputStream fs = new FileOutputStream(newPath);
+			fs = new FileOutputStream(newPath);
 			byte[] buffer = new byte[1444];
 			while ((byteread = inStream.read(buffer)) != -1) {
 				bytesum += byteread;
-				logger.debug(bytesum + "");
+//				System.out.println(bytesum);
 				fs.write(buffer, 0, byteread);
 			}
 			fs.close();
 		} catch (Exception e) {
-			logger.debug("error  ");
+//			System.out.println("error  ");
 			e.printStackTrace();
+		}finally{
+			try {
+				if(null != fs)
+				{
+					fs.close();
+				}
+				}catch (IOException e2) {
+					e2.printStackTrace();
+			}
 		}
 	}
-
+	
 	public static void copyFolder(File src, File dest) {
+		InputStream in = null;
+		OutputStream out = null;
 		try {
 			if (src.isDirectory()) {
 				if (!dest.exists()) {
@@ -119,8 +146,8 @@ public class FileAccess {
 					copyFolder(srcFile, destFile);
 				}
 			} else {
-				InputStream in = new FileInputStream(src);
-				OutputStream out = new FileOutputStream(dest);
+				in = new FileInputStream(src);
+				out = new FileOutputStream(dest);
 
 				byte[] buffer = new byte[1024];
 
@@ -129,63 +156,84 @@ public class FileAccess {
 				while ((length = in.read(buffer)) > 0) {
 					out.write(buffer, 0, length);
 				}
-				in.close();
-				out.close();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
-	}
-
-	public static String readFileByBytes(String fileName) {
-		int len = 0;
-		String line = null;
-		StringBuffer str = new StringBuffer();
-		try {
-			BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), "UTF-8"));
-			;
-			while ((line = in.readLine()) != null) {
-				if (len != 0) {// 处理换行符的问题
-					str.append("\r\n" + line);
-				} else {
-					str.append(line);
+		}finally{
+			try {
+				if(null != out)
+				{
+					out.close();
 				}
-				len++;
+				if(null != in)
+				{
+					in.close();
+				} 
+				}catch (IOException e2) {
+					e2.printStackTrace();
 			}
-			in.close();
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
-		return str.toString();
 	}
-
+	
+	public static String readFileByBytes(String fileName){
+		int len=0;
+		String line=null;
+        StringBuffer str=new StringBuffer();
+        BufferedReader in= null;
+        try {
+            in= new BufferedReader(new InputStreamReader(new FileInputStream(fileName),"UTF-8"));  ;
+            while( (line=in.readLine())!=null ){
+                if(len != 0){// 处理换行符的问题
+                    str.append("\r\n"+line);
+                }else{
+                    str.append(line);
+                }
+                len++;
+            }
+            in.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally{
+			try {
+				if(null != in)
+				{
+					in.close();
+				} 
+				}catch (IOException e2) {
+					e2.printStackTrace();
+			}
+		}
+        return str.toString();
+	}
+	
 	/*
 	 * Java文件操作 获取文件扩展名
 	 *
-	 * Created on: 2011-8-2 Author: blueeagle
+	 *  Created on: 2011-8-2
+	 *      Author: blueeagle
 	 */
-	public static String getExtensionName(String filename) {
-		if ((filename != null) && (filename.length() > 0)) {
-			int dot = filename.lastIndexOf('.');
-			if ((dot > -1) && (dot < (filename.length() - 1))) {
-				return filename.substring(dot + 1);
-			}
-		}
-		return filename;
-	}
-
+	    public static String getExtensionName(String filename) { 
+	        if ((filename != null) && (filename.length() > 0)) { 
+	            int dot = filename.lastIndexOf('.'); 
+	            if ((dot >-1) && (dot < (filename.length() - 1))) { 
+	                return filename.substring(dot + 1); 
+	            } 
+	        } 
+	        return filename; 
+	    } 
 	/*
 	 * Java文件操作 获取不带扩展名的文件名
 	 *
-	 * Created on: 2011-8-2 Author: blueeagle
+	 *  Created on: 2011-8-2
+	 *      Author: blueeagle
 	 */
-	public static String getFileNameNoEx(String filename) {
-		if ((filename != null) && (filename.length() > 0)) {
-			int dot = filename.lastIndexOf('.');
-			if ((dot > -1) && (dot < (filename.length()))) {
-				return filename.substring(0, dot);
-			}
-		}
-		return filename;
-	}
+	    public static String getFileNameNoEx(String filename) { 
+	        if ((filename != null) && (filename.length() > 0)) { 
+	            int dot = filename.lastIndexOf('.'); 
+	            if ((dot >-1) && (dot < (filename.length()))) { 
+	                return filename.substring(0, dot); 
+	            } 
+	        } 
+	        return filename; 
+	    }
 }

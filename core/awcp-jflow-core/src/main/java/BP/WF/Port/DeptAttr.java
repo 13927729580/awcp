@@ -1,8 +1,6 @@
 package BP.WF.Port;
 
-import BP.DA.*;
-import BP.En.*;
-import BP.Web.*;
+import BP.En.EntityNoNameAttr;
 
 /** 
  部门属性
@@ -15,8 +13,4 @@ public class DeptAttr extends EntityNoNameAttr
 	 
 	*/
 	public static final String ParentNo = "ParentNo";
-	///// <summary>
-	///// 隶属单位
-	///// </summary>
-	//public const string FK_Unit = "FK_Unit";
 }

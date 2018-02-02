@@ -1,9 +1,7 @@
 package BP.WF.Data;
 
-import BP.En.*;
-import BP.WF.Template.*;
-import BP.WF.Template.PubLib.WFState;
-import BP.Sys.*;
+import BP.WF.Node;
+import BP.WF.WFState;
 
 /** 
  报表基类
@@ -11,11 +9,10 @@ import BP.Sys.*;
 */
 public abstract class NDXRptBase extends BP.En.EntityOID
 {
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 属性
+
+		
 	/** 
 	 工作ID
-	 
 	*/
 	public final long getOID()
 	{
@@ -27,19 +24,17 @@ public abstract class NDXRptBase extends BP.En.EntityOID
 	}
 	/** 
 	 流程时间跨度
-	 
 	*/
-	public final int getFlowDaySpan()
+	public final float getFlowDaySpan()
 	{
-		return this.GetValIntByKey(NDXRptBaseAttr.FlowDaySpan);
+		return this.GetValFloatByKey(NDXRptBaseAttr.FlowDaySpan);
 	}
-	public final void setFlowDaySpan(int value)
+	public final void setFlowDaySpan(float value)
 	{
 		this.SetValByKey(NDXRptBaseAttr.FlowDaySpan, value);
 	}
 	/** 
 	 数量
-	 
 	*/
 	public final int getMyNum()
 	{
@@ -47,7 +42,6 @@ public abstract class NDXRptBase extends BP.En.EntityOID
 	}
 	/** 
 	 主流程ID
-	 
 	*/
 	public final long getFID()
 	{
@@ -59,7 +53,6 @@ public abstract class NDXRptBase extends BP.En.EntityOID
 	}
 	/** 
 	 流程参与人员
-	 
 	*/
 	public final String getFlowEmps()
 	{
@@ -71,7 +64,6 @@ public abstract class NDXRptBase extends BP.En.EntityOID
 	}
 	/** 
 	 客户编号
-	 
 	*/
 	public final String getGuestNo()
 	{
@@ -83,7 +75,6 @@ public abstract class NDXRptBase extends BP.En.EntityOID
 	}
 	/** 
 	 客户名称
-	 
 	*/
 	public final String getGuestName()
 	{
@@ -93,6 +84,9 @@ public abstract class NDXRptBase extends BP.En.EntityOID
 	{
 		this.SetValByKey(NDXRptBaseAttr.GuestName, value);
 	}
+	/** 
+	 单据编号
+	*/
 	public final String getBillNo()
 	{
 		return this.GetValStringByKey(NDXRptBaseAttr.BillNo);
@@ -103,7 +97,6 @@ public abstract class NDXRptBase extends BP.En.EntityOID
 	}
 	/** 
 	 流程发起人
-	 
 	*/
 	public final String getFlowStarter()
 	{
@@ -114,8 +107,7 @@ public abstract class NDXRptBase extends BP.En.EntityOID
 		this.SetValByKey(NDXRptBaseAttr.FlowStarter, value);
 	}
 	/** 
-	 流程发起日期
-	 
+	 流程发起时间
 	*/
 	public final String getFlowStartRDT()
 	{
@@ -127,7 +119,6 @@ public abstract class NDXRptBase extends BP.En.EntityOID
 	}
 	/** 
 	 流程结束者
-	 
 	*/
 	public final String getFlowEnder()
 	{
@@ -138,8 +129,7 @@ public abstract class NDXRptBase extends BP.En.EntityOID
 		this.SetValByKey(NDXRptBaseAttr.FlowEnder, value);
 	}
 	/** 
-	 流程结束时间
-	 
+	 流程处理时间
 	*/
 	public final String getFlowEnderRDT()
 	{
@@ -151,7 +141,6 @@ public abstract class NDXRptBase extends BP.En.EntityOID
 	}
 	/** 
 	 结束节点名称
-	 
 	*/
 	public final String getFlowEndNodeText()
 	{
@@ -160,7 +149,6 @@ public abstract class NDXRptBase extends BP.En.EntityOID
 	}
 	/** 
 	 节点节点ID
-	 
 	*/
 	public final int getFlowEndNode()
 	{
@@ -172,7 +160,6 @@ public abstract class NDXRptBase extends BP.En.EntityOID
 	}
 	/** 
 	 流程标题
-	 
 	*/
 	public final String getTitle()
 	{
@@ -184,7 +171,6 @@ public abstract class NDXRptBase extends BP.En.EntityOID
 	}
 	/** 
 	 隶属年月
-	 
 	*/
 	public final String getFK_NY()
 	{
@@ -196,7 +182,6 @@ public abstract class NDXRptBase extends BP.En.EntityOID
 	}
 	/** 
 	 发起人部门
-	 
 	*/
 	public final String getFK_Dept()
 	{
@@ -208,7 +193,6 @@ public abstract class NDXRptBase extends BP.En.EntityOID
 	}
 	/** 
 	 流程状态
-	 
 	*/
 	public final WFState getWFState()
 	{
@@ -220,7 +204,6 @@ public abstract class NDXRptBase extends BP.En.EntityOID
 	}
 	/** 
 	 状态名称
-	 
 	*/
 	public final String getWFStateText()
 	{
@@ -236,7 +219,6 @@ public abstract class NDXRptBase extends BP.En.EntityOID
 	}
 	/** 
 	 父流程WorkID
-	 
 	*/
 	public final long getPWorkID()
 	{
@@ -248,7 +230,6 @@ public abstract class NDXRptBase extends BP.En.EntityOID
 	}
 	/** 
 	 父流程流程编号
-	 
 	*/
 	public final String getPFlowNo()
 	{
@@ -259,50 +240,17 @@ public abstract class NDXRptBase extends BP.En.EntityOID
 		this.SetValByKey(NDXRptBaseAttr.PFlowNo, value);
 	}
 	/** 
-	 延续流程WorkID
-	 
-	*/
-	public final long getCWorkID()
-	{
-		return this.GetValInt64ByKey(NDXRptBaseAttr.CWorkID);
-	}
-	public final void setCWorkID(long value)
-	{
-		this.SetValByKey(NDXRptBaseAttr.CWorkID, value);
-	}
-	/** 
-	 延续流程编号
-	 
-	*/
-	public final String getCFlowNo()
-	{
-		return this.GetValStringByKey(NDXRptBaseAttr.CFlowNo);
-	}
-	public final void setCFlowNo(String value)
-	{
-		this.SetValByKey(NDXRptBaseAttr.CFlowNo, value);
-	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion attrs
-
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 构造
-	/** 
 	 构造
-	 
 	*/
 	protected NDXRptBase()
 	{
 	}
 	/** 
 	 根据OID构造实体
-	 
 	 @param 工作ID workid
 	*/
 	protected NDXRptBase(int workid)
 	{
 		super(workid);
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion 构造
 }

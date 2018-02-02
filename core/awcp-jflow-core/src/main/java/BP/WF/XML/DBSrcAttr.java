@@ -1,9 +1,5 @@
 package BP.WF.XML;
 
-import BP.DA.*;
-import BP.Sys.*;
-import BP.En.*;
-import BP.XML.*;
 
 /** 
  数据源类型

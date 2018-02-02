@@ -2,33 +2,19 @@ package BP.WF;
 
 import java.util.ArrayList;
 
-import BP.En.*;
-import BP.DA.*;
-import BP.Port.*;
-import BP.Web.*;
-import BP.Sys.*;
-import BP.WF.Template.*;
-import BP.WF.Template.PubLib.ActionType;
-import BP.WF.Template.PubLib.DataStoreModel;
-import BP.WF.Template.PubLib.RunModel;
-import BP.WF.Template.WorkBase.Work;
-import BP.WF.Template.WorkBase.Works;
-import BP.WF.Data.*;
+import BP.DA.DBAccess;
+import BP.DA.DataRow;
+import BP.DA.DataTable;
+import BP.WF.Template.DataStoreModel;
 
 /** 
  工作节点集合.
  
 */
-//public class WorkNodes extends CollectionBase
 public class WorkNodes extends ArrayList<WorkNode>
 {
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 构造
-	
-	@SuppressWarnings("unchecked")
-	public static ArrayList<WorkNode> convertWorkNodes(Object obj) {
-		return (ArrayList<WorkNode>) obj;
-	}
+
+		
 	/** 
 	 他的工作s
 	  
@@ -62,7 +48,7 @@ public class WorkNodes extends ArrayList<WorkNode>
 		this.clear();
 
 		Nodes nds = flow.getHisNodes();
-		for (Node nd :Nodes.convertNodes( nds))
+		for (Node nd : nds.ToJavaList())
 		{
 			if (nd.getHisRunModel() == RunModel.SubThread)
 			{
@@ -90,7 +76,7 @@ public class WorkNodes extends ArrayList<WorkNode>
 	public final int GenerByWorkID2014_01_06(Flow flow, long oid)
 	{
 		Nodes nds = flow.getHisNodes();
-		for (Node nd :Nodes.convertNodes(nds))
+		for (Node nd : nds.ToJavaList())
 		{
 			Work wk = nd.GetWork(oid);
 			if (wk == null)
@@ -105,9 +91,9 @@ public class WorkNodes extends ArrayList<WorkNode>
 				continue;
 			}
 
-			wk.setRec(dt.getValue(0, "EmpFrom").toString());
-			wk.setRecText(dt.getValue(0, "EmpFromT").toString());
-			wk.SetValByKey("RDT", dt.getValue(0, "RDT").toString());
+			wk.setRec(dt.Rows.get(0).getValue("EmpFrom").toString());
+			wk.setRecText(dt.Rows.get(0).getValue("EmpFromT").toString());
+			wk.SetValByKey("RDT", dt.Rows.get(0).getValue("RDT").toString());
 			this.Add(new WorkNode(wk, nd));
 		}
 		return this.size();
@@ -121,7 +107,7 @@ public class WorkNodes extends ArrayList<WorkNode>
 		String nds = "";
 		for (DataRow dr : dt.Rows)
 		{
-			Node nd = new Node(Integer.parseInt( dr.getValue("NDFrom").toString()));
+			Node nd = new Node(Integer.parseInt(dr.getValue("NDFrom").toString()));
 			Work wk = nd.GetWork(oid);
 			if (wk == null)
 			{
@@ -135,9 +121,9 @@ public class WorkNodes extends ArrayList<WorkNode>
 			}
 			nds += (new Integer(nd.getNodeID())).toString() + ",";
 
-			wk.setRec(dt.getValue(0, "EmpFrom").toString());
-			wk.setRecText(dt.getValue(0, "EmpFromT").toString());
-			wk.SetValByKey("RDT", dt.getValue(0, "RDT").toString());
+			wk.setRec(dr.getValue("EmpFrom").toString());
+			wk.setRecText(dr.getValue("EmpFromT").toString());
+			wk.SetValByKey("RDT", dr.getValue("RDT").toString());
 			this.Add(new WorkNode(wk, nd));
 		}
 		return this.size();
@@ -157,11 +143,7 @@ public class WorkNodes extends ArrayList<WorkNode>
 			wn.getHisWork().Delete();
 		}
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
 
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 方法
 	/** 
 	 增加一个WorkNode
 	 
@@ -169,7 +151,6 @@ public class WorkNodes extends ArrayList<WorkNode>
 	*/
 	public final void Add(WorkNode wn)
 	{
-//		this.InnerList.Add(wn);
 		this.add(wn);
 	}
 	/** 
@@ -178,9 +159,6 @@ public class WorkNodes extends ArrayList<WorkNode>
 	*/
 	public final WorkNode getItem(int index)
 	{
-//		return (WorkNode)this.InnerList[index];
 		return (WorkNode)this.get(index);
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
 }

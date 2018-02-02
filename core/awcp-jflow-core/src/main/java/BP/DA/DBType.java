@@ -1,52 +1,48 @@
 package BP.DA;
 
-/** 
- 数据库类型
- 
-*/
+/**
+ * 数据库类型
+ */
 public enum DBType
 {
-	/** 
-	 sqlserver
-	 
-	*/
+	/**
+	 * sqlserver
+	 */
 	MSSQL,
-	/** 
-	 oracle  
-	 
-	*/
+	/**
+	 * oracle
+	 */
 	Oracle,
-	/** 
-	 Access
-	 
-	*/
+	/**
+	 * Access
+	 */
 	Access,
-	/** 
-	 Sybase
-	 
-	*/
+	/**
+	 * Sybase
+	 */
 	Sybase,
-	/** 
-	 DB2
-	 
-	*/
+	/**
+	 * DB2
+	 */
 	DB2,
-	/** 
-	 MySQL
-	 
-	*/
+	/**
+	 * MySQL
+	 */
 	MySQL,
-	/** 
-	 Informix
-	 
-	*/
-	Informix;
-
+	/**
+	 * Informix
+	 */
+	Informix, 
+	/**
+	 * WebServices
+	 */
+	WebServices;
+	
 	public int getValue()
 	{
 		return this.ordinal();
 	}
-
+	
 	public static DBType forValue(int value)
 	{
 		return values()[value];

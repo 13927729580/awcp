@@ -1,4 +1,4 @@
-<%@page import="org.jflow.framework.common.model.AccepterModel"%>
+<%@page import="cn.jflow.common.model.AccepterModel"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@page import="java.text.DateFormat"%>
@@ -240,6 +240,10 @@
           };
           queryData(params, function (js, scope) { }, this);
           window.close();
+          window.returnValue = "true";//回传值--确定按钮
+      	  var url = "<%=basePath%>/WF/MyFlowInfo.jsp";
+      	  window.location.href = url;
+
       }
       //关闭
       function cancelMet() {

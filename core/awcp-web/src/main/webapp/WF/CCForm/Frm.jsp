@@ -3,11 +3,29 @@
 <%  FrmModel frmModel = new FrmModel(request, response);
 	frmModel.loadModel();
 %>
-<%@ include file="/head/head.jsp"%>
+<%@ include file="/WF/head/head1.jsp"%>
 <title>表单预览</title>
+<head>
 <link href="../Style/FormThemes/CCFormFrm.css" rel="stylesheet" type="text/css" />
-<script language="JavaScript" src="../Activex/Sign/main.js" type="text/javascript"></script>
-<script type="text/javascript" language="javascript">
+<style>
+legend {
+	display: block;
+	width: 100%;
+	margin-bottom: 0rem !important;
+	font-size: 0rem !important;
+	line-height: inherit;
+	color: #333;
+	border-bottom: 1px solid #e5e5e5;
+	padding-bottom: 0rem !important;
+    color: green;
+    font-style: inherit;
+    font-weight: bold;
+}
+</style>
+<script src="../Activex/Sign/main.js" type="text/javascript"></script>
+<script src="../Comm/JScript.js" type="text/javascript"></script>
+<script src="MapExt.js" type="text/javascript"></script>
+<script type="text/javascript">
 	function ReturnVal(ctrl, url, winName) {
 	    
 	    if (ctrl && ctrl.value != "") {
@@ -134,9 +152,9 @@
        }
        // 设置值.
        function SetCtrlVal(ctrlID, val) {
-           document.getElementById('TB_' + ctrlID).value = val;
-           document.getElementById('DDL_' + ctrlID).value = val;
-           document.getElementById('CB_' + ctrlID).value = val;
+           $('#TB_' + ctrlID).val(val);
+           $('#DDL_' + ctrlID).val(val);
+           $('#CB_' + ctrlID).val(val);
        }
 
        var isFrmChange = false;
@@ -298,7 +316,7 @@
    				url:"<%=basePath%>WF/CCForm/FrmSave.do",
    				data:$('#frm_view').serialize()
    			});
-   	}  
+   	   }  
 </script>
 <%
 	int script_size = frmModel.getScripts().size();
@@ -322,13 +340,15 @@
 </head>
 <body >
 	<div class="container">
-        <div style="float: left">
+        <div style="float: left;">
         	<input type="text" id="TB_SealState" name="TB_SealState" style="display: none">
         	<input type="text" id="TB_SingData" name="TB_SingData" style="display: none" >
         	<input type="text" id="TB_SealFile" name="TB_SealFile" style="display: none" value="<%= frmModel.TB_SealFile_Value%>" >
-        	 <%=frmModel.Btn_Save.toString() %>
+        	 <input type="text" id="TextBox1" name="TextBox1" style="display: none" >
+        	 <input type="button" ID="Btn_Save" runat="server" Text="" Width="0" Height="0" class="HBtn"
+                Visible="false" OnClick="save()" value="保存" style="display: none"/>
         </div>
-        <%=frmModel.Btn_Print.toString() %>
+       <input type="button" ID="Btn_Print" runat="server" value="打印" class="Btn" Visible="true" style="display: none"/>
         <form id="frm_view">
         	<input type="hidden" id="FrmBody" name="FrmBody" value="">
         	<input type="hidden" name="OID" value="<%=frmModel.getOID() %>">

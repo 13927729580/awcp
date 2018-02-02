@@ -1,6 +1,5 @@
 package BP.XML;
 
-
 public class XmlMenuAttr
 {
 	public static final String No = "No";

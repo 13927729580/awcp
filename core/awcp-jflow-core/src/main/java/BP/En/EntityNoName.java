@@ -1,47 +1,44 @@
 package BP.En;
 
-
-/** 
- 具有编号名称的基类实体
- 
-*/
+/**
+ * 具有编号名称的基类实体
+ */
 public abstract class EntityNoName extends EntityNo
 {
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 属性
-
+	// 属性
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	/** 
-	 名称
-	 
-	*/
+	
+	/**
+	 * 名称
+	 */
 	public String getName()
 	{
 		return this.GetValStringByKey(EntityNoNameAttr.Name);
 	}
+	
 	public final void setName(String value)
 	{
 		this.SetValByKey(EntityNoNameAttr.Name, value);
 	}
-	//public string NameE
-	//{
-	//    get
-	//    {
-	//        return this.GetValStringByKey("NameE");
-	//    }
-	//    set
-	//    {
-	//        this.SetValByKey("NameE", value);
-	//    }
-	//}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
-
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 构造函数
+	
+	// public string NameE
+	// {
+	// get
+	// {
+	// return this.GetValStringByKey("NameE");
+	// }
+	// set
+	// {
+	// this.SetValByKey("NameE", value);
+	// }
+	// }
+	
+	// /#endregion
+	
+	// /#region 构造函数
 	/** 
 	 
 	 
@@ -49,25 +46,23 @@ public abstract class EntityNoName extends EntityNo
 	public EntityNoName()
 	{
 	}
-	/** 
-	 
-	 
-	 @param _No
-	*/
+	
+	/**
+	 * @param _No
+	 */
 	protected EntityNoName(String _No)
 	{
 		super(_No);
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
-
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 业务逻辑处理
-	/** 
-	 检查名称的问题.
-	 
-	 @return 
-	*/
+	
+	// /#endregion
+	
+	// /#region 业务逻辑处理
+	/**
+	 * 检查名称的问题.
+	 * 
+	 * @return
+	 */
 	@Override
 	protected boolean beforeInsert()
 	{
@@ -76,27 +71,32 @@ public abstract class EntityNoName extends EntityNo
 			if (this.getEnMap().getIsAutoGenerNo())
 			{
 				this.setNo(this.getGenerNewNo());
-			}
-			else
+			} else
 			{
-				throw new RuntimeException("@没有给[" + this.getEnDesc() + " , " + this.getName() + "]设置主键.");
+				throw new RuntimeException("@没有给[" + this.getEnDesc() + " , "
+						+ this.getName() + "]设置主键.");
 			}
 		}
-
+		
 		if (!this.getEnMap().getIsAllowRepeatName())
 		{
 			if (this.getPKCount() == 1)
 			{
-				try {
+				try
+				{
 					if (this.ExitsValueNum("Name", this.getName()) >= 1)
 					{
-						throw new RuntimeException("@插入失败[" + this.getEnMap().getEnDesc() + "] 编号[" + this.getNo() + "]名称[" + getName() + "]重复.");
+						throw new RuntimeException("@插入失败["
+								+ this.getEnMap().getEnDesc() + "] 编号["
+								+ this.getNo() + "]名称[" + getName() + "]重复.");
 					}
-				} catch (NumberFormatException e) {
-					// TODO Auto-generated catch block
+				} catch (NumberFormatException e)
+				{
+					
 					e.printStackTrace();
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
+				} catch (Exception e)
+				{
+					
 					e.printStackTrace();
 					return false;
 				}
@@ -104,6 +104,7 @@ public abstract class EntityNoName extends EntityNo
 		}
 		return super.beforeInsert();
 	}
+	
 	@Override
 	protected boolean beforeUpdate()
 	{
@@ -111,16 +112,21 @@ public abstract class EntityNoName extends EntityNo
 		{
 			if (this.getPKCount() == 1)
 			{
-				try {
+				try
+				{
 					if (this.ExitsValueNum("Name", this.getName()) >= 2)
 					{
-						throw new RuntimeException("@更新失败[" + this.getEnMap().getEnDesc() + "] 编号[" + this.getNo() + "]名称[" + getName() + "]重复.");
+						throw new RuntimeException("@更新失败["
+								+ this.getEnMap().getEnDesc() + "] 编号["
+								+ this.getNo() + "]名称[" + getName() + "]重复.");
 					}
-				} catch (NumberFormatException e) {
-					// TODO Auto-generated catch block
+				} catch (NumberFormatException e)
+				{
+					
 					e.printStackTrace();
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
+				} catch (Exception e)
+				{
+					
 					e.printStackTrace();
 					return false;
 				}
@@ -128,6 +134,4 @@ public abstract class EntityNoName extends EntityNo
 		}
 		return super.beforeUpdate();
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
 }

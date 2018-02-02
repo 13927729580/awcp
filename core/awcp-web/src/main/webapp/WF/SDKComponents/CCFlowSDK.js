@@ -2,7 +2,7 @@
 // 转到消息界面提示,不再本窗口提示.
 function ToMsg(msg) {
     alert(msg);
-    window.location.href = '/WF/MyFlowInfo.aspx?Msg=' + data;
+    window.location.href = '/WF/MyFlowInfo.jsp?Msg=' + data;
 }
 
 var paras = "";

@@ -1,44 +1,70 @@
 package BP.Tools;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import BP.DA.Log;
+import cn.jflow.common.util.PingYinUtil;
 
-import TL.PingYinUtil;
-
-public class chs2py {
-	/**
-	 * 日志对象
-	 */
-	private static final Logger logger = LoggerFactory.getLogger(chs2py.class);
-
-	public chs2py() {
-		//
-		// TODO: 在此处添加构造函数逻辑
-		//
+public class chs2py
+{
+	public chs2py()
+	{
 	}
+	/**
+	 * 将中文字符串转换成助记码形式，如将“中国”转换成ZG
+	 * @param str
+	 * @return
+	 */
+    public static String ConvertStr2Code(String str)
+    {
+    	String _Temp = "";
+    	String _code = "";
+        try
+        {
+            for (int i = 0; i < str.length(); i++)
+            {
+                _code = BP.Tools.chs2py.convert(String.valueOf(str));
 
+                if (StringHelper.isAllWhitespace(_code))
+                    continue;
+
+                _Temp = _Temp + _code.substring(0, 1);
+            }
+
+            return _Temp;
+        }
+        catch (Exception ex)
+        {
+            Log.DebugWriteError("@错误：" + str + "，不能转换成拼音助记码。");
+        }
+        return _Temp;
+    }
+	
 	/**
 	 * 获取汉字串拼音首字母，英文字符不变
 	 */
-	public static String ConvertWordFirst(String str) {
+	public static String ConvertWordFirst(String str)
+	{
 		return PingYinUtil.getFirstSpell(str);
 	}
-
-	public static String convert(String chrstr, String isNullAsVal) {
-		try {
+	
+	public static String convert(String chrstr, String isNullAsVal)
+	{
+		try
+		{
 			return convert(chrstr);
-		} catch (java.lang.Exception e) {
+		} catch (java.lang.Exception e)
+		{
 			return isNullAsVal;
 		}
 	}
-
+	
 	/**
 	 * 获取拼音
 	 * 
 	 * @param chrstr
 	 * @return
 	 */
-	public static String convert(String chrstr) {
+	public static String convert(String chrstr)
+	{
 		// char[] t1 = null;
 		// t1 = chrstr.toCharArray();
 		// String[] t2 = new String[t1.length];
@@ -58,7 +84,7 @@ public class chs2py {
 		// } else
 		// t4 += java.lang.Character.toString(t1[i]);
 		// }
-		// // logger.debug(t4);
+		// // System.out.println(t4);
 		// return t4;
 		// } catch (BadHanyuPinyinOutputFormatCombination e1) {
 		// e1.printStackTrace();
@@ -66,7 +92,7 @@ public class chs2py {
 		// return t4;
 		return PingYinUtil.getPingYin(chrstr);
 	}
-
+	
 	// // 返回中文的首字母
 	// public static String getPinYinHeadChar(String str) {
 	// String convert = "";
@@ -87,14 +113,15 @@ public class chs2py {
 	// StringBuffer strBuf = new StringBuffer();
 	// byte[] bGBK = cnStr.getBytes();
 	// for (int i = 0; i < bGBK.length; i++) {
-	// // logger.debug(Integer.toHexString(bGBK[i]&0xff));
+	// // System.out.println(Integer.toHexString(bGBK[i]&0xff));
 	// strBuf.append(Integer.toHexString(bGBK[i] & 0xff));
 	// }
 	// return strBuf.toString();
 	// }
-
-	public static void main(String[] args) {
-		logger.debug(chs2py.convert("要有一人一伙 去粗取精"));
-		logger.debug(chs2py.ConvertWordFirst("要有一人一伙 去粗取精"));
-	}
+	
+//	public static void main(String[] args)
+//	{
+//		System.out.println(chs2py.convert("要有一人一伙 去粗取精"));
+//		System.out.println(chs2py.ConvertWordFirst("要有一人一伙 去粗取精"));
+//	}
 }

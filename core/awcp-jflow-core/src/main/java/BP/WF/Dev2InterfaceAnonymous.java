@@ -1,20 +1,21 @@
 package BP.WF;
 
-import BP.DA.*;
-import BP.Port.*;
-import BP.Web.*;
-import BP.En.*;
-import BP.WF.Data.*;
-import BP.WF.Entity.GenerWorkFlowAttr;
-import BP.WF.Entity.GenerWorkFlows;
-import BP.WF.Template.Flow;
-import BP.WF.Template.Node;
-import BP.WF.Template.PubLib.WFState;
-import BP.WF.Template.WorkBase.Work;
-import BP.Sys.*;
-import BP.Sys.Frm.MapDtl;
-import BP.Sys.Frm.MapDtls;
+import BP.DA.DBAccess;
+import BP.DA.DataColumn;
+import BP.DA.DataRow;
+import BP.DA.DataSet;
+import BP.DA.DataTable;
+import BP.DA.DataType;
+import BP.DA.Paras;
+import BP.Port.Emp;
+import BP.Sys.GEDtl;
+import BP.Sys.GEDtlAttr;
+import BP.Sys.GEDtls;
+import BP.Sys.MapDtl;
+import BP.Sys.SystemConfig;
 import BP.Tools.StringHelper;
+import BP.WF.Data.GERptAttr;
+import BP.Web.WebUser;
 
 /** 
  此接口为程序员二次开发使用,在阅读代码前请注意如下事项.
@@ -55,7 +56,7 @@ public class Dev2InterfaceAnonymous
 	 @param parentFlowNo 父流程的流程编号,如果没有父流程就传入为null.
 	 @return 为开始节点创建工作后产生的WorkID.
 	*/
-	public static long Node_CreateBlankWork(String flowNo, java.util.Hashtable<String,Object> ht, DataSet workDtls, String guestNo, String title, long parentWorkID, String parentFlowNo, int parentNodeID, String parentEmp)
+	public static long Node_CreateBlankWork(String flowNo, java.util.Hashtable ht, DataSet workDtls, String guestNo, String title, long parentWorkID, String parentFlowNo, int parentNodeID, String parentEmp)
 	{
 
 		//转化成编号.
@@ -69,7 +70,7 @@ public class Dev2InterfaceAnonymous
 		Flow fl = new Flow(flowNo);
 		Node nd = new Node(fl.getStartNodeID());
 
-		Emp empStarter = new Emp(WebUser.getNo());
+		Emp empStarter = new Emp(BP.Web.WebUser.getNo());
 
 
 		//把一些其他的参数也增加里面去,传递给ccflow.
@@ -94,14 +95,11 @@ public class Dev2InterfaceAnonymous
 
 		Work wk = fl.NewWork(empStarter, htPara);
 		long workID = wk.getOID();
-
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-			///#region 给各个属性-赋值
 		if (ht != null)
 		{
-			for (String str : ht.keySet()) {
-				wk.SetValByKey(str, ht.get(str));
-			}
+			for (Object str : ht.keySet())
+			{
+				wk.SetValByKey(str.toString(), ht.get(str));			}
 		}
 		wk.setOID(workID);
 		if (workDtls != null)
@@ -109,7 +107,7 @@ public class Dev2InterfaceAnonymous
 			//保存从表
 			for (DataTable dt : workDtls.Tables)
 			{
-				for (MapDtl dtl : MapDtls.convertMapDtls(wk.getHisMapDtls()))
+				for (MapDtl dtl : wk.getHisMapDtls().ToJavaList())
 				{
 					if (dt.TableName != dtl.getNo())
 					{
@@ -120,13 +118,13 @@ public class Dev2InterfaceAnonymous
 					daDtls.Delete(GEDtlAttr.RefPK, wk.getOID()); // 清除现有的数据.
 
 					GEDtl daDtl = (GEDtl)((daDtls.getGetNewEntity() instanceof GEDtl) ? daDtls.getGetNewEntity() : null);
-					daDtl.setRefPK ((new Long(wk.getOID())).toString());
+					daDtl.setRefPK(String.valueOf(wk.getOID()));
 
 					// 为从表复制数据.
 					for (DataRow dr : dt.Rows)
 					{
 						daDtl.ResetDefaultVal();
-						daDtl.setRefPK ((new Long(wk.getOID())).toString());
+						daDtl.setRefPK(String.valueOf(wk.getOID()));
 
 						//明细列.
 						for (DataColumn dc : dt.Columns)
@@ -134,29 +132,16 @@ public class Dev2InterfaceAnonymous
 							//设置属性.
 							daDtl.SetValByKey(dc.ColumnName, dr.getValue(dc.ColumnName));
 						}
-						try {
-							daDtl.InsertAsOID(DBAccess.GenerOID("Dtl"));
-						} catch (Exception e) {
-							// TODO 自动生成的 catch 块
-							e.printStackTrace();
-						} //插入数据.
+						daDtl.InsertAsOID(DBAccess.GenerOID("Dtl")); //插入数据.
 					}
 				}
 			}
 		}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-			///#endregion 赋值
 
 		Paras ps = new Paras();
 		// 执行对报表的数据表WFState状态的更新,让它为runing的状态.
 		if (StringHelper.isNullOrEmpty(title) == false)
 		{
-			if (!fl.getTitleRole().equals("@OutPara"))
-			{
-				fl.setTitleRole("@OutPara");
-				fl.Update();
-			}
-
 			ps = new Paras();
 			ps.SQL = "UPDATE " + fl.getPTable() + " SET WFState=" + dbstr + "WFState,Title=" + dbstr + "Title WHERE OID=" + dbstr + "OID";
 			ps.Add(GERptAttr.WFState, WFState.Blank.getValue());
@@ -170,7 +155,7 @@ public class Dev2InterfaceAnonymous
 			ps.SQL = "UPDATE " + fl.getPTable() + " SET WFState=" + dbstr + "WFState,FK_Dept=" + dbstr + "FK_Dept,Title=" + dbstr + "Title WHERE OID=" + dbstr + "OID";
 			ps.Add(GERptAttr.WFState, WFState.Blank.getValue());
 			ps.Add(GERptAttr.FK_Dept, empStarter.getFK_Dept());
-			ps.Add(GERptAttr.Title, WorkNode.GenerTitle(fl, wk));
+			ps.Add(GERptAttr.Title, BP.WF.WorkFlowBuessRole.GenerTitle(fl, wk));
 			ps.Add(GERptAttr.OID, wk.getOID());
 			DBAccess.RunSQL(ps);
 		}
@@ -196,7 +181,7 @@ public class Dev2InterfaceAnonymous
 		return wk.getOID();
 	}
 
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
+
 		///#region 门户。
 	/** 
 	 登陆
@@ -207,7 +192,7 @@ public class Dev2InterfaceAnonymous
 	public static void Port_Login(String guestNo, String guestName)
 	{
 		//登陆.
-		GuestUser.SignInOfGener(guestNo, guestName, "CH", true);
+		BP.Web.GuestUser.SignInOfGener(guestNo, guestName, "CH", true);
 	}
 	/** 
 	 登陆
@@ -220,7 +205,7 @@ public class Dev2InterfaceAnonymous
 	public static void Port_Login(String guestNo, String guestName, String deptNo, String deptName)
 	{
 		//登陆.
-		GuestUser.SignInOfGener(guestNo, guestName, deptNo,deptName,"CH", true);
+		BP.Web.GuestUser.SignInOfGener(guestNo, guestName, deptNo,deptName,"CH", true);
 	}
 	/** 
 	 退出登陆.
@@ -229,12 +214,12 @@ public class Dev2InterfaceAnonymous
 	public static void Port_LoginOunt()
 	{
 		//登陆.
-		GuestUser.Exit();
+		BP.Web.GuestUser.Exit();
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
+
 		///#endregion 门户。
 
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
+
 		///#region 获取Guest的待办
 	/** 
 	 获取Guest的待办
@@ -293,10 +278,10 @@ public class Dev2InterfaceAnonymous
 		gwfs.RetrieveInSQL(GenerWorkFlowAttr.WorkID, "(" + sql + ")");
 		return gwfs.ToDataTableField();
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
+
 		///#endregion
 
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
+
 		///#region 功能
 	/** 
 	 设置用户信息
@@ -365,10 +350,10 @@ public class Dev2InterfaceAnonymous
 			throw new RuntimeException("@WF_GenerWorkFlow - 设置外部用户待办信息失败:参数WorkID不能为空.");
 		}
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
+
 		///#endregion
 
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
+
 		///#region 通用方法
 	public static String TurnFlowMarkToFlowNo(String FlowMark)
 	{
@@ -390,6 +375,6 @@ public class Dev2InterfaceAnonymous
 		}
 		return s;
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
+
 		///#endregion
 }

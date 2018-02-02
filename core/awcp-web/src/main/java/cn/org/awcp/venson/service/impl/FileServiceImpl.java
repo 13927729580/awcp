@@ -9,18 +9,12 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.Reader;
 import java.util.Date;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.request.AbstractUpdateRequest;
-import org.apache.solr.client.solrj.request.ContentStreamUpdateRequest;
-import org.apache.solr.common.util.ContentStreamBase;
 import org.apache.tools.zip.ZipEntry;
 import org.apache.tools.zip.ZipOutputStream;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,9 +43,6 @@ public class FileServiceImpl implements FileService {
 	 * 日志对象
 	 */
 	private static final Log logger = LogFactory.getLog(FileServiceImpl.class);
-
-	@Autowired
-	public SolrClient solrClient;
 
 	@Autowired
 	private MongoClient mongo;
@@ -136,9 +127,6 @@ public class FileServiceImpl implements FileService {
 				break;
 			}
 			att.save();
-			if (isIndex) {
-				indexFilesSolr(input, fileName, fileType);
-			}
 			return uuid;
 		} catch (Exception e) {
 			logger.info("ERROR", e);
@@ -424,50 +412,10 @@ public class FileServiceImpl implements FileService {
 		return this.save(input, fileType, fileName, FileService.DEFAULT, false);
 	}
 
-	public void indexFilesSolr(InputStream input, String fileName, String fileType) {
-		ContentStreamUpdateRequest up = new ContentStreamUpdateRequest("/update/extract");
-		try {
-			up.addContentStream(new IFileStream(input, fileName, fileType));
-			String filename = fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf(".")) : fileName;
-			String suffix = fileName.substring(filename.length(), fileName.length());
-			String nfn = filename + System.currentTimeMillis() + suffix;
-			up.setParam("literal.id", nfn);
-			up.setParam("literal.title", fileName);
-			up.setParam("uprefix", "attr_");
-			up.setParam("fmap.content", "attr_content");
-			up.setAction(AbstractUpdateRequest.ACTION.COMMIT, true, true);
-			solrClient.request(up);
-		} catch (Exception e) {
-			logger.info("ERROR", e);
-		}
-	}
-
-}
-
-class IFileStream extends ContentStreamBase {
-	private InputStream input;
-
-	public IFileStream(InputStream input, String fileName, String fileType) throws IOException {
-
-		this.contentType = fileType;
-		this.name = fileName;
-		this.size = (long) input.available();
-		this.input = input;
-		this.sourceInfo = "inputStream";
-	}
-
-	public InputStream getStream() throws IOException {
-		return input;
-	}
-
-	/**
-	 * If an charset is defined (by the contentType) use that, otherwise use a file
-	 * reader
-	 */
 	@Override
-	public Reader getReader() throws IOException {
-		String charset = getCharsetFromContentType(contentType);
-		return charset == null ? new InputStreamReader(getStream()) : new InputStreamReader(getStream(), charset);
+	public void indexFilesSolr(InputStream input, String fileName, String fileType) {
+		// TODO Auto-generated method stub
+
 	}
 
 }

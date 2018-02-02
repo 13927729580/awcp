@@ -1,11 +1,8 @@
 package BP.WF.Template;
 
-import java.util.ArrayList;
-
 import BP.En.EntitiesNoName;
 import BP.En.Entity;
 import BP.En.QueryObject;
-import BP.WF.Template.PubLib.FlowAttr;
 
 /** 
  流程集合
@@ -13,11 +10,8 @@ import BP.WF.Template.PubLib.FlowAttr;
 */
 public class FlowSheets extends EntitiesNoName
 {
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
+
 		///#region 查询
-	public static final ArrayList<FlowSheet> convertFlowSheets(Object objct){
-		return (ArrayList<FlowSheet>) objct;
-	}
 	/** 
 	 查询出来全部的在生存期间内的流程
 	 
@@ -27,12 +21,15 @@ public class FlowSheets extends EntitiesNoName
 	public final int Retrieve(String FlowSort)
 	{
 		QueryObject qo = new QueryObject(this);
-		qo.AddWhere(FlowAttr.FK_FlowSort, FlowSort);
-		qo.addOrderBy(FlowAttr.No);
+		qo.AddWhere(BP.WF.Template.FlowAttr.FK_FlowSort, FlowSort);
+		qo.addOrderBy(BP.WF.Template.FlowAttr.No);
 		return qo.DoQuery();
 	}
+
 		///#endregion
-		///#region 构造方法
+
+
+		
 	/** 
 	 工作流程
 	 
@@ -47,12 +44,12 @@ public class FlowSheets extends EntitiesNoName
 	*/
 	public FlowSheets(String fk_sort)
 	{
-		this.Retrieve(FlowAttr.FK_FlowSort, fk_sort);
+		this.Retrieve(BP.WF.Template.FlowAttr.FK_FlowSort, fk_sort);
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
+
 		///#endregion
 
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
+
 		///#region 得到实体
 	/** 
 	 得到它的 Entity 
@@ -63,6 +60,34 @@ public class FlowSheets extends EntitiesNoName
 	{
 		return new FlowSheet();
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
+
 		///#endregion
+
+
+		///#region 为了适应自动翻译成java的需要,把实体转换成List.
+	/** 
+	 转化成 java list,C#不能调用.
+	 
+	 @return List
+	*/
+	public final java.util.List<FlowSheet> ToJavaList()
+	{
+		return (java.util.List<FlowSheet>)(Object)this;
+	}
+	/** 
+	 转化成list
+	 
+	 @return List
+	*/
+	public final java.util.ArrayList<FlowSheet> Tolist()
+	{
+		java.util.ArrayList<FlowSheet> list = new java.util.ArrayList<FlowSheet>();
+		for (int i = 0; i < this.size(); i++)
+		{
+			list.add((FlowSheet)this.get(i));
+		}
+		return list;
+	}
+
+		///#endregion 为了适应自动翻译成java的需要,把实体转换成List.
 }

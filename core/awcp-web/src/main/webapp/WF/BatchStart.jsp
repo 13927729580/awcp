@@ -1,9 +1,9 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"	pageEncoding="UTF-8"%>
-<%@ include file="/head/head1.jsp"%>
+<%@ include file="/WF/head/head1.jsp"%>
 <%
 	String FK_Flow = request.getParameter("FK_Flow")==null?"":request.getParameter("FK_Flow");
 	
-	String FK_MapData = "ND" + Integer.valueOf(FK_Flow+"01");;
+	String FK_MapData = "ND" + Integer.valueOf(FK_Flow+"01");
 	int RowNum = 12;
 	
 	String Key = request.getParameter("Key")==null?"":request.getParameter("Key");

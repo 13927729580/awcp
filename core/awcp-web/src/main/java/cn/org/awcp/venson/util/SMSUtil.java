@@ -5,7 +5,6 @@ import java.io.UnsupportedEncodingException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import cn.org.awcp.formdesigner.engine.util.HttpClientUtil;
 
 /**
  * Created by venson on 2017/01/12.
@@ -39,7 +38,7 @@ public class SMSUtil {
 			httpArg.append("c=").append(java.net.URLEncoder.encode(content, "UTF-8"));
 		} catch (UnsupportedEncodingException e) {
 		}
-		HttpClientUtil.get(httpArg.toString());
+		HttpUtils.sendGet(httpArg.toString());
 		logger.debug("SMSCode------------------------" + randomVcode);
 		return randomVcode;
 	}

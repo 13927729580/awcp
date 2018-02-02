@@ -1,11 +1,8 @@
 package BP.WF.DTS;
 
-import BP.DA.*;
-import BP.Port.*;
-import BP.Sys.*;
-import BP.WF.Template.Node;
-import BP.WF.Template.Nodes;
-import BP.En.*;
+import BP.En.Method;
+import BP.WF.Node;
+import BP.WF.Nodes;
 
 /** 
  修复节点表单map 的摘要说明
@@ -56,7 +53,7 @@ public class RepariNodeFrmMap extends Method
 		nds.RetrieveAllFromDBSource();
 
 		String info = "";
-		for (Node nd :Nodes.convertNodes(nds) )
+		for (Node nd : nds.ToJavaList())
 		{
 			String msg = nd.RepareMap();
 			if (!msg.equals(""))

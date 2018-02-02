@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=utf-8"
 	pageEncoding="utf-8"%>
-<%@ include file="/head/head.jsp"%>
+<%@ include file="/WF/head/head2.jsp"%>
+<link href="<%=Glo.getCCFlowAppPath() %>DataUser/Style/table0.css" rel="stylesheet" type="text/css" />
 <%
 	String FK_Flow = request.getParameter("FK_Flow")==null ? "":request.getParameter("FK_Flow");
 	String DoType = request.getParameter("DoType");
@@ -62,12 +63,8 @@ function SetImg(appPath, id) {
 </head>
 <body>
 	<!-- 表格数据 -->
-	<div class="admin-content">
-		<div class="am-cf am-padding">
-			<div class="am-fl am-cf">
-				<strong class="am-text-primary am-text-lg">首页</strong> / <small>抄送列表</small>
-			</div>
-		</div>
+	<table border=1px align=center width='100%'>
+		<Caption ><div class='CaptionMsg' >抄送列表</div></Caption>
 
 		<!-- 数据 -->
 
@@ -81,7 +78,7 @@ function SetImg(appPath, id) {
 			</div>
 		</div>
 
-	</div>
+	</table>
 </body>
 <script type="text/javascript">
 	/* function reLoad(){
@@ -94,7 +91,7 @@ function reLoad(){
 	var FK_Flow = '<%=FK_Flow%>';
 	var GroupBy = '<%=GroupBy%>';
 	$.ajax({
-		url : "CC.do",
+		url : "CCS.do",
 		type : 'post',
 		dataType : 'html',
 		data : {

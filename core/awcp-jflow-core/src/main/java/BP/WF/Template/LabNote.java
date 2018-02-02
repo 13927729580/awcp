@@ -1,10 +1,8 @@
 package BP.WF.Template;
 
-import BP.DA.*;
-import BP.En.*;
-import BP.WF.Template.*;
-import BP.WF.Template.PubLib.NodeAttr;
-import BP.Port.*;
+import BP.En.EntityMyPK;
+import BP.En.Map;
+import BP.En.UAC;
 
 /** 
  标签.	 
@@ -12,8 +10,8 @@ import BP.Port.*;
 */
 public class LabNote extends EntityMyPK
 {
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 基本属性
+
+		
 	/** 
 	 UI界面上的访问控制
 	 
@@ -71,11 +69,11 @@ public class LabNote extends EntityMyPK
 	{
 		SetValByKey(NodeAttr.Name, value);
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
+
 		///#endregion
 
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 构造函数
+
+		
 	/** 
 	 标签
 	 
@@ -105,11 +103,7 @@ public class LabNote extends EntityMyPK
 			return this.get_enMap();
 		}
 
-		Map map = new Map("WF_LabNote");
-		map.setEnDesc("标签"); // "标签";
-
-		map.setDepositaryOfEntity (Depositary.None);
-		map.setDepositaryOfMap(Depositary.Application);
+		Map map = new Map("WF_LabNote", "标签");
 
 		map.AddMyPK();
 
@@ -122,13 +116,13 @@ public class LabNote extends EntityMyPK
 		this.set_enMap(map);
 		return this.get_enMap();
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
+
 		///#endregion
 
 	@Override
 	protected boolean beforeInsert()
 	{
-		this.setMyPK(String.valueOf(BP.DA.DBAccess.GenerOID())) ;
+		this.setMyPK(BP.DA.DBAccess.GenerOID()+"");
 		return super.beforeInsert();
 	}
 }

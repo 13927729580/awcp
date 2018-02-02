@@ -1,14 +1,8 @@
 package BP.WF.DTS;
 
 import BP.DA.*;
-
-import BP.Port.*;
 import BP.En.*;
 import BP.Sys.*;
-import BP.Sys.Frm.FrmLab;
-import BP.Sys.Frm.FrmLabs;
-import BP.Sys.Frm.FrmLine;
-import BP.Sys.Frm.FrmLines;
 
 /** 
  重新生成标题 的摘要说明
@@ -57,20 +51,19 @@ public class ClearRepLineLab extends Method
 		String sql = "";
 		for (FrmLine item : FrmLines.convertFrmLines(ens))
 		{
-			sql = "DELETE FROM " + item.getEnMap().getPhysicsTable() + " WHERE FK_MapData='" + item.getFK_MapData() + "' AND X=" + item.getX() + " AND Y=" + item.getY() + " and x1=" + item.getX1() + " and x2=" + item.getX2() + " and y1=" + item.getY1() + " and y2=" + item.getY2();
+			sql = "DELETE FROM " + item.getEnMap().getPhysicsTable() + " WHERE FK_MapData='" + item.getFK_MapData() + "' AND  x1=" + item.getX1() + " and x2=" + item.getX2() + " and y1=" + item.getY1() + " and y2=" + item.getY2();
 			DBAccess.RunSQL(sql);
-			item.setMyPK(String.valueOf(DBAccess.GenerOIDByGUID())) ;
+			item.setMyPK(DBAccess.GenerOIDByGUID()+"");
 			item.Insert();
 		}
 
-
 		FrmLabs labs = new FrmLabs();
 		labs.RetrieveAllFromDBSource();
-		for (FrmLab item : FrmLabs.convertFrmLabs(labs))
+		for (FrmLab item : labs.ToJavaList())
 		{
 			sql = "DELETE FROM " + item.getEnMap().getPhysicsTable() + " WHERE FK_MapData='" + item.getFK_MapData() + "' and x=" + item.getX() + " and y=" + item.getY() + " and Text='" + item.getText() + "'";
 			DBAccess.RunSQL(sql);
-			item.setMyPK (String.valueOf(DBAccess.GenerOIDByGUID()));
+			item.setMyPK(BP.DA.DBAccess.GenerOIDByGUID()+"");
 			item.Insert();
 		}
 		return "删除成功";

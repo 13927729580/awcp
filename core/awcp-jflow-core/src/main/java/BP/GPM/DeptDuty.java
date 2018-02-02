@@ -7,19 +7,11 @@ import BP.En.UAC;
 
 /** 
  部门职务 的摘要说明。
- 
 */
 public class DeptDuty extends Entity
 {
-/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 基本属性
 	/** 
 	 UI界面上的访问控制
-	 
 	*/
 	@Override
 	public UAC getHisUAC()
@@ -31,7 +23,6 @@ public class DeptDuty extends Entity
 	}
 	/** 
 	 部门
-	 
 	*/
 	public final String getFK_Dept()
 	{
@@ -47,7 +38,6 @@ public class DeptDuty extends Entity
 	}
 	/** 
 	职务
-	 
 	*/
 	public final String getFK_Duty()
 	{
@@ -57,27 +47,15 @@ public class DeptDuty extends Entity
 	{
 		SetValByKey(DeptDutyAttr.FK_Duty, value);
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
 
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 扩展属性
-
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
-
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 构造函数
 	/** 
 	 部门职务
-	  
 	*/
 	public DeptDuty()
 	{
 	}
 	/** 
 	 工作人员职务对应
-	 
 	 @param _empoid 部门
 	 @param wsNo 职务编号 	
 	*/
@@ -92,7 +70,6 @@ public class DeptDuty extends Entity
 	}
 	/** 
 	 重写基类方法
-	 
 	*/
 	@Override
 	public Map getEnMap()
@@ -104,7 +81,7 @@ public class DeptDuty extends Entity
 
 		Map map = new Map("Port_DeptDuty");
 		map.setEnDesc("部门职务");
-		map.setEnType(EnType.Dot2Dot); //实体类型，admin 系统管理员表，PowerAble 权限管理表,也是用户表,你要想把它加入权限管理里面请在这里设置。。
+		map.Java_SetEnType(EnType.Dot2Dot); //实体类型，admin 系统管理员表，PowerAble 权限管理表,也是用户表,你要想把它加入权限管理里面请在这里设置。。
 
 		map.AddTBStringPK(DeptDutyAttr.FK_Dept, null, "部门", false, false, 1, 15, 1);
 		map.AddDDLEntitiesPK(DeptDutyAttr.FK_Duty, null, "职务", new Dutys(), true);
@@ -112,6 +89,4 @@ public class DeptDuty extends Entity
 		this.set_enMap(map);
 		return this.get_enMap();
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
 }

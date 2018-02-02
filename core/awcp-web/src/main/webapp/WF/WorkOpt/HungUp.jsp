@@ -1,7 +1,20 @@
-<%@ page language="java" contentType="text/html;charset=UTF-8"
-	pageEncoding="UTF-8"%>
-<%@ include file="/head/head.jsp"%>
+<%@ page language="java" contentType="text/html;charset=UTF-8" pageEncoding="UTF-8"%>
+<%@page import=" cn.jflow.model.wf.rpt.HungUpModel"%>
+<%@page import="BP.WF.Glo"%>
+<%@page import="BP.Web.WebUser"%>
+<script type="text/javascript" src="../../WF/Scripts/easyUI/jquery-1.8.0.min.js"></script>
+<link href="../../DataUser/Style/table0.css" rel="stylesheet" type="text/css" /><link rel="shortcut icon" href="../Img/ccbpm.ico" type="image/x-icon" />
+<link href="../Comm/Style/Table.css" rel="stylesheet" type="text/css" />
+<link href="../Comm/Style/Table0.css" rel="stylesheet" type="text/css" />
+<link href="../Comm/JS/Calendar/skin/WdatePicker.css" rel="stylesheet" type="text/css" />
+<script language="JavaScript" src="../Comm/JS/Calendar/WdatePicker.js" type="text/javascript" ></script>
+
+
+
+
 <%
+	String path = request.getContextPath();
+	String basePath = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()	+ path + "/";
 	String isCheckForever = request.getParameter("isCheckForever");
 	String FK_Flow = (String) request.getParameter("FK_Flow");
 	String WorkID = request.getParameter("WorkID");
@@ -10,6 +23,9 @@
 	String title = request.getParameter("title");
 	String DTOfUnHungUpPlan = request.getParameter("DTOfUnHungUpPlan");
 	String isHungUp = request.getParameter("isHungUp");
+	
+	HungUpModel hum=new HungUpModel(request,response);
+	hum.init();
 %>
 <script type="text/javascript" language="JavaScript">
 function hungUpSubmit(obj){
@@ -18,17 +34,37 @@ function hungUpSubmit(obj){
 	var TB_Note = $("#TB_Note").val();
 	var btn_id = obj.id;
 	if(btn_id == "Btn_Cancel"){
-		var url = "<%=basePath%>WF/MyFlow<%=Glo.getFromPageType()%>.jsp?FK_Node=<%=FK_Node%>&FID=<%=FID%>&WorkID=<%=WorkID%>&FK_Flow=<%=FK_Flow%>";
-		window.location.href = url;
+		<%-- var url = "<%=basePath%>WF/MyFlow<%=Glo.getFromPageType()%>.jsp?FK_Node=<%=FK_Node%>&FID=<%=FID%>&WorkID=<%=WorkID%>&FK_Flow=<%=FK_Flow%>"; --%>
+		//window.location.href = url;
+		window.close();
 	}else{
-		var url = "<%=basePath%>WF/WorkOpt/doHungUp.do?FK_Node=<%=FK_Node%>&FID=<%=FID%>&WorkID=<%=WorkID%>&FK_Flow=<%=FK_Flow%>&RB_HungWay="
-					+ RB_HungWay
-					+ "&TB_RelData="
-					+ TB_RelData
-					+ "&TB_Note="
-					+ TB_Note;
-			$("#form1").attr("action", url);
-			$("#form1").submit();
+		 	if(confirm('确定要执行挂起操作吗?')){ 
+				<%-- var url = "<%=basePath%>WF/WorkOpt/doHungUp.do?FK_Node=<%=FK_Node%>&FID=<%=FID%>&WorkID=<%=WorkID%>&FK_Flow=<%=FK_Flow%>&RB_HungWay="
+						+ RB_HungWay
+						+ "&TB_RelData="
+						+ TB_RelData
+						+ "&TB_Note="
+						+ TB_Note;
+				$("#form1").attr("action", url);
+				$("#form1").submit(); --%>
+				
+				$.ajax({
+					url:'<%=basePath%>WF/WorkOpt/ajaxHungUp.do?FK_Node=<%=FK_Node%>&FID=<%=FID%>&WorkID=<%=WorkID%>&FK_Flow=<%=FK_Flow%>&RB_HungWay='+RB_HungWay,
+					type:'post', //数据发送方式
+					data:$('#form1').serialize(),
+					async: false ,
+					error: function(data){},
+					success: function(data){
+						if(data=="success"){
+							alert("操作成功！");
+							window.close();
+						}else{
+							alert("操作失败！");
+						}
+					}
+				});
+				
+			}
 		}
 	}
 	function NoSubmit(ev) {
@@ -44,69 +80,19 @@ function hungUpSubmit(obj){
 </script>
 </head>
 <body>
-	<div class="admin-content">
-		<div class="am-g">
-			<div class="am-u-sm-12">
-				<form method="post" action="" id="form1">
-					<div
-						style="text-align: center; position: absolute; background-color: white; height: 100%; left: 15%; right: 15%">
-						<table class='am-table am-table-striped am-table-hover table-main' style="text-align: left; width: 100%">
-							<th class='table-title'>
-								您好:<%=Glo.GenerUserImgSmallerHtml(WebUser.getNo(),
-					WebUser.getName())%>
-							</th>
-							<tr>
-								<td style="text-align: center"><br>
-										<table style="text-align: left; width: 500px">
-											<tr>
-												<td>
-													<fieldset width='100%'>
-														<legend>
-															&nbsp;对工作<b><%=title%></b>挂起方式&nbsp;
-														</legend>
-														<%
-															if (isCheckForever.equals("true")) {
-														%>
-														<input id="s" type="radio" name="s" value="RB_HungWay0"
-															checked="checked" /><label for="RB_HungWay0">永久挂起</label><BR><input
-															id="s" type="radio" name="s" value="RB_HungWay1" /><label
-															for="RB_HungWay1">在指定的日期自动解除挂起.</label> <%
- 	} else {
- %> <input
-															id="s" type="radio" name="s" value="RB_HungWay0" /><label
-															for="RB_HungWay0">永久挂起</label><BR><input id="s"
-																type="radio" checked="checked" name="s"
-																value="RB_HungWay1" /><label for="RB_HungWay1">在指定的日期自动解除挂起.</label>
-																<%
-																	}
-																%> <BR>&nbsp;&nbsp;&nbsp;&nbsp;解除流程挂起的日期:<input
-																	name="TB_RelData" type="text"
-																	value="<%=DTOfUnHungUpPlan%>" maxlength="20"
-																	id="TB_RelData" class="TBcalendar" />
-													</fieldset>
-													<fieldset width='100%'>
-														<legend>&nbsp;挂起原因:&nbsp;</legend>
-														<textarea name="TB_Note" rows="2" cols="70" id="TB_Note"
-															style="height: 50px;"></textarea>
-													</fieldset>&nbsp;&nbsp;&nbsp;&nbsp;
-													<button type="button" onclick="hungUpSubmit(this)" name="Btn_OK" id="Btn_OK" class="am-btn am-btn-primary"><%=isHungUp%></button>
-													<%-- <input type="button" name="Btn_OK"
-													value="<%=isHungUp%>" id="Btn_OK"
-													onclick="hungUpSubmit(this)" />  --%>
-													<button type="button" name="Btn_Cancel" id="Btn_Cancel"
-													onclick="hungUpSubmit(this)" class="am-btn am-btn-primary am-btn-xs">返回</button>
-													<!-- <input type="button"
-													name="Btn_Cancel" value=" 返回 " id="Btn_Cancel"
-													onclick="hungUpSubmit(this)" /> -->
-												</td>
-											</tr>
-										</table> <br></td>
-							</tr>
-						</table>
-					</div>
-				</form>
-			</div>
-		</div>
-	</div>
+<form method="post" action="" id="form1">
+<table border=1px width='100%'>
+	<Caption>
+		<div class=''>
+			您好：<%=Glo.GenerUserImgSmallerHtml(WebUser.getNo(),WebUser.getName())%> -  工作挂起与取消</div>
+	</Caption>
+	<tr>
+		<td>
+			<%=hum.Pub1.ListToString() %>
+		
+		</td>
+	</tr>
+</table>
+</form>
 </body>
 </html>

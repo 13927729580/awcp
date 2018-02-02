@@ -1,32 +1,21 @@
 package BP.WF.Port;
 
-import BP.DA.*;
-import BP.En.*;
-import BP.WF.*;
-import BP.Port.*;
-import BP.Port.*;
-import BP.En.*;
-import BP.Web.*;
 
 /** 
  授权方式
- 
 */
 public enum AuthorWay
 {
 	/** 
 	 不授权
-	 
 	*/
 	None,
 	/** 
 	 全部授权
-	 
 	*/
 	All,
 	/** 
 	 指定流程授权
-	 
 	*/
 	SpecFlows;
 

@@ -88,7 +88,7 @@ public class DBUtil {
 			while (rs.next()) {
 				String table = rs.getString(1);
 				// 如果不是组织表，则重置所有组ID
-				if (table.startsWith("dd_")) {
+				if (table.startsWith("nd")) {
 					System.out.println("delete from " + table + ";");
 				}
 			}

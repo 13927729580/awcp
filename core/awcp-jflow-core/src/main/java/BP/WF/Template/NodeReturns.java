@@ -1,11 +1,10 @@
 package BP.WF.Template;
 
-import java.util.ArrayList;
-
-import BP.DA.*;
-import BP.En.*;
-import BP.En.*;
-import BP.Port.*;
+import BP.En.EntitiesMM;
+import BP.En.Entity;
+import BP.En.QueryObject;
+import BP.WF.Node;
+import BP.WF.Nodes;
 
 /** 
  可退回的节点
@@ -20,19 +19,12 @@ public class NodeReturns extends EntitiesMM
 	public final Nodes getHisNodes()
 	{
 		Nodes ens = new Nodes();
-		for (NodeReturn ns : convertNodeReturns(this))
+		for (NodeReturn ns : this.ToJavaList())
 		{
 			ens.AddEntity(new Node(ns.getReturnTo()));
 		}
 		return ens;
 	}
-	
-	
-	@SuppressWarnings("unchecked")
-	public static ArrayList<NodeReturn> convertNodeReturns(Object obj) {
-		return (ArrayList<NodeReturn>) obj;
-	}
-	
 	/** 
 	 可退回的节点
 	 
@@ -81,10 +73,10 @@ public class NodeReturns extends EntitiesMM
 	{
 		Nodes nds = new Nodes();
 		Nodes tmp = new Nodes();
-		for (Node st : Nodes.convertNodes(sts))
+		for (Node st : sts.ToJavaList())
 		{
 			tmp = this.GetHisNodes(st.getNo());
-			for (Node nd : Nodes.convertNodes(tmp))
+			for (Node nd : tmp.ToJavaList())
 			{
 				if (nds.Contains(nd))
 				{
@@ -108,7 +100,7 @@ public class NodeReturns extends EntitiesMM
 		qo.DoQuery();
 
 		Nodes ens = new Nodes();
-		for (NodeReturn en : convertNodeReturns(this))
+		for (NodeReturn en : this.ToJavaList())
 		{
 			ens.AddEntity(new Node(en.getFK_Node()));
 		}
@@ -127,10 +119,38 @@ public class NodeReturns extends EntitiesMM
 		qo.DoQuery();
 
 		Nodes ens = new Nodes();
-		for (NodeReturn en : convertNodeReturns(this))
+		for (NodeReturn en : this.ToJavaList())
 		{
 			ens.AddEntity(new Node(en.getReturnTo()));
 		}
 		return ens;
 	}
+
+
+		///#region 为了适应自动翻译成java的需要,把实体转换成List.
+	/** 
+	 转化成 java list,C#不能调用.
+	 
+	 @return List
+	*/
+	public final java.util.List<NodeReturn> ToJavaList()
+	{
+		return (java.util.List<NodeReturn>)(Object)this;
+	}
+	/** 
+	 转化成list
+	 
+	 @return List
+	*/
+	public final java.util.ArrayList<NodeReturn> Tolist()
+	{
+		java.util.ArrayList<NodeReturn> list = new java.util.ArrayList<NodeReturn>();
+		for (int i = 0; i < this.size(); i++)
+		{
+			list.add((NodeReturn)this.get(i));
+		}
+		return list;
+	}
+
+		///#endregion 为了适应自动翻译成java的需要,把实体转换成List.
 }

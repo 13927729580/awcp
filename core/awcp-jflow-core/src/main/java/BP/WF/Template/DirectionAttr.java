@@ -1,11 +1,8 @@
 package BP.WF.Template;
 
-import BP.DA.*;
-import BP.En.*;
-import BP.WF.Template.*;
 
 /** 
- 节点方向属性	  
+ 节点方向属性
  
 */
 public class DirectionAttr

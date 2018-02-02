@@ -2,15 +2,13 @@ package BP.Sys;
 
 import BP.En.EntityNoNameAttr;
 
-/** 
- 域
- 
-*/
+/**
+ * 域
+ */
 public class DomainAttr extends EntityNoNameAttr
 {
-	/** 
-	 DBLink
-	 
-	*/
+	/**
+	 * DBLink
+	 */
 	public static final String DBLink = "DBLink";
 }

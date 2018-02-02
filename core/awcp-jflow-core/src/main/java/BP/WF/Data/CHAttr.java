@@ -1,13 +1,14 @@
 package BP.WF.Data;
 
-/** 
-时效考核属性
 
+/** 
+ 时效考核属性
+ 
 */
 public class CHAttr
 {
 
-		///#region 属性
+		
 	public static final String MyPK = "MyPK";
 	/** 
 	 工作ID
@@ -47,36 +48,65 @@ public class CHAttr
 	*/
 	public static final String FK_DeptT = "FK_DeptT";
 	/** 
-	 送达否
+	 当事人
 	 
 	*/
 	public static final String FK_Emp = "FK_Emp";
+	/** 
+	 当事人名称
+	 
+	*/
 	public static final String FK_EmpT = "FK_EmpT";
+	/** 
+	 相关当事人
+	 
+	*/
+	public static final String GroupEmps = "GroupEmps";
+	/** 
+	 相关当事人名称
+	 
+	*/
+	public static final String GroupEmpsNames = "GroupEmpsNames";
+	/** 
+	 相关当事人数量
+	 
+	*/
+	public static final String GroupEmpsNum = "GroupEmpsNum";
 	/** 
 	 限期
 	 
 	*/
-	public static final String TSpan = "TSpan";
+	public static final String TimeLimit = "TimeLimit";
 	/** 
 	 实际期限
 	 
 	*/
-	public static final String UseMinutes = "UseMinutes";
+	public static final String UseDays = "UseDays";
 	/** 
 	 使用时间
 	 
 	*/
-	public static final String UseTime = "UseTime";
+	public static final String UseHours = "UseHours";
 	/** 
 	 逾期
 	 
 	*/
-	public static final String OverMinutes = "OverMinutes";
+	public static final String OverDays = "OverDays";
 	/** 
 	 预期
 	 
 	*/
-	public static final String OverTime = "OverTime";
+	public static final String OverHours = "OverHours";
+	/** 
+	 用时（分钟）
+	 
+	*/
+	public static final String UseMinutes = "UseMinutes";
+	/** 
+	 超时（分钟）
+	 
+	*/
+	public static final String OverMinutes = "OverMinutes";
 	/** 
 	 状态
 	 
@@ -91,7 +121,7 @@ public class CHAttr
 	 周
 	 
 	*/
-	public static final String Week = "Week";
+	public static final String WeekNum = "WeekNum";
 	/** 
 	 FID
 	 
@@ -118,5 +148,5 @@ public class CHAttr
 	*/
 	public static final String SDT = "SDT";
 
+		///#endregion
 }
-

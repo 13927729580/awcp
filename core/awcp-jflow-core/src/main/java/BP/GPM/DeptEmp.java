@@ -6,19 +6,11 @@ import BP.En.UAC;
 
 /** 
  部门人员信息 的摘要说明。
- 
 */
 public class DeptEmp extends EntityMyPK
 {
-/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 基本属性
 	/** 
 	 UI界面上的访问控制
-	 
 	*/
 	@Override
 	public UAC getHisUAC()
@@ -29,7 +21,6 @@ public class DeptEmp extends EntityMyPK
 	}
 	/** 
 	 人员
-	 
 	*/
 	public final String getFK_Emp()
 	{
@@ -42,7 +33,6 @@ public class DeptEmp extends EntityMyPK
 	}
 	/** 
 	 部门
-	 
 	*/
 	public final String getFK_Dept()
 	{
@@ -59,7 +49,6 @@ public class DeptEmp extends EntityMyPK
 	}
 	/** 
 	职务
-	 
 	*/
 	public final String getFK_Duty()
 	{
@@ -72,7 +61,6 @@ public class DeptEmp extends EntityMyPK
 	}
 	/** 
 	 领导
-	 
 	*/
 	public final String getLeader()
 	{
@@ -82,27 +70,25 @@ public class DeptEmp extends EntityMyPK
 	{
 		SetValByKey(DeptEmpAttr.Leader, value);
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
-
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 扩展属性
-
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
-
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#region 构造函数
+	/** 
+	 职务类别
+	*/
+	public final int getDutyLevel()
+	{
+		return this.GetValIntByKey(DeptEmpAttr.DutyLevel);
+	}
+	public final void setDutyLevel(int value)
+	{
+		this.SetValByKey(DeptEmpAttr.DutyLevel, value);
+	}
 	/** 
 	 工作部门人员信息
-	  
 	*/
 	public DeptEmp()
 	{
 	}
 	/** 
 	 查询
-	 
 	 @param deptNo 部门编号
 	 @param empNo 人员编号
 	*/
@@ -115,7 +101,6 @@ public class DeptEmp extends EntityMyPK
 	}
 	/** 
 	 重写基类方法
-	 
 	*/
 	@Override
 	public Map getEnMap()
@@ -133,18 +118,12 @@ public class DeptEmp extends EntityMyPK
 		map.AddTBString(DeptEmpAttr.FK_Dept, null, "部门", false, false, 1, 50, 1);
 		map.AddTBString(DeptEmpAttr.FK_Duty, null, "职务", false, false, 0, 50, 1);
 		map.AddTBInt(DeptEmpAttr.DutyLevel, 0, "职务级别", false, false);
-
 		map.AddTBString(DeptEmpAttr.Leader, null, "领导", false, false, 0, 50, 1);
-
 		this.set_enMap(map);
 		return this.get_enMap();
 	}
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-		///#endregion
-
 	/** 
 	 更新前做的事情
-	 
 	 @return 
 	*/
 	@Override

@@ -1,47 +1,5 @@
 package cn.org.awcp.formdesigner.controller;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.sql.Date;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
-import javax.script.ScriptEngine;
-import javax.script.ScriptException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
-
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.github.miemiedev.mybatis.paginator.domain.PageList;
-import com.github.miemiedev.mybatis.paginator.domain.Paginator;
-import com.itextpdf.text.DocumentException;
-
 import cn.org.awcp.base.BaseController;
 import cn.org.awcp.core.domain.BaseExample;
 import cn.org.awcp.core.domain.SzcloudJdbcTemplate;
@@ -79,6 +37,36 @@ import cn.org.awcp.venson.service.QueryService;
 import cn.org.awcp.venson.service.impl.FileServiceImpl.AttachmentVO;
 import cn.org.awcp.venson.util.BeanUtil;
 import cn.org.awcp.venson.util.ExcelUtil;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.github.miemiedev.mybatis.paginator.domain.PageList;
+import com.github.miemiedev.mybatis.paginator.domain.Paginator;
+import com.itextpdf.text.DocumentException;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.annotation.Resource;
+import javax.script.ScriptEngine;
+import javax.script.ScriptException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.sql.Date;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/document")
@@ -118,7 +106,7 @@ public class DocumentController extends BaseController {
 	 *
 	 * @param id
 	 * @param dynamicPageId
-	 * @param recordId
+	 * @param docId
 	 * @param response
 	 * @param request
 	 * @return
@@ -783,7 +771,7 @@ public class DocumentController extends BaseController {
 			utils.putThingIntoSession("backId", pageVO.getId());
 		}
 
-		Map<String, String> map = new HashMap<String, String>();
+		Map<String, String> map = new HashMap<>();
 		Enumeration<String> enumeration = request.getParameterNames();
 		for (; enumeration.hasMoreElements();) {
 			Object o = enumeration.nextElement();
@@ -809,7 +797,7 @@ public class DocumentController extends BaseController {
 				String script = StringEscapeUtils.unescapeHtml4(act.getServerScript());
 				jdbcTemplate.beginTranstaion();
 				Object o = engine.eval(script);
-				ControllerHelper.renderJSON(ControllerHelper.CONTENT_TYPE_HTML, o);
+				ControllerHelper.renderJSON(null,o);
 				jdbcTemplate.commit();
 				return null;
 			} catch (Exception e) {
@@ -821,7 +809,7 @@ public class DocumentController extends BaseController {
 			result = "script is null";
 		}
 
-		ControllerHelper.renderJSON(ControllerHelper.CONTENT_TYPE_HTML, result);
+		ControllerHelper.renderJSON(null,result);
 		return null;
 	}
 

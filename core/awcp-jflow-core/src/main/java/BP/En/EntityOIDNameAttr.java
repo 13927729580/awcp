@@ -1,15 +1,12 @@
 package BP.En;
 
-
-/** 
- EntityOIDNameAttr
- 
-*/
+/**
+ * EntityOIDNameAttr
+ */
 public class EntityOIDNameAttr extends EntityOIDAttr
 {
-	/** 
-	 名称
-	 
-	*/
-	public static final String Name="Name";
+	/**
+	 * 名称
+	 */
+	public static final String Name = "Name";
 }

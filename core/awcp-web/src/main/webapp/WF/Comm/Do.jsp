@@ -1,8 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
-<%@page import="org.jflow.framework.designer.model.DoModel"%>
+<%@page import="cn.jflow.model.designer.DoModel"%>
 
-<%@ include file="/head/head1.jsp"%>
+<%@ include file="/WF/head/head1.jsp"%>
 <%
 	DoModel dm=new DoModel(request,response);
 	dm.Page_Load();

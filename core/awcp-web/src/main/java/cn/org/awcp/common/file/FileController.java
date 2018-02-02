@@ -18,6 +18,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import cn.org.awcp.venson.exception.PlatformException;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.IOUtils;
@@ -182,7 +183,6 @@ public class FileController {
 	 * 
 	 * 先将文件写到本地，然后封装到ZIP中下载
 	 * 
-	 * @param request
 	 * @param response
 	 * @param fileIds
 	 * @return
@@ -235,8 +235,6 @@ public class FileController {
 	/**
 	 * @param ids
 	 *            需要删除的文件id
-	 * @param request
-	 * @param response
 	 * @return {result,msg} result = 1 sucess result = 2 部分删除成功 result = 3 删除失败
 	 */
 	@ResponseBody
@@ -257,8 +255,6 @@ public class FileController {
 	/**
 	 * @param ids
 	 *            需要删除的文件id
-	 * @param request
-	 * @param response
 	 * @return {result,msg} result = 1 sucess result = 2 部分删除成功 result = 3 删除失败
 	 */
 	@ResponseBody
@@ -361,14 +357,27 @@ public class FileController {
 		if (dirName == null) {
 			dirName = "image";
 		}
-		MultipartFile imgFile = multipartRequest.getFile("imgFile");
+		Iterator<String> it = multipartRequest.getFileNames();
+		if(it==null||!it.hasNext()){
+			throw new PlatformException("上传文件为空");
+		}
+		MultipartFile imgFile = multipartRequest.getFile(multipartRequest.getFileNames().next());
 		String fileName = imgFile.getOriginalFilename();
+		String uploadType = request.getParameter("uploadType");
+		int type = StringUtils.isNumeric(uploadType) ? Integer.parseInt(uploadType) : FileService.DEFAULT;
+		// 判断是否是文件夹存储方式
+		if (type == FileService.FOLDER) {
+			// 获取文件夹
+			String uploadFolder = request.getParameter("uploadFolder");
+			String filePath = getUploadPath(uploadFolder);
+			fileName = filePath + fileName;
+		}
 		checkFile(request, extMap, obj, dirName, imgFile, fileName);
 		if (obj.getInteger("error") == 1) {
 			return obj.toJSONString();
 		}
 		try {
-			uuid = fileService.save(imgFile.getInputStream(), imgFile.getContentType(), fileName, FileService.DEFAULT);
+			uuid = fileService.save(imgFile.getInputStream(), imgFile.getContentType(), fileName, type);
 		} catch (IOException e) {
 			logger.info("ERROR", e);
 			obj.put("error", 1);

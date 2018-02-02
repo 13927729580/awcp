@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
-<%@ include file="/head/head1.jsp"%>
+<%@ include file="/WF/head/head1.jsp"%>
 <%
 	String ShowType = request.getParameter("ShowType");
 	if (ShowType == null) {
@@ -34,6 +34,11 @@
 				+ nodeid + '&FK_Flow=' + fk_flow + '&DoType=FJ';
 		WinOpen(url);
 	}
+	
+	  function WinDtl(fk_mapdata, nodeid, fk_flow) {
+        var url = "../MapDef/Sln.jsp?FK_MapData=" + fk_mapdata + "&FK_Node=" + nodeid + '&FK_Flow=' + fk_flow + '&DoType=Dtl';
+        WinOpen(url);
+    }
 
 	function AddIt(fk_mapdata, fk_node, fk_flow) {
 		var url = 'FlowFrms.jsp?DoType=Add&FK_MapData=' + fk_mapdata
@@ -58,7 +63,11 @@
 		$("#form1").submit();
 	}
 	function btn_SaveFlowFrms_Click(){
-		var url = "<%=basePath%>WF/Admin/btn_SaveFlowFrms_Click.do?FK_Node=<%=FK_Node%>&FK_Flow=<%=FK_Flow%>&FK_MapData=<%=FK_MapData%>";
+		var chk_value =""; 
+		$('input[type="checkbox"]:checked').each(function(){
+			chk_value+=($(this).attr('id')+";");
+		}); 
+		var url = "<%=basePath%>WF/Admin/btn_SaveFlowFrms_Click.do?FK_Node=<%=FK_Node%>&FK_Flow=<%=FK_Flow%>&FK_MapData=<%=FK_MapData%>&chk_value="+chk_value;
 		$("#form1").attr("action",url);
 		$("#form1").submit();
 	}

@@ -1,7 +1,7 @@
 <%@page import="org.apache.http.HttpResponse"%>
 <%@page import="org.apache.http.HttpRequest"%>
-<%@page import="BP.Port.*"%>
-<%@page import="org.jflow.framework.common.model.*"%>
+<%@page import="BP.Web.*"%>
+<%@page import="cn.jflow.common.model.*"%>
 <%@ page language="java" contentType="text/html; charset=utf-8"
 	pageEncoding="utf-8"%>
 <%

@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>cn.org.awcp</groupId>
 		<artifactId>awcp-formdesigner</artifactId>
-		<version>1.3-SNAPSHOT</version>
+		<version>1.5-SNAPSHOT</version>
 	</parent>
 	<artifactId>awcp-formdesigner-applicationImpl</artifactId>
 	<dependencies>
@@ -18,11 +18,6 @@
 			<artifactId>awcp-formdesigner-application</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
-<!-- 		<dependency> -->
-<!-- 			<groupId>cn.org.awcp.superviseclient</groupId> -->
-<!-- 			<artifactId>awcp-superviseclient-core</artifactId> -->
-<!-- 			<version>${project.parent.version}</version> -->
-<!-- 		</dependency> -->
 		<dependency>
 			<groupId>cn.org.awcp</groupId>
 			<artifactId>awcp-metadesigner-applicationImpl</artifactId>
@@ -33,32 +28,11 @@
 			<artifactId>awcp-unit-application</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
-		<!-- <dependency>
-			<groupId>cn.org.awcp.metadata</groupId>
-			<artifactId>awcp-metadesigner-applicationImpl</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency> -->
 		<dependency>
 			<groupId>cn.org.awcp</groupId>
 			<artifactId>awcp-framework-core</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
-<!-- 		<dependency> -->
-<!-- 			<groupId>cn.org.awcp.workflow</groupId> -->
-<!-- 			<artifactId>awcp-workflow-application</artifactId> -->
-<!-- 			<version>${project.parent.version}</version> -->
-<!-- 			<exclusions> -->
-<!-- 				<exclusion> -->
-<!-- 					<groupId>cn.org.awcp.workflow</groupId> -->
-<!-- 					<artifactId>awcp-workflow-core</artifactId> -->
-<!-- 				</exclusion> -->
-<!-- 			</exclusions> -->
-<!-- 		</dependency> -->
-		<!-- <dependency>
-			<groupId>cn.org.awcp.workflow</groupId>
-			<artifactId>awcp-workflow-applicationImpl</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency> -->
 		<!-- SPRING 依赖包 -->
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -94,16 +68,6 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>commons-beanutils</groupId>
-			<artifactId>commons-beanutils</artifactId>
-			<exclusions>
-				<exclusion>
-					<groupId>commons-logging</groupId>
-					<artifactId>commons-logging</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
@@ -124,24 +88,6 @@
 		<dependency>
 			<groupId>com.github.miemiedev</groupId>
 			<artifactId>mybatis-paginator</artifactId>
-		</dependency>
-		
-		
-	<!-- 	<dependency>
-    		<groupId>com.microsoft.sqlserver</groupId>
-    		<artifactId>sqljdbc4</artifactId>
-		</dependency> -->
-		
-		<dependency>
-			<groupId>net.sf.ehcache</groupId>
-			<artifactId>ehcache-core</artifactId>
-			<scope>compile</scope>
-		</dependency>
-		
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpclient</artifactId>
-			<version>4.4</version>
 		</dependency>
 	</dependencies>
 </project>

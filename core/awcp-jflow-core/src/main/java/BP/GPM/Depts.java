@@ -1,27 +1,15 @@
 package BP.GPM;
 
-import java.util.ArrayList;
-
-import BP.En.Attr;
-import BP.En.EntitiesNoName;
+import BP.En.EntitiesTree;
 import BP.En.Entity;
 
 /** 
 得到集合
- 
 */
-public class Depts extends EntitiesNoName
+public class Depts extends EntitiesTree
 {
-	public static ArrayList<Dept> convertDepts(Object obj) {
-		return (ArrayList<Dept>) obj;
-	}
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 	/** 
 	 得到一个新实体
-	 
 	*/
 	@Override
 	public Entity getGetNewEntity()
@@ -30,7 +18,6 @@ public class Depts extends EntitiesNoName
 	}
 	/** 
 	 部门集合
-	 
 	*/
 	public Depts()
 	{
@@ -38,11 +25,32 @@ public class Depts extends EntitiesNoName
 	}
 	/** 
 	 部门集合
-	 
 	 @param parentNo 父部门No
 	*/
 	public Depts(String parentNo)
 	{
 		this.Retrieve(DeptAttr.ParentNo, parentNo);
+	}
+
+	/** 
+	 转化成 java list,C#不能调用.
+	 @return List
+	*/
+	public final java.util.List<Dept> ToJavaList()
+	{
+		return (java.util.List<Dept>)(Object)this;
+	}
+	/** 
+	 转化成list
+	 @return List
+	*/
+	public final java.util.ArrayList<Dept> Tolist()
+	{
+		java.util.ArrayList<Dept> list = new java.util.ArrayList<Dept>();
+		for (int i = 0; i < this.size(); i++)
+		{
+			list.add((Dept)this.get(i));
+		}
+		return list;
 	}
 }

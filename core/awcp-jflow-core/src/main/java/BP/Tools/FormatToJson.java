@@ -9,9 +9,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import BP.DA.DBAccess;
 import BP.DA.DataColumn;
 import BP.DA.DataRow;
@@ -19,31 +18,22 @@ import BP.DA.DataRowCollection;
 import BP.DA.DataSet;
 import BP.DA.DataTable;
 import BP.DA.DataType;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 
 public class FormatToJson {
-	/**
-	 * 日志对象
-	 */
-	private static final Logger logger = LoggerFactory.getLogger(FormatToJson.class);
-
+	
 	public final boolean getIsReusable() {
 		return false;
 	}
 
 	/**
-	 * 将JSON解析成DataSet只限标准的JSON数据 例如：Json＝{t1:[{name:'数据name',type:'数据type'}]} 或
-	 * Json＝{t1:[{name:
+	 * 将JSON解析成DataSet只限标准的JSON数据 例如：Json＝{t1:[{name:'数据name',type:'数据type'}]} 或 Json＝{t1:[{name:
 	 * '数据name',type:'数据type'}],t2:[{id:'数据id',gx:'数据gx',val:'数据val'}]}
 	 * 
-	 * @param Json
-	 *            Json字符串
+	 * @param Json Json字符串
 	 * @return DataSet
 	 */
-	@SuppressWarnings("unchecked")
 	public static DataSet JsonToDataSet(String json) {
-		logger.debug("保存" + json);
+		//		System.out.println("保存" + json);
 
 		DataSet ds = new DataSet();
 		JSONObject jsonObject = JSONObject.fromObject(json);
@@ -55,14 +45,13 @@ public class FormatToJson {
 			Object value = jsonObject.get(key);
 			if (value instanceof JSONArray) {
 				if (!value.toString().equals("[{}]")) {
-					List<Map<String, Object>> jsonObjList = (List<Map<String, Object>>) FormatToJson
-							.toList((JSONArray) value);
+					List<Map<String, Object>> jsonObjList = (List<Map<String, Object>>) FormatToJson.toList((JSONArray) value);
 					for (Map<String, Object> map : jsonObjList) {
 						DataRow dr = dt.NewRow();// 解析行
 						for (Map.Entry<String, Object> entry : map.entrySet()) {
 							DataColumn dc = new DataColumn(entry.getKey(), null, null);
 							dr.setValue_UL(dc, entry.getValue());
-							logger.debug(entry.getKey() + ": " + entry.getValue());
+							//							System.out.println(entry.getKey() + ": " + entry.getValue());
 							int type = 0;
 							for (DataColumn dcc : dt.Columns) {
 								if (dcc.ColumnName.equals(entry.getKey())) {
@@ -80,13 +69,17 @@ public class FormatToJson {
 				}
 				ds.Tables.add(dt);
 				ds.hashTables.put(key, dt);
-			} else if (value instanceof JSONObject) {
-				HashMap<String, Object> jsonObj = (HashMap<String, Object>) FormatToJson.toHashMap((JSONObject) value);
-				for (Map.Entry<String, Object> entry : jsonObj.entrySet()) {
-					System.out.println(entry.getKey() + ": " + entry.getValue());
-				}
-			} else {
-				logger.debug(value + "");
+				//			} else if (value instanceof JSONObject)
+				//			{
+				//				HashMap<String, Object> jsonObj = (HashMap<String, Object>) FormatToJson
+				//						.toHashMap((JSONObject) value);
+				//				for (Map.Entry<String, Object> entry : jsonObj.entrySet())
+				//				{
+				//					System.out.println(entry.getKey() + ": " + entry.getValue());
+				//				}
+				//			} else
+				//			{
+				//				System.out.println(value);
 			}
 		}
 		return ds;
@@ -123,8 +116,7 @@ public class FormatToJson {
 		}
 	}
 
-	public FormatToJson() {
-	}
+	public FormatToJson() {}
 
 	/**
 	 * List转成json
@@ -236,8 +228,7 @@ public class FormatToJson {
 	/**
 	 * 对象集合转换Json
 	 * 
-	 * @param array
-	 *            集合对象
+	 * @param array 集合对象
 	 * @return Json字符串
 	 */
 	@SuppressWarnings("rawtypes")
@@ -256,8 +247,7 @@ public class FormatToJson {
 	/**
 	 * 普通集合转换Json
 	 * 
-	 * @param array
-	 *            集合对象
+	 * @param array 集合对象
 	 * @return Json字符串
 	 */
 	@SuppressWarnings("rawtypes")
@@ -276,8 +266,7 @@ public class FormatToJson {
 	/**
 	 * Datatable转换为Json
 	 * 
-	 * @param table
-	 *            Datatable对象
+	 * @param table Datatable对象
 	 * @return Json字符串
 	 */
 	public static String ToJson(DataTable dt) {
@@ -294,7 +283,7 @@ public class FormatToJson {
 			jsonString.append("{");
 			for (int j = 0; j < dt.Columns.size(); j++) {
 				String strKey = dt.Columns.get(j).ColumnName;
-				String strValue = drc.get(i).get(j).toString();
+				String strValue = String.valueOf(drc.get(i).get(j));
 				Object type = dt.Columns.get(j).DataType;
 				jsonString.append("\"" + strKey + "\":");
 				strValue = StringFormat(strValue, type);
@@ -310,7 +299,42 @@ public class FormatToJson {
 		jsonString.append("]");
 		return jsonString.toString();
 	}
+	/**
+	 * Datatable转换为Json
+	 * 
+	 * @param table Datatable对象
+	 * @return Json字符串
+	 */
+	public static String ToJsonUpper(DataTable dt) {
+		StringBuilder jsonString = new StringBuilder();
 
+		if (dt.Rows.size() == 0) {
+			jsonString.append("[{}]");
+			return jsonString.toString();
+		}
+
+		jsonString.append("[");
+		DataRowCollection drc = dt.Rows;
+		for (int i = 0; i < drc.size(); i++) {
+			jsonString.append("{");
+			for (int j = 0; j < dt.Columns.size(); j++) {
+				String strKey = dt.Columns.get(j).ColumnName;
+				String strValue = String.valueOf(drc.get(i).get(j));
+				Object type = dt.Columns.get(j).DataType;
+				jsonString.append("\"" + strKey.toUpperCase() + "\":");
+				strValue = StringFormat(strValue, type);
+				if (j < dt.Columns.size() - 1) {
+					jsonString.append(strValue + ",");
+				} else {
+					jsonString.append(strValue);
+				}
+			}
+			jsonString.append("},");
+		}
+		jsonString.deleteCharAt(jsonString.length() - 1);
+		jsonString.append("]");
+		return jsonString.toString();
+	}
 	/**
 	 * DataTable转成Json
 	 * 
@@ -329,8 +353,7 @@ public class FormatToJson {
 				Json.append("{");
 				for (int j = 0; j < dt.Columns.size(); j++) {
 					Object type = dt.Rows.get(i).get(j).getClass();
-					Json.append("\"" + dt.Columns.get(j).ColumnName.toString() + "\":"
-							+ StringFormat(dt.Rows.get(i).get(j).toString(), type));
+					Json.append("\"" + dt.Columns.get(j).ColumnName.toString() + "\":" + StringFormat(String.valueOf(dt.Rows.get(i).get(j)), type));
 					if (j < dt.Columns.size() - 1) {
 						Json.append(",");
 					}
@@ -348,8 +371,7 @@ public class FormatToJson {
 	/**
 	 * DataSet转换为Json
 	 * 
-	 * @param dataSet
-	 *            DataSet对象
+	 * @param dataSet DataSet对象
 	 * @return Json字符串
 	 */
 	public static String ToJson(DataSet dataSet) {
@@ -367,15 +389,12 @@ public class FormatToJson {
 						for (int i = 0; i < table.Columns.size(); i++) {
 							DataColumn dc = table.Columns.get(i);
 							jsonString.append("\"" + dc.ColumnName.toUpperCase() + "\":");
-							if (dc.DataType == null) {
+							if (dc.DataType.toString().contains("String")) {
 								if (table.Rows.get(k).getValue(dc) != null) {
 									if (table.Rows.get(k).getValue(dc).toString().indexOf("\\") != -1) {
-										jsonString.append("\"" + table.Rows.get(k).getValue(dc).toString()
-												.replaceAll("\\\\", "\\\\\\\\") + "\"");
+										jsonString.append("\"" + table.Rows.get(k).getValue(dc).toString().replaceAll("\\\\", "\\\\\\\\") + "\"");
 									} else if (table.Rows.get(k).getValue(dc).toString().indexOf("\"") != -1) {
-										jsonString.append(
-												"\"" + table.Rows.get(k).getValue(dc).toString().replaceAll("\"", "'")
-														+ "\"");
+										jsonString.append("\"" + table.Rows.get(k).getValue(dc).toString().replaceAll("\"", "'") + "\"");
 									} else {
 										jsonString.append("\"" + table.Rows.get(k).getValue(dc) + "\"");
 									}
@@ -417,12 +436,9 @@ public class FormatToJson {
 							if (dc.DataType.toString().contains("String")) {
 								if (table.Rows.get(k).getValue(dc) != null) {
 									if (table.Rows.get(k).getValue(dc).toString().indexOf("\\") != -1) {
-										jsonString.append("\"" + table.Rows.get(k).getValue(dc).toString()
-												.replaceAll("\\\\", "\\\\\\\\") + "\"");
+										jsonString.append("\"" + table.Rows.get(k).getValue(dc).toString().replaceAll("\\\\", "\\\\\\\\") + "\"");
 									} else if (table.Rows.get(k).getValue(dc).toString().indexOf("\"") != -1) {
-										jsonString.append(
-												"\"" + table.Rows.get(k).getValue(dc).toString().replaceAll("\"", "'")
-														+ "\"");
+										jsonString.append("\"" + table.Rows.get(k).getValue(dc).toString().replaceAll("\"", "'") + "\"");
 									} else {
 										jsonString.append("\"" + table.Rows.get(k).getValue(dc) + "\"");
 									}
@@ -461,15 +477,12 @@ public class FormatToJson {
 						for (int i = 0; i < table.Columns.size(); i++) {
 							DataColumn dc = table.Columns.get(i);
 							jsonString.append("\"" + dc.ColumnName.toUpperCase() + "\":");
-							if (dc.DataType != null && dc.DataType.toString().contains("String")) {
+							if (dc.DataType.toString().contains("String")) {
 								if (table.Rows.get(k).getValue(dc) != null) {
 									if (table.Rows.get(k).getValue(dc).toString().indexOf("\\") != -1) {
-										jsonString.append("\"" + table.Rows.get(k).getValue(dc).toString()
-												.replaceAll("\\\\", "\\\\\\\\") + "\"");
+										jsonString.append("\"" + table.Rows.get(k).getValue(dc).toString().replaceAll("\\\\", "\\\\\\\\") + "\"");
 									} else if (table.Rows.get(k).getValue(dc).toString().indexOf("\"") != -1) {
-										jsonString.append(
-												"\"" + table.Rows.get(k).getValue(dc).toString().replaceAll("\"", "'")
-														+ "\"");
+										jsonString.append("\"" + table.Rows.get(k).getValue(dc).toString().replaceAll("\"", "'") + "\"");
 									} else {
 										jsonString.append("\"" + table.Rows.get(k).getValue(dc) + "\"");
 									}
@@ -501,16 +514,31 @@ public class FormatToJson {
 			throw new RuntimeException("发现未知的数据库连接类型！");
 		}
 
-		logger.debug(jsonString + "");
+		//		System.out.println(jsonString);
 
 		return jsonString.toString();
 	}
+	
+	/**  
+	 DataSet转换为Json 
+	  
+	 @param dataSet DataSet对象 
+	 @return Json字符串 
+	*/
+	public static String ToJson1(DataSet dataSet) {
+		String jsonString = "{";
+		for (DataTable table : dataSet.Tables) {
+			jsonString += "\"" + table.TableName.toUpperCase() + "\":" + ToJson(table) + ",";
+		}
+		jsonString = StringHelper.trimEnd(jsonString, ',');
+		return jsonString + "}";
+	}
+
 
 	/**
 	 * String转换为Json
 	 * 
-	 * @param value
-	 *            String对象
+	 * @param value String对象
 	 * @return Json字符串
 	 */
 	public static String ToJson(String value) {
@@ -520,8 +548,8 @@ public class FormatToJson {
 
 		String temstr;
 		temstr = value;
-		temstr = temstr.replace("{", "｛").replace("}", "｝").replace(":", "：").replace(",", "，").replace("[", "【")
-				.replace("]", "】").replace(";", "；").replace("\n", "<br/>").replace("\r", "");
+		temstr = temstr.replace("{", "｛").replace("}", "｝").replace(":", "：").replace(",", "，").replace("[", "【").replace("]", "】").replace(";", "；")
+				.replace("\n", "<br/>").replace("\r", "");
 
 		temstr = temstr.replace("\t", "   ");
 		temstr = temstr.replace("'", "\'");
@@ -536,7 +564,7 @@ public class FormatToJson {
 	 * @param s
 	 * @return
 	 */
-	private static String String2Json(String s) {
+	public static String String2Json(String s) {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < s.length(); i++) {
 			char c = s.toCharArray()[i];
@@ -629,42 +657,55 @@ public class FormatToJson {
 		return list;
 	}
 
-	public static void main(String[] args) {
-		String json = "{\"Sys_GroupField\":["
-				+ "{\"OID\":107,\"Lab\":\"03.主从表基础功能\",\"EnName\":\"Demo_03\",\"Idx\":1,\"GUID\":\"\"},"
-				+ "{\"OID\":109,\"Lab\":\"填充从表\",\"EnName\":\"Demo_03\",\"Idx\":2,\"GUID\":\"\"}]," + "\"Sys_Enum\":["
-				+ "{\"MyPK\":\"_CH_0\",\"Lab\":\"\",\"EnumKey\":\"\",\"IntKey\":0,\"Lang\":\"CH\"},"
-				+ "{\"MyPK\":\"FYLX_CH_0\",\"Lab\":\"汽车票\",\"EnumKey\":\"FYLX\",\"IntKey\":0,\"Lang\":\"CH\"},"
-				+ "{\"MyPK\":\"FYLX_CH_1\",\"Lab\":\"打的票\",\"EnumKey\":\"FYLX\",\"IntKey\":1,\"Lang\":\"CH\"},"
-				+ "{\"MyPK\":\"FYLX_CH_2\",\"Lab\":\"火车票\",\"EnumKey\":\"FYLX\",\"IntKey\":2,\"Lang\":\"CH\"},"
-				+ "{\"MyPK\":\"FYLX_CH_3\",\"Lab\":\"飞机票\",\"EnumKey\":\"FYLX\",\"IntKey\":3,\"Lang\":\"CH\"},"
-				+ "{\"MyPK\":\"FYLX_CH_4\",\"Lab\":\"其它\",\"EnumKey\":\"FYLX\",\"IntKey\":4,\"Lang\":\"CH\"}]}";
-		JSONObject jsonObject = JSONObject.fromObject(json);
-		@SuppressWarnings("rawtypes")
-		Iterator it = jsonObject.keys();
-		while (it.hasNext()) {
-
-			String key = String.valueOf(it.next());
-			logger.debug(key);
-			Object value = jsonObject.get(key);
-			if (value instanceof JSONArray) {
-				List<Map<String, Object>> jsonObjList = (List<Map<String, Object>>) FormatToJson
-						.toList((JSONArray) value);
-				for (Map<String, Object> map : jsonObjList) {
-
-					for (Map.Entry<String, Object> entry : map.entrySet()) {
-
-						logger.debug(entry.getKey() + ": " + entry.getValue());
-					}
-				}
-			} else if (value instanceof JSONObject) {
-				HashMap<String, Object> jsonObj = (HashMap<String, Object>) FormatToJson.toHashMap((JSONObject) value);
-				for (Map.Entry<String, Object> entry : jsonObj.entrySet()) {
-					System.out.println(entry.getKey() + ": " + entry.getValue());
-				}
-			} else {
-				logger.debug(value + "");
-			}
-		}
-	}
+	/**
+	 *测试方法 
+	 * 
+	 */
+	//	public static void main(String[] args)
+	//	{
+	//		String json = "{\"Sys_GroupField\":["
+	//				+ "{\"OID\":107,\"Lab\":\"03.主从表基础功能\",\"EnName\":\"Demo_03\",\"Idx\":1,\"GUID\":\"\"},"
+	//				+ "{\"OID\":109,\"Lab\":\"填充从表\",\"EnName\":\"Demo_03\",\"Idx\":2,\"GUID\":\"\"}],"
+	//				+ "\"Sys_Enum\":["
+	//				+ "{\"MyPK\":\"_CH_0\",\"Lab\":\"\",\"EnumKey\":\"\",\"IntKey\":0,\"Lang\":\"CH\"},"
+	//				+ "{\"MyPK\":\"FYLX_CH_0\",\"Lab\":\"汽车票\",\"EnumKey\":\"FYLX\",\"IntKey\":0,\"Lang\":\"CH\"},"
+	//				+ "{\"MyPK\":\"FYLX_CH_1\",\"Lab\":\"打的票\",\"EnumKey\":\"FYLX\",\"IntKey\":1,\"Lang\":\"CH\"},"
+	//				+ "{\"MyPK\":\"FYLX_CH_2\",\"Lab\":\"火车票\",\"EnumKey\":\"FYLX\",\"IntKey\":2,\"Lang\":\"CH\"},"
+	//				+ "{\"MyPK\":\"FYLX_CH_3\",\"Lab\":\"飞机票\",\"EnumKey\":\"FYLX\",\"IntKey\":3,\"Lang\":\"CH\"},"
+	//				+ "{\"MyPK\":\"FYLX_CH_4\",\"Lab\":\"其它\",\"EnumKey\":\"FYLX\",\"IntKey\":4,\"Lang\":\"CH\"}]}";
+	//		JSONObject jsonObject = JSONObject.fromObject(json);
+	//		@SuppressWarnings("rawtypes")
+	//		Iterator it = jsonObject.keys();
+	//		while (it.hasNext())
+	//		{
+	//			
+	//			String key = String.valueOf(it.next());
+	//			System.out.println(key);
+	//			Object value = jsonObject.get(key);
+	//			if (value instanceof JSONArray)
+	//			{
+	//				List<Map<String, Object>> jsonObjList = (List<Map<String, Object>>) FormatToJson
+	//						.toList((JSONArray) value);
+	//				for (Map<String, Object> map : jsonObjList)
+	//				{
+	//					
+	//					for (Map.Entry<String, Object> entry : map.entrySet())
+	//					{
+	//						System.out.println(entry.getKey() + ": " + entry.getValue());
+	//					}
+	//				}
+	//			} else if (value instanceof JSONObject)
+	//			{
+	//				HashMap<String, Object> jsonObj = (HashMap<String, Object>) FormatToJson
+	//						.toHashMap((JSONObject) value);
+	//				for (Map.Entry<String, Object> entry : jsonObj.entrySet())
+	//				{
+	//					System.out.println(entry.getKey() + ": " + entry.getValue());
+	//				}
+	//			} else
+	//			{
+	//				System.out.println(value);
+	//			}
+	//		}
+	//	}
 }

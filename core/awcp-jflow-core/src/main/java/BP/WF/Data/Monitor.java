@@ -2,7 +2,7 @@ package BP.WF.Data;
 
 import java.io.IOException;
 
-import TL.ContextHolderUtils;
+import BP.DA.Log;
 import BP.En.EnType;
 import BP.En.Entity;
 import BP.En.Map;
@@ -10,20 +10,23 @@ import BP.En.QueryObject;
 import BP.En.RefMethod;
 import BP.En.UAC;
 import BP.Sys.PubClass;
+import BP.Sys.SystemConfig;
+import BP.WF.Flows;
 import BP.WF.Glo;
-import BP.WF.Entity.TaskSta;
-import BP.WF.Entity.WFSta;
-import BP.WF.Template.Flows;
-import BP.WF.Template.PubLib.WFState;
+import BP.WF.TaskSta;
+import BP.WF.WFSta;
+import BP.WF.WFState;
+import BP.WF.Template.FlowSheet;
+import cn.jflow.common.util.ContextHolderUtils;
 
 /** 
-流程监控
-
+ 流程监控
+ 
 */
 public class Monitor extends Entity
 {
 
-		///#region 基本属性
+		
 	@Override
 	public UAC getHisUAC()
 	{
@@ -257,30 +260,6 @@ public class Monitor extends Entity
 		SetValByKey(MonitorAttr.FID, value);
 	}
 	/** 
-	 父节点ID 为或者-1.
-	 
-	*/
-	public final long getCWorkID()
-	{
-		return this.GetValInt64ByKey(MonitorAttr.CWorkID);
-	}
-	public final void setCWorkID(long value)
-	{
-		SetValByKey(MonitorAttr.CWorkID, value);
-	}
-	/** 
-	 PFlowNo
-	 
-	*/
-	public final String getCFlowNo()
-	{
-		return this.GetValStrByKey(MonitorAttr.CFlowNo);
-	}
-	public final void setCFlowNo(String value)
-	{
-		SetValByKey(MonitorAttr.CFlowNo, value);
-	}
-	/** 
 	 父节点流程编号.
 	 
 	*/
@@ -400,22 +379,21 @@ public class Monitor extends Entity
 	{
 		if (value == WFState.Complete)
 		{
-			SetValByKey(MonitorAttr.WFSta, WFSta.Complete.getValue());
+			SetValByKey(MonitorAttr.WFSta, getWFSta().Complete.getValue());
 		}
 		else if (value == WFState.Delete)
 		{
-			SetValByKey(MonitorAttr.WFSta, WFSta.Delete.getValue());
+			SetValByKey(MonitorAttr.WFSta, getWFSta().Etc.getValue());
 		}
 		else
 		{
-			SetValByKey(MonitorAttr.WFSta, WFSta.Runing.getValue());
+			SetValByKey(MonitorAttr.WFSta, getWFSta().Runing.getValue());
 		}
 
 		SetValByKey(MonitorAttr.WFState, value.getValue());
 	}
 	/** 
 	 状态(简单)
-	 
 	*/
 	public final WFSta getWFSta()
 	{
@@ -427,8 +405,8 @@ public class Monitor extends Entity
 	}
 	public final String getWFStateText()
 	{
-	
-		switch((WFState)this.getWFState())
+		BP.WF.WFState ws = (WFState)this.getWFState();
+		switch(ws)
 		{
 			case Complete:
 				return "已完成";
@@ -444,7 +422,6 @@ public class Monitor extends Entity
 	}
 	/** 
 	 GUID
-	 
 	*/
 	public final String getGUID()
 	{
@@ -454,19 +431,8 @@ public class Monitor extends Entity
 	{
 		SetValByKey(MonitorAttr.GUID, value);
 	}
-
-		///#endregion
-
-
-		///#region 参数属性.
-
-		///#endregion 参数属性.
-
-
-		///#region 构造函数
 	/** 
 	 产生的工作流程
-	 
 	*/
 	public Monitor()
 	{
@@ -482,14 +448,12 @@ public class Monitor extends Entity
 	}
 	/** 
 	 执行修复
-	 
 	*/
 	public final void DoRepair()
 	{
 	}
 	/** 
 	 重写基类方法
-	 
 	*/
 	@Override
 	public Map getEnMap()
@@ -499,9 +463,8 @@ public class Monitor extends Entity
 			return this.get_enMap();
 		}
 
-		Map map = new Map("WF_EmpWorks");
-		map.setEnDesc("流程监控");
-		map.setEnType(EnType.View);
+		Map map = new Map("WF_EmpWorks", "流程监控");
+		map.Java_SetEnType(EnType.View);
 
 		map.AddTBIntPK(MonitorAttr.WorkID, 0, "工作ID", true, true);
 		map.AddTBInt(MonitorAttr.FID, 0, "FID", false, false);
@@ -525,17 +488,17 @@ public class Monitor extends Entity
 
 			////增加隐藏的查询条件.
 			//AttrOfSearch search = new AttrOfSearch(MonitorAttr.WorkerDept, "部门",
-			//    MonitorAttr.WorkerDept, "=", BP.Web.WebUser.FK_Dept, 0, true);
+			//    MonitorAttr.WorkerDept, "=", BP.Web.WebUser.getFK_Dept(), 0, true);
 			//map.AttrsOfSearch.Add(search);
 
 		RefMethod rm = new RefMethod();
 		rm.Title = "流程轨迹";
 		rm.ClassMethodName = this.toString() + ".DoTrack";
-		rm.Icon = "/WF/Img/FileType/doc.gif";
+		rm.Icon = Glo.getCCFlowAppPath() + "WF/Img/FileType/doc.gif";
 		map.AddRefMethod(rm);
 
 		rm = new RefMethod();
-		rm.Icon =BP.WF.Glo.getCCFlowAppPath() + "WF/Img/Btn/CC.gif";
+		rm.Icon = Glo.getCCFlowAppPath() + "WF/Img/Btn/CC.gif";
 		rm.Title = "移交";
 		rm.ClassMethodName = this.toString() + ".DoShift";
 		rm.getHisAttrs().AddDDLEntities("ToEmp", null, "移交给:", new BP.WF.Data.MyDeptEmps(),true);
@@ -543,32 +506,32 @@ public class Monitor extends Entity
 		map.AddRefMethod(rm);
 
 		rm = new RefMethod();
-		rm.Icon = BP.WF.Glo.getCCFlowAppPath() + "WF/Img/Btn/Delete.gif";
+		rm.Icon = Glo.getCCFlowAppPath() + "WF/Img/Btn/Delete.gif";
 		rm.Title = "删除";
 		rm.Warning = "您确定要删除该流程吗？";
 		rm.ClassMethodName = this.toString() + ".DoDelete";
 		map.AddRefMethod(rm);
 
-			//rm = new RefMethod();
-			//rm.Title = "跳转";
-			//rm.ClassMethodName = this.ToString() + ".DoSkip";
-			//rm.Icon = "/WF/Img/FileType/doc.gif";
-			//map.AddRefMethod(rm);
+		rm = new RefMethod();
+		rm.Icon = Glo.getCCFlowAppPath() + "WF/Img/Btn/Back.png";
+
+		rm.Title = "回滚";
+		rm.IsForEns = false;
+		rm.ClassMethodName = this.toString() + ".DoComeBack";
+		rm.getHisAttrs().AddTBInt("NodeID", 0, "回滚到节点", true, false);
+		rm.getHisAttrs().AddTBString("Note", null, "回滚原因", true, false, 0, 300, 100);
+		map.AddRefMethod(rm);
 
 		this.set_enMap(map);
 		return this.get_enMap();
 	}
-
-		///#endregion
-
-
-		///#region 执行诊断
+		///#region 执行功能.
 	public final String DoTrack()
 	{
 		try {
-			PubClass.WinOpen(ContextHolderUtils.getResponse(), Glo.getCCFlowAppPath()+"WF/WFRpt.jsp?WorkID=" + this.getWorkID() + "&FID="+this.getFID()+"&FK_Flow="+this.getFK_Flow(),900,800);
+			PubClass.WinOpen(ContextHolderUtils.getResponse(),SystemConfig.getCCFlowWebPath() + "WF/WFRpt.jsp?WorkID=" + this.getWorkID() + "&FID=" + this.getFID() + "&FK_Flow=" + this.getFK_Flow(), 900, 800);
 		} catch (IOException e) {
-			e.printStackTrace();
+			Log.DebugWriteError("Monitor DoTrack()" + e);
 		}
 		return null;
 	}
@@ -581,9 +544,13 @@ public class Monitor extends Entity
 	*/
 	public final String DoShift(String ToEmp, String Note)
 	{
-		if (BP.WF.Dev2Interface.Flow_IsCanViewTruck(this.getFK_Flow(), this.getWorkID(), this.getFID()) == false)
-		{
-			return "您没有操作该流程数据的权限.";
+		try {
+			if (BP.WF.Dev2Interface.Flow_IsCanViewTruck(this.getFK_Flow(), this.getWorkID(), this.getFID()) == false)
+			{
+				return "您没有操作该流程数据的权限.";
+			}
+		} catch (Exception e) {
+			Log.DebugWriteError("Monitor DoShift " + e);
 		}
 
 		try
@@ -603,14 +570,18 @@ public class Monitor extends Entity
 	*/
 	public final String DoDelete()
 	{
-		if (BP.WF.Dev2Interface.Flow_IsCanViewTruck(this.getFK_Flow(), this.getWorkID(), this.getFID()) == false)
-		{
-			return "您没有操作该流程数据的权限.";
+		try {
+			if (BP.WF.Dev2Interface.Flow_IsCanViewTruck(this.getFK_Flow(), this.getWorkID(), this.getFID()) == false)
+			{
+				return "您没有操作该流程数据的权限.";
+			}
+		} catch (Exception e) {
+			Log.DebugWriteError("Monitor DoDelete()" + e);
 		}
 
 		try
 		{
-			BP.WF.Dev2Interface.Flow_DoDeleteFlowByReal(this.getFK_Flow(), this.getWorkID(),true);
+			BP.WF.Dev2Interface.Flow_DoDeleteFlowByReal(this.getFK_Flow(), this.getWorkID(), true);
 			return "删除成功";
 		}
 		catch (RuntimeException ex)
@@ -621,12 +592,21 @@ public class Monitor extends Entity
 	public final String DoSkip()
 	{
 		try {
-			PubClass.WinOpen(ContextHolderUtils.getResponse(), Glo.getCCFlowAppPath()+"WF/Admin/FlowDB/FlowSkip.jsp?WorkID=" + this.getWorkID() + "&FID=" + this.getFID() + "&FK_Flow=" + this.getFK_Flow() + "&FK_Node=" + this.getFK_Node(), 900, 800);
+			PubClass.WinOpen(ContextHolderUtils.getResponse(),SystemConfig.getCCFlowWebPath() + "WF/Admin/FlowDB/FlowSkip.jsp?WorkID=" + this.getWorkID() + "&FID=" + this.getFID() + "&FK_Flow=" + this.getFK_Flow() + "&FK_Node=" + this.getFK_Node(), 900, 800);
 		} catch (IOException e) {
-			e.printStackTrace();
+			Log.DebugWriteError("Moniter DoSkip()" +e);
 		}
 		return null;
 	}
-
-		///#endregion
+	/** 
+	 回滚
+	 @param nodeid 节点ID
+	 @param note 回滚原因
+	 @return 回滚的结果
+	*/
+	public final String DoComeBack(int nodeid, String note)
+	{
+		BP.WF.Template.FlowSheet fl = new FlowSheet(this.getFK_Flow());
+		return fl.DoRebackFlowData(this.getWorkID(), nodeid, note);
+	}
 }
