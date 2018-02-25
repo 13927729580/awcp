@@ -43,7 +43,7 @@ public class DebugLogController {
 	public ModelAndView viewLog() {
 		ModelAndView mv = new ModelAndView();
 		mv.setViewName("devAdmin/mylog");
-		String filePath = System.getProperty("catalina.base") + File.separator + "logs" + File.separator + "awcp-"
+		String filePath = System.getProperty("catalina.base") + File.separator + "logs" + File.separator + "catalina."
 				+ DateUtils.format(new Date(), "yyyy-MM-dd") + ".log";
 		String result = "<hr/>" + randomAccessReadFile(filePath);
 		mv.addObject("logs", result);
@@ -71,7 +71,7 @@ public class DebugLogController {
 					line = rf.readLine();
 					if (line != null) {
 						// RandomAccessFile的readLine方法读取文本为ISO-8859-1，需要转化为utf-8
-						line = new String(line.getBytes("ISO-8859-1"), "utf-8");
+						line = new String(line.getBytes("ISO-8859-1"), "gbk");
 						if (line.length() > 4 && StringUtils.isNumeric(line.substring(0, 2))
 								&& !line.contains("ERROR")) {
 							sb.insert(0, "<pre class=\"text-success\">" + line + "</pre>");
@@ -87,7 +87,7 @@ public class DebugLogController {
 					line = rf.readLine();
 					if (line != null) {
 						// RandomAccessFile的readLine方法读取文本为ISO-8859-1，需要转化为utf-8
-						line = new String(line.getBytes("ISO-8859-1"), "utf-8");
+						line = new String(line.getBytes("ISO-8859-1"), "gbk");
 						if (line.length() > 4 && StringUtils.isNumeric(line.substring(0, 2))
 								&& !line.contains("ERROR")) {
 							sb.insert(0, "<pre class=\"text-success\">" + line + "</pre>");
@@ -152,9 +152,9 @@ public class DebugLogController {
 	@RequestMapping(value = "/downloadLog")
 	public String downloadLog(HttpServletResponse response) {
 		String date = DateUtils.format(new Date(), "yyyy-MM-dd");
-		String filePath = System.getProperty("catalina.base") + File.separator + "logs" + File.separator + "awcp-"
+		String filePath = System.getProperty("catalina.base") + File.separator + "logs" + File.separator + "catalina."
 				+ date + ".log";
-		String fileName = "awcp-" + date + ".log";
+		String fileName = "catalina." + date + ".log";
 		InputStream is = null;
 		try {
 			is = new FileInputStream(filePath);
@@ -190,7 +190,7 @@ public class DebugLogController {
 		ModelAndView mv = new ModelAndView();
 		mv.setViewName("redirect:/debug/view.do");
 		String date = DateUtils.format(new Date(), "yyyy-MM-dd");
-		File file = new File(System.getProperty("catalina.base") + File.separator + "logs" + File.separator + "awcp-"
+		File file = new File(System.getProperty("catalina.base") + File.separator + "logs" + File.separator + "catalina."
 				+ date + ".log");
 		try {
 			if (!file.exists()) {

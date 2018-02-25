@@ -398,7 +398,10 @@
 			d.width(450).showModal();
 			return false;
 		});
-		
+		//如果图片加载出错则使用默认图片
+        $(".userHeadImg").error(function(){
+            this.src="../template/AdminLTE/images/user2-160x160.jpg";
+        });
 		function setUserHeadImg(userHeadImg){
             if(userHeadImg.indexOf("http")==0){
                 $(".userHeadImg").attr("src",userHeadImg);
