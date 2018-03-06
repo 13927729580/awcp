@@ -64,7 +64,7 @@ public abstract class BaseUtils {
 	protected PunPositionService punPositionService = Springfactory.getBean("punPositionServiceImpl");
 	// 注入组织服务
 	protected PunGroupService punGroupService = Springfactory.getBean("punGroupServiceImpl");
-	// 注入SpringJdbc
+	// 注入SprfingJdbc
 	protected JdbcTemplate jdbcTemplate = Springfactory.getBean("jdbcTemplate");
 	// 注入元数据模型服务
 	protected MetaModelService metaModelService = Springfactory.getBean("metaModelServiceImpl");
@@ -224,6 +224,18 @@ public abstract class BaseUtils {
 			}
 		}
 		return "";
+	}
+
+	/**
+	 * 获取用户的组织Id
+	 */
+	public Long getUserGroupId() {
+		List<PunGroupVO> groups = getUserGroupById(getUser().getUserId() + "");
+		for (PunGroupVO punGroupVO : groups) {
+			return punGroupVO.getGroupId();
+		}
+
+		return Long.MIN_VALUE;
 	}
 
 	/**

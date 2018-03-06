@@ -19,6 +19,7 @@ public class ComponentVO {
 	private String defaultValueScript;	//默认值的值脚本
 	private String formValidator;	//校验
 	private String optionScript;	//多选控件的text选项；
+	private JSONObject jsonObj;
 
 	public static ComponentVO parseFromJson(String jsonStr){
 		ComponentVO result = new ComponentVO();
@@ -37,12 +38,18 @@ public class ComponentVO {
 		result.setDataItemCode(o.getString("dataItemCode"));
 		result.setValueType(o.getString("valueType"));
 		result.setOptionScript(o.getString("optionScript"));
+		result.setJsonObj(o);
 
 		return result;
 	}
 
 	public boolean isValueType(){
-		int componentType = this.componentType;
+		Integer componentType = this.componentType;
+
+		if(componentType == null){
+			return false;
+		}
+
 		return  componentType==1001 || componentType==1002 ||componentType==1003
 				||componentType==1004 ||componentType==1005 || componentType==1006
 				||componentType==1007||componentType==1012 || componentType==1010
@@ -225,5 +232,12 @@ public class ComponentVO {
 	public void setOptionScript(String optionContent) {
 		this.optionScript = optionContent;
 	}
-	
+
+	public JSONObject getJsonObj() {
+		return jsonObj;
+	}
+
+	public void setJsonObj(JSONObject jsonObj) {
+		this.jsonObj = jsonObj;
+	}
 }

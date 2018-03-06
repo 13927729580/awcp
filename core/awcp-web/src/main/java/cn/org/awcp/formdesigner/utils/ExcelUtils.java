@@ -1,5 +1,6 @@
 package cn.org.awcp.formdesigner.utils;
 
+import cn.org.awcp.core.utils.DateUtils;
 import cn.org.awcp.core.utils.Springfactory;
 import cn.org.awcp.formdesigner.application.service.FormdesignerService;
 import cn.org.awcp.formdesigner.application.service.StoreService;
@@ -7,9 +8,11 @@ import cn.org.awcp.formdesigner.application.vo.ComponentVO;
 import cn.org.awcp.formdesigner.application.vo.DocumentVO;
 import cn.org.awcp.formdesigner.application.vo.DynamicPageVO;
 import cn.org.awcp.formdesigner.application.vo.StoreVO;
+import cn.org.awcp.formdesigner.core.constants.FormDesignerGlobal;
 import cn.org.awcp.metadesigner.application.MetaModelOperateService;
 import cn.org.awcp.venson.service.FileService;
 import cn.org.awcp.venson.util.ExcelUtil;
+import com.alibaba.fastjson.JSONObject;
 import com.github.miemiedev.mybatis.paginator.domain.PageList;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -60,7 +63,6 @@ public class ExcelUtils {
         if (stores != null && stores.size() > 0) {
             for (StoreVO store : stores) {
                 ComponentVO component = ComponentVO.parseFromJson(store.getContent());
-                int componentType = component.getComponentType();
 
                 String dataItemCode = component.getDataItemCode();
                 String defaultValueScript =  component.getDefaultValueScript();
@@ -154,6 +156,8 @@ public class ExcelUtils {
             }
 
             dataMap.put("ID", UUID.randomUUID().toString());
+
+            handleFormDataByComponents(pageFormId,modelCode, dataMap);
             boolean saveResult =  metaModelOperateService.save(dataMap, modelCode);
             if(saveResult){ insertSize++; }
         }
@@ -162,5 +166,58 @@ public class ExcelUtils {
         //result.put("updateSize", updateSize);
         result.put("insertSize", insertSize);
         return result;
+    }
+
+    private static void handleFormDataByComponents(String pageFormId,String modelCode,Map<String, String> map) {
+        StoreService storeService = Springfactory.getBean("storeServiceImpl");
+
+        PageList<StoreVO> stores = storeService.findByDyanamicPageId(pageFormId);
+        if (stores != null && stores.size() > 0) {
+            for (StoreVO store : stores) {
+                ComponentVO component = ComponentVO.parseFromJson(store.getContent());
+
+                if(component.isValueType()){
+                    String code = component.getDataItemCode().replace(modelCode + ".", "");
+                    if (!map.containsKey(code)) {
+                        continue;
+                    }
+
+                    String value = map.get(code);
+                    JSONObject comObj = component.getJsonObj();
+
+                    if (component.isDateTimeType()) {
+                        String dateType = comObj.getString("dateType");
+                        value = handleDateType(value, dateType);
+
+                        map.put(code, value);
+                    }
+                    if (component.getComponentType() == 1032) {
+                        value = value.replaceAll(",", "");
+                        map.put(code, value);
+                    }
+                }
+            }
+        }
+    }
+
+    private static String handleDateType(String value, String dateType) {
+        if ("yyyy-mm-dd".equals(dateType)) { // yyyy-MM
+            value = DateUtils.format(DateUtils.parseDate(value, "yyyy-MM-dd"));
+        } else if ("dd/mm/yyyy".equals(dateType)) {
+            value = DateUtils.format(DateUtils.parseDate(value, "dd/MM/yyyy"));
+        } else if ("yyyy-mm-dd HH:ii".equals(dateType)) {
+            value = DateUtils.format(DateUtils.parseDate(value, "yyyy-MM-dd HH:mm"));
+        } else if ("dd/mm/yyyy HH:ii".equals(dateType)) {
+            value = DateUtils.format(DateUtils.parseDate(value, "dd/MM/yyyy HH:mm"));
+        } else if ("yyyy-mm-dd HH:ii:ss".equals(dateType)) {
+            value = DateUtils.format(DateUtils.parseDate(value, "yyyy-MM-dd HH:mm:ss"));
+        } else if ("yyyy-mm".equals(dateType)) {
+            value = DateUtils.format(DateUtils.parseDate(value, "yyyy-MM"));
+        } else if ("yyyy".equals(dateType)) {
+            value = DateUtils.format(DateUtils.parseDate(value, "yyyy"));
+        } else if ("HH:ii".equals(dateType)) {
+            value = DateUtils.format(DateUtils.parseDate(value, "HH:mm"));
+        }
+        return value;
     }
 }
