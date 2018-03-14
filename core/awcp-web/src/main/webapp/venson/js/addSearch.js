@@ -81,7 +81,7 @@ addSearch.prototype={
 					   '<select name="' + name + '" class="' + selectPrefix + ' form-control"></select></div></div>';
 			var data;
 			//查找是否是动态语句查找
-			if(option.indexOf("=")==-1){
+			if(option.indexOf("=")==-1 || option.indexOf("?")!= -1){
 				data=Comm.getData(that.option.url+"/"+option,{"_method":"get"});
 			}else{
 				var options=option.split(";");
