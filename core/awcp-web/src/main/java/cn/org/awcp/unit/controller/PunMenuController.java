@@ -85,10 +85,12 @@ public class PunMenuController {
 			@RequestParam(value="pageSize", defaultValue="10") int pageSize){
 		
 		try {
-			if(currentPage <= 0)
-				currentPage = 1;
-			if(pageSize <= 5)
-				pageSize = 10;
+			if(currentPage <= 0) {
+                currentPage = 1;
+            }
+			if(pageSize <= 5) {
+                pageSize = 10;
+            }
 			PunSystemVO sys = punSystemService.findById(sysId);
 			model.addAttribute("sys", sys);
 			BaseExample example = new BaseExample();

@@ -271,16 +271,18 @@ public class UnitTaskControl extends BaseController {
 	public String unitTaskStatus(@RequestParam(required = false, defaultValue = "1") int currentPage,
 			@RequestParam(required = false, defaultValue = "15") int pageSize, HttpServletRequest request, Model model)
 			throws Exception {
-		if (!StringUtils.isNotEmpty(request.getParameter("id")))
-			return null;
+		if (!StringUtils.isNotEmpty(request.getParameter("id"))) {
+            return null;
+        }
 
 		int workItemID = Integer.parseInt(request.getParameter("id"));
 
 		String dialog = request.getParameter("dialog");
 
 		String taskTypes = request.getParameter("taskType");
-		if (StringUtils.isNotEmpty(taskTypes))
-			taskType = taskTypes;
+		if (StringUtils.isNotEmpty(taskTypes)) {
+            taskType = taskTypes;
+        }
 
 		String sql = "SELECT WEID, WorkItemID, EntryID, StateID, EntryType, ReciType, RecipientID, Recipients, ProxyID, Proxyor, "
 				+ "RUserID, RUserName, DeptID, DeptName, InceptDate, ReadDate, FinishedDate, OverDate, AlterDate, "
@@ -311,10 +313,11 @@ public class UnitTaskControl extends BaseController {
 			model.addAttribute("id", "");
 		}
 
-		if (StringUtils.isNotEmpty(dialog))
-			return "/workflow/wf/taskStatusDialogList";
-		else
-			return "/workflow/wf/unitTaskStatusList";
+		if (StringUtils.isNotEmpty(dialog)) {
+            return "/workflow/wf/taskStatusDialogList";
+        } else {
+            return "/workflow/wf/unitTaskStatusList";
+        }
 	}
 
 }

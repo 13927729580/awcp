@@ -31,7 +31,8 @@ public class WeChatValidationInfo {
 		this.echostr = echostr;
 	}
 
-	public String toString() {
+	@Override
+    public String toString() {
 		return "WeChatValidationInfo [signature=" + signature + ", timestamp=" + timestamp
 				+ ", nonce=" + nonce + ", echostr=" + echostr + "]";
 	}

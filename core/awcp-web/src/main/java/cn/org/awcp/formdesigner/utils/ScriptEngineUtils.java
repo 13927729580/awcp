@@ -4,6 +4,7 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
+import cn.org.awcp.extend.formdesigner.DocumentUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

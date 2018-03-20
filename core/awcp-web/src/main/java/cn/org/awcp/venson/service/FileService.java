@@ -1,11 +1,11 @@
 package cn.org.awcp.venson.service;
 
+import cn.org.awcp.venson.service.impl.FileServiceImpl.AttachmentVO;
+import cn.org.awcp.venson.util.PlatfromProp;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
-import cn.org.awcp.venson.service.impl.FileServiceImpl.AttachmentVO;
-import cn.org.awcp.venson.util.PlatfromProp;
 
 /**
  * 文件上传通用接口（支持mongodb,folder）
@@ -27,7 +27,31 @@ public interface FileService {
 	String separator = "/";
 
 	/**
-	 * 
+	 *	保存文件
+	 * @param input
+	 * @param fileType
+	 * @param fileName
+	 * @param type
+	 *            保存类型(1:mongodb2:文件夹3:ftp)
+	 * @return
+	 */
+	String save(byte[] input, String fileType, String fileName, int type);
+
+	/**
+	 *	保存文件
+	 * @param input
+	 * @param fileType
+	 * @param fileName
+	 * @param type
+	 *            保存类型(1:mongodb2:文件夹3:ftp)
+	 * @param isIndex
+	 *            是否需要建立文件索引
+	 * @return
+	 */
+	String save(byte[] input, String fileType, String fileName, int type, boolean isIndex);
+
+	/**
+	 * 保存文件
 	 * @param input
 	 * @param fileType
 	 * @param fileName
@@ -41,7 +65,7 @@ public interface FileService {
 	String save(InputStream input, String fileType, String fileName, int type, boolean isIndex);
 
 	/**
-	 * 
+	 * 保存文件
 	 * @param input
 	 * @param fileType
 	 * @param fileName
@@ -146,11 +170,9 @@ public interface FileService {
 	 * 
 	 * @param input
 	 *            文件流
-	 * @param fileName
-	 *            文件名称
-	 * @param fileType
-	 *            文件类型
+	 * @param vo
+	 *            文件
 	 */
-	public void indexFilesSolr(InputStream input, String fileName, String fileType);
+	void indexFileToSolr(InputStream input, AttachmentVO vo);
 
 }

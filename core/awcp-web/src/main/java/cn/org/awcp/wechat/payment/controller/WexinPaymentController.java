@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import cn.org.awcp.core.domain.SzcloudJdbcTemplate;
-import cn.org.awcp.formdesigner.utils.DocumentUtils;
+import cn.org.awcp.extend.formdesigner.DocumentUtils;
 import cn.org.awcp.unit.vo.PunUserBaseInfoVO;
 import cn.org.awcp.venson.controller.base.ControllerHelper;
 import cn.org.awcp.wechat.payment.domain.OrderInfo;
@@ -112,8 +112,8 @@ public class WexinPaymentController {
 			if (StringUtils.isBlank(out_trade_no)) {
 				config = false;
 			}
-			if (!map.get("return_code").equalsIgnoreCase("SUCCESS")
-					|| !map.get("result_code").equalsIgnoreCase("SUCCESS")) {
+			if (!"SUCCESS".equalsIgnoreCase(map.get("return_code"))
+					|| !"SUCCESS".equalsIgnoreCase(map.get("result_code"))) {
 				config = false;
 			}
 			if (config) {
@@ -199,7 +199,7 @@ public class WexinPaymentController {
 				resXml = "<xml><return_code><![CDATA[FAIL]]></return_code><return_msg><![CDATA[报文为空]]></return_msg></xml>";
 				config = false;
 			}
-			if (map.get("result_code").toString().equalsIgnoreCase("FAIL")) {
+			if ("FAIL".equalsIgnoreCase(map.get("result_code").toString())) {
 				resXml = "<xml><return_code><![CDATA[FAIL]]></return_code><return_msg><![CDATA[报文为空]]></return_msg></xml>";
 				config = false;
 			}

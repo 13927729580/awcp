@@ -107,7 +107,7 @@ public class PrintUtils {
 
 		String type = o.getString("layoutType");
 		PdfPTable t = null;
-		if (type.equalsIgnoreCase("2")) {
+		if ("2".equalsIgnoreCase(type)) {
 			if (o.getJSONArray("childLayouts") == null || o.getJSONArray("childLayouts").size() == 0) {
 				// t = new PdfPTable(1);
 				PdfPCell c = new PdfPCell();
@@ -311,8 +311,9 @@ public class PrintUtils {
 
 	public static List<JSONObject> sortByOrder(List<JSONObject> list) {
 
-		if (list == null || list.size() == 0)
-			return list;
+		if (list == null || list.size() == 0) {
+            return list;
+        }
 
 		List<Layout> layoutList = new ArrayList<Layout>();
 		for (int i = 0; i < list.size(); i++) {
@@ -329,8 +330,9 @@ public class PrintUtils {
 
 	public static JSONArray sortByOrderArray(JSONArray list) {
 
-		if (list == null || list.size() == 0)
-			return list;
+		if (list == null || list.size() == 0) {
+            return list;
+        }
 
 		List<Layout> layoutList = new ArrayList<Layout>();
 		for (int i = 0; i < list.size(); i++) {

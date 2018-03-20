@@ -1,12 +1,11 @@
 package cn.org.awcp.base.tag;
 
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.tagext.TagSupport;
-
+import com.github.miemiedev.mybatis.paginator.domain.PageList;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.github.miemiedev.mybatis.paginator.domain.PageList;
+import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.tagext.TagSupport;
 
 /**
  * 列表页面分页标签(英文)
@@ -47,7 +46,8 @@ public class EnglishPageNavTag extends TagSupport {
 	 * 
 	 * @see javax.servlet.jsp.tagext.Tag#doEndTag()
 	 */
-	public int doEndTag() throws JspException {
+	@Override
+    public int doEndTag() throws JspException {
 		PageList<?> bean = (PageList<?>) pageContext.getRequest().getAttribute(dpName);
 		// 当前第几页
 		int currentPage = 0;
@@ -68,7 +68,7 @@ public class EnglishPageNavTag extends TagSupport {
 			}
 		}
 		StringBuilder html = new StringBuilder();
-		if (this.css != null && this.css.equals("line-pagers")) {
+		if (this.css != null && "line-pagers".equals(this.css)) {
 			html.append("<div class=\"m_p_bottom\"><span><span><select class='form-control' data-pageSize='" + pageSize
 					+ "'><option value='10'>10</option><option value='15'>15</option><option value='20'>20</option><option value='25'>25</option><option value='50'>50</option></select></span>&nbsp;&nbsp;条记录/页</span><span>");
 			if (currentPage > 1) {

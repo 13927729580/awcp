@@ -55,11 +55,13 @@ public class OrderInfo {
 		this.totalFee = totalFee;
 	}
 
+	@Override
 	public String toString() {
 		return "OrderInfo [outTradeNo=" + outTradeNo + ", body=" + body + ", attach=" + attach + ", totalFee="
 				+ totalFee + "]";
 	}
 
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
@@ -70,31 +72,42 @@ public class OrderInfo {
 		return result;
 	}
 
+	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
+		if (this == obj) {
+            return true;
+        }
+		if (obj == null) {
+            return false;
+        }
+		if (getClass() != obj.getClass()) {
+            return false;
+        }
 		OrderInfo other = (OrderInfo) obj;
 		if (attach == null) {
-			if (other.attach != null)
-				return false;
-		} else if (!attach.equals(other.attach))
-			return false;
+			if (other.attach != null) {
+                return false;
+            }
+		} else if (!attach.equals(other.attach)) {
+            return false;
+        }
 		if (body == null) {
-			if (other.body != null)
-				return false;
-		} else if (!body.equals(other.body))
-			return false;
+			if (other.body != null) {
+                return false;
+            }
+		} else if (!body.equals(other.body)) {
+            return false;
+        }
 		if (outTradeNo == null) {
-			if (other.outTradeNo != null)
-				return false;
-		} else if (!outTradeNo.equals(other.outTradeNo))
-			return false;
-		if (totalFee != other.totalFee)
-			return false;
+			if (other.outTradeNo != null) {
+                return false;
+            }
+		} else if (!outTradeNo.equals(other.outTradeNo)) {
+            return false;
+        }
+		if (totalFee != other.totalFee) {
+            return false;
+        }
 		return true;
 	}
 	

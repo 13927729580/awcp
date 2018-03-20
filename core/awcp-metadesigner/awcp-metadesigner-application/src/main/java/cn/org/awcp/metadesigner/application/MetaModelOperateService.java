@@ -76,4 +76,11 @@ public interface MetaModelOperateService {
 
 	public int updateBySql(String sql, Object... obj);
 
+	/**
+	 * 根据元数据code获取到数据源ID，如果数据源没配置，则获取系统默认数据源Id
+	 * @param modelCode
+	 * @return
+	 */
+	String getDataSourceIdByModelCode(String modelCode);
+
 }

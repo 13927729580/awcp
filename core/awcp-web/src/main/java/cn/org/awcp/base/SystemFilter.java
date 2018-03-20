@@ -1,19 +1,13 @@
 package cn.org.awcp.base;
 
-import java.io.IOException;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import cn.org.awcp.core.utils.ContextContentUtils;
 import cn.org.awcp.venson.controller.base.ControllerContext;
 import cn.org.awcp.venson.controller.base.ReturnResult;
+
+import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * Servlet Filter implementation class SystemFilter
@@ -31,6 +25,7 @@ public class SystemFilter implements Filter {
 	/**
 	 * @see Filter#destroy()
 	 */
+	@Override
 	public void destroy() {
 
 	}
@@ -38,6 +33,7 @@ public class SystemFilter implements Filter {
 	/**
 	 * @see Filter#doFilter(ServletRequest, ServletResponse, FilterChain)
 	 */
+	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
@@ -51,11 +47,17 @@ public class SystemFilter implements Filter {
 		httpRequest.setCharacterEncoding(encoding);
 		httpResponse.setCharacterEncoding(encoding);
 		chain.doFilter(request, response);
+		ControllerContext.removeResult();
+		ControllerContext.removePage();
+		ControllerContext.removeDoc();
+		ContextContentUtils.removeRequest();
+		ContextContentUtils.removeResponse();
 	}
 
 	/**
 	 * @see Filter#init(FilterConfig)
 	 */
+	@Override
 	public void init(FilterConfig fConfig) throws ServletException {
 		encoding = fConfig.getInitParameter("encoding");
 	}

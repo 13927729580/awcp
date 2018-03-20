@@ -62,8 +62,8 @@
                                 <p id="userInfo"></p>
                                 <form style="display:inline-block;vertical-align:middle;" enctype="multipart/form-data">
                                     <input type="hidden" name="uploadType" value="1"/>
-									<input type="file" style="display:none;"  accept=".jpg,.gif,.png" name="imgFile" id="upload_userHeadImg">
-								</form>
+                                    <input type="file" style="display:none;"  accept=".jpg,.gif,.png" name="imgFile" id="upload_userHeadImg">
+                                </form>
                             </li>
                             <!-- Menu Footer-->
                             <li class="user-footer">
@@ -160,7 +160,7 @@
     <footer class="main-footer">
         <!-- To the right -->
         <div class="pull-right hidden-xs">
-            	设计源自AWCP
+            设计源自AWCP
         </div>
         <!-- Default to the left -->
         <strong>Copyright &copy; 2017 <a target="_blank" href="https://www.awcp.org.cn">深圳缘梦互联网科技有限公司</a>.</strong>
@@ -196,214 +196,214 @@
         //要搜索的值
         var text = $('input[name=q]').val();
         if($.trim(text).length>0){
-        	 var $ul = $('.sidebar-menu');
-             $ul.find("a.nav-link").each(function () {
-                 var $a = $(this);
-                 //判断是否含有要搜索的字符串
-                 if ($a.children("span.menu-text").text().indexOf(text) != -1) {
-                     //如果a标签的父级是隐藏的就展开
-                     $ul = $a.parents("ul");
-                     if ($ul.is(":hidden")) {
-                         $a.parents("ul").prev().click();
-                     }
-                     $a.css("border","1px solid");
-                     setTimeout(function(){
-	                     $a.css("border","");
-                     },3000);
-                 }
-             });
+            var $ul = $('.sidebar-menu');
+            $ul.find("a.nav-link").each(function () {
+                var $a = $(this);
+                //判断是否含有要搜索的字符串
+                if ($a.children("span.menu-text").text().indexOf(text) != -1) {
+                    //如果a标签的父级是隐藏的就展开
+                    $ul = $a.parents("ul");
+                    if ($ul.is(":hidden")) {
+                        $a.parents("ul").prev().click();
+                    }
+                    $a.css("border","1px solid");
+                    setTimeout(function(){
+                        $a.css("border","");
+                    },3000);
+                }
+            });
         }
     }
 
 
 
     $(function () {
-    	//设置系统名称
-    	$.get(baseUrl+"api/anon/systemName",function(data){
-    		if(data.data){
-    			$("#systemName").text(data.data);
-    		}else{
-    			$("#systemName").text("全栈配置云开发平台");
-    		}
-    	});
+        //设置系统名称
+        $.get(baseUrl+"api/anon/systemName",function(data){
+            if(data.data){
+                $("#systemName").text(data.data);
+            }else{
+                $("#systemName").text("全栈配置云开发平台");
+            }
+        });
         top.commonUse=[];
-    	window.tabCache=new TabCache();
+        window.tabCache=new TabCache();
         /*左侧菜单*/
         $.get(baseUrl+"api/getUserMenu",function(res){
-			 	if(res.status==0){
-			 		var root = {children:[]};
-					createMenu(res.data,root);
-					$('.sidebar-menu').sidebarMenu({data: root.children});
-					//打开我的桌面
-					addTabs({
-				            id: '10008',
-				            icon:"fa-desktop",
-				            title: '我的桌面',
-				            close: false,
-				            url: baseUrl+'myDesktop.html',
-				            urlType: "relative"
-				    });
-					//打开缓存标签页
-			        tabCache.open();
-			 	}else if(res.status==-4){
-			 		Comm.alert("您还未登录，请先登录",function(){
-			 			tabCache.clear();
-						location.href=baseUrl+"login.html";
-			 		});
-			 	}
+            if(res.status==0){
+                var root = {children:[]};
+                createMenu(res.data,root);
+                $('.sidebar-menu').sidebarMenu({data: root.children});
+                //打开我的桌面
+                addTabs({
+                    id: '10008',
+                    icon:"fa-desktop",
+                    title: '我的桌面',
+                    close: false,
+                    url: baseUrl+'myDesktop.html',
+                    urlType: "relative"
+                });
+                //打开缓存标签页
+                tabCache.open();
+            }else if(res.status==-4){
+                Comm.alert("您还未登录，请先登录",function(){
+                    tabCache.clear();
+                    location.href=baseUrl+"login.html";
+                });
+            }
         })
         function createMenu(data,parent){
-        	var len=data.children.length;
-        	//判断是否有子节点
-        	if(len>0){
-				for(var j=0;j<len;j++){
-					var child=data.children[j];
-					var item = {
-							id: child.id,
-	                        text: child.name,
-	                        icon:"fa "+child.icon,
-	                        url: child.url,
-	                        targetType: "iframe-tab",
-	                        children:[]
-					}
-					//将子节点置入父节点
-					parent.children.push(item);
-					//继续递归查找子节点
-					createMenu(child,item);
-				}
-			}
+            var len=data.children.length;
+            //判断是否有子节点
+            if(len>0){
+                for(var j=0;j<len;j++){
+                    var child=data.children[j];
+                    var item = {
+                        id: child.id,
+                        text: child.name,
+                        icon:"fa "+child.icon,
+                        url: child.url,
+                        targetType: "iframe-tab",
+                        children:[]
+                    }
+                    //将子节点置入父节点
+                    parent.children.push(item);
+                    //继续递归查找子节点
+                    createMenu(child,item);
+                }
+            }
         }
         /*退出*/
         $("#signOut").click(function(){
-			$.get(baseUrl+"api/logout",function(){
-				tabCache.clear();
-				location.href=baseUrl+"login.html";
-			});
-		})
-		/*登陆者*/
-		$.get(baseUrl+"api/getUserInfo?timeStamp=" + new Date().getTime(),function(data){
-			var userInfo=data.data;
-			Comm.set("userInfo",JSON.stringify(userInfo));
-			$("#userName,#pullLeftInfo").text(userInfo.name);
-			$("#userInfo").html(userInfo.name);
-			setUserHeadImg(userInfo.userHeadImg);
-			//判断当前浏览器是否支持WebSocket
-			if ('WebSocket' in window && userInfo.userIdCardNumber) {
-			    var websocket = new WebSocket("ws:"+baseUrl.replace(window.location.protocol,"")+"websocket/"+userInfo.userIdCardNumber);
-			    //连接发生错误的回调方法
-			    websocket.onerror = function (event) {
-			        console.log(event);
-			    };
-				//接收到消息的回调方法
-				websocket.onmessage = function (event) {
-				    var data;
-					try{
-				    	data=JSON.parse(event.data)
-				    }catch(e){}
-				    if(typeof data === 'object'){
-				    	//获取我的桌面对象
-				    	var desktop=findIframeById("10008").get(0).contentWindow;
-				    	//流程待办
-				    	if(data.hasOwnProperty("flow")){
-				    		desktop.rendererFlow(5);
-				    	//消息通知
-				    	}else if(data.hasOwnProperty("notify")){
-				    		desktop.rendererChat("all","0");
-				    	}
-				    }
-				}
-			}else {
-				Comm.alert('当前浏览器不支持websocket,请换高版本浏览器打开');
-			}
-		});
-		//上传用户头像
-		$("#upload_userHeadImg").on("change",function(){
-			if($.trim($(this).val()).length>2){
-				var $form=$(this).parent("form");
-				Comm.uploadFile(function(data){
-					if(data.error==0){
-						setUserHeadImg(data.url);
-						$.get(baseUrl+"api/userHeadImg",{"userHeadImg":data.url});
-					}else{
-						Comm.alert(data.message);
-					}
-				},$form,"photo");
-			}
-		})
-		//修改密码
-		$('#allchecker').bind("click", function() {
-			$("body").click();
-			var content = '<div class="form-horizontal">' +
-				'<div class="form-group">' +
-				'<label class="col-md-3 control-label required">原密码</label>' +
-				'<div class="col-md-9"><input id="oldPwd" name="oldPwd" type="password" class="form-control"  placeholder="原密码"></div>' +
-				'</div><div class="form-group">' +
-				'<label class="col-md-3 control-label required">新密码</label>' +
-				'<div class="col-md-9"><input id="newPwd" name="newPwd" type="password" class="form-control"  placeholder="新密码"></div>' +
-				'</div><div class="form-group">' +
-				'<label class="col-md-3 control-label required">重复密码</label>' +
-				'<div class="col-md-9"><input id="newPwd2" name="newPwd2" type="password" class="form-control"  placeholder="重复新密码"></div>' +
-				'</div></div>';
-			var d = dialog({
-				title: '修改密码',
-				content: content,
-				okValue: '确定',
-				ok: function() {
-					var oldPwd = $("#oldPwd").val();
-					var newPwd = $("#newPwd").val();
-					var newPwd2 = $("#newPwd2").val();
-					if(oldPwd == "") {
-						Comm.alert("原密码必填");
-						return false;
-					}
-					if(newPwd == "") {
-						Comm.alert("新密码必填");
-						return false;
-					}
-					if(newPwd2 == "") {
-						Comm.alert("重复密码必填");
-						return false;
-					}
-					if(newPwd == oldPwd) {
-						Comm.alert("新密码不能和原密码一样");
-						return false;
-					}
-					if(newPwd != newPwd2) {
-						Comm.alert("新密码和重复密码输入不一致");
-						return false;
-					}
-					if(!window.confirm("确定修改")) {
-						return false;
-					}
-					//修改密码
-					$.ajax({
-						type: "POST",
-						url: baseUrl + "api/unit/updatePwd",
-						data: {"oldPwd":oldPwd,"newPwd":newPwd},
-						success: function(data) {
-							if(data.status == 0) {
-								Comm.alert(data.message);
-							} else {
-								Comm.alert(data.message);
-							}
-						}
-					})
+            $.get(baseUrl+"api/logout",function(){
+                tabCache.clear();
+                location.href=baseUrl+"login.html";
+            });
+        })
+        /*登陆者*/
+        $.get(baseUrl+"api/getUserInfo?timeStamp=" + new Date().getTime(),function(data){
+            var userInfo=data.data;
+            Comm.set("userInfo",JSON.stringify(userInfo));
+            $("#userName,#pullLeftInfo").text(userInfo.name);
+            $("#userInfo").html(userInfo.name);
+            setUserHeadImg(userInfo.userHeadImg);
+            //判断当前浏览器是否支持WebSocket
+            if ('WebSocket' in window && userInfo.userIdCardNumber) {
+                var websocket = new WebSocket("ws:"+baseUrl.replace(window.location.protocol,"")+"websocket/"+userInfo.userIdCardNumber);
+                //连接发生错误的回调方法
+                websocket.onerror = function (event) {
+                    console.log(event);
+                };
+                //接收到消息的回调方法
+                websocket.onmessage = function (event) {
+                    var data;
+                    try{
+                        data=JSON.parse(event.data)
+                    }catch(e){}
+                    if(typeof data === 'object'){
+                        //获取我的桌面对象
+                        var desktop=findIframeById("10008").get(0).contentWindow;
+                        //流程待办
+                        if(data.hasOwnProperty("flow")){
+                            desktop.rendererFlow(5);
+                            //消息通知
+                        }else if(data.hasOwnProperty("notify")){
+                            desktop.rendererChat("all","0");
+                        }
+                    }
+                }
+            }else {
+                Comm.alert('当前浏览器不支持websocket,请换高版本浏览器打开');
+            }
+        });
+        //上传用户头像
+        $("#upload_userHeadImg").on("change",function(){
+            if($.trim($(this).val()).length>2){
+                var $form=$(this).parent("form");
+                Comm.uploadFile(function(data){
+                    if(data.error==0){
+                        setUserHeadImg(data.url);
+                        $.get(baseUrl+"api/userHeadImg",{"userHeadImg":data.url});
+                    }else{
+                        Comm.alert(data.message);
+                    }
+                },$form,"photo");
+            }
+        })
+        //修改密码
+        $('#allchecker').bind("click", function() {
+            $("body").click();
+            var content = '<div class="form-horizontal">' +
+                '<div class="form-group">' +
+                '<label class="col-md-3 control-label required">原密码</label>' +
+                '<div class="col-md-9"><input id="oldPwd" name="oldPwd" type="password" class="form-control"  placeholder="原密码"></div>' +
+                '</div><div class="form-group">' +
+                '<label class="col-md-3 control-label required">新密码</label>' +
+                '<div class="col-md-9"><input id="newPwd" name="newPwd" type="password" class="form-control"  placeholder="新密码"></div>' +
+                '</div><div class="form-group">' +
+                '<label class="col-md-3 control-label required">重复密码</label>' +
+                '<div class="col-md-9"><input id="newPwd2" name="newPwd2" type="password" class="form-control"  placeholder="重复新密码"></div>' +
+                '</div></div>';
+            var d = dialog({
+                title: '修改密码',
+                content: content,
+                okValue: '确定',
+                ok: function() {
+                    var oldPwd = $("#oldPwd").val();
+                    var newPwd = $("#newPwd").val();
+                    var newPwd2 = $("#newPwd2").val();
+                    if(oldPwd == "") {
+                        Comm.alert("原密码必填");
+                        return false;
+                    }
+                    if(newPwd == "") {
+                        Comm.alert("新密码必填");
+                        return false;
+                    }
+                    if(newPwd2 == "") {
+                        Comm.alert("重复密码必填");
+                        return false;
+                    }
+                    if(newPwd == oldPwd) {
+                        Comm.alert("新密码不能和原密码一样");
+                        return false;
+                    }
+                    if(newPwd != newPwd2) {
+                        Comm.alert("新密码和重复密码输入不一致");
+                        return false;
+                    }
+                    if(!window.confirm("确定修改")) {
+                        return false;
+                    }
+                    //修改密码
+                    $.ajax({
+                        type: "POST",
+                        url: baseUrl + "api/unit/updatePwd",
+                        data: {"oldPwd":oldPwd,"newPwd":newPwd},
+                        success: function(data) {
+                            if(data.status == 0) {
+                                Comm.alert(data.message);
+                            } else {
+                                Comm.alert(data.message);
+                            }
+                        }
+                    })
 
-					return true;
+                    return true;
 
-				},
-				cancelValue: '取消',
-				cancel: function() {}
-			});
-			d.width(450).showModal();
-			return false;
-		});
-		//如果图片加载出错则使用默认图片
+                },
+                cancelValue: '取消',
+                cancel: function() {}
+            });
+            d.width(450).showModal();
+            return false;
+        });
+        //如果图片加载出错则使用默认图片
         $(".userHeadImg").error(function(){
             this.src="../template/AdminLTE/images/user2-160x160.jpg";
         });
-		function setUserHeadImg(userHeadImg){
-            if(userHeadImg.indexOf("http")==0){
+        function setUserHeadImg(userHeadImg){
+            if(userHeadImg && userHeadImg.indexOf("http")==0){
                 $(".userHeadImg").attr("src",userHeadImg);
             }else{
                 $.get(baseUrl+"api/common/file/get",{"id":userHeadImg},function(data){
@@ -412,7 +412,7 @@
                     }
                 })
             }
-		}
+        }
     });
 </script>
 </body>

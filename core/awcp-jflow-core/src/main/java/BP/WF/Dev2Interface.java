@@ -16,6 +16,7 @@ import BP.WF.Port.WFEmps;
 import BP.WF.Template.*;
 import BP.Web.WebUser;
 import cn.jflow.common.util.ContextHolderUtils;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.IOException;
@@ -3392,7 +3393,7 @@ public class Dev2Interface
 				throw new RuntimeException("用户不存在或者SID错误。");
 			}
 
-			if (!dt.Rows.get(0).get("SID").toString().equals(sid))
+			if (!ObjectUtils.toString(dt.Rows.get(0).get("SID")).equals(sid))
 			{
 				throw new RuntimeException("用户不存在或者SID错误。");
 			}
@@ -5078,7 +5079,7 @@ public class Dev2Interface
 			DataTable mydt = DBAccess.RunSQLReturnTable(mysql);
 			if (mydt.Rows.size() == 0)
 			{
-				return true;
+				return false;
 			}
 
 			for (DataRow dr : mydt.Rows)

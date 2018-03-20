@@ -9,6 +9,7 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 import javax.servlet.http.HttpServletRequest;
 
+import cn.org.awcp.core.utils.SessionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -82,8 +83,9 @@ public class APIService {
 			break;
 		}
 		// 置入缓存
-		if (api.isCache())
+		if (api.isCache()){
 			cache.put(key, result.getData());
+		}
 	}
 
 	/**
@@ -183,7 +185,8 @@ public class APIService {
 		ScriptEngine engine = ScriptEngineUtils.getScriptEngine();
 		HttpServletRequest request = ControllerContext.getRequest();
 		engine.put("request", request);
-		engine.put("session", request.getSession());
+		engine.put("session", SessionUtils.getCurrentSession());
+
 		return engine;
 	}
 
@@ -245,7 +248,7 @@ public class APIService {
 	 */
 	public void executeUpdate(Map<String, Object> request, ReturnResult result, PFMAPI api) {
 		List<TableDesc> fields = api.getAPITableFields();
-		Map<String, String> params = new HashMap<>();
+		Map<String, String> params = new HashMap<>(fields.size());
 		// 获取参数值
 		for (TableDesc field : fields) {
 			String value = String.valueOf(request.get(field.getField()));
@@ -270,7 +273,7 @@ public class APIService {
 	 */
 	public void executeAdd(Map<String, Object> request, ReturnResult result, PFMAPI api) {
 		List<TableDesc> fields = api.getAPITableFields();
-		Map<String, String> params = new HashMap<>();
+		Map<String, String> params = new HashMap<>(fields.size());
 		for (TableDesc field : fields) {
 			// 置入主键
 			field.setDeafultValue(params);
@@ -317,8 +320,9 @@ public class APIService {
 		// 接口权限认证
 		if (rules != null && !rules.isEmpty()) {
 			for (APIRule rule : rules) {
-				if (!checkRule(result, rule))
+				if (!checkRule(result, rule)){
 					return false;
+				}
 			}
 		}
 		return true;

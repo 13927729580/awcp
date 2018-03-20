@@ -56,7 +56,7 @@ public class MyAuthorizationFilter extends FormAuthenticationFilter {
 	private void tologin(ServletRequest request, ServletResponse response) throws IOException {
 		HttpServletRequest httpServletRequest = (HttpServletRequest) request;
 		String requestType = httpServletRequest.getHeader("X-Requested-With");
-		if (requestType != null && requestType.equals("XMLHttpRequest")) {
+		if (requestType != null && "XMLHttpRequest".equals(requestType)) {
 
 			// saveRequestAndRedirectToLogin(request, response);
 			saveRequest(request);

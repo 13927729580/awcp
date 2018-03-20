@@ -26,18 +26,18 @@
 			</c:forEach>
 		</select>
 	</div>
-	<label class="col-md-1 control-label">按钮组</label>
+	<label class="col-md-1 control-label required">按钮组</label>
 	<div class='col-md-5'>
 		<div class="input-group">
 			<input name="buttonGroup" class="form-control" id="buttonGroup" type="text" value="${act.buttonGroup }"> 
-			<span class="input-group-addon">顺序</span> 
+			<span class="input-group-addon required">顺序</span>
 			<input name="order" class="form-control" id="order" type="text" value="${act.order }">
 		</div>
 	</div>
 </div>
 
 <div class="form-group">
-	<label class="col-md-1 control-label">名称</label>
+	<label class="col-md-1 control-label required">名称</label>
 	<div class='col-md-5'>
 		<input name="name" class="form-control" id="name" type="text" value="${act.name }">
 	</div>

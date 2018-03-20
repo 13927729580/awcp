@@ -1,173 +1,151 @@
-<%@ page language="java" contentType="text/html; charset=utf-8"
-    pageEncoding="utf-8"%>
-    <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-    <%
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+		 pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+<%@ taglib prefix="sc" uri="szcloud" %>
+<%@page isELIgnored="false"%>
+<%
 	String path = request.getContextPath();
 	String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
-	%>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+%>
+<!DOCTYPE html>
 <html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Insert title here</title>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-
-<meta charset="utf-8">
-		<link href="<%=basePath %>base/resources/zui/assets/chosen/css/chosen.min.css" rel="stylesheet">
-		<link href="<%=basePath %>base/resources/zui/assets/datetimepicker/css/datetimepicker.min.css" rel="stylesheet">
-		<link rel="stylesheet" type="text/css" href="<%=basePath %>base/resources/zui/dist/css/zui.css">
-		<link href="../../base/resources/zui/dist/css/zui.min.css" rel="stylesheet">
-		<link href="<%=basePath %>base/resources/zui/assets/chosen/css/chosen.min.css" rel="stylesheet">
-		<link href="<%=basePath %>base/resources/zui/assets/datetimepicker/css/datetimepicker.min.css" rel="stylesheet">
-		<link href="<%=basePath %>base/resources/artDialog/css/ui-dialog.css" rel="stylesheet">
-		<link title="default" rel="stylesheet" type="text/css" href="<%=basePath %>base/resources/content/styles/szCloud_common.css" />
-		<link title="default" rel="stylesheet" type="text/css" href="<%=basePath %>base/resources/content/styles/style.css" />
-  		<script src="<%=basePath %>resources/JqEdition/jquery-1.10.2.js" language="javascript" type="text/javascript"></script>
-		<script src="<%=basePath %>base/resources/zui/dist/js/zui.js" language="javascript" type="text/javascript"></script>
-		<script src="<%=basePath %>base/resources/artDialog/dist/dialog.js"></script>
-		<script src="<%=basePath %>base/resources/artDialog/lib/require.js"></script>
-		<script src="<%=basePath %>base/resources/artDialog/lib/sea.js"></script>
-		<link rel="stylesheet" href="<%=basePath %>resources/plugins/tips/tip-green/tip-green.css" type="text/css" />
-		<link rel="stylesheet" href="<%=basePath %>resources/plugins/tips/tip-yellowsimple/tip-yellowsimple.css" type="text/css" />
-		<script src="<%=basePath %>resources/JqEdition/jquery-1.10.2.js" type="text/javascript"></script>
-		<script src="<%=basePath %>resources/plugins/tips/jquery.poshytip.js"></script>
-		<script src="<%=basePath %>resources/plugins/formValidator4.1.0/formValidator-4.1.0.a.js" type="text/javascript" charset="UTF-8"></script>
-		<script src="<%=basePath %>resources/plugins/formValidator4.1.0/formValidatorRegex.js" type="text/javascript" charset="UTF-8"></script>
-		<script type="text/javascript">
-			$(function(){
-   			$.formValidator.initConfig({formID:"creatForm",debug:false,onSuccess:function(){
-			   	$("#creatForm").submit();
-    		},onError:function(){alert("错误，请看提示")}});
-				$("#itemName").formValidator({onFocus:"请输入属性名称",onFocus:"至少1位",onCorrect:"符合要求"}).inputValidator({min:1,max:20,empty:{leftEmpty:false,rightEmpty:false,emptyError:"不能有空符号"},onError:"必填"});
-				$("#itemCode").formValidator({onFocus:"请输入属性名称",onFocus:"至少1位",onCorrect:"符合要求"}).inputValidator({min:1,max:20,empty:{leftEmpty:false,rightEmpty:false,emptyError:"不能有空符号"},onError:"必填"});
-				$("#itemType").formValidator({onFocus:"请输入属性类型",onFocus:"至少1位",onCorrect:"符合要求"}).inputValidator({min:1,max:20,empty:{leftEmpty:false,rightEmpty:false,emptyError:"不能有空符号"},onError:"必填"});
-			})
-			
-			$(document).ready(function(){
-				$("#addRelation").hide();
-				$("#itemType").change(function(){
-					var d=$("#itemType").val();
-					if(d=='1' || d=='2'){
-						$("#addRelation").show();
-						$("#selectLength").hide();
-					}
-					else if(!(d=="varchar" || d=="dicimal")){
-						$("#addRelation").hide();
-						$("#selectLength").show();
-						$("#itemLength").attr("disabled",true);
-					}else{
-						$("#addRelation").hide();
-						$("#selectLength").show();
-						$("#itemLength").attr("disabled",false);
-					}
-				});
-			});
-		</script>
+<head><base href="<%=basePath%>">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="renderer" content="webkit">
+	<title>元数据页面</title>
+	<%-- <jsp:include page="" flush=”true”/> --%>
+	<%@ include file="../../resources/include/common_form_css.jsp" %>
 </head>
-<body class="C-formBody">
-	<div>
-		<div>
-			<div style="margin-top: 10px; margin-left: 10px; width: 100%; float: left;">
-				<form class="form-horizontal" action="saves.do" method="post" id="creatForm">
-					<div style="float: left;margin-left: 130px">
-						<div class="C_btnGroup">
-							<div class="C_btns">
-								<button class="btn btn-info" type="submit" id="showItem">保存</button>
-							</div>
-						</div>
-					</div>
-					<div class="C_addForm">
-						<legend class=" text-center"> 元数据模型属性编辑 </legend>
-						<div class="form-group">
-							<label class="col-md-1 control-label">字段名称(中)</label>
-							<div class="col-md-4">
-								<input type="hidden" name="a" value="1.201">
-								<input type="hidden" name="maxPage" value="1">
-								<input type="hidden" name="modelId" value="${modelId }">
-								<input name="itemName" class="form-control" id="itemName" type="text" placeholder="" value="">
-							</div>
-							<label class="col-md-2 control-label">字段名称(英)</label>
-							<div class="col-md-4">
-								<input name="itemCode" class="form-control" id="itemCode" type="text" placeholder="" value="">
-							</div>
-						</div>
-						<div class="form-group">
-							<label class="col-md-1 control-label">字段类型</label>
-							<div class="col-md-4">
-								 <select class="form-control" name="itemType" id="itemType">
-							        <option value="0">--请选择--</option>
-									<option value="int">int</option>
-									<option value="bigInt">bigInt</option>
-									<option value="varchar">varchar</option>
-									<option value="bool">bool</option>
-									<option value="boolean">boolean</option>
-									<option value="decimal">decimal</option>
-									<option value="float">float</option>
-									<option value="double">double</option>
-									<option value="date">date</option>
-									<option value="1">一对一</option>
-									<option value="2">多对一</option>
-							      </select> 
-							</div>
-							<div id="selectLength">
-								<label class="col-md-2 control-label">字段长度</label>
-								<div class="col-md-4">
-									 <input name="itemLength" class="form-control" id="itemLength" type="text" placeholder="" value="">
-								</div>
-							</div>
-							<div id="addRelation">
-								<label class="col-md-2 control-label">表关系</label>
-								<div class="col-md-4">
-									<select class="form-control" name="modelIdss">
-										<option value="0">-- 请选择 --</option>
-										<c:forEach items="${metaModel }" var="l">
-											<option value="${l.id }">${l.tableName }</option>
-										</c:forEach>
-									</select>
-								</div>
-							</div>
-						</div>
-						
-						<div class="form-group">
-							<label class="col-md-1 control-label">是否主键</label>
-							<div class="col-md-4">
-								 <input name="usePrimaryKey" type="radio" value="1"
-									style="margin-top: -2px;">&nbsp;是 <input
-									name="usePrimaryKey" type="radio" value="0" checked="checked"
-									style="margin-left: 20px; margin-top: -2px;">&nbsp;否
-							</div>
-							<label class="col-md-2 control-label">是否索引</label>
-							<div class="col-md-4">
-								 <input name="useIndex" type="radio" value="1"
-									style="margin-top: -2px;">&nbsp;是 <input name="useIndex"
-									type="radio" value="0" checked="checked"
-									style="margin-left: 20px; margin-top: -2px;">&nbsp;否
-							</div>
-						</div>
+<body id="main">
+<div class="container-fluid">
+	<!--edit页面整体布局结构
+    <div class="row" id="breadcrumb">面包屑导航</div>
+    <div class="row" id="dataform">表单区（--输入组--按钮组）</div>
+    -->
+	<div class="row" id="breadcrumb">
+		<ul class="breadcrumb">
+			<li><i class="icon-location-arrow icon-muted"></i></li>
+			<li><a href="<%=basePath%>devAdmin/intoSystem.do?sysId=1">首页</a></li>
+			<li><a href="<%=basePath %>metaModel/selectPage.do">元数据管理</a></li>
 
-						<div class="form-group">
-							<label class="col-md-1 control-label">是否为空</label>
-							<div class="col-md-4">
-								 <input name="useNull" type="radio" value="1"
-									style="margin-top: -2px;">&nbsp;是 <input name="useNull"
-									type="radio" value="0" checked="checked"
-									style="margin-left: 20px; margin-top: -2px;">&nbsp;否
-							</div>
-							<label class="col-md-2 control-label">默认值</label>
-							<div class="col-md-4">
-								 <input name="defaultValue" class="form-control" id="defaultValue" type="text" placeholder="" value="">
-							</div>
-						</div>
-						<div class="form-group">
-							<label class="col-md-1 control-label">备注</label>
-							<div class="col-md-4">
-								<input name="remark" class="form-control" id="remark" type="text" placeholder="" value="">
-							</div>
-						</div>
-					</div>
-				</form>
-			</div>
-		</div>
+			<li class="active">元数据属性编辑</li>
+		</ul>
 	</div>
+	<div class="row" id="dataform">
+		<form class="form-horizontal" id="groupForm"
+			  action="metaModelItems/update.do" method="post">
+			<legend>
+				元数据属性编辑
+				<c:if test="${result!=null&&''!=result}">
+					<span style="color: red">(${result})</span>
+				</c:if>
+			</legend>
+			<div class="form-group">
+				<label class="col-md-2 control-label required">属性名称(中)</label>
+				<div class="col-md-4">
+					<input type="hidden" id="id" name="id" value="${vo.id}" />
+					<input type="hidden" name="modelId" id="modelId" value="${vo.modelId }">
+					<input name="itemName" class="form-control" id="itemName"
+						   type="text" placeholder="" value="${vo.itemName}">
+				</div>
+				<label class="col-md-2 control-label required">属性名称(英)</label>
+				<div class="col-md-4">
+					<input name="itemCode" class="form-control" id="itemCode"
+						   type="text" placeholder="" value="${vo.itemCode}">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-md-2 control-label required">属性类型</label>
+				<div class="col-md-4">
+					<select data-placeholder="请选择属性类型..." name="itemType" class="chosen-select form-control" tabindex="2">
+						<option value="int">int</option>
+						<option value="bigint">bigint</option>
+						<option value="float">float</option>
+						<option value="double">double</option>
+						<option value="varchar">varchar</option>
+						<option value="char">char</option>
+						<option value="text">text</option>
+						<option value="date">date</option>
+						<option value="datetime">datetime</option>
+						<option value="timestamp">timestamp</option>
+					</select>
+				</div>
+				<label class="col-md-2 control-label">属性长度</label>
+				<div class="col-md-4">
+					<input name="itemLength" class="form-control" id="itemLength"
+						   type="text" placeholder="" value="${vo.itemLength}">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-md-2 control-label required">是否主键</label>
+				<div class="col-md-4">
+					<select disabled="disabled" data-placeholder="请选择是否主键..." name="usePrimaryKey" id="usePrimaryKeys" class="chosen-select form-control" tabindex="2">
+						<option value="0">NO</option>
+						<option value="1">YES</option>
+					</select>
+				</div>
+				<label class="col-md-2 control-label required">是否索引</label>
+				<div class="col-md-4">
+					<select data-placeholder="请选择是否索引..." name="useIndex" class="chosen-select form-control" tabindex="2">
+						<option value="0">无</option>
+						<option value="-1">主键</option>
+						<option value="1">唯一</option>
+						<option value="2">普通</option>
+					</select>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-md-2 control-label required">是否为空</label>
+				<div class="col-md-4">
+					<select data-placeholder="请选择模型分类..." class="chosen-select form-control" tabindex="2" name="useNull">
+						<option value="0">NO</option>
+						<option value="1">YES</option>
+					</select>
+				</div>
+				<label class="col-md-2 control-label">默认值</label>
+				<div class="col-md-4">
+					<input name="defaultValue" class="form-control" id="defaultValue"
+						   type="text" placeholder="" value="${vo.defaultValue}">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-md-2 control-label">备注</label>
+				<div class="col-md-4">
+					<input name="remark" class="form-control" id="remark"
+						   type="text" placeholder="" value="${vo.remark}">
+				</div>
+			</div>
+
+			<div class="form-group"><!-- 表单提交按钮区域 -->
+				<div class="col-md-offset-2 col-md-10">
+					<button type="submit" class="btn btn-success" id="saveBtn"><i class="icon-save"></i>保存</button>
+					<a href="<%=basePath %>metaModelItems/queryResultByParams.do?id=${vo.modelId }" class="btn" id="undoBtn"><i class="icon-undo"></i>取消</a>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+
+<%@ include file="../../resources/include/common_form_js.jsp" %>
+<script type="text/javascript">
+    $(document).ready(function(){
+
+        $("select[name='useIndex']").val('${vo.useIndex}');
+        $("select[name='useNull']").val('${vo.useNull}');
+        $("select[name='itemType']").val('${vo.itemType}');
+        if('${vo.usePrimaryKey}'==1){
+            $("#usePrimaryKeys").val('1');
+            $("#usePrimaryKeys").attr("disabled",false);
+        }else{
+            $("#usePrimaryKeys").val('0');
+        }
+
+        $("#selectModel").find("option[value='"+$("#modelId").val()+"']").attr("selected",true);
+
+    });
+</script>
 </body>
 </html>

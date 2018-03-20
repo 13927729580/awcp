@@ -49,7 +49,7 @@ public class FunController extends BaseController {
 	@RequestMapping(value = "/list")
 	public ModelAndView listPageStyles(@RequestParam(value = "name", required = false) String name,
 			@RequestParam(value = "currentPage", required = false, defaultValue = "1") int currentPage,
-			@RequestParam(value = "pageSize", required = false, defaultValue = "3") int pageSize) {
+			@RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize) {
 		BaseExample baseExample = new BaseExample();
 		if (pageSize < 10) {
 			pageSize = 10;

@@ -145,9 +145,9 @@ public class MetaModelController extends BaseController {
                 item.setUseIndex(-1);
             } else if ("UNI".equals(key)) {
                 item.setUseIndex(1);
-            } else if ("MUL".equals(key))
+            } else if ("MUL".equals(key)) {
                 item.setUseIndex(2);
-            else {
+            } else {
                 item.setUseIndex(0);
             }
             int index = Type.indexOf("(");
@@ -183,8 +183,9 @@ public class MetaModelController extends BaseController {
         for (int i = 0; i < _selects.length; i++) {
             String id = _selects[i];
             MetaModelVO vo = metaModelServiceImpl.get(id);
-            if (vo == null)
+            if (vo == null) {
                 continue;
+            }
             vo.setId(null);
             vo.setModelName(vo.getModelName() + " - copy");
             String newId = metaModelServiceImpl.save(vo);
@@ -194,8 +195,9 @@ public class MetaModelController extends BaseController {
             criteria.andEqualTo("modelId", id);
 
             List<MetaModelItemsVO> items = metaModelItemsServiceImpl.selectPagedByExample(baseExample, 1, 900, null);
-            if (items == null)
+            if (items == null) {
                 continue;
+            }
             for (int k = 0; k < items.size(); k++) {
                 MetaModelItemsVO it = items.get(k);
                 it.setId(null);
@@ -220,8 +222,9 @@ public class MetaModelController extends BaseController {
             for (int i = 0; i < _selects.length; i++) {
                 String id = _selects[i];
                 MetaModelVO vo = metaModelServiceImpl.get(id);
-                if (vo == null)
+                if (vo == null) {
                     continue;
+                }
                 vo.setId(null);
                 vo.setModelName(vo.getModelName() + " - copy");
                 vo.setSystemId(Long.valueOf(systemId));
@@ -233,8 +236,9 @@ public class MetaModelController extends BaseController {
 
                 List<MetaModelItemsVO> items = metaModelItemsServiceImpl.selectPagedByExample(baseExample, 1, 900,
                         null);
-                if (items == null)
+                if (items == null) {
                     continue;
+                }
                 for (int k = 0; k < items.size(); k++) {
                     MetaModelItemsVO it = items.get(k);
                     it.setId(null);
@@ -657,12 +661,12 @@ public class MetaModelController extends BaseController {
         StringBuffer b = new StringBuffer(
                 "select modelClassId,modelCode,modelName,modelDesc,tableName,projectName,modelType,modelSynchronization,modelValid,id ,system_id from fw_mm_metaModel where 1=1");
         Object[] objs = null;
-        if (modelCode != null && modelCode.equals("")) {
+        if (modelCode != null && "".equals(modelCode)) {
             b.append(" and modelCode like %");
             b.append(modelCode).append("%");
 
         }
-        if (modelName != null && modelName.equals("")) {
+        if (modelName != null && "".equals(modelName)) {
             b.append(" and modelName like %");
             b.append(modelName).append("%");
         }
@@ -690,15 +694,15 @@ public class MetaModelController extends BaseController {
             c.andLike("modelName", "%" + modelName + "%");
         }
         String modelCode = vo.getModelCode();
-        if (modelCode != null && !modelCode.equals("")) {
+        if (modelCode != null && !"".equals(modelCode)) {
             c.andLike("modelCode", "%" + modelCode + "%");
         }
         String tableName = vo.getTableName();
-        if (tableName != null && !tableName.equals("")) {
+        if (tableName != null && !"".equals(tableName)) {
             c.andLike("tableName", "%" + tableName + "%");
         }
         String projectName = vo.getProjectName();
-        if (projectName != null && !projectName.equals("")) {
+        if (projectName != null && !"".equals(projectName)) {
             c.andLike("projectName", "%" + projectName + "%");
         }
         Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);

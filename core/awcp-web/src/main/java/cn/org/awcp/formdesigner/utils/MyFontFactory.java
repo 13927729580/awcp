@@ -10,7 +10,8 @@ import com.itextpdf.text.pdf.BaseFont;
 
 public class MyFontFactory implements FontProvider {
 
-	public Font getFont(String fontname, String encoding, boolean embedded, float size, int style, BaseColor color) {
+	@Override
+    public Font getFont(String fontname, String encoding, boolean embedded, float size, int style, BaseColor color) {
 		BaseFont bfChinese = null;
 		try {
 			bfChinese = BaseFont.createFont("STSong-Light", "UniGB-UCS2-H", BaseFont.EMBEDDED);
@@ -24,7 +25,8 @@ public class MyFontFactory implements FontProvider {
 		return new Font(bfChinese, size, style, color);
 	}
 
-	public boolean isRegistered(String fontname) {
+	@Override
+    public boolean isRegistered(String fontname) {
 		return false;
 	}
 }

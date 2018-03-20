@@ -227,7 +227,7 @@ public class PfmWorkflowController extends BaseController {
 			// 获取流程列表
 			String sql = "SELECT WF_FLOW.NO,WF_FLOW.NAME,WF_FLOWSORT.NAME AS FLOWSORT FROM WF_FLOW left join WF_FLOWSORT on WF_FLOW.FK_FLOWSORT=WF_FLOWSORT.NO WHERE 1=1";
 
-			if (type != null && !type.equals("") && Integer.parseInt(type) != 0) {
+			if (type != null && !"".equals(type) && Integer.parseInt(type) != 0) {
 				sql += " AND WF_FLOWSORT.NO='" + type + "'";
 			}
 

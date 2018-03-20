@@ -276,6 +276,11 @@
 			<artifactId>solr-solrj</artifactId>
 			<version>6.5.1</version>
 		</dependency>
+		<dependency>
+			<groupId>commons-net</groupId>
+			<artifactId>commons-net</artifactId>
+			<version>3.3</version>
+		</dependency>
 		<!-- quartz 定时任务调度器  -->
 		<dependency>
 			<groupId>org.quartz-scheduler</groupId>

@@ -51,7 +51,7 @@ if(window!=top){
 <script>
 $(function(){
 	$.get(baseUrl+"api/anon/systemName",function(data){
-		if(systemName){
+		if(data.status==0){
 			$("#systemName").text(data.data);
 		}else{
 			$("#systemName").text("全栈配置云开发平台");

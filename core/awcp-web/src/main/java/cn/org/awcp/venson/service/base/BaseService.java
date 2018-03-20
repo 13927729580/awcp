@@ -1,11 +1,10 @@
 package cn.org.awcp.venson.service.base;
 
-import java.util.HashMap;
-import java.util.Map;
+import cn.org.awcp.venson.dao.BaseDao;
 
 import javax.annotation.Resource;
-
-import cn.org.awcp.venson.dao.BaseDao;
+import java.util.HashMap;
+import java.util.Map;
 
 public abstract class BaseService {
 	@Resource(name = "baseDaoImpl")
@@ -36,7 +35,7 @@ public abstract class BaseService {
 		if (size != values.length) {
 			throw new RuntimeException("names长度和values长度不一致");
 		}
-		Map<String, Object> map = new HashMap<String, Object>();
+		Map<String, Object> map = new HashMap<>(size);
 		for (int i = 0; i < size; i++) {
 			map.put(names[i], values[i]);
 		}
@@ -44,7 +43,7 @@ public abstract class BaseService {
 	}
 
 	protected Map<String, Object> makeMap(Object... values) {
-		Map<String, Object> map = new HashMap<String, Object>();
+		Map<String, Object> map = new HashMap<>(values.length);
 		for (int i = 0; i < values.length; i++) {
 			map.put("arg" + i, values[i]);
 		}

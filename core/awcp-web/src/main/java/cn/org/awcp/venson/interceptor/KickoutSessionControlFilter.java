@@ -1,15 +1,10 @@
 package cn.org.awcp.venson.interceptor;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.Serializable;
-import java.util.Deque;
-import java.util.LinkedList;
-
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-
+import cn.org.awcp.venson.common.SC;
+import cn.org.awcp.venson.controller.base.ReturnResult;
+import cn.org.awcp.venson.controller.base.StatusCode;
+import cn.org.awcp.venson.util.CookieUtil;
+import com.alibaba.fastjson.JSONObject;
 import org.apache.shiro.cache.Cache;
 import org.apache.shiro.cache.CacheManager;
 import org.apache.shiro.session.Session;
@@ -19,12 +14,14 @@ import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.filter.AccessControlFilter;
 import org.apache.shiro.web.util.WebUtils;
 
-import com.alibaba.fastjson.JSONObject;
-
-import cn.org.awcp.venson.common.SC;
-import cn.org.awcp.venson.controller.base.ReturnResult;
-import cn.org.awcp.venson.controller.base.StatusCode;
-import cn.org.awcp.venson.util.CookieUtil;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Serializable;
+import java.util.Deque;
+import java.util.LinkedList;
 
 /**
  * 只保留一个在线用户 <br>
@@ -128,7 +125,7 @@ public class KickoutSessionControlFilter extends AccessControlFilter {
 	private void tologin(ServletRequest request, ServletResponse response) throws IOException {
 		HttpServletRequest httpServletRequest = (HttpServletRequest) request;
 		String requestType = httpServletRequest.getHeader("X-Requested-With");
-		if (requestType != null && requestType.equals("XMLHttpRequest")) {
+		if (requestType != null && "XMLHttpRequest".equals(requestType)) {
 			// saveRequestAndRedirectToLogin(request, response);
 			saveRequest(request);
 			response.setContentType("application/json");

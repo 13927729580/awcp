@@ -1,12 +1,12 @@
 package cn.org.awcp.venson.util;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * 数据库连接操作类
@@ -49,7 +49,7 @@ public class DBUtil {
 		// 清空threadlocal
 		// 关闭conn
 		Connection conn = connLocal.get();
-		connLocal.set(null);
+		connLocal.remove();
 		if (conn != null) {
 			try {
 				conn.close();

@@ -77,7 +77,8 @@ public class MessageDao {
 			sql = "select title,description,picUrl,url from wechat_article where isMore='0' and fkID = '" + fkId + "'";
 			logger.info("查询单条图文消息sql:"+sql);
 			jdbcTemplate.query(sql, new RowCallbackHandler(){
-				public void processRow(ResultSet rs) throws SQLException {
+				@Override
+                public void processRow(ResultSet rs) throws SQLException {
 					String title = rs.getString("title");
 					String description = rs.getString("description"); 
 					String picUrl = basepath + rs.getString("picUrl");
@@ -94,7 +95,8 @@ public class MessageDao {
 				  "' order by orderNum asc";
 			logger.info("查询多条图文消息sql:"+sql);
 			jdbcTemplate.query(sql, new RowCallbackHandler(){
-				public void processRow(ResultSet rs) throws SQLException {
+				@Override
+                public void processRow(ResultSet rs) throws SQLException {
 					String title = rs.getString("title");
 					String description = rs.getString("description"); 
 					String picUrl = basepath + rs.getString("picUrl");

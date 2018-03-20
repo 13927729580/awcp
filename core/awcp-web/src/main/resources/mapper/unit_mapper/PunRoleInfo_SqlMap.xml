@@ -207,7 +207,7 @@
 		select
 		<include refid="Base_Column_List" />
 		from p_un_role_info
-		where ROLE_ID in (${roleId}) and SYS_ID=#{sysId}
+		where ROLE_ID in (${roleId})
 	</select>
 <!-- 	根据身份资格中组ID，用户ID获取角色 -->
 <!-- 	<select id="queryByMember" resultMap="rm" parameterType="Object"> -->
@@ -244,10 +244,7 @@
 			r.ROLE_NAME,r.ROLE_ID
 		from 
 		   	p_un_role_info r inner join p_un_user_role ur on r.ROLE_ID = ur.ROLE_ID
-		where 1=1
-		and
-		    r.SYS_ID = #{sysId}
-		and
+		where
 			ur.USER_ID=#{userId} 
    	</select>
    			

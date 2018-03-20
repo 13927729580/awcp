@@ -102,7 +102,7 @@
 			//relate user
 	      		$("#relateUserBtn").click(function(){
 	      			if(count == 1){
-	      				$("#userList").attr("action","<%=basePath%>unit/roleRelateUserQuery.do?sysId=${sysId}").submit();
+	      				$("#userList").attr("action","<%=basePath%>unit/roleRelateUserQuery.do").submit();
 	      			}else{
 	      				Comm.alert("请选择一项进行操作");
 	      			}

@@ -4,19 +4,20 @@ import BP.DA.DBAccess;
 import BP.DA.DataRow;
 import BP.DA.DataTable;
 import BP.DA.Paras;
-import BP.Port.Emp;
 import BP.Sys.*;
-import BP.Tools.DateUtils;
 import BP.WF.*;
 import BP.Web.WebUser;
 import cn.org.awcp.core.utils.SessionUtils;
 import cn.org.awcp.core.utils.Springfactory;
 import cn.org.awcp.core.utils.constants.SessionContants;
+import cn.org.awcp.formdesigner.application.service.DocumentService;
 import cn.org.awcp.formdesigner.application.vo.DocumentVO;
-import cn.org.awcp.formdesigner.utils.DocumentUtils;
+import cn.org.awcp.formdesigner.application.vo.DynamicPageVO;
+import cn.org.awcp.extend.formdesigner.DocumentUtils;
 import cn.org.awcp.unit.vo.PunUserBaseInfoVO;
 import cn.org.awcp.venson.common.I18nKey;
 import cn.org.awcp.venson.controller.base.ControllerHelper;
+import cn.org.awcp.venson.exception.PlatformException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -27,28 +28,29 @@ public class JFlowAdapter {
 
 	public static void Flow_DoFlowOverByCoercion(Map resultMap, String flowNo, int nodeid, long workID, long fid,
 			String msg) {
-		try {
-			resultMap.put("act", 1);
-			Dev2Interface.Flow_DoFlowOverByCoercion(flowNo, nodeid, workID, fid, msg);
-			resultMap.put("success", true);
-			resultMap.put("message", ControllerHelper.getMessage("wf_execute_complete"));
-		} catch (Exception e) {
-			resultMap.put("success", false);
-			resultMap.put("message", ControllerHelper.getMessage(I18nKey.wf_send_fail));
-		}
+		Dev2Interface.Flow_DoFlowOverByCoercion(flowNo, nodeid, workID, fid, msg);
+		resultMap.put("success", true);
+		resultMap.put("message", ControllerHelper.getMessage("wf_execute_complete"));
+		resultMap.put(GenerWorkFlowAttr.WFState,WFState.Complete);
 	}
 
 	public static void Flow_DoFlowOverByCoercion(Map resultMap, String flowNo, int nodeid, long workID, long fid,
 			WFState state) {
-		try {
-			resultMap.put("act", 1);
-			Dev2Interface.Flow_DoFlowOverByCoercion(flowNo, nodeid, workID, fid, state);
-			resultMap.put("success", true);
+		//如果是撤销则进行发起人权限校验
+		if(state==WFState.Undo){
+			if(!DocumentUtils.getIntance().isStarter(workID+"")){
+				throw new PlatformException(ControllerHelper.getMessage("wf_not_can_do"));
+			}
+			resultMap.put("message", ControllerHelper.getMessage(I18nKey.wf_approval_undo));
+		}else if(state==WFState.Reject){
+			resultMap.put("message", ControllerHelper.getMessage(I18nKey.wf_approval_reject));
+		}else{
 			resultMap.put("message", ControllerHelper.getMessage(I18nKey.wf_send_success));
-		} catch (Exception e) {
-			resultMap.put("success", false);
-			resultMap.put("message", ControllerHelper.getMessage(I18nKey.wf_send_fail));
 		}
+		Dev2Interface.Flow_DoFlowOverByCoercion(flowNo, nodeid, workID, fid, state);
+		resultMap.put("success", true);
+		resultMap.put(GenerWorkFlowAttr.WFState,state);
+
 	}
 
 	/**
@@ -60,20 +62,18 @@ public class JFlowAdapter {
 	 *            当前节点编号
 	 * @param workID
 	 *            工作ID
-	 * @param fid
-	 *            工作ID
 	 * @param state
 	 *            流程状态
 	 * @return 执行强制结束流程
 	 */
-	public static void Flow_DoFlowOverByCoercion(String flowNo, int nodeid, long workID, long fid, WFState state) {
+	public static void Flow_DoFlowOverByCoercion(String flowNo, int nodeid, long workID, WFState state) {
 		// 转化成编号.
 		WorkFlow wf = new WorkFlow(flowNo, workID);
 
 		Node currNode = new Node(nodeid);
 
 		// 处理明细数据的copy问题。 首先检查：当前节点（最后节点）是否有明细表。
-		MapDtls dtls = currNode.getMapData().getMapDtls(); // new MapDtls("ND" +
+		MapDtls dtls = currNode.getMapData().getMapDtls();
 		int i = 0;
 		for (MapDtl dtl : MapDtls.convertMapDtls(dtls)) {
 			i++;
@@ -81,7 +81,7 @@ public class JFlowAdapter {
 			GEDtls dtlDatas = new GEDtls(dtl.getNo());
 			dtlDatas.Retrieve(GEDtlAttr.RefPK, wf.getWorkID());
 
-			GEDtl geDtl = null;
+			GEDtl geDtl;
 			try {
 				// 创建一个Rpt对象。
 				geDtl = new GEDtl(
@@ -170,80 +170,67 @@ public class JFlowAdapter {
 		BP.DA.DBAccess.RunSQL(ps);
 	}
 
-	public static void Flow_DoUnSend(Map resultMap, String flowNo, String workID) throws Exception {
-		try {
-			Dev2Interface.Flow_DoUnSend(flowNo, Long.valueOf(workID));
-			resultMap.put("success", true);
-			resultMap.put("message", ControllerHelper.getMessage(I18nKey.wf_send_success));
-
-		} catch (Exception e) {
-
-			resultMap.put("success", false);
-			resultMap.put("message", ControllerHelper.getMessage(I18nKey.wf_send_fail));
-		}
+	public static void Flow_DoUnSend(Map resultMap, String flowNo, String workID){
+		Dev2Interface.Flow_DoUnSend(flowNo, Long.valueOf(workID));
+		resultMap.put("success", true);
+		resultMap.put("message", ControllerHelper.getMessage(I18nKey.wf_approval_retracement));
+		resultMap.put(GenerWorkFlowAttr.WFState,WFState.Runing);
+		resultMap.put(GenerWorkFlowAttr.TodoEmps,WebUser.getNo());
 	}
 
 	public static void Flow_returnWork(Map resultMap, long fid, String msg, String userId, String toNode,
-			String masterDataSource, DocumentUtils utils, DocumentVO docVo,boolean isBackToThisNode) throws Exception {
-		try {
-			resultMap.put("act", 1);
-			String flowNo = docVo.getFlowTempleteId();
-			String nodeid = docVo.getEntryId();
-			String workID = docVo.getWorkItemId();
-			/**
-			 * 查找上一个节点的NODEID
-			 */
-
-			JdbcTemplate jdbcTemplate = Springfactory.getBean("jdbcTemplate");
-			int flowId = Integer.parseInt(flowNo);
-			Map<String, Object> map = null;
-			int NDForm = 0;
-			String returnEmp = null;
-			if (toNode != null && !toNode.equals("") && Integer.parseInt(toNode) != 0) {
-				NDForm = Integer.parseInt(toNode);
-			} else {
+		String masterDataSource,DynamicPageVO pageVo, DocumentVO docVo,boolean isBackToThisNode) {
+		String flowNo = docVo.getFlowTempleteId();
+		String nodeid = docVo.getEntryId();
+		String workID = docVo.getWorkItemId();
+		//查找上一个节点的NODEID
+		JdbcTemplate jdbcTemplate = Springfactory.getBean("jdbcTemplate");
+		int flowId = Integer.parseInt(flowNo);
+		Map<String, Object> map;
+		int NDForm;
+		String returnEmp = null;
+		if (toNode != null && !"".equals(toNode) && Integer.parseInt(toNode) != 0) {
+			NDForm = Integer.parseInt(toNode);
+		} else {
+			try {
+				String sql = "select distinct NDFrom,EmpFrom from ND" + flowId + "Track where (WorkID=" + workID
+						+ " or FID=" + workID + " or WorkID=" + fid + ") and EmpTo='" + userId + "' and NDTo="
+						+ nodeid + " and (ActionType=1 or ActionType=27)";
+				map = jdbcTemplate.queryForMap(sql);
+				NDForm = Integer.parseInt(map.get("NDFrom").toString());
+				returnEmp = map.get("EmpFrom").toString();
+			} catch (Exception e) {
+				PunUserBaseInfoVO user = (PunUserBaseInfoVO) SessionUtils
+						.getObjectFromSession(SessionContants.CURRENT_USER);
+				String sql = "select distinct NDFrom,EmpFrom from ND" + flowId + "Track where (WorkID=" + workID
+						+ " or FID=" + workID + " or WorkID=" + fid + ") and NDTo=" + nodeid + " and ActionType=1";
 				try {
-					String sql = "select distinct NDFrom,EmpFrom from ND" + flowId + "Track where (WorkID=" + workID
-							+ " or FID=" + workID + " or WorkID=" + fid + ") and EmpTo='" + userId + "' and NDTo="
-							+ nodeid + " and (ActionType=1 or ActionType=27)";
+					String sqls = sql + " AND EMPFROM=(select SUBSTRING_INDEX(LEFT(substring_index(EMPS,'"
+							+ user.getUserIdCardNumber() + "@',1), LENGTH(substring_index(EMPS,'"
+							+ user.getUserIdCardNumber() + "@',1)) - LOCATE('@', REVERSE(substring_index(EMPS,'"
+							+ user.getUserIdCardNumber() + "@',1)))), '@', -1) from wf_generworkflow where WorkID="
+							+ workID + ")";
+					map = jdbcTemplate.queryForMap(sqls);
+				} catch (Exception ex) {
 					map = jdbcTemplate.queryForMap(sql);
-					NDForm = Integer.parseInt(map.get("NDFrom").toString());
-					returnEmp = map.get("EmpFrom").toString();
-				} catch (Exception e) {
-					PunUserBaseInfoVO user = (PunUserBaseInfoVO) SessionUtils
-							.getObjectFromSession(SessionContants.CURRENT_USER);
-					String sql = "select distinct NDFrom,EmpFrom from ND" + flowId + "Track where (WorkID=" + workID
-							+ " or FID=" + workID + " or WorkID=" + fid + ") and NDTo=" + nodeid + " and ActionType=1";
-					try {
-						String sqls = sql + " AND EMPFROM=(select SUBSTRING_INDEX(LEFT(substring_index(EMPS,'"
-								+ user.getUserIdCardNumber() + "@',1), LENGTH(substring_index(EMPS,'"
-								+ user.getUserIdCardNumber() + "@',1)) - LOCATE('@', REVERSE(substring_index(EMPS,'"
-								+ user.getUserIdCardNumber() + "@',1)))), '@', -1) from wf_generworkflow where WorkID="
-								+ workID + ")";
-						map = jdbcTemplate.queryForMap(sqls);
-					} catch (Exception ex) {
-						map = jdbcTemplate.queryForMap(sql);
-					}
-
-					NDForm = Integer.parseInt(map.get("NDFrom").toString());
-					returnEmp = map.get("EmpFrom").toString();
 				}
 
+				NDForm = Integer.parseInt(map.get("NDFrom").toString());
+				returnEmp = map.get("EmpFrom").toString();
 			}
-			Dev2Interface.Node_ReturnWork(flowNo, Long.parseLong(workID), fid, Integer.parseInt(nodeid), NDForm,
-					returnEmp, msg, isBackToThisNode);
-			saveExecuteData(utils, docVo, masterDataSource);
-			String nextExecutor = "";
-			if(StringUtils.isNotBlank(returnEmp)){
-				nextExecutor = "," + ControllerHelper.getMessage("wf_next_step_executor") + returnEmp;
-			}	
-			resultMap.put("message", ControllerHelper.getMessage("wf_send_return_success") + nextExecutor);
-			resultMap.put("success", true);
-		} catch (Exception e) {
-			resultMap.put("success", false);
-			resultMap.put("message", ControllerHelper.getMessage(I18nKey.wf_send_fail));
-			throw e;
+
 		}
+		Dev2Interface.Node_ReturnWork(flowNo, Long.parseLong(workID), fid, Integer.parseInt(nodeid), NDForm,
+				returnEmp, msg, isBackToThisNode);
+		saveExecuteData(pageVo,docVo, masterDataSource);
+		String nextExecutor = "";
+		if(StringUtils.isNotBlank(returnEmp)){
+			nextExecutor = "," + ControllerHelper.getMessage("wf_next_step_executor") + returnEmp;
+		}
+		resultMap.put("message", ControllerHelper.getMessage("wf_send_return_success") + nextExecutor);
+		resultMap.put("success", true);
+		resultMap.put(GenerWorkFlowAttr.WFState,WFState.ReturnSta);
+		resultMap.put(GenerWorkFlowAttr.TodoEmps,returnEmp);
 	}
 
 	/**
@@ -251,8 +238,6 @@ public class JFlowAdapter {
 	 * 
 	 * @param masterDataSource
 	 *            保存的主数据源
-	 * @param utils
-	 *            文档工具类
 	 * @param resultMap
 	 *            返回结果
 	 * @param docVo
@@ -260,32 +245,37 @@ public class JFlowAdapter {
 	 *            流程节点编号
 	 * @param toUsers
 	 *            下一步接收用户，如果为空则根据流程设置条件查找
-	 * @throws Exception
 	 */
-	public static void Node_SendWork(String masterDataSource, DocumentUtils utils, Map resultMap, DocumentVO docVo,
-			String toUsers) throws Exception {
+	public static void Node_SendWork(String masterDataSource, Map resultMap,DynamicPageVO pageVo, DocumentVO docVo,
+			String toUsers){
 		resultMap.put("act", 1);
 		String fk_flow = docVo.getFlowTempleteId();
-		String fk_node = docVo.getEntryId();
 		String workID = docVo.getWorkItemId();
-		Node currND = new Node(fk_node);
-		Hashtable table = convertHashtable(masterDataSource, utils);
+		Hashtable table = convertHashtable(masterDataSource,docVo);
 		String title = null;
 		if (table != null && table.get("title") != null) {
 			title = (String) table.get("title");
 		}
 		SendReturnObjs result = Dev2Interface.Node_SendWork(fk_flow, Long.parseLong(workID), table, null, 0, toUsers,
 				WebUser.getNo(), WebUser.getName(), WebUser.getFK_Dept(), WebUser.getFK_DeptName(), title);
-		boolean flag = saveExecuteData(utils, docVo, masterDataSource);
+		boolean flag = saveExecuteData(pageVo,docVo, masterDataSource);
 		if (flag) {
 			resultMap.put("success", true);
-			String nextExecutor = result.getVarAcceptersName();
-			if(StringUtils.isNotBlank(nextExecutor)){
-				nextExecutor = "," + ControllerHelper.getMessage("wf_next_step_executor") + nextExecutor;
-			} else{
-				nextExecutor = "";
-			}		
-			resultMap.put("message", ControllerHelper.getMessage(I18nKey.wf_send_success) + nextExecutor);
+			if(result.getIsStopFlow()){
+				resultMap.put("message", ControllerHelper.getMessage(I18nKey.wf_approval_result));
+				resultMap.put(GenerWorkFlowAttr.WFState,WFState.Complete);
+			}else{
+				String nextExecutor = result.getVarAcceptersName();
+				if(StringUtils.isNotBlank(nextExecutor)){
+					nextExecutor = "," + ControllerHelper.getMessage("wf_next_step_executor") + nextExecutor;
+				} else{
+					nextExecutor = "";
+				}
+				resultMap.put(GenerWorkFlowAttr.WFState,WFState.Runing);
+				resultMap.put(GenerWorkFlowAttr.TodoEmps,result.getVarAcceptersID());
+				resultMap.put("message", ControllerHelper.getMessage(I18nKey.wf_send_success) + nextExecutor);
+			}
+
 		} else {
 			resultMap.put("success", false);
 			resultMap.put("message", ControllerHelper.getMessage(I18nKey.wf_send_fail));
@@ -297,20 +287,16 @@ public class JFlowAdapter {
 	 * 加签
 	 * 
 	 * @param masterDataSource
-	 * @param utils
-	 * @param user
 	 * @param resultMap
 	 * @param docVo
 	 * @param toUsers
-	 * @throws Exception
 	 */
-	public static void Node_AskFor(String masterDataSource, DocumentUtils utils, PunUserBaseInfoVO user, Map resultMap,
-			DocumentVO docVo, String toUsers) throws Exception {
-		resultMap.put("act", 1);
+	public static void Node_AskFor(String masterDataSource, Map resultMap,DynamicPageVO pageVo,
+			DocumentVO docVo, String toUsers) {
 		String fk_node = docVo.getEntryId();
 		String workID = docVo.getWorkItemId();
 		String result=Dev2Interface.Node_Askfor(Long.parseLong(workID), AskforHelpSta.AfterDealSend, toUsers, fk_node);
-		boolean flag = saveExecuteData(utils, docVo, masterDataSource);
+		boolean flag = saveExecuteData(pageVo,docVo, masterDataSource);
 		if (flag) {
 			resultMap.put("success", true);
 			String nextExecutor = result;
@@ -319,6 +305,8 @@ public class JFlowAdapter {
 			} else{
 				nextExecutor = "";
 			}
+			resultMap.put(GenerWorkFlowAttr.WFState,WFState.Runing);
+			resultMap.put(GenerWorkFlowAttr.TodoEmps,nextExecutor);
 			resultMap.put("message", ControllerHelper.getMessage(I18nKey.wf_send_success) + nextExecutor);
 		} else {
 			resultMap.put("success", false);
@@ -330,23 +318,19 @@ public class JFlowAdapter {
 	 * 移交
 	 * 
 	 * @param masterDataSource
-	 * @param utils
-	 * @param user
 	 * @param resultMap
 	 * @param docVo
 	 * @param fk_flow
 	 * @param workID
 	 * @param fk_node
 	 * @param toUsers
-	 * @throws Exception
 	 */
-	public static void Node_Shift(String masterDataSource, DocumentUtils utils, PunUserBaseInfoVO user, Map resultMap,
-			DocumentVO docVo, String fk_flow, String workID, String fk_node, String fid, String toUsers)
-			throws Exception {
+	public static void Node_Shift(String masterDataSource, Map resultMap,DynamicPageVO pageVo,
+			DocumentVO docVo, String fk_flow, String workID, String fk_node, String fid, String toUsers){
 		resultMap.put("act", 1);
 		Dev2Interface.Node_Shift(fk_flow, Integer.parseInt(fk_node), Long.parseLong(workID), Long.parseLong(fid),
 				toUsers, "");
-		boolean flag = saveExecuteData(utils, docVo, masterDataSource);
+		boolean flag = saveExecuteData(pageVo,docVo, masterDataSource);
 		if (flag) {
 			resultMap.put("success", true);
 
@@ -357,10 +341,11 @@ public class JFlowAdapter {
 		}
 	}
 
-	private static Hashtable convertHashtable(String masterDataSource, DocumentUtils utils) {
-		List<Map<String, String>> wt = utils.getDataContainer(masterDataSource);
-		if (wt == null)
+	private static Hashtable convertHashtable(String masterDataSource,DocumentVO doc) {
+		List<Map<String, String>> wt = doc.getListParams().get(masterDataSource);
+		if (wt == null) {
 			return null;
+		}
 		Map<String, String> tt = wt.get(0);
 		Hashtable ht = new Hashtable();
 		for (Map.Entry<String, String> entry : tt.entrySet()) {
@@ -369,74 +354,72 @@ public class JFlowAdapter {
 		return ht;
 	}
 
-	public static void Node_SaveWork(String masterDataSource, DocumentUtils utils, PunUserBaseInfoVO user,
-			Map resultMap, DocumentVO docVo) throws Exception {
-		resultMap.put("act", 0);
-		Hashtable table = convertHashtable(masterDataSource, utils);
+	public static void Node_SaveWork(String masterDataSource,
+			Map resultMap,DynamicPageVO pageVo, DocumentVO docVo) {
+		Hashtable table = convertHashtable(masterDataSource,docVo);
 		String fk_flow = docVo.getFlowTempleteId();
 		String fk_node = docVo.getEntryId();
 		String workID = docVo.getWorkItemId();
 		String result = Dev2Interface.Node_SaveWork(fk_flow, Integer.valueOf(fk_node), Long.valueOf(workID), table);
 
-		if (!result.startsWith("保存失败")) {
+		if (!result.contains("保存失败")) {
 			docVo.setFlowTempleteId(fk_flow);
 			docVo.setWorkItemId(workID);
 			docVo.setEntryId(String.valueOf(fk_node));
-
-			// mv.setViewName("redirect:/jflow/wf/listPersonalTasks.do");
-			if (user.getUserId() != null) {
-				docVo.setLastmodifier(String.valueOf(user.getUserId()));
-				docVo.setAuditUser(String.valueOf(user.getUserId()));
+			PunUserBaseInfoVO user = ControllerHelper.getUser();
+			if (user!= null) {
+				String userId=user.getUserId().toString();
+				docVo.setLastmodifier(userId);
+				docVo.setAuditUser(userId);
 			}
 			// 设置doc 记录为草稿状态
 			docVo.setState("草稿");
-			boolean flag = false;
-			if (docVo.isUpdate()) {
-				// 更新数据
-				flag = saveExecuteData(utils, docVo, masterDataSource);
-			} else {
-				// 创建时间
+			if (!docVo.isUpdate()) {
 				docVo.setCreated(new Date(System.currentTimeMillis()));
 				docVo.setAuthorId(user.getUserId());
-				flag = saveExecuteData(utils, docVo, masterDataSource);
 			}
+			saveExecuteData(pageVo,docVo, masterDataSource);
 			resultMap.put("success", true);
 			resultMap.put("message", ControllerHelper.getMessage(I18nKey.wf_send_success));
 		} else {
 			resultMap.put("success", false);
 			resultMap.put("message", ControllerHelper.getMessage(I18nKey.wf_send_fail));
-			throw new Exception(result);
 		}
 
 	}
 
-	public static boolean saveExecuteData(DocumentUtils utils, DocumentVO docVo, String masterDataSource)
-			throws Exception {
-		// 更新数据
+	public static boolean saveExecuteData(DynamicPageVO pageVo, DocumentVO docVo, String masterDataSource){
+		// 如果元数据为空则不进行保存
 		if (StringUtils.isBlank(masterDataSource)) {
 			return true;
 		}
-		String recordId = "";
-		Map resultMap = null;
+		DocumentUtils utils = DocumentUtils.getIntance();
+        DocumentService documentService = utils.getDocumentService();
+        String recordId = "";
+
 		for (Iterator<String> it = docVo.getListParams().keySet().iterator(); it.hasNext();) {
 			String o = it.next();
-
-			// if(temp.equals("false"))s
-			// return false;
 			if (StringUtils.equals(o, masterDataSource)) {
-				resultMap = utils.saveDataFlow(o, true);
-				recordId = resultMap.get("id").toString();
+				Map map = documentService.saveModelDataFlow(pageVo, docVo,masterDataSource,true);
+				if("true".equals(map.get("success"))){
+					recordId=String.valueOf(map.get("id"));
+				}else{
+					throw new PlatformException("表单数据保存失败");
+				}
 			} else {
-				resultMap = utils.saveDataFlow(o, false);
+				Map map =documentService.saveModelDataFlow(pageVo, docVo,masterDataSource,false);
+				if(!"true".equals(map.get("success"))){
+					throw new PlatformException("表单数据保存失败");
+				}
 			}
 		}
 		// 更新document 记录
 		// 最后修改时间
 		docVo.setLastmodified(docVo.getCreated());
 		if (StringUtils.isNotEmpty(recordId)) {
-			utils.getCurrentDocument().setRecordId(recordId);
+			docVo.setRecordId(recordId);
 		}
-		utils.saveDocument();
+        documentService.save(docVo);
 		return true;
 	}
 

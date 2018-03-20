@@ -1,24 +1,21 @@
 package cn.org.awcp.venson.interceptor;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.UncategorizedSQLException;
-import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MaxUploadSizeExceededException;
-import org.springframework.web.servlet.HandlerExceptionResolver;
-import org.springframework.web.servlet.ModelAndView;
-
 import cn.org.awcp.core.domain.SzcloudJdbcTemplate;
 import cn.org.awcp.venson.controller.base.ControllerHelper;
 import cn.org.awcp.venson.controller.base.ReturnResult;
 import cn.org.awcp.venson.controller.base.StatusCode;
 import cn.org.awcp.venson.exception.PlatformException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.UncategorizedSQLException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.servlet.HandlerExceptionResolver;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * spring mvc 异常处理器
@@ -43,7 +40,7 @@ public class ExceptionHandler implements HandlerExceptionResolver {
 		handler(ex, result);
 		String requestType = request.getHeader("X-Requested-With");
 		try {
-			if (requestType != null && requestType.equals("XMLHttpRequest")) {
+			if (requestType != null && "XMLHttpRequest".equals(requestType)) {
 				ControllerHelper.renderJSON(null, result);
 				return new ModelAndView();
 			} else {

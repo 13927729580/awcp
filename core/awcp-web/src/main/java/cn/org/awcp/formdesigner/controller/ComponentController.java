@@ -376,11 +376,11 @@ public class ComponentController extends BaseController {
 		List<StoreVO> storeVos = storeService.selectPagedByExample(baseExample, currentPage, pageSize, sortString);
 
 		List<StoreVO> result = new ArrayList<StoreVO>();
-		if (!layoutId.equals("NULL")) {
+		if (!"NULL".equals(layoutId)) {
 			// 查找子節點
 			BaseExample layoutExample = new BaseExample();
 			layoutExample.createCriteria().andEqualTo("DYNAMICPAGE_ID", dynamicPageId)
-					.andLike("CODE", storeService.LAYOUT_CODE + "%").andEqualTo("DESCRIPTION", layoutId);
+					.andLike("CODE", StoreService.LAYOUT_CODE + "%").andEqualTo("DESCRIPTION", layoutId);
 			List<StoreVO> layouts = storeService.selectPagedByExample(layoutExample, currentPage, pageSize, sortString);
 			List<String> layoutIds = new ArrayList<String>();
 			for (StoreVO storeVo : layouts) {
@@ -459,7 +459,7 @@ public class ComponentController extends BaseController {
 	 */
 	@ResponseBody
 	@RequestMapping(value = "quickModifyItemCode")
-	public String quickModifyItemCode(@RequestParam(value = "_selects") String selects, Long dynamicPageId,
+	public String quickModifyItemCode(@RequestParam(value = "_selects") String selects, String dynamicPageId,
 			String dataItemCode) {
 		String[] ids = selects.split(",");
 		for (int i = 0; i < ids.length; i++) {
@@ -481,7 +481,7 @@ public class ComponentController extends BaseController {
 	 */
 	@ResponseBody
 	@RequestMapping(value = "batchModifyLayout")
-	public String batchModifyLayout(@RequestParam(value = "_selects") String selects, Long dynamicPageId,
+	public String batchModifyLayout(@RequestParam(value = "_selects") String selects, String dynamicPageId,
 			String layoutId, String layoutName) {
 		String[] ids = selects.split(",");
 		for (int i = 0; i < ids.length; i++) {
@@ -508,7 +508,7 @@ public class ComponentController extends BaseController {
 	 */
 	@ResponseBody
 	@RequestMapping(value = "batchModifyStyle")
-	public String batchModifyStyle(@RequestParam(value = "_selects") String selects, Long dynamicPageId, String style) {
+	public String batchModifyStyle(@RequestParam(value = "_selects") String selects, String dynamicPageId, String style) {
 		String[] ids = selects.split(",");
 		for (int i = 0; i < ids.length; i++) {
 			StoreVO s = storeService.findById(ids[i]);
@@ -529,7 +529,7 @@ public class ComponentController extends BaseController {
 	 */
 	@ResponseBody
 	@RequestMapping(value = "batchModifyPrintHeight")
-	public String batchModifyPrintHeight(@RequestParam(value = "_selects") String selects, Long dynamicPageId,
+	public String batchModifyPrintHeight(@RequestParam(value = "_selects") String selects, String dynamicPageId,
 			String heightType, String height) {
 		String[] ids = selects.split(",");
 		for (int i = 0; i < ids.length; i++) {
@@ -558,7 +558,7 @@ public class ComponentController extends BaseController {
 	 */
 	@ResponseBody
 	@RequestMapping(value = "batchModifyValidator")
-	public String batchModifyValidator(@RequestParam(value = "_selects") String selects, Long dynamicPageId,
+	public String batchModifyValidator(@RequestParam(value = "_selects") String selects, String dynamicPageId,
 			String validator) {
 		String[] ids = selects.split(",");
 		for (int i = 0; i < ids.length; i++) {
@@ -580,7 +580,7 @@ public class ComponentController extends BaseController {
 	 */
 	@ResponseBody
 	@RequestMapping(value = "batchModifyPrintStyle")
-	public String batchModifyPrintStyle(@RequestParam(value = "_selects") String selects, Long dynamicPageId,
+	public String batchModifyPrintStyle(@RequestParam(value = "_selects") String selects, String dynamicPageId,
 			String fontfamily, String fontsize, String fontcolor, String backgroundcolor, String textstyle,
 			String textalign, String textverticalalign, String textindent, String lineheight) {
 		String[] ids = selects.split(",");
@@ -631,7 +631,7 @@ public class ComponentController extends BaseController {
 	 */
 	@ResponseBody
 	@RequestMapping(value = "batchModifyComponentType")
-	public String batchModifyComponentType(@RequestParam(value = "_selects") String selects, Long dynamicPageId,
+	public String batchModifyComponentType(@RequestParam(value = "_selects") String selects, String dynamicPageId,
 			String componentType) {
 		String[] ids = selects.split(",");
 		for (int i = 0; i < ids.length; i++) {
@@ -653,7 +653,7 @@ public class ComponentController extends BaseController {
 	 */
 	@ResponseBody
 	@RequestMapping(value = "batchModifyDataAlias")
-	public String batchModifyDataAlias(@RequestParam(value = "_selects") String selects, Long dynamicPageId,
+	public String batchModifyDataAlias(@RequestParam(value = "_selects") String selects, String dynamicPageId,
 			String alias) {
 		String[] ids = selects.split(",");
 		for (int i = 0; i < ids.length; i++) {
@@ -685,7 +685,7 @@ public class ComponentController extends BaseController {
 			// 置Id为空，表示新增
 			JSONObject json = JSON.parseObject(s.getContent());
 
-			json.put("validateAllowNull", allowNull); // 1允许为空，0不允许为空
+			json.put("required", allowNull); // 1允许为空，0不允许为空
 
 			s.setContent(json.toJSONString());
 			storeService.save(s); // 保存
@@ -859,7 +859,7 @@ public class ComponentController extends BaseController {
 			@RequestParam(value = "_dataItemCode") String _dataItemCode,
 			@RequestParam(value = "_layoutName") String _layoutName,
 			@RequestParam(value = "_layoutId") String _layoutId,
-			@RequestParam(value = "_isAllowNull") String _isAllowNull, Long dynamicPageId) {
+			@RequestParam(value = "_isAllowNull") String _isAllowNull, String dynamicPageId) {
 
 		String[] selects = _selects.split(",");
 		String[] dataItemCodes = _dataItemCode.split(",");

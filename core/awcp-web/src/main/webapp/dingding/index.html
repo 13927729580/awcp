@@ -1,163 +1,161 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
-		<title>Index</title>
-		<link rel="stylesheet" href="css/index.css">
-		<style>
-			.banner-slider{
-			    width: 100%;
-			    height: 150px;
-			    flex-direction: row;
-			    background-color: white;
-			    border-width: 1px;
-			    border-color: #dadada;
-			    margin-bottom: 17px
-			}
-			.banner{
-			    width: 100%;
-			    height: 150px;
-			}
-			.banner-image {
-			    width: 100%;
-			    height: 150px;
-			}
-		</style>
-	</head>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+	<title>Index</title>
+	<link rel="stylesheet" href="css/index.css">
+	<style>
+		.copyInfo{
+			text-align: center;position:fixed;bottom:0;left:0;right:0;color:#999;
+		}
+		.copyInfo p{
+			line-height:80%;
+		}
+		.copyInfo p:first-child{
+			text-decoration: underline;
+		}
+	</style>
+</head>
 <body>
-	<div id="dingapp">
-		<!-- 管理员操作片段 -->
-		<div class="admin-console-container">
-			<div class="admin-console-center">
-				<div class="admin-console-title">
-					<div class="pure-g">
-						<div class="pure-u-2-3 admin-tools-title" style="width:100%" data-id="adminToolsTitle"></div>
-					</div>
+<div id="dingapp">
+	<!-- 管理员操作片段 -->
+	<div class="admin-console-container">
+		<div class="admin-console-center">
+			<div class="admin-console-title">
+				<div class="pure-g">
+					<div class="pure-u-2-3 admin-tools-title" style="width:100%" data-id="adminToolsTitle"></div>
 				</div>
-				<div class="admin-console-list">
-					<div class="pure-g">
-						<div class="pure-u-1-4 pure-u-sm-1-4" id="operate1">
-							<div class="icon">
-								<div class="img" style="background-image: url(&quot;img/operate1.png&quot;);"></div>
-							</div>
-							<div class="title" data-id="orgStructure"></div>
+			</div>
+			<div class="admin-console-list">
+				<div class="pure-g">
+					<div class="pure-u-1-4 pure-u-sm-1-4" id="operate1">
+						<div class="icon">
+							<div class="img" style="background-image: url(&quot;img/operate1.png&quot;);"></div>
 						</div>
-						<div class="pure-u-1-4 pure-u-sm-1-4" id="operate2">
-							<div class="icon">
-								<div class="img" style="background-image: url(&quot;img/operate2.png&quot;);"></div>
-							</div>
-							<div class="title" id="lang"></div>
+						<div class="title" data-id="orgStructure"></div>
+					</div>
+					<div class="pure-u-1-4 pure-u-sm-1-4" id="operate2">
+						<div class="icon">
+							<div class="img" style="background-image: url(&quot;img/operate2.png&quot;);"></div>
 						</div>
-						<div class="pure-u-1-4 pure-u-sm-1-4" id="operate3">
-							<div class="icon">
-								<div class="img" style="background-image: url(&quot;img/operate3.png&quot;);"></div>
-							</div>
-							<div class="title" data-id="customerService"></div>
+						<div class="title" id="lang"></div>
+					</div>
+					<div class="pure-u-1-4 pure-u-sm-1-4" id="operate3">
+						<div class="icon">
+							<div class="img" style="background-image: url(&quot;img/operate3.png&quot;);"></div>
 						</div>
-						<div class="pure-u-1-4 pure-u-sm-1-4 admin-item" id="operate4" style="display: none">
-							<div class="icon">
-								<div class="img" style="background-image: url(&quot;img/operate4.png&quot;);"></div>
-							</div>
-							<div class="title" data-id="workbench"></div>
+						<div class="title" data-id="customerService"></div>
+					</div>
+					<div class="pure-u-1-4 pure-u-sm-1-4 admin-item" id="operate4" style="display: none">
+						<div class="icon">
+							<div class="img" style="background-image: url(&quot;img/operate4.png&quot;);"></div>
 						</div>
+						<div class="title" data-id="workbench"></div>
 					</div>
 				</div>
 			</div>
 		</div>
-		<!-- 微应用List -->
-		<div class="applist"></div>
 	</div>
-	<script src="js/jquery.js" charset="utf-8"></script>
-	<script src="js/dingtalk.js" charset="utf-8"></script>
-	<script src="../venson/js/common.js"></script>
-	<script src="js/resource.js"></script>
-	<script>
-		$("#lang").text(dd_res.language);
-		//获取code
-		function authCode(corpId){
-	        return new Promise(function(resolve, reject){
-	            dd.ready(function(){
-	                dd.runtime.permission.requestAuthCode({
-	                    corpId: corpId,
-	                    onSuccess: function(result) {
-	                        resolve(result);
-	                    },
-	                    onFail : function(err) {
-	                        reject(err);
-	                    }
-	                });
-	            });
-	        });
-	    }
-	    
-	    dd.ready(function(){
-	    	var corpId = dd_res.corpId;
-	    	authCode(corpId).then(function(result){
-	            var code = result.code;
-	            var data = Comm.getData("dingding/sso.do?code=" + code,{"_method":"get"});//授权登录
-	            if(data.isAdmin){//管理员
-	            	$(".admin-item").show();
-	            }else{
-	            	$(".admin-item").hide();
-	            }
-		    	
-		    	//获取所有启用的微应用
-		    	$.ajax({
-				   	type: "POST",
-				   	url: baseUrl + "dingding/getEnableDdApps.do",
-				   	async : false,
-				   	success: function(data){
-				   		var types = data.types;
-				   		var apps = data.apps;
-				   		var html = "";
-						for(typeID in apps){
-							html += '<div class="appClassList"><div class="appClassTitle"><div class="pure-g">' + 
-								    '<div class="pure-u-3-5"><h1>' + types[typeID] + '</h1></div></div></div>' +
-								    '<div class="listContaienr"><div class="pure-g">';
-							var arr = apps[typeID];
-							for(var i=0;i<arr.length;i++){
-								var img = baseUrl + 'common/file/showPicture.do?id=' + arr[i].img;
-								var url = arr[i].url;
-								var title = arr[i].title;
-								html += '<div class="pure-u-1-4 pure-u-sm-1-4 pure-u-md-1-8 item guide-item" data-url=' + url + '>' + 
-										'<div class="img"><div class="app-img" style="background-image: url(&quot;' + img + 
-										'&quot;);"></div></div><p class="title appTitle">' + title + '</p></div>';
-							}
-							html += "</div></div></div>";
-						}				
-						$(".applist").html(html);
-				   	}
-				});
-				
-		    	//微应用操作工作台点击
-				$("#operate4").click(function(){
-					Comm.openLink(baseUrl + "dingding/appOperate.html");
-				});
-				
-				//微应用点击后跳转
-				$(".item").bind("click",function(event){
-					var url = $(this).attr("data-url");
-					//判断是否属于钉钉原生应用
-					if(url.indexOf("dingtalk:")!=-1){
-						location.href=url;
-					}else{
-						Comm.openLink(url);
-					}
-				});
-	        });       	
-	    });
-	    
-	    //切换语言
-	    $("#operate2").click(function(){
-	    	var lang = Comm.cookie("Lang");
-	    	if(lang == "en"){
-	    		Comm.cookie("Lang","zh",{path:"/"});
-	    	}else{
-	    		Comm.cookie("Lang","en",{path:"/"});
-	    	}
-	    	location.href = location.href;
-	    })
-	</script>
+	<!-- 微应用List -->
+	<div class="applist"></div>
+	<div class="copyInfo">
+		<a class="item" data-url="https://www.awcp.org.cn">
+			<p>深圳缘梦互联网科技有限公司</p>
+			<p>备案号：粤ICP备17126580号-1</p>
+		</a>
+	</div>
+</div>
+<script src="js/jquery.js" charset="utf-8"></script>
+<script src="js/dingtalk.js" charset="utf-8"></script>
+<script src="../venson/js/common.js"></script>
+<script src="js/resource.js"></script>
+<script>
+    $("#lang").text(dd_res.language);
+    //获取code
+    function authCode(corpId){
+        return new Promise(function(resolve, reject){
+            dd.ready(function(){
+                dd.runtime.permission.requestAuthCode({
+                    corpId: corpId,
+                    onSuccess: function(result) {
+                        resolve(result);
+                    },
+                    onFail : function(err) {
+                        reject(err);
+                    }
+                });
+            });
+        });
+    }
+
+    dd.ready(function(){
+        var corpId = dd_res.corpId;
+        authCode(corpId).then(function(result){
+            var code = result.code;
+            var data = Comm.getData("dingding/sso.do?code=" + code,{"_method":"get"});//授权登录
+            if(data.isAdmin){//管理员
+                $(".admin-item").show();
+            }else{
+                $(".admin-item").hide();
+            }
+
+            //获取所有启用的微应用
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "dingding/getEnableDdApps.do",
+                async : false,
+                success: function(data){
+                    var types = data.types;
+                    var apps = data.apps;
+                    var html = "";
+                    for(typeID in apps){
+                        html += '<div class="appClassList"><div class="appClassTitle"><div class="pure-g">' +
+                            '<div class="pure-u-3-5"><h1>' + types[typeID] + '</h1></div></div></div>' +
+                            '<div class="listContaienr"><div class="pure-g">';
+                        var arr = apps[typeID];
+                        for(var i=0;i<arr.length;i++){
+                            var img = baseUrl + 'common/file/showPicture.do?id=' + arr[i].img;
+                            var url = arr[i].url;
+                            var title = arr[i].title;
+                            html += '<div class="pure-u-1-4 pure-u-sm-1-4 pure-u-md-1-8 item guide-item" data-url=' + url + '>' +
+                                '<div class="img"><div class="app-img" style="background-image: url(&quot;' + img +
+                                '&quot;);"></div></div><p class="title appTitle">' + title + '</p></div>';
+                        }
+                        html += "</div></div></div>";
+                    }
+                    $(".applist").html(html);
+                }
+            });
+
+            //微应用操作工作台点击
+            $("#operate4").click(function(){
+                Comm.openLink(baseUrl + "dingding/appOperate.html");
+            });
+
+            //微应用点击后跳转
+            $(".item").bind("click",function(event){
+                var url = $(this).attr("data-url");
+                //判断是否属于钉钉原生应用
+                if(url.indexOf("dingtalk:")!=-1){
+                    location.href=url;
+                }else{
+                    Comm.openLink(url);
+                }
+            });
+        });
+    });
+
+    //切换语言
+    $("#operate2").click(function(){
+        var lang = Comm.cookie("Lang");
+        if(lang == "en"){
+            Comm.cookie("Lang","zh",{path:"/"});
+        }else{
+            Comm.cookie("Lang","en",{path:"/"});
+        }
+        location.href = location.href;
+    })
+</script>
 </body>
 </html>

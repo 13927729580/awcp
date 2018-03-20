@@ -92,13 +92,6 @@ var dd_en = {
 	TIP6 : "System error.",
 	
 	//提示信息	
-	select0 : "Select",
-	select1 : "Select(Required)",
-	input0 : "Input",
-	input1 : "Input(Required)",
-	inputNumber0 : "Input Number",
-	inputNumber1 : "Input Number(Required)",
-	getLocation:"Get Location",
 	language:"switch language",
 	
 	//快捷评论
@@ -225,13 +218,6 @@ var dd_zh = {
 	TIP6 : "系统错误",
 	
 	//提示信息	
-	select0 : "请选择",
-	select1 : "请选择(必填)",
-	input0 : "请输入",
-	input1 : "请输入(必填)",
-	inputNumber0 : "请输入数字",
-	inputNumber1 : "请输入数字(必填)",
-	getLocation:"获取当前位置",
 	language:"切换语言",
 	
 	//快捷评论
@@ -290,14 +276,35 @@ Comm.openLink=function(url){
 $("[data-id]").each(function(){
 	var key = $(this).attr("data-id");
 	if(!$.trim($(this).text())){
-		$(this).html(dd_res[key]);	
+		$(this).html(getPlaceholder(key));	
 	}	    		
 });
 
 $("[data-placeholder]").each(function(){
 	var key = $(this).attr("data-placeholder");
-	$(this).attr("placeholder",dd_res[key]);		    		
+	$(this).attr("placeholder",getPlaceholder(key));			    		
 });
+
+function getPlaceholder(key){
+	if(key){
+		if(dd_res[key]){
+			return dd_res[key];
+		}
+		var arr = key.split("_");
+		if(arr.length >=2){
+			if("en"==Comm.cookie("Lang")){
+				return arr[1];
+			} else{
+				return arr[0];
+			}
+		} else{
+			return key;
+		}	
+	} else{
+		return "";
+	}
+}
+
 
 if(window.hasOwnProperty("DingTalkPC")){
 	window.dd = DingTalkPC;

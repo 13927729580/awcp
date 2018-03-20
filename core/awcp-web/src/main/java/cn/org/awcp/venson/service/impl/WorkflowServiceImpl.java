@@ -1,7 +1,7 @@
 package cn.org.awcp.venson.service.impl;
 
 import BP.WF.*;
-import cn.org.awcp.formdesigner.utils.DocumentUtils;
+import cn.org.awcp.extend.formdesigner.DocumentUtils;
 import cn.org.awcp.venson.service.WorkflowService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 
 @Service("workflowServiceImpl")
-@Transactional
+@Transactional(rollbackFor = {Exception.class})
 public class WorkflowServiceImpl implements WorkflowService {
 	/**
 	 * 日志对象

@@ -27,6 +27,7 @@
 			<div class="row" id="breadcrumb">
 				<ul class="breadcrumb">
 					<li><i class="icon-location-arrow icon-muted"></i></li>
+					<li><a href="<%=basePath %>unit/listRolesInSys.do">角色管理</a></li>
 					<li>${roleName }</li>
 				</ul>
 			</div>

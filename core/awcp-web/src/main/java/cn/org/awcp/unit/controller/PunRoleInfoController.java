@@ -1,31 +1,5 @@
 package cn.org.awcp.unit.controller;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Resource;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import com.github.miemiedev.mybatis.paginator.domain.PageList;
-
 import cn.org.awcp.core.domain.BaseExample;
 import cn.org.awcp.core.domain.Criteria;
 import cn.org.awcp.core.domain.SzcloudJdbcTemplate;
@@ -42,11 +16,21 @@ import cn.org.awcp.unit.utils.BackEndUserUtils;
 import cn.org.awcp.unit.utils.JsonFactory;
 import cn.org.awcp.unit.utils.PermissionException;
 import cn.org.awcp.unit.utils.ResourceTreeUtils;
-import cn.org.awcp.unit.vo.PunMenuVO;
-import cn.org.awcp.unit.vo.PunResourceTreeNode;
-import cn.org.awcp.unit.vo.PunResourceVO;
-import cn.org.awcp.unit.vo.PunRoleInfoVO;
-import cn.org.awcp.unit.vo.PunSystemVO;
+import cn.org.awcp.unit.vo.*;
+import com.github.miemiedev.mybatis.paginator.domain.PageList;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import javax.annotation.Resource;
+import java.util.*;
 
 @Controller
 @RequestMapping("/unit")
@@ -65,10 +49,10 @@ public class PunRoleInfoController {
 
 	@Autowired
 	@Qualifier("punMenuServiceImpl")
-	PunMenuService menuService;// 菜单service
+	PunMenuService menuService;
 
 	@Resource(name = "punResourceServiceImpl")
-	private PunResourceService resoService;// 资源Service
+	private PunResourceService resoService;
 
 	@Autowired
 	private FormdesignerService formdesignerServiceImpl;
@@ -76,10 +60,10 @@ public class PunRoleInfoController {
 	@Autowired
 	private SzcloudJdbcTemplate jdbcTemplate;
 
-	private StringBuffer valMessage = null;// 校验信息
+	private StringBuffer valMessage = null;
 
 	@RequestMapping("/listRolesInSys")
-	public ModelAndView listRolesInSys(@RequestParam(value = "boxs") Long sysId, PunRoleInfoVO vo,
+	public ModelAndView listRolesInSys(PunRoleInfoVO vo,
 			@RequestParam(value = "currentPage", required = false, defaultValue = "1") int currentPage,
 			@RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize) {
 		ModelAndView mv = new ModelAndView();
@@ -92,15 +76,11 @@ public class PunRoleInfoController {
 
 		BaseExample example = new BaseExample();
 		Criteria criteria = example.createCriteria();
-		criteria.andEqualTo("SYS_ID", sysId);
 		if (StringUtils.isNotBlank(vo.getRoleName())) {
 			criteria.andLike("ROLE_NAME", "%" + vo.getRoleName() + "%");
 		}
 		PageList<PunRoleInfoVO> vos = roleService.selectPagedByExample(example, currentPage, pageSize, "ROLE_ID ASC");
 
-		PunSystemVO sys = punSystemService.findById(sysId);
-		mv.addObject("sys", sys);
-		mv.addObject("sysId", sysId);
 		mv.addObject("currentPage", currentPage);
 		mv.addObject("pageSize", pageSize);
 		mv.addObject("vo", vo);
@@ -111,34 +91,22 @@ public class PunRoleInfoController {
 
 	@ResponseBody
 	@RequestMapping("/listRolesInSysByAjax")
-	public List<PunRoleInfoVO> listRolesInSysByAjax(@RequestParam(value = "boxs") Long sysId, PunRoleInfoVO vo,
-			@RequestParam(value = "currentPage", required = false, defaultValue = "1") int currentPage,
-			@RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize) {
+	public List<PunRoleInfoVO> listRolesInSysByAjax() {
 		ModelAndView mv = new ModelAndView();
-
-		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("SYS_ID", sysId);
-
-		List<PunRoleInfoVO> vos = roleService.queryResult("eqQueryList", params);
+		List<PunRoleInfoVO> vos = roleService.findAll();
 		mv.addObject("PunRoleInfoVO", vos);
 		return vos;
 	}
 
 	@RequestMapping("editRoleInSys")
-	public ModelAndView editRoleInSys(@RequestParam(value = "sysId") Long sysId,
+	public ModelAndView editRoleInSys(
 			@RequestParam(value = "boxs", required = false) Long roleId) {
 		ModelAndView mv = new ModelAndView();
 		PunRoleInfoVO vo = new PunRoleInfoVO();
 		if (roleId != null) {
 			vo = roleService.findById(roleId);
-		} else {
-			vo.setSysId(sysId);
 		}
-		PunSystemVO sys = punSystemService.findById(sysId);
-
-		mv.addObject("sys", sys);
 		mv.addObject("vo", vo);
-		mv.addObject("sysId", sysId);
 		mv.setViewName("unit/punRoleInfo-sys-edit");
 		return mv;
 	}
@@ -159,14 +127,13 @@ public class PunRoleInfoController {
 	}
 
 	@RequestMapping("delRoleInSys")
-	public ModelAndView delRoleInSys(Long[] boxs, Long sysId) {
+	public ModelAndView delRoleInSys(Long[] boxs) {
 		if (boxs != null) {
 			for (int i = 0; i < boxs.length; i++) {
 				roleService.delete(boxs[i]);
 			}
 		}
 		ModelAndView mv = new ModelAndView();
-		mv.addObject("boxs", sysId);
 		mv.setViewName("redirect:/unit/listRolesInSys.do");
 		return mv;
 	}
@@ -180,8 +147,6 @@ public class PunRoleInfoController {
 	public ModelAndView intoPunRoleInfo(Model model) {
 		ModelAndView mv = new ModelAndView("/unit/punRoleInfo-sys-edit");
 		try {
-			// PunSystemVO sysVO = (PunSystemVO)
-			// SessionUtils.getObjectFromSession(SessionContants.CURRENT_SYSTEM);
 			PunSystemVO sysVO = (PunSystemVO) SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
 			if (null != sysVO) {
 				PunRoleInfoVO vo = new PunRoleInfoVO();
@@ -208,14 +173,14 @@ public class PunRoleInfoController {
 		try {
 			if (validate(vo)) {
 				roleService.addOrUpdateRole(vo);
-				ra.addFlashAttribute("result", "Add/Update successfully.");
+				ra.addFlashAttribute("result", "新增/更新成功.");
 				return new ModelAndView("redirect:/unit/punRoleInfoList.do?currentPage=0");
 			} else {
-				model.addAttribute("result", "Failed" + valMessage.toString() + "。");
+				model.addAttribute("result", "失败：" + valMessage.toString() + "。");
 			}
 		} catch (Exception e) {
 			logger.info("ERROR", e);
-			model.addAttribute("result", "System error.");
+			model.addAttribute("result", "系统异常.");
 			ra.addFlashAttribute("result", "hello");
 		}
 		return new ModelAndView("/unit/punRoleInfo-edit");
@@ -236,7 +201,7 @@ public class PunRoleInfoController {
 			mv.addObject("vo", vo);
 		} catch (Exception e) {
 			logger.info("ERROR", e);
-			mv.addObject("result", "System error.");
+			mv.addObject("result", "系统错误.");
 		}
 		return mv;
 	}
@@ -253,7 +218,7 @@ public class PunRoleInfoController {
 	 *         ljw @param @return @return ModelAndView @throws
 	 */
 	@RequestMapping(value = "punRoleInfoList")
-	public ModelAndView punRoleInfoList(PunRoleInfoVO vo, Model model, int currentPage) {
+	public ModelAndView punRoleInfoList(PunRoleInfoVO vo,int currentPage) {
 		ModelAndView mv = new ModelAndView("/unit/punRoleInfo-list");
 		try {
 
@@ -264,13 +229,6 @@ public class PunRoleInfoController {
 			BaseExample example = new BaseExample();
 			Criteria critera = example.createCriteria();
 			String query_rolename = vo.getRoleName();
-			/**
-			 * ljw 2014-12-9 增加查询限制条件
-			 */
-			Long sysId = vo.getSysId();// 系统ID
-			if (null != sysId) {
-				critera.andEqualTo("SYS_ID", sysId);
-			}
 			if (StringUtils.isNotBlank(query_rolename)) {
 				critera.andLike("ROLE_NAME", "%" + query_rolename + "%");
 			}
@@ -281,10 +239,10 @@ public class PunRoleInfoController {
 			// 返回查询条件
 			mv.addObject("vo", vo);
 		} catch (PermissionException ea) {
-			mv.addObject("result", "System error.");
+			mv.addObject("result", "系统出错.");
 		} catch (Exception e) {
 			logger.info("ERROR", e);
-			mv.addObject("result", "System error.");
+			mv.addObject("result", "系统出错.");
 		}
 		return mv;
 
@@ -301,8 +259,9 @@ public class PunRoleInfoController {
 			@RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize) {
 		ModelAndView mv = new ModelAndView("/unit/punRoleInfo-choose-list");
 		try {
-			if (currentPage < 1)
-				currentPage = 1;
+			if (currentPage < 1) {
+                currentPage = 1;
+            }
 			if (pageSize < 10) {
 				pageSize = 10;
 			}
@@ -319,7 +278,7 @@ public class PunRoleInfoController {
 			mv.addObject("vos", vos);
 		} catch (Exception e) {
 			logger.info("ERROR", e);
-			mv.addObject("result", "System error.");
+			mv.addObject("result", "系统出错.");
 			return null;
 		}
 		return mv;
@@ -335,20 +294,19 @@ public class PunRoleInfoController {
 		ModelAndView mv = new ModelAndView();
 		mv.setViewName("redirect:/unit/punRoleInfoList.do?currentPage=" + currentPage);
 		try {
-			if (!BackEndUserUtils.isBackEndRole()) {// 判断是否为可操作改功能的角色
-				throw new PermissionException("You has not permission to operate.");
+			// 判断是否为可操作改功能的角色
+			if (!BackEndUserUtils.isBackEndRole()) {
+				throw new PermissionException("您没有权限操作.");
 			}
 			for (Long id : boxs) {
-				Map<String, Object> params = new HashMap<String, Object>();
-				params.put("roleId", id);
 				roleService.delete(id);
 			}
-			mv.addObject("result", "Delete successfully.");
+			mv.addObject("result", "删除成功.");
 		} catch (PermissionException ea) {
 			mv.addObject("result", ea.getMessage());
 		} catch (Exception e) {
 			logger.info("ERROR", e);
-			mv.addObject("result", "System error.");
+			mv.addObject("result", "系统出错.");
 		}
 		return mv;
 	}
@@ -414,7 +372,7 @@ public class PunRoleInfoController {
 				List<StoreVO> storeVOs = buttonMap.get(s);
 				for (StoreVO storeVO : storeVOs) {
 					// 如果resouce中有按钮ID
-					if (buttonResos.containsKey(storeVO.getId())) {// 如果资源表中有该按钮
+					if (buttonResos.containsKey(storeVO.getId())) {
 						if (resultsMap.containsKey(s)) {
 							List<PunResourceVO> newVos = resultsMap.get(s);
 							newVos.add(buttonResos.get(storeVO.getId()));
@@ -467,31 +425,29 @@ public class PunRoleInfoController {
 			return false;
 		}
 		valMessage = new StringBuffer();
-		if (null == vo.getSysId()) {
-			valMessage.append(",System Id required");
-			return false;
-		}
 		if (null == vo.getRoleName()) {
-			valMessage.append(",Role Name required");
+			valMessage.append(",角色名称不能为空");
 			return false;
 		}
 
 		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("sysId", vo.getSysId());
 		List<PunRoleInfoVO> rVOs = null;
-		if (null == vo.getRoleId()) {// 新增时
+		// 新增时
+		if (null == vo.getRoleId()) {
 			params.put("roleName", vo.getRoleName());
 			rVOs = roleService.queryResult("eqQueryList", params);
-		} else {// 修改时
+		// 修改时
+		} else {
 			PunRoleInfoVO roleInfoVO = roleService.findById(vo.getRoleId());
-			if (StringUtils.isNotEmpty(vo.getRoleName())// 角色名修改
+			// 角色名修改
+			if (StringUtils.isNotEmpty(vo.getRoleName())
 					&& !vo.getRoleName().equals(roleInfoVO.getRoleName())) {
 				params.put("roleName", vo.getRoleName());
 				rVOs = roleService.queryResult("eqQueryList", params);
 			}
 		}
 		if (null != rVOs && rVOs.size() > 0) {
-			valMessage.append(",Role exsit");
+			valMessage.append(",角色已经存在");
 			return false;
 		}
 		return true;

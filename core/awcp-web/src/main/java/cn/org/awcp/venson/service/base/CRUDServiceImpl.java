@@ -1,19 +1,19 @@
 package cn.org.awcp.venson.service.base;
 
+import cn.org.awcp.venson.dao.BaseDao;
+import cn.org.awcp.venson.dao.BaseModel;
+import org.springframework.stereotype.Service;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.springframework.stereotype.Service;
-
-import cn.org.awcp.venson.dao.BaseDao;
-import cn.org.awcp.venson.dao.BaseModel;
-
 @Service("crudService")
 public class CRUDServiceImpl extends BaseService implements CRUDService {
 
+	@Override
 	public <T> Serializable save(T entity) {
 		Class<? extends Object> currenClass = entity.getClass();
 		// 获取父类
@@ -34,6 +34,7 @@ public class CRUDServiceImpl extends BaseService implements CRUDService {
 		return id;
 	}
 
+	@Override
 	public <T> void update(T entity) {
 		Class<? extends Object> currenClass = entity.getClass();
 		// 获取父类
@@ -47,14 +48,17 @@ public class CRUDServiceImpl extends BaseService implements CRUDService {
 		baseDao.update(getStatement(currenClass, BaseDao.UPDATE), entity);
 	}
 
+	@Override
 	public <T> void delete(Class<T> entityClass, Object id) {
 		baseDao.delete(getStatement(entityClass, BaseDao.DELETE), id);
 	}
 
+	@Override
 	public <T> T get(Class<T> entityClass, Object id) {
 		return baseDao.get(getStatement(entityClass, BaseDao.GET), id);
 	}
 
+	@Override
 	public <T> List<T> findAll(Class<T> entityClass) {
 		return baseDao.findAll(getStatement(entityClass, BaseDao.FINDALL));
 	}
@@ -67,16 +71,16 @@ public class CRUDServiceImpl extends BaseService implements CRUDService {
 	@Override
 	public <T> Map<String, Object> query(Class<T> entityClass, Map<String, String[]> oldParams, int offset, int limit) {
 		// 转换参数，将Map<String, String[]> ----> Map<String, Object>
-		Map<String, Object> params = new HashMap<String, Object>();
+		Map<String, Object> params = new HashMap<>(oldParams.size());
 		// 获取全部参数，排除offset和limit等参数
 		for (Entry<String, String[]> entry : oldParams.entrySet()) {
 			String key = entry.getKey();
-			if (!key.equals("offset") && !key.equals("limit")) {
+			if (!"offset".equals(key) && !"limit".equals(key)) {
 				// 添加参数，取第一个value值
 				params.put(entry.getKey(), entry.getValue()[0]);
 			}
 		}
-		Map<String, Object> result = new HashMap<String, Object>();
+		Map<String, Object> result = new HashMap<>(2);
 		result.put("data", baseDao.findAllByPage(getStatement(entityClass, BaseDao.FINDALL), params, offset, limit));
 		result.put("total", baseDao.get(getStatement(entityClass, BaseDao.COUNT), params));
 		return result;

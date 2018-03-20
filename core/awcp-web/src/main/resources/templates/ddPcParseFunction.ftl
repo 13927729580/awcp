@@ -34,7 +34,8 @@
 	</div>
 </#macro>
 
-<#------  组件解析	------>
+
+<#--  组件解析	-->
 <#macro parseComponent c >
 	<#local componetType=c['componentType']?number>
 	<#switch componetType>
@@ -63,7 +64,8 @@
 	</#switch>
 </#macro>
 
-<#------  组件脚本解析	------>
+
+<#--  组件脚本解析	-->
 <#macro convertComponentScript component>
 	<#local componetType=component['componentType']?number>
 	<#switch componetType>
@@ -81,53 +83,39 @@
 </#macro>
 
 
-
-
-
-<#-------------------------------------------hidden框组件begin---------------------------------------->
+<#--  隐藏框	-->
 <#macro convertHidden c >
 	<input type='hidden' <#if c['name']?? >name='${c['name']}'</#if> id='${(c['pageId'])!""}'
 		<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['disabled'])?? && status['</#noparse>${c['name']}<#noparse>']['disabled'] == 'true'>disabled="disabled"</#if></#noparse>
 		<#if c['dataItemCode']?? && c['dataItemCode']?length gt 0>value="<#noparse>${(</#noparse>${c['dataItemCode']}<#noparse>)!''}</#noparse>"</#if> 		
 	/>
 </#macro>
-<#-------------------------------------------hidden框组件end---------------------------------------->
-
-
-
 
 
 <#--  日期选择框	-->
 <#macro convertDatetime c>		
 <div style="display: block;" class="createreport_get_report">
-	<#local placeholder = 'select' />
-	<#if c['placeholder']?? && c['placeholder']!=''>
-		<#local placeholder = c['placeholder'] />			
-	</#if>
 	<#if c['title']?? >
 		<div class="colFirst"><span><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></span>
 		<#if c['required']?? && c['required'] == '1'><span class="red_stat">*</span></#if>
 		</div>
 	</#if>
 	<div class="colSecond">
-		<input  class='<#if c['required']?? && c['required'] == '1'>required</#if>' id='${(c['pageId'])!""}'
+		<input class='<#if c['required']?? && c['required'] == '1'>required</#if>' id='${(c['pageId'])!""}'
 			<#if c['name']?? >name='${c['name']}'</#if> readonly='readonly'
 			<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['disabled'])?? && status['</#noparse>${c['name']}<#noparse>']['disabled'] == 'true'>disabled="disabled"</#if></#noparse>
 			<#if c['dataItemCode']?? && c['dataItemCode']?length gt 0 >
 				value="<#noparse>${(</#noparse>${c['dataItemCode']}<#noparse>)!''}</#noparse>"
 			</#if>	
 			dateType='${c['dateType']}'
-			data-placeholder='${placeholder+c['required']}'
+			data-placeholder='<#if c['placeholder']?? && c['placeholder']?length gt 0 >${c['placeholder']}<#else>请输入_Please Input</#if>'
 		 />
 	 </div>
 </div>
 </#macro>
 
 
-
-
-
-<#-------------------------------------------图片上传框begin------------------------------------------->
+<#--  图片上传框	-->
 <#macro convertImage c >
 <div style="display: block;" class="createreport_add_img">
 	<div>
@@ -148,9 +136,9 @@
 	</div>
 </div>
 </#macro>
-<#-------------------------------------------图片上传框end------------------------------------------------>
 
-<#-------------------------------------------图片上传框脚本begin------------------------------------------->
+
+<#--  图片上传框脚本	-->
 <#macro convertImageScript component >
 	<#noparse><#if (status['</#noparse>${component['name']}<#noparse>']['disabled'])?? && status['</#noparse>${component['name']}<#noparse>']['disabled'] == 'true'>		
 	<#else>
@@ -168,13 +156,9 @@
 	</#if>	
 	</#noparse>
 </#macro>
-<#--------------------------------------------- 图片上传框脚本 end--------------------------------------->
 
 
-
-
-
-<#-------------------------------------------附件上传框begin------------------------------------------->
+<#--  附件上传框	-->
 <#macro convertFile c >
 <div style="display: block;" class="createreport_add_img">
 	<div class="colFirst"><label><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
@@ -188,9 +172,9 @@
        	name="${c['name']!""}"><#noparse>${(</#noparse>${c['dataItemCode']}<#noparse>)!''}</#noparse></textarea>
 </div>
 </#macro>
-<#-------------------------------------------附件上传框end------------------------------------------->
 
-<#--附件上传框脚本-->
+
+<#--  附件上传框脚本	-->
 <#macro convertFileScript component >
 	<#noparse><#if (status['</#noparse>${component['name']}<#noparse>']['disabled'])?? && status['</#noparse>${component['name']}<#noparse>']['disabled'] == 'true'>		
 	<#else>
@@ -208,10 +192,6 @@
 	</#if>	
 	</#noparse>
 </#macro>
-<#-- 附件上传框脚本end-->
-
-
-
 
 
 <#--  多行输入框	-->
@@ -223,10 +203,6 @@
 			<#if c['required']?? && c['required'] == '1'><span class="red_stat">*</span></#if>
 		</div>
 	</#if>	
-	<#local placeholder = 'input' />
-	<#if c['placeholder']?? && c['placeholder']!=''>
-		<#local placeholder = c['placeholder'] />			
-	</#if>
 	<div class="colSecond">
 		<textarea autoheight="true"
 		class='<#if c['css']?? && c['css']?length gt 0>${c['css']}</#if> <#if c['required']?? && c['required'] == '1'>required</#if> '			
@@ -234,27 +210,20 @@
 		<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['readonly'])?? && status['</#noparse>${c['name']}<#noparse>']['readonly'] == 'true'>readonly="readonly"</#if></#noparse>
 		id='${(c['pageId'])!""}'
 		<#if c['name']?? >name='${c['name']}'</#if>
-		data-placeholder='${placeholder+c['required']}'
+		data-placeholder='<#if c['placeholder']?? && c['placeholder']?length gt 0 >${c['placeholder']}<#else>请输入_Please Input</#if>'
 		><#if c['dataItemCode']?? && c['dataItemCode']?length gt 0 ><#noparse>${(</#noparse>${c['dataItemCode']}<#noparse>)!''}</#noparse></#if></textarea>
 	</div>
 </div>
 </#macro>
 
 
-
-
-
-<#-------------------------------------------输入框组件begin---------------------------------------->
+<#--  文本输入框组件	-->
 <#macro convertInputext c >
 <div style="display: block;" class="createreport_get_report">
 	<#if c['title']?? >
 		<div class="colFirst"><span><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></span>
 		<#if c['required']?? && c['required'] == '1'><span class="red_stat">*</span></#if>
 		</div>
-	</#if>
-	<#local placeholder = 'input' />
-	<#if c['placeholder']?? && c['placeholder']!=''>
-		<#local placeholder = c['placeholder'] />			
 	</#if>	
 	<div class="colSecond">
 		<input type='text' class='<#if c['css']?? && c['css']?length gt 0>${c['css']}</#if> <#if c['required']?? && c['required'] == '1'>required</#if>'			
@@ -266,14 +235,14 @@
 		style='border: 1px solid rgb(230, 229, 230);'
 		id='${(c['pageId'])!""}'
 		<#if c['name']?? >name='${c['name']}'</#if>	
-		data-placeholder='${placeholder+c['required']}'
+		data-placeholder='<#if c['placeholder']?? && c['placeholder']?length gt 0 >${c['placeholder']}<#else>请输入_Please Input</#if>'
 		/>
 	</div>
 </div>
 </#macro>
-<#-------------------------------------------输入框组件end---------------------------------------->
 
-<#------------------------------------文本框脚本------------------------------------------->
+
+<#--  文本输入框组件脚本	-->
 <#macro convertInputextScript component >
 	<#noparse><#if (status['</#noparse>${component['name']}<#noparse>']['disabled'])?? && status['</#noparse>${component['name']}<#noparse>']['disabled'] == 'true'>		
 	<#else>
@@ -284,13 +253,9 @@
 	</#if>	
 	</#noparse>
 </#macro>
-<#---------------------------------- 文本框脚本 end----------------------------------------->
 
 
-
-
-
-<#-------------------------------------------下拉框select begin------------------------------------------->
+<#--  下拉框	-->
 <#macro convertSelect c >
 <div style="display: block;" class="createreport_get_report">
 	<#if c['title']?? >
@@ -309,15 +274,9 @@
 	</div>
 </div>
 </#macro>
-<#-------------------------------------------下拉框select end------------------------------------------>
 
 
-
-
-
-
-
-<#-----------------button begin------------------------------------------------------------->
+<#--  按钮	-->
 <#macro convertButton c>
 	<button type="submit" class="createreport_submit_btn" id='${c.getPageId()}' 
 		<#noparse>
@@ -329,11 +288,17 @@
 		<#noparse>${others['title_</#noparse>${c.getPageId()}<#noparse>']!''}</#noparse>
 	</button>
 </#macro>
+
+
+<#--  按钮脚本	-->
 <#macro convertScript c>
-	$("#${c.getPageId()}").click(function(){		
+	$("#${c.getPageId()}").click(function(){	
+		<#if c.isChooseValidate()?? && c.isChooseValidate()>
+			if(!Comm.validDDParam())
+				return;
+		</#if>
 		<#if c.getClientScript()??>
 			${c.getClientScript()}
-		</#if>		
+		</#if>
 	});
 </#macro>
-<#-----------------button end------------------------------------------------------------->

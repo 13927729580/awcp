@@ -28,7 +28,8 @@ public class WeChatMenu {
 		this.button = button;
 	}
 
-	public String toString() {
+	@Override
+    public String toString() {
 		String str = "menu:\n";
 		for(int i=0;i<button.size();i++){
 			str += button.get(i) + "\n";

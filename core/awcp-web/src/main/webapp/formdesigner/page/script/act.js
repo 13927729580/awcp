@@ -114,11 +114,15 @@ function editAct(id) {// open dialog to update the act info
 
 // ajax to delete act and fresh table data
 $("#deleteAct").click(function() {
-	var _selects = new Array();
+	var _selects = [];
 	$(":checkbox[name='act']:checked").each(function() {
 		var value = $(this).val();
 		_selects.push(value);
 	});
+    if(_selects.length <1){
+        alert("请至少选择一条数据");
+        return false;
+    }
 	$.ajax({
 		url : basePath + "fd/act/deleteByAjax.do",
 		type : "POST",
@@ -173,34 +177,11 @@ $("#checkAllAct").click(function() {
 // 批量修改动作类型
 $("#batchModifyActType").click(function() {	
 	var count = $(":checkbox[name='act']:checked").size();
-	if(count < 1){
-		alert("请选择");
+	if(count != 1){
+		alert("请选择一条数据");
 		return false;
 	}	
-	var _selects=new Array();
-	//var loadUrl = "layout/getLayoutListByPageId.do"
-	$(":checkbox[name='act']:checked").each(function(){
-		var value=$(this).val();
-		_selects.push(value);
-	});
-	
-	var dynamicPageId = $("#id").val();
-	var data = { "dynamicPageId" : dynamicPageId,  "_selects" : _selects.join(",")};
-	var url = "";
-	top.dialog({
-		id : 'edit-dialog' + Math.ceil(Math.random() * 10000),
-		title : '载入中...',
-		url : basePath + "formdesigner/page/act/comms/batchModifyActType.jsp",
-		data : data,
-		width : 300,
-		onclose : function() {
-			if (this.returnValue) {
-				var ret = this.returnValue;
-				initAct();
-			}
-		}	
-	}).showModal();	
-	return false;
+    editAct( $(":checkbox[name='act']:checked").val());
 });
 
 // ajax to init actMap

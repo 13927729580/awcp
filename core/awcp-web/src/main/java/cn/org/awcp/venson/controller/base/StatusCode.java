@@ -17,7 +17,8 @@ public enum StatusCode implements StatusType {
 		this.message = message;
 	}
 
-	public int getStatus() {
+	@Override
+    public int getStatus() {
 		return this.code;
 	}
 
@@ -26,7 +27,8 @@ public enum StatusCode implements StatusType {
 		return this;
 	}
 
-	public String getMessage() {
+	@Override
+    public String getMessage() {
 		return this.message;
 	}
 

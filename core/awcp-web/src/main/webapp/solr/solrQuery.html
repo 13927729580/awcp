@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="renderer" content="webkit">
+		<meta name="keywords" content="AWCP,核码,自由职业者,外包,众包,企业服务,企业信息化,共享定制">
+		<meta name="description" content="深圳缘梦互联网科技有限公司（简称缘梦互联网科技）是一家以企业应用研究为核心的软件开发公司，经过多年的努力，积累了awcp共享定制平台，该平台实现了可视化流程设计，表单配置，业务逻辑定制，基本满足了基于数据库方面的业务系统开发。该平台已经开源，目前已经有三千多人掌握了平台开发。" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<link rel="stylesheet" href="../template/AdminLTE/css/bootstrap.min.css">
+    	<link rel="stylesheet" href="../template/AdminLTE/css/font-awesome.min.css">
+		<link rel="stylesheet" href="../template/AdminLTE/css/select2/select2.css">
+		<title>共享定制云平台</title>
+		<style>
+			body,html,div,p,span,a,ul,li{padding:0;margin:0;list-style:none;border:none;}
+			.droplist{float:left;width:100px;}
+			.input-group{float:left;margin-left:20px;width:200px;}
+			.headerToolbar{overflow:hidden;width:100%;padding:10px 20px;border-bottom:1px solid #d5d5d5;background:#fff;position:relative;}
+			.documentTable{margin:50px;}
+			.documentList{border: 1px solid #d5d5d5;background: #fff;}
+			.documentList li{min-height: 44px;line-height:44px;cursor:pointer;position:relative;}
+			.documentList li:after{content:"";left:40px;right:0;bottom:0;height:1px;background:#e7eaec;display:block !important;}
+			.documentList li .sn{height:44px;width:24px;margin:0 10px;text-align:center;float:left;}
+			.documentList li:hover .sn{display:none;}
+			.documentList li .checkbox{height:44px;width:24px;margin:0 10px;text-align:center;float:left;display:none;}
+			.documentList li:hover .checkbox{display:block;}
+			.documentList li .title{overflow: hidden;text-align: left;    white-space: nowrap;    text-overflow: ellipsis;}
+			.documentList li:hover{background:#f0f0f0;}
+		</style>
+	</head>
+	<body>
+		<div class="headerToolbar">
+			<div class="droplist">
+				<select class="droplist" id="sortlist"></select>
+			</div>
+			<div class="input-group">
+			    <input id="keyWord" type="text" class="form-control"><span id="submit" class="input-group-addon btn btn-primary">搜索</span>
+			</div>
+		</div>
+		<div class="documentTable">
+			<ul class="documentList" width="100%">
+			</ul>
+		</div>
+	<script src="../template/AdminLTE/js/jquery-2.2.3.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="../template/AdminLTE/js/select2/select2.min.js"></script>
+	<script src="../venson/js/common.js"></script>
+	<script>
+		$(function(){
+			$("#submit").click(function(){
+			    var keyWord = $("#keyWord").val();
+			    var option=$("#sortlist option:selected").val();
+				$.ajax({
+				   type: "POST",
+				   url: baseUrl + "api/solr/query/"+keyWord,
+				   data:{type:option},
+				   async : false,
+				   success: function(data){
+				       if(data.status==0){
+                           $('ul li').remove();
+                           $.each(data.data,function(i,e){
+                               if (typeof(e.filename)!="undefined" && e.filename!=null){
+                                   $("ul").append(
+                                       '<li>'
+                                       +'<span class="sn">'+(i+1)+'</span>'
+                                       +'<span class="checkbox"></span>'
+                                       +'<span id="filename" class="title" style="float:left;width:40%">'+e.filename+'</span>'
+                                       +'<span id="filesize" class="title" style="float:left;width:25%;">'+e.filesize+'</span>'
+                                       +'<span id="pathuploaddate" class="title" style="float:left;width:auto;">'+e.pathuploaddate+'</span>'
+                                       +'</li>');
+                               }
+                               if (typeof(e.content)!="undefined" && e.content!=null){
+                                   $("ul").append(
+                                       '<li>'
+                                       +'<span class="sn">'+(i+1)+'</span>'
+                                       +'<span class="checkbox"></span>'
+                                       +'<span id="filename" class="title" style="float:left;width:40%">'+e.content+'</span>'
+                                       +'<span id="pathuploaddate" class="title" style="float:left;width:auto;">'+e.metadata+'</span>'
+                                       +'</li>');
+                               }
+                           });
+					   }else{
+				           Comm.alert(data.message);
+					   }
+				   }
+				});
+			});
+			var data = [{ id: 0, text: '文档' }, { id: 1, text: '数据' }];
+			$("#sortlist").select2({
+				data: data,
+				placeholder:'请选择',
+				allowClear:true
+			})
+
+		})
+	</script>
+	</body>
+</html>

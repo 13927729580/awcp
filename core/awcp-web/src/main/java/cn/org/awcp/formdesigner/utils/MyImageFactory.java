@@ -18,7 +18,8 @@ public class MyImageFactory implements ImageProvider {
 		this.servletContextPath = servletContextPath;
 	}
 
-	@SuppressWarnings("rawtypes")
+	@Override
+    @SuppressWarnings("rawtypes")
 	public Image getImage(String src, Map h, ChainedProperties cprops, DocListener doc) {
 		String url = servletContextPath + src;
 		try {

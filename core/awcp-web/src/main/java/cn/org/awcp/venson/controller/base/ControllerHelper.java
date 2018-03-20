@@ -4,7 +4,7 @@ import BP.WF.Dev2Interface;
 import cn.org.awcp.core.utils.SessionUtils;
 import cn.org.awcp.core.utils.Springfactory;
 import cn.org.awcp.core.utils.constants.SessionContants;
-import cn.org.awcp.formdesigner.utils.DocumentUtils;
+import cn.org.awcp.extend.formdesigner.DocumentUtils;
 import cn.org.awcp.unit.service.PunGroupService;
 import cn.org.awcp.unit.service.PunRoleInfoService;
 import cn.org.awcp.unit.service.PunSystemService;
@@ -81,15 +81,17 @@ public final class ControllerHelper {
 	public static String getMessage(String key) {
 		ResourceBundle resourceBundle = ResourceBundle.getBundle("messages/message", getLang());
 		String msg = resourceBundle.getString(key);
-		if (msg != null)
+		if (msg != null) {
 			return msg;
+		}
 		return null;
 	}
 
 	public static Locale getLang() {
 		String lang = CookieUtil.findCookie("Lang");
-		if (Locale.ENGLISH.getLanguage().equals(lang))
+		if (Locale.ENGLISH.getLanguage().equals(lang)) {
 			return Locale.ENGLISH;
+		}
 		return Locale.SIMPLIFIED_CHINESE;
 
 	}
@@ -110,10 +112,11 @@ public final class ControllerHelper {
 		if (path == null) {
 			return request.getSession().getServletContext().getRealPath("/upload") + File.separator;
 		}
-		if (path == ATTACHMENT_ROOT_PATH)
+		if (path == ATTACHMENT_ROOT_PATH) {
 			return request.getSession().getServletContext().getRealPath(path);
-		else
+		} else {
 			return request.getSession().getServletContext().getRealPath(path) + File.separator;
+		}
 
 	}
 
@@ -212,7 +215,7 @@ public final class ControllerHelper {
 		return codedfilename;
 	}
 
-	public static void makeAttachment(String contentType, String header[], byte[] data) throws IOException {
+	public static void makeAttachment(String contentType, String[] header, byte[] data) throws IOException {
 		makeAttachment(contentType, header, new ByteArrayInputStream(data));
 	}
 
@@ -339,7 +342,7 @@ public final class ControllerHelper {
 		PunGroupService groupService = Springfactory.getBean("punGroupServiceImpl");
 		PunRoleInfoService roleService = Springfactory.getBean("punRoleInfoServiceImpl");
 		PunUserGroupService usergroupService = Springfactory.getBean("punUserGroupServiceImpl");
-		Map<String, Object> gParams = new HashMap<>();
+		Map<String, Object> gParams = new HashMap<>(2);
 		//JFLOW登录用户
 		Dev2Interface.Port_Login(pvi.getUserIdCardNumber());
 		gParams.put("parentGroupId", 0);
@@ -347,13 +350,13 @@ public final class ControllerHelper {
 		if (groups.isEmpty() || groups.size() != 1) {
 			throw new PlatformException("组织架构为空");
 		}
-		SessionUtils.addObjectToSession(SessionContants.CURRENT_USER, pvi);// 用户
-		SessionUtils.addObjectToSession(SessionContants.CURRENT_USER_GROUP, groups.get(0));// 组
+		SessionUtils.addObjectToSession(SessionContants.CURRENT_USER, pvi);
+		SessionUtils.addObjectToSession(SessionContants.CURRENT_USER_GROUP, groups.get(0));
 		gParams.clear();
 		gParams.put("userId", pvi.getUserId());
 		PageList<PunUserGroupVO> userGroup = usergroupService.selectPagedByExample("queryList", gParams, 0, 1, null);
 		if (userGroup != null && !userGroup.isEmpty()) {
-			SessionUtils.addObjectToSession(SC.USER_GROUP, userGroup);// 组
+			SessionUtils.addObjectToSession(SC.USER_GROUP, userGroup);
 		}
 
 		PunSystemService sysService = Springfactory.getBean("punSystemServiceImpl");
@@ -377,8 +380,6 @@ public final class ControllerHelper {
 			HttpServletRequest request = ControllerContext.getRequest();
 			for (Field field : fields) {
 				ReflectionUtils.makeAccessible(field);
-				// String
-				// paramValue=ServletActionContext.getRequest().getParameter(field.getName());
 				String[] paramValueArray = request.getParameterValues(field.getName());
 				if (paramValueArray != null) {
 					if (field.getType().equals(String[].class)) {

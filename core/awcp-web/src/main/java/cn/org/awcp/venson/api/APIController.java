@@ -1,11 +1,8 @@
 package cn.org.awcp.venson.api;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-
+import cn.org.awcp.venson.controller.base.BaseController;
+import cn.org.awcp.venson.controller.base.ReturnResult;
+import cn.org.awcp.venson.controller.base.StatusCode;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,9 +10,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import cn.org.awcp.venson.controller.base.BaseController;
-import cn.org.awcp.venson.controller.base.ReturnResult;
-import cn.org.awcp.venson.controller.base.StatusCode;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 public class APIController extends BaseController {
@@ -32,8 +30,9 @@ public class APIController extends BaseController {
 		ReturnResult result = ReturnResult.get();
 		PFMAPI api = PFMAPI.get(APIId);
 		// 校验接口
-		if (!apiService.validateAPI(result, api, request.getMethod().toLowerCase()))
+		if (!apiService.validateAPI(result, api, request.getMethod().toLowerCase())){
 			return result;
+		}
 		// 获取参数值
 		Map<String, Object> params = wrapMap(request.getParameterMap(), "APIId");
 		// 执行脚本
@@ -44,7 +43,7 @@ public class APIController extends BaseController {
 	@RequestMapping("/execute/merge")
 	public ReturnResult execute(@RequestParam("ids") String[] ids, HttpServletRequest request) {
 		ReturnResult result = ReturnResult.get();
-		Map<String, Object> map = new HashMap<>();
+		Map<String, Object> map = new HashMap<>(ids.length);
 		for (String id : ids) {
 			ReturnResult subResult = execute(id, request);
 			// 判断是否执行成功

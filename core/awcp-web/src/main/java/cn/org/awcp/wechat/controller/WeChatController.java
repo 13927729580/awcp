@@ -1,16 +1,11 @@
 package cn.org.awcp.wechat.controller;
 
-import static cn.org.awcp.wechat.util.Constant.*;
-
-import java.io.UnsupportedEncodingException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import cn.org.awcp.wechat.domain.JsapiTicket;
+import cn.org.awcp.wechat.domain.WeChatValidationInfo;
+import cn.org.awcp.wechat.domain.menu.WeChatMenu;
+import cn.org.awcp.wechat.payment.util.WexinPayUtil;
+import cn.org.awcp.wechat.service.WeChatService;
+import cn.org.awcp.wechat.util.WeChatUtil;
 import org.apache.shiro.crypto.hash.Sha1Hash;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,12 +15,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import cn.org.awcp.wechat.domain.JsapiTicket;
-import cn.org.awcp.wechat.domain.WeChatValidationInfo;
-import cn.org.awcp.wechat.domain.menu.WeChatMenu;
-import cn.org.awcp.wechat.payment.util.WexinPayUtil;
-import cn.org.awcp.wechat.service.WeChatService;
-import cn.org.awcp.wechat.util.WeChatUtil;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
+
+import static cn.org.awcp.wechat.util.Constant.APPID;
+import static cn.org.awcp.wechat.util.Constant.TOKEN;
 
 /**
  * 验证服务器地址的有效性
@@ -115,7 +113,7 @@ public class WeChatController {
 	@RequestMapping(value="/getWxJsData")
 	public Map<String,Object> getWxJsData(String url){
 		Map<String,Object> map = new HashMap<String,Object>();
-		long timestamp = new Date().getTime();
+		long timestamp = System.currentTimeMillis();
 		String noncestr = WexinPayUtil.getNonceStr();
 		map.put("timestamp", timestamp);
 		map.put("appid", APPID);

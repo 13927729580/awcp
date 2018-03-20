@@ -1,26 +1,7 @@
 package cn.org.awcp.formdesigner.utils;
 
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
-import javax.script.ScriptEngine;
-import javax.script.ScriptException;
-
-import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.jdbc.core.JdbcTemplate;
-
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-
 import cn.org.awcp.core.utils.Springfactory;
+import cn.org.awcp.extend.formdesigner.DocumentUtils;
 import cn.org.awcp.formdesigner.application.vo.AuthorityCompoentVO;
 import cn.org.awcp.formdesigner.application.vo.AuthorityGroupWorkFlowNodeVO;
 import cn.org.awcp.formdesigner.application.vo.DocumentVO;
@@ -29,14 +10,24 @@ import cn.org.awcp.formdesigner.core.domain.design.context.act.PageAct;
 import cn.org.awcp.formdesigner.service.AuthorityCompoentServiceImpl;
 import cn.org.awcp.formdesigner.service.AuthorityGroupWorkFlowNodeServiceImpl;
 import cn.org.awcp.venson.controller.base.ControllerHelper;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.jdbc.core.JdbcTemplate;
+
+import javax.script.ScriptEngine;
+import javax.script.ScriptException;
+import java.text.MessageFormat;
+import java.util.*;
 
 public class DocUtils {
 	/**
 	 * 日志对象
 	 */
 	private static final Log logger = LogFactory.getLog(DocUtils.class);
-	public static int FormToFlow = 1;
-	public static int FlowToForm = 2;
 
 	/**
 	 * 计算状态脚本
@@ -46,18 +37,8 @@ public class DocUtils {
 	 * @return
 	 */
 	public static boolean computeStatus(String script, ScriptEngine engine) {
-		if (StringUtils.isNotBlank(script)) {
-			script = StringEscapeUtils.unescapeHtml4(script);
-			Boolean status = null;
-			try {
-				status = (Boolean) engine.eval(script);
-			} catch (ScriptException e) {
-				logger.info("ERROR", e);
-			}
-			if (status != null)
-				return status;
-		}
-		return false;
+
+		return computeStatus(script, engine,false);
 	}
 
 	/**
@@ -76,8 +57,9 @@ public class DocUtils {
 			} catch (ScriptException e) {
 				logger.info("ERROR", e);
 			}
-			if (status != null)
-				return status;
+			if (status != null) {
+                return status;
+            }
 		}
 		return isReadPage || false;
 	}
@@ -140,7 +122,11 @@ public class DocUtils {
 		return null;
 	}
 
-	// 解析组件权限
+	/**
+	 * 解析流程节点组件权限
+	 * @param docVo
+	 * @param map
+	 */
 	public static void flowAuthorityResolve(DocumentVO docVo, Map<String, JSONObject> map) {
 
 		AuthorityCompoentServiceImpl authorityCompoentService = Springfactory.getBean("authorityCompoentServiceImpl");

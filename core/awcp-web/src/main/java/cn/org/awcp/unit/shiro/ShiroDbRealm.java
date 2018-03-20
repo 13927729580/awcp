@@ -189,8 +189,9 @@ public class ShiroDbRealm extends AuthorizingRealm {
 			CookieUtil.deleteCookie(SC.USER_ACCOUNT);
 			CookieUtil.deleteCookie(SC.SECRET_KEY);
 			throw new PlatformException("账号信息有误");
-		} else
-			return pvis.get(0);
+		} else {
+            return pvis.get(0);
+        }
 	}
 
 }

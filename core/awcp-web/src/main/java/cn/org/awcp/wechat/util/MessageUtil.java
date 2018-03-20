@@ -37,8 +37,9 @@ public class MessageUtil {
         List<Element> elementList = root.elements();  	 // 得到根元素的所有子节点
   
         // 遍历所有子节点  
-        for (Element e : elementList)  
-            map.put(e.getName(), e.getText());  
+        for (Element e : elementList) {
+            map.put(e.getName(), e.getText());
+        }
   
         // 释放资源  
         inputStream.close();  

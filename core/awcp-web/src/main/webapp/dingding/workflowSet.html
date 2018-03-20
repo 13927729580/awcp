@@ -1,0 +1,616 @@
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>审批-流程设计器</title>
+	<link rel="shortcut icon" type="image/x-icon" href="//g.alicdn.com/dingding/web/0.2.6/img/oldIcon.ico">
+	<link rel="stylesheet" href="//g.alicdn.com/SWH5/ding-oflow-setting/0.7.1/index.css">
+	<link rel="stylesheet" href="css/workflowSet.css">
+</head>
+<body style="">
+	<div id="body">
+		<div data-reactroot="">
+			<div class="ant-layout">
+				<div class="main-layout-content ant-layout-content" style="margin: 0px auto;">
+					<div class="ant-row common-header">
+						<div class="ant-col-2 btn-container"></div>
+						<div class="ant-col-20 title-container">
+							<h4></h4>
+						</div>
+						<div class="helplink-container"></div>
+					</div>
+					<div class="ant-row main-container">
+						<div>
+							<div class="approval-page-container">
+								<div>
+									<div class="ant-row-flex ant-row-flex-middle common-row undefined">
+										<div class="ant-col-3 common-row-title undefined" style="font-size: 14px; color: rgb(50, 51, 52);">默认审批流程</div>
+										<div class="ant-col-21 common-row-content undefined"></div>
+									</div>
+									<div>
+										<div class="canedit-content">
+											<div class="ant-row-flex ant-row-flex-top common-row undefined">
+												<div class="ant-col-3 common-row-title undefined" style="margin-top: 10px;">默认审批人</div>
+												<div class="ant-col-21 common-row-content undefined">
+													<div class="ant-row">
+														<div class="ant-col-24">
+															<div class="approval-sorted"></div>
+															<div class="ant-col-2 plus"><span class="plus-icon"></span></div>
+														</div>
+													</div>
+												</div>
+											</div>
+											<div class="ant-row-flex ant-row-flex-top common-row undefined">
+												<div class="ant-col-3 common-row-title undefined" style="margin-top: 10px;">默认抄送人</div>
+												<div class="ant-col-21 common-row-content undefined">
+													<div>
+														<div class="ant-row-flex ant-row-flex-middle">
+															<div>
+																<div class="" style="float: left;"><span class="plus-icon"></span></div>
+																<div class="choosen-notifier-num"></div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+										<div>
+											<div class="approval-node-setting">
+												<h4 class="node-setting-title">设置审批人</h4>
+												<div class="ant-row-flex ant-row-flex-middle common-row undefined" style="margin-top: 24px; align-items: inherit;">
+													<div class="ant-col-4 common-row-title undefined">审批人类别</div>
+													<div class="ant-col-20 common-row-content undefined">
+														<div class="ant-radio-group">
+															<label class="approval-radio ant-radio-wrapper ant-radio-wrapper-checked">
+																<span class="ant-radio ant-radio-checked" data-id="1">
+																	<input type="radio" class="ant-radio-input"  value="on">
+																	<span class="ant-radio-inner"></span>
+																</span>
+																<span>主管-指定一级</span>
+															</label>
+															<!-- <label class="approval-radio ant-radio-wrapper">
+																<span class="ant-radio">
+																	<input type="radio" class="ant-radio-input" value="on">
+																	<span class="ant-radio-inner"></span>
+																</span>
+																<span>主管-连续多级</span>
+															</label> -->
+															<label class="approval-radio ant-radio-wrapper">
+																<span class="ant-radio" data-id="3">
+																	<input type="radio" class="ant-radio-input" value="on">
+																	<span class="ant-radio-inner"></span>
+																</span>
+																<span>指定成员</span>
+															</label>
+															<!-- <label class="approval-radio ant-radio-wrapper">
+																<span class="ant-radio">
+																	<input type="radio" class="ant-radio-input" value="on">
+																	<span class="ant-radio-inner"></span>
+																</span>
+																<span>角色（一组固定成员）
+																	<i class="anticon anticon-info-circle date-tip" style="margin-left: 5px;"></i>
+																</span>
+															</label> -->
+															<label class="approval-radio ant-radio-wrapper">
+																<span class="ant-radio" data-id="5">
+																	<input type="radio" class="ant-radio-input" value="on">
+																	<span class="ant-radio-inner"></span>
+																</span>
+																<span>发起人自己<i class="anticon anticon-info-circle date-tip"></i></span>
+															</label>
+														</div>
+													</div>
+												</div>
+												<div class="cut-line-small"></div>
+												<div id="set1" class="setDiv">
+													<div class="ant-row common-row approval-charge-content">
+														<div class="ant-col-20 ant-col-push-4" style="line-height: 30px;">
+															指定某一级主管：发起人的&nbsp;&nbsp;
+															<div class="ant-input-number" style="width: auto; margin-left: 20px;">
+																<div class="ant-input-number-handler-wrap">
+																	<span unselectable="unselectable" role="button" aria-label="Increase Value" aria-disabled="false" class="ant-input-number-handler ant-input-number-handler-up ">
+																		<span unselectable="unselectable" class="ant-input-number-handler-up-inner"></span>
+																	</span>
+																	<span unselectable="unselectable" role="button" aria-label="Decrease Value" aria-disabled="false" class="ant-input-number-handler ant-input-number-handler-down">
+																		<span unselectable="unselectable" class="ant-input-number-handler-down-inner"></span>
+																	</span>
+																</div>
+																<div class="ant-input-number-input-wrap" role="spinbutton" aria-valuemin="1" aria-valuemax="10" aria-valuenow="1">
+																	<input step="1" min="1" max="10" class="ant-input-number-input" autocomplete="off" value="直接主管">
+																</div>
+															</div>
+														</div>
+													</div>
+													<!-- <div class="cut-line-large" style="margin-left: 25px; margin-right: 25px;"></div>
+													<div class="ant-row-flex ant-row-flex-middle common-row undefined" style="align-items: initial;">
+														<div class="ant-col-4 common-row-title undefined" style="padding-top: 6px;">本环节审批方式</div>
+														<div class="ant-col-20 common-row-content undefined" style="font-size: 12px; color: rgb(51, 51, 51);">
+															<div class="ant-col-24">
+																<div class="ant-radio-group">
+																	<label class="ant-radio-wrapper ant-radio-wrapper-checked" style="display: block; height: 30px; line-height: 30px;">
+																		<span class="ant-radio ant-radio-checked">
+																			<input type="radio" class="ant-radio-input" value="on">
+																			<span class="ant-radio-inner"></span>
+																		</span>
+																		<span>依次审批（本环节内审批人依次审批）</span>
+																	</label>
+																	<label class="ant-radio-wrapper" style="display: block; height: 30px; line-height: 30px;">
+																		<span class="ant-radio">
+																			<input type="radio" class="ant-radio-input" value="on">
+																			<span class="ant-radio-inner"></span>
+																		</span>
+																		<span>会签（须所有审批人同意）</span>
+																	</label>
+																	<label class="ant-radio-wrapper" style="display: block; height: 30px; line-height: 30px;">
+																		<span class="ant-radio">
+																			<input type="radio" class="ant-radio-input" value="on">
+																			<span class="ant-radio-inner"></span>
+																		</span>
+																		<span>或签（一名审批人同意或拒绝即可）</span>
+																	</label>
+																</div>
+															</div>
+														</div>
+													</div>
+													<div class="cut-line-large" style="margin-left: 25px; margin-right: 25px;"></div>
+													<div class="ant-row-flex ant-row-flex-middle common-row undefined" style="align-items: initial;">
+														<div class="ant-col-4 common-row-title undefined">主管递补</div>
+														<div class="ant-col-20 common-row-content undefined" style="font-size: 12px; color: rgb(51, 51, 51);">
+															<div class="ant-col-24">
+																<label class="ant-checkbox-wrapper">
+																	<span class="ant-checkbox">
+																		<input type="checkbox" class="ant-checkbox-input" value="on">
+																		<span class="ant-checkbox-inner"></span>
+																	</span>
+																	<span>若该审批人空缺，由其在通讯录中的上级主管代审批</span>
+																</label>
+															</div>
+														</div>
+													</div> -->
+												</div>
+												<div id="set3" class="setDiv" style="display:none">
+													<div class="ant-row-flex ant-row-flex-middle common-row undefined">
+														<div class="ant-col-4 common-row-title undefined"></div>
+														<div class="ant-col-20 common-row-content undefined">
+															<div style="color: rgb(153, 153, 153);">选择指定成员（单个节点审批人不要超过20人）</div>
+															<div class="ant-row-flex ant-row-flex-middle"><a>修改</a></div>
+														</div>
+													</div>
+												</div>
+												<div id="set5" class="setDiv ant-row-flex ant-row-flex-middle common-row undefined" style="display:none">
+													<div class="ant-col-4 common-row-title undefined">选择发起人</div>
+													<div class="ant-col-20 common-row-content undefined">
+														<div class="ant-row-flex ant-row-flex-middle">
+															<div class="notifier-chunk">
+																<img src="img/executor.png">
+																<span>发起人</span>
+															</div>
+														</div>
+													</div>
+												</div>
+												<div class="slideFormBtn">
+													<button type="submit" class="ant-btn node-saveBtn ant-btn-primary ant-btn-lg"><span>确 定</span></button>
+													<button type="button" class="ant-btn node-cancelBtn ant-btn-lg"><span>取 消</span></button>
+												</div>
+											</div>
+										</div>
+									</div>
+									<!-- <div class="cut-line-large"></div>
+									<div class="ant-row-flex ant-row-flex-top common-row undefined">
+										<div class="ant-col-3 common-row-title undefined" style="font-size: 14px; color: rgb(50, 51, 52); margin-top: 4px;">
+											<span>分条件审批<i class="anticon anticon-info-circle date-tip"></i></span>
+										</div>
+										<div class="ant-col-21 common-row-content undefined">
+											<button type="button" class="ant-btn normal-btn">
+												<span>添 加</span>
+											</button>
+											<span class="common-tips" style="font-size: 12px; margin-left: 20px;">
+												审批单首先匹配优先级高的条件，拖拽可调整以下条件的优先级
+												<i class="anticon anticon-info-circle date-tip"></i>
+											</span>
+											<div></div>
+										</div>
+									</div> -->
+								</div>
+								<!-- <div class="cut-line-large"></div>
+								<div class="ant-row-flex ant-row-flex-middle common-row undefined">
+									<div class="ant-col-3 common-row-title undefined" style="font-size: 14px; color: rgb(50, 51, 52);">
+										更多设置
+									</div>
+									<div class="ant-col-21 common-row-content undefined"></div>
+								</div>
+								<div class="more-setting-content">
+									<div class="ant-row">
+										<div>
+											<div class="ant-row-flex ant-row-flex-middle common-row undefined">
+												<div class="ant-col-3 common-row-title undefined">
+													审批人去重
+												</div>
+												<div class="ant-col-21 common-row-content undefined">
+													<div class="ant-select ant-select-enabled" style="width: 300px;">
+														<div class="ant-select-selection ant-select-selection--single" role="combobox" aria-autocomplete="list" aria-haspopup="true" aria-expanded="false" tabindex="0">
+															<div class="ant-select-selection__rendered">
+																<div class="ant-select-selection-selected-value" title="同一个审批人仅在连续出现时，自动去重" style="display: block; opacity: 1;">同一个审批人仅在连续出现时，自动去重</div>
+															</div>
+															<span class="ant-select-arrow" unselectable="unselectable" style="user-select: none;"><b></b></span>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div>
+										<div
+											class="ant-row-flex ant-row-flex-middle common-row undefined">
+											<div class="ant-col-3 common-row-title undefined">									
+												通知抄送人											
+											</div>
+											<div class="ant-col-21 common-row-content undefined">
+												<div class="ant-select ant-select-enabled" style="width: 220px;">
+													<div class="ant-select-selection  ant-select-selection--single" role="combobox" aria-autocomplete="list" aria-haspopup="true" aria-expanded="false" tabindex="0">
+														<div class="ant-select-selection__rendered">
+															<div class="ant-select-selection-selected-value" title="仅全部同意后通知" style="display: block; opacity: 1;">仅全部同意后通知</div>
+														</div>
+														<span class="ant-select-arrow" unselectable="unselectable" style="user-select: none;"><b></b></span>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div> -->
+							</div>
+							<div class="approval-page-footer">
+								<div class="cut-line-large"></div>
+								<button type="button" id="saveBtn" class="ant-btn main-save ant-btn-primary">
+									<span>保 存</span>
+								</button>
+								<button type="button" id="closeBtn" class="ant-btn main-save ant-btn-default">
+									<span>关闭</span>
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script src="js/jquery.js" charset="utf-8"></script>
+	<script src="../venson/js/common.js"></script>
+	<script>
+		$(function(){
+			var title = Comm.getUrlParam("title");	//标题
+			var pageId = Comm.getUrlParam("pageId");//流程关联的动态页面ID
+			var isUpdate = false;	//是否是更新
+			var $approval;	//更新时,将更新内容存放的jquery对象
+			$(".title-container").text(title + "流程设置");//设置标题
+						
+			//新增一个审核节点,进入设置界面
+			$(".approval-sorted").next().find(".plus-icon").bind("click",function(){
+				$(".approval-node-setting").addClass("show");
+				isUpdate = false;
+			});
+			
+			//取消这个审核节点的设置
+			$(".node-cancelBtn").bind("click",function(){
+				$(".approval-node-setting").removeClass("show");
+			});
+			
+			//改变审批类型(1:主管-指定一级;3:选择人;5:发送给自己)
+			$(".ant-radio").bind("click",function(){
+				if($(this).hasClass("ant-radio-checked")){
+					return false;
+				} else{
+					$(".ant-radio").removeClass("ant-radio-checked");
+					$(this).addClass("ant-radio-checked");
+					var id = "#set" + $(this).attr("data-id");
+					$(".setDiv").hide();
+					$(id).show();
+				}
+			});
+			
+			//主管-指定一级	向上
+			$(".ant-input-number-handler-up").bind("click",function(){
+				var num = $(".ant-input-number-input-wrap").attr("aria-valuenow");
+				var max = $(".ant-input-number-input-wrap").attr("aria-valuemax");
+				if(num==max){
+					return false;
+				} else{
+					num++;
+					$(".ant-input-number-input-wrap").children("input").val("第" + num + "级主管");					
+					$(".ant-input-number-input-wrap").attr("aria-valuenow",num);
+				}			
+			});
+			
+			//主管-指定一级	向下
+			$(".ant-input-number-handler-down").bind("click",function(){
+				var num = $(".ant-input-number-input-wrap").attr("aria-valuenow");
+				var min = $(".ant-input-number-input-wrap").attr("aria-valuemin");
+				if(num==min){
+					return false;
+				} else{
+					num--;
+					if(num==1){
+						$(".ant-input-number-input-wrap").children("input").val("直接主管");
+					} else{
+						$(".ant-input-number-input-wrap").children("input").val("第" + num + "级主管");
+					}										
+					$(".ant-input-number-input-wrap").attr("aria-valuenow",num);
+				}	
+			})
+			
+			var users = Comm.getData("api/execute/getAllUser");
+			var userMap = {};	//以USER_ID为键
+			var userMap1 = {};	//以USER_ID_CARD_NUMBER为键
+			for(var i=0;i<users.length;i++){
+				var temp = getUserHtml(users[i]);
+				userMap[users[i].USER_ID] = temp;
+				userMap1[users[i].USER_ID_CARD_NUMBER] = temp;
+			}
+			
+			function getUserHtml(user){
+		 		var html = "";		
+		 		var userId = user.USER_ID
+	 			var name = user.NAME;					//用户姓名
+	 			var emplId = user.USER_ID_CARD_NUMBER;	//钉钉用户ID
+	 			var img = user.USER_HEAD_IMG;			//用户头像
+	 			if(!img){    
+	 				img = '<div style="width: 24px;height: 24px;border-radius: 50%;margin-right: 8px;background:' + 
+	 						getRandomColor() + '" ><span style="line-height:24px;text-align:center;font-size:12px;">' + 
+	 						Comm.handleName(name) + '</span></div>';
+	 			} else{
+	 				img = '<img src="' + img + '">';
+	 			} 
+	 			html += '<div class="notifier-chunk" data-id="' + emplId + '" data-userId="' + userId + '">' + img +
+	 					'<span>' + name + '</span><i class="anticon anticon-close close"></i></div>';	 		
+		 		return html;
+		 	}
+			
+			function getRandomColor(){
+		 		var arr = ["#5e97f6","#ff8e6b","#5ec9f6","#f65e5e","#78919d","#9a89b9"];
+		 		return arr[Math.floor(Math.random()*arr.length)];
+		 	}
+
+			//添加新的抄送人
+			$(".choosen-notifier-num").prev().find("span").bind("click",function(){
+				selectUser(function(users){
+					var html = "";	
+					for(key in users){
+						var bool = true;
+						//判断新增的抄送人是否已经存在
+						$(".choosen-notifier-num").parent().prevAll().each(function(){
+							if($(this).attr("data-userId") == key){
+								bool = false;
+							}
+						})
+						if(bool){
+							html += userMap[key];
+						}						
+					}
+					$(".choosen-notifier-num").parent().before(html);
+					addEvent();
+				});
+			});
+			
+			//节点指定人员添加
+			$("#set3").find("a").bind("click",function(){
+				selectUser(function(users){
+					var html = "";	
+					for(key in users){
+						var bool = true;
+						//判断该节点的执行人是否已经存在新增的执行人
+						$("#set3").find("a").prevAll().each(function(){
+							if($(this).attr("data-userId") == key){
+								bool = false;
+							}
+						})
+						if(bool){
+							html += userMap[key];
+						}
+					}
+					$("#set3").find("a").before(html);
+					addEvent();
+				});
+			});
+					
+			//选择人员
+			function selectUser(fn){
+		 		top.dialog({
+		 			id:"select" + Comm.uuid(),
+		 			title: "选择执行者",
+		 			skin:"col-md-10",
+		 			height:"540",
+		 			url:basePath + "formdesigner/page/component/userSelect/chosenNames.jsp?isSingle=N&datas=",
+		 			onclose: function () {
+		 				var users = this.returnValue;
+		 				if(!$.isEmptyObject(users)){
+		 					fn(users);
+		 				}
+		 			}
+		 		}).show();
+		 	}
+			
+			//抄送人与执行人绑定click事件
+			function addEvent(){
+				$(".close").unbind("click").bind("click",function(){
+					$(this).parent().remove();
+				});
+			}
+			
+			//节点绑定事件
+			function addEvent1(){
+				$(".stream-user-close").unbind("click").bind("click",function(){
+					$(this).parent().parent().remove();
+				});
+				$(".approval-stream-card").unbind("click").bind("click",function(){
+					$approval = $(this).parent().parent();
+					isUpdate = true;
+					var dataJson = $approval.attr("data-json");
+					var obj = JSON.parse(dataJson);
+					if(obj.type=="1"){
+						var num = obj.val;
+						if(num==1){
+							$(".ant-input-number-input-wrap").children("input").val("直接主管");
+						} else{
+							$(".ant-input-number-input-wrap").children("input").val("第" + num + "级主管");
+						}										
+						$(".ant-input-number-input-wrap").attr("aria-valuenow",num);
+						$(".ant-radio").eq(0).addClass("ant-radio-checked");
+						$(".ant-radio").eq(1).removeClass("ant-radio-checked");
+						$(".ant-radio").eq(2).removeClass("ant-radio-checked");
+						$("#set1").show();
+						$("#set3").hide();
+						$("#set5").hide();
+					} else if(obj.type=="3"){
+						var arr = obj.val;
+						var html = "";
+						for(var i=0;i<arr.length;i++){
+							html += userMap1[arr[i]];
+						}
+						$("#set3").find("a").prevAll().remove();
+						$("#set3").find("a").before(html);					
+						$(".ant-radio").eq(0).removeClass("ant-radio-checked");
+						$(".ant-radio").eq(1).addClass("ant-radio-checked");
+						$(".ant-radio").eq(2).removeClass("ant-radio-checked");
+						$("#set1").hide();	
+						$("#set3").show();
+						$("#set5").hide();
+						addEvent();
+					} else if(obj.type=="5"){
+						$(".ant-radio").eq(0).removeClass("ant-radio-checked");
+						$(".ant-radio").eq(1).removeClass("ant-radio-checked");
+						$(".ant-radio").eq(2).addClass("ant-radio-checked");
+						$("#set1").hide();	
+						$("#set3").hide();
+						$("#set5").show();
+					}
+					$(".approval-node-setting").addClass("show");
+				});
+			}
+			
+			//保存节点的设置
+			$(".node-saveBtn").bind("click",function(){
+				var type = $(".ant-radio-checked").attr("data-id");
+				var html = "";
+				if(type=="1"){
+					var val = $(".ant-input-number-input-wrap").attr("aria-valuenow");
+					var dataJson = JSON.stringify({type:"1",val:val});					
+					var showVal = val=="1"?"直接主管":"第" + val + "级主管";
+					html = getNodeHtml(dataJson,"img/leader.png",showVal);
+					$(".ant-input-number-input-wrap").attr("aria-valuenow","1");
+					$(".ant-input-number-input").val("直接主管");
+				} else if(type=="3"){
+					var arr = [];
+					$("#set3").find(".notifier-chunk").each(function(){
+						arr.push($(this).attr("data-id"));
+					});
+					if(arr.length>0){
+						var dataJson = JSON.stringify({type:"3",val:arr}); 
+						var showVal = "指定成员" + arr.length + "人";
+						html = getNodeHtml(dataJson,"img/executor.png",showVal);
+						$("#set3").find(".notifier-chunk").remove();											
+					}
+				} else if(type=="5"){
+					var dataJson = JSON.stringify({type:"5",val:""}); 
+					html = getNodeHtml(dataJson,"img/executor.png","发起人");
+				}
+				if(isUpdate){
+					$approval.after(html);
+					$approval.remove();
+				} else{
+					$(".approval-sorted").append(html);
+				}
+				$(".approval-node-setting").removeClass("show");	
+				addEvent1();
+			});
+			
+			$("#saveBtn").bind("click",function(){
+				var approverList = [];
+				var ccList = [];
+				var tempArr = [];
+				$(".stream-user-content-approval").each(function(){
+					approverList.push(JSON.parse($(this).attr("data-json")));			
+				});
+				if(tempArr.length!=0){
+					approverList.push(tempArr.join());
+					tempArr = [];
+				}
+				
+				$(".choosen-notifier-num").parent().prevAll().each(function(){
+					ccList.push($(this).attr("data-id"));
+				});
+
+				var data = {
+					approverList : JSON.stringify(approverList),
+					ccList : JSON.stringify(ccList),
+					pageId : pageId
+				}
+				
+				var result = Comm.getData("api/execute/saveFlowExecutor",data);
+				if(result == 1){
+					Comm.alert("保存成功");
+				} else{
+					Comm.alert("服务器错误");
+				}
+				return false;
+			});
+			
+			$("#closeBtn").bind("click",function(){
+				parent.closeTabByPageId(parent.$("#tab-menu").find("a.active").attr("data-pageid"));
+			});
+			
+			initApproverList(pageId,userMap1);
+			initCCList(pageId,userMap1);
+			
+			function initApproverList(pageId,userMap1){
+				var data = Comm.getData("api/execute/getFlowExcutor",{dynamicPageId:pageId});
+				if(data && data.JSON){
+					var arr = JSON.parse(data.JSON);
+					var html = "";
+					for(var i=0;i<arr.length;i++){
+						var type = arr[i].type;
+						var val = arr[i].val;
+						var dataJson = JSON.stringify(arr[i]);	
+						if(type=="1"){
+							var showVal = val=="1"?"直接主管":"第" + val + "级主管";
+							html = getNodeHtml(dataJson,"img/leader.png",showVal);
+						} else if(type=="3"){	
+							var showVal = "指定成员" + val.length + "人";
+							html = getNodeHtml(dataJson,"img/executor.png",showVal);											
+						} else if(type=="5"){
+							html = getNodeHtml(dataJson,"img/executor.png","发起人");
+						}
+						$(".approval-sorted").append(html);					
+					}
+					addEvent1();
+				}
+			}
+			
+			//初始化抄送人
+			function initCCList(pageId,userMap1){
+				var data = Comm.getData("api/execute/getCCList",{dynamicPageId:pageId});
+				if(data && data.JSON){
+					var arr = JSON.parse(data.JSON);
+					var html = "";	
+					for(var i=0;i<arr.length;i++){
+						html += userMap1[arr[i]];						
+					}
+					$(".choosen-notifier-num").parent().before(html);
+					addEvent();
+				}
+			}
+			
+			function getNodeHtml(dataJson,img,text){
+				var html = '<div class="stream-user-content-approval" data-json=\'' + dataJson + '\'>' + 
+				   '<div class="stream-user">' + 
+				   '<i class="anticon anticon-close stream-user-close" style="font-size: 14px; color: rgb(167, 163, 163);"></i>' + 
+				   '<div class="ant-col-24 approval-stream-card">' + 
+				   '<div><div class="node-avatar">' + 
+				   '<img class="common-img" src="' + img + '">' + 
+				   '<span>' + text + '</span>' + 
+				   '</div></div></div></div>' + 
+				   '<i class="anticon anticon-arrow-right steamLine-arrow-right"></i></div>';
+				return html;
+			}
+		});
+	</script>
+</body>
+</html>

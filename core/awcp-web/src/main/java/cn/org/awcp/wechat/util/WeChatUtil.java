@@ -1,29 +1,21 @@
 package cn.org.awcp.wechat.util;
 
-import static cn.org.awcp.wechat.util.Constant.APPID;
-import static cn.org.awcp.wechat.util.Constant.APPSECRET;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-
+import cn.org.awcp.wechat.domain.AccessToken;
+import cn.org.awcp.wechat.domain.JsapiTicket;
+import cn.org.awcp.wechat.domain.menu.WeChatMenu;
+import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.http.ParseException;
 import org.apache.shiro.crypto.hash.Sha1Hash;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.alibaba.fastjson.JSONObject;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.*;
 
-import cn.org.awcp.wechat.domain.AccessToken;
-import cn.org.awcp.wechat.domain.JsapiTicket;
-import cn.org.awcp.wechat.domain.menu.WeChatMenu;
+import static cn.org.awcp.wechat.util.Constant.APPID;
+import static cn.org.awcp.wechat.util.Constant.APPSECRET;
 
 /**
  * 
@@ -67,7 +59,7 @@ public class WeChatUtil {
 	public static Map<String, Object> getJsSignature(String url) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		String noncestr = RandomStringUtils.randomAlphanumeric(16);
-		long timestamp = new Date().getTime();
+		long timestamp = System.currentTimeMillis();
 		TreeMap<String, Object> treeMap = new TreeMap<String, Object>();
 		treeMap.put("noncestr", noncestr);
 		treeMap.put("timestamp", timestamp);

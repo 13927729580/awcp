@@ -5,8 +5,15 @@ import java.util.Map;
 public interface QueryService {
 
 	/**
-	 * 由我创建
+	 * 创建人
 	 * 
+	 * @param workId
+	 * @return
+	 */
+	Map<String, Object> getStarter(String workId);
+	/**
+	 * 由我创建
+	 *
 	 * @param limit
 	 * @param offset
 	 * @param FK_Flow
@@ -21,7 +28,8 @@ public interface QueryService {
 	 * 
 	 * @param limit
 	 * @param offset
-	 * @param FK_Flow
+	 * @param includeFlow
+	 * @param excludeFlow
 	 * @param workItemName
 	 * @param userName
 	 * @param hasReturn

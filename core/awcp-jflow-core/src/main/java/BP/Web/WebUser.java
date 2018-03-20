@@ -1,6 +1,10 @@
 package BP.Web;
 
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.HttpCookie;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -9,6 +13,7 @@ import java.util.Date;
 
 import javax.servlet.http.Cookie;
 
+import cn.org.awcp.core.utils.constants.SessionContants;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -29,6 +34,7 @@ import BP.Tools.StringHelper;
 import BP.WF.Dev2Interface;
 import BP.WF.DotNetToJavaStringHelper;
 import cn.jflow.common.util.ContextHolderUtils;
+import org.springframework.util.ReflectionUtils;
 
 /**
  * User 的摘要说明。
@@ -124,7 +130,7 @@ public class WebUser {
 			WebUser.setFK_DeptName(em.getFK_DeptText());
 			
 			try {
-				sid = ContextHolderUtils.getSession().getId();
+				sid = String.valueOf(ContextHolderUtils.getSession().getId());
 			} catch (Exception e) {
 				sid = DBAccess.GenerOID()+"";
 			}
@@ -182,7 +188,6 @@ public class WebUser {
 	 
 	 @param em 人员
 	 @param lang 语言
-	 @param auth 授权人
 	 @param isRememberMe 是否记录cookies
 	 @param IsRecSID 是否记录SID
 	 * @throws UnsupportedEncodingException 
@@ -595,7 +600,7 @@ public class WebUser {
 			/*
 			 * warning return BP.Glo.getHttpContextCurrent().Session.SessionID;
 			 */
-			return ContextHolderUtils.getSession().getId();
+			return String.valueOf(ContextHolderUtils.getSession().getId());
 		}
 		return s;
 	}
@@ -625,32 +630,27 @@ public class WebUser {
 		return GetSessionByKey("No", null);
 	}
 
+
 	/**
 	 * 编号
 	 */
 	public static String getNo() {
-		// 如果设置了第三方的SessionKey名称，则进行根据第三方系统用户Key进行登录。
-		String userNoSessionKey = ContextHolderUtils.getInstance().getUserNoSessionKey();
-		if (StringUtils.isNotBlank(userNoSessionKey)){
-			String userNo = ObjectUtils.toString(ContextHolderUtils.getSession().getAttribute(userNoSessionKey));
-			// 如果第三方的用户id不存在，则代表已退出，同步退出jflow。
-			if (StringUtils.isNotBlank(userNo)){
-				// 如果是平台管理员账号，则转换为jflow的管理员账号
-				if (BP.WF.Glo.getIsAdmin(userNo)){
-					userNo = "admin";
-				}
-				// 获取当前是否已登录，如果已登录并且与第三方id一样，则直接返回，否则重新登录
-				String val = GetSessionByKey("No", "");
-				if (val != null && userNo.equals(val)){
-					return val;
-				}else{
-					// 登录WF平台，这里需要保存SID方便第三方系统获取。
-					BP.Port.Emp emp = new BP.Port.Emp(userNo);
-					WebUser.SignInOfGener(emp, "CH", null, true, true);
-				}
+		//获取当前登录用户
+		Object user = ContextHolderUtils.getSession().getAttribute(SessionContants.CURRENT_USER);
+		if (user!=null){
+			//通过反射获取用户账号
+			String userNo=ObjectUtils.toString(ReflectionUtils.invokeMethod(ReflectionUtils.findMethod(user.getClass(),"getUserIdCardNumber"),user));
+			// 获取当前是否已登录，如果已登录并且与第三方id一样，则直接返回，否则重新登录
+			String val = GetValFromCookie("No",null,false);
+			if (val != null && userNo.equals(val)){
+				return val;
 			}else{
-				WebUser.Exit();
+				// 登录WF平台，这里需要保存SID方便第三方系统获取。
+				BP.Port.Emp emp = new BP.Port.Emp(userNo);
+				WebUser.SignInOfGener(emp, "CH", null, true, true);
 			}
+		}else{
+			WebUser.Exit();
 		}
 		//		String val = GetValFromCookie("No", null, true);
 		String val = GetSessionByKey("No", "");
@@ -672,7 +672,12 @@ public class WebUser {
 		//		String val = GetValFromCookie("Name", null, true);
 		String val = GetSessionByKey("Name", "");
 		if (val == null) {
-			throw new RuntimeException("@err-002 Name 登录信息丢失。");
+			Object user = ContextHolderUtils.getSession().getAttribute(SessionContants.CURRENT_USER);
+			if (user!=null){
+				val=ObjectUtils.toString(ReflectionUtils.invokeMethod(ReflectionUtils.findMethod(user.getClass(),"getUserName"),user));
+			}else {
+				throw new RuntimeException("@err-002 Name 登录信息丢失。");
+			}
 		}
 		return val;
 	}

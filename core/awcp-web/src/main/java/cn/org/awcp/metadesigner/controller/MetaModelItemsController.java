@@ -288,19 +288,19 @@ public class MetaModelItemsController {
 		if (currentPage == 0) {
 			currentPage = 1;
 		}
-		if (itemName != null && !itemName.equals("")) {
+		if (itemName != null && !"".equals(itemName)) {
 			c.andLike("itemName", "%" + itemName + "%");
 		}
 		String itemCode = vo.getItemCode();
-		if (itemCode != null && !itemCode.equals("")) {
+		if (itemCode != null && !"".equals(itemCode)) {
 			c.andLike("itemCode", "%" + itemCode + "%");
 		}
 		String itemType = vo.getItemType();
-		if (itemType != null && !itemType.equals("")) {
+		if (itemType != null && !"".equals(itemType)) {
 			c.andLike("itemType", "%" + itemType + "%");
 		}
 		String defaultValue = vo.getDefaultValue();
-		if (defaultValue != null && !defaultValue.equals("")) {
+		if (defaultValue != null && !"".equals(defaultValue)) {
 			c.andLike("defaultValue", "%" + defaultValue + "%");
 		}
 		String modelId = vo.getModelId();

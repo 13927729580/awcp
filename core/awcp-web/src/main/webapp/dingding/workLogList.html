@@ -298,8 +298,14 @@
 			   					'</div><div class="ct"><div class="username">' + name + '</div>' +
 			   					'<div class="detail"><div class="date">' + date + '</div></div></div>' + redSpot + '</h3>';
 						html += '<div class="bd"><div class="templateName">' + title + '</div>';
-			   			for(key in dataObj){
-							html += '<div><span class="title">' + key + ': </span><span class="value">' + dataObj[key] + '</span></div>';
+			   			for(key in data[i]){
+			   				if(key!="ID" && key!="title" && key!="Creatorname" && key!="url" 
+			   						&& key!="Createtime" && key!="headImg" && key!="isRead"){
+			   					if(data[i][key]){
+			   						html += '<div><span class="title">' + key + 
+		   							': </span><span class="value">' + data[i][key] + '</span></div>';
+			   					}
+			   				}
 						}	
 			   			html += '</div></div>';
 			   		}

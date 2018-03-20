@@ -1,11 +1,11 @@
 package cn.org.awcp.venson.api;
 
+import cn.org.awcp.venson.controller.base.ControllerHelper;
+import cn.org.awcp.venson.util.DateFormaterUtil;
+
 import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
-
-import cn.org.awcp.venson.controller.base.ControllerHelper;
-import cn.org.awcp.venson.util.DateFormaterUtil;
 
 public class TableDesc {
 	public static String TYPE_INTEGER = "int";
@@ -112,11 +112,11 @@ public class TableDesc {
 	 * 设置默认的值
 	 */
 	public void setDeafultValue(Map<String, String> params) {
-		if (this.Field.equals("creator") || this.Field.equals("userId") || this.Field.equals("USER_ID")) {
+		if ("creator".equals(this.Field) || "userId".equals(this.Field) || "USER_ID".equals(this.Field)) {
 			params.put(this.Field, ControllerHelper.getUserId() + "");
-		} else if (this.Field.equals("CREATE_DATE") || this.Field.equals("createDate")) {
+		} else if ("CREATE_DATE".equals(this.Field) || "createDate".equals(this.Field)) {
 			params.put(this.Field, DateFormaterUtil.dateToString(new Date()));
-		} else if (this.Field.equals("CREATE_TIME") || this.Field.equals("createTime")) {
+		} else if ("CREATE_TIME".equals(this.Field) || "createTime".equals(this.Field)) {
 			params.put(this.Field, DateFormaterUtil.dateToString(DateFormaterUtil.FORMART4, new Date()));
 		}
 	}

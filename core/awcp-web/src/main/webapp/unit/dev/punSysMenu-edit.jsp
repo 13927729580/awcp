@@ -49,7 +49,6 @@ ul.CloudTreeMenu li .ztree {display: block;}
 </div>
 <%-- <p>${menuJson}</p> --%>
 <script language="javascript">
-var sysId = ${sysVO.sysId};
 var setting = {
 	view: {
 		showLine: true,
@@ -127,7 +126,7 @@ function addHoverDom(treeId, treeNode) {
 		top.dialog(
 				{ id: 'add-dialog' + Math.ceil(Math.random()*10000),
 					title: '新增菜单',
-					url:'<%=basePath%>dev/menuEditDialog.do?parentMenuId='+treeNode.id+'&sysId='+sysId,
+					url:'<%=basePath%>dev/menuEditDialog.do?parentMenuId='+treeNode.id,
 					height:300,
 					width:1000,
 					onclose : function() {
@@ -195,7 +194,7 @@ function addHoverDom(treeId, treeNode) {
 					$.ajax({
 					   type: "POST",
 					   url: "<%=basePath%>unit/punMenuAJAXSave.do",
-					   data: "parentMenuId="+treeNode.id+"&menuSeq="+(treeNode.children?treeNode.children.length:0)+"&menuName="+$menuName.val()+"&menuAddress="+$menuLink.val()+"&sysId="+sysId,
+					   data: "parentMenuId="+treeNode.id+"&menuSeq="+(treeNode.children?treeNode.children.length:0)+"&menuName="+$menuName.val()+"&menuAddress="+$menuLink.val(),
 					   success: function(data){
 						    if(data.status==0){
 						    	zTree.addNodes(treeNode, {id:data.data.menuId, pId:treeNode.id, name:$menuName.val(),url:$menuLink.val()});
@@ -237,9 +236,9 @@ function addHoverDom(treeId, treeNode) {
 					//修改菜单,如果是根节点不传parentMenuId值
 					var data;
 					if(!treeNode.pId){
-						data = "menuId="+treeNode.id+"&menuName="+$menuName.val()+"&menuAddress="+$menuLink.val()+"&sysId="+sysId;
+						data = "menuId="+treeNode.id+"&menuName="+$menuName.val()+"&menuAddress="+$menuLink.val();
 					}else{
-						data = "menuId="+treeNode.id+"&parentMenuId="+treeNode.pId+"&menuName="+$menuName.val()+"&menuAddress="+$menuLink.val()+"&sysId="+sysId;
+						data = "menuId="+treeNode.id+"&parentMenuId="+treeNode.pId+"&menuName="+$menuName.val()+"&menuAddress="+$menuLink.val();
 					}
 					$.ajax({
 					   type: "POST",
@@ -286,7 +285,7 @@ function addNode(){
 	top.dialog(
 			{ id: 'add-root-dialog' + Math.ceil(Math.random()*10000),
 				title: '新增根节点',
-				url:'<%=basePath%>dev/menuEditDialog.do?parentMenuId='+0+'&sysId='+sysId,
+				url:'<%=basePath%>dev/menuEditDialog.do?parentMenuId='+0,
 				height:300,
 				width:1000,
 				onclose : function() {
@@ -320,13 +319,13 @@ function addNode(){
 	    		return false;
 	    	}else{
 				//新增菜单
-				//var data = "menuId="+treeNode.id+"&parentMenuId="+treeNode.pId+"&menuName="+$menuName.val()+"&menuAddress="+$menuLink.val()+"&sysId="+sysId;
+				//var data = "menuId="+treeNode.id+"&parentMenuId="+treeNode.pId+"&menuName="+$menuName.val()+"&menuAddress="+$menuLink.val();
 				var i = $(".list-group-item").length+1;
 				var dataLi ='<li class="list-group-item"><ul id="tree'+i+'" class="ztree"></ul></li>';
 				$.ajax({
 					   type: "POST",
 					   url: "<%=basePath%>unit/punMenuAJAXSave.do",
-					   data: "parentMenuId=0&menuSeq="+i+"&menuName="+$menuName.val()+"&menuAddress="+$menuLink.val()+"&sysId="+sysId,
+					   data: "parentMenuId=0&menuSeq="+i+"&menuName="+$menuName.val()+"&menuAddress="+$menuLink.val(),
 					   success: function(data){
 						    if(data.status==0){
 						    	$(dataLi).appendTo(".CloudTreeMenu");

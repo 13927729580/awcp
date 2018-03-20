@@ -50,7 +50,8 @@ public class WeChatButton {
 		this.sub_button = sub_button;
 	}
 
-	public String toString() {
+	@Override
+    public String toString() {
 		String str = "button: {";
 		if(type!=null){
 			str += "type=" + type + ",";

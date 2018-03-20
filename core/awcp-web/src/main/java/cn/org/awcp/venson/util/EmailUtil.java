@@ -81,7 +81,8 @@ public class EmailUtil {
 		properties.put("mail.smtp.port", type.getPort());
 		// 获取默认session对象
 		Session session = Session.getDefaultInstance(properties, new Authenticator() {
-			public PasswordAuthentication getPasswordAuthentication() {
+			@Override
+            public PasswordAuthentication getPasswordAuthentication() {
 				return new PasswordAuthentication(user, password);
 			}
 		});

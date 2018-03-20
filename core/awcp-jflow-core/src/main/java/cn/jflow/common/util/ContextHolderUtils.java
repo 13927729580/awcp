@@ -1,6 +1,9 @@
 package cn.jflow.common.util;
 
 import cn.org.awcp.core.utils.ContextContentUtils;
+import cn.org.awcp.core.utils.SessionUtils;
+import cn.org.awcp.core.utils.Springfactory;
+import org.apache.shiro.session.Session;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.context.ApplicationContext;
@@ -19,20 +22,23 @@ import java.util.regex.Pattern;
  * JFlow上下文工具类
  * @version 2016-5-9
  */
-public class ContextHolderUtils implements ApplicationContextAware, DisposableBean {
+public class ContextHolderUtils{
 
 	private static ContextHolderUtils contextHolder;
-	private static ApplicationContext springContext;
-	
+
 	// 数据源设置
 	private DataSource dataSource;
 	
 	// 第三方系统session中的用户编码，设置后将不用再调用登录方法，直接获取当前session进行登录。
 	private String userNoSessionKey;
 
-	public synchronized static ContextHolderUtils getInstance() {
-		if (contextHolder == null) {
-			contextHolder = springContext.getBean(ContextHolderUtils.class);
+	public static ContextHolderUtils getInstance() {
+		if(contextHolder == null){
+			synchronized (ContextHolderUtils.class){
+				if (contextHolder == null) {
+					contextHolder = Springfactory.getBean(ContextHolderUtils.class);
+				}
+			}
 		}
 		return contextHolder;
 	}
@@ -54,15 +60,14 @@ public class ContextHolderUtils implements ApplicationContextAware, DisposableBe
 	 * SpringMvc下获取session
 	 * @return
 	 */
-	public static HttpSession getSession() {
-		HttpSession session = getRequest().getSession();
+	public static Session getSession() {
 //		java.util.Enumeration e = session.getAttributeNames();
 //		while (e.hasMoreElements()) {
 //			String name = (String) e.nextElement();
 //			String value = session.getAttribute(name).toString();
 //			System.out.println(name + " = " + value);
 //		}
-		return session;
+		return SessionUtils.getCurrentSession();
 	}
 	private static Pattern p =Pattern.compile("[\u4e00-\u9fa5]");
 	public static void addCookie(String name, int expiry, String value) {
@@ -148,24 +153,16 @@ public class ContextHolderUtils implements ApplicationContextAware, DisposableBe
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T getBean(String name) {
-		return (T) springContext.getBean(name);
+		return Springfactory.getBean(name);
 	}
 
 	/**
 	 * 从静态变量applicationContext中取得Bean, 自动转型为所赋值对象的类型.
 	 */
 	public static <T> T getBean(Class<T> requiredType) {
-		return springContext.getBean(requiredType);
+		return Springfactory.getBean(requiredType);
 	}
 
-	@Override
-	public void setApplicationContext(ApplicationContext arg0) throws BeansException {
-		ContextHolderUtils.springContext = arg0;
-	}
 
-	@Override
-	public void destroy() throws Exception {
-		ContextHolderUtils.springContext = null;
-	}
 
 }

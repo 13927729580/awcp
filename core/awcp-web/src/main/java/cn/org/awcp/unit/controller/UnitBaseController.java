@@ -1,33 +1,6 @@
 package cn.org.awcp.unit.controller;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authc.UsernamePasswordToken;
-import org.apache.shiro.subject.Subject;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
-
+import BP.Web.WebUser;
 import cn.org.awcp.core.utils.Security;
 import cn.org.awcp.core.utils.SessionUtils;
 import cn.org.awcp.core.utils.constants.SessionContants;
@@ -46,7 +19,22 @@ import cn.org.awcp.venson.controller.base.ReturnResult;
 import cn.org.awcp.venson.controller.base.StatusCode;
 import cn.org.awcp.venson.entity.Menu;
 import cn.org.awcp.venson.util.CookieUtil;
-import cn.org.awcp.venson.util.MD5Util;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.subject.Subject;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 用户登录
@@ -111,7 +99,7 @@ public class UnitBaseController {
 					.getObjectFromSession(SessionContants.CURRENT_ROLES);
 			String targetUrl = SC.TARGET_URL[0];
 			for (PunRoleInfoVO role : roles) {
-				if (role.getRoleName().equals("超级后台管理员")) {
+				if ("超级后台管理员".equals(role.getRoleName())) {
 					targetUrl = SC.TARGET_URL[1];
 					break;
 				}
@@ -171,8 +159,9 @@ public class UnitBaseController {
 	@ResponseBody
 	@RequestMapping(value = "shortcut/{id}", method = RequestMethod.GET)
 	public void shortcutGet(@PathVariable("id") String menuId) {
-		if (!StringUtils.isNumeric(menuId))
-			return;
+		if (!StringUtils.isNumeric(menuId)) {
+            return;
+        }
 		Long userId = ControllerHelper.getUserId();
 		Object id = metaModelOperateServiceImpl
 				.queryObject("select id from p_un_menu_count where user_id=? and menu_id=?", userId, menuId);
@@ -342,6 +331,7 @@ public class UnitBaseController {
 	@RequestMapping(value = "/logout", method = RequestMethod.GET)
 	public ModelAndView logout(HttpServletRequest request) {
 		Subject user = SecurityUtils.getSubject();
+		WebUser.Exit();
 		user.logout();
 		CookieUtil.deleteCookie(SC.SECRET_KEY);
 		return new ModelAndView("redirect:" + ControllerHelper.getBasePath());
@@ -366,8 +356,9 @@ public class UnitBaseController {
 				.getObjectFromSession(SessionContants.CURRENT_USER);
 		if (current_user != null) {
 			// 判断当前已登录用户是否是指定的uid用户
-			if (current_user.getUserIdCardNumber().equals(uid))
-				return new ModelAndView("redirect:" + url);
+			if (current_user.getUserIdCardNumber().equals(uid)) {
+                return new ModelAndView("redirect:" + url);
+            }
 			// 如果不是当前登录用户则注销当前用户
 			else {
 				Subject user = SecurityUtils.getSubject();

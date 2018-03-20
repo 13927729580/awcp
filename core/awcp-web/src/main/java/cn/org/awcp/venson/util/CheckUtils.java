@@ -43,7 +43,8 @@ public class CheckUtils {
 	 * @return
 	 */
 	public static boolean isLegalUserName(String str) {
-		Pattern p = Pattern.compile("[a-zA-Z]{1}[a-zA-Z0-9]{5,16}");
+		String regExp = "[a-zA-Z]{1}[a-zA-Z0-9]{5,16}";
+		Pattern p = Pattern.compile(regExp);
 		Matcher m = p.matcher(str);
 		return m.matches();
 	}

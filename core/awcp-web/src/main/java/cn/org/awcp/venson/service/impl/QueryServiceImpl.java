@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.util.*;
 @Service
-@Transactional(readOnly = true)
+@Transactional(readOnly = true,rollbackFor = {Exception.class})
 public class QueryServiceImpl implements QueryService {
 
 	@Resource(name = "metaModelOperateServiceImpl")
@@ -38,9 +38,18 @@ public class QueryServiceImpl implements QueryService {
 	/** 拒绝件 */
 	private static final String REJECT = "5";
 
-	public Map<String, Object> getUntreatedData(int limit, int offset, String[] includeFlow,String[] excludeFlow, String workItemName,
-			String userName, boolean hasReturn) {
-		Map<String, Object> result = new HashMap<String, Object>();
+	@Override
+	public Map<String, Object> getStarter(String workId) {
+		Map<String, Object> params = new HashMap<>(1);
+		String sql="select starter,FK_Flow,title,FK_Node,WFState,RDT from wf_generworkflow where workid=:workId";
+		params.put("workId",workId);
+		return this.jdbcTemplate.queryForMap(sql,params);
+	}
+
+	@Override
+	public Map<String, Object> getUntreatedData(int limit, int offset, String[] includeFlow, String[] excludeFlow, String workItemName,
+												String userName, boolean hasReturn) {
+		Map<String, Object> result = new HashMap<>(2);
 		Map<String, Object> params = new HashMap<>();
 		String wfSql = "  a.WFState=" + WFState.Askfor.getValue() + " OR a.WFState=" + WFState.Runing.getValue()
 				+ "  OR a.WFState=" + WFState.AskForReplay.getValue() + " OR a.WFState=" + WFState.Shift.getValue()
@@ -157,7 +166,7 @@ public class QueryServiceImpl implements QueryService {
 	@Override
 	public Map<String, Object> getReturnData(int limit, int offset, String FK_Flow, String workItemName,
 			String userName) {
-		Map<String, Object> result = new HashMap<String, Object>();
+		Map<String, Object> result = new HashMap<>(2);
 		Map<String, Object> params = new HashMap<>();
 		StringBuilder builder = new StringBuilder();
 		builder.append("SELECT a.FK_Flow,a.FlowName,a.StarterName,a.FK_Node,a.FID," + RETURN
@@ -189,7 +198,7 @@ public class QueryServiceImpl implements QueryService {
 	@Override
 	public Map<String, Object> getHandledData(int limit, int offset, String FK_Flow, String workItemName,
 			String userName) {
-		Map<String, Object> result = new HashMap<String, Object>();
+		Map<String, Object> result = new HashMap<>(2);
 		Map<String, Object> params = new HashMap<>();
 		StringBuilder builder = new StringBuilder();
 
@@ -243,7 +252,7 @@ public class QueryServiceImpl implements QueryService {
 	@Override
 	public Map<String, Object> getCompileData(int limit, int offset, String FK_Flow, String workItemName,
 			String userName) {
-		Map<String, Object> result = new HashMap<String, Object>();
+		Map<String, Object> result = new HashMap<>(2);
 		Map<String, Object> params = new HashMap<>();
 		StringBuilder builder = new StringBuilder();
 
@@ -293,7 +302,7 @@ public class QueryServiceImpl implements QueryService {
 
 	@Override
 	public Map<String, Object> getAllData(int limit, int offset, String FK_Flow, String workItemName, String userName) {
-		Map<String, Object> result = new HashMap<String, Object>();
+		Map<String, Object> result = new HashMap<>(2);
 		Map<String, Object> params = new HashMap<>();
 		StringBuilder builder = new StringBuilder();
 		// WFState 0:待处理1:办理中2:已完成3:被驳回
@@ -360,7 +369,7 @@ public class QueryServiceImpl implements QueryService {
 	@Override
 	public Map<String, Object> getCreateByMeData(int limit, int offset, String FK_Flow, String workItemName,
 			String userName) {
-		Map<String, Object> result = new HashMap<String, Object>();
+		Map<String, Object> result = new HashMap<>(2);
 		Map<String, Object> params = new HashMap<>();
 		StringBuilder builder = new StringBuilder(
 				"SELECT b.DYNAMICPAGE_ID,b.RECORD_ID,a.FK_Flow,a.FlowName,a.StarterName,a.FK_Node,a.FID,a.WorkID,(CASE a.WFState WHEN 5 THEN "

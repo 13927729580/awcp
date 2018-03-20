@@ -720,7 +720,7 @@ public class FlowDesignerUtils {
 	public static String[] GetNodeIconFile()
 	{
 		// XAP/Admin/WF
-		String path = ContextHolderUtils.getSession().getServletContext().getRealPath("../../../");
+		String path = ContextHolderUtils.getRequest().getSession().getServletContext().getRealPath("../../../");
 		path += "ClientBin/NodeIcon";
 
 		File file = new File(path);

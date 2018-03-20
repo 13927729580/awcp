@@ -33,68 +33,6 @@
 	</div>
 </#macro>
 
-<#-----------------button begin------------------------------------------------------------->
-<#macro convertButton c >
-	<div class="submit-foot tTap" id='${c.getPageId()}' 
-		<#noparse>
-			<#if (pageActStatus['</#noparse>${c.getPageId()}<#noparse>']['hidden'])?? && pageActStatus['</#noparse>${c.getPageId()}<#noparse>']['hidden']>
-				style="display:none;"
-			</#if>
-		</#noparse>
-	>
-		<#noparse>${others['title_</#noparse>${c.getPageId()}<#noparse>']!''}</#noparse>
-	</div>
-</#macro>
-<#macro convertScript c>
-	$("#${c.getPageId()}").click(function(){	
-		<#if c.getActType()==2010>
-		if(count==1){
-			<#if c.isConfirm()>
-				<@convertDialog c/>
-			<#else>
-				<#if c.getClientScript()??>
-					${c.getClientScript()}
-				</#if>}else{
-					alert("请选择一条记录！");
-				}
-			</#if>
-		<#else>
-		<#if c.isChooseValidate()??&&c.isChooseValidate()>
-			<#noparse>
-				<#if (pageActStatus['</#noparse>${c.getPageId()}<#noparse>']['chooseNum'])?? </#noparse> >
-					var choosenum = <#noparse>${pageActStatus['</#noparse>${c.getPageId()}<#noparse>']['chooseNum']};
-				</#if> 
-			</#noparse>			
-			if(count!=choosenum){
-				if(count<choosenum){
-					var difference = choosenum-count;
-					alertMessage("请选择"+choosenum+"条数据！请再选择"+difference+"条数据!");
-				}else if(count>choosenum){
-					var difference = count-choosenum;
-					alertMessage("请选择"+choosenum+"条数据！请少选择"+difference+"条数据!");
-				}
-			}else{
-				<#if c.isConfirm()>
-					<@convertDialog c/>
-				<#else>
-					<#if c.getClientScript()??>
-						${c.getClientScript()}
-					</#if>
-				</#if>
-			}
-		<#else>
-			<#if c.isConfirm()>
-				<@convertDialog c/>
-			<#else>
-				<#if c.getClientScript()??>
-					${c.getClientScript()}
-				</#if>
-			</#if>			
-		</#if>		
-	</#if>
-	});
-</#macro>
-<#-----------------button end------------------------------------------------------------->
 
 <#macro parseComponent c >
 	<#local componetType=c['componentType']?number>
@@ -133,24 +71,47 @@
 	</#switch>
 </#macro>
 
-<#-------------------------------------------事件控件 begin------------------------------------------>
+
+<#--  按钮	-->
+<#macro convertButton c >
+	<div class="submit-foot tTap" id='${c.getPageId()}' 
+		<#noparse>
+			<#if (pageActStatus['</#noparse>${c.getPageId()}<#noparse>']['hidden'])?? && pageActStatus['</#noparse>${c.getPageId()}<#noparse>']['hidden']>
+				style="display:none;"
+			</#if>
+		</#noparse>
+	><#noparse>${others['title_</#noparse>${c.getPageId()}<#noparse>']!''}</#noparse></div>
+</#macro>
+
+
+<#--  按钮点击事件脚本	-->
+<#macro convertScript c>
+	$("#${c.getPageId()}").click(function(){	
+		<#if c.isChooseValidate()?? && c.isChooseValidate()>
+			if(!Comm.validDDParam())
+				return;
+		</#if>
+		<#if c.getClientScript()??>
+			${c.getClientScript()}
+		</#if>
+	});
+</#macro>
+
+
+<#--  事件控件	-->
 <#macro convertFunction c>
 	<#if c['title']?? >
 		<div class="colFirst" >
-			<label><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
+			<label class="<#if c['required']?? && c['required']=='1'>requiredLabel</#if>"><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
 		</div>
 	</#if>	
-	<#local placeholder = 'select' />
-	<#if c['placeholder']?? && c['placeholder']!=''>
-		<#local placeholder = c['placeholder'] />			
-	</#if>
 	<div class="colSecond" >
-     	<span data-id='${placeholder + c['required']!''}' class='awcp_fun <#if c['css']?? && c['css']?length gt 0>${c['css']}</#if>'  
-     		<#if c['style']?? >style='margin-left: 0px;${c['style']}'</#if>><#if c['extra']?? && c['extra']?length gt 0 >
+     	<span data-id="${c['placeholder']!''}" class="awcp_fun <#if c['css']?? && c['css']?length gt 0>${c['css']}</#if>"  
+     		<#if c['style']?? >style="margin-left: 0px;${c['style']}"</#if> ><#if c['extra']?? && c['extra']?length gt 0 >
 			<#noparse>${(</#noparse>${c['extra']}<#noparse>)!""}</#noparse>	
 		</#if></span>
     
-     	<input class='<#if c['required']?? && c['required'] == '1'>required</#if>' type='hidden' id='${(c['pageId'])!""}'  	
+     	<input class="<#if c['required']?? && c['required'] == '1'>required</#if>" type="hidden" id="${(c['pageId'])!''}"  	
      	<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['disabled'])?? && status['</#noparse>${c['name']}<#noparse>']['disabled'] == 'true'>disabled="disabled"</#if></#noparse>
 		<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['readonly'])?? && status['</#noparse>${c['name']}<#noparse>']['readonly'] == 'true'>readonly="readonly"</#if></#noparse>
      	<#if c['name']?? >
@@ -163,20 +124,16 @@
 	 	/>
 	 </div>
 </#macro>
-<#-------------------------------------------事件控件 end------------------------------------------>
 
-<#-------------------------------------------事件控件 begin------------------------------------------>
+
+<#--  移动端省市县	-->
 <#macro convertAddress c>
 	<#if c['title']?? >
 		<div class="colFirst" >
-			<label><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
+			<label class="<#if c['required']?? && c['required']=='1'>requiredLabel</#if>"><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
 		</div>
 	</#if>	
-	<#local placeholder = 'select' />
-	<#if c['placeholder']?? && c['placeholder']!=''>
-		<#local placeholder = c['placeholder'] />			
-	</#if>
-	<div class="colSecond" >
+	<div class="colSecond">
      	<div>
 	        <div class="content-block">
 	            <input id="pcaName" type="text" readonly="readonly" placeholder="请选择省市县" 
@@ -189,21 +146,17 @@
 	    </div>
 	 </div>
 </#macro>
-<#-------------------------------------------事件控件 end------------------------------------------>
 
-<#-------------------------------------------多选框checkbook begin------------------------------------------>
+
+<#--  多选框	-->
 <#macro convertCheckbox c>
 	<#if c['title']?? >
 		<div class="colFirst" >
-			<label><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
+			<label class="<#if c['required']?? && c['required']=='1'>requiredLabel</#if>"><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
 		</div>
 	</#if>	
-	<#local placeholder = 'select' />
-	<#if c['placeholder']?? && c['placeholder']!=''>
-		<#local placeholder = c['placeholder'] />			
-	</#if>
 	<div class="colSecond" >
-     	<span data-id='${placeholder+c['required']!''}' class='dd_select <#if c['css']?? && c['css']?length gt 0>${c['css']}</#if>'  
+     	<span data-id='${c['placeholder']!''}' class='dd_select <#if c['css']?? && c['css']?length gt 0>${c['css']}</#if>'  
      		<#if c['style']?? >style='float:right;margin-right: 15px;${c['style']}'</#if>><#if c['dataItemCode']?? && c['dataItemCode']?length gt 0 >
 			<#noparse>${(</#noparse>${c['dataItemCode']}<#noparse>)!""}</#noparse>	
 		</#if></span>
@@ -220,34 +173,30 @@
 	 	/>
 	</div>
 </#macro>
-<#-------------------------------------------多选框checkbook end------------------------------------------>
 
 
-<#-------------------------------------------hidden框组件begin---------------------------------------->
+<#--  隐藏框	-->
 <#macro convertHidden c >
-	<input class='<#if c['required']?? && c['required'] == '1'>required</#if>' type='hidden'
-		<#if c['name']?? >
-			name='${c['name']}'
-		</#if> 
+	<input type='hidden' <#if c['name']?? >name='${c['name']}'</#if> 
 		<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['disabled'])?? && status['</#noparse>${c['name']}<#noparse>']['disabled'] == 'true'>disabled="disabled"</#if></#noparse>
 		<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['readonly'])?? && status['</#noparse>${c['name']}<#noparse>']['readonly'] == 'true'>readonly="readonly"</#if></#noparse>
 		<#if c['dataItemCode']??   && c['dataItemCode']?length gt 0>
-				value="<#noparse>${(</#noparse>${c['dataItemCode']}<#noparse>)!''}</#noparse>"
+			value="<#noparse>${(</#noparse>${c['dataItemCode']}<#noparse>)!''}</#noparse>"
 		</#if> 
 		id='${(c['pageId'])!""}'
 	/>
 </#macro>
-<#-------------------------------------------hidden框组件end---------------------------------------->
 
-<#-------------------------------------------附件上传框begin------------------------------------------->
+
+<#--  附件上传框	-->
 <#macro convertFile c >
 	<div>
 		<div class="colFirst" >
-			<label><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
+			<label class="<#if c['required']?? && c['required']=='1'>requiredLabel</#if>"><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
 		</div>
 		<div class="colSecond" >
 	       	<img src="<#noparse>${basePath}</#noparse>dingding/img/files.png" 
-	       		style="margin:8px 15px 0px 0px;float:right;width:34px;heigth:34px;" id="picture" />
+	       		style="float:right;width:22px;" id="picture" />
 	       	<textarea 
 	       	style="display:none;"
 	       	<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['disabled'])?? && status['</#noparse>${c['name']}<#noparse>']['disabled'] == 'true'>disabled="disabled"</#if></#noparse>
@@ -258,17 +207,17 @@
 	</div>
     <div class="atts" id="files"></div>
 </#macro>
-<#-------------------------------------------附件上传框end------------------------------------------->
 
-<#-------------------------------------------图片上传框begin------------------------------------------->
+
+<#--  图片上传框	-->
 <#macro convertImage c >
 	<div>
 		<div class="colFirst" >
-			<label><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
+			<label class="<#if c['required']?? && c['required']=='1'>requiredLabel</#if>"><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
 		</div>
 		<div class="colSecond" >
 	       	<img src="<#noparse>${basePath}</#noparse>dingding/img/camera.png" 
-	       		style="margin:8px 15px 0px 0px;float:right;width:34px;heigth:34px;" id="picture" />
+	       		style="float:right;width:22px;" id="picture" />
 	       	<input type="hidden" 
 	       		<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['disabled'])?? && status['</#noparse>${c['name']}<#noparse>']['disabled'] == 'true'>disabled="disabled"</#if></#noparse>
 				<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['readonly'])?? && status['</#noparse>${c['name']}<#noparse>']['readonly'] == 'true'>readonly="readonly"</#if></#noparse>
@@ -279,22 +228,18 @@
 	</div>
     <div class="images imgs-scroll"></div>
 </#macro>
-<#-------------------------------------------图片上传框end------------------------------------------->
 
-<#-------------------------------------------下拉框select begin------------------------------------------->
+
+<#--  下拉框	-->
 <#macro convertSelect c >
 	<#if c['title']?? >
 		<div class="colFirst" >
-			<label><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
+			<label class="<#if c['required']?? && c['required']=='1'>requiredLabel</#if>"><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
 		</div>
 	</#if>	
-	<#local placeholder = 'select' />
-	<#if c['placeholder']?? && c['placeholder']!=''>
-		<#local placeholder = c['placeholder'] />			
-	</#if>
 	<div class="colSecond">
 	    <span class='dd_select <#if c['css']?? && c['css']?length gt 0>${c['css']}</#if>'  <#if c['style']?? >style='float:right;margin-right: 15px;${c['style']}'</#if>
-	    data-id='<#noparse><#if (</#noparse>${c['dataItemCode']}<#noparse>)?? && (</#noparse>${c['dataItemCode']}<#noparse>)?length gt 0 ><#else></#noparse>${placeholder+c['required']!''}<#noparse></#if></#noparse>'
+	    data-id='<#noparse><#if (</#noparse>${c['dataItemCode']}<#noparse>)?? && (</#noparse>${c['dataItemCode']}<#noparse>)?length gt 0 ><#else></#noparse><#if c['placeholder']?? && c['placeholder']?length gt 0 >${c['placeholder']}<#else>请选择_Please Select</#if><#noparse></#if></#noparse>'
 	    >    
 	    </span>
      	<input  class='<#if c['required']?? && c['required'] == '1'>required</#if>'  type='hidden' id='${(c['pageId'])!""}'
@@ -311,20 +256,16 @@
 	 	<input type="hidden" value="<#noparse><#if others??> ${others['options_</#noparse>${c['name']}<#noparse>']!''}</#if></#noparse>" />
 	</div>
 </#macro>
-<#-------------------------------------------下拉框select end------------------------------------------>
+
 
 <#--  多行输入框	-->
 <#macro convertTextarea c >
-	<#if c['title']?? >
+	<#if c['title']??  && c['title']?length gt 0>
 		<div class="colFirst">
-			<label><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
+			<label class="<#if c['required']?? && c['required']=='1'>requiredLabel</#if>"><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
 		</div>
-	</#if>	
-	<#local placeholder = 'input' />
-	<#if c['placeholder']?? && c['placeholder']!=''>
-		<#local placeholder = c['placeholder'] />			
 	</#if>
-	<div class="colSecond">
+	<div class="colSecond" style="<#if c['title']?? && c['title']?length==0>width:100%;</#if>">
 		<textarea class='<#if c['css']?? && c['css']?length gt 0>${c['css']}</#if> <#if c['required']?? && c['required'] == '1'>required</#if> '	
 		<#if c['rowCount']?? >rows='${c['rowCount']}'<#else>rows='3'</#if>			
 		<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['disabled'])?? && status['</#noparse>${c['name']}<#noparse>']['disabled'] == 'true'>disabled="disabled"</#if></#noparse>
@@ -332,24 +273,21 @@
 		id='${(c['pageId'])!""}'
 		style='<#if c['style']?? >${c['style']}</#if>'
 		<#if c['name']?? >name='${c['name']}'</#if>
-		data-placeholder='${placeholder+c['required']!''}'
+		data-placeholder='<#if c['placeholder']?? && c['placeholder']?length gt 0 >${c['placeholder']}<#else>请输入_Please Input</#if>'
 		><#if c['dataItemCode']?? && c['dataItemCode']?length gt 0 ><#noparse>${(</#noparse>${c['dataItemCode']}<#noparse>)!''}</#noparse></#if></textarea>
 	</div>
 </#macro>
 
+
 <#--  日期选择框	-->
 <#macro convertDatetime c>		
-	<#local placeholder = 'select' />
-	<#if c['placeholder']?? && c['placeholder']!=''>
-		<#local placeholder = c['placeholder'] />			
-	</#if>
 	<#if c['title']?? >
 		<div class="colFirst">
-			<label><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
+			<label class="<#if c['required']?? && c['required']=='1'>requiredLabel</#if>"><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
 		</div>
 	</#if>
 	<div class="colSecond">
-		<span data-id='<#noparse><#if (</#noparse>${c['dataItemCode']}<#noparse>)?? && (</#noparse>${c['dataItemCode']}<#noparse>)?length gt 0 ><#else></#noparse>${placeholder+c['required']!''}<#noparse></#if></#noparse>' 
+		<span data-id='<#noparse><#if (</#noparse>${c['dataItemCode']}<#noparse>)?? && (</#noparse>${c['dataItemCode']}<#noparse>)?length gt 0 ><#else></#noparse><#if c['placeholder']?? && c['placeholder']?length gt 0 >${c['placeholder']}<#else>请选择_Please Select</#if><#noparse></#if></#noparse>' 
 			style='float:right;margin-right: 15px;' class='
 			<#if c['css']?? && c['css']?length gt 0>
 				${c['css']}
@@ -358,7 +296,7 @@
 			</#if>' >
 			
 			</span>
-		<input  class='<#if c['required']?? && c['required'] == '1'>required</#if>' type='hidden' id='${(c['pageId'])!""}'
+		<input class='<#if c['required']?? && c['required'] == '1'>required</#if>' type='hidden' id='${(c['pageId'])!""}'
 			<#if c['name']?? >
 				name='${c['name']}'		
 			</#if> 
@@ -371,19 +309,16 @@
 	 </div>
 </#macro>
 
-<#-------------------------------------------输入框组件begin---------------------------------------->
+
+<#--  文本输入框	-->
 <#macro convertInputext c >
 	<#if c['title']?? >
 		<div class="colFirst">
-			<label><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
+			<label class="<#if c['required']?? && c['required']=='1'>requiredLabel</#if>"><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
 		</div>
-	</#if>
-	<#local placeholder = 'input' />
-	<#if c['placeholder']?? && c['placeholder']!=''>
-		<#local placeholder = c['placeholder'] />			
 	</#if>	
 	<div class="colSecond">
-		<input type='text' class='<#if c['css']?? && c['css']?length gt 0>${c['css']}</#if> <#if c['required']?? && c['required'] == '1'>required</#if>'			
+		<input type='${c['textType']!'text'}' class='<#if c['css']?? && c['css']?length gt 0>${c['css']}</#if> <#if c['required']?? && c['required'] == '1'>required</#if>'			
 		<#if c['dataItemCode']?? && c['dataItemCode']?length gt 0 >
 			value="<#noparse>${(</#noparse>${c['dataItemCode']}<#noparse>)!''}</#noparse>"
 		</#if>		
@@ -392,7 +327,7 @@
 		style='<#if c['style']?? >${c['style']}</#if>'
 		id='${(c['pageId'])!""}'
 		<#if c['name']?? >name='${c['name']}'</#if>	
-		data-placeholder='${placeholder+c['required']!''}'
+		data-placeholder='<#if c['placeholder']?? && c['placeholder']?length gt 0 >${c['placeholder']}<#else>请输入_Please Input</#if>'
 		/>
 	</div>
 </#macro>
@@ -429,7 +364,9 @@
 		<#default>
 	</#switch>
 </#macro>
-<#--事件控件脚本-->
+
+
+<#--  事件控件脚本	-->
 <#macro convertFunctionScript component >
 	<#noparse><#if (status['</#noparse>${component['name']}<#noparse>']['disabled'])?? && status['</#noparse>${component['name']}<#noparse>']['disabled'] == 'true'>		
 	<#else>
@@ -441,9 +378,9 @@
 	</#if>	
 	</#noparse>
 </#macro>
-<#--事件控件脚本end-->
 
-<#--省市县控件脚本-->
+
+<#--  省市县控件脚本	-->
 <#macro convertAddressScript component >
 	<#noparse><#if (status['</#noparse>${component['name']}<#noparse>']['disabled'])?? && status['</#noparse>${component['name']}<#noparse>']['disabled'] == 'true'>		
 	<#else>
@@ -465,9 +402,9 @@
 	</#if>	
 	</#noparse>
 </#macro>
-<#--省市县控件脚本end-->
 
-<#--多选框脚本-->
+
+<#--  多选框脚本	-->
 <#macro convertCheckboxScript component >
 	<#noparse><#if (status['</#noparse>${component['name']}<#noparse>']['disabled'])?? && status['</#noparse>${component['name']}<#noparse>']['disabled'] == 'true'>		
 	<#else>
@@ -487,27 +424,27 @@
 				})
 				var $span=$(this).find(".dd_select");
 				dd.biz.util.multiSelect({
-						"options":options,
-						"selectOption":selectOption,
-						onSuccess: function(data) {
-							var str=[];
-							for(var i=0;i<data.length;i++){
-								str.push(options[data[i]]);
-							}
-							$span.text(str.join(","));
-							$input.val(str.join(","));
-					    },
-					    onFail: function(err) {
-					    }
-					});
+					"options":options,
+					"selectOption":selectOption,
+					onSuccess: function(data) {
+						var str=[];
+						for(var i=0;i<data.length;i++){
+							str.push(options[data[i]]);
+						}
+						$span.text(str.join(","));
+						$input.val(str.join(","));
+				    },
+				    onFail: function(err) {
+				    }
+				});
 			})
 		})();
 	</#if>	
 	</#noparse>
 </#macro>
-<#--多选框脚本end-->
 
-<#--文本框脚本-->
+
+<#--  文本框脚本	-->
 <#macro convertInputextScript component >
 	<#noparse><#if (status['</#noparse>${component['name']}<#noparse>']['disabled'])?? && status['</#noparse>${component['name']}<#noparse>']['disabled'] == 'true'>		
 	<#else>
@@ -518,10 +455,9 @@
 	</#if>	
 	</#noparse>
 </#macro>
-<#-- 文本框脚本 end-->
 
 
-<#--附件上传框脚本-->
+<#--  附件上传框脚本	-->
 <#macro convertFileScript component >
 	<#noparse><#if (status['</#noparse>${component['name']}<#noparse>']['disabled'])?? && status['</#noparse>${component['name']}<#noparse>']['disabled'] == 'true'>		
 	<#else>
@@ -630,8 +566,9 @@
 	</#if>	
 	</#noparse>
 </#macro>
-<#-- 图片上传框脚本 end-->
-<#--图片上传框脚本-->
+
+
+<#--  图片上传框脚本	-->
 <#macro convertImageScript component >
 	<#noparse><#if (status['</#noparse>${component['name']}<#noparse>']['disabled'])?? && status['</#noparse>${component['name']}<#noparse>']['disabled'] == 'true'>		
 	<#else>
@@ -716,9 +653,9 @@
 	</#if>	
 	</#noparse>
 </#macro>
-<#-- 图片上传框脚本 end-->
 
-<#--下拉框脚本-->
+
+<#--  下拉框脚本	-->
 <#macro convertSelectScript component >
 	<#noparse><#if (status['</#noparse>${component['name']}<#noparse>']['disabled'])?? && status['</#noparse>${component['name']}<#noparse>']['disabled'] == 'true'>		
 	<#else>
@@ -772,10 +709,9 @@
 	</#if>	
 	</#noparse>
 </#macro>
-<#-- 下拉框脚本 end-->
 
 
-<#--日期框脚本组件解析-->
+<#--  日期框脚本组件解析	-->
 <#macro convertDateTimeScript component >
 	<#noparse><#if (status['</#noparse>${component['name']}<#noparse>']['disabled'])?? && status['</#noparse>${component['name']}<#noparse>']['disabled'] == 'true'>		
 	<#else>
@@ -838,8 +774,3 @@
 	</#if>	
 	</#noparse>
 </#macro>
-
-<#-- 日期框脚本 end-->
-				
-
-

@@ -4,23 +4,25 @@ import javax.servlet.http.HttpServletRequest;
 
 public class HttpRequestDeviceUtils {
 
-	/** Wap网关Via头信息中特有的描述信息 */
-	private static String mobileGateWayHeaders[] = new String[] { "ZXWAP",// 中兴提供的wap网关的via信息，例如：Via=ZXWAP
-																			// GateWayZTE
-																			// Technologies，
-			"chinamobile.com",// 中国移动的诺基亚wap网关，例如：Via=WTP/1.1
-								// GDSZ-PB-GW003-WAP07.gd.chinamobile.com (Nokia
-								// WAP Gateway 4.1 CD1/ECD13_D/4.1.04)
-			"monternet.com",// 移动梦网的网关，例如：Via=WTP/1.1
-							// BJBJ-PS-WAP1-GW08.bj1.monternet.com. (Nokia WAP
-							// Gateway 4.1 CD1/ECD13_E/4.1.05)
-			"infoX",// 华为提供的wap网关，例如：Via=HTTP/1.1 GDGZ-PS-GW011-WAP2 (infoX-WISG
-					// Huawei Technologies)，或Via=infoX WAP Gateway V300R001
-					// Huawei Technologies
-			"XMS 724Solutions HTG",// 国外电信运营商的wap网关，不知道是哪一家
-			"wap.lizongbo.com",// 自己测试时模拟的头信息
+	/**
+	 * Wap网关Via头信息中特有的描述信息
+	 */
+	private static String[] mobileGateWayHeaders = new String[]{"ZXWAP", // 中兴提供的wap网关的via信息，例如：Via=ZXWAP
+			// GateWayZTE
+			// Technologies，
+			"chinamobile.com", // 中国移动的诺基亚wap网关，例如：Via=WTP/1.1
+			// GDSZ-PB-GW003-WAP07.gd.chinamobile.com (Nokia
+			// WAP Gateway 4.1 CD1/ECD13_D/4.1.04)
+			"monternet.com", // 移动梦网的网关，例如：Via=WTP/1.1
+			// BJBJ-PS-WAP1-GW08.bj1.monternet.com. (Nokia WAP
+			// Gateway 4.1 CD1/ECD13_E/4.1.05)
+			"infoX", // 华为提供的wap网关，例如：Via=HTTP/1.1 GDGZ-PS-GW011-WAP2 (infoX-WISG
+			// Huawei Technologies)，或Via=infoX WAP Gateway V300R001
+			// Huawei Technologies
+			"XMS 724Solutions HTG", // 国外电信运营商的wap网关，不知道是哪一家
+			"wap.lizongbo.com", // 自己测试时模拟的头信息
 			"Bytemobile",// 貌似是一个给移动互联网提供解决方案提高网络运行效率的，例如：Via=1.1 Bytemobile OSN
-							// WebProxy/5.1
+			// WebProxy/5.1
 	};
 	/** 电脑上的IE或Firefox浏览器等的User-Agent关键词 */
 	private static String[] pcHeaders = new String[] { "Windows 98",

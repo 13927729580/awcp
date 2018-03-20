@@ -99,6 +99,27 @@ public class DocumentVO {
 	// 序号列排序方式，1降序，0升序
 	private String reverseSortord;
 
+	//流程相关动作类型
+	private int actType;
+	//流程下一个执行人
+	private String nextUser;
+
+	public int getActType() {
+		return actType;
+	}
+
+	public void setActType(int actType) {
+		this.actType = actType;
+	}
+
+	public String getNextUser() {
+		return nextUser;
+	}
+
+	public void setNextUser(String nextUser) {
+		this.nextUser = nextUser;
+	}
+
 	/**
 	 * 包装request传递过来的数据
 	 */

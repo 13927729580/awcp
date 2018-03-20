@@ -22,9 +22,11 @@ import cn.org.awcp.venson.common.SC;
 import cn.org.awcp.venson.controller.base.ControllerContext;
 import cn.org.awcp.venson.controller.base.ControllerHelper;
 import cn.org.awcp.venson.exception.PlatformException;
-import cn.org.awcp.venson.util.*;
+import cn.org.awcp.venson.util.HttpUtils;
+import cn.org.awcp.venson.util.LocalStorage;
+import cn.org.awcp.venson.util.MD5Util;
+import cn.org.awcp.venson.util.PlatfromProp;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.miemiedev.mybatis.paginator.domain.PageList;
 import com.github.miemiedev.mybatis.paginator.domain.Paginator;
@@ -47,9 +49,6 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("unchecked")
 public abstract class BaseUtils {
@@ -64,7 +63,7 @@ public abstract class BaseUtils {
 	protected PunPositionService punPositionService = Springfactory.getBean("punPositionServiceImpl");
 	// 注入组织服务
 	protected PunGroupService punGroupService = Springfactory.getBean("punGroupServiceImpl");
-	// 注入SprfingJdbc
+	// 注入SpringJdbc
 	protected JdbcTemplate jdbcTemplate = Springfactory.getBean("jdbcTemplate");
 	// 注入元数据模型服务
 	protected MetaModelService metaModelService = Springfactory.getBean("metaModelServiceImpl");
@@ -136,8 +135,9 @@ public abstract class BaseUtils {
 		// 如果当前用户为空则尝试去cookie中查找
 		if (currentUser == null) {
 			// 尝试用cookie登录
-			if (!ControllerHelper.loginByCookie())
+			if (!ControllerHelper.loginByCookie()) {
 				return null;
+			}
 		}
 		return (PunUserBaseInfoVO) currentUser;
 
@@ -224,18 +224,6 @@ public abstract class BaseUtils {
 			}
 		}
 		return "";
-	}
-
-	/**
-	 * 获取用户的组织Id
-	 */
-	public Long getUserGroupId() {
-		List<PunGroupVO> groups = getUserGroupById(getUser().getUserId() + "");
-		for (PunGroupVO punGroupVO : groups) {
-			return punGroupVO.getGroupId();
-		}
-
-		return Long.MIN_VALUE;
 	}
 
 	/**
@@ -689,13 +677,13 @@ public abstract class BaseUtils {
 
 	/**
 	 * 保存某个数据源中的数据 限定该数据源必须为非自定义类型的
-	 * 
+	 *
 	 * @param name
 	 * @return
 	 * @throws Exception
 	 */
 	@SuppressWarnings("rawtypes")
-	public Map saveDataFlow(String name, boolean masterDateSource) throws Exception {
+	public Map saveDataFlow(String name, boolean masterDateSource){
 
 		return documentService.saveModelDataFlow(ControllerContext.getPage(), ControllerContext.getDoc(), name,
 				masterDateSource);
@@ -703,7 +691,7 @@ public abstract class BaseUtils {
 
 	/**
 	 * 将指定数据保存至数据库，限定该数据源必须为非自定义类型的
-	 * 
+	 *
 	 * @param map
 	 *            数据 key是modelItemCode
 	 * @param modelCode
@@ -715,7 +703,7 @@ public abstract class BaseUtils {
 
 	/**
 	 * 将指定数据更新至数据库，限定该数据源必须为非自定义类型的
-	 * 
+	 *
 	 * @param map
 	 *            数据 key是modelItemCode
 	 * @param modelCode
@@ -727,7 +715,7 @@ public abstract class BaseUtils {
 
 	/**
 	 * 将数据源数据 更新至数据库
-	 * 
+	 *
 	 * @param name
 	 *            数据源名称
 	 * @return
@@ -955,7 +943,7 @@ public abstract class BaseUtils {
 		if (params == null) {
 			params = Collections.EMPTY_MAP;
 		}
-		if (method.toLowerCase().equals("post")) { // post 请求
+		if ("post".equals(method.toLowerCase())) { // post 请求
 			return HttpUtils.sendPost(url, params);
 		} else {
 			return HttpUtils.sendGet(url, params);
@@ -1240,72 +1228,6 @@ public abstract class BaseUtils {
 		return getIncNumber(null, digit, isRandom);
 	}
 
-	public boolean addTimerTask(String date, String sql, Object... args) {
-		return addTimerTask(DateUtils.parseDate(date), sql, args);
-	}
-
-	static ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
-	private static final String addTimerTaskKEY = "addTimerTask";
-	static Map<String, Object> addTimerTask;
-	static {
-		// 查看缓存文件是否存在定时任务
-		if (LocalStorage.hasKey(addTimerTaskKEY)) {
-			addTimerTask = LocalStorage.get(addTimerTaskKEY, Map.class);
-			List<String> removeKey = new ArrayList<>();
-			addTimerTask.forEach((key, v) -> {
-				JSONArray value = (JSONArray) v;
-				String[] params = key.split("___");
-				Date date = DateFormaterUtil.stringToDate(DateFormaterUtil.FORMART4, params[0]);
-				// 判断执行时间是否已经过期
-				if (date.before(new Date()))
-					removeKey.add(key);
-				else
-					addTimerTasks(date, params[1], value.toArray(new Object[] {}));
-			});
-			// 移除过期定时任务
-			if (!removeKey.isEmpty()) {
-				for (String key : removeKey) {
-					addTimerTask.remove(key);
-				}
-				LocalStorage.set(addTimerTaskKEY, addTimerTask);
-			}
-		} else {
-			addTimerTask = new HashMap<>();
-		}
-	}
-
-	public boolean addTimerTask(Date date, final String sql, final Object... args) {
-		return addTimerTasks(date, sql, args);
-	}
-
-	private static boolean addTimerTasks(Date date, final String sql, final Object... args) {
-		Date now = new Date();
-		// 将定时任务缓存到文件中
-		String key = DateFormaterUtil.dateToString(DateFormaterUtil.FORMART4, date) + "___" + sql
-				+ (args == null ? "" : "___" + Arrays.toString(args));
-		if (!addTimerTask.containsKey(key)) {
-			addTimerTask.put(key, args);
-			LocalStorage.set(addTimerTaskKEY, addTimerTask);
-		}
-		long diff = date.getTime() - now.getTime();
-		if (diff > 0L) {
-			// 第二个参数为首次执行的延时时间，第三个参数为定时执行的间隔时间
-			try {
-				service.schedule(() -> {
-					JdbcTemplate jdbcTemplate1 = Springfactory.getBean("jdbcTemplate");
-					jdbcTemplate1.update(sql, args);
-					// 移除缓存文件
-					addTimerTask.remove(key);
-					LocalStorage.set(addTimerTaskKEY, addTimerTask);
-				}, diff, TimeUnit.MILLISECONDS);
-			} catch (Exception e) {
-				logger.debug("ERROR", e);
-				return false;
-			}
-		}
-		return true;
-	}
-
 	public DocumentService getDocumentService() {
 		return documentService;
 	}
@@ -1329,10 +1251,11 @@ public abstract class BaseUtils {
 	}
 
 	public void throwException(String msg) {
-		if (msg == null)
+		if (msg == null){
 			throw new PlatformException();
-		else
+		}else{
 			throw new PlatformException(msg);
+		}
 
 	}
 
@@ -1346,7 +1269,7 @@ public abstract class BaseUtils {
 
 	/**
 	 * 门户手机用户消息推送(默认系统消息)
-	 * 
+	 *
 	 * @param title
 	 * @param url
 	 *            消息链接
@@ -1408,10 +1331,11 @@ public abstract class BaseUtils {
 	 */
 	public boolean isStarter(String WorkID) {
 		String userId = this.getUser().getUserIdCardNumber();
-		if (StringUtils.isNumeric(WorkID))
+		if (StringUtils.isNumeric(WorkID)) {
 			return this.jdbcTemplate.queryForObject(
 					"select count(1) from wf_generworkflow where workid=? and starter=? and wfsta<>1 ", Integer.class,
 					WorkID, userId) == 1;
+		}
 		return false;
 	}
 }

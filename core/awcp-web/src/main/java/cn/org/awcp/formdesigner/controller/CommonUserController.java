@@ -20,7 +20,7 @@ import cn.org.awcp.core.utils.Springfactory;
 import cn.org.awcp.core.utils.constants.SessionContants;
 import cn.org.awcp.formdesigner.application.service.FormdesignerService;
 import cn.org.awcp.formdesigner.application.vo.DynamicPageVO;
-import cn.org.awcp.formdesigner.utils.DocumentUtils;
+import cn.org.awcp.extend.formdesigner.DocumentUtils;
 import cn.org.awcp.unit.service.PunGroupService;
 import cn.org.awcp.unit.service.PunUserBaseInfoService;
 import cn.org.awcp.unit.vo.PunGroupVO;
@@ -290,7 +290,7 @@ public class CommonUserController {
 
 		JdbcTemplate jdbcTemplate = Springfactory.getBean("jdbcTemplate");
 		if (_selects != null && !"".equals(_selects)) {
-			String ids[] = _selects.split(",");
+            String[] ids = _selects.split(",");
 
 			for (String s : ids) {
 				String sql = "delete from p_un_page_binding where id='" + s + "'";
@@ -367,7 +367,7 @@ public class CommonUserController {
 
 		if (_selects != null && !"".endsWith(_selects)) {
 
-			String ids[] = _selects.split(",");
+            String[] ids = _selects.split(",");
 
 			JdbcTemplate jdbcTemplate = Springfactory.getBean("jdbcTemplate");
 			Map<String, Object> map = new HashMap<String, Object>();

@@ -119,7 +119,8 @@ public class GeneratorUI extends JFrame {
 		jrbDefault.setFont(new Font("宋体", Font.BOLD, 15));
 		jrbDefault.addActionListener(new ActionListener() {
 
-			public void actionPerformed(ActionEvent e) {
+			@Override
+            public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
 				jrbDefault.setSelected(true);
 				jrbGeneratorUI.setSelected(false);
@@ -141,7 +142,8 @@ public class GeneratorUI extends JFrame {
 		jrbGeneratorUI.setFont(new Font("宋体", Font.BOLD, 15));
 		jrbGeneratorUI.addActionListener(new ActionListener() {
 
-			public void actionPerformed(ActionEvent e) {
+			@Override
+            public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
 				jrbDefault.setSelected(false);
 				jcheckboxController.setEnabled(false);
@@ -193,7 +195,8 @@ public class GeneratorUI extends JFrame {
 		jbuttonPackage.setBounds(440, 170, 60, 30);
 		jbuttonPackage.addActionListener(new ActionListener() {
 
-			public void actionPerformed(ActionEvent e) {
+			@Override
+            public void actionPerformed(ActionEvent e) {
 				if (e.getSource().equals(jbuttonPackage)) {// 判断触发方法的按钮是哪个
 					jfc.setFileSelectionMode(1);// 设定只能选择到文件夹
 					int state = jfc.showOpenDialog(null);// 此句是打开文件选择器界面的触发语句
@@ -216,12 +219,13 @@ public class GeneratorUI extends JFrame {
 		jbuttonTableName.setBounds(440, 270, 60, 30);
 		jbuttonTableName.addActionListener(new ActionListener() {
 
-			public void actionPerformed(ActionEvent e) {
-				if (jtextUserName.getText().trim().toString().equals("")) {
+			@Override
+            public void actionPerformed(ActionEvent e) {
+				if ("".equals(jtextUserName.getText().trim().toString())) {
 					JOptionPane.showMessageDialog(rootPane, "用户名不能为空！");
 					return;
 				}
-				if (jtextPwd.getText().trim().toString().equals("")) {
+				if ("".equals(jtextPwd.getText().trim().toString())) {
 					JOptionPane.showMessageDialog(rootPane, "密码不能为空！");
 					return;
 				}
@@ -261,7 +265,7 @@ public class GeneratorUI extends JFrame {
 					list.toArray(array);
 					JPanel jp = new JPanel();
 					// 定义一个JCheckBox数组来存储数据库的所有表
-					final JCheckBox jcTableName[] = new JCheckBox[array.length];// 定义一个JCheckBox数组来装数据库中所有表
+                    final JCheckBox[] jcTableName = new JCheckBox[array.length];// 定义一个JCheckBox数组来装数据库中所有表
 					for (int i = 0; i < array.length; i++) {
 						// 循环创建JCheckBox，可勾选的表数组
 						jcTableName[i] = new JCheckBox(array[i]);
@@ -272,7 +276,8 @@ public class GeneratorUI extends JFrame {
 					JButton jbOK = new JButton("OK");
 					jbOK.setBounds(250, 500, 100, 30);
 					jbOK.addActionListener(new ActionListener() {
-						public void actionPerformed(ActionEvent e) {
+						@Override
+                        public void actionPerformed(ActionEvent e) {
 							// 定义一个空字符串
 							String str = "";
 							for (int j = 0; j < jcTableName.length; j++) {
@@ -308,7 +313,8 @@ public class GeneratorUI extends JFrame {
 		jbuttonTempleteSrc.setEnabled(false);
 		jbuttonTempleteSrc.addActionListener(new ActionListener() {
 
-			public void actionPerformed(ActionEvent e) {
+			@Override
+            public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
 				if (e.getSource().equals(jbuttonTempleteSrc)) {// 判断触发方法的按钮是哪个
 					jfc.setFileSelectionMode(1);// 设定只能选择到文件
@@ -330,7 +336,8 @@ public class GeneratorUI extends JFrame {
 		jbuttonRootOut.setBounds(440, 220, 60, 30);
 		jbuttonRootOut.addActionListener(new ActionListener() {
 
-			public void actionPerformed(ActionEvent e) {
+			@Override
+            public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
 				if (e.getSource().equals(jbuttonRootOut)) {// 判断触发方法的按钮是哪个
 					jfc.setFileSelectionMode(1);// 设定只能选择到文件夹
@@ -434,40 +441,41 @@ public class GeneratorUI extends JFrame {
 		jbuttonSubmit.setFont(new Font("宋体", Font.BOLD, 15));
 		jbuttonSubmit.addActionListener(new ActionListener() {
 
-			public void actionPerformed(ActionEvent e) {
+			@Override
+            public void actionPerformed(ActionEvent e) {
 				if (conn == null) {
 					JOptionPane.showMessageDialog(rootPane, "请打开数据库连接！");
 					return;
 				}
 				String dataBaseConn = jtextDataBase.getText().trim().toString();
-				if (dataBaseConn.equals("")) {
+				if ("".equals(dataBaseConn)) {
 					JOptionPane.showMessageDialog(rootPane, "数据库连接不能为空！");
 					return;
 				}
 				String userName = jtextUserName.getText().trim().toString();
-				if (userName.equals("")) {
+				if ("".equals(userName)) {
 					JOptionPane.showMessageDialog(rootPane, "用户名不能为空！");
 					return;
 				}
 				String pwd = jtextPwd.getText().trim().toString();
-				if (pwd.equals("")) {
+				if ("".equals(pwd)) {
 					JOptionPane.showMessageDialog(rootPane, "密码不能为空！");
 					return;
 				}
 				String packageName = jtextfiledPackage.getText().trim().toString();
-				if (packageName.equals("")) {
+				if ("".equals(packageName)) {
 					JOptionPane.showMessageDialog(rootPane, "包名不能为空！");
 					return;
 				}
 				map.put("packageName", packageName);
 				String rootOut = jtextfiledCreatePath.getText().trim().toString();
-				if (rootOut.equals("")) {
+				if ("".equals(rootOut)) {
 					JOptionPane.showMessageDialog(rootPane, "输出路径不能为空！");
 					return;
 				}
 				map.put("outRoot", rootOut);
 				String tableName = jtextfiledTableName.getText().toString();
-				if (tableName.equals("")) {
+				if ("".equals(tableName)) {
 					JOptionPane.showMessageDialog(rootPane, "表名不能为空！");
 					return;
 				}
@@ -497,7 +505,7 @@ public class GeneratorUI extends JFrame {
 				} else// 否则是选中自定义
 				{
 					String templementSrc = jtextfiledClass.getText().trim().toString();
-					if (templementSrc.equals("")) {
+					if ("".equals(templementSrc)) {
 						JOptionPane.showMessageDialog(rootPane, "模板路径不能为空！");
 						return;
 					}
@@ -519,7 +527,8 @@ public class GeneratorUI extends JFrame {
 		jbuttonReset.setFont(new Font("宋体", Font.BOLD, 15));
 		jbuttonReset.addActionListener(new ActionListener() {
 
-			public void actionPerformed(ActionEvent e) {
+			@Override
+            public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
 				jtextDataBase.setText("");
 				jtextfiledTableName.setText("");

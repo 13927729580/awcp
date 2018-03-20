@@ -53,7 +53,7 @@
                 url: Handler + "?DoType=" + doType + "&UserNo=" + userNo + "&DoWhat=" + doWhat + "&FK_Flow=" + fk_flow + "&m=" + Math.random(),
                 dataType: 'html',
                 success: function (data) {
-
+                    debugger;
                     if (data.indexOf('err@') == 0) {
 
                         document.getElementById("Msg").innerHTML = data;
@@ -82,14 +82,9 @@
                         newRow += "<td>" + emp.No + "</td>";
                         newRow += "<td>" + emp.Name + "</td>";
 
-                        var url = "<a target='_blank' href='?DoType=TestFlow_ReturnToUser&DoWhat=ACE&UserNo=" + encodeURIComponent(emp.No) + "&FK_Flow=" + fk_flow + "'  ><img src='./../Img/ie.gif' border=0 />AppACE</a>";
-                        //  newRow += "<td>" + url + "</td>";
-
-                        url = "<a target='_blank' href='?DoType=TestFlow_ReturnToUser&DoWhat=StartClassic&UserNo=" + encodeURIComponent(emp.No) + "&FK_Flow=" + fk_flow + "'  ><img src='./../Img/ie.gif' border=0 />经典</a>";
+                        var url =  "<a target='_top' href='../AppClassic/Login.htm?UserNo=" + encodeURIComponent(emp.No) + "&FK_Flow=" + fk_flow + "'  ><img src='./../Img/ie.gif' border=0 />经典</a>";
                         newRow += "<td>" + url + "</td>";
 
-                        url = "<a target='_blank' href='?DoType=TestFlow_ReturnToUser&DoWhat=StartClassic&UserNo=" + encodeURIComponent(emp.No) + "&FK_Flow=" + fk_flow + "&IsMobile=1'  ><img src='./../Img/ie.gif' border=0 />手机模式</a>";
-                        // newRow += "<td>" + url + "</td>";
                         newRow += "<td>无</td>";
 
                         newRow += "<td>" + emp.FK_DeptText + "</td>";
@@ -129,7 +124,7 @@
 
 <td valign=top> 
         <table id="Table1" class="Table" cellpadding="0" cellspacing="0" border="0" style="width: 100%">
-        <caption>流程发起测试,能够发起该流程的人员列表.(<font color=red>运行流程之前不检查可能会导致字段没有创建的错误</font>)</caption>
+        <caption>流程发起测试,能够发起该流程的人员列表.(运行流程之前不检查可能会导致字段没有创建的错误)</caption>
             <tr>
                 <th> 序 </th>
                 <th> 编号</th>

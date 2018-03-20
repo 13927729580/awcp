@@ -815,11 +815,18 @@
 
 <#macro convertdataGridScript c >
 	(function(){
+		var queryParams={<#if c['connditions']?? ><#list c['connditions'] as item>"${item['paramKey']!''}":
+	<#if item['isFinal']?? && item['isFinal']=='1'>
+				 	 "${item['paramValue']!''}"
+	<#else>
+				  	 "<#noparse>${(</#noparse>${item['paramValue']}<#noparse>)!''}</#noparse>"
+	</#if>,</#list></#if>pageSize:10};
 		var basePath="<#noparse>${basePath}</#noparse>";
 		var $table=$("#dg_${c['pageId']}");
 		var pageSize=parseInt("${c['pageSize']!'10'}");
 		$table.datagrid({
 				  pagination: ("${c['hasPager']!'0'}"=="1"?true:false),//分页控件 
+				  pageNumber:1,
 				  pageSize:pageSize,
 				  rownumbers: true,//行号
 				  border: false, 
@@ -843,12 +850,7 @@
 		  				return d;
 				  },     						  
 				  url:basePath+"document/refreshDataGrid.do?componentId=${c['pageId']}" + ("${c['hasPager']!'0'}"!="1"?"&pageSize=9999":""),
-				  queryParams:{<#if c['connditions']?? ><#list c['connditions'] as item>"${item['paramKey']!''}":
-				  <#if item['isFinal']?? && item['isFinal']=='1'>
-				 	 "${item['paramValue']!''}"
-				  <#else>
-				  	 "<#noparse>${(</#noparse>${item['paramValue']}<#noparse>)!''}</#noparse>"
-				  </#if>,</#list></#if>pageSize:10},
+				  queryParams:queryParams,
 				  columns:[[
 				  <#if c['columns']?? >
 				  	{field:'ck',checkbox:true}

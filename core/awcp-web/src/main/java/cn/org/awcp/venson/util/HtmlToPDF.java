@@ -58,8 +58,9 @@ public class HtmlToPDF {
 
 	class AsianFontProvider extends XMLWorkerFontProvider {
 
-		public Font getFont(final String fontname, final String encoding, final boolean embedded, final float size,
-				final int style, final BaseColor color) {
+		@Override
+        public Font getFont(final String fontname, final String encoding, final boolean embedded, final float size,
+                            final int style, final BaseColor color) {
 			BaseFont bf = null;
 			try {
 				bf = BaseFont.createFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED);

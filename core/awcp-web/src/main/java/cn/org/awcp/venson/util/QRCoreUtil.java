@@ -83,7 +83,7 @@ public class QRCoreUtil {
 	 *            输出位置
 	 */
 	public static void create(int width, int height, String content, OutputStream out) {
-		Map<EncodeHintType, Object> hints = new HashMap<>();
+		Map<EncodeHintType, Object> hints = new HashMap<>(3);
 		hints.put(EncodeHintType.CHARACTER_SET, "utf-8");
 		hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.M);// 纠错等级L,M,Q,H
 		hints.put(EncodeHintType.MARGIN, 2); // 边距

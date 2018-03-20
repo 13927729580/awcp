@@ -335,13 +335,16 @@ public class ExcelUtil {
 
 	private static void getSheetData(Workbook workbook, List<Map<String, String>> varList, int sheetNum, int startRow,
 			int startCol) {
-		Sheet sheet = workbook.getSheetAt(sheetNum); // sheet 从0开始
+		// sheet 从0开始
+		Sheet sheet = workbook.getSheetAt(sheetNum);
 		// 获取合并单元格
 		List<CellRangeAddress> combineCell = getCombineCell(sheet);
-		int rowNum = sheet.getLastRowNum() + 1; // 取得最后一行的行号
-		for (int i = startRow; i < rowNum; i++) { // 行循环开始
-			Map<String, String> rowData = new HashMap<String, String>();
-			Row row = sheet.getRow(i); // 行
+		// 取得最后一行的行号
+		int rowNum = sheet.getLastRowNum() + 1;
+		// 行循环开始
+		for (int i = startRow; i < rowNum; i++) {
+			// 行
+			Row row = sheet.getRow(i);
 			if (row == null) {
 				continue;
 			}
@@ -350,8 +353,11 @@ public class ExcelUtil {
 			if (firstRow == null) {
 				return;
 			}
-			int cellNum = row.getLastCellNum(); // 每行的最后一个单元格位置
-			for (int j = startCol; j < cellNum; j++) { // 列循环开始
+			// 每行的最后一个单元格位置
+			int cellNum = row.getLastCellNum();
+			Map<String, String> rowData = new HashMap<>(cellNum);
+			// 列循环开始
+			for (int j = startCol; j < cellNum; j++) {
 				Cell cell = row.getCell(j);
 				// 如果合并单元格不为空则判断当前单元格是否是合并单元格
 				if (!combineCell.isEmpty()) {
@@ -376,7 +382,8 @@ public class ExcelUtil {
 
 	private static String getValue(Cell cell) {
 		String cellValue;
-		switch (cell.getCellTypeEnum()) { // 判断excel单元格内容的格式，并对其进行转换，以便插入数据库
+		// 判断excel单元格内容的格式，并对其进行转换，以便插入数据库
+		switch (cell.getCellTypeEnum()) {
 		case NUMERIC:
 			if (HSSFDateUtil.isCellDateFormatted(cell)) {
 				Date date = cell.getDateCellValue();
@@ -445,7 +452,7 @@ public class ExcelUtil {
 		Workbook tmpbook = null;
 		try {
 			// 获取文件，并创建工作簿
-			if (usrExt.equalsIgnoreCase("xls")) {
+			if ("xls".equalsIgnoreCase(usrExt)) {
 				usrbook = new HSSFWorkbook(userFile);
 			} else {
 				usrbook = new XSSFWorkbook(userFile);

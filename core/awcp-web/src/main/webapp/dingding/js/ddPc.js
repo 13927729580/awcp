@@ -391,6 +391,8 @@ ddPc.addApprovalHtml = function(){
 		});	
 	});
 	
+	$(".ddAddBtn").hide();
+	
 	//添加抄送人
 	$(".addPersonBox").click(function(){
 		dd.biz.contact.choose({
@@ -410,10 +412,12 @@ ddPc.addApprovalHtml = function(){
 		});
 	});
 	
-	var data = Comm.getData("api/execute/getFlowExcutor",{dynamicPageId:$("#dynamicPageId").val()});
-	$("#slectsUserIds").val(data.JSON);
+	$(".addPersonBox").hide();
+	
+	var data = Comm.getData("dingding/getFlowExcutor.do",{dynamicPageId:$("#dynamicPageId").val()});	
 	if(data){
-		var arr = JSON.parse(data.JSON);
+		$("#slectsUserIds").val(JSON.stringify(data));
+		var arr = data;
 		var ddUserIds = "'" + arr.join().replace(/,/g,"','") + "'";
 		var users = Comm.getData("api/execute/getUserNameAndImg",{ddUserIds:ddUserIds});
 		console.log(users);
@@ -441,9 +445,37 @@ ddPc.addApprovalHtml = function(){
 			}
 		}
 		$(".approverList").append(html);
-		addEvent();
+		//addEvent();
 		setSlectsUserIds();
 	}
+	
+	var data = Comm.getData("api/execute/getCCList",{dynamicPageId:$("#dynamicPageId").val()});
+	if(data){
+		$("#CC_slectsUserIds").val(data.JSON);
+		var arr = JSON.parse(data.JSON);
+		var ddUserIds = "'" + arr.join().replace(/,/g,"','") + "'";
+		var users = Comm.getData("api/execute/getUserNameAndImg",{ddUserIds:ddUserIds});
+		var html = "";
+		for(var i=0;i<arr.length;i++){
+			var emplId = arr[i];
+			var nameAndImg = getUserNameAndImg(users,emplId);
+			var img = nameAndImg.img;
+			var name = nameAndImg.name;	
+			if(!img){
+				img = '<div class="approverColor tFBH tFBAC tFBJC" style="background:' + getRandomColor() +
+					  '" ><span>' + Comm.handleName(name) + '</span></div>';
+			} else{
+				img = '<img src="' + img + '">';
+			} 
+			html += '<li class="approver" data-userId="' + emplId + 
+					'"><div class="approverAvatar"><span class="deleteAvatar">╳</span>' + img + 
+					'<div class="approverName">' + name + '</div></div></li>';
+		}
+		$(".ccList").prepend(html);
+		//addEvent();
+		setCClist();
+	}
+	
 }
 
 function getUserNameAndImg(users,emplId){
@@ -521,7 +553,6 @@ function setSlectsUserIds(){
 	if(temp.length != 0){
 		users.push(temp.join());
 	}
-	console.log(users);
 	$("#slectsUserIds").val(JSON.stringify(users));
 }
 

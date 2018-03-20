@@ -1,17 +1,16 @@
 package cn.org.awcp.wechat.payment.util;
 
-import static cn.org.awcp.wechat.util.Constant.APPID;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import cn.org.awcp.wechat.domain.menu.WeChatButton;
 import cn.org.awcp.wechat.domain.menu.WeChatMenu;
 import cn.org.awcp.wechat.util.ConstantURL;
 import cn.org.awcp.wechat.util.WeChatUtil;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
+
+import static cn.org.awcp.wechat.util.Constant.APPID;
 
 public class CreateWxMenuUtil {
 
@@ -23,7 +22,7 @@ public class CreateWxMenuUtil {
 	}
 
 	public static WeChatMenu getQzwyMenu() throws Exception {
-		String timestamp = new Date().getTime() + "";
+		String timestamp = System.currentTimeMillis() + "";
 		// snsapi_base(不弹出授权页面,直接跳转,只能获取用户openid);snsapi_userinfo(弹出授权页面,可通过openid拿到昵称,性别,所在地)
 		String url1 = URLEncoder.encode("http://www.maxic.cn/qzwy/index.do", "utf-8");
 		url1 = ConstantURL.AUTHORIZE_URL.replace("APPID", APPID).replace("REDIRECT_URI", url1)
@@ -56,7 +55,7 @@ public class CreateWxMenuUtil {
 
 	public static WeChatMenu getAWCPMenu() throws UnsupportedEncodingException {
 		WeChatMenu menu = new WeChatMenu();
-		String timestamp = new Date().getTime() + "";
+		String timestamp = System.currentTimeMillis() + "";
 		List<WeChatButton> button = new ArrayList<WeChatButton>();
 		String url1 = URLEncoder.encode("https://www.awcp.org.cn/awcp/index.html", "utf-8");
 		url1 = ConstantURL.AUTHORIZE_URL.replace("APPID", APPID).replace("REDIRECT_URI", url1)

@@ -1,17 +1,13 @@
 package cn.org.awcp.venson.util;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import java.io.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * MD5工具类
@@ -21,8 +17,8 @@ public class MD5Util {
 	 * 日志对象
 	 */
 	protected static final Log logger = LogFactory.getLog(MD5Util.class);
-	protected static char hexDigits[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e',
-			'f' };
+	protected static char[] hexDigits = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e',
+			'f'};
 
 	protected static MessageDigest messagedigest = null;
 
@@ -117,11 +113,11 @@ public class MD5Util {
 		return bufferToHex(messagedigest.digest());
 	}
 
-	private static String bufferToHex(byte bytes[]) {
+	private static String bufferToHex(byte[] bytes) {
 		return bufferToHex(bytes, 0, bytes.length);
 	}
 
-	private static String bufferToHex(byte bytes[], int m, int n) {
+	private static String bufferToHex(byte[] bytes, int m, int n) {
 		StringBuffer stringbuffer = new StringBuffer(2 * n);
 		int k = m + n;
 		for (int l = m; l < k; l++) {

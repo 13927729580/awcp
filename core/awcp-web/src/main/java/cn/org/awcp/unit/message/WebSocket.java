@@ -134,8 +134,9 @@ public class WebSocket {
 
 	public static void sendMessage(String userId, Object message) {
 		// 查看是否在线
-		if (!WebSocket.webSocketSet.containsKey(userId))
-			return;
+		if (!WebSocket.webSocketSet.containsKey(userId)) {
+            return;
+        }
 		// 获取用户所有在线客户端
 		Set<Session> sessions = WebSocket.webSocketSet.get(userId);
 		if (sessions == null || sessions.isEmpty()) {

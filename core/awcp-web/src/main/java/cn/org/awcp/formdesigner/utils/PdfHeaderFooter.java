@@ -78,7 +78,8 @@ public class PdfHeaderFooter extends PdfPageEventHelper {
 		this.setGutterPosY(map.get("gutterPosY"));
 	}
 
-	public void onEndPage(PdfWriter writer, Document document) {
+	@Override
+    public void onEndPage(PdfWriter writer, Document document) {
 		Rectangle rect = writer.getBoxSize("art");
 		Font waterMarkFont = new Font(Font.FontFamily.HELVETICA, 52, Font.NORMAL, new GrayColor(0.75f));
 

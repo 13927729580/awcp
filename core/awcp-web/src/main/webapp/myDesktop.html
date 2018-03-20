@@ -293,17 +293,19 @@
 			 }
 			 $("#chat-box").html(chatHtml.join(''));
 			 $("#chat-box").off("click").on("click",".openTabs",function(){
-			  $(this).parent().parent().remove();
-			  var id= $(this).find("span").attr("data-id");
-			  top.addTabs({
-				  	id:id,
-			           url: $(this).attr("data-url"),
-			           title: $(this).find("span").text(),
-			           close:true
-			       });
-			  //设置已读
-			  Comm.getData("api/notifications/read/"+id,{"_method":"GET"});
-			 })
+			     if($("button[title='未读']").hasClass("active")){
+                     $(this).parent().parent().remove();
+                 }
+                 var id= $(this).find("span").attr("data-id");
+			     top.addTabs({
+                     id:id,
+                     url: $(this).attr("data-url"),
+                     title: $(this).find("span").text(),
+                     close:true
+                 });
+                 //设置已读
+                 Comm.getData("api/notifications/read/"+id,{"_method":"GET"});
+             })
 		}
 </script>
 </body>

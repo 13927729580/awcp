@@ -21,7 +21,7 @@
 			<div class="row">
 				<ul class="breadcrumb">
 		          <li><i class="icon-location-arrow icon-muted"></i></li>
-		          <li><a href="<%=basePath %>unit/manageRole.do">角色管理</a></li>
+		          <li><a href="<%=basePath %>unit/listRolesInSys.do">角色管理</a></li>
 		          <li class="active">角色关联的用户管理</li>
 		        </ul>
 			</div>

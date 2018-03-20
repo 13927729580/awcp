@@ -1,0 +1,80 @@
+<html>
+<head>
+	<title data-id="title_approval"></title>
+	<meta charset="utf-8">
+	<meta name="description" content="microflow">
+	<meta name="HandheldFriendly" content="True">
+	<meta name="MobileOptimized" content="320">
+	<meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+	<meta http-equiv="cleartype" content="on">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<meta name="apple-mobile-web-app-title" content="">
+	<meta name="format-detection" content="telephone=no">
+	<meta name="format-detection" content="email=no">
+	<!-- 所有样式文件 -->
+	<link rel="stylesheet" href="//g.alicdn.com/SWH5/ding-flow-pc/2.2.3/bootstrap.css">
+	<link rel="stylesheet" href="//g.alicdn.com/SWH5/ding-flow-pc/2.2.3/app.css">
+	<link rel="stylesheet" href="css/pc/approval.css" />
+</head>
+<body>
+	<div id="MF_APP">
+		<div>
+			<div class="mif-home">
+				<div class="list-container">
+					<div class="tFlexbox home-task"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script src="js/jquery.js" charset="utf-8"></script>
+	<script src="../venson/js/common.js"></script>
+	<script src="js/resource.js"></script>
+	<script>
+		var arr = Comm.getData("api/execute/getAppsByParentID?parentID=3");
+		var types = ["出勤休假","人事","财务","行政","其他"];
+   		var obj = {};
+   		for(var i=0;i<arr.length;i++){
+   			var type = arr[i].approvalType;
+   			if(obj.hasOwnProperty(type)){
+   				obj[type].push(arr[i]);
+   			}
+   			else{
+   				obj[type] = [];
+   				obj[type].push(arr[i]);
+   			}
+   		}
+   		var html = "";
+   		for(var i=0;i<types.length;i++){
+   			var apps = obj[types[i]];
+   			html += '<div class="home-type"><div class="home-type-detail">' +
+   					'<span><span>' + dd_res.approvalTypes[i] + '</span><span>(</span><span>' + apps.length + 
+   					'</span><span>)</span></span></div>'
+   			for(var j=0;j<apps.length;j++){
+   				var title = apps[j].title;
+				var img = baseUrl + 'common/file/showPicture.do?id=' + apps[j].img;
+				var pageId = apps[j].dynamicPageId;
+				var pcPageId = apps[j].pcDynamicPageId;
+   				html += '<div class="tFlex1 home-tap tTap" style="display:inline-block;"' + 
+   						' data-pageId="' + pageId + '" data-title="' + title + '">' + 
+   						'<div class="tap-inner"><div class="home-tap-icon">' + 
+   						'<img class="micro-flow-icon-png-66 border-radius" src="' + img + '"></div>' +
+   						'<div class="tap-title"><span class="tapTitle">' + title + '</span></div></div></div>';
+   			}
+   			html += '</div>';
+   		}
+   		$(".home-task").html(html);
+   		
+   		$(".list-container").find(".home-tap").click(function(){
+   			var pageId = $(this).attr("data-pageId");
+   			var title = $(this).attr("data-title");
+   			var url = basePath + "dingding/workflowSet.html?pageId=" + pageId + "&title=" + title;
+   			parent.addTabs({
+   				url: url,
+   				title: title + "审批的预设流程执行人",
+   				close:true
+   			});
+   		});
+	</script>
+</body>
+</html>

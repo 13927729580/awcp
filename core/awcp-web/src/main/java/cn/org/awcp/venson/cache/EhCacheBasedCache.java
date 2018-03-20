@@ -1,12 +1,12 @@
 package cn.org.awcp.venson.cache;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
 import cn.org.awcp.core.utils.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 缓存
@@ -34,6 +34,7 @@ public class EhCacheBasedCache implements Cache {
 	/**
 	 * 从缓存中获取一个KEY值
 	 */
+	@Override
 	public Object get(String key) {
 		Element el =  cache.get(key);
 		if (el != null) {
@@ -45,8 +46,9 @@ public class EhCacheBasedCache implements Cache {
 	/**
 	 * 传入一系列的KEY值，返回一个MAP
 	 */
+	@Override
 	public Map<String, Object> get(String... keys) {
-		Map<String, Object> result = new HashMap<String, Object>();
+		Map<String, Object> result = new HashMap<>(keys.length);
 		for (String key : keys) {
 			Object val = get(key);
 			result.put(key, val);
@@ -57,6 +59,7 @@ public class EhCacheBasedCache implements Cache {
 	/**
 	 * 判定一个KEY值是否在缓存中存在
 	 */
+	@Override
 	public boolean containsKey(String key) {
 		return cache.isKeyInCache(key) && cache.get(key) != null;
 	}
@@ -64,6 +67,7 @@ public class EhCacheBasedCache implements Cache {
 	/**
 	 * 向缓存中存入一个键值对
 	 */
+	@Override
 	public void put(String key, Object obj) {
 		cache.put(new Element(key, obj));
 	}
@@ -76,6 +80,7 @@ public class EhCacheBasedCache implements Cache {
 	 * @param obj
 	 * @param expiredDate
 	 */
+	@Override
 	public void put(String key, Object obj, Date expiredDate) {
 		Date now = new Date();
 		long timeToLiveSeconds = (expiredDate.getTime() - now.getTime()) / 1000;
@@ -90,6 +95,7 @@ public class EhCacheBasedCache implements Cache {
 	 * @param obj
 	 * @param timeToLiveSeconds
 	 */
+	@Override
 	public void put(String key, Object obj, long timeToLiveSeconds) {
 		int time = (int) timeToLiveSeconds;
 		cache.put(new Element(key, obj, false, time, time));
@@ -98,6 +104,7 @@ public class EhCacheBasedCache implements Cache {
 	/**
 	 * 从缓存中将某一个KEY值移除出去
 	 */
+	@Override
 	public boolean remove(String key) {
 		return cache.remove(key);
 	}

@@ -104,7 +104,7 @@ public class PageActController extends BaseController {
 			@RequestParam(value = "actDes", required = false) String description,
 			@RequestParam(value = "currentPage", required = false, defaultValue = "1") int currentPage,
 			@RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize,
-			@RequestParam(value = "dynamicPageId", required = false, defaultValue = "1") Long dynamicPageId,
+			@RequestParam(value = "dynamicPageId", required = false, defaultValue = "1") String dynamicPageId,
 			@RequestParam(value = "order", required = false, defaultValue = "0") int order,
 			@RequestParam(value = "dialog", required = false, defaultValue = "0") int dialog) {
 		BaseExample baseExample = new BaseExample();
@@ -521,7 +521,7 @@ public class PageActController extends BaseController {
 			viewName.append("backAct"); // 返回
 			break;
 		case 2004:
-			viewName.append("startWorkflowAct");
+			viewName.append("importFileAct");
 			break;
 		case 2005:
 			viewName.append("rebuildWorkflowAct");
@@ -596,7 +596,7 @@ public class PageActController extends BaseController {
 	 */
 	@ResponseBody
 	@RequestMapping(value = "batchModifyActType")
-	public String batchModifyActType(@RequestParam(value = "_selects") String selects, Long dynamicPageId,
+	public String batchModifyActType(@RequestParam(value = "_selects") String selects, String dynamicPageId,
 			String actType) {
 		String[] ids = selects.split(",");
 		for (int i = 0; i < ids.length; i++) {

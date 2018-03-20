@@ -138,14 +138,30 @@ public class WeChatService {
 	
 	//将数字转换为特定事物的菜单类型
 	private String getType(String type){
-		if("1".equals(type)) return "click";
-		if("2".equals(type)) return "view";
-		if("3".equals(type)) return "scancode_push";
-		if("4".equals(type)) return "scancode_waitmsg";
-		if("5".equals(type)) return "pic_sysphoto";
-		if("6".equals(type)) return "pic_photo_or_album";
-		if("7".equals(type)) return "pic_weixin";
-		if("8".equals(type)) return "location_select";
+		if("1".equals(type)) {
+            return "click";
+        }
+		if("2".equals(type)) {
+            return "view";
+        }
+		if("3".equals(type)) {
+            return "scancode_push";
+        }
+		if("4".equals(type)) {
+            return "scancode_waitmsg";
+        }
+		if("5".equals(type)) {
+            return "pic_sysphoto";
+        }
+		if("6".equals(type)) {
+            return "pic_photo_or_album";
+        }
+		if("7".equals(type)) {
+            return "pic_weixin";
+        }
+		if("8".equals(type)) {
+            return "location_select";
+        }
 		return null;
 	}
 	

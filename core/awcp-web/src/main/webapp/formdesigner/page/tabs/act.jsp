@@ -19,7 +19,6 @@
 			<li><a href="javascript:void(0)" onclick="addAct('2016');">Excel导出</a></li>
 			<li><a href="javascript:void(0)" onclick="addAct('2004');">导入</a></li>
 			<li><a href="javascript:void(0)" onclick="addAct('2006');">流程回撤</a></li>
-			<li><a href="javascript:void(0)" onclick="addAct('2008');">保存（带流程）</a></li>
 			<li><a href="javascript:void(0)" onclick="addAct('2018');">流程转发</a></li>
 			<li><a href="javascript:void(0)" onclick="addAct('2019');">流程传阅</a></li>
 			<li><a href="javascript:void(0)" onclick="addAct('2017');">流程办结</a></li>
@@ -27,9 +26,9 @@
 			<li><a href="javascript:void(0)" onclick="addAct('2024');">加签</a></li>				
 		</ul>
 	</div>
-	<button class="btn btn-sm btn-info" id="batchModifyActType">
+	<a class="btn btn-sm btn-info" id="batchModifyActType" onclick="javascript:void(0)">
 		<i class="icon-plus-sign"></i>修改动作类型
-	</button>
+	</a>
 	<button class="btn btn-sm btn-info" id="deleteAct">
 		<i class="icon-remove"></i>删除
 	</button>

@@ -52,58 +52,59 @@
 							if(dialog){
 								$("#dynamicPageId").attr("disabled","disabled");
 							}
-							
-							$("#saveBtn")
-									.click(
-											function() {
-												$("#actType").removeAttr("disabled");
-												$("#actClientScript").val("actNewRun("+$("#target").val()+");\n");
-												if (dialog) {
-													$("#dynamicPageId").removeAttr("disabled");
-													var data = $("#actForm")
-															.serializeJSON();
-													data.dynamicPageName=$("#dynamicPageId option:selected").text();
-													var buttons = new Array();
-													$(
-															":checkbox[name='buttons']:checked")
-															.each(
-																	function() {
-																		buttons
-																				.push($(
-																						this)
-																						.val());
-																	});
-													data['buttons'] = buttons
-															.join(",");
-													$
-															.ajax({
-																type : "POST",
-																async : false,
-																url : "fd/act/saveByAjax.do",
-																data : data,
-																success : function(
-																		ret) {
-																	var json = eval(ret);
-																	dialog
-																			.close(json);
-																	dialog
-																			.remove();
-																},
-																error : function(
-																		XMLHttpRequest,
-																		textStatus,
-																		errorThrown) {
-																	alert(errorThrown);
-																}
-															});
-												} else {
-													var name=$("#dynamicPageId option:selected").text();
-													$("#actForm").append("<input type='hidden' name='dynamicPageName' value='"+name+"'/>");
-													$("#actForm").submit();
-												}
-												return false;
-											});
-						});
+            $.formValidator.initConfig({formID:"actForm",debug:false});
+            $("#buttonGroup").formValidator({onFocus:"请输入按钮组"}).inputValidator({min:1,onError:"必填"});
+            $("#name").formValidator({onFocus:"请输入名称"}).inputValidator({min:1,onError:"必填"});
+            $("#order").formValidator({onFocus:"请输入序号"}).inputValidator({min:1,onError:"必填"});
+			$("#saveBtn").click(function() {
+						$("#actType").removeAttr("disabled");
+						$("#actClientScript").val("actNewRun("+$("#target").val()+");\n");
+						if (dialog) {
+                            if ($.formValidator.pageIsValid('1')) {
+                                $("#dynamicPageId").removeAttr("disabled");
+                                var data = $("#actForm")
+                                    .serializeJSON();
+                                data.dynamicPageName = $("#dynamicPageId option:selected").text();
+                                var buttons = new Array();
+                                $(
+                                    ":checkbox[name='buttons']:checked")
+                                    .each(
+                                        function () {
+                                            buttons
+                                                .push($(
+                                                    this)
+                                                    .val());
+                                        });
+                                data['buttons'] = buttons
+                                    .join(",");
+                                $
+                                    .ajax({
+                                        type: "POST",
+                                        async: false,
+                                        url: "fd/act/saveByAjax.do",
+                                        data: data,
+                                        success: function (ret) {
+                                            var json = eval(ret);
+                                            dialog
+                                                .close(json);
+                                            dialog
+                                                .remove();
+                                        },
+                                        error: function (XMLHttpRequest,
+                                                         textStatus,
+                                                         errorThrown) {
+                                            alert(errorThrown);
+                                        }
+                                    });
+                            } else {
+                                var name = $("#dynamicPageId option:selected").text();
+                                $("#actForm").append("<input type='hidden' name='dynamicPageName' value='" + name + "'/>");
+                                $("#actForm").submit();
+                            }
+                            return false;
+                        }
+					});
+				});
 	</script>
 </body>
 </html>

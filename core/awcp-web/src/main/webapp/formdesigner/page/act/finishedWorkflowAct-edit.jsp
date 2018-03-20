@@ -50,6 +50,10 @@
 			if (dialog) {
 				$("#dynamicPageId").attr("disabled", "disabled");
 			}
+            $.formValidator.initConfig({formID:"actForm",debug:false});
+            $("#buttonGroup").formValidator({onFocus:"请输入按钮组"}).inputValidator({min:1,onError:"必填"});
+            $("#name").formValidator({onFocus:"请输入名称"}).inputValidator({min:1,onError:"必填"});
+            $("#order").formValidator({onFocus:"请输入序号"}).inputValidator({min:1,onError:"必填"});
 			$("#saveBtn").click(function() {
 				$("#actType").removeAttr("disabled");
 				if (dialog) {

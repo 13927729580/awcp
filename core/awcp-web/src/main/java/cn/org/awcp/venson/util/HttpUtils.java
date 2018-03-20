@@ -1,17 +1,14 @@
 package cn.org.awcp.venson.util;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.Map;
 
 /**
  * 用于模拟HTTP请求中GET/POST方式
@@ -24,12 +21,6 @@ public class HttpUtils {
 	 * 日志对象
 	 */
 	protected static final Log logger = LogFactory.getLog(HttpUtils.class);
-
-	public static void main(String[] args) {
-		Map<String, Object> map = new HashMap<>();
-		map.put("name", "admin");
-		System.out.println(HttpUtils.sendPost("http://192.168.1.111/awcp/api/execute/test", null));
-	}
 
 	/**
 	 * 发送GET请求
@@ -64,27 +55,14 @@ public class HttpUtils {
 	 */
 	public static String sendGet(String url, Map<String, Object> parameters) {
 		StringBuffer result = new StringBuffer();
-		BufferedReader in = null;// 读取响应输入流
+		BufferedReader in = null;
 		try {
-			if (parameters != null && parameters.size() > 0) {
-				StringBuffer sb = new StringBuffer();// 存储参数
-				// 编码请求参数
-				if (parameters.size() == 1) {
-					for (String name : parameters.keySet()) {
-						sb.append(name).append("=")
-								.append(URLEncoder.encode(String.valueOf(parameters.get(name)), "UTF-8"));
-					}
+			String parameter=getStringParameter(parameters);
+			if(!parameter.isEmpty()){
+				if (parameter.contains("?")) {
+					url = url + "&" + parameter;
 				} else {
-					for (String name : parameters.keySet()) {
-						sb.append(name).append("=")
-								.append(URLEncoder.encode(String.valueOf(parameters.get(name)), "UTF-8")).append("&");
-					}
-					sb.delete(0, sb.length() - 1);
-				}
-				if (url.contains("?")) {
-					url = url + "&" + sb.toString();
-				} else {
-					url = url + "?" + sb.toString();
+					url = url + "?" + parameter;
 				}
 			}
 			// 创建URL对象
@@ -123,7 +101,7 @@ public class HttpUtils {
 	 */
 	public static String sendPost(String url, Map<String, Object> parameters) {
 		StringBuffer result = new StringBuffer();
-		BufferedReader in = null;// 读取响应输入流
+		BufferedReader in = null;
 		PrintWriter out = null;
 		try {
 			// 创建URL对象
@@ -137,26 +115,10 @@ public class HttpUtils {
 			// 设置POST方式
 			httpConn.setDoInput(true);
 			httpConn.setDoOutput(true);
-			StringBuffer sb = new StringBuffer();// 存储参数
-			if (parameters != null && parameters.size() > 0) {
-				// 编码请求参数
-				if (parameters.size() == 1) {
-					for (String name : parameters.keySet()) {
-						sb.append(name).append("=")
-								.append(URLEncoder.encode(String.valueOf(parameters.get(name)), "UTF-8"));
-					}
-				} else {
-					for (String name : parameters.keySet()) {
-						sb.append(name).append("=")
-								.append(URLEncoder.encode(String.valueOf(parameters.get(name)), "UTF-8")).append("&");
-					}
-					sb.delete(0, sb.length() - 1);
-				}
-			}
 			// 获取HttpURLConnection对象对应的输出流
 			out = new PrintWriter(httpConn.getOutputStream());
 			// 发送请求参数
-			out.write(sb.toString());
+			out.write(getStringParameter(parameters));
 			// flush输出流的缓冲
 			out.flush();
 			// 定义BufferedReader输入流来读取URL的响应，设置编码方式
@@ -174,5 +136,59 @@ public class HttpUtils {
 		}
 		return result.toString();
 	}
+
+	private static String getStringParameter(Map<String, Object> parameters) throws UnsupportedEncodingException {
+		StringBuffer sb = new StringBuffer();
+		if (parameters != null && parameters.size() > 0) {
+            // 编码请求参数
+            if (parameters.size() == 1) {
+                for (String name : parameters.keySet()) {
+                    sb.append(name).append("=")
+                            .append(URLEncoder.encode(String.valueOf(parameters.get(name)), "UTF-8"));
+                }
+            } else {
+                for (String name : parameters.keySet()) {
+                    sb.append(name).append("=")
+                            .append(URLEncoder.encode(String.valueOf(parameters.get(name)), "UTF-8")).append("&");
+                }
+                sb.delete(0, sb.length() - 1);
+            }
+        }
+		return sb.toString();
+	}
+
+	/**
+	 * * 从网络Url中下载文件
+	 * @param address 下载地址
+	 * @return byte数据
+	 */
+	public static byte[] downLoad(String address){
+		InputStream inputStream=null;
+		try {
+			URL url = new URL(address);
+			HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+			conn.setConnectTimeout(3*1000);
+			conn.setReadTimeout(60*1000);
+			//防止屏蔽程序抓取而返回403错误
+			conn.setRequestProperty("Accept", "*/*");
+			conn.setRequestProperty("Connection", "Keep-Alive");
+			conn.setRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1)");
+			//得到输入流
+			inputStream = conn.getInputStream();
+			if(inputStream==null){
+                return null;
+            }else{
+                return IOUtils.toByteArray(inputStream);
+            }
+		} catch (IOException e) {
+			logger.debug("ERROR",e);
+			return null;
+		} finally {
+			IOUtils.closeQuietly(inputStream);
+
+		}
+
+	}
+
 
 }

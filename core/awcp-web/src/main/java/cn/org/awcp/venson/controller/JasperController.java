@@ -93,7 +93,7 @@ public class JasperController {
 				// API文件类型
 				String rsType = (String) queryForMap.get("rsType");
 				response.setCharacterEncoding("UTF-8");
-				if (rsType.equals("pdf")) {
+				if ("pdf".equals(rsType)) {
 					response.setContentType("application/pdf");
 					response.setHeader("Content-Disposition", "inline;fileName="
 							+ ControllerHelper.processFileName((String) queryForMap.get("rsName")) + ".pdf");
@@ -101,7 +101,7 @@ public class JasperController {
 							subReport, dataSource);
 					outputStream = response.getOutputStream();
 					outputStream.write(data);
-				} else if (rsType.equals("excel")) {
+				} else if ("excel".equals(rsType)) {
 			        JasperPrint jasperPrint = JasperFillManager.fillReport(is, subReport,dataSource);  
 			        outputStream= response.getOutputStream();
 		            response.setContentType("application/x-download");
@@ -111,7 +111,7 @@ public class JasperController {
 		            exporter.setParameter(JRExporterParameter.JASPER_PRINT, jasperPrint); 
 		            exporter.setParameter(JRExporterParameter.OUTPUT_STREAM, outputStream);
 		            exporter.exportReport();
-				} else if (rsType.equals("word")) {
+				} else if ("word".equals(rsType)) {
 					//导出word文档,只需要更换一个导出器就行了JRDocxExporter exporter=new JRDocxExporter()
 			        JasperPrint jasperPrint = JasperFillManager.fillReport(is, subReport,dataSource);  
 			        JRDocxExporter exporter=new JRDocxExporter();   

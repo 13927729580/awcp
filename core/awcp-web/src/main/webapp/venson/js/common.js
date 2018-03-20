@@ -715,7 +715,8 @@ Comm.alert=function(message,fn){
 			skin:"col-md-4",
 			ok: true,
 			okValue:"确定",
-            fixed: true, 
+            fixed: true,
+            lock: true,
 			onclose:fn
 		}).show();
 	}else {
@@ -753,6 +754,7 @@ Comm.confirm=function(message,fn){
 			cancel: true,
 			okValue:"确认",
 			cancelValue:"取消",
+            lock: true,
             fixed: true
 		}).show();
 	}else{
@@ -764,26 +766,40 @@ Comm.confirm=function(message,fn){
 	}
 }
 
-Comm.prompt=function(message){
-	var _default={message: "",title:dd_res.tip,buttons:[dd_res.cancelButton, dd_res.okButton],fn:function(data){}};
-	if(typeof(message)=="object"){
-		_default=$.extend(_default,message);
-	}else{
-		_default.message=message;
-	}
-	if(window.hasOwnProperty("dd")){
-		dd.device.notification.prompt({
-		    message: _default.message,
-		    title: _default.title,
-		    buttonLabels: _default.buttons,
-		    onSuccess : function(result) {
-		    	_default.fn(result.value);
-		    },
-		    onFail : function(err) {}
-		});
-	}else{
-		_default.fn(prompt(_default.message))
-	}
+Comm.prompt=function(content,ok, defaultValue){
+    defaultValue = defaultValue || '';
+    if(top.hasOwnProperty("dialog")){
+        top.dialog({
+            fixed: true,
+            lock: true,
+            title: '提示框',
+            okValue:"确认",
+            cancelValue:"取消",
+            content: [
+                '<div style="margin-bottom:5px;font-size:12px">',
+                content,
+                '</div>',
+                '<div>',
+                '<input type="text" id="prompt-d-input-text" class="form-control" value="',
+                defaultValue,
+                '" style="width:20em;padding:6px 4px" />',
+                '</div>'
+            ].join(''),
+            ok: function () {
+                var input=$("#prompt-d-input-text",top.document).get(0);
+                if(input.value){
+                    return ok && ok.call(this, input.value);
+                }
+            },
+            cancel: function () {}
+        }).show();
+    }else{
+        var value=prompt(content);
+        if(value){
+            return ok&&ok.call(this,value);
+        }
+    }
+
 }
 
 Comm.toast=function(message){

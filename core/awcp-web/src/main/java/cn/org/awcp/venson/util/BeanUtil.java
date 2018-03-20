@@ -62,8 +62,8 @@ public class BeanUtil {
 			return null;
 		}
 		try {
-			Map<String, Object> map = new HashMap<String, Object>();
 			Field[] declaredFields = obj.getClass().getDeclaredFields();
+			Map<String, Object> map = new HashMap<>(declaredFields.length);
 			for (Field field : declaredFields) {
 				field.setAccessible(true);
 				if (Modifier.isPrivate(field.getModifiers())) {
@@ -147,12 +147,9 @@ public class BeanUtil {
 	public static String createTable(JdbcTemplate jdbcTemplate, String tableName, boolean inCludeData) {
 		Map<String, Object> tableStru = jdbcTemplate.queryForMap("SHOW CREATE TABLE " + tableName);
 		StringBuffer buffer = new StringBuffer();
-		// buffer.append("/*Delete on exists table `" + tableName + "` */\n");
 		buffer.append("DROP TABLE IF EXISTS `" + tableName + "`;\n");
-		// buffer.append("/*Table structure for table `" + tableName + "` start */\n");
 		buffer.append(tableStru.get("Create Table") + ";\n");
 		if (inCludeData) {
-			// buffer.append("/*Table data for table `" + tableName + "` start */\n");
 			List<Map<String, Object>> data = jdbcTemplate.queryForList("select * from " + tableName);
 			for (Map<String, Object> map : data) {
 				buffer.append(BeanUtil.getInsertSQL(map, tableName, null));

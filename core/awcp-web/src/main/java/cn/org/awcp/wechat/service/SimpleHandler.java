@@ -1,16 +1,5 @@
 package cn.org.awcp.wechat.service;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Service;
-
 import cn.org.awcp.wechat.dao.MessageDao;
 import cn.org.awcp.wechat.domain.AccessToken;
 import cn.org.awcp.wechat.domain.event.EventType;
@@ -21,6 +10,15 @@ import cn.org.awcp.wechat.domain.message.TextMessage;
 import cn.org.awcp.wechat.util.ConstantURL;
 import cn.org.awcp.wechat.util.RequestUtil;
 import cn.org.awcp.wechat.util.XmlMsgBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 处理微信事件
@@ -39,7 +37,8 @@ public class SimpleHandler implements Handler{
 	/**
 	 * 处理文本消息
 	 */
-	public String onText(Map<String, String> requestMap) {
+	@Override
+    public String onText(Map<String, String> requestMap) {
 		String content = requestMap.get("Content");	// 消息内容
 		String to = requestMap.get("ToUserName");		//公众号
 		String from = requestMap.get("FromUserName");	//微信号OpenId
@@ -76,7 +75,8 @@ public class SimpleHandler implements Handler{
 	/**
 	 * 处理事件消息
 	 */
-	public String onEvent(Map<String, String> requestMap) {
+	@Override
+    public String onEvent(Map<String, String> requestMap) {
 		String result = null;	//存储响应的文本消息
 		String event = requestMap.get("Event");			//事件的类型	
 		String to = requestMap.get("ToUserName");		//公众号
@@ -137,7 +137,8 @@ public class SimpleHandler implements Handler{
 	/**
 	 * 处理图片消息
 	 */
-	public String onImage(Map<String, String> requestMap) {
+	@Override
+    public String onImage(Map<String, String> requestMap) {
 		String mediaId = requestMap.get("MediaId");
 		String requestUrl = ConstantURL.DOWN_MEDIA_URL.replace("ACCESS_TOKEN" ,AccessToken.getAccessToken());
 		requestUrl = requestUrl.replace("MEDIA_ID", mediaId);
@@ -157,18 +158,19 @@ public class SimpleHandler implements Handler{
 	/**
 	 * 处理地理位置消息
 	 */
-	public String onLocation(Map<String,String> requestMap){
+	@Override
+    public String onLocation(Map<String,String> requestMap){
 		String locationX = requestMap.get("Location_X");
 		String locationY = requestMap.get("Location_Y");
 		String respContent = "您所在位置的纬度为:"+locationX+",经度为："+locationY;
 		TextMessage msg = new TextMessage(requestMap.get("FromUserName"),requestMap.get("ToUserName"),
-				new Date().getTime(),MessageType.TEXT,respContent);
+				System.currentTimeMillis(),MessageType.TEXT,respContent);
 		return XmlMsgBuilder.create().text(msg).build();
 	}
 	
 	//默认文本回复
 	private String respText(String from,String to,String result){
-		TextMessage msg = new TextMessage(from,to,new Date().getTime(),MessageType.TEXT,result);
+		TextMessage msg = new TextMessage(from,to,System.currentTimeMillis(),MessageType.TEXT,result);
 		return XmlMsgBuilder.create().text(msg).build();
 	}
 	
@@ -196,7 +198,7 @@ public class SimpleHandler implements Handler{
 			newMsg.setArticles(list);
 			newMsg.setFromUserName(to);
 			newMsg.setToUserName(from);
-			newMsg.setCreateTime(new Date().getTime());
+			newMsg.setCreateTime(System.currentTimeMillis());
 			newMsg.setMsgType(MessageType.NEWS);
 			return XmlMsgBuilder.create().news(newMsg).build();
 		}
@@ -211,7 +213,7 @@ public class SimpleHandler implements Handler{
 			newMsg.setArticles(list);
 			newMsg.setFromUserName(to);
 			newMsg.setToUserName(from);
-			newMsg.setCreateTime(new Date().getTime());
+			newMsg.setCreateTime(System.currentTimeMillis());
 			newMsg.setMsgType(MessageType.NEWS);
 			return XmlMsgBuilder.create().news(newMsg).build();
 		}

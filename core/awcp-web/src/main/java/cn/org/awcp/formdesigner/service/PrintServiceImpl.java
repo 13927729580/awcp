@@ -101,6 +101,7 @@ public class PrintServiceImpl implements PrintService, ServletContextAware {
 
 	}
 
+	@Override
 	public void printPDF(StoreVO printManageVO, Map dataMap, OutputStream os) {
 
 		JSONObject oo = JSON.parseObject(printManageVO.getContent());
@@ -261,6 +262,7 @@ public class PrintServiceImpl implements PrintService, ServletContextAware {
 
 	}
 
+	@Override
 	public void printPDFByTemplate(StoreVO printManageVO, Map dataMap, OutputStream os, List<JSONObject> components) {
 
 		float left = 72; // 2.5cm
@@ -401,8 +403,9 @@ public class PrintServiceImpl implements PrintService, ServletContextAware {
 	 * 批量打印
 	 */
 
+	@Override
 	public void batchPrintPDF(List<StoreVO> printManageVOs, List<Map> dataMaps, List<List<JSONObject>> componentsList,
-			OutputStream os) {
+							  OutputStream os) {
 
 		float left = 72; // 2.5cm
 		float right = 72; // 2.5cm
@@ -837,10 +840,11 @@ public class PrintServiceImpl implements PrintService, ServletContextAware {
 					cell.setUseAscender(true);
 					cell.setUseDescender(true);
 					cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-					if (k == 0)
-						cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-					else
-						cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+					if (k == 0) {
+                        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    } else {
+                        cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+                    }
 
 					if (StringUtils.isNotEmpty(lineHeight)) { // 设置行高
 						if (lineHeightType != null && "2".equals(lineHeightType)) {
@@ -1053,7 +1057,7 @@ public class PrintServiceImpl implements PrintService, ServletContextAware {
 
 		String type = o.getString("layoutType");
 		PdfPTable t = null;
-		if (type.equalsIgnoreCase("2")) {
+		if ("2".equalsIgnoreCase(type)) {
 			if (o.getJSONArray("childLayouts") == null || o.getJSONArray("childLayouts").size() == 0) {
 
 				t = generateParageCellByComponents(o, components, dataMap, borderless, height, heightType, totalWidth);
@@ -1333,8 +1337,9 @@ public class PrintServiceImpl implements PrintService, ServletContextAware {
 
 						}
 
-						for (Element element : objects)
-							finalContent.add(element);
+						for (Element element : objects) {
+                            finalContent.add(element);
+                        }
 						// 设置富文本框默认打印属性
 						height = 50f;
 						heightType = 2;
@@ -1654,8 +1659,9 @@ public class PrintServiceImpl implements PrintService, ServletContextAware {
 
 	private JSONArray sortByOrderArray(JSONArray list) {
 
-		if (list == null || list.size() == 0)
-			return list;
+		if (list == null || list.size() == 0) {
+            return list;
+        }
 
 		List<JSONObject> layoutList = new ArrayList<JSONObject>();
 		for (int i = 0; i < list.size(); i++) {
@@ -1864,6 +1870,7 @@ public class PrintServiceImpl implements PrintService, ServletContextAware {
 	 * @param fileId
 	 * @return
 	 */
+	@Override
 	public byte[] getFileByFileId(String fileId) {
 
 		InputStream in = fileService.getInputStream(fileId);
@@ -2019,13 +2026,15 @@ class ChineseSplitCharacter implements SplitCharacter {
 	 * @return <CODE>true</CODE> if the character can be used to split a string,
 	 *         <CODE>false</CODE> otherwise
 	 */
+	@Override
 	public boolean isSplitCharacter(int start, int current, int end, char[] cc, PdfChunk[] ck) {
 		char c = getCurrentCharacter(current, cc, ck);
 		if (c <= ' ' || c == '-' || c == '\u2010') {
 			return true;
 		}
-		if (c < 0x2002)
-			return false;
+		if (c < 0x2002) {
+            return false;
+        }
 		if (ChineseSymbolSplit.chSymSplits.contains(c)) {
 			return true;
 		}

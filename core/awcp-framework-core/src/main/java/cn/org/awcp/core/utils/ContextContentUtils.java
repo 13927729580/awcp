@@ -10,31 +10,41 @@ import org.apache.shiro.subject.Subject;
 /**
  * @ClassName: ContextHolderUtils
  * @Description: TODO(上下文工具类)
+ * @author venson
  * @date 2012-12-15 下午11:27:39
  * 
  */
 public class ContextContentUtils {
 
-	private static ThreadLocal<HttpServletResponse> reponse_threadLocal = new ThreadLocal<HttpServletResponse>();
-	private static ThreadLocal<HttpServletRequest> request_threadLocal = new ThreadLocal<HttpServletRequest>();
+	private static final ThreadLocal<HttpServletResponse> RESPONSE_THREAD_LOCAL = new ThreadLocal<>();
+	private static final ThreadLocal<HttpServletRequest> REQUEST_THREAD_LOCAL = new ThreadLocal<>();
 
 	public static HttpServletResponse getResponse() {
-		return reponse_threadLocal.get();
+		return RESPONSE_THREAD_LOCAL.get();
 
 	}
 
 	public static void setResponse(HttpServletResponse response) {
-		reponse_threadLocal.set(response);
+		RESPONSE_THREAD_LOCAL.set(response);
 	}
 
 	public static HttpServletRequest getRequest() {
-		return request_threadLocal.get();
+		return REQUEST_THREAD_LOCAL.get();
 
 	}
 
 	public static void setRequest(HttpServletRequest request) {
-		request_threadLocal.set(request);
+		REQUEST_THREAD_LOCAL.set(request);
 	}
+
+	public static void removeRequest(){
+		REQUEST_THREAD_LOCAL.remove();
+	}
+
+	public static void removeResponse(){
+		RESPONSE_THREAD_LOCAL.remove();
+	}
+
 
 	/**
 	 * SpringMvc下获取session

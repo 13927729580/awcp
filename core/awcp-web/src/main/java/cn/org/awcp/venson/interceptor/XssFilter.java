@@ -1,16 +1,10 @@
 package cn.org.awcp.venson.interceptor;
 
-import java.io.IOException;
-import java.util.Enumeration;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Enumeration;
 
 /**
  * 非法字符过滤器 1.所有非法字符配置在web.xml中，如需添加新字符，请自行配置
@@ -26,20 +20,23 @@ public class XssFilter implements Filter {
 	private String[] illegalChars; // 非法字符
 	private boolean isOpen; // 是否开启
 
-	public void init(FilterConfig filterConfig) throws ServletException {
+	@Override
+    public void init(FilterConfig filterConfig) throws ServletException {
 		legalNames = filterConfig.getInitParameter("legalNames").split(",");
 		illegalChars = filterConfig.getInitParameter("illegalChars").split(",");
 		excludeUrls = filterConfig.getInitParameter("excludeUrls").split(",");
 		isOpen = Boolean.parseBoolean(filterConfig.getInitParameter("isOpen"));
 	}
 
-	public void destroy() {
+	@Override
+    public void destroy() {
 		legalNames = null;
 		illegalChars = null;
 		excludeUrls = null;
 	}
 
-	public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)
+	@Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)
 			throws IOException, ServletException {
 		// 是否开启过滤器
 		if (!isOpen) {

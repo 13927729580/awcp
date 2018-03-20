@@ -256,8 +256,9 @@ public class PunRoleAccessController {
 		try {
 			List<PunMenuVO> resoVOs = menuService.getPunMenuBySys(sysVO);
 			List<PunMenuVO> accVOS = new ArrayList<PunMenuVO>();
-			if (vo != null && vo.getRoleId() != null)
-				accVOS = menuService.getByRoleAndSys(vo, sysVO);
+			if (vo != null && vo.getRoleId() != null) {
+                accVOS = menuService.getByRoleAndSys(vo, sysVO);
+            }
 
 			this.setAccessRight(resoVOs, accVOS);
 			ResourceTreeUtils rtu = new ResourceTreeUtils();

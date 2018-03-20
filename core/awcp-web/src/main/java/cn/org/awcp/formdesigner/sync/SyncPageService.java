@@ -1,6 +1,6 @@
 package cn.org.awcp.formdesigner.sync;
 
-import cn.org.awcp.formdesigner.utils.DocumentUtils;
+import cn.org.awcp.extend.formdesigner.DocumentUtils;
 import cn.org.awcp.venson.exception.PlatformException;
 import cn.org.awcp.venson.service.FileService;
 import cn.org.awcp.venson.util.BeanUtil;
@@ -13,7 +13,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.*;
 
 /**
@@ -54,7 +56,7 @@ public class SyncPageService {
         for (SyncPage sync : appPages) {
             syncDynamicPage(sync);
             StringBuffer content = new StringBuffer();
-            if (apps.isTable()) {
+            if (apps.isTable()&&sync.getTableNames()!=null) {
                 // 1.同步数据源（建表和表数据）
                 List<String> tableNames = sync.getTableNames();
                 for (String tableName : tableNames) {
@@ -64,7 +66,7 @@ public class SyncPageService {
                     }
                 }
             }
-            if (apps.isMeta()) {
+            if (apps.isMeta()&&sync.getModelCodes()!=null) {
                 // 2.同步元数据
                 List<String> modelCodes = sync.getModelCodes();
                 for (String modelCode : modelCodes) {
@@ -94,9 +96,25 @@ public class SyncPageService {
     private FileService fileService;
 
     public String importApps(String fileId) {
+        InputStream in=null;
+        if(fileId.startsWith("http")){
+            try {
+                URL source=new URL(fileId);
+                in=source.openStream();
+            } catch (IOException e) {
+                logger.debug("ERROR",e);
+            }
+        }else{
+            in = fileService.getInputStream(fileId);
+        }
+        return importApps(in);
+
+
+    }
+
+    public String importApps(InputStream in) {
         long time = System.currentTimeMillis();
         logger.debug("开始导入----" + time);
-        InputStream in = fileService.getInputStream(fileId);
         if (in != null) {
             Object obj = BeanUtil.readObject(in);
             // 判断类型，实例为Apps则是合法文件
@@ -110,8 +128,6 @@ public class SyncPageService {
         } else {
             return "导入失败，上传文件丢失";
         }
-
-
     }
 
     /**
@@ -355,23 +371,23 @@ public class SyncPageService {
         if (page == null) {
             throw new PlatformException("未找到 该动态页面[" + sync.getPageId() + "]");
         }
-        String model_xml = (String) page.get("model_xml");
-        if (StringUtils.isBlank(model_xml)) {
-            throw new PlatformException("model_xml,数据源为空");
-        }
+
         String template_id = (String) page.get("template_id");
         if (StringUtils.isBlank(template_id)) {
             throw new PlatformException("template_id,动态模板为空");
         }
-        List<String> modelCodes;
-        try {
-            modelCodes = sync.getModelCodes(model_xml);
-        } catch (Exception e) {
-            throw new PlatformException("数据源脚本解析出错");
+        String model_xml = (String) page.get("model_xml");
+        if (StringUtils.isNotBlank(model_xml)) {
+            List<String> modelCodes;
+            try {
+                modelCodes = sync.getModelCodes(model_xml);
+            } catch (Exception e) {
+                throw new PlatformException("数据源脚本解析出错");
+            }
+            sync.setModelXml(model_xml);
+            sync.setModelCodes(modelCodes);
+            sync.setTableNames(getTableNames(modelCodes));
         }
-        sync.setModelXml(model_xml);
-        sync.setModelCodes(modelCodes);
-        sync.setTableNames(getTableNames(modelCodes));
         sync.setTemplateId(template_id);
     }
 
@@ -428,7 +444,6 @@ public class SyncPageService {
      */
     public String createMetadata(List<String> modelCodes) {
         StringBuffer buffer = new StringBuffer();
-        // buffer.append("/*Table data for table `" + metaModelName + "` start */\n");
         for (String modelCode : modelCodes) {
             getMetadata(buffer, modelCode);
         }
@@ -442,6 +457,9 @@ public class SyncPageService {
         } catch (DataAccessException e) {
             return;
         }
+        //清空存在的元数据
+        buffer.append("DELETE FROM fw_mm_metamodelitems WHERE modelId=(SELECT ID FROM fw_mm_metamodel WHERE modelCode='"+modelCode+"');\n");
+        buffer.append("DELETE FROM fw_mm_metamodel WHERE modelCode='"+modelCode+"';\n");
         buffer.append(BeanUtil.getInsertSQL(map, metaModelName, "id"));
         List<Map<String, Object>> list = jdbcTemplate.queryForList(FIND_META_MODEL_ITEMS_BY_MODELID, map.get("id"));
         for (Map<String, Object> m : list) {
@@ -528,9 +546,7 @@ public class SyncPageService {
     public String createTable1(String tableName, boolean inCludeData) {
         List<Map<String, Object>> list = jdbcTemplate.queryForList("SHOW FULL FIELDS FROM " + tableName);
         StringBuffer buffer = new StringBuffer();
-        // buffer.append("/*Delete on exists table `" + tableName + "` */\n");
         buffer.append("DROP TABLE IF EXISTS `" + tableName + "`;\n\n");
-        // buffer.append("/*Table structure for table `" + tableName + "` start */\n");
         buffer.append("CREATE TABLE `" + tableName + "`(\n");
         for (Map<String, Object> map : list) {
             Object Field = map.get("Field");
@@ -565,12 +581,10 @@ public class SyncPageService {
         buffer.delete(buffer.length() - 2, buffer.length());
         buffer.append("\n) ENGINE=InnoDB DEFAULT CHARSET=utf8;\n");
         if (inCludeData) {
-            // buffer.append("/*Table data for table `" + tableName + "` start */\n");
             List<Map<String, Object>> data = jdbcTemplate.queryForList("select * from " + tableName);
             for (Map<String, Object> map : data) {
                 buffer.append(BeanUtil.getInsertSQL(map, tableName, "ID"));
             }
-            // buffer.append("/*Table data for table `" + tableName + "` end */\n");
         }
         return buffer.toString();
     }

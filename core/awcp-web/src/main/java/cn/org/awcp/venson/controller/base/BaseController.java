@@ -1,28 +1,22 @@
 package cn.org.awcp.venson.controller.base;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import javax.servlet.http.HttpServletRequest;
-
+import cn.org.awcp.core.utils.SessionUtils;
+import cn.org.awcp.core.utils.constants.SessionContants;
+import cn.org.awcp.unit.vo.PunUserBaseInfoVO;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.web.servlet.support.RequestContext;
 
-import cn.org.awcp.core.utils.SessionUtils;
-import cn.org.awcp.core.utils.constants.SessionContants;
-import cn.org.awcp.unit.vo.PunUserBaseInfoVO;
+import javax.servlet.http.HttpServletRequest;
+import java.util.*;
+import java.util.Map.Entry;
 
 public abstract class BaseController {
 
 	protected Log logger = LogFactory.getLog(getClass());
 
 	protected Map<String, Object> wrapMap(Map<String, String[]> map, String... filters) {
-		Map<String, Object> param = new HashMap<String, Object>();
+		Map<String, Object> param = new HashMap<>(map.size());
 		for (Entry<String, String[]> entry : map.entrySet()) {
 			String key = entry.getKey();
 			List<String> filtersList = new ArrayList<String>();
@@ -93,9 +87,9 @@ public abstract class BaseController {
 	}
 
 	protected Long getUserId() {
-		if (getUser() == null)
+		if (getUser() == null) {
 			return null;
-
+		}
 		return getUser().getUserId();
 	}
 

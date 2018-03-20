@@ -187,7 +187,7 @@ public class PunUserBaseInfoController extends BaseController {
 			List<PunPositionVO> posiVos = punPositionService.findAll();
 			vo.setUserPwd(Security.decryptPassword(vo.getUserPwd()));
 			mv.addObject("vo", vo);
-			mv.addObject("selectedRole", StringUtils.join(selectedRole.toArray(new String[] {})));
+			mv.addObject("selectedRole", StringUtils.join(selectedRole.toArray(new String[] {}),","));
 			mv.addObject("selectedGroup", groupId);
 			mv.addObject("selectedPosition", positionId);
 			mv.addObject("roleVos", roleVos);
@@ -415,14 +415,6 @@ public class PunUserBaseInfoController extends BaseController {
 				}
 				if (StringUtils.isNotEmpty(vo.getName())) {// 姓名
 					params.put("name", "%" + vo.getName() + "%");
-				}
-				if (vo.getGroupId() == null) {
-					PunUserBaseInfoVO currentUser = (PunUserBaseInfoVO) SessionUtils
-							.getObjectFromSession(SessionContants.CURRENT_USER);
-					vo.setGroupId(currentUser.getGroupId());
-					params.put("groupId", vo.getGroupId());
-				} else {
-					params.put("groupId", vo.getGroupId());
 				}
 			}
 			List<PunUserBaseInfoVO> userVOs = userService.queryPagedResult("queryUserRelateRole", params, currentPage,

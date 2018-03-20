@@ -401,29 +401,7 @@ public class DocumentServiceImpl implements DocumentService {
 				String value = map.get(key);
 				logger.debug("有值组件 {} 提交数据为：{}", key, value);
 
-				// Added By George Zheng At 2015/11/19
-				// 针对日期组件，物殊格式的日期处理一下
 				int type = c.getIntValue("componentType");
-				if (type == 1002) {
-					String dateType = c.getString("dateType");
-					if ("yyyy-mm-dd".equals(dateType)) { // yyyy-MM
-						value = DateUtils.format(DateUtils.parseDate(value, "yyyy-MM-dd"));
-					} else if ("dd/mm/yyyy".equals(dateType)) {
-						value = DateUtils.format(DateUtils.parseDate(value, "dd/MM/yyyy"));
-					} else if ("yyyy-mm-dd HH:ii".equals(dateType)) {
-						value = DateUtils.format(DateUtils.parseDate(value, "yyyy-MM-dd HH:mm"));
-					} else if ("dd/mm/yyyy HH:ii".equals(dateType)) {
-						value = DateUtils.format(DateUtils.parseDate(value, "dd/MM/yyyy HH:mm"));
-					} else if ("yyyy-mm-dd HH:ii:ss".equals(dateType)) {
-						value = DateUtils.format(DateUtils.parseDate(value, "yyyy-MM-dd HH:mm:ss"));
-					} else if ("yyyy-mm".equals(dateType)) {
-						value = DateUtils.format(DateUtils.parseDate(value, "yyyy-MM"));
-					} else if ("yyyy".equals(dateType)) {
-						value = DateUtils.format(DateUtils.parseDate(value, "yyyy"));
-					} else if ("HH:ii".equals(dateType)) {
-						value = DateUtils.format(DateUtils.parseDate(value, "HH:mm"));
-					}
-				}
 				if (type == 1032) {
 					value = value.replaceAll(",", "");
 				}
@@ -468,25 +446,7 @@ public class DocumentServiceImpl implements DocumentService {
 	 * 根据元数据code获取到数据源ID，如果数据源没配置，则获取系统默认数据源Id
 	 */
 	public String getDataSourceIdByModelCode(DataDefine dd) {
-		MetaModelVO mmv = metaModelServiceImpl.queryByModelCode(dd.getModelCode());
-		if (mmv != null && mmv.getDataSourceId() != null) { // 如果有配置数据源
-			return mmv.getDataSourceId();
-		} else {
-			// 系统默认数据源
-			Object obj = SessionUtils.getObjectFromSession(SessionContants.CURRENT_SYSTEM);
-			PunSystemVO system = null;
-			if (obj instanceof PunSystemVO) {
-				system = (PunSystemVO) obj;
-			}
-			BaseExample base = new BaseExample();
-			base.createCriteria().andEqualTo("SYSTEM_ID", system.getSysId()).andEqualTo("ISDEFAULT", true);
-			PageList<SysDataSourceVO> dataVos = sysSourceRelationService.selectPagedByExample(base, 1,
-					Integer.MAX_VALUE, null);
-			if (dataVos != null && dataVos.size() > 0) {
-				return dataVos.get(0).getDataSourceId();
-			}
-		}
-		return null;
+		return metaModelOperateServiceImpl.getDataSourceIdByModelCode(dd.getModelCode());
 	}
 
 	/**

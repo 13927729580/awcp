@@ -6,7 +6,6 @@ import cn.org.awcp.core.domain.SzcloudJdbcTemplate;
 import cn.org.awcp.core.utils.BeanUtils;
 import cn.org.awcp.core.utils.DateUtils;
 import cn.org.awcp.core.utils.SessionUtils;
-import cn.org.awcp.core.utils.Springfactory;
 import cn.org.awcp.core.utils.constants.SessionContants;
 import cn.org.awcp.formdesigner.application.service.DocumentService;
 import cn.org.awcp.formdesigner.application.service.FormdesignerService;
@@ -17,13 +16,11 @@ import cn.org.awcp.formdesigner.application.vo.PageActVO;
 import cn.org.awcp.formdesigner.application.vo.StoreVO;
 import cn.org.awcp.formdesigner.core.domain.DynamicPage;
 import cn.org.awcp.formdesigner.core.domain.design.context.data.DataDefine;
-import cn.org.awcp.formdesigner.core.engine.FreeMarkers;
 import cn.org.awcp.formdesigner.core.parse.bean.PageDataBeanWorker;
 import cn.org.awcp.formdesigner.engine.util.VirtualRequest;
+import cn.org.awcp.formdesigner.service.IDocumentService;
 import cn.org.awcp.formdesigner.service.PrintService;
-import cn.org.awcp.formdesigner.utils.DocUtils;
-import cn.org.awcp.formdesigner.utils.DocumentUtils;
-import cn.org.awcp.formdesigner.utils.PageBindUtil;
+import cn.org.awcp.extend.formdesigner.DocumentUtils;
 import cn.org.awcp.formdesigner.utils.ScriptEngineUtils;
 import cn.org.awcp.metadesigner.application.MetaModelOperateService;
 import cn.org.awcp.metadesigner.application.MetaModelService;
@@ -33,7 +30,6 @@ import cn.org.awcp.venson.controller.base.ReturnResult;
 import cn.org.awcp.venson.controller.base.StatusCode;
 import cn.org.awcp.venson.exception.PlatformException;
 import cn.org.awcp.venson.service.FileService;
-import cn.org.awcp.venson.service.QueryService;
 import cn.org.awcp.venson.service.impl.FileServiceImpl.AttachmentVO;
 import cn.org.awcp.venson.util.BeanUtil;
 import cn.org.awcp.venson.util.ExcelUtil;
@@ -41,7 +37,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.miemiedev.mybatis.paginator.domain.PageList;
-import com.github.miemiedev.mybatis.paginator.domain.Paginator;
 import com.itextpdf.text.DocumentException;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -64,7 +59,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.Date;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -82,15 +76,14 @@ public class DocumentController extends BaseController {
 
 	@Autowired
 	private DocumentService documentServiceImpl;
+	@Autowired
+	private IDocumentService iDocumentServiceImpl;
 
 	@Autowired
 	private StoreService storeServiceImpl;
 
 	@Autowired
 	private PrintService printServiceImpl;
-
-	@Resource(name = "queryServiceImpl")
-	private QueryService query;
 
 	@Resource(name = "metaModelOperateServiceImpl")
 	private MetaModelOperateService meta;
@@ -100,287 +93,74 @@ public class DocumentController extends BaseController {
 
 	/**
 	 *
-	 * 读取参数，如dynamicPageId、recordId等（SpringMVC已经帮忙做了） 校验参数 收集额外参数到Map中
-	 * 根据参数Map和脚本环境，解析出sql语句，根据sql语句查询数据 根据数据初始化各组件的状态(各个脚本包括选项脚本) 读取模版 模版+数据+状态 =
-	 * 输出 只针对单数据源的？
+	 * 根据参数Map和脚本环境，解析出sql语句
+	 * 根据sql语句查询数据 根据数据初始化各组件的状态(各个脚本包括选项脚本) 读取模版 模版+数据+状态 =输出
 	 *
-	 * @param id
 	 * @param dynamicPageId
-	 * @param docId
-	 * @param response
 	 * @param request
 	 * @return
-	 * @throws IOException
 	 * @throws ScriptException
-	 * @throws Exception
+	 * @throws IOException
 	 */
-	@SuppressWarnings("rawtypes")
 	@RequestMapping(value = "/view")
-	public String view(String id, String dynamicPageId, String docId, HttpServletResponse response,
-			HttpServletRequest request) throws IOException, ScriptException {
-		/*
-		 * 校验必要参数，查询模版， 渲染模版
-		 */
-		logger.debug(" view.do start");
-		// 新增：id为空时，为新增，获取dp，解析成HTML返回
-		if (StringUtils.isBlank(id) && StringUtils.isBlank(dynamicPageId)) {
-			throw new PlatformException("动态页面ID不存在");
-		} else {
-			DocumentVO docVo = null;
-			DynamicPageVO pageVO = null;
-			logger.debug("start init document and dynamicpage ");
-			if (StringUtils.isBlank(docId)) {
-				pageVO = formdesignerServiceImpl.findById(dynamicPageId);
-				if (pageVO == null) {
-					throw new PlatformException("动态页面未找到");
-				}
-				docVo = new DocumentVO();
-				docVo.setFlowTempleteId(request.getParameter("FK_Flow"));
-				docVo.setWorkItemId(request.getParameter("WorkID"));
-				docVo.setEntryId(request.getParameter("FK_Node"));
-				docVo.setUpdate(false);
-				docVo.setDynamicPageId(pageVO.getId().toString());
-				if (StringUtils.isNotBlank(id)) {
-					docVo.setUpdate(true);
-					docVo.setRecordId(id);
-				}
-				if (StringUtils.isNotEmpty(request.getParameter("selectId"))) {
-					docVo.setSelectId(request.getParameter("selectId"));
-				}
-				docVo.setDynamicPageName(pageVO.getName());
-				// 把列表页面配置的属性加到docVo中，在模板解析的时候使用
-				docVo.setShowTotalCount(pageVO.getShowTotalCount());
-				docVo.setIsLimitPage(pageVO.getIsLimitPage());
-				docVo.setPageSize(pageVO.getPageSize());
-				docVo.setShowReverseNum(pageVO.getShowReverseNum());
-				docVo.setReverseNumMode(pageVO.getReverseNumMode());
-				docVo.setReverseSortord(pageVO.getReverseSortord());
-			} else {
-				docVo = documentServiceImpl.findById(docId);
-				docVo.setUpdate(true);
-				if (StringUtils.isNotBlank(dynamicPageId)) {
-					pageVO = formdesignerServiceImpl.findById(dynamicPageId);
-				} else {
-					pageVO = formdesignerServiceImpl.findById(docVo.getDynamicPageId());
-				}
-				if (pageVO == null) {
-					throw new PlatformException("动态页面未找到");
-				}
-				docVo.setDynamicPageId(pageVO.getId());
-				docVo.setDynamicPageName(pageVO.getName());
-				// 把列表页面配置的属性加到docVo中，在模板解析的时候使用
-				docVo.setShowTotalCount(pageVO.getShowTotalCount());
-				docVo.setIsLimitPage(pageVO.getIsLimitPage());
-				docVo.setPageSize(pageVO.getPageSize());
-				docVo.setShowReverseNum(pageVO.getShowReverseNum());
-				docVo.setReverseNumMode(pageVO.getReverseNumMode());
-				docVo.setReverseSortord(pageVO.getReverseSortord());
-			}
-			logger.debug("end init document and dynamicpage");
-			if (docVo == null || pageVO == null) {
-				throw new PlatformException("动态页面初始化失败");
-			}
-			logger.debug("start init request parameters ");
-			Map<String, String> map = new HashMap<String, String>();
-			Map<String, String[]> parameterMap = request.getParameterMap();
-			for (String key : parameterMap.keySet()) {
-				map.put(key, StringUtils.join(parameterMap.get(key), ";"));
-			}
-			logger.debug("end init request parameters ");
-			docVo.setRequestParams(map);
-			String isRead = request.getParameter("IsRead");
-
-			Map<String, Object> root = new HashMap<String, Object>();
-			logger.debug("start init engine ");
-			// 拿脚本执行引擎
-			ScriptEngine engine = ScriptEngineUtils.getScriptEngine(docVo, pageVO);
-			engine.put("request", request);
-			engine.put("session", request.getSession());
-			engine.put("root", root);
-			logger.debug("end init engine ");
-			// 分页
-			String currentPage = request.getParameter("currentPage");
-			String pageSize = request.getParameter("pageSize");
-			if (!StringUtils.isNumeric(currentPage)) {
-				currentPage = "1";
-			}
-			if (!StringUtils.isNumeric(pageSize)) {
-				pageSize = docVo.getPageSize() == null ? "10" : docVo.getPageSize() + "";
-			}
-			String orderBy = map.get("orderBy");
-			String allowOrderBy = map.get("allowOrderBy");
-			docVo.setAllowOrderBy(allowOrderBy);
-			docVo.setOrderBy(orderBy);
-
-			// 查找是否存在app页面绑定
-			Object applist = meta.queryObject("select PAGEID_APP from p_un_page_binding where PAGEID_APP_LIST=?",
-					pageVO.getId());
-			docVo.setAppListPageId(applist.toString());
-
-			logger.debug("start init dataMap ");
-			Map<String, List<Map<String, String>>> dataMap = documentServiceImpl
-					.initDocumentData(Integer.parseInt(currentPage), Integer.parseInt(pageSize), docVo, engine, pageVO);
-			logger.debug("end init engine ");
-			docVo.setListParams(dataMap);
-
-			/**
-			 * key: componentId value: component 相关信息
-			 */
-			Map<String, String> others = new HashMap<String, String>();
-			Map<String, JSONObject> status = new HashMap<String, JSONObject>();
-			logger.debug("start find components ");
-
-			JSONObject jcon = new JSONObject();
-			jcon.put("relatePageId", pageVO.getId());
-			jcon.put("componentType", "");
-			List<JSONObject> components = formdesignerServiceImpl.getComponentByContainerWithColumn(jcon);
-			logger.debug("end find components the size is " + components.size());
-			logger.debug("start init components status");
-			logger.debug("components : " + JSON.toJSONString(components, true));
-			DocUtils.calculateCompents(docVo, others, status, components, dataMap, engine, isRead);
-			logger.debug("end init components status");
-			logger.debug("start init pageacts status");
-
-			BaseExample actExample = new BaseExample();
-			actExample.createCriteria().andEqualTo("dynamicPage_id", pageVO.getId()).andLike("code",
-					StoreService.PAGEACT_CODE + "%");
-			List<StoreVO> stores = storeServiceImpl.selectPagedByExample(actExample, 1, Integer.MAX_VALUE, null);
-			Map<String, Map<String, Object>> pageActStatus = new HashMap<String, Map<String, Object>>();
-
-			DocUtils.calculateStores(map, stores, pageActStatus, engine, others, isRead);
-			logger.debug("end init pageacts status");
-
-			root.put("pageActStatus", pageActStatus);
-
-			logger.debug("start excute preloadscript");
-			// 执行页面加载前脚本
-			String preLoadScript = StringEscapeUtils.unescapeHtml4(pageVO.getPreLoadScript());
-			if (StringUtils.isNotBlank(preLoadScript)) {
-				engine.eval(preLoadScript);
-			}
-			logger.debug("end excute preloadscript");
-
-			String dataJson = pageVO.getDataJson();
-
-			if (StringUtils.isNotBlank(dataJson)) {
-				for (Iterator<String> it = dataMap.keySet().iterator(); it.hasNext();) {
-					String key = it.next();
-					Object values = dataMap.get(key);
-					if (values != null) {
-						Paginator page = (((PageList) values).getPaginator());
-						root.put(key + "_paginator", page);
-					}
-				}
-			}
-			logger.debug("start find template");
-			String templateString = documentServiceImpl.getTemplateString(pageVO);
-			logger.debug("end find template");
-			root.putAll(docVo.getListParams());
-			root.put("others", others);
-			root.put("status", status);
-			root.put("request", request);
-			logger.debug(
-					"--------------------此处超强分割线-----------------view.do-----------------提交到后台的数据：-----------------------------------");
-			logger.debug("提交到后台的数据：");
-			logger.debug(docVo.getRequestParams().toString());
-			logger.debug(
-					"--------------------此处超强分割线----------------------------------查询回页面的数据：-----------------------------------");
-			logger.debug("查询回页面的数据：");
-			logger.debug(docVo.getListParams().toString());
-			logger.debug(
-					"----------------------------------------------此处超强分割线end---------------------------------------------------");
-			Map<String, Object> sessionMap = new HashMap<String, Object>();
-			Enumeration<String> sessionEnumeration = request.getSession().getAttributeNames();
-			for (; sessionEnumeration.hasMoreElements();) {
-				Object o = sessionEnumeration.nextElement();
-				String sessionName = o.toString();
-				Object values = request.getSession().getAttribute(sessionName);
-				sessionMap.put(o.toString(), values);
-			}
-			root.put("session", sessionMap);
-			root.put("vo", docVo);
-			root.put("currentPage", currentPage);
-			root.put("IsRead", isRead);
-			logger.debug("start render template");
-			String s = FreeMarkers.renderString(templateString, root);
-			root.clear();
-			templateString = null;
-			logger.debug("end render template");
-			logger.debug(" view.do end");
-			response.setContentType("text/html;");
-			response.getWriter().write(s);
-		}
-		return null;
+	public void view(String dynamicPageId,HttpServletRequest request,HttpServletResponse response)
+			throws ScriptException,IOException {
+		response.setContentType("text/html;");
+		response.getWriter().write(iDocumentServiceImpl.view(dynamicPageId,request));
 	}
 
 	@RequestMapping(value = "/excute")
-	public ModelAndView excuteAct(HttpServletRequest request, HttpServletResponse response)
+	public ModelAndView excute(HttpServletRequest request, HttpServletResponse response)
 			throws ScriptException, IOException {
 		ModelAndView mv = new ModelAndView();
 		String actId = request.getParameter("actId");
 		String pageId = request.getParameter("dynamicPageId");
 		String docId = request.getParameter("docId");
 		String update = request.getParameter("update");
-		String[] _selects = request.getParameterValues("_selects");// 列表页面才能使用
-		DocumentVO docVo = null;
-		if (StringUtils.isBlank(actId)) {
-			mv.addObject("dynamicPageId", pageId);
-			mv.addObject("docId", docId);
-			mv.setViewName("redirect:/document/view.do");
-		}
+		String[] _selects = request.getParameterValues("_selects");
+		DocumentVO docVo ;
 		DocumentUtils utils = DocumentUtils.getIntance();
-		DynamicPageVO pageVO = null;
-		if (StringUtils.isNotBlank(pageId)) {
-			pageVO = formdesignerServiceImpl.findById(pageId);
+		DynamicPageVO pageVO;
+		if (StringUtils.isBlank(pageId)) {
+			throw new PlatformException("动态页面dynamicPageId为空");
 		}
+		if (StringUtils.isBlank(actId)) {
+			throw new PlatformException("动作actId为空");
+		}
+		pageVO = formdesignerServiceImpl.findById(pageId);
 		if (pageVO == null) {
-			throw new PlatformException("动态页面ID未找到");
+			throw new PlatformException("动态页面未找到");
 		}
-		boolean isUpdate = false;
-		if (StringUtils.isNotBlank(update)) {
-			isUpdate = update.equalsIgnoreCase("true");
-		}
-		// 初始化表单数据
-		docVo = documentServiceImpl.findById(docId);
-		docVo = BeanUtil.instance(docVo, DocumentVO.class);
-
-		if (pageVO.getPageType() == 1002) { // 表单页面
-			docVo.setUpdate(isUpdate);
-			docVo.setDynamicPageId(pageId);
-			docVo.setDynamicPageName(pageVO.getName());
-		} else if (1003 == pageVO.getPageType()) { // 列表页面
-			// 要返回的页面ID
-			utils.putThingIntoSession("backId", pageVO.getId());
-		}
-
-		Map<String, String> map = new HashMap<String, String>();
-		Enumeration<String> enumeration = request.getParameterNames();
-		for (; enumeration.hasMoreElements();) {
-			Object o = enumeration.nextElement();
-			String name = o.toString();
-			String[] values = request.getParameterValues(name);
-			map.put(o.toString(), StringUtils.join(values, ";"));
-		}
-		logger.debug("--------此处超强分割线----------将执行按钮脚本,提交到后台的参数--------提交到后台的数据：----------------------");
-		logger.debug(map.toString());
-		logger.debug("---------此处超强分割线--------------END------------------");
-
-		docVo.setRequestParams(map);
-		docVo = documentServiceImpl.processParams(docVo);
 		StoreVO store = storeServiceImpl.findById(actId);
 		if (store == null) {
 			throw new PlatformException("按钮动作ID未找到");
 		}
+		boolean isUpdate = false;
+		if (StringUtils.isNotBlank(update)) {
+			isUpdate = "true".equalsIgnoreCase(update);
+		}
+		// 初始化表单数据
+		docVo = documentServiceImpl.findById(docId);
+		docVo = BeanUtil.instance(docVo, DocumentVO.class);
+		docVo.setUpdate(isUpdate);
+		docVo.setDynamicPageId(pageId);
+		docVo.setDynamicPageName(pageVO.getName());
+		Map<String,String[]> enumeration = request.getParameterMap();
+		Map<String, String> map = new HashMap<>(enumeration.size());
+		for(Map.Entry<String,String[]> entry:enumeration.entrySet()){
+			map.put(entry.getKey(), StringUtils.join(entry.getValue(), ";"));
+		}
+		docVo.setRequestParams(map);
+		docVo = documentServiceImpl.processParams(docVo);
 		PageActVO act = JSON.parseObject(store.getContent(), PageActVO.class);
-		PunUserBaseInfoVO user = (PunUserBaseInfoVO) SessionUtils.getObjectFromSession(SessionContants.CURRENT_USER);
 		// 初始化脚本解释执行器,加载全局工具类
 		ScriptEngine engine = ScriptEngineUtils.getScriptEngine(docVo, pageVO);
 		engine.put("request", request);
-		engine.put("session", request.getSession());
+		engine.put("session", SessionUtils.getCurrentSession());
 
 		// 如跳转、返回之类的
 		if (StringUtils.isNotBlank(act.getServerScript())) {
-			String ret = null;
+			String ret;
 			try {
 				jdbcTemplate.beginTranstaion();
 				String script = StringEscapeUtils.unescapeHtml4(act.getServerScript());
@@ -392,22 +172,16 @@ public class DocumentController extends BaseController {
 				}
 			} catch (Exception e) {
 				logger.info("ERROR", e);
-				try {
-					jdbcTemplate.rollback();
-				} catch (Exception e1) {
-					logger.info("ERROR", e);
-				}
+				jdbcTemplate.rollback();
 			}
 		} else {
 			// 校验文档
-			Integer actType = act.getActType();
-			// 根据actType 执行其默认操作
-			switch (actType) {
-			case 2001:// 保存--不带流程，
-				if (user.getUserId() != null) {
-					docVo.setLastmodifier(String.valueOf(user.getUserId()));
-					docVo.setAuditUser(String.valueOf(user.getUserId()));
-				}
+			switch (act.getActType()) {
+			// 保存--不带流程
+			case 2001:
+				PunUserBaseInfoVO user = ControllerHelper.getUser();
+				docVo.setLastmodifier(String.valueOf(user.getUserId()));
+				docVo.setAuditUser(String.valueOf(user.getUserId()));
 				// 设置doc 记录为草稿状态
 				docVo.setState("草稿");
 				if (docVo.isUpdate()) {
@@ -417,33 +191,23 @@ public class DocumentController extends BaseController {
 						utils.updateData(o);
 					}
 					// 更新document 记录
-					// 最后修改时间
-					docVo.setLastmodified(new Date(System.currentTimeMillis()));
+					docVo.setLastmodified(new Date());
 					utils.saveDocument();
-
 				} else {
-					docVo.setCreated(new Date(System.currentTimeMillis())); // 创建时间
-					docVo.setAuthorId(user.getUserId());// 作者
-					docVo.setLastmodified(docVo.getCreated()); // 最后修改时间
+					docVo.setCreated(new Date());
+					docVo.setAuthorId(user.getUserId());
+					docVo.setLastmodified(docVo.getCreated());
 					// 保存数据 向document插入数据
 					for (Iterator<String> it = docVo.getListParams().keySet().iterator(); it.hasNext();) {
-						docVo.setId("");
 						String o = it.next();
 						utils.saveData(o);
-						utils.saveDocument();
 					}
 					utils.saveDocument();
 				}
 				break;
 			case 2002:
 				// TODO 返回按钮实现
-				Long backId = null;
-				Object obt = utils.getThingFromSession("backId");
-				if (obt != null) {
-					backId = (Long) obt;
-				} else {
-					backId = Long.parseLong(act.getExtbute().get("target"));
-				}
+				Long backId= Long.parseLong(act.getExtbute().get("target"));
 				mv.setViewName("redirect:/document/view.do?dynamicPageId=" + backId);
 				return mv;
 			case 2003:
@@ -460,48 +224,26 @@ public class DocumentController extends BaseController {
 					return mv;
 				}
 				break;
-			case 2009:// 新增
+			// 新增
+			case 2009:
 				mv.addObject("dynamicPageId", act.getExtbute().get("target"));
 				mv.setViewName("redirect:/document/view.do");
 				return mv;
-			case 2010:// 编辑
+			// 编辑
+			case 2010:
 				if (_selects != null && _selects.length == 1) {
-					BaseExample baseExample = new BaseExample();
-					baseExample.createCriteria().andEqualTo("RECORD_ID", _selects[0]);
-					List<DocumentVO> documents = documentServiceImpl.findPageByExample(baseExample, 1,
-							Integer.MAX_VALUE, null);
-					List<DocumentVO> workflowDoc = new ArrayList<DocumentVO>();
-					List<DocumentVO> noneProcessDoc = new ArrayList<DocumentVO>();
-					if (documents != null && documents.size() > 0) {
-						for (DocumentVO document : documents) {
-							if (StringUtils.isNotBlank(document.getInstanceId())) {
-								workflowDoc.add(document);
-							} else {
-								noneProcessDoc.add(document);
-							}
-						}
-					}
-
-					if (workflowDoc.size() > 0) {// 流程相关
-
-					} else if (noneProcessDoc.size() > 0) {// 流程无关
-						// 判断用户权限 有权限直接打开
-						mv.setViewName("redirect:/document/view.do?recordId=" + _selects[0] + "&dynamicPageId="
-								+ act.getExtbute().get("target"));
-						return mv;
-					}
+					mv.setViewName("redirect:/document/view.do?id=" + _selects[0] + "&dynamicPageId="
+							+ act.getExtbute().get("target"));
+					return mv;
 				}
 				break;
-			case 2014:// pdf打印
+			// pdf打印
+			case 2014:
 				// 1、准备参数
 				String script = act.getExtbute().get("script");
-				Map params = new HashMap();
+				Map params = new HashMap(16);
 				if (StringUtils.isNotBlank(script)) {
-					try {
-						params = (Map) engine.eval(StringEscapeUtils.unescapeHtml4(script));
-					} catch (ScriptException e2) {
-						logger.info("ERROR", e2);
-					}
+					params = (Map) engine.eval(StringEscapeUtils.unescapeHtml4(script));
 				}
 				List listPages = formdesignerServiceImpl.getChildListPages(pageVO.getId());
 				StringBuilder sb = new StringBuilder();
@@ -511,31 +253,22 @@ public class DocumentController extends BaseController {
 					}
 				}
 
-				Map totalMap = new HashMap();
+				Map totalMap = new HashMap(16);
 				totalMap.put("pageVOId", pageVO.getId().toString());
 				totalMap.put("listPages", sb.toString());
 				totalMap.putAll(map);
 				totalMap.putAll(params);
-
-				VirtualRequest virtualRequest = new VirtualRequest(totalMap); // request的getParament无法重置，所有自己模拟一个virtualRequest用于存跳转参数
-				try {
-					print(virtualRequest, request, response);
-				} catch (ScriptException e) {
-					// TODO Auto-generated catch block
-					logger.info("ERROR", e);
-				}
+				// request的getParament无法重置，所有自己模拟一个virtualRequest用于存跳转参数
+				VirtualRequest virtualRequest = new VirtualRequest(totalMap);
+				print(virtualRequest, request, response);
 				return null;
-
-			case 2016:// Excel导出
+			// Excel导出
+			case 2016:
 				// 1、准备参数
 				String excelScript = act.getExtbute().get("script");
-				Map<String, String> excelParams = new HashMap<String, String>();
+				Map<String, String> excelParams = new HashMap<>(16);
 				if (StringUtils.isNotBlank(excelScript)) {
-					try {
-						excelParams = (Map<String, String>) engine.eval(StringEscapeUtils.unescapeHtml4(excelScript));
-					} catch (ScriptException e2) {
-						logger.info("ERROR", e2);
-					}
+					excelParams = (Map<String, String>) engine.eval(StringEscapeUtils.unescapeHtml4(excelScript));
 				}
 				// excel模板的Id
 				String templateFileId = act.getExtbute().get("templateFileId");
@@ -543,20 +276,17 @@ public class DocumentController extends BaseController {
 				String sqlScript = act.getExtbute().get("sqlScript");
 				String actSql = "";
 				if (StringUtils.isNotBlank(sqlScript)) {
-					try {
-						actSql = (String) engine.eval(StringEscapeUtils.unescapeHtml4(sqlScript));
-					} catch (ScriptException e2) {
-						logger.info("ERROR", e2);
-					}
+					actSql = (String) engine.eval(StringEscapeUtils.unescapeHtml4(sqlScript));
 				}
 
 				// 此处改为直接调用函数，参考打印pdf同样的调用方式
-				Map paramMap = new HashMap();
+				Map paramMap = new HashMap(16);
 				paramMap.put("actSql", actSql);
 				paramMap.put("templateFileId", templateFileId);
 				paramMap.put("excelParams", excelParams);
 				paramMap.putAll(map);
-				VirtualRequest vRequest = new VirtualRequest(paramMap); // request的getParament无法重置，所有自己模拟一个virtualRequest用于存跳转参数
+				// request的getParament无法重置，所有自己模拟一个virtualRequest用于存跳转参数
+				VirtualRequest vRequest = new VirtualRequest(paramMap);
 				excelListPage(vRequest, request, response);
 				return null;
 
@@ -567,9 +297,8 @@ public class DocumentController extends BaseController {
 		}
 
 		// 数据校验
-		// 根据Map和模型，组装Map（documentVo.params），key为模型item的code
 		mv.addObject("dynamicPageId", pageId);
-		mv.addObject("id", docVo.getId());
+		mv.addObject("id", docVo.getRecordId());
 		mv.setViewName("redirect:/document/view.do");
 		return mv;
 	}
@@ -584,233 +313,22 @@ public class DocumentController extends BaseController {
 	 */
 	@ResponseBody
 	@RequestMapping(value = "executeAct", method = RequestMethod.GET)
-	public ReturnResult executeAct(String actId, HttpServletRequest request) {
+	public ReturnResult executeAct(String actId, HttpServletRequest request) throws ScriptException {
 		ReturnResult result = ReturnResult.get();
-		StoreVO store = storeServiceImpl.findById(actId);
-		if (store == null) {
-			return result.setStatus(StatusCode.FAIL.setMessage("动作脚本为空，无效执行"));
-		}
-		PageActVO act = JSON.parseObject(store.getContent(), PageActVO.class);
-		// 初始化脚本解释执行器,加载全局工具类
-		ScriptEngine engine = ScriptEngineUtils.getScriptEngine();
-		engine.put("request", request);
-		engine.put("session", request.getSession());
-		// 如跳转、返回之类的
-		if (StringUtils.isNotBlank(act.getServerScript())) {
-			try {
-				jdbcTemplate.beginTranstaion();
-				String script = StringEscapeUtils.unescapeHtml4(act.getServerScript());
-				Object data = engine.eval(script);
-				result.setStatus(StatusCode.SUCCESS).setData(data);
-				jdbcTemplate.commit();
-				return result;
-			} catch (Exception e) {
-				logger.debug("ERROR", e);
-				jdbcTemplate.rollback();
-				if(e instanceof PlatformException){
-					result.setStatus(StatusCode.FAIL.setMessage(e.getMessage()));
-				}else{
-					result.setStatus(StatusCode.FAIL.setMessage("执行脚本出错"));
-				}
-				return result;
-			}
-		} else {
-			result.setStatus(StatusCode.FAIL.setMessage("动作脚本为空，无效执行"));
-			return result;
-		}
+		result.setStatus(StatusCode.SUCCESS).setData(iDocumentServiceImpl.eval(actId,null,null,request));
+		return result;
 	}
 
-	@ResponseBody
-	@RequestMapping(value = "/refreshState", method = RequestMethod.POST)
-	public String refrehState(HttpServletRequest request) {
-		String componentId = request.getParameter("componentId");
-		StoreVO store = null;
-		if (StringUtils.isNotBlank(componentId)) {
-			componentId = componentId.substring(componentId.length() - 36);
-			store = storeServiceImpl.findById(componentId);
-		}
-		JSONObject component = null;
-		if (store != null) {
-			component = JSON.parseObject(store.getContent());
-			int type = Integer.parseInt((String) component.get("componentType"));
-			switch (type) {
-			case 1006:
-				String script = (String) component.get("optionScript");
-				if (StringUtils.isNotBlank(script)) {
-					ScriptEngine engine = ScriptEngineUtils.getScriptEngine();
-					engine.put("request", request);
-					String ret = null;
-					try {
-						ret = (String) engine.eval(script);
-					} catch (ScriptException e) {
-						logger.info("ERROR", e);
-					}
-					StringBuilder sb = new StringBuilder();
-					if (StringUtils.isNotBlank(ret)) {
-						String[] optionStr = ret.split("\\;");
-						if (optionStr.length > 0) {
-							for (String str : optionStr) {
-								String[] entry = str.split("\\=");
-								if (entry != null && entry.length > 1) {
-									sb.append("<option value=\"" + entry[0] + "\">" + entry[1] + "</option>");
-								} else {
-									sb.append("<option value=\"" + entry[0] + "\">" + entry[0] + "</option>");
-								}
-							}
-							return sb.toString();
-						} else {
-							return ret;
-						}
-					} else {
-						sb.append("<option value=' '></option>");
-					}
-				}
-				break;
-			default:
-				break;
-			}
-		}
-		return null;
-	}
 
-	@ResponseBody
-	@RequestMapping("/getListJson")
-	public List<Map<String, String>> getListJson(HttpServletRequest request) throws ScriptException {
-
-		String dynamicPageId = request.getParameter("dynamicPageId");
-		DynamicPageVO pageVO = formdesignerServiceImpl.findById(dynamicPageId);
-		DocumentVO docVo = new DocumentVO();
-		docVo.setDynamicPageId(String.valueOf(pageVO.getId()));
-
-		ScriptEngine engine = ScriptEngineUtils.getScriptEngine(docVo, pageVO);
-		engine.put("request", request);
-		engine.put("session", request.getSession());
-		Map<String, List<Map<String, String>>> dataMap = documentServiceImpl.initDocumentData(1, 25, docVo, engine,
-				pageVO);
-
-		if (dataMap != null && !dataMap.isEmpty()) {
-			BaseExample baseExample = new BaseExample();
-			baseExample.createCriteria().andEqualTo("DYNAMICPAGE_ID", dynamicPageId).andLike("CODE",
-					StoreService.COMPONENT_CODE + "%");
-			List<StoreVO> columnComs = storeServiceImpl.selectPagedByExample(baseExample, 1, Integer.MAX_VALUE,
-					"T_ORDER");
-			for (int k = 0; k < columnComs.size(); k++) {
-				JSONObject o = JSON.parseObject(columnComs.get(k).getContent());
-				if ("1008".equals(o.getString("componentType"))) { // 列组件
-					String showScript = o.getString("showScript");
-					if (StringUtils.isNotBlank(showScript)) {
-						Boolean ret = (Boolean) engine.eval(showScript);
-						if (ret) {
-							break;
-						}
-					}
-				}
-			}
-
-			if (dataMap.values().iterator().hasNext()) {
-				List<Map<String, String>> resultList = dataMap.values().iterator().next(); // 取到dataMap第一个value
-				List<Map<String, String>> finalResultList = new ArrayList<Map<String, String>>();
-				if (resultList != null) {
-					for (int i = 0; i < resultList.size(); i++) { // 取出的map中带有多列，过滤，剩列组件对应的列以及组件id或ID
-						Map<String, String> map = resultList.get(i);
-						Map<String, String> finalMap = new LinkedHashMap<String, String>();
-						if (map.get("ID") != null) {
-							finalMap.put("ID", map.get("ID"));
-						} else if (map.get("id") != null) {
-							finalMap.put("id", map.get("id"));
-						}
-						for (int k = 0; k < columnComs.size(); k++) {
-							JSONObject o = JSON.parseObject(columnComs.get(k).getContent());
-							if ("1008".equals(o.getString("componentType"))) { // 列组件
-								String columnDataName = o.getString("dataItemCode")
-										.substring(o.getString("dataItemCode").lastIndexOf(".") + 1);
-								finalMap.put(columnDataName, map.get(columnDataName));
-							}
-						}
-						finalResultList.add(finalMap);
-					}
-					return finalResultList;
-				}
-			}
-
-		}
-		return null;
-
-	}
 
 	@ResponseBody
 	@RequestMapping(value = "/excuteOnly")
-	public String excuteActNoDirect(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		String result = "1";
-		String actId = request.getParameter("actId");
-		DocumentVO docVo = new DocumentVO();
-		String pageId = request.getParameter("dynamicPageId");
-		String docId = request.getParameter("docId");
-		String update = request.getParameter("update");
-		DynamicPageVO pageVO = null;
-		DocumentUtils utils = DocumentUtils.getIntance();
-		if (StringUtils.isNotBlank(pageId)) {
-			pageVO = formdesignerServiceImpl.findById(pageId);
-		}
-		boolean isUpdate = false;
-		if (StringUtils.isNotBlank(update)) {
-			isUpdate = update.equalsIgnoreCase("true");
-		}
-
-		if (pageVO.getPageType() == 1002) { // 表单页面
-			// 初始化表单数据
-			docVo = documentServiceImpl.findById(docId);
-			if (docVo == null) {
-				docVo = new DocumentVO();
-			}
-			docVo.setUpdate(isUpdate);
-			docVo.setDynamicPageId(pageId);
-			docVo.setDynamicPageName(pageVO.getName());
-		} else if (1003 == pageVO.getPageType()) { // 列表页面
-			// 要返回的页面ID
-			utils.putThingIntoSession("backId", pageVO.getId());
-		}
-
-		Map<String, String> map = new HashMap<>();
-		Enumeration<String> enumeration = request.getParameterNames();
-		for (; enumeration.hasMoreElements();) {
-			Object o = enumeration.nextElement();
-			String name = o.toString();
-			String[] values = request.getParameterValues(name);
-			map.put(o.toString(), StringUtils.join(values, ";"));
-		}
-		logger.debug("--------此处超强分割线----------将执行按钮脚本,提交到后台的参数--------提交到后台的数据：----------------------");
-		logger.debug(map.toString());
-		logger.debug("---------此处超强分割线--------------END------------------");
-
-		docVo.setRequestParams(map);
-		docVo = documentServiceImpl.processParams(docVo);
-		StoreVO store = storeServiceImpl.findById(actId);
-		PageActVO act = JSON.parseObject(store.getContent(), PageActVO.class);
-		// 初始化脚本解释执行器,加载全局工具类
-		ScriptEngine engine = ScriptEngineUtils.getScriptEngine(docVo, pageVO);
-		// TODO put engine 工具类库
-		engine.put("request", request);
-		// 如跳转、返回之类的
-		if (StringUtils.isNotBlank(act.getServerScript())) {
-			try {
-				String script = StringEscapeUtils.unescapeHtml4(act.getServerScript());
-				jdbcTemplate.beginTranstaion();
-				Object o = engine.eval(script);
-				ControllerHelper.renderJSON(null,o);
-				jdbcTemplate.commit();
-				return null;
-			} catch (Exception e) {
-				logger.info("ERROR", e);
-				result = e.getMessage();
-				jdbcTemplate.rollback();
-			}
-		} else {
-			result = "script is null";
-		}
-
-		ControllerHelper.renderJSON(null,result);
-		return null;
+	public void excuteOnly(HttpServletRequest request,@RequestParam("dynamicPageId") String dynamicPageId,
+						   @RequestParam(value="docId",required = false)String docId,
+						   @RequestParam(value="actId",required = false)String actId) throws Exception {
+		DocumentVO docVo = documentServiceImpl.findById(docId);
+		docVo=BeanUtil.instance(docVo,DocumentVO.class);
+		ControllerHelper.renderJSON(null,iDocumentServiceImpl.execute(actId,dynamicPageId,docVo,request));
 	}
 
 	/**
@@ -831,7 +349,6 @@ public class DocumentController extends BaseController {
 		String pageId = paramRequest.getParameter("dynamicPageId");
 		String workflowId = paramRequest.getParameter("workflowId");
 
-		// logger.debug(paramRequest.getParameter("pageVOId"));
 
 		String actId = paramRequest.getParameter("actId");
 		StoreVO store = storeServiceImpl.findById(actId);
@@ -876,7 +393,64 @@ public class DocumentController extends BaseController {
 		jcon.put("relatePageId", pageVO.getId());
 		jcon.put("componentType", "");
 		List<JSONObject> components = formdesignerServiceImpl.getComponentByContainerWithColumn(jcon);
+		Map finalMap = getMap(pageVO, engine, dataMap);
 
+
+		dataMap.putAll(finalMap);
+
+		// 如果有包含列表页面，或者总页面是列表页面；
+		// 则读取列表页面中的数据，存到dataMap中；格式：Map<String,List<Map<String,String>>> eg:
+		// Map<pmi,list<Map<pmi.name,aaaa>>>
+		Map listPageMap = getListPageData(paramRequest, request);
+		dataMap.putAll(listPageMap);
+
+		// 打印时需要打印checkBox中所有选项（不止选择的选项）,所以需查找出option所以选项，放到map中。
+		Map optionMap = getOptionTextMapByPage(engine, pageVO);
+		dataMap.putAll(optionMap);
+
+		String templetId = act.getExtbute().get("templet");
+		if (StringUtils.isBlank(templetId)) {
+			throw new PlatformException("打印模板不能为空");
+		}
+		StoreVO printManageVO = storeServiceImpl.findById(templetId);
+		if (printManageVO == null) {
+			throw new PlatformException("打印模板不能为空");
+		}
+		JSONObject printJson = JSON.parseObject(printManageVO.getContent());
+		String fileName = "申报书.pdf";
+		if (StringUtils.isNoneBlank(printJson.getString("pdfName"))) {
+			java.util.Date now = new java.util.Date();
+			String dateStr = DateUtils.format(now, "ddMMyyyy_HHmmss");
+			fileName = printJson.getString("pdfName") + dateStr + ".pdf";
+		}
+		// 设置在线预览方式打开Pdf文件
+		response.setContentType("application/pdf;charset=UTF-8");
+		response.setHeader("Content-disposition", "inline; filename=" + ControllerHelper.processFileName(fileName));
+		OutputStream out;
+		try {
+			// 判断是否需要合并pdf
+			boolean isMerge = StringUtils.isNotBlank(request.getParameter("isMerge")) ? true : false;
+			// 创建临时合并文件
+			String root = ControllerHelper.getUploadPath(ControllerHelper.ATTACHMENT_UPLOAD_PATH);
+			String temp1 = root + "temp1.pdf";
+			if (isMerge) {
+				out = new FileOutputStream(temp1);
+			} else {
+				out = response.getOutputStream();
+			}
+			// 有配置自定义模板
+			if (StringUtils.isNotBlank(printJson.getString("templateFileId"))) {
+				printServiceImpl.printPDFByTemplate(printManageVO, dataMap, out, components);
+			} else {
+				printServiceImpl.printPDF(printManageVO, dataMap, out);
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			logger.info("ERROR", e);
+		}
+	}
+
+	private Map getMap(DynamicPageVO pageVO, ScriptEngine engine, Map<String, List<Map<String, String>>> dataMap) throws ScriptException {
 		// 对表格组件进行处理，将真实值转换为显示值；比如一些 日期格式化、code转对应value等；
 		if (dataMap != null && !dataMap.isEmpty()) {
 			BaseExample baseExample = new BaseExample();
@@ -885,7 +459,8 @@ public class DocumentController extends BaseController {
 			List<StoreVO> columnComs = storeServiceImpl.selectPagedByExample(baseExample, 1, Integer.MAX_VALUE, null);
 			for (int k = 0; k < columnComs.size(); k++) {
 				JSONObject o = JSON.parseObject(columnComs.get(k).getContent());
-				if ("1017".equals(o.getString("componentType"))) { // 列组件或者表格组件
+				// 列组件或者表格组件
+				if ("1017".equals(o.getString("componentType"))) {
 					String showScript = o.getString("showScript");
 					if (StringUtils.isNotBlank(showScript)) {
 						Boolean ret = (Boolean) engine.eval(showScript);
@@ -924,58 +499,7 @@ public class DocumentController extends BaseController {
 				}
 			}
 		}
-		dataMap.putAll(finalMap);
-
-		// 如果有包含列表页面，或者总页面是列表页面；
-		// 则读取列表页面中的数据，存到dataMap中；格式：Map<String,List<Map<String,String>>> eg:
-		// Map<pmi,list<Map<pmi.name,aaaa>>>
-		Map listPageMap = getListPageData(paramRequest, request);
-		dataMap.putAll(listPageMap);
-
-		// 打印时需要打印checkBox中所有选项（不止选择的选项）,所以需查找出option所以选项，放到map中。
-		Map optionMap = getOptionTextMapByPage(engine, pageVO);
-		dataMap.putAll(optionMap);
-
-		String templetId = act.getExtbute().get("templet");
-		if (StringUtils.isBlank(templetId)) {
-			throw new PlatformException("打印模板不能为空");
-		}
-		StoreVO printManageVO = storeServiceImpl.findById(templetId);
-		if (printManageVO == null) {
-			throw new PlatformException("打印模板不能为空");
-		}
-		JSONObject printJson = JSON.parseObject(printManageVO.getContent());
-		String fileName = "申报书.pdf";
-		if (StringUtils.isNoneBlank(printJson.getString("pdfName"))) {
-			java.util.Date now = new java.util.Date();
-			String dateStr = DateUtils.format(now, "ddMMyyyy_HHmmss");
-			fileName = printJson.getString("pdfName") + dateStr + ".pdf";
-		}
-		// 设置在线预览方式打开Pdf文件
-		response.setContentType("application/pdf;charset=UTF-8");
-		response.setHeader("Content-disposition", "inline; filename=" + ControllerHelper.processFileName(fileName));
-		OutputStream out = null;
-		try {
-			// 判断是否需要合并pdf
-			boolean isMerge = StringUtils.isNotBlank(request.getParameter("isMerge")) ? true : false;
-			// 创建临时合并文件
-			String root = ControllerHelper.getUploadPath(ControllerHelper.ATTACHMENT_UPLOAD_PATH);
-			String temp1 = root + "temp1.pdf";
-			if (isMerge) {
-				out = new FileOutputStream(temp1);
-			} else {
-				out = response.getOutputStream();
-			}
-			if (StringUtils.isNotBlank(printJson.getString("templateFileId"))) { // 有配置自定义模板
-				printServiceImpl.printPDFByTemplate(printManageVO, dataMap, out, components);
-			} else {
-				printServiceImpl.printPDF(printManageVO, dataMap, out);
-			}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			logger.info("ERROR", e);
-		}
-		// }
+		return finalMap;
 	}
 
 	public void excelListPage(VirtualRequest paramRequest, HttpServletRequest request, HttpServletResponse response)
@@ -986,7 +510,7 @@ public class DocumentController extends BaseController {
 		String actSql = paramRequest.getParameter("actSql");
 		// 根据pageId，获取组件，然后进行request遍历，组装成Map（documentVo.requestParams），key为组件name
 		DocumentVO docVo = new DocumentVO();
-		DynamicPageVO pageVO = null;
+		DynamicPageVO pageVO;
 		// 查找模版
 		pageVO = formdesignerServiceImpl.findById(pageId);
 		if (pageVO == null) {
@@ -1005,15 +529,16 @@ public class DocumentController extends BaseController {
 		String allowOrderBy = docVo.getRequestParams().get("allowOrderBy");
 		docVo.setAllowOrderBy(allowOrderBy);
 		docVo.setOrderBy(orderBy);
-		Map<String, List<Map<String, String>>> dataMap = new HashMap<String, List<Map<String, String>>>();
-		if (StringUtils.isNotBlank(actSql)) {// 当excel导出动作的sql脚本不为空，则根据该sql查找数据进行导出
+		Map<String, List<Map<String, String>>> dataMap = new HashMap<>();
+		// 当excel导出动作的sql脚本不为空，则根据该sql查找数据进行导出
+		if (StringUtils.isNotBlank(actSql)) {
 
 			// 此处由于documentService的excuteQueryForList查找出来的类型是List<Map<String,Object>>
 			// 需要转换为List<Map<String,String>>类型的数据
 			List<Map<String, Object>> sqlData = documentServiceImpl.excuteQueryForList(actSql);
 			List<Map<String, String>> stringData = new ArrayList<Map<String, String>>();
 			for (Map<String, Object> tem1 : sqlData) {
-				Map<String, String> tem2 = new HashMap<String, String>();
+				Map<String, String> tem2 = new HashMap<>();
 				for (Map.Entry<String, Object> entry : tem1.entrySet()) {
 					if (entry.getValue() != null) {
 						tem2.put(entry.getKey(), entry.getValue().toString());
@@ -1024,14 +549,16 @@ public class DocumentController extends BaseController {
 				stringData.add(tem2);
 			}
 			dataMap.put("sqlData", stringData);
-		} else {// 导出excel动作中的sql脚本为空，则根据列表页面的数据源来导出
+		// 导出excel动作中的sql脚本为空，则根据列表页面的数据源来导出
+		} else {
 			dataMap = documentServiceImpl.initDocumentData(1, MAX_EXCEL_PAGE_SIZE, docVo, engine, pageVO);
 		}
 		if (dataMap.isEmpty()) {
 			throw new PlatformException("数据源或sql脚本不能为空");
 		}
 		List<JSONObject> columns = new ArrayList<JSONObject>();
-		if (!StringUtils.isNotBlank(templateFileId)) {// 如果没有模板，则根据执行下面代找到所有列框，然后根据列框来导出数据
+		// 如果没有模板，则根据执行下面代找到所有列框，然后根据列框来导出数据
+		if (!StringUtils.isNotBlank(templateFileId)) {
 			// 查找列框
 			BaseExample baseExample = new BaseExample();
 			baseExample.createCriteria().andEqualTo("DYNAMICPAGE_ID", pageId).andLike("code",
@@ -1045,12 +572,7 @@ public class DocumentController extends BaseController {
 					columns.add(json);
 				}
 			}
-			Collections.sort(columns, new Comparator<JSONObject>() {
-				@Override
-				public int compare(JSONObject o1, JSONObject o2) {
-					return o1.getIntValue("order") - o2.getIntValue("order");
-				}
-			});
+			Collections.sort(columns,Comparator.comparingInt(o->o.getIntValue("order")));
 			// 真实值替换成显示值 TODO
 			for (JSONObject column : columns) {
 				String showScript = column.getString("showScript");
@@ -1064,7 +586,7 @@ public class DocumentController extends BaseController {
 		response.setContentType("application/x-msdownload;");
 		response.setHeader("Content-disposition",
 				"attachment; filename=" + ControllerHelper.processFileName(pageVO.getName() + "-列表.xls"));
-		printExcel(columns, dataMap, response.getOutputStream(), templateFileId, pageVO);
+		printExcel(columns, dataMap, response.getOutputStream(), templateFileId);
 	}
 
 	public Map getListPageData(VirtualRequest paramRequest, HttpServletRequest request) throws ScriptException {
@@ -1074,11 +596,14 @@ public class DocumentController extends BaseController {
 		DynamicPage dp = DynamicPage.get(DynamicPage.class, paramRequest.getParameter("pageVOId"));
 		DynamicPageVO vo = BeanUtils.getNewInstance(dp, DynamicPageVO.class);
 
-		String listPagesStr = null;
-		if (vo.getPageType() == 1003 && StringUtils.isNotEmpty(paramRequest.getParameter("dynamicPageId")))// 列表页面，则返回自己
-			listPagesStr = paramRequest.getParameter("dynamicPageId");
-		else
-			listPagesStr = paramRequest.getParameter("listPages");
+		String listPagesStr;
+		// 列表页面，则返回自己
+		if (vo.getPageType() == 1003 && StringUtils.isNotEmpty(paramRequest.getParameter("dynamicPageId")))
+        {
+            listPagesStr = paramRequest.getParameter("dynamicPageId");
+        } else {
+            listPagesStr = paramRequest.getParameter("listPages");
+        }
 		String[] listPages = null;
 		if (StringUtils.isNotBlank(listPagesStr)) {
 			listPages = listPagesStr.split(",");
@@ -1105,7 +630,8 @@ public class DocumentController extends BaseController {
 							null);
 					for (int k = 0; k < columnComs.size(); k++) {
 						JSONObject o = JSON.parseObject(columnComs.get(k).getContent());
-						if ("1008".equals(o.getString("componentType"))) { // 列组件或者表格组件
+						// 列组件或者表格组件
+						if ("1008".equals(o.getString("componentType"))) {
 							String showScript = o.getString("showScript");
 							if (StringUtils.isNotBlank(showScript)) {
 								Boolean ret = (Boolean) engine.eval(showScript);
@@ -1119,14 +645,16 @@ public class DocumentController extends BaseController {
 					}
 
 					if (dataMap.values().iterator().hasNext()) {
-						List<Map<String, String>> resultList = dataMap.values().iterator().next(); // 取到dataMap第一个value
+						// 取到dataMap第一个value
+						List<Map<String, String>> resultList = dataMap.values().iterator().next();
 						String key = dataMap.keySet().iterator().next();
 						String alias = key.substring(0, key.lastIndexOf("_list"));
-						List<Map<String, String>> finalResultList = new ArrayList<Map<String, String>>();
+						List<Map<String, String>> finalResultList = new ArrayList<>();
 						if (resultList != null) {
-							for (int i = 0; i < resultList.size(); i++) { // 取出的map中带有多列，过滤，剩列组件对应的列
+							// 取出的map中带有多列，过滤，剩列组件对应的列
+							for (int i = 0; i < resultList.size(); i++) {
 								Map<String, String> map = resultList.get(i);
-								Map<String, String> finalMap = new LinkedHashMap<String, String>();
+								Map<String, String> finalMap = new LinkedHashMap<>();
 
 								Iterator iter = map.entrySet().iterator();
 								while (iter.hasNext()) {
@@ -1160,7 +688,7 @@ public class DocumentController extends BaseController {
 	@ResponseBody
 	@RequestMapping(value = "/refreshDataGrid")
 	public ReturnResult refreshDataGrid(HttpServletRequest request,
-			@RequestParam(value = "page", required = false, defaultValue = "1") int currentPage,
+			@RequestParam(value = "currentPage", required = false, defaultValue = "1") int currentPage,
 			@RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize) {
 		ReturnResult result = ReturnResult.get();
 		String componentId = request.getParameter("componentId");
@@ -1170,7 +698,7 @@ public class DocumentController extends BaseController {
 		String method = request.getParameter("method");
 
 		JSONObject oo = JSON.parseObject(s.getContent());
-		String dataAlias = "";
+		String dataAlias;
 		if (request.getParameter("dataFile") != null) {
 			dataAlias = oo.getString(request.getParameter("dataFile"));
 		} else {
@@ -1181,7 +709,7 @@ public class DocumentController extends BaseController {
 		Map<String, DataDefine> map = PageDataBeanWorker
 				.convertConfToDataDefines(StringEscapeUtils.unescapeHtml4(pageVo.getDataJson()));
 		DataDefine dd = map.get(dataAlias);
-		if ("delete".equals(method)) { // 删除
+		if ("delete".equals(method)) {
 			String selects = request.getParameter("_selects");
 			String[] _selects = null;
 			if (selects != null) {
@@ -1243,7 +771,7 @@ public class DocumentController extends BaseController {
 				}
 
 				// 操作显示脚本
-				Map<String, List<Map<String, String>>> dataMap = new HashMap<String, List<Map<String, String>>>();
+				Map<String, List<Map<String, String>>> dataMap = new HashMap<>();
 				dataMap.put(dd.getName() + "_list", pageList);
 				docVo.setListParams(dataMap);
 
@@ -1265,8 +793,9 @@ public class DocumentController extends BaseController {
 	private FileService fileService;
 
 	private void printExcel(List<JSONObject> columns, Map<String, List<Map<String, String>>> dataMap, OutputStream os,
-			String templateFileId, DynamicPageVO pageVO) {
-		if (templateFileId != null && StringUtils.isNoneBlank(templateFileId)) {// 当模板ID不为空，找到模板
+			String templateFileId) {
+		// 当模板ID不为空，找到模板
+		if (templateFileId != null && StringUtils.isNoneBlank(templateFileId)) {
 			AttachmentVO att = fileService.get(templateFileId);
 			if (att == null) {
 				throw new PlatformException("模板未找到，请重新上传");
@@ -1275,7 +804,7 @@ public class DocumentController extends BaseController {
 			if (in == null) {
 				throw new PlatformException("模板未找到，请重新上传");
 			}
-			List<Map<String, String>> list = null;
+			List<Map<String, String>> list;
 			if (dataMap.get("sqlData") != null) {
 				// 当根据sql导出时，dataMap中数据只有一个List
 				list = dataMap.get("sqlData");
@@ -1301,7 +830,6 @@ public class DocumentController extends BaseController {
 
 	}
 
-	@ResponseBody
 	@RequestMapping(value = "/batchPrint")
 	public void batchPrint(HttpServletRequest request, HttpServletResponse response) throws ScriptException {
 		String dynamicPages = request.getParameter("dynamicPageIds");
@@ -1317,9 +845,9 @@ public class DocumentController extends BaseController {
 		response.setHeader("Content-disposition",
 				"attachment; filename=" + ControllerHelper.processFileName(fileName + ".pdf"));
 
-		List<StoreVO> printManageVOs = new ArrayList<StoreVO>();
-		List<Map> dataMaps = new ArrayList<Map>();
-		List<List<JSONObject>> componentsList = new ArrayList<List<JSONObject>>();
+		List<StoreVO> printManageVOs = new ArrayList<>();
+		List<Map> dataMaps = new ArrayList<>();
+		List<List<JSONObject>> componentsList = new ArrayList<>();
 
 		for (int i = 0; i < dynamicPageArr.length; i++) {
 			String dynamicPageId = dynamicPageArr[i];
@@ -1350,55 +878,7 @@ public class DocumentController extends BaseController {
 			jcon.put("componentType", "");
 			List<JSONObject> components = formdesignerServiceImpl.getComponentByContainerWithColumn(jcon);
 			componentsList.add(components);
-
-			// 对表格组件进行处理，将真实值转换为显示值；比如一些 日期格式化、code转对应value等；
-			if (dataMap != null && !dataMap.isEmpty()) {
-				BaseExample baseExample = new BaseExample();
-				baseExample.createCriteria().andEqualTo("DYNAMICPAGE_ID", pageVO.getId()).andLike("CODE",
-						StoreService.COMPONENT_CODE + "%");
-				List<StoreVO> columnComs = storeServiceImpl.selectPagedByExample(baseExample, 1, Integer.MAX_VALUE,
-						null);
-				for (int k = 0; k < columnComs.size(); k++) {
-					JSONObject o = JSON.parseObject(columnComs.get(k).getContent());
-					if ("1017".equals(o.getString("componentType"))) { // 列组件或者表格组件
-						String showScript = o.getString("showScript");
-						if (StringUtils.isNotBlank(showScript)) {
-							Boolean ret = (Boolean) engine.eval(showScript);
-							if (ret) {
-								break;
-							} else {
-								// TODO 报错
-							}
-						}
-					}
-				}
-			}
-
-			// 对查出的表单数据进行处理 转化为<Map<String,String>>形式；如
-			// prmi.id="aaaa",方便打印直接根据dataItemCode查询对应的值
-			Map finalMap = new HashMap();
-			if (dataMap != null && !dataMap.isEmpty()) {
-				Iterator iter = dataMap.entrySet().iterator();
-				while (iter.hasNext()) {
-					Map.Entry entry = (Map.Entry) iter.next();
-					String key = (String) entry.getKey();
-					String alais = key.substring(0, key.indexOf("_list"));
-					List val = (List) entry.getValue();
-					if (val != null && val.size() > 0) {
-						Map asignMap = (Map) val.get(0);
-						if ("epai".equals(alais)) {
-							logger.debug(asignMap + "");
-						}
-						Iterator asignIter = asignMap.entrySet().iterator();
-						while (asignIter.hasNext()) {
-							Map.Entry asignEntry = (Map.Entry) asignIter.next();
-							String asignKey = (String) asignEntry.getKey();
-							String asignVal = (String) asignEntry.getValue();
-							finalMap.put(alais + "." + asignKey, asignVal);
-						}
-					}
-				}
-			}
+			Map finalMap = getMap(pageVO, engine, dataMap);
 			dataMap.putAll(finalMap);
 
 			// 打印时需要打印checkBox中所有选项（不止选择的选项）,所以需查找出option所以选项，放到map中。
@@ -1429,7 +909,6 @@ public class DocumentController extends BaseController {
 		try {
 			printServiceImpl.batchPrintPDF(printManageVOs, dataMaps, componentsList, response.getOutputStream());
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
 			logger.info("ERROR", e1);
 		}
 
@@ -1437,7 +916,7 @@ public class DocumentController extends BaseController {
 
 	private Map<String, String> getOptionTextMapByPage(ScriptEngine engine, DynamicPageVO pageVO) {
 
-		Map<String, String> optionMap = new HashMap<String, String>();
+		Map<String, String> optionMap = new HashMap<>();
 		JSONObject jcon = new JSONObject();
 		jcon.put("relatePageId", pageVO.getId());
 		jcon.put("componentType", "");
@@ -1477,488 +956,6 @@ public class DocumentController extends BaseController {
 		return optionMap;
 	}
 
-	@ResponseBody
-	@RequestMapping(value = "/getDocumentById")
-	public DocumentVO getDocumentById(String documentid) {
-		DocumentVO docvo = documentServiceImpl.findById(documentid);
-		return docvo;
-	}
 
-	@ResponseBody
-	@RequestMapping(value = "/getStoreById")
-	public StoreVO getStoreById(String storeId) {
-
-		if (null != storeId && !"".equals(storeId)) {
-			String[] ids = storeId.split("_");
-			if (ids.length > 1) {
-				StoreVO vo = storeServiceImpl.findById(ids[1]);
-				return vo;
-			} else {
-				StoreVO vo = storeServiceImpl.findById(ids[0]);
-				return vo;
-			}
-
-		}
-
-		return null;
-	}
-
-	@ResponseBody
-	@RequestMapping(value = "/getValue")
-	public Map<String, List<Map<String, String>>> getValue(String id, String dynamicPageId, String docId,
-			HttpServletResponse response, HttpServletRequest request) throws Exception {
-		// 校验必要参数
-
-		// 查询模版
-		// 渲染模版
-		logger.debug(" view.do start");
-		// 新增：id为空时，为新增，获取dp，解析成HTML返回
-		if (StringUtils.isBlank(id) && StringUtils.isBlank(dynamicPageId)) {
-			// TODO ERROR
-		} else {
-			DocumentVO docVo = null;
-			DynamicPageVO pageVO = null;
-			logger.debug("start init document and dynamicpage ");
-			// initDocAndPage(docVo, pageVO, id, docId, dynamicPageId);
-			if (StringUtils.isBlank(docId)) {
-				pageVO = formdesignerServiceImpl.findById(dynamicPageId);
-				docVo = new DocumentVO();
-				docVo.setUpdate(false);
-				docVo.setDynamicPageId(pageVO.getId().toString());
-				if (StringUtils.isNotBlank(id)) {
-					docVo.setUpdate(true);
-					docVo.setRecordId(id);
-				}
-				if (StringUtils.isNotEmpty(request.getParameter("selectId"))) {
-					docVo.setSelectId(request.getParameter("selectId"));
-				}
-				docVo.setDynamicPageName(pageVO.getName());
-				// 把列表页面配置的属性加到docVo中，在模板解析的时候使用
-				docVo.setShowTotalCount(pageVO.getShowTotalCount());
-				docVo.setIsLimitPage(pageVO.getIsLimitPage());
-				docVo.setPageSize(pageVO.getPageSize());
-				docVo.setShowReverseNum(pageVO.getShowReverseNum());
-				docVo.setReverseNumMode(pageVO.getReverseNumMode());
-				docVo.setReverseSortord(pageVO.getReverseSortord());
-				// TODO 设置当前用户
-			} else {
-				docVo = documentServiceImpl.findById(docId);
-				docVo.setUpdate(true);
-				if (StringUtils.isNotBlank(dynamicPageId)) {
-					pageVO = formdesignerServiceImpl.findById(dynamicPageId);
-				} else {
-					pageVO = formdesignerServiceImpl.findById(docVo.getDynamicPageId());
-				}
-				docVo.setDynamicPageId(pageVO.getId().toString());
-				docVo.setDynamicPageName(pageVO.getName());
-				// 把列表页面配置的属性加到docVo中，在模板解析的时候使用
-				docVo.setShowTotalCount(pageVO.getShowTotalCount());
-				docVo.setIsLimitPage(pageVO.getIsLimitPage());
-				docVo.setPageSize(pageVO.getPageSize());
-				docVo.setShowReverseNum(pageVO.getShowReverseNum());
-				docVo.setReverseNumMode(pageVO.getReverseNumMode());
-				docVo.setReverseSortord(pageVO.getReverseSortord());
-			}
-			logger.debug("end init document and dynamicpage");
-			if (docVo == null || pageVO == null) {
-				// TODO
-			}
-			logger.debug("start init request parameters ");
-			Map<String, String> map = new HashMap<String, String>();
-			Enumeration<String> enumeration = request.getParameterNames();
-			for (; enumeration.hasMoreElements();) {
-				Object o = enumeration.nextElement();
-				String name = o.toString();
-				String[] values = request.getParameterValues(name);
-				map.put(o.toString(), StringUtils.join(values, ";"));
-			}
-			logger.debug("end init request parameters ");
-			docVo.setRequestParams(map);
-
-			logger.debug("start init engine ");
-			// 拿脚本执行引擎
-			ScriptEngine engine = ScriptEngineUtils.getScriptEngine(docVo, pageVO);
-			engine.put("request", request);
-			engine.put("session", request.getSession());
-			logger.debug("end init engine ");
-			// 分页
-			Integer currentPage = 1;
-			Integer pageSize = 50;
-			if (StringUtils.isNotBlank(request.getParameter("currentPage"))) {
-				currentPage = Integer.parseInt(request.getParameter("currentPage"));
-			}
-			/*
-			 * if(StringUtils.isNotBlank(request.getParameter("pageSize"))){ pageSize
-			 * =Integer.parseInt(request.getParameter("pageSize")); }
-			 */
-			// 对用户配置的是否分页，以及每页记录条数进行解析
-			if (StringUtils.isNotBlank(request.getParameter("pageSize"))) {
-				// 如果request中有pageSize则用该pageSize
-				pageSize = Integer.parseInt(request.getParameter("pageSize"));
-			} else if (docVo.getPageSize() != null && !docVo.getPageSize().equals("")) {
-				// 否则用用户配置的默认pageSize
-				if (docVo.getIsLimitPage() != null && docVo.getIsLimitPage() == 1) {
-					pageSize = Integer.parseInt(docVo.getPageSize().toString());
-				} else {
-					// 不分页处理,则限制在1000条
-					pageSize = 1000;
-				}
-			}
-			String orderBy = docVo.getRequestParams().get("orderBy");
-			String allowOrderBy = docVo.getRequestParams().get("allowOrderBy");
-			docVo.setAllowOrderBy(allowOrderBy);
-			docVo.setOrderBy(orderBy);
-			logger.debug("start init dataMap ");
-			Map<String, List<Map<String, String>>> dataMap = documentServiceImpl.initDocumentData(currentPage, pageSize,
-					docVo, engine, pageVO);
-			Set<String> key = dataMap.keySet();
-			int totalPages = 0;
-			for (String string : key) {
-				totalPages = ((PageList<Map<String, String>>) dataMap.get(string)).getPaginator().getTotalPages();
-			}
-			List<Map<String, String>> dataList = new ArrayList<Map<String, String>>();
-			Map<String, String> datam = new HashMap<String, String>();
-			datam.put("size", Integer.toString(totalPages));
-			dataList.add(datam);
-			dataMap.put("totalPages", dataList);
-			logger.debug("end init engine ");
-			docVo.setListParams(dataMap);
-			String append = "";
-			for (String str : dataMap.keySet()) {
-				List<Map<String, String>> appList = dataMap.get(str);
-				for (int i = 0; i < appList.size(); i++) {
-					Map<String, String> dMap = appList.get(i);
-					for (String dStr : dMap.keySet()) {
-						append += dMap.get(dStr);
-					}
-				}
-			}
-			logger.debug(append);
-			return dataMap;
-		}
-
-		return null;
-	}
-
-	@RequestMapping(value = "/getValueStr")
-	@ResponseBody
-	public Map<String, String> getValueStr(String id, String dynamicPageId, String docId, HttpServletResponse response,
-			HttpServletRequest request) throws Exception {
-		// 校验必要参数
-
-		// 查询模版
-		// 渲染模版
-		Map<String, String> returnMap = new HashMap<String, String>();
-		logger.debug(" view.do start");
-		// 新增：id为空时，为新增，获取dp，解析成HTML返回
-		if (StringUtils.isBlank(id) && StringUtils.isBlank(dynamicPageId)) {
-			// TODO ERROR
-		} else {
-			DocumentVO docVo = null;
-			DynamicPageVO pageVO = null;
-			logger.debug("start init document and dynamicpage ");
-			// initDocAndPage(docVo, pageVO, id, docId, dynamicPageId);
-			if (StringUtils.isBlank(docId)) {
-				pageVO = formdesignerServiceImpl.findById(dynamicPageId);
-				docVo = new DocumentVO();
-				docVo.setUpdate(false);
-				docVo.setDynamicPageId(pageVO.getId().toString());
-				if (StringUtils.isNotBlank(id)) {
-					docVo.setUpdate(true);
-					docVo.setRecordId(id);
-				}
-				if (StringUtils.isNotEmpty(request.getParameter("selectId"))) {
-					docVo.setSelectId(request.getParameter("selectId"));
-				}
-				docVo.setDynamicPageName(pageVO.getName());
-				// 把列表页面配置的属性加到docVo中，在模板解析的时候使用
-				docVo.setShowTotalCount(pageVO.getShowTotalCount());
-				docVo.setIsLimitPage(pageVO.getIsLimitPage());
-				docVo.setPageSize(pageVO.getPageSize());
-				docVo.setShowReverseNum(pageVO.getShowReverseNum());
-				docVo.setReverseNumMode(pageVO.getReverseNumMode());
-				docVo.setReverseSortord(pageVO.getReverseSortord());
-				// TODO 设置当前用户
-			} else {
-				docVo = documentServiceImpl.findById(docId);
-				docVo.setUpdate(true);
-				if (StringUtils.isNotBlank(dynamicPageId)) {
-					pageVO = formdesignerServiceImpl.findById(dynamicPageId);
-				} else {
-					pageVO = formdesignerServiceImpl.findById(docVo.getDynamicPageId());
-				}
-				docVo.setDynamicPageId(pageVO.getId().toString());
-				docVo.setDynamicPageName(pageVO.getName());
-				// 把列表页面配置的属性加到docVo中，在模板解析的时候使用
-				docVo.setShowTotalCount(pageVO.getShowTotalCount());
-				docVo.setIsLimitPage(pageVO.getIsLimitPage());
-				docVo.setPageSize(pageVO.getPageSize());
-				docVo.setShowReverseNum(pageVO.getShowReverseNum());
-				docVo.setReverseNumMode(pageVO.getReverseNumMode());
-				docVo.setReverseSortord(pageVO.getReverseSortord());
-			}
-			logger.debug("end init document and dynamicpage");
-			if (docVo == null || pageVO == null) {
-				// TODO
-			}
-			logger.debug("start init request parameters ");
-			Map<String, String> map = new HashMap<String, String>();
-			Enumeration<String> enumeration = request.getParameterNames();
-			for (; enumeration.hasMoreElements();) {
-				Object o = enumeration.nextElement();
-				String name = o.toString();
-				String[] values = request.getParameterValues(name);
-				map.put(o.toString(), StringUtils.join(values, ";"));
-			}
-			logger.debug("end init request parameters ");
-			docVo.setRequestParams(map);
-
-			logger.debug("start init engine ");
-			// 拿脚本执行引擎
-			ScriptEngine engine = ScriptEngineUtils.getScriptEngine(docVo, pageVO);
-			engine.put("request", request);
-			engine.put("session", request.getSession());
-			logger.debug("end init engine ");
-			// 分页
-			Integer currentPage = 1;
-			Integer pageSize = 50;
-			if (StringUtils.isNotBlank(request.getParameter("currentPage"))) {
-				currentPage = Integer.parseInt(request.getParameter("currentPage"));
-			}
-			/*
-			 * if(StringUtils.isNotBlank(request.getParameter("pageSize"))){ pageSize
-			 * =Integer.parseInt(request.getParameter("pageSize")); }
-			 */
-			// 对用户配置的是否分页，以及每页记录条数进行解析
-			if (StringUtils.isNotBlank(request.getParameter("pageSize"))) {
-				// 如果request中有pageSize则用该pageSize
-				pageSize = Integer.parseInt(request.getParameter("pageSize"));
-			} else if (docVo.getPageSize() != null && !docVo.getPageSize().equals("")) {
-				// 否则用用户配置的默认pageSize
-				if (docVo.getIsLimitPage() != null && docVo.getIsLimitPage() == 1) {
-					pageSize = Integer.parseInt(docVo.getPageSize().toString());
-				} else {
-					// 不分页处理,则限制在1000条
-					pageSize = 1000;
-				}
-			}
-			String orderBy = docVo.getRequestParams().get("orderBy");
-			String allowOrderBy = docVo.getRequestParams().get("allowOrderBy");
-			docVo.setAllowOrderBy(allowOrderBy);
-			docVo.setOrderBy(orderBy);
-			logger.debug("start init dataMap ");
-			Map<String, List<Map<String, String>>> dataMap = documentServiceImpl.initDocumentData(currentPage, pageSize,
-					docVo, engine, pageVO);
-			String path = request.getContextPath();
-			String basePath = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()
-					+ path + "/";
-			logger.debug("end init engine ");
-			docVo.setListParams(dataMap);
-			String append = "";
-			for (String str : dataMap.keySet()) {
-				List<Map<String, String>> appList = dataMap.get(str);
-				for (int i = 0; i < appList.size(); i++) {
-					Map<String, String> dMap = appList.get(i);
-					String ID = dMap.get("ID") == null ? "" : dMap.get("ID");
-					String field1 = dMap.get("field1") == null ? "" : dMap.get("field1");
-					String field2 = dMap.get("field2") == null ? "" : dMap.get("field2");
-					String field3 = dMap.get("field3") == null ? "" : dMap.get("field3");
-					append += "<li class='ui-li-has-thumb'><div class='behind'>";
-					append += "<a href='#' id='" + ID + "' class='ui-btn delete-btn' onclick='listDel(this.id)'>删除</a>";
-					append += "</div>";
-					append += "<a href=\"javascript:location.href='" + basePath + "document/view.do?id=" + ID
-							+ "&dynamicPageId=" + PageBindUtil.getInstance().getMPageIdByMListPageId(dynamicPageId)
-							+ "'\" id='" + ID
-							+ "' class='ui-btn ui-nodisc-icon ui-alt-icon ui-btn-icon-right ui-icon-carat-r'>";
-					append += "<h3>" + field1 + "</h3>";
-					append += "<p><span>" + field2 + "</span>&emsp;";
-					append += "<span>" + field3 + "</span></p>";
-					append += "</a></li>";
-				}
-				returnMap.put("data", append);
-				return returnMap;
-			}
-		}
-		return null;
-	}
-
-	@RequestMapping(value = "/publicDelBySql")
-	@ResponseBody
-	public Map<String, String> publicDelBySql(String id, String dynamicPageId, String docId,
-			HttpServletResponse response, HttpServletRequest request) throws Exception {
-		// 校验必要参数
-
-		// 查询模版
-		// 渲染模版
-		Map<String, String> returnMap = new HashMap<String, String>();
-		logger.debug(" view.do start");
-		// 新增：id为空时，为新增，获取dp，解析成HTML返回
-		if (StringUtils.isBlank(id) && StringUtils.isBlank(dynamicPageId)) {
-			// TODO ERROR
-		} else {
-			DocumentVO docVo = null;
-			DynamicPageVO pageVO = null;
-			logger.debug("start init document and dynamicpage ");
-			// initDocAndPage(docVo, pageVO, id, docId, dynamicPageId);
-			if (StringUtils.isBlank(docId)) {
-				pageVO = formdesignerServiceImpl.findById(dynamicPageId);
-				docVo = new DocumentVO();
-				docVo.setUpdate(false);
-				docVo.setDynamicPageId(pageVO.getId().toString());
-				if (StringUtils.isNotBlank(id)) {
-					docVo.setUpdate(true);
-					docVo.setRecordId(id);
-				}
-				if (StringUtils.isNotEmpty(request.getParameter("selectId"))) {
-					docVo.setSelectId(request.getParameter("selectId"));
-				}
-				docVo.setDynamicPageName(pageVO.getName());
-				// 把列表页面配置的属性加到docVo中，在模板解析的时候使用
-				docVo.setShowTotalCount(pageVO.getShowTotalCount());
-				docVo.setIsLimitPage(pageVO.getIsLimitPage());
-				docVo.setPageSize(pageVO.getPageSize());
-				docVo.setShowReverseNum(pageVO.getShowReverseNum());
-				docVo.setReverseNumMode(pageVO.getReverseNumMode());
-				docVo.setReverseSortord(pageVO.getReverseSortord());
-				// TODO 设置当前用户
-			} else {
-				docVo = documentServiceImpl.findById(docId);
-				docVo.setUpdate(true);
-				if (StringUtils.isNotBlank(dynamicPageId)) {
-					pageVO = formdesignerServiceImpl.findById(dynamicPageId);
-				} else {
-					pageVO = formdesignerServiceImpl.findById(docVo.getDynamicPageId());
-				}
-				docVo.setDynamicPageId(pageVO.getId().toString());
-				docVo.setDynamicPageName(pageVO.getName());
-				// 把列表页面配置的属性加到docVo中，在模板解析的时候使用
-				docVo.setShowTotalCount(pageVO.getShowTotalCount());
-				docVo.setIsLimitPage(pageVO.getIsLimitPage());
-				docVo.setPageSize(pageVO.getPageSize());
-				docVo.setShowReverseNum(pageVO.getShowReverseNum());
-				docVo.setReverseNumMode(pageVO.getReverseNumMode());
-				docVo.setReverseSortord(pageVO.getReverseSortord());
-			}
-			logger.debug("end init document and dynamicpage");
-			if (docVo == null || pageVO == null) {
-				// TODO
-			}
-			logger.debug("start init request parameters ");
-			Map<String, String> map = new HashMap<String, String>();
-			Enumeration<String> enumeration = request.getParameterNames();
-			for (; enumeration.hasMoreElements();) {
-				Object o = enumeration.nextElement();
-				String name = o.toString();
-				String[] values = request.getParameterValues(name);
-				map.put(o.toString(), StringUtils.join(values, ";"));
-			}
-			logger.debug("end init request parameters ");
-			docVo.setRequestParams(map);
-
-			logger.debug("start init engine ");
-			// 拿脚本执行引擎
-			ScriptEngine engine = ScriptEngineUtils.getScriptEngine(docVo, pageVO);
-			engine.put("request", request);
-			engine.put("session", request.getSession());
-			logger.debug("end init engine ");
-			// 分页
-			Integer currentPage = 1;
-			Integer pageSize = 50;
-			if (StringUtils.isNotBlank(request.getParameter("currentPage"))) {
-				currentPage = Integer.parseInt(request.getParameter("currentPage"));
-			}
-			/*
-			 * if(StringUtils.isNotBlank(request.getParameter("pageSize"))){ pageSize
-			 * =Integer.parseInt(request.getParameter("pageSize")); }
-			 */
-			// 对用户配置的是否分页，以及每页记录条数进行解析
-			if (StringUtils.isNotBlank(request.getParameter("pageSize"))) {
-				// 如果request中有pageSize则用该pageSize
-				pageSize = Integer.parseInt(request.getParameter("pageSize"));
-			} else if (docVo.getPageSize() != null && !docVo.getPageSize().equals("")) {
-				// 否则用用户配置的默认pageSize
-				if (docVo.getIsLimitPage() != null && docVo.getIsLimitPage() == 1) {
-					pageSize = Integer.parseInt(docVo.getPageSize().toString());
-				} else {
-					// 不分页处理,则限制在1000条
-					pageSize = 1000;
-				}
-			}
-			String orderBy = docVo.getRequestParams().get("orderBy");
-			String allowOrderBy = docVo.getRequestParams().get("allowOrderBy");
-			docVo.setAllowOrderBy(allowOrderBy);
-			docVo.setOrderBy(orderBy);
-			logger.debug("start init dataMap ");
-			if (id != null || !"".equals(id)) {
-				Map<String, String> delMap = new HashMap<String, String>();
-				try {
-					String sql = "";
-					String dataJson = pageVO.getDataJson();
-					Map<String, DataDefine> ma = PageDataBeanWorker
-							.convertConfToDataDefines(StringEscapeUtils.unescapeHtml4(dataJson));
-					Set<String> key = ma.keySet();
-					for (String s : key) {
-						DataDefine mas = ma.get(s);
-						sql = mas.getDeleteSql();
-					}
-					sql = sql.replace("\"", " ") + " = '" + id + "'";
-					DocumentService service = Springfactory.getBean("documentServiceImpl");
-					service.excuteUpdate(sql);
-					delMap.put("message", "1");
-					return delMap;
-				} catch (Exception e) {
-					// TODO: handle exception
-					logger.info("ERROR", e);
-					delMap.put("message", "0");
-					return delMap;
-
-				}
-
-			}
-			Map<String, List<Map<String, String>>> dataMap = documentServiceImpl.initDocumentData(currentPage, pageSize,
-					docVo, engine, pageVO);
-			Set<String> key = dataMap.keySet();
-			String path = request.getContextPath();
-			String basePath = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()
-					+ path + "/";
-			int totalPages = 0;
-			for (String string : key) {
-				totalPages = ((PageList<Map<String, String>>) dataMap.get(string)).getPaginator().getTotalPages();
-			}
-			List<Map<String, String>> dataList = new ArrayList<Map<String, String>>();
-			Map<String, String> datam = new HashMap<String, String>();
-			datam.put("size", Integer.toString(totalPages));
-			dataList.add(datam);
-			dataMap.put("totalPages", dataList);
-			logger.debug("end init engine ");
-			docVo.setListParams(dataMap);
-			String append = "";
-			for (String str : dataMap.keySet()) {
-				List<Map<String, String>> appList = dataMap.get(str);
-				for (int i = 1; i < appList.size(); i++) {
-					Map<String, String> dMap = appList.get(i);
-					String ID = dMap.get("ID") == null ? "" : dMap.get("ID");
-					String field1 = dMap.get("field1") == null ? "" : dMap.get("field1");
-					String field2 = dMap.get("field2") == null ? "" : dMap.get("field2");
-					String field3 = dMap.get("field3") == null ? "" : dMap.get("field3");
-					append += "<li class='ui-li-has-thumb'><div class='behind'>";
-					append += "<a href='#' id='" + ID + "' class='ui-btn delete-btn' onclick='listDel(this.id)'>删除</a>";
-					append += "</div>";
-					append += "<a href=\"javascript:location.href='" + basePath + "document/view.do?id=" + ID
-							+ "&dynamicPageId=" + PageBindUtil.getInstance().getMPageIdByMListPageId(dynamicPageId)
-							+ "'\" id='" + ID
-							+ "' class='ui-btn ui-nodisc-icon ui-alt-icon ui-btn-icon-right ui-icon-carat-r'>";
-					append += "<h3>" + field1 + "</h3>";
-					append += "<p><span>" + field2 + "</span>&nbsp;";
-					append += "<span>" + field3 + "</span></p>";
-					append += "</a></li>";
-				}
-			}
-			returnMap.put("data", append);
-			return returnMap;
-		}
-
-		return null;
-	}
 
 }

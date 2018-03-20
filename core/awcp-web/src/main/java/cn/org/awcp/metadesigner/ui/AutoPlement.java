@@ -1,9 +1,10 @@
 package cn.org.awcp.metadesigner.ui;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Toolkit;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -14,20 +15,6 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 public class AutoPlement extends JFrame {
 	/**
@@ -217,11 +204,11 @@ public class AutoPlement extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (jtextUserName.getText().trim().toString().equals("")) {
+				if ("".equals(jtextUserName.getText().trim().toString())) {
 					JOptionPane.showMessageDialog(rootPane, "用户名不能为空！");
 					return;
 				}
-				if (jtextPwd.getText().trim().toString().equals("")) {
+				if ("".equals(jtextPwd.getText().trim().toString())) {
 					JOptionPane.showMessageDialog(rootPane, "密码不能为空！");
 					return;
 				}
@@ -264,7 +251,7 @@ public class AutoPlement extends JFrame {
 					JPanel jp = new JPanel();
 					jp.setBackground(Color.white);
 					// 定义一个JCheckBox数组来存储数据库的所有表
-					final JCheckBox jcTableName[] = new JCheckBox[array.length];// 定义一个JCheckBox数组来装数据库中所有表
+					final JCheckBox[] jcTableName = new JCheckBox[array.length];// 定义一个JCheckBox数组来装数据库中所有表
 					for (int i = 0; i < array.length; i++) {
 						// 循环创建JCheckBox，可勾选的表数组
 						jcTableName[i] = new JCheckBox(array[i]);
@@ -447,34 +434,34 @@ public class AutoPlement extends JFrame {
 					return;
 				}
 				String dataBaseConn = jtextDataBase.getText().trim().toString();
-				if (dataBaseConn.equals("")) {
+				if ("".equals(dataBaseConn)) {
 					JOptionPane.showMessageDialog(rootPane, "数据库连接不能为空！");
 					return;
 				}
 				String userName = jtextUserName.getText().trim().toString();
-				if (userName.equals("")) {
+				if ("".equals(userName)) {
 					JOptionPane.showMessageDialog(rootPane, "用户名不能为空！");
 					return;
 				}
 				String pwd = jtextPwd.getText().trim().toString();
-				if (pwd.equals("")) {
+				if ("".equals(pwd)) {
 					JOptionPane.showMessageDialog(rootPane, "密码不能为空！");
 					return;
 				}
 				String packageName = jtextfiledPackage.getText().trim().toString();
-				if (packageName.equals("")) {
+				if ("".equals(packageName)) {
 					JOptionPane.showMessageDialog(rootPane, "包名不能为空！");
 					return;
 				}
 				map.put("packageName", packageName);
 				String rootOut = jtextfiledCreatePath.getText().trim().toString();
-				if (rootOut.equals("")) {
+				if ("".equals(rootOut)) {
 					JOptionPane.showMessageDialog(rootPane, "输出路径不能为空！");
 					return;
 				}
 				map.put("rootOut", rootOut);
 				String tableName = jtextfiledTableName.getText().toString();
-				if (tableName.equals("")) {
+				if ("".equals(tableName)) {
 					JOptionPane.showMessageDialog(rootPane, "表名不能为空！");
 					return;
 				}
@@ -501,7 +488,7 @@ public class AutoPlement extends JFrame {
 				} else// 否则是选中自定义
 				{
 					String templementSrc = jtextfiledClass.getText().trim().toString();
-					if (templementSrc.equals("")) {
+					if ("".equals(templementSrc)) {
 						JOptionPane.showMessageDialog(rootPane, "模板路径不能为空！");
 						return;
 					}

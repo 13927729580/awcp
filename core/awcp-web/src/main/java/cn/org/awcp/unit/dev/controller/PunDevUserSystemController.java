@@ -214,7 +214,7 @@ public class PunDevUserSystemController {
 	 * @return
 	 */
 	@RequestMapping(value = "punSysMenuEdit", method = RequestMethod.GET)
-	public ModelAndView punSysMenuEdit(@ModelAttribute("sysVO") PunSystemVO sysVO) {
+	public ModelAndView punSysMenuEdit() {
 		ModelAndView mv = new ModelAndView();
 		mv.setViewName("unit/dev/punSysMenu-edit");
 		try {
@@ -231,7 +231,6 @@ public class PunDevUserSystemController {
 			}
 			JsonFactory factory = new JsonFactory();
 			mv.addObject("menuJson", factory.encode2Json(resultMap));
-			mv.addObject("sysVO", sysVO);
 		} catch (Exception e) {
 			logger.info("ERROR", e);
 			mv.addObject("result", "异常");
@@ -257,10 +256,12 @@ public class PunDevUserSystemController {
 			@RequestParam(value = "currentPage", defaultValue = "1") int currentPage,
 			@RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
 		try {
-			if (currentPage <= 0)
-				currentPage = 1;
-			if (pageSize <= 5)
-				pageSize = 10;
+			if (currentPage <= 0) {
+                currentPage = 1;
+            }
+			if (pageSize <= 5) {
+                pageSize = 10;
+            }
 			BaseExample example = new BaseExample();
 			Criteria criteria = example.createCriteria();
 			if (StringUtils.isNotBlank(vo.getSysName())) {

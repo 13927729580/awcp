@@ -85,11 +85,15 @@ public class MetaModelOperateServiceImpl implements MetaModelOperateService {
 			sb.append(") value(");
 			sb.append(values.delete(values.length() - 1, values.length())).append(");");
 			NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
-			if (namedParameterJdbcTemplate.update(sb.toString(), maps) == 1)
-
+			if (namedParameterJdbcTemplate.update(sb.toString(), maps) == 1){
 				return true;
+			}else{
+				return false;
+			}
+
+		}else{
+			return true;
 		}
-		return false;
 	}
 
 	/**
@@ -196,11 +200,14 @@ public class MetaModelOperateServiceImpl implements MetaModelOperateService {
 			NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
 			map.put("_primay_key_", primaryKey);
 			if (namedParameterJdbcTemplate.update(sb.toString(), maps) == 1) {
-
 				return true;
+			}else{
+				return false;
 			}
+
+		}else{
+			return true;
 		}
-		return false;
 	}
 
 	/**
@@ -317,6 +324,7 @@ public class MetaModelOperateServiceImpl implements MetaModelOperateService {
 	 */
 	public String getDataSourceIdByModelCode(String modelCode) {
 		MetaModelVO mmv = metaModelServiceImpl.queryByModelCode(modelCode);
+
 		if (mmv != null && mmv.getDataSourceId() != null) { // 如果有配置数据源
 			return mmv.getDataSourceId();
 		} else {

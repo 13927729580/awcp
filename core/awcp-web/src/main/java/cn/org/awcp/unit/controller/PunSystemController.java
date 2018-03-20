@@ -278,10 +278,12 @@ public class PunSystemController {
 			@RequestParam(value = "currentPage", defaultValue = "1") int currentPage,
 			@RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
 		try {
-			if (currentPage <= 0)
-				currentPage = 1;
-			if (pageSize <= 5)
-				pageSize = 10;
+			if (currentPage <= 0) {
+                currentPage = 1;
+            }
+			if (pageSize <= 5) {
+                pageSize = 10;
+            }
 			BaseExample example = new BaseExample();
 			Criteria criteria = example.createCriteria();
 			if (StringUtils.isNotBlank(vo.getSysName())) {

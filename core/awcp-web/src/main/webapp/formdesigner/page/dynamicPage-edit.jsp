@@ -199,6 +199,12 @@
 				});
 				
 				$("#publishBtn").click(function(){
+					var pageType = $("#pageType").val();
+					var datasourcebody = $("#datasourcebody").html();
+					if(pageType=="1003" && datasourcebody==""){
+						alert("请填写数据源");
+						return false;
+					}
 		    		if(window.confirm("确定发布？")){
 		        		$("#groupForm").attr("action","<%=basePath%>fd/publishOnePage.do").submit();
 		    		}

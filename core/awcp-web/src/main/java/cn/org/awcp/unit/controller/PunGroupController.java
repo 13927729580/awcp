@@ -30,7 +30,7 @@ import com.github.miemiedev.mybatis.paginator.domain.Paginator;
 import cn.org.awcp.core.domain.QueryChannelService;
 import cn.org.awcp.core.utils.SessionUtils;
 import cn.org.awcp.core.utils.constants.SessionContants;
-import cn.org.awcp.formdesigner.utils.DocumentUtils;
+import cn.org.awcp.extend.formdesigner.DocumentUtils;
 import cn.org.awcp.unit.core.domain.PunPosition;
 import cn.org.awcp.unit.service.PunGroupService;
 import cn.org.awcp.unit.service.PunGroupSysService;
@@ -151,8 +151,9 @@ public class PunGroupController {
 						respStatus.setMessage("系统错误.");
 					}
 					String pid = parentGroupVO.getPid();
-					if (pid == null)
-						pid = "";
+					if (pid == null) {
+                        pid = "";
+                    }
 					vo.setPid(pid + vo.getParentGroupId().toString() + ",");
 				}
 				if (null == vo.getParentGroupId()) {

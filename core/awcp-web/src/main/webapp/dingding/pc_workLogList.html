@@ -194,15 +194,20 @@
 		   					'<span class="c_t_title">' + name + '</span>' +
 		   					'<span class="c_t_right">' + title + '</span>' + hasReadHtml + '</div>' +
 		   					'<div class="content_body">';
-		   			var dataObj = data[i].data;
 		   			var index = 0;	//最多显示3行数据
-		   			for(key in dataObj){
-						html += '<p><span>' + key + ': </span>&nbsp;<span>' + dataObj[key] + '</span></p>';
-						index++;
-						if(index>=3){
-							break;
-						}
-					}
+		   			for(key in data[i]){
+		   				if(key!="ID" && key!="title" && key!="Creatorname" && key!="url" 
+		   						&& key!="Createtime" && key!="headImg" && key!="isRead"){
+		   					if(data[i][key]){
+		   						html += '<div><span class="title">' + key + 
+	   							': </span><span class="value">' + data[i][key] + '</span></div>';
+		   						index++;
+								if(index>=3){
+									break;
+								}
+		   					}
+		   				}
+					}	
 		   			html += '</div><div class="content_bottom"><span>' + date + '</span>' + 
 		   					'<a href="' + url + '">查看详情</a></div></li>';
 				}

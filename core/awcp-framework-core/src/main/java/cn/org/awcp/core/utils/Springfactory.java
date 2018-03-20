@@ -1,5 +1,6 @@
 package cn.org.awcp.core.utils;
 
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -24,6 +25,13 @@ public class Springfactory implements BeanFactoryAware {
 	public static <T> T getBean(String beanName) {
 		if (null != beanFactory) {
 			return (T) beanFactory.getBean(beanName);
+		}
+		return null;
+	}
+
+	public static <T> T getBean(Class<T> clazz) {
+		if (null != beanFactory) {
+			return  beanFactory.getBean(clazz);
 		}
 		return null;
 	}

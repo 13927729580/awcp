@@ -25,7 +25,7 @@ public class IPHelper {
 		}
 		String[] ips = ip.split(",");
 		ip = ips[0].trim();
-		return ip.equals("0:0:0:0:0:0:0:1")?"127.0.0.1":ip;
+		return "0:0:0:0:0:0:0:1".equals(ip) ?"127.0.0.1":ip;
 	}
 
 }

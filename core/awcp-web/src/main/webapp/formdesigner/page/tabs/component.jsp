@@ -34,8 +34,8 @@
 			<i class="icon-plus-sign"></i>批量修改 <span class="caret"></span>
 		</button>
 		<ul class="dropdown-menu" role="menu">
-			<li><a href="javascript:void(0)" onclick="batchModifiAllowNull(1);">允许为空</a></li>
-			<li><a href="javascript:void(0)" onclick="batchModifiAllowNull(0);">不允许为空</a></li>
+			<li><a href="javascript:void(0)" onclick="batchModifiAllowNull(0);">允许为空</a></li>
+			<li><a href="javascript:void(0)" onclick="batchModifiAllowNull(1);">不允许为空</a></li>
 			<li><a href="javascript:void(0)" onclick="batchModifiStyle();">样式</a></li>
 			<li><a href="javascript:void(0)" onclick="batchModifiAll(0);">批量修改</a></li>
 			<li><a href="javascript:void(0)" onclick="modifiDataAlias();">批量修改数据源别名</a></li>

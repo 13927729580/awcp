@@ -138,7 +138,7 @@ public class Menu {
 		if (DID != null && DID.length() > 1) {
 			url = base + "document/view.do?dynamicPageId=" + DID;
 		} else {
-			if (StringUtils.isBlank(oriUrl) || oriUrl.trim().equals("#")) {
+			if (StringUtils.isBlank(oriUrl) || "#".equals(oriUrl.trim())) {
 				url = "#";
 			} else {
 				if (oriUrl.startsWith("http")) {

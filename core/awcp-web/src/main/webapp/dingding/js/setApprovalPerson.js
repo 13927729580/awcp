@@ -1,62 +1,20 @@
 var selectUsers = [];
 function setApprovalPerson(){
-	if($("#WorkID").val()){
+	if($("#WorkID").val()){	//流程已经开启时,不执行下面代码
 		return false;
 	}
+	var data = Comm.getData("dingding/getFlowExcutor.do",{dynamicPageId:$("#dynamicPageId").val()});//当抛出异常时,不执行后面代码
 	var html = '<div class="approver-content"><div><div class="approverContainer">' +
 		   	   '<div class="approverTitle">' + dd_res.approver + '</div>' +
 		   	   '<ul class="approverLineFlow"><div class="add-person-pannel">' + 
 		   	   '<img src="' + baseUrl + 'dingding/img/add2.png" class="tIcon icon tingle-add-person approver-icon">' + 
 		   	   '</div></ul></div></div></div>';
-	$("#buttons").before(html);
-	$(".add-person-pannel").click(function(){
-		dd.biz.contact.choose({
-			"startWithDepartmentId":0,
-			"isNeedSearch":true,
-			"multiple":true,
-			"corpId":dd_config.corpId,
-			"users":[],
-			"disabledUsers":[],
-			"title":"选择用户",
-			onSuccess: function(data) {
-				var html = "";
-				var arr = [];
-				for(var i=0;i<data.length;i++){
-					var avatar = data[i].avatar;
-					var name = data[i].name;
-					var emplId = data[i].emplId;
-					arr.push(emplId);
-					var img = "";
-					if(avatar){
-						img = '<img src="' + avatar + '" />';
-					}
-					else{
-						img = '<div class="approverColor tFBH tFBAC tFBJC">' + Comm.handleName(name) + '</div>'
-					}
-					html += '<li class="approver" data-userId="' + emplId + '"><div class="approverAvatar">' + img + 
-							'<div class="approverName">' + name + '</div></div></li>'
-				}
-				html += '<div class="approverNewArrowContent" >' +
-						'<img class="approverNewArrow " src="' + baseUrl + 'dingding/img/arrow.png" > </div>';
-				selectUsers.push(arr.join(","));
-				$("#slectsUserIds").val(JSON.stringify(selectUsers));
-				console.log(selectUsers);
-				$(".add-person-pannel ").before(html);
-				
-				addEvent();
-		    },
-		    onFail: function(err) {
-		    	log.e(JSON.stringify(err));
-		    }
-		});				
-	});
-	var data = Comm.getData("api/execute/getFlowExcutor",{dynamicPageId:$("#dynamicPageId").val()});
-	$("#slectsUserIds").val(data.JSON);
+	$("#buttons").before(html);	
+	$("#slectsUserIds").val(JSON.stringify(data));
 	if(data){
-		var arr = JSON.parse(data.JSON);
+		var arr = data;
 		var ddUserIds = "'" + arr.join().replace(/,/g,"','") + "'";
 		var users = Comm.getData("api/execute/getUserNameAndImg",{ddUserIds:ddUserIds});
-		console.log(users);
 		var html = "";
 		for(var i=0;i<arr.length;i++){
 			var subArr = arr[i].split(",");
@@ -68,23 +26,23 @@ function setApprovalPerson(){
 				var img = "";
 				if(avatar){
 					img = '<img src="' + avatar + '" />';
-				}
-				else{
-					img = '<div class="approverColor tFBH tFBAC tFBJC">' + Comm.handleName(name) + '</div>'
+				} else{
+					img = '<div class="approverColor tFBH tFBAC tFBJC">' + Comm.handleName(name) + '</div>';
 				}
 				html += '<li class="approver" data-userId="' + emplId + '"><div class="approverAvatar">' + img + 
-						'<div class="approverName">' + name + '</div></div></li>'
+						'<div class="approverName">' + name + '</div></div></li>';
 			}
-			//if(i != arr.length-1){
+			if(i != arr.length-1){
 				html += '<div class="approverNewArrowContent" >' +
 				'<img class="approverNewArrow " src="' + baseUrl + 'dingding/img/arrow.png" > </div>';
-			//}
+			}
 		}
 		$(".add-person-pannel ").before(html);
-		//$(".add-person-pannel ").hide();
-		//$(".approverContainer").css("padding-bottom","0px");
-		//$(".approverLineFlow").css("overflow","hidden");
-		addEvent();
+		$(".add-person-pannel ").hide();//不让添加
+		//addApprover();	
+		$(".approverContainer").css("padding-bottom","0px");
+		$(".approverLineFlow").css("overflow","hidden");
+		//addEvent();//不让删除
 	}
 }
 
@@ -119,15 +77,56 @@ function addEvent(){
 				tempArr = [];
 			} if($(child).hasClass("add-person-pannel")){
 				$("#slectsUserIds").val(JSON.stringify(selectUsers));
-				console.log(selectUsers);
 			} 
 		}
 	});
 }
 
+function addApprover(){
+	$(".add-person-pannel").click(function(){
+		dd.biz.contact.choose({
+			"startWithDepartmentId":0,
+			"isNeedSearch":true,
+			"multiple":true,
+			"corpId":dd_config.corpId,
+			"users":[],
+			"disabledUsers":[],
+			"title":"选择用户",
+			onSuccess: function(data) {
+				var html = "";
+				var arr = [];
+				for(var i=0;i<data.length;i++){
+					var avatar = data[i].avatar;
+					var name = data[i].name;
+					var emplId = data[i].emplId;
+					arr.push(emplId);
+					var img = "";
+					if(avatar){
+						img = '<img src="' + avatar + '" />';
+					} else{
+						img = '<div class="approverColor tFBH tFBAC tFBJC">' + Comm.handleName(name) + '</div>';
+					}
+					html += '<li class="approver" data-userId="' + emplId + '"><div class="approverAvatar">' + img + 
+							'<div class="approverName">' + name + '</div></div></li>';
+				}
+				html += '<div class="approverNewArrowContent" >' +
+						'<img class="approverNewArrow " src="' + baseUrl + 'dingding/img/arrow.png" > </div>';
+				selectUsers.push(arr.join(","));
+				$("#slectsUserIds").val(JSON.stringify(selectUsers));
+				$(".add-person-pannel ").before(html);		
+				addEvent();
+		    },
+		    onFail: function(err) {
+		    	log.e(JSON.stringify(err));
+		    }
+		});				
+	});
+}
+
+//根据抄送人预设生成抄送人
 var ccUsers = [];
 function addCCPerson(){
-	if($("#WorkID").val()){
+	if($("#WorkID").val()){//流程已经开启时,不执行下面代码
 		return false;
 	}
 	var html = '<div class="approvalCarbonCopy" style="margin-bottom: 58px;">' + 
@@ -138,6 +137,35 @@ function addCCPerson(){
 			   '<img class="tIcon icon tingle-add-person" src="' + baseUrl + 'dingding/img/add2.png" /></div>' +
 			   '</ul></div></div>';
 	$("#buttons").before(html);
+	
+	var data = Comm.getData("api/execute/getCCList",{dynamicPageId:$("#dynamicPageId").val()});
+	if(data && data.JSON){
+		$("#CC_slectsUserIds").val(data.JSON);
+		var arr = JSON.parse(data.JSON);
+		var ddUserIds = "'" + arr.join().replace(/,/g,"','") + "'";
+		var users = Comm.getData("api/execute/getUserNameAndImg",{ddUserIds:ddUserIds});
+		var html = "";
+		for(var i=0;i<arr.length;i++){
+			var emplId = arr[i];
+			var nameAndImg = getUserNameAndImg(users,emplId);
+			var img = nameAndImg.img;
+			var name = nameAndImg.name;	
+			if(!img){
+				img = '<div class="approve-node-avatar">' + Comm.handleName(name) + '</div>';
+			} else{
+				img = '<img class="approve-node-avatar" style="margin-bottom: -5px;" src="' + img + '" />';
+			} 
+			html += '<li class="approver" data-userId="' + emplId + '"><div class="approverUser carbonCopyUser">' + img + 
+					'<div class="approverName">' + name + '</div></div></li>';
+		}
+		$(".addPersonBox").before(html);
+		$(".addPersonBox").hide(); //不让新增
+		//addCC();
+	}
+	
+}
+
+function addCC(){
 	$(".addPersonBox").click(function(){
 		dd.biz.contact.choose({
 			"startWithDepartmentId":0,
@@ -157,12 +185,11 @@ function addCCPerson(){
 					var img = "";
 					if(avatar){
 						img = '<img class="approve-node-avatar" style="margin-bottom: -5px;" src="' + avatar + '" />';
-					}
-					else{
-						img = '<div class="approve-node-avatar">' + Comm.handleName(name) + '</div>'
+					} else{
+						img = '<div class="approve-node-avatar">' + Comm.handleName(name) + '</div>';
 					}
 					html += '<li class="approver" data-userId="' + emplId + '"><div class="approverUser carbonCopyUser">' + img + 
-							'<div class="approverName">' + name + '</div></div></li>'
+							'<div class="approverName">' + name + '</div></div></li>';
 				}
 				$(".addPersonBox").prevAll().remove();
 				$(".addPersonBox").before(html);
@@ -182,4 +209,3 @@ function addCCPerson(){
 		});				
 	});
 }
-	

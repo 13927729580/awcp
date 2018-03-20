@@ -1,20 +1,14 @@
 package cn.org.awcp.venson.interceptor;
 
-import java.io.IOException;
-import java.util.List;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-
 import cn.org.awcp.core.utils.SessionUtils;
 import cn.org.awcp.core.utils.constants.SessionContants;
 import cn.org.awcp.unit.vo.PunRoleInfoVO;
 import cn.org.awcp.unit.vo.PunUserBaseInfoVO;
+
+import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.util.List;
 
 public class AuthorityFilter implements Filter {
 
@@ -33,8 +27,7 @@ public class AuthorityFilter implements Filter {
 			String uri = httpRequest.getRequestURI();
 			if (uri.endsWith("jsp") || uri.endsWith("do")) {
 				if (uri.contains("/dev") || uri.contains("/fd") || uri.contains("/dataSys")
-						|| uri.contains("/metaModel") || uri.contains("/dataSourceManage")
-						|| uri.contains("/Designer.jsp")) {
+						|| uri.contains("/metaModel") || uri.contains("/dataSourceManage")) {
 					@SuppressWarnings("unchecked")
 					List<PunRoleInfoVO> roles = (List<PunRoleInfoVO>) SessionUtils
 							.getObjectFromSession(SessionContants.CURRENT_ROLES);
@@ -44,7 +37,7 @@ public class AuthorityFilter implements Filter {
 					}
 					boolean isSuperAdmin = false;
 					for (PunRoleInfoVO role : roles) {
-						if (role.getRoleName().equals("超级后台管理员")) {
+						if ("超级后台管理员".equals(role.getRoleName())) {
 							isSuperAdmin = true;
 							break;
 						}

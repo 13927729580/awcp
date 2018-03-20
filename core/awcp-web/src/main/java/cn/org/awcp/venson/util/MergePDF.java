@@ -1,23 +1,14 @@
 package cn.org.awcp.venson.util;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
+import com.itextpdf.text.Document;
+import com.itextpdf.text.pdf.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.itextpdf.text.Document;
-import com.itextpdf.text.pdf.BaseFont;
-import com.itextpdf.text.pdf.PdfContentByte;
-import com.itextpdf.text.pdf.PdfImportedPage;
-import com.itextpdf.text.pdf.PdfReader;
-import com.itextpdf.text.pdf.PdfWriter;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class MergePDF {
 	/**
@@ -95,11 +86,13 @@ public class MergePDF {
 		} catch (Exception e) {
 			logger.info("ERROR", e);
 		} finally {
-			if (document.isOpen())
+			if (document.isOpen()){
 				document.close();
+			}
 			try {
-				if (outputStream != null)
+				if (outputStream != null){
 					outputStream.close();
+				}
 			} catch (IOException ioe) {
 				logger.info("ERROR", ioe);
 			}

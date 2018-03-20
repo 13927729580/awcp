@@ -63,10 +63,10 @@ public class DateFormaterUtil {
 	 *             解析日期异常
 	 */
 	public static java.util.Date stringToDate(String dateFormat, String date) {
-		if (dateFormat == null || dateFormat.equals("")) {
+		if (dateFormat == null || "".equals(dateFormat)) {
 			throw new java.lang.IllegalArgumentException("parameter dateFormat is not valid");
 		}
-		if (date == null || date.equalsIgnoreCase("")) {
+		if (date == null || "".equalsIgnoreCase(date)) {
 			throw new java.lang.IllegalArgumentException("parameter date is not valid");
 		}
 		SimpleDateFormat formater = new SimpleDateFormat(dateFormat);
@@ -90,7 +90,7 @@ public class DateFormaterUtil {
 	 */
 	public static String dateToString(String dateFormat, java.util.Date date)
 			throws java.lang.IllegalArgumentException {
-		if (dateFormat == null || dateFormat.equals("")) {
+		if (dateFormat == null || "".equals(dateFormat)) {
 			throw new java.lang.IllegalArgumentException("parameter dateFormat is not valid");
 		}
 		if (date == null) {
@@ -308,4 +308,18 @@ public class DateFormaterUtil {
 		return sdf.format(cal.getTime());
 	}
 
+
+	public static boolean isValidDate(String str) {
+		boolean convertSuccess=true;
+		// 指定日期格式为四位年/两位月份/两位日期，注意yyyy/MM/dd区分大小写；
+		SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+		try {
+			// 设置lenient为false. 否则SimpleDateFormat会比较宽松地验证日期，比如2007/02/29会被接受，并转换成2007/03/01
+			format.setLenient(false);
+			format.parse(str);
+		} catch (ParseException e) {
+			convertSuccess=false;
+		}
+		return convertSuccess;
+	}
 }

@@ -278,10 +278,11 @@ public class AnonController {
 	public ReturnResult systemName() {
 		ReturnResult result = ReturnResult.get();
 		List<PunSystem> system = PunSystem.findAll();
-		if (system != null && !system.isEmpty())
+		if (system != null && !system.isEmpty()){
 			result.setData(system.get(0).getSysName());
-		else
+		}else {
 			result.setData("AWCP-全栈配置云开发平台");
+		}
 		return result;
 	}
 }

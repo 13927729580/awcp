@@ -858,7 +858,7 @@ public class FormdesignerServiceImpl implements FormdesignerService {
 			BaseExample example = new BaseExample();
 			Criteria criteria = example.createCriteria();
 			criteria.addCriterion("code like", StoreService.PAGEACT_CODE + "%", "code");
-			if (dynamicPageIds != null) {
+			if (dynamicPageIds != null&&!dynamicPageIds.isEmpty()) {
 				criteria.addCriterion("DYNAMICPAGE_ID in", dynamicPageIds, "DYNAMICPAGE_ID");
 			}
 			List<StoreVO> stores = storeService.selectPagedByExample(example, 1, Integer.MAX_VALUE, null);

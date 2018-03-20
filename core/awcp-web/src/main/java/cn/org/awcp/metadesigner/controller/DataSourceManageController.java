@@ -77,11 +77,11 @@ public class DataSourceManageController extends BaseController {
 		BaseExample be = new BaseExample();
 		Criteria c = be.createCriteria();
 		String name = vo.getName();
-		if (name != null && !name.equals("")) {
+		if (name != null && !"".equals(name)) {
 			c.andLike("name", "%" + name + "%");
 		}
 		String url = vo.getSourceUrl();
-		if (url != null && !url.equals("")) {
+		if (url != null && !"".equals(url)) {
 			c.andLike("sourceUrl", "%" + url + "%");
 		}
 

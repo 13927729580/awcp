@@ -1,19 +1,9 @@
 package cn.org.awcp.venson.controller.comm;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import cn.org.awcp.venson.controller.base.ControllerHelper;
+import cn.org.awcp.venson.controller.base.ReturnResult;
+import cn.org.awcp.venson.controller.base.StatusCode;
+import cn.org.awcp.venson.util.DateFormaterUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -24,10 +14,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
-import cn.org.awcp.venson.controller.base.ControllerHelper;
-import cn.org.awcp.venson.controller.base.ReturnResult;
-import cn.org.awcp.venson.controller.base.StatusCode;
-import cn.org.awcp.venson.util.DateFormaterUtil;
+import java.io.*;
+import java.util.*;
 
 @RequestMapping("/attachment")
 @Controller("attachment")
@@ -50,7 +38,7 @@ public class AttachmentController {
 	@RequestMapping(value = "editorUpload")
 
 	public void uploadUEditor(@RequestParam(required = false) CommonsMultipartFile attachment) throws IOException {
-		Map<String, String> result = new HashMap<String, String>();
+		Map<String, String> result = new HashMap<>(3);
 		if (attachment != null) {
 			Date now = new Date();
 			String today = DateFormaterUtil.dateToString(DateFormaterUtil.FORMART2, now);
@@ -166,12 +154,6 @@ public class AttachmentController {
 			throws UnsupportedEncodingException, IOException {
 		downName = validDownload(path, fileName, downName);
 		if (downName != null) {
-			// 检测文件类型
-			// Path p = Paths.get(path);
-			// String mimeType = Files.probeContentType(p);
-			// if (StringUtils.isNotBlank(mimeType)) {
-			// contentType = mimeType;
-			// }
 			ControllerHelper.makeAttachment(contentType,
 					new String[] { ControllerHelper.CONTENT_DISPOSITION_ATTACHMENT, downName }, path);
 		} else {
@@ -229,7 +211,7 @@ public class AttachmentController {
 			IOUtils.closeQuietly(inputStream);
 			IOUtils.closeQuietly(outputStream);
 			// 返回结果
-			Map<String, String> map = new HashMap<String, String>();
+			Map<String, String> map = new HashMap<>(5);
 			map.put("builderNames", fileName);
 			map.put("url", relativePath + fileName);
 			map.put("fileNames", originName);

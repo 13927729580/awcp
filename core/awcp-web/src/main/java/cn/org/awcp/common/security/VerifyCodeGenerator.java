@@ -1,19 +1,15 @@
 package cn.org.awcp.common.security;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics;
+import cn.org.awcp.core.utils.constants.SessionContants;
+import org.apache.commons.lang3.StringUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
-import org.apache.commons.lang3.StringUtils;
-
-import cn.org.awcp.core.utils.constants.SessionContants;
 
 /**
  * VerifyCodeGenerator 验证码生成器
@@ -167,7 +163,7 @@ public class VerifyCodeGenerator {
 
 	private void drawCharacter(Graphics g, String verifyCode) {
 		String[] fontTypes = { "\u5b8b\u4f53", "\u65b0\u5b8b\u4f53", "\u9ed1\u4f53", "\u6977\u4f53", "\u96b6\u4e66" };
-		char verifyCodes[] = verifyCode.toCharArray();
+        char[] verifyCodes = verifyCode.toCharArray();
 		for (int i = 0; i < verifyCodes.length; i++) {
 			g.setColor(new Color(130, 130, 130));
 			g.setFont(new Font(fontTypes[random.nextInt(fontTypes.length)], Font.BOLD, 26));

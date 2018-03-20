@@ -167,7 +167,7 @@ public class LayoutController extends BaseController {
 		datas.add(root);
 		for (StoreVO vo : list) {
 			JSONObject o = new JSONObject();
-			if (vo.getDescription() != null && !vo.getDescription().equals("")) {
+			if (vo.getDescription() != null && !"".equals(vo.getDescription())) {
 				o.put("id", vo.getId());
 				o.put("pId", vo.getDescription());
 				o.put("name", vo.getName());
@@ -189,7 +189,7 @@ public class LayoutController extends BaseController {
 		String moveType = request.getParameter("moveType");
 		String targetNodeId = request.getParameter("target");
 		String currentNodeId = request.getParameter("current");
-		boolean copy = request.getParameter("copy").equalsIgnoreCase("true") ? true : false;
+		boolean copy = "true".equalsIgnoreCase(request.getParameter("copy")) ? true : false;
 		StoreVO currentNode = storeService.findById(currentNodeId);
 		if (copy) {
 			currentNode.setId("");
@@ -208,7 +208,7 @@ public class LayoutController extends BaseController {
 			currentNode.setContent(current.toJSONString());
 			storeService.save(currentNode);
 		} else {
-			boolean fresh = request.getParameter("fresh").equalsIgnoreCase("true") ? true : false;
+			boolean fresh = "true".equalsIgnoreCase(request.getParameter("fresh")) ? true : false;
 			String pageId = request.getParameter("pageId");
 			if (fresh) {
 				// 刷新布局的order
@@ -1081,10 +1081,10 @@ public class LayoutController extends BaseController {
 				StoreVO s = storeService.findById(ids[i]);
 				// 置Id为空，表示新增
 				JSONObject json = JSON.parseObject(s.getContent());
-				if (StringUtils.isNotBlank(height) && height.equalsIgnoreCase("1")) {
+				if (StringUtils.isNotBlank(height) && "1".equalsIgnoreCase(height)) {
 					json.put("height", "");
 				}
-				if (StringUtils.isNotBlank(width) && width.equalsIgnoreCase("1")) {
+				if (StringUtils.isNotBlank(width) && "1".equalsIgnoreCase(width)) {
 					json.put("width", "");
 				}
 				s.setContent(json.toJSONString());
@@ -1109,7 +1109,7 @@ public class LayoutController extends BaseController {
 			StoreVO s = storeService.findById(ids[i]);
 			// 置Id为空，表示新增
 			JSONObject json = JSON.parseObject(s.getContent());
-			if (json.getString("layoutType").equalsIgnoreCase("1")) {
+			if ("1".equalsIgnoreCase(json.getString("layoutType"))) {
 				json.put("textalign", textalign);
 				json.put("textverticalalign", textverticalalign);
 				s.setContent(json.toJSONString());
@@ -1170,7 +1170,7 @@ public class LayoutController extends BaseController {
 				JSONObject layout = layouts.get(i);
 				String layoutId = layout.getString("pageId");
 				String layoutType = layout.getString("layoutType");
-				if (layoutType.equalsIgnoreCase("2")) {// 行
+				if ("2".equalsIgnoreCase(layoutType)) {// 行
 					if (layout.getJSONArray("childLayouts") == null
 							|| layout.getJSONArray("childLayouts").size() == 0) {
 
@@ -1385,8 +1385,9 @@ public class LayoutController extends BaseController {
 
 	private List<JSONObject> sortByOrder(List<JSONObject> list) {
 
-		if (list == null || list.size() == 0)
-			return list;
+		if (list == null || list.size() == 0) {
+            return list;
+        }
 
 		List<Layout> layoutList = new ArrayList<Layout>();
 		for (int i = 0; i < list.size(); i++) {
@@ -1403,8 +1404,9 @@ public class LayoutController extends BaseController {
 
 	private JSONArray sortByOrderArray(JSONArray list) {
 
-		if (list == null || list.size() == 0)
-			return list;
+		if (list == null || list.size() == 0) {
+            return list;
+        }
 
 		List<Layout> layoutList = new ArrayList<Layout>();
 		for (int i = 0; i < list.size(); i++) {
@@ -1475,7 +1477,7 @@ public class LayoutController extends BaseController {
 		List<StoreVO> result = new ArrayList<StoreVO>();
 		temResult1 = this.restritByTypeAndData(typeId, dataCode, storeVos);
 		temResult2 = this.restrictByLayout(dynamicPageId, rowValue, colValue, currentPage, pageSize, temResult1);
-		if (cname != null && !cname.equals("")) {
+		if (cname != null && !"".equals(cname)) {
 			for (StoreVO storeVo : temResult2) {
 				JSONObject json = JSONObject.parseObject(storeVo.getContent());
 				Integer componentType = json.getInteger("componentType");
@@ -1502,7 +1504,7 @@ public class LayoutController extends BaseController {
 
 	private List<StoreVO> restritByTypeAndData(Integer typeId, String dataCode, List<StoreVO> storeVos) {
 		List<StoreVO> result = new ArrayList<StoreVO>();
-		if (typeId != null && !typeId.equals("") && dataCode != null && !dataCode.equals("")) {
+		if (typeId != null && !"".equals(typeId) && dataCode != null && !"".equals(dataCode)) {
 			for (StoreVO storeVo : storeVos) {
 				JSONObject json = JSONObject.parseObject(storeVo.getContent());
 				Integer componentType = json.getInteger("componentType");
@@ -1523,7 +1525,7 @@ public class LayoutController extends BaseController {
 			}
 			// result = this.restrictByLayout(dynamicPageId, rowValue, colValue,
 			// currentPage, pageSize, temResult);
-		} else if (typeId != null && !typeId.equals("")) {
+		} else if (typeId != null && !"".equals(typeId)) {
 			for (StoreVO storeVo : storeVos) {
 				JSONObject json = JSONObject.parseObject(storeVo.getContent());
 				Integer componentType = json.getInteger("componentType");
@@ -1533,7 +1535,7 @@ public class LayoutController extends BaseController {
 			}
 			// result = this.restrictByLayout(dynamicPageId, rowValue, colValue,
 			// currentPage, pageSize, temResult);
-		} else if (dataCode != null && !dataCode.equals("")) {
+		} else if (dataCode != null && !"".equals(dataCode)) {
 			for (StoreVO storeVo : storeVos) {
 				JSONObject json = JSONObject.parseObject(storeVo.getContent());
 				String dataItemCode = json.getString("dataItemCode");
@@ -1570,7 +1572,7 @@ public class LayoutController extends BaseController {
 	private List<StoreVO> restrictByLayout(String dynamicPageId, String rowValue, String colValue, int currentPage,
 			int pageSize, List<StoreVO> storeVos) {
 		List<StoreVO> result = new ArrayList<StoreVO>();
-		if ((colValue != null && !colValue.equals("")) || (rowValue != null && !rowValue.equals(""))) {
+		if ((colValue != null && !"".equals(colValue)) || (rowValue != null && !"".equals(rowValue))) {
 			List<StoreVO> tems = this.getComponentListByPageId(dynamicPageId, rowValue, colValue, currentPage, pageSize,
 					" T_ORDER ASC");
 			for (StoreVO s1 : storeVos) {

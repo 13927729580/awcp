@@ -12,6 +12,7 @@
     <!-- 引用通用的js文件. -->
     <script type="text/javascript" src="../Scripts/config.js"></script>
     <script type="text/javascript" src="../Comm/Gener.js"></script>
+    <script type="text/javascript" src="../../venson/js/common.js"></script>
     <script type="text/javascript" language="javascript">
         //页面启动函数.
         $(function () {
@@ -38,6 +39,11 @@
                 }
             });
         });
+        function logout(){
+            $.get(baseUrl+"api/logout",function(){
+                window.top.location.href=baseUrl+"WF/AppClassic/Login.htm";
+            });
+        }
     </script>
     <style type="text/css">
         *
@@ -124,7 +130,7 @@
             </li>
 
             <li style="width: 86px; height: 30px; margin: 0 0 0 10px;">
-               <a href="Login.htm?DoType=Out" target="_parent"> <img src="./Img/Exit.jpg" alt="退出系统" /></a> 
+               <a href="javascript:void(0)" onclick="logout()"> <img src="./Img/Exit.jpg" alt="退出系统" /></a>
             </li>
         </ul>
     </div>
