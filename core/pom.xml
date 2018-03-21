@@ -475,9 +475,7 @@
 				<filtering>true</filtering>
 			</resource>
 		</resources>
-
 	</build>
-
 	<profiles>
 		<profile>
 			<id>dev</id>

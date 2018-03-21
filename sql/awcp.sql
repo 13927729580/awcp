@@ -10776,65 +10776,10 @@ CREATE TABLE `wf_workflowdeletelog` (
 -- ----------------------------
 
 -- ----------------------------
--- View structure for port_dept
--- ----------------------------
-DROP VIEW IF EXISTS `port_dept`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`127.0.0.1`  VIEW `port_dept` AS select
-  `p_un_group`.`GROUP_ID`        AS `No`,
-  `p_un_group`.`GROUP_CH_NAME`   AS `Name`,
-  `p_un_group`.`PARENT_GROUP_ID` AS `ParentNo`,
-  NULL                           AS `NameOfPath`,
-  NULL                           AS `TreeNo`,
-  NULL                           AS `Leader`,
-  `p_un_group`.`CONTACT_NUMBER`  AS `Tel`,
-  NULL                           AS `FK_DeptType`,
-  `p_un_group`.`NUMBER`          AS `Idx`,
-  NULL                           AS `IsDir`
-from `p_un_group` ;
-
--- ----------------------------
--- View structure for port_deptduty
--- ----------------------------
-DROP VIEW IF EXISTS `port_deptduty`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`127.0.0.1`  VIEW `port_deptduty` AS SELECT `port_emp`.`FK_Duty` AS `FK_Duty`,`port_emp`.`FK_Dept` AS `FK_Dept` FROM `port_emp` ;
-
--- ----------------------------
--- View structure for port_deptemp
--- ----------------------------
-DROP VIEW IF EXISTS `port_deptemp`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`127.0.0.1`  VIEW `port_deptemp` AS SELECT USER_GRUOP_ID AS `MyPK`,USER_ID AS `FK_Emp`,
-POSITION_ID AS `FK_Duty`,GROUP_ID AS `FK_Dept` ,null AS `DutyLevel` ,leader AS `Leader` 
-FROM p_un_user_group ;
-
--- ----------------------------
--- View structure for port_deptempstation
--- ----------------------------
-DROP VIEW IF EXISTS `port_deptempstation`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`127.0.0.1`  VIEW `port_deptempstation` AS select `p_un_user_group`.`USER_GRUOP_ID` AS `MyPK`,`p_un_user_group`.`USER_ID` AS `FK_Emp`,`p_un_user_group`.`GROUP_ID` AS `FK_Dept`,`p_un_user_group`.`POSITION_ID` AS `FK_Station` from `p_un_user_group` ;
-
--- ----------------------------
--- View structure for port_deptstation
--- ----------------------------
-DROP VIEW IF EXISTS `port_deptstation`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`127.0.0.1`  VIEW `port_deptstation` AS select distinct `p_un_user_group`.`GROUP_ID` AS `FK_Dept`,`p_un_user_group`.`POSITION_ID` AS `FK_Station` from `p_un_user_group` ;
-
--- ----------------------------
--- View structure for port_depttype
--- ----------------------------
-DROP VIEW IF EXISTS `port_depttype`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`127.0.0.1`  VIEW `port_depttype` AS SELECT null AS `No`,null AS `Name` FROM dual ;
-
--- ----------------------------
--- View structure for port_duty
--- ----------------------------
-DROP VIEW IF EXISTS `port_duty`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`127.0.0.1`  VIEW `port_duty` AS select p_un_position.`POSITION_ID` as `No`, p_un_position.`NAME` as `Name`  from p_un_position ;
-
--- ----------------------------
 -- View structure for port_emp
 -- ----------------------------
 DROP VIEW IF EXISTS `port_emp`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`127.0.0.1`  VIEW `port_emp` AS select distinct
+CREATE VIEW `port_emp` AS select distinct
   `p_un_user_base_info`.`USER_ID_CARD_NUMBER` AS `No`,
   `p_un_user_base_info`.`NAME`                AS `Name`,
   `p_un_user_base_info`.`USER_PWD`            AS `Pass`,
@@ -10854,6 +10799,62 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`127.0.0.1`  VIEW `port_emp` AS select
 from (`p_un_user_base_info`
    left join `p_un_user_group`
      on ((`p_un_user_base_info`.`USER_ID` = `p_un_user_group`.`USER_ID`))) ;
+-- ----------------------------
+
+-- View structure for port_dept
+-- ----------------------------
+DROP VIEW IF EXISTS `port_dept`;
+CREATE VIEW `port_dept` AS select
+  `p_un_group`.`GROUP_ID`        AS `No`,
+  `p_un_group`.`GROUP_CH_NAME`   AS `Name`,
+  `p_un_group`.`PARENT_GROUP_ID` AS `ParentNo`,
+  NULL                           AS `NameOfPath`,
+  NULL                           AS `TreeNo`,
+  NULL                           AS `Leader`,
+  `p_un_group`.`CONTACT_NUMBER`  AS `Tel`,
+  NULL                           AS `FK_DeptType`,
+  `p_un_group`.`NUMBER`          AS `Idx`,
+  NULL                           AS `IsDir`
+from `p_un_group` ;
+
+-- ----------------------------
+-- View structure for port_deptduty
+-- ----------------------------
+DROP VIEW IF EXISTS `port_deptduty`;
+CREATE VIEW `port_deptduty` AS SELECT `port_emp`.`FK_Duty` AS `FK_Duty`,`port_emp`.`FK_Dept` AS `FK_Dept` FROM `port_emp` ;
+
+-- ----------------------------
+-- View structure for port_deptemp
+-- ----------------------------
+DROP VIEW IF EXISTS `port_deptemp`;
+CREATE VIEW `port_deptemp` AS SELECT USER_GRUOP_ID AS `MyPK`,USER_ID AS `FK_Emp`,
+POSITION_ID AS `FK_Duty`,GROUP_ID AS `FK_Dept` ,null AS `DutyLevel` ,leader AS `Leader` 
+FROM p_un_user_group ;
+
+-- ----------------------------
+-- View structure for port_deptempstation
+-- ----------------------------
+DROP VIEW IF EXISTS `port_deptempstation`;
+CREATE VIEW `port_deptempstation` AS select `p_un_user_group`.`USER_GRUOP_ID` AS `MyPK`,`p_un_user_group`.`USER_ID` AS `FK_Emp`,`p_un_user_group`.`GROUP_ID` AS `FK_Dept`,`p_un_user_group`.`POSITION_ID` AS `FK_Station` from `p_un_user_group` ;
+
+-- ----------------------------
+-- View structure for port_deptstation
+-- ----------------------------
+DROP VIEW IF EXISTS `port_deptstation`;
+CREATE VIEW `port_deptstation` AS select distinct `p_un_user_group`.`GROUP_ID` AS `FK_Dept`,`p_un_user_group`.`POSITION_ID` AS `FK_Station` from `p_un_user_group` ;
+
+-- ----------------------------
+-- View structure for port_depttype
+-- ----------------------------
+DROP VIEW IF EXISTS `port_depttype`;
+CREATE VIEW `port_depttype` AS SELECT null AS `No`,null AS `Name` FROM dual ;
+
+-- ----------------------------
+-- View structure for port_duty
+-- ----------------------------
+DROP VIEW IF EXISTS `port_duty`;
+CREATE VIEW `port_duty` AS select p_un_position.`POSITION_ID` as `No`, p_un_position.`NAME` as `Name`  from p_un_position ;
+
 
 -- ----------------------------
 -- View structure for port_empdept
@@ -10865,19 +10866,19 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost`  VIEW `port_empdept` AS se
 -- View structure for port_empstation
 -- ----------------------------
 DROP VIEW IF EXISTS `port_empstation`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`127.0.0.1`  VIEW `port_empstation` AS select `p_un_user_group`.`USER_ID` AS `FK_Emp`,`p_un_user_group`.`POSITION_ID` AS `FK_Station` from `p_un_user_group` ;
+CREATE VIEW `port_empstation` AS select `p_un_user_group`.`USER_ID` AS `FK_Emp`,`p_un_user_group`.`POSITION_ID` AS `FK_Station` from `p_un_user_group` ;
 
 -- ----------------------------
 -- View structure for port_inc
 -- ----------------------------
 DROP VIEW IF EXISTS `port_inc`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`127.0.0.1`  VIEW `port_inc` AS SELECT `p_un_group`.`GROUP_ID` AS `No`,`p_un_group`.`GROUP_CH_NAME`   AS `Name`,`p_un_group`.`PARENT_GROUP_ID` AS `ParentNo` FROM `p_un_group` ;
+CREATE VIEW `port_inc` AS SELECT `p_un_group`.`GROUP_ID` AS `No`,`p_un_group`.`GROUP_CH_NAME`   AS `Name`,`p_un_group`.`PARENT_GROUP_ID` AS `ParentNo` FROM `p_un_group` ;
 
 -- ----------------------------
 -- View structure for port_station
 -- ----------------------------
 DROP VIEW IF EXISTS `port_station`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`127.0.0.1`  VIEW `port_station` AS select
+CREATE VIEW `port_station` AS select
   `p_un_position`.`POSITION_ID` AS `No`,
   `p_un_position`.`NAME`        AS `Name`,
   `p_un_position`.`GRADE`       AS `FK_StationType`
@@ -10887,16 +10888,16 @@ from `p_un_position` ;
 -- View structure for port_stationtype
 -- ----------------------------
 DROP VIEW IF EXISTS `port_stationtype`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`127.0.0.1`  VIEW `port_stationtype` AS select p_un_position.`GRADE` AS `Idx`, p_un_position.`GRADE` as `No`, concat('级别',p_un_position.`GRADE`) as `Name`  from p_un_position ;
+CREATE VIEW `port_stationtype` AS select p_un_position.`GRADE` AS `Idx`, p_un_position.`GRADE` as `No`, concat('级别',p_un_position.`GRADE`) as `Name`  from p_un_position ;
 
 -- ----------------------------
 -- View structure for v_flowstarter
 -- ----------------------------
 DROP VIEW IF EXISTS `v_flowstarter`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`127.0.0.1`  VIEW `v_flowstarter` AS select `a`.`FK_Flow` AS `FK_Flow`,`a`.`FlowName` AS `FlowName`,`c`.`FK_Emp` AS `FK_Emp` from ((`wf_node` `a` join `wf_nodestation` `b`) join `port_empstation` `c`) where ((`a`.`NodePosType` = 0) and ((`a`.`WhoExeIt` = 0) or (`a`.`WhoExeIt` = 2)) and (`a`.`NodeID` = `b`.`FK_Node`) and (`b`.`FK_Station` = `c`.`FK_Station`) and ((`a`.`DeliveryWay` = 0) or (`a`.`DeliveryWay` = 14))) union select `a`.`FK_Flow` AS `FK_Flow`,`a`.`FlowName` AS `FlowName`,`c`.`No` AS `No` from ((`wf_node` `a` join `wf_nodedept` `b`) join `port_emp` `c`) where ((`a`.`NodePosType` = 0) and ((`a`.`WhoExeIt` = 0) or (`a`.`WhoExeIt` = 2)) and (`a`.`NodeID` = `b`.`FK_Node`) and (`b`.`FK_Dept` = `c`.`FK_Dept`) and (`a`.`DeliveryWay` = 1)) union select `a`.`FK_Flow` AS `FK_Flow`,`a`.`FlowName` AS `FlowName`,`b`.`FK_Emp` AS `FK_Emp` from (`wf_node` `a` join `wf_nodeemp` `b`) where ((`a`.`NodePosType` = 0) and ((`a`.`WhoExeIt` = 0) or (`a`.`WhoExeIt` = 2)) and (`a`.`NodeID` = `b`.`FK_Node`) and (`a`.`DeliveryWay` = 3)) union select `a`.`FK_Flow` AS `FK_Flow`,`a`.`FlowName` AS `FlowName`,`b`.`No` AS `FK_Emp` from (`wf_node` `a` join `port_emp` `b`) where ((`a`.`NodePosType` = 0) and ((`a`.`WhoExeIt` = 0) or (`a`.`WhoExeIt` = 2)) and (`a`.`DeliveryWay` = 4)) ;
+CREATE VIEW `v_flowstarter` AS select `a`.`FK_Flow` AS `FK_Flow`,`a`.`FlowName` AS `FlowName`,`c`.`FK_Emp` AS `FK_Emp` from ((`wf_node` `a` join `wf_nodestation` `b`) join `port_empstation` `c`) where ((`a`.`NodePosType` = 0) and ((`a`.`WhoExeIt` = 0) or (`a`.`WhoExeIt` = 2)) and (`a`.`NodeID` = `b`.`FK_Node`) and (`b`.`FK_Station` = `c`.`FK_Station`) and ((`a`.`DeliveryWay` = 0) or (`a`.`DeliveryWay` = 14))) union select `a`.`FK_Flow` AS `FK_Flow`,`a`.`FlowName` AS `FlowName`,`c`.`No` AS `No` from ((`wf_node` `a` join `wf_nodedept` `b`) join `port_emp` `c`) where ((`a`.`NodePosType` = 0) and ((`a`.`WhoExeIt` = 0) or (`a`.`WhoExeIt` = 2)) and (`a`.`NodeID` = `b`.`FK_Node`) and (`b`.`FK_Dept` = `c`.`FK_Dept`) and (`a`.`DeliveryWay` = 1)) union select `a`.`FK_Flow` AS `FK_Flow`,`a`.`FlowName` AS `FlowName`,`b`.`FK_Emp` AS `FK_Emp` from (`wf_node` `a` join `wf_nodeemp` `b`) where ((`a`.`NodePosType` = 0) and ((`a`.`WhoExeIt` = 0) or (`a`.`WhoExeIt` = 2)) and (`a`.`NodeID` = `b`.`FK_Node`) and (`a`.`DeliveryWay` = 3)) union select `a`.`FK_Flow` AS `FK_Flow`,`a`.`FlowName` AS `FlowName`,`b`.`No` AS `FK_Emp` from (`wf_node` `a` join `port_emp` `b`) where ((`a`.`NodePosType` = 0) and ((`a`.`WhoExeIt` = 0) or (`a`.`WhoExeIt` = 2)) and (`a`.`DeliveryWay` = 4)) ;
 
 -- ----------------------------
 -- View structure for wf_empworks
 -- ----------------------------
 DROP VIEW IF EXISTS `wf_empworks`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`127.0.0.1`  VIEW `wf_empworks` AS select `a`.`PRI` AS `PRI`,`a`.`WorkID` AS `WorkID`,`b`.`IsRead` AS `IsRead`,`a`.`Starter` AS `Starter`,`a`.`StarterName` AS `StarterName`,`a`.`WFState` AS `WFState`,`a`.`FK_Dept` AS `FK_Dept`,`a`.`DeptName` AS `DeptName`,`a`.`FK_Flow` AS `FK_Flow`,`a`.`FlowName` AS `FlowName`,`a`.`PWorkID` AS `PWorkID`,`a`.`PFlowNo` AS `PFlowNo`,`b`.`FK_Node` AS `FK_Node`,`b`.`FK_NodeText` AS `NodeName`,`b`.`FK_Dept` AS `WorkerDept`,`a`.`Title` AS `Title`,`a`.`RDT` AS `RDT`,`b`.`RDT` AS `ADT`,`b`.`SDT` AS `SDT`,`b`.`FK_Emp` AS `FK_Emp`,`b`.`FID` AS `FID`,`a`.`FK_FlowSort` AS `FK_FlowSort`,`a`.`SDTOfNode` AS `SDTOfNode`,`b`.`PressTimes` AS `PressTimes`,`a`.`GuestNo` AS `GuestNo`,`a`.`GuestName` AS `GuestName`,`a`.`BillNo` AS `BillNo`,`a`.`FlowNote` AS `FlowNote`,`a`.`TodoEmps` AS `TodoEmps`,`a`.`TodoEmpsNum` AS `TodoEmpsNum`,`a`.`TaskSta` AS `TaskSta`,0 AS `ListType`,`a`.`Sender` AS `Sender`,((`b`.`AtPara` + _utf8'') + `a`.`AtPara`) AS `AtPara`,1 AS `MyNum` from (`wf_generworkflow` `a` join `wf_generworkerlist` `b`) where ((`b`.`IsEnable` = 1) and (`b`.`IsPass` = 0) and (`a`.`WorkID` = `b`.`WorkID`) and (`a`.`FK_Node` = `b`.`FK_Node`)) union select `a`.`PRI` AS `PRI`,`a`.`WorkID` AS `WorkID`,`b`.`Sta` AS `IsRead`,`a`.`Starter` AS `Starter`,`a`.`StarterName` AS `StarterName`,2 AS `WFState`,`a`.`FK_Dept` AS `FK_Dept`,`a`.`DeptName` AS `DeptName`,`a`.`FK_Flow` AS `FK_Flow`,`a`.`FlowName` AS `FlowName`,`a`.`PWorkID` AS `PWorkID`,`a`.`PFlowNo` AS `PFlowNo`,`b`.`FK_Node` AS `FK_Node`,`b`.`NodeName` AS `NodeName`,`b`.`CCToDept` AS `WorkerDept`,`a`.`Title` AS `Title`,`a`.`RDT` AS `RDT`,`b`.`RDT` AS `ADT`,`b`.`RDT` AS `SDT`,`b`.`CCTo` AS `FK_Emp`,`b`.`FID` AS `FID`,`a`.`FK_FlowSort` AS `FK_FlowSort`,`a`.`SDTOfNode` AS `SDTOfNode`,0 AS `PressTimes`,`a`.`GuestNo` AS `GuestNo`,`a`.`GuestName` AS `GuestName`,`a`.`BillNo` AS `BillNo`,`a`.`FlowNote` AS `FlowNote`,`a`.`TodoEmps` AS `TodoEmps`,`a`.`TodoEmpsNum` AS `TodoEmpsNum`,0 AS `TaskSta`,1 AS `ListType`,`b`.`Rec` AS `Sender`,(_utf8'@IsCC=1' + `a`.`AtPara`) AS `AtPara`,1 AS `MyNum` from (`wf_generworkflow` `a` join `wf_cclist` `b`) where ((`a`.`WorkID` = `b`.`WorkID`) and (`b`.`Sta` <= 1)) ;
+CREATE VIEW `wf_empworks` AS select `a`.`PRI` AS `PRI`,`a`.`WorkID` AS `WorkID`,`b`.`IsRead` AS `IsRead`,`a`.`Starter` AS `Starter`,`a`.`StarterName` AS `StarterName`,`a`.`WFState` AS `WFState`,`a`.`FK_Dept` AS `FK_Dept`,`a`.`DeptName` AS `DeptName`,`a`.`FK_Flow` AS `FK_Flow`,`a`.`FlowName` AS `FlowName`,`a`.`PWorkID` AS `PWorkID`,`a`.`PFlowNo` AS `PFlowNo`,`b`.`FK_Node` AS `FK_Node`,`b`.`FK_NodeText` AS `NodeName`,`b`.`FK_Dept` AS `WorkerDept`,`a`.`Title` AS `Title`,`a`.`RDT` AS `RDT`,`b`.`RDT` AS `ADT`,`b`.`SDT` AS `SDT`,`b`.`FK_Emp` AS `FK_Emp`,`b`.`FID` AS `FID`,`a`.`FK_FlowSort` AS `FK_FlowSort`,`a`.`SDTOfNode` AS `SDTOfNode`,`b`.`PressTimes` AS `PressTimes`,`a`.`GuestNo` AS `GuestNo`,`a`.`GuestName` AS `GuestName`,`a`.`BillNo` AS `BillNo`,`a`.`FlowNote` AS `FlowNote`,`a`.`TodoEmps` AS `TodoEmps`,`a`.`TodoEmpsNum` AS `TodoEmpsNum`,`a`.`TaskSta` AS `TaskSta`,0 AS `ListType`,`a`.`Sender` AS `Sender`,((`b`.`AtPara` + _utf8'') + `a`.`AtPara`) AS `AtPara`,1 AS `MyNum` from (`wf_generworkflow` `a` join `wf_generworkerlist` `b`) where ((`b`.`IsEnable` = 1) and (`b`.`IsPass` = 0) and (`a`.`WorkID` = `b`.`WorkID`) and (`a`.`FK_Node` = `b`.`FK_Node`)) union select `a`.`PRI` AS `PRI`,`a`.`WorkID` AS `WorkID`,`b`.`Sta` AS `IsRead`,`a`.`Starter` AS `Starter`,`a`.`StarterName` AS `StarterName`,2 AS `WFState`,`a`.`FK_Dept` AS `FK_Dept`,`a`.`DeptName` AS `DeptName`,`a`.`FK_Flow` AS `FK_Flow`,`a`.`FlowName` AS `FlowName`,`a`.`PWorkID` AS `PWorkID`,`a`.`PFlowNo` AS `PFlowNo`,`b`.`FK_Node` AS `FK_Node`,`b`.`NodeName` AS `NodeName`,`b`.`CCToDept` AS `WorkerDept`,`a`.`Title` AS `Title`,`a`.`RDT` AS `RDT`,`b`.`RDT` AS `ADT`,`b`.`RDT` AS `SDT`,`b`.`CCTo` AS `FK_Emp`,`b`.`FID` AS `FID`,`a`.`FK_FlowSort` AS `FK_FlowSort`,`a`.`SDTOfNode` AS `SDTOfNode`,0 AS `PressTimes`,`a`.`GuestNo` AS `GuestNo`,`a`.`GuestName` AS `GuestName`,`a`.`BillNo` AS `BillNo`,`a`.`FlowNote` AS `FlowNote`,`a`.`TodoEmps` AS `TodoEmps`,`a`.`TodoEmpsNum` AS `TodoEmpsNum`,0 AS `TaskSta`,1 AS `ListType`,`b`.`Rec` AS `Sender`,(_utf8'@IsCC=1' + `a`.`AtPara`) AS `AtPara`,1 AS `MyNum` from (`wf_generworkflow` `a` join `wf_cclist` `b`) where ((`a`.`WorkID` = `b`.`WorkID`) and (`b`.`Sta` <= 1)) ;
