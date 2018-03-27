@@ -7,6 +7,7 @@ import cn.org.awcp.core.utils.BeanUtils;
 import cn.org.awcp.core.utils.DateUtils;
 import cn.org.awcp.core.utils.SessionUtils;
 import cn.org.awcp.core.utils.constants.SessionContants;
+import cn.org.awcp.extend.formdesigner.DocumentUtils;
 import cn.org.awcp.formdesigner.application.service.DocumentService;
 import cn.org.awcp.formdesigner.application.service.FormdesignerService;
 import cn.org.awcp.formdesigner.application.service.StoreService;
@@ -20,7 +21,6 @@ import cn.org.awcp.formdesigner.core.parse.bean.PageDataBeanWorker;
 import cn.org.awcp.formdesigner.engine.util.VirtualRequest;
 import cn.org.awcp.formdesigner.service.IDocumentService;
 import cn.org.awcp.formdesigner.service.PrintService;
-import cn.org.awcp.extend.formdesigner.DocumentUtils;
 import cn.org.awcp.formdesigner.utils.ScriptEngineUtils;
 import cn.org.awcp.metadesigner.application.MetaModelOperateService;
 import cn.org.awcp.metadesigner.application.MetaModelService;
@@ -92,7 +92,6 @@ public class DocumentController extends BaseController {
 	SzcloudJdbcTemplate jdbcTemplate;
 
 	/**
-	 *
 	 * 根据参数Map和脚本环境，解析出sql语句
 	 * 根据sql语句查询数据 根据数据初始化各组件的状态(各个脚本包括选项脚本) 读取模版 模版+数据+状态 =输出
 	 *
@@ -103,10 +102,10 @@ public class DocumentController extends BaseController {
 	 * @throws IOException
 	 */
 	@RequestMapping(value = "/view")
-	public void view(String dynamicPageId,HttpServletRequest request,HttpServletResponse response)
-			throws ScriptException,IOException {
+	public void view(String dynamicPageId, HttpServletRequest request, HttpServletResponse response)
+			throws ScriptException, IOException {
 		response.setContentType("text/html;");
-		response.getWriter().write(iDocumentServiceImpl.view(dynamicPageId,request));
+		response.getWriter().write(iDocumentServiceImpl.view(dynamicPageId, request));
 	}
 
 	@RequestMapping(value = "/excute")
@@ -118,7 +117,7 @@ public class DocumentController extends BaseController {
 		String docId = request.getParameter("docId");
 		String update = request.getParameter("update");
 		String[] _selects = request.getParameterValues("_selects");
-		DocumentVO docVo ;
+		DocumentVO docVo;
 		DocumentUtils utils = DocumentUtils.getIntance();
 		DynamicPageVO pageVO;
 		if (StringUtils.isBlank(pageId)) {
@@ -145,9 +144,9 @@ public class DocumentController extends BaseController {
 		docVo.setUpdate(isUpdate);
 		docVo.setDynamicPageId(pageId);
 		docVo.setDynamicPageName(pageVO.getName());
-		Map<String,String[]> enumeration = request.getParameterMap();
+		Map<String, String[]> enumeration = request.getParameterMap();
 		Map<String, String> map = new HashMap<>(enumeration.size());
-		for(Map.Entry<String,String[]> entry:enumeration.entrySet()){
+		for (Map.Entry<String, String[]> entry : enumeration.entrySet()) {
 			map.put(entry.getKey(), StringUtils.join(entry.getValue(), ";"));
 		}
 		docVo.setRequestParams(map);
@@ -177,121 +176,121 @@ public class DocumentController extends BaseController {
 		} else {
 			// 校验文档
 			switch (act.getActType()) {
-			// 保存--不带流程
-			case 2001:
-				PunUserBaseInfoVO user = ControllerHelper.getUser();
-				docVo.setLastmodifier(String.valueOf(user.getUserId()));
-				docVo.setAuditUser(String.valueOf(user.getUserId()));
-				// 设置doc 记录为草稿状态
-				docVo.setState("草稿");
-				if (docVo.isUpdate()) {
-					// 更新数据
-					for (Iterator<String> it = docVo.getListParams().keySet().iterator(); it.hasNext();) {
-						String o = it.next();
-						utils.updateData(o);
+				// 保存--不带流程
+				case 2001:
+					PunUserBaseInfoVO user = ControllerHelper.getUser();
+					docVo.setLastmodifier(String.valueOf(user.getUserId()));
+					docVo.setAuditUser(String.valueOf(user.getUserId()));
+					// 设置doc 记录为草稿状态
+					docVo.setState("草稿");
+					if (docVo.isUpdate()) {
+						// 更新数据
+						for (Iterator<String> it = docVo.getListParams().keySet().iterator(); it.hasNext(); ) {
+							String o = it.next();
+							utils.updateData(o);
+						}
+						// 更新document 记录
+						docVo.setLastmodified(new Date());
+						utils.saveDocument();
+					} else {
+						docVo.setCreated(new Date());
+						docVo.setAuthorId(user.getUserId());
+						docVo.setLastmodified(docVo.getCreated());
+						// 保存数据 向document插入数据
+						for (Iterator<String> it = docVo.getListParams().keySet().iterator(); it.hasNext(); ) {
+							String o = it.next();
+							utils.saveData(o);
+						}
+						utils.saveDocument();
 					}
-					// 更新document 记录
-					docVo.setLastmodified(new Date());
-					utils.saveDocument();
-				} else {
-					docVo.setCreated(new Date());
-					docVo.setAuthorId(user.getUserId());
-					docVo.setLastmodified(docVo.getCreated());
-					// 保存数据 向document插入数据
-					for (Iterator<String> it = docVo.getListParams().keySet().iterator(); it.hasNext();) {
-						String o = it.next();
-						utils.saveData(o);
-					}
-					utils.saveDocument();
-				}
-				break;
-			case 2002:
-				// TODO 返回按钮实现
-				Long backId= Long.parseLong(act.getExtbute().get("target"));
-				mv.setViewName("redirect:/document/view.do?dynamicPageId=" + backId);
-				return mv;
-			case 2003:
-				// TODO 删除动作实现
-				if (_selects != null && _selects.length >= 1) {
-					for (String select : _selects) {
-						utils.deleteData(pageVO, select);
-						BaseExample base = new BaseExample();
-						base.createCriteria().andEqualTo("RECORD_ID", select);
-						documentServiceImpl.deleteByExample(base);
-					}
-					String viewName = "redirect:/document/view.do?dynamicPageId=" + pageId;
-					mv.setViewName(viewName);
+					break;
+				case 2002:
+					// TODO 返回按钮实现
+					Long backId = Long.parseLong(act.getExtbute().get("target"));
+					mv.setViewName("redirect:/document/view.do?dynamicPageId=" + backId);
 					return mv;
-				}
-				break;
-			// 新增
-			case 2009:
-				mv.addObject("dynamicPageId", act.getExtbute().get("target"));
-				mv.setViewName("redirect:/document/view.do");
-				return mv;
-			// 编辑
-			case 2010:
-				if (_selects != null && _selects.length == 1) {
-					mv.setViewName("redirect:/document/view.do?id=" + _selects[0] + "&dynamicPageId="
-							+ act.getExtbute().get("target"));
-					return mv;
-				}
-				break;
-			// pdf打印
-			case 2014:
-				// 1、准备参数
-				String script = act.getExtbute().get("script");
-				Map params = new HashMap(16);
-				if (StringUtils.isNotBlank(script)) {
-					params = (Map) engine.eval(StringEscapeUtils.unescapeHtml4(script));
-				}
-				List listPages = formdesignerServiceImpl.getChildListPages(pageVO.getId());
-				StringBuilder sb = new StringBuilder();
-				if (listPages != null && listPages.size() > 0) {
-					for (int k = 0; k < listPages.size(); k++) {
-						sb.append(listPages.get(k) + ",");
+				case 2003:
+					// TODO 删除动作实现
+					if (_selects != null && _selects.length >= 1) {
+						for (String select : _selects) {
+							utils.deleteData(pageVO, select);
+							BaseExample base = new BaseExample();
+							base.createCriteria().andEqualTo("RECORD_ID", select);
+							documentServiceImpl.deleteByExample(base);
+						}
+						String viewName = "redirect:/document/view.do?dynamicPageId=" + pageId;
+						mv.setViewName(viewName);
+						return mv;
 					}
-				}
+					break;
+				// 新增
+				case 2009:
+					mv.addObject("dynamicPageId", act.getExtbute().get("target"));
+					mv.setViewName("redirect:/document/view.do");
+					return mv;
+				// 编辑
+				case 2010:
+					if (_selects != null && _selects.length == 1) {
+						mv.setViewName("redirect:/document/view.do?id=" + _selects[0] + "&dynamicPageId="
+								+ act.getExtbute().get("target"));
+						return mv;
+					}
+					break;
+				// pdf打印
+				case 2014:
+					// 1、准备参数
+					String script = act.getExtbute().get("script");
+					Map params = new HashMap(16);
+					if (StringUtils.isNotBlank(script)) {
+						params = (Map) engine.eval(StringEscapeUtils.unescapeHtml4(script));
+					}
+					List listPages = formdesignerServiceImpl.getChildListPages(pageVO.getId());
+					StringBuilder sb = new StringBuilder();
+					if (listPages != null && listPages.size() > 0) {
+						for (int k = 0; k < listPages.size(); k++) {
+							sb.append(listPages.get(k) + ",");
+						}
+					}
 
-				Map totalMap = new HashMap(16);
-				totalMap.put("pageVOId", pageVO.getId().toString());
-				totalMap.put("listPages", sb.toString());
-				totalMap.putAll(map);
-				totalMap.putAll(params);
-				// request的getParament无法重置，所有自己模拟一个virtualRequest用于存跳转参数
-				VirtualRequest virtualRequest = new VirtualRequest(totalMap);
-				print(virtualRequest, request, response);
-				return null;
-			// Excel导出
-			case 2016:
-				// 1、准备参数
-				String excelScript = act.getExtbute().get("script");
-				Map<String, String> excelParams = new HashMap<>(16);
-				if (StringUtils.isNotBlank(excelScript)) {
-					excelParams = (Map<String, String>) engine.eval(StringEscapeUtils.unescapeHtml4(excelScript));
-				}
-				// excel模板的Id
-				String templateFileId = act.getExtbute().get("templateFileId");
-				// 导出数据的sql
-				String sqlScript = act.getExtbute().get("sqlScript");
-				String actSql = "";
-				if (StringUtils.isNotBlank(sqlScript)) {
-					actSql = (String) engine.eval(StringEscapeUtils.unescapeHtml4(sqlScript));
-				}
+					Map totalMap = new HashMap(16);
+					totalMap.put("pageVOId", pageVO.getId().toString());
+					totalMap.put("listPages", sb.toString());
+					totalMap.putAll(map);
+					totalMap.putAll(params);
+					// request的getParament无法重置，所有自己模拟一个virtualRequest用于存跳转参数
+					VirtualRequest virtualRequest = new VirtualRequest(totalMap);
+					print(virtualRequest, request, response);
+					return null;
+				// Excel导出
+				case 2016:
+					// 1、准备参数
+					String excelScript = act.getExtbute().get("script");
+					Map<String, String> excelParams = new HashMap<>(16);
+					if (StringUtils.isNotBlank(excelScript)) {
+						excelParams = (Map<String, String>) engine.eval(StringEscapeUtils.unescapeHtml4(excelScript));
+					}
+					// excel模板的Id
+					String templateFileId = act.getExtbute().get("templateFileId");
+					// 导出数据的sql
+					String sqlScript = act.getExtbute().get("sqlScript");
+					String actSql = "";
+					if (StringUtils.isNotBlank(sqlScript)) {
+						actSql = (String) engine.eval(StringEscapeUtils.unescapeHtml4(sqlScript));
+					}
 
-				// 此处改为直接调用函数，参考打印pdf同样的调用方式
-				Map paramMap = new HashMap(16);
-				paramMap.put("actSql", actSql);
-				paramMap.put("templateFileId", templateFileId);
-				paramMap.put("excelParams", excelParams);
-				paramMap.putAll(map);
-				// request的getParament无法重置，所有自己模拟一个virtualRequest用于存跳转参数
-				VirtualRequest vRequest = new VirtualRequest(paramMap);
-				excelListPage(vRequest, request, response);
-				return null;
+					// 此处改为直接调用函数，参考打印pdf同样的调用方式
+					Map paramMap = new HashMap(16);
+					paramMap.put("actSql", actSql);
+					paramMap.put("templateFileId", templateFileId);
+					paramMap.put("excelParams", excelParams);
+					paramMap.putAll(map);
+					// request的getParament无法重置，所有自己模拟一个virtualRequest用于存跳转参数
+					VirtualRequest vRequest = new VirtualRequest(paramMap);
+					excelListPage(vRequest, request, response);
+					return null;
 
-			default:
-				break;
+				default:
+					break;
 			}
 
 		}
@@ -305,7 +304,7 @@ public class DocumentController extends BaseController {
 
 	/***
 	 * 执行动作脚本
-	 * 
+	 *
 	 * @param actId
 	 *            动作ID
 	 * @param request
@@ -315,27 +314,63 @@ public class DocumentController extends BaseController {
 	@RequestMapping(value = "executeAct", method = RequestMethod.GET)
 	public ReturnResult executeAct(String actId, HttpServletRequest request) throws ScriptException {
 		ReturnResult result = ReturnResult.get();
-		result.setStatus(StatusCode.SUCCESS).setData(iDocumentServiceImpl.eval(actId,null,null,request));
+		result.setStatus(StatusCode.SUCCESS).setData(iDocumentServiceImpl.eval(actId, null, null, request));
 		return result;
 	}
 
 
-
 	@ResponseBody
 	@RequestMapping(value = "/excuteOnly")
-	public void excuteOnly(HttpServletRequest request,@RequestParam("dynamicPageId") String dynamicPageId,
-						   @RequestParam(value="docId",required = false)String docId,
-						   @RequestParam(value="actId",required = false)String actId) throws Exception {
+	public void excuteOnly(HttpServletRequest request, @RequestParam("dynamicPageId") String dynamicPageId,
+						   @RequestParam(value = "docId", required = false) String docId,
+						   @RequestParam(value = "actId", required = false) String actId) throws Exception {
 		DocumentVO docVo = documentServiceImpl.findById(docId);
-		docVo=BeanUtil.instance(docVo,DocumentVO.class);
-		ControllerHelper.renderJSON(null,iDocumentServiceImpl.execute(actId,dynamicPageId,docVo,request));
+		docVo = BeanUtil.instance(docVo, DocumentVO.class);
+		ControllerHelper.renderJSON(null, iDocumentServiceImpl.execute(actId, dynamicPageId, docVo, request));
 	}
+
+	@ResponseBody
+	@RequestMapping(value = "/executeScript")
+	public ReturnResult executeScript(HttpServletRequest request, @RequestParam("storeId") String storeId,
+									  @RequestParam("className") String className) {
+		ReturnResult result = ReturnResult.get();
+		//查找组件
+		StoreVO store = storeServiceImpl.findById(storeId);
+		String content = store.getContent();
+		JSONObject json = JSON.parseObject(content);
+		//查找对应按钮
+		JSONArray buttons = json.getJSONArray("buttons");
+		List<Object> list = buttons.stream().filter(b -> {
+			JSONObject j = (JSONObject) b;
+			return className.equals(j.get("className"));
+		}).collect(Collectors.toList());
+		if (list != null && list.size() == 1) {
+			JSONObject script = (JSONObject) list.get(0);
+			//服务端脚本不为空则执行
+			String code = script.getString("severCodes");
+			if (StringUtils.isNotBlank(code)) {
+				ScriptEngine engine = ScriptEngineUtils.getScriptEngine();
+				engine.put("request", request);
+				engine.put("session", SessionUtils.getCurrentSession());
+				try {
+					return result.setStatus(StatusCode.SUCCESS).setData(engine.eval(code));
+				} catch (Exception e) {
+					if (e instanceof PlatformException) {
+						return result.setStatus(StatusCode.FAIL.setMessage(e.getMessage()));
+					} else {
+						return result.setStatus(StatusCode.FAIL.setMessage("脚本执行出错，执行失败"));
+					}
+				}
+			}
+		}
+		return result.setStatus(StatusCode.FAIL.setMessage("脚本未找到，执行失败"));
+	}
+
 
 	/**
 	 * 打印
-	 * 
-	 * @param paramRequest
-	 *            所有参数条件都放到paramRequest中
+	 *
+	 * @param paramRequest 所有参数条件都放到paramRequest中
 	 * @param request
 	 * @param response
 	 * @throws ScriptException
@@ -450,7 +485,8 @@ public class DocumentController extends BaseController {
 		}
 	}
 
-	private Map getMap(DynamicPageVO pageVO, ScriptEngine engine, Map<String, List<Map<String, String>>> dataMap) throws ScriptException {
+	private Map getMap(DynamicPageVO pageVO, ScriptEngine
+			engine, Map<String, List<Map<String, String>>> dataMap) throws ScriptException {
 		// 对表格组件进行处理，将真实值转换为显示值；比如一些 日期格式化、code转对应value等；
 		if (dataMap != null && !dataMap.isEmpty()) {
 			BaseExample baseExample = new BaseExample();
@@ -549,7 +585,7 @@ public class DocumentController extends BaseController {
 				stringData.add(tem2);
 			}
 			dataMap.put("sqlData", stringData);
-		// 导出excel动作中的sql脚本为空，则根据列表页面的数据源来导出
+			// 导出excel动作中的sql脚本为空，则根据列表页面的数据源来导出
 		} else {
 			dataMap = documentServiceImpl.initDocumentData(1, MAX_EXCEL_PAGE_SIZE, docVo, engine, pageVO);
 		}
@@ -572,7 +608,7 @@ public class DocumentController extends BaseController {
 					columns.add(json);
 				}
 			}
-			Collections.sort(columns,Comparator.comparingInt(o->o.getIntValue("order")));
+			Collections.sort(columns, Comparator.comparingInt(o -> o.getIntValue("order")));
 			// 真实值替换成显示值 TODO
 			for (JSONObject column : columns) {
 				String showScript = column.getString("showScript");
@@ -598,12 +634,11 @@ public class DocumentController extends BaseController {
 
 		String listPagesStr;
 		// 列表页面，则返回自己
-		if (vo.getPageType() == 1003 && StringUtils.isNotEmpty(paramRequest.getParameter("dynamicPageId")))
-        {
-            listPagesStr = paramRequest.getParameter("dynamicPageId");
-        } else {
-            listPagesStr = paramRequest.getParameter("listPages");
-        }
+		if (vo.getPageType() == 1003 && StringUtils.isNotEmpty(paramRequest.getParameter("dynamicPageId"))) {
+			listPagesStr = paramRequest.getParameter("dynamicPageId");
+		} else {
+			listPagesStr = paramRequest.getParameter("listPages");
+		}
 		String[] listPages = null;
 		if (StringUtils.isNotBlank(listPagesStr)) {
 			listPages = listPagesStr.split(",");
@@ -682,14 +717,14 @@ public class DocumentController extends BaseController {
 
 	/**
 	 * ajax刷新表格数据，如果传入的method为delete，则执行删除，返回查询列表数据
-	 * 
+	 *
 	 * @param request
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/refreshDataGrid")
 	public ReturnResult refreshDataGrid(HttpServletRequest request,
-			@RequestParam(value = "currentPage", required = false, defaultValue = "1") int currentPage,
-			@RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize) {
+										@RequestParam(value = "currentPage", required = false, defaultValue = "1") int currentPage,
+										@RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize) {
 		ReturnResult result = ReturnResult.get();
 		String componentId = request.getParameter("componentId");
 
@@ -747,14 +782,14 @@ public class DocumentController extends BaseController {
 
 	/**
 	 * 获取对应的表格数据
-	 * 
+	 *
 	 * @param request
-	 * @param s
-	 *            表格组件
+	 * @param s       表格组件
 	 * @return
 	 */
-	public void getDataGridItems(HttpServletRequest request, StoreVO s, DataDefine dd, JSONObject oo, int currentPage,
-			int pageSize, ReturnResult result) {
+	public void getDataGridItems(HttpServletRequest request, StoreVO s, DataDefine dd, JSONObject oo,
+								 int currentPage,
+								 int pageSize, ReturnResult result) {
 
 		if (s != null) {
 
@@ -792,8 +827,9 @@ public class DocumentController extends BaseController {
 	@Resource(name = "IFileService")
 	private FileService fileService;
 
-	private void printExcel(List<JSONObject> columns, Map<String, List<Map<String, String>>> dataMap, OutputStream os,
-			String templateFileId) {
+	private void printExcel
+			(List<JSONObject> columns, Map<String, List<Map<String, String>>> dataMap, OutputStream os,
+			 String templateFileId) {
 		// 当模板ID不为空，找到模板
 		if (templateFileId != null && StringUtils.isNoneBlank(templateFileId)) {
 			AttachmentVO att = fileService.get(templateFileId);
@@ -929,33 +965,32 @@ public class DocumentController extends BaseController {
 					int type = component.getIntValue("componentType");
 
 					switch (type) {
-					case 1006:
-					case 1003:
-					case 1004:
-						String script = component.getString("optionScript");
-						String ret = "";
-						if (StringUtils.isNotBlank(script)) {
-							try {
-								ret = (String) engine.eval(script);
-								if (StringUtils.isNotBlank(ret)) {
-									optionMap.put(component.getString("dataItemCode") + "_option", ret);
+						case 1006:
+						case 1003:
+						case 1004:
+							String script = component.getString("optionScript");
+							String ret = "";
+							if (StringUtils.isNotBlank(script)) {
+								try {
+									ret = (String) engine.eval(script);
+									if (StringUtils.isNotBlank(ret)) {
+										optionMap.put(component.getString("dataItemCode") + "_option", ret);
+									}
+
+								} catch (ScriptException e) {
+
+									logger.info("ERROR", e);
 								}
-
-							} catch (ScriptException e) {
-
-								logger.info("ERROR", e);
 							}
-						}
-						break;
-					default:
-						break;
+							break;
+						default:
+							break;
 					}
 				}
 			}
 		}
 		return optionMap;
 	}
-
 
 
 }

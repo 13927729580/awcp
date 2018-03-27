@@ -53,7 +53,8 @@ public class FormDesignGlobal {
 		// COMPOENT_TYPE_NAME.put("1040", "easyUI行编辑表格");// 计算值、隐藏、禁用
 		// COMPOENT_TYPE_NAME.put("1041", "easyUI嵌套表格");// 计算值、隐藏、禁用
 		// COMPOENT_TYPE_NAME.put("1042", "表格組件-easyUI");// 计算值、隐藏、禁用
-
+		COMPOENT_TYPE_NAME.put("1043", "表格行操作组件");
+		
 		/*
 		 * 钉钉控件
 		 */
@@ -107,7 +108,8 @@ public class FormDesignGlobal {
 		// "formdesigner/page/component/easyui/nestgrid.jsp");
 		// COMPOENT_TYPE_URL.put("1042",
 		// "formdesigner/page/component/easyui/dataGrid.jsp");
-
+		COMPOENT_TYPE_URL.put("1043", "formdesigner/page/component/rowOperation/rowOperation.jsp");
+		
 		/*
 		 * 钉钉组件
 		 */

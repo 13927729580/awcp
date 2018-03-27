@@ -169,7 +169,13 @@ function addRow(objectType, comObject) {
 	$.each(table, function(i, t) {
 		// 判断是否是href字段，若是加事件，不是else
 		if (href == t) {
-			var name = (item['componentType']=='1008') ? item['columnName']:item[t];	//对于列组件，则显示列头名称，其他显示名称
+			var name;
+            //对于列组件，则显示列头名称，其他显示名称
+			if(item['componentType']=='1008'||item['componentType']=='1043'){
+                name=item['columnName'];
+			}else{
+				name=item[t];
+			}
 			str += "<td><a href='javascript:void(0);' onclick='editComponent(\""
 					+ item.componentType
 					+ "\",\""

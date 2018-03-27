@@ -72,9 +72,9 @@
 	<sql id="EQ_Where_Clause">
 		where 1=1
 		<trim suffixOverrides=",">
-			<if test="sysId != null and sysId != ''">
+			<!-- <if test="sysId != null and sysId != ''">
 				AND SYS_ID = #{sysId}
-			</if>
+			</if> -->
 
 			<if test="relateResoId != null and relateResoId != ''">
 				AND RELATE_RESO_ID = #{relateResoId}
@@ -184,9 +184,9 @@
 	<update id="updateSelective" parameterType="cn.org.awcp.unit.core.domain.PunResource">
 		UPDATE p_un_resource
 		<set>
-			<if test="sysId!=null">
+			<!-- <if test="sysId!=null">
 				SYS_ID = #{sysId},
-			</if>
+			</if> -->
 			<if test="relateResoId!=null">
 				RELATE_RESO_ID = #{relateResoId},
 			</if>
@@ -255,7 +255,7 @@
 		INNER JOIN p_un_role_access a 
 		ON t.RESOURCE_ID = a.RESOURCE_ID
 		where 1=1
-		and t.SYS_ID = #{sysId}
+		<!-- and t.SYS_ID = #{sysId} -->
 		and a.ROLE_ID = #{roleId}
 		and t.RESOURCE_TYPE = #{resouType}
     </select>

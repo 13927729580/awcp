@@ -7,6 +7,7 @@
 				<option selected="selected" value="text">文本</option>
 				<option value="number">数字</option>
 				<option value="tel">电话</option>
+				<option value="money">金钱</option>
 				<option value="email">邮箱</option>
 				<option value="password">密码</option>
 			</select>

@@ -180,6 +180,9 @@
 		<#case 1036>
 			<@convertAddSearchScript c/>
 			<#break>
+		<#case 1043>
+			<@convertRowOperationScript c/>
+			<#break>
 		<#default>
 
 	</#switch>
@@ -220,10 +223,23 @@
 
 <#macro convertInputextScript c >
 (function(){
-		var that=$('#${(c['pageId'])!""}');
-		<#if c['onchangeScript']??><#--onchange 事件 -->
-			${c['onchangeScript']}
-		</#if>
+	var that = $('#${(c['pageId'])!""}');
+	var temp = that.val();
+	if(that.attr("type")=="money"){
+		that.keyup(function(){
+			var val = that.val();
+			var reg1 = /^\d+\.\d{0,2}$/;
+			var reg2 = /^\d+$/;
+			if(reg1.test(val) || reg2.test(val)){
+				temp = val;
+			} else{
+				that.val(temp);
+			}
+		});
+	}
+	<#if c['onchangeScript']??><#--onchange 事件 -->
+		${c['onchangeScript']}
+	</#if>
 })();
 </#macro>
 <#-------------------------------------------输入框组件end---------------------------------------->
@@ -492,7 +508,7 @@
 <#-------------------------------------------下拉框select end------------------------------------------>
 <#-------------------------------------------标签------------------------------------------>
 <#macro convertLabel c >
-	<label  class="control-label <#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['hidden'])?? && status['</#noparse>${c['name']}<#noparse>']['hidden'] == 'true'>hidden</#if></#noparse> 	
+	<p  class="control-label <#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['hidden'])?? && status['</#noparse>${c['name']}<#noparse>']['hidden'] == 'true'>hidden</#if></#noparse>
 		<#if c['isRequired']?? && c['isRequired'] == '1'>
 			required
 		<#elseif c['isRequired']?? && c['isRequired'] == '3'>	
@@ -517,7 +533,7 @@
 	>
 
 		${c['title']!""}
-	</label>
+	</p>
 </#macro>
 <#-------------------------------------------标签 end------------------------------------------>
 <#-------------------------------------------hidden框组件begin---------------------------------------->
@@ -1333,6 +1349,46 @@
 </#macro>
 
 <#------------------------------列组件 end--------------------------------------------------------->
+
+
+<#------------------------------表格行操作组件 begin------------------------------------------------------->
+
+<#macro parseRowOperation c >
+	<th <#if c['width']??>data-width="${c['width']}"</#if> data-field="rowOperation">
+		<#if c['columnName']?? >${c['columnName']}</#if>		
+	</th>
+</#macro>
+
+
+
+<#macro parseRowOperationData c >
+	<td class="operationTd">
+		<#if c['buttons']?? && c['buttons']?size gt 0>
+ 			<#list c['buttons'] as button>
+ 				<a class="btn btn-sm ${button.className!''} ${button.color!''}" href="javascript:void(0)"></i>${button.title!""}</a>
+ 			</#list>  
+ 		</#if>
+	</td>
+</#macro>
+
+<#macro convertRowOperationScript c>
+	<#if c['buttons']?? && c['buttons']?size gt 0>
+		<#list c['buttons'] as button>
+			$(".operationTd .${button.className!''}").bind("click",function(){
+				var storeId = "${(c['pageId'])!''}";
+				var className = "${button.className!''}";
+				var $row = $(this).parent().parent();
+				var id = $row.find(".formData").children("input").val();			
+				var obj = {storeId:storeId,id:id,className:className};
+				${button.codes!''}				
+			})
+		</#list>  
+	</#if>	
+</#macro>
+
+<#------------------------------表格行操作组件 end--------------------------------------------------------->
+
+
 
 <#------------------------------校验--------------------------------------------------------->
 <#macro parseValidForm components >

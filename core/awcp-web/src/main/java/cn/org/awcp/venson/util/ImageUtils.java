@@ -27,6 +27,7 @@ public class ImageUtils {
     private static final Log logger = LogFactory.getLog(ImageUtils.class);
 
     public static final String JPG = "JPG";
+    public static final String PNG = "PNG";
 
     public static void main(String[] args) {
     }

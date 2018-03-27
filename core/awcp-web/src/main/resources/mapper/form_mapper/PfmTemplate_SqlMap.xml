@@ -94,8 +94,8 @@
 		<trim suffixOverrides=",">
 			<if test="fileName !=null">
 				AND file_name = #{fileName}			</if>
-			<if test="sysId !=null">
-				AND sys_id = #{sysId}			</if>
+			<!-- <if test="sysId !=null">
+				AND sys_id = #{sysId}			</if> -->
 			<if test="description !=null">
 				AND description = #{description}			</if>
 			<if test="fileLocation !=null">
@@ -161,9 +161,9 @@
 			<if test="fileName!=null">
 				file_name = #{fileName},
 			</if>
-			<if test="sysId!=null">
+			<!-- <if test="sysId!=null">
 				sys_id = #{sysId},
-			</if>
+			</if> -->
 			<if test="description!=null">
 				description = #{description},
 			</if>
@@ -182,8 +182,8 @@
 		UPDATE p_fm_template SET
 		<if test="fileName!=null">
 		file_name = #{fileName},</if>
-		<if test="sysId!=null">
-		sys_id = #{sysId},</if>
+		<!-- <if test="sysId!=null">
+		sys_id = #{sysId},</if> -->
 		<if test="description!=null">
 		description = #{description},</if>
 		<if test="fileLocation!=null">

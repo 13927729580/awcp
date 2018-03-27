@@ -10,7 +10,20 @@ import java.util.Map;
  *
  */
 @SuppressWarnings("rawtypes")
-public interface MetaModelOperateService {
+ public interface MetaModelOperateService {
+
+	String SQL="sql";
+	String PARAMS="params";
+	String IS_NUMBER_PRIMARY_KEY="isNumberPrimaryKey";
+
+
+	/**
+	 * 制作元数据保存数据需要的语句，参数
+	 * @param map
+	 * @param modelCode
+	 * @return
+	 */
+	Map<String,Object>  markMetaInsert(Map<String, String> map, String modelCode);
 
 	/**
 	 * 增加
@@ -20,7 +33,7 @@ public interface MetaModelOperateService {
 	 * @return
 	 * @throws Exception
 	 */
-	public boolean save(Map<String, String> map, String modelCode);
+	 boolean save(Map<String, String> map, String modelCode);
 
 	/**
 	 * 根据ID删除
@@ -29,7 +42,7 @@ public interface MetaModelOperateService {
 	 * @param modelCode
 	 * @return
 	 */
-	public boolean delete(Object id, String modelCode);
+	 boolean delete(Object id, String modelCode);
 
 	/**
 	 * 根据条件删除
@@ -39,7 +52,7 @@ public interface MetaModelOperateService {
 	 * @return
 	 * @throws ParseException
 	 */
-	public boolean deleteByParams(Map<String, String> map, String modelCode);
+	 boolean deleteByParams(Map<String, String> map, String modelCode);
 
 	/**
 	 * 修改
@@ -49,7 +62,7 @@ public interface MetaModelOperateService {
 	 * @return
 	 * @throws Exception
 	 */
-	public boolean update(Map<String, String> map, String modelCode);
+	 boolean update(Map<String, String> map, String modelCode);
 
 	/**
 	 * 根据modelCode查找
@@ -57,7 +70,7 @@ public interface MetaModelOperateService {
 	 * @param modelCode
 	 * @return
 	 */
-	public List findAll(String modelCode);
+	 List findAll(String modelCode);
 
 	/**
 	 * 查询单个
@@ -66,15 +79,15 @@ public interface MetaModelOperateService {
 	 * @param modelCode
 	 * @return
 	 */
-	public Map<String, Object> get(Object id, String modelCode);
+	 Map<String, Object> get(Object id, String modelCode);
 
-	public List<Map<String, Object>> search(String sql, Object... obj);
+	 List<Map<String, Object>> search(String sql, Object... obj);
 
-	public int queryOne(String sql, Object... obj);
+	 int queryOne(String sql, Object... obj);
 
-	public Object queryObject(String sql, Object... obj);
+	 Object queryObject(String sql, Object... obj);
 
-	public int updateBySql(String sql, Object... obj);
+	 int updateBySql(String sql, Object... obj);
 
 	/**
 	 * 根据元数据code获取到数据源ID，如果数据源没配置，则获取系统默认数据源Id

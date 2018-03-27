@@ -17,11 +17,6 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import cn.org.awcp.core.utils.BeanUtils;
-import cn.org.awcp.core.utils.Security;
-import cn.org.awcp.unit.core.domain.PunUserBaseInfo;
-import cn.org.awcp.dingding.exception.OApiException;
-import cn.org.awcp.dingding.helper.EventChangeHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -39,7 +34,18 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.miemiedev.mybatis.paginator.domain.PageList;
 
 import BP.Tools.PinYinF4jUtils;
+import cn.org.awcp.core.utils.BeanUtils;
+import cn.org.awcp.core.utils.Security;
+import cn.org.awcp.dingding.Env;
+import cn.org.awcp.dingding.exception.OApiException;
+import cn.org.awcp.dingding.helper.AuthHelper;
+import cn.org.awcp.dingding.helper.EventChangeHelper;
+import cn.org.awcp.dingding.service.DDRequestService;
+import cn.org.awcp.dingding.utils.DdRequest;
+import cn.org.awcp.dingding.utils.DingTalkEncryptException;
+import cn.org.awcp.dingding.utils.DingTalkEncryptor;
 import cn.org.awcp.extend.formdesigner.DocumentUtils;
+import cn.org.awcp.unit.core.domain.PunUserBaseInfo;
 import cn.org.awcp.unit.service.PunGroupService;
 import cn.org.awcp.unit.service.PunPositionService;
 import cn.org.awcp.unit.service.PunRoleInfoService;
@@ -54,11 +60,6 @@ import cn.org.awcp.venson.common.SC;
 import cn.org.awcp.venson.controller.base.ControllerHelper;
 import cn.org.awcp.venson.controller.base.ReturnResult;
 import cn.org.awcp.venson.controller.base.StatusCode;
-import cn.org.awcp.dingding.Env;
-import cn.org.awcp.dingding.helper.AuthHelper;
-import cn.org.awcp.dingding.service.DDRequestService;
-import cn.org.awcp.dingding.utils.DingTalkEncryptException;
-import cn.org.awcp.dingding.utils.DingTalkEncryptor;
 import cn.org.awcp.venson.exception.PlatformException;
 
 @RestController
@@ -182,13 +183,15 @@ public class DDController {
             //是否是注册
             if (type) {
                 str = EventChangeHelper.registerEventChange(AuthHelper.getAccessToken(),
-                        Arrays.asList("user_add_org", "user_modify_org", "user_leave_org", "org_dept_create",
-                                "org_dept_modify", "org_dept_remove"),
+                        Arrays.asList("user_add_org", "user_modify_org", "user_leave_org", 
+                        		"org_dept_create","org_dept_modify", "org_dept_remove",
+                                "label_user_change","label_conf_add","label_conf_del","label_conf_modify"),
                         Env.TOKEN, Env.ENCODING_AES_KEY, ControllerHelper.getBasePath() + "dingding/eventChangeReceive.do");
             } else {
                 str = EventChangeHelper.updateEventChange(AuthHelper.getAccessToken(),
-                        Arrays.asList("user_add_org", "user_modify_org", "user_leave_org", "org_dept_create",
-                                "org_dept_modify", "org_dept_remove"),
+                		 Arrays.asList("user_add_org", "user_modify_org", "user_leave_org", 
+                         		"org_dept_create","org_dept_modify", "org_dept_remove",
+                                "label_user_change","label_conf_add","label_conf_del","label_conf_modify"),
                         Env.TOKEN, Env.ENCODING_AES_KEY, ControllerHelper.getBasePath() + "dingding/eventChangeReceive.do");
             }
             result.setStatus(StatusCode.SUCCESS).setData(str);
@@ -241,7 +244,7 @@ public class DDController {
         } catch (DingTalkEncryptException e) {
             e.printStackTrace();
         }
-
+        System.out.println(plainText);
         /** 对从encrypt解密出来的明文进行处理 **/
         JSONObject plainTextJson = JSONObject.parseObject(plainText);
         String eventType = plainTextJson.getString("EventType");
@@ -309,9 +312,30 @@ public class DDController {
                 }
                 jdbcTemplate.update(builder.toString(), ids.toArray(new Object[]{}));
                 break;
+            case "label_user_change" : 	//员工角色信息发生变更
+            	String action = plainTextJson.getString("action");
+            	JSONArray labelIdList = plainTextJson.getJSONArray("LabelIdList");
+            	JSONArray userIdList = plainTextJson.getJSONArray("UserIdList");
+            	String sql = "";
+            	if("add".equals(action)){
+            		sql = "insert into dd_user_role(role_id,user_id) values(?,?)";
+            	} else if("remove".equals(action)){
+            		sql = "delete from dd_user_role where role_id=? and user_id=?";
+            	}
+            	if(StringUtils.isNotBlank(sql)){
+            		for(Object role_id : labelIdList){
+            			for(Object user_id : userIdList){
+            				jdbcTemplate.update(sql, role_id,user_id);
+            			}
+            		}
+            	}
+            	break;
+            case "label_conf_add":		//增加角色或者角色组
+            case "label_conf_del":		//删除角色或者角色组
+            case "label_conf_modify":	//修改角色或者角色组
+            	break;
             case "org_remove":// 企业被解散 do something
                 break;
-
             case "check_url":// do something
             default: // do something
                 break;
@@ -389,10 +413,58 @@ public class DDController {
                 createOrUpdateUser(user.getString("userid"));
             }
         }
+        initRole(token);
         result.setStatus(StatusCode.SUCCESS).setData(0);
         return result;
     }
 
+    @SuppressWarnings("rawtypes")
+	private void initRole(String accessToken){	
+		String json = DdRequest.getRoleList(accessToken);
+		if(StringUtils.isNotBlank(json)){
+			jdbcTemplate.update("delete from dd_role_group");
+			jdbcTemplate.update("delete from dd_role_info");
+			jdbcTemplate.update("delete from dd_user_role");
+			List list = (List) ((Map) JSON.parseObject(json).get("result")).get("list");
+			String insertRoleGroupSql = "insert into dd_role_group(ID,group_name) values(?,?)";
+			String insertRoleSql = "insert into dd_role_info(ID,role_name,role_group) values(?,?,?)";
+			int tempId = 0;
+			for(int i=0;i<list.size();i++){
+				Map temp = (Map) list.get(i);
+				String group_name = (String) temp.get("group_name");
+				List roles = (List) temp.get("roles");
+				if(tempId == 0){
+					tempId = (int) ((Map)roles.get(0)).get("id") - 1;
+				} else{
+					tempId++;
+				}
+				int groupId = tempId;
+				jdbcTemplate.update(insertRoleGroupSql, groupId,group_name);
+				for(int j=0;j<roles.size();j++){
+					Map role = (Map) roles.get(j);
+					Integer id = (Integer) role.get("id");
+					String role_name = (String) role.get("role_name");
+					jdbcTemplate.update(insertRoleSql, id,role_name,groupId);
+					intiUserRole(id + "", accessToken);
+					tempId = id;
+				}				
+			}
+		}
+	}
+	
+	@SuppressWarnings("rawtypes")
+	private void intiUserRole(String role_id,String accessToken){
+		String insertSql = "insert into dd_user_role(role_id,user_id) values(?,?)";
+		String json = DdRequest.getRoleSimplelist(accessToken, role_id);
+		if(StringUtils.isNotBlank(json)){
+			List list = (List) ((Map) JSON.parseObject(json).get("result")).get("list");
+			for(int i=0;i<list.size();i++){
+				String userid = (String) ((Map) list.get(i)).get("userid");
+				jdbcTemplate.update(insertSql, role_id,userid);
+			}
+		}		
+	}
+    
     /**
      * @param userIdCard
      */
@@ -654,7 +726,7 @@ public class DDController {
 	 * @param request
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@ResponseBody
 	@RequestMapping(value="/getFlowExcutor")
 	public ReturnResult getFlowExcutor(HttpServletRequest request){
@@ -687,15 +759,16 @@ public class DDController {
 							}
 						} else if("3".equals(type)){
 							List<String> tempList = JSON.parseArray(val + "", String.class);
-							String tempStr = "";
-							for(int i=0;i<tempList.size();i++){
-								if(i==tempList.size()-1){
-									tempStr += tempList.get(i);
-								} else{
-									tempStr += tempList.get(i) + ",";
-								}
+							list.add(StringUtils.join(tempList.iterator(), ","));
+						} else if("4".equals(type)){
+							String role_id = (String) ((Map) val).get("role_id");
+							String role_name = (String) ((Map) val).get("role_name");
+							List<String> rolelist = getUserInRole(role_id);
+							if(rolelist.size() == 0){
+								throw new PlatformException("没有找到拥有" + role_name + "角色的用户");
+							} else{
+								list.add(StringUtils.join(rolelist.iterator(), ","));
 							}
-							list.add(tempStr);
 						} else if("5".equals(type)){
 							list.add(DocumentUtils.getIntance().getUser().getUserIdCardNumber());
 						}
@@ -736,4 +809,11 @@ public class DDController {
 		}	
 		return list;
 	}
+
+	//获取某个角色的用户
+	private List<String> getUserInRole(String roleId){
+		String sql = "select user_id from dd_user_role where role_id=?";
+		return jdbcTemplate.queryForList(sql,String.class,roleId);
+	}
+
 }

@@ -93,6 +93,9 @@
 										<#if c['componentType']=='1008' >
 											<@parseColumn c />
 										</#if>
+										<#if c['componentType']=='1043' >
+											<@parseRowOperation c />
+										</#if>
 									</#list>
 								</#if>
 							<#noparse>
@@ -116,6 +119,9 @@
 										 <#list components?sort_by("order") as c>
 											<#if c['componentType']=='1008' >
 												<@parseColumnData c />
+											</#if>
+											<#if c['componentType']=='1043' >
+												<@parseRowOperationData c />
 											</#if>
 										</#list>
 									</#if>
@@ -167,17 +173,20 @@
         		$("#groupForm").submit();
         	 },
         	 onClickRow:function(row,$element,field){
-        	  	  var $checkbox=$element.find(":checkbox").eq(0);
-        	  	  if($checkbox.get(0).checked){
-					  $checkbox.get(0).checked=false;
-					  $element.find("input[type='hidden']").removeAttr("name","_selects");
-					  $element.removeClass("selected");
-        	  	  }else{
-					  $checkbox.get(0).checked=true;
-					  $element.find("input[type='hidden']").attr("name","_selects");
-					  $element.addClass("selected");
-        	  	  }
-				  count = $("input[name='_selects']").length;
+        	 	if(field.indexOf("rowOperation") != -1){
+        	 		return false;
+        	 	}
+        	  	var $checkbox=$element.find(":checkbox").eq(0);
+        	  	if($checkbox.get(0).checked){
+					$checkbox.get(0).checked=false;
+					$element.find("input[type='hidden']").removeAttr("name","_selects");
+					$element.removeClass("selected");
+        	  	}else{
+					$checkbox.get(0).checked=true;
+					$element.find("input[type='hidden']").attr("name","_selects");
+					$element.addClass("selected");
+        	  	}
+				count = $("input[name='_selects']").length;
         	 },
         	 onCheck: function(row,$element){  
 				  $element.closest("tr").find("input[type='hidden']").attr("name","_selects");
@@ -216,6 +225,9 @@
 				<#list components?sort_by("order") as c>
 					<#if c['componentType']=='1036'>
 						<@convertAddSearchScript c />
+					</#if>
+					<#if c['componentType']=='1043'>
+						<@convertRowOperationScript c />
 					</#if>
 				</#list>
 			</#if>

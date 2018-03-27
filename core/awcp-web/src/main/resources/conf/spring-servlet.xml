@@ -1,14 +1,13 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:mvc="http://www.springframework.org/schema/mvc"
-	xmlns:p="http://www.springframework.org/schema/p"
 	xmlns:context="http://www.springframework.org/schema/context"
 	default-lazy-init="true"
 	xmlns:aop="http://www.springframework.org/schema/aop"
-	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
-		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
-		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
-		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd">
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
 	<import resource="spring-mvc-jflow.xml"/>
 	<!-- 把标记了@Controller注解的类转换为bean -->
 	<mvc:annotation-driven>
@@ -43,21 +42,20 @@
 	</mvc:annotation-driven>
 
 
-	<!-- 启动Spring MVC的注解功能，完成请求和注解POJO的映射 -->
-	<bean
-		class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter" />
 	<!-- 对模型视图名称的解析，即在模型视图名称添加前后缀 -->
 	<!-- 所有的JSP文件都放在WebContent/目录下 -->
 	<bean id="viewResolver"
-		class="org.springframework.web.servlet.view.InternalResourceViewResolver" 
-		p:prefix="/" p:suffix=".jsp" />
+		  class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/"/>
+		<property name="suffix" value=".jsp"/>
+	</bean>
 
 	<bean class="org.springframework.web.servlet.view.BeanNameViewResolver">
-		<property name="order" value="1"></property>
+		<property name="order" value="1"/>
 	</bean>
 
 	<bean id="mappingJacksonJsonView"
-		class="org.springframework.web.servlet.view.json.MappingJackson2JsonView"></bean>
+		class="org.springframework.web.servlet.view.json.MappingJackson2JsonView"/>
 
 	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
 		<!-- 设置上传文件的最大尺寸为50M -->
@@ -66,7 +64,7 @@
 		<property name="defaultEncoding" value="UTF-8"/>
 	</bean>
 	<!-- 设置全局异常处理bean -->
-	<bean id="exceptionHandler" class="cn.org.awcp.venson.interceptor.ExceptionHandler"></bean>
+	<bean id="exceptionHandler" class="cn.org.awcp.venson.interceptor.ExceptionHandler"/>
 
 	<context:component-scan base-package="cn.org.awcp" >
 		<!-- 只扫描controller -->
@@ -83,5 +81,5 @@
 		</mvc:interceptor>
 	</mvc:interceptors>
 	<!-- 激活自动代理功能 -->
-	<aop:aspectj-autoproxy expose-proxy="true" proxy-target-class="true"/>
+	<aop:aspectj-autoproxy  proxy-target-class="true"/>
 </beans>

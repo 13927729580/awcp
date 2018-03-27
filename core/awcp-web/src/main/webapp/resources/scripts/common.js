@@ -1,3 +1,49 @@
+function gotoUrl(obj){
+	var params = "";
+	for(key in obj){
+		params += key + "=" + obj[key] + "&";
+	}
+	location.href = basePath + "document/view.do?" + params;
+}
+
+function delOneRecord(obj){
+	dialogConfirm("是否确认删除?",function(){
+        $.ajax({
+            type: "POST",
+            url: basePath + "api/execute/delOneRecord",
+            data:obj,
+            async : false,
+            success: function(data){
+                if(data.data==1){
+                    Comm.alert("删除成功",function(){
+                        $("#groupForm").submit();
+                    });
+                } else{
+                    Comm.alert("删除失败");
+                }
+            }
+        });
+    });
+}
+
+/**
+ * 列表页面进行搜索
+ * @returns
+ */
+function search(){
+	$("#groupForm").submit();
+}
+
+/**
+ * 重置列表页面搜索条件,然后搜索
+ * @returns
+ */
+function resetView(){
+	$("#groupForm")[0].reset();
+	Comm.clearSearch();
+	$("#groupForm").submit();
+}
+
 function updateAction(params){
     var str = "";
     var bool = true;
@@ -18,7 +64,6 @@ function updateAction(params){
 }
 
 function updateParamsToGroupForm(params){
-    var str = "";
     var $groupForm = $("#groupForm");
 
     for(var i=0;i<params.length;i++){
@@ -46,29 +91,75 @@ function newFormPage(dynamicPageId,actId, suffixParams){
     location.href = basePath + "document/view.do?dynamicPageId=" + dynamicPageId + suffixParams;
 }
 
+/**
+ * 表单页面保存后跳转到对应的列表页面
+ * @param dynamicPageId		列表页面的动态页面ID
+ * @param actId				保存按钮的actID
+ * @param suffixParams		其他参数
+ * @returns
+ */
 function saveFormPage(dynamicPageId,actId,suffixParams){
-    $("#buttons").find("button").attr("disabled",true);
+    $("#buttons").find("button").attr("disabled",true);	//禁用所有按钮,防止提交数据时同时进行其他操作
     $("#actId").val(actId);
-
-    if(!suffixParams){ suffixParams = '';}
-
+    if(!suffixParams){ 
+    	suffixParams = "";
+    }
     $.ajax({
         type: "POST",
         url: basePath + "document/excuteOnly.do",
-        data:$("#groupForm").serialize(),
-        async : false,
+        data: $("#groupForm").serialize(),
+        async: false,
         success: function(data){
             if(data==1){
                 Comm.alert("保存成功",function(){
                     location.href = basePath + "document/view.do?dynamicPageId=" + dynamicPageId + suffixParams;
                 });
             } else{
-                Comm.alert(data,function(){
-                    $("#buttons").find("button").attr("disabled",false);
-                });
+            	if(data.message){
+            		Comm.alert(data.message,function(){
+                        $("#buttons").find("button").attr("disabled",false);
+                    });
+            	} else{
+            		Comm.alert("保存失败",function(){
+                        $("#buttons").find("button").attr("disabled",false);
+                    });
+            	}               
             }
         }
     });
+}
+
+/**
+ * 弹窗的表单页面保存后关闭该页面
+ * @param actId	动作ID
+ * @returns
+ */
+function savePageThenClose(actId){
+	$("#buttons").find("button").attr("disabled",true);
+	$("#actId").val(actId);
+	$.ajax({
+	    type: "POST",
+	    url: basePath + "document/excuteOnly.do",
+	    data:$("#groupForm").serialize(),
+	    async : false,
+	    success: function(data){
+			if(data==1){
+				Comm.alert("保存成功",function(){
+					top.dialog({id:window.name}).close();
+				});
+			} else{
+				if(data.message){
+            		Comm.alert(data.message,function(){
+                        $("#buttons").find("button").attr("disabled",false);
+                    });
+            	} else{
+            		Comm.alert("保存失败",function(){
+                        $("#buttons").find("button").attr("disabled",false);
+                    });
+            	}     			
+			}
+	    }
+	});
 }
 
 function excuteNormalAct(dynamicPageId,actId){
@@ -117,10 +208,20 @@ function goBack(dynamicPageId){
     }
 }
 
+/**
+ * 关闭当前tab页面
+ * @returns
+ */
 function closePage(){
     parent.closeTabByPageId(parent.$("#tab-menu").find("a.active").attr("data-pageid"));
 }
 
+/**
+ * 打开新的tab页面
+ * @param url	链接地址
+ * @param title	页面标题
+ * @returns
+ */
 function openPage(url,title){
     parent.addTabs({
         url: url,
@@ -168,9 +269,9 @@ function deleteRecord(actId){
 }
 
 function addModal(e){
-    title = e.title?e.title:'提示';
-    url = e.url?e.url:'';
-    content = e.content?e.content:'';
+    var title = e.title?e.title:'提示';
+    var url = e.url?e.url:'';
+    var content = e.content?e.content:'';
     top.dialog({
         title: title,
         url:url,
@@ -187,7 +288,7 @@ function addModal(e){
 };
 
 function alertMessage(message){
-    var msg = $.messager.show(message, {placement: 'top',type:'info',icon:'info-sign'});
+    $.messager.show(message, {placement: 'top',type:'info',icon:'info-sign'});
 };
 
 function dialogAlert(data){

@@ -11,7 +11,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Service;
 
 import com.github.miemiedev.mybatis.paginator.domain.PageList;
@@ -50,50 +53,58 @@ public class MetaModelOperateServiceImpl implements MetaModelOperateService {
 	@Qualifier("sysSourceRelationServiceImpl")
 	SysSourceRelationService sysSourceRelationService;
 
+
+	public Map<String,Object>  markMetaInsert(Map<String, String> map, String modelCode){
+		// 查询
+		MetaModelVO mm = metaModelServiceImpl.queryByModelCode(modelCode);
+		StringBuffer sql = new StringBuffer("insert into ").append(mm.getTableName()).append(" (");
+		StringBuilder values = new StringBuilder();
+		List<MetaModelItemsVO> list = metaModelItemsServiceImpl.queryResult("queryResult", mm.getId());
+		Map<String, Object> params = new HashMap<>();
+		Map<String,Object> result=new HashMap<>();
+		boolean isNumberPrimaryKey=false;
+
+		for(MetaModelItemsVO mmi:list){
+			String key=mmi.getItemCode();
+			String value=map.get(key);
+			Object o = this.dataConvertImpl.stringToObject(value, mmi.getItemType());
+			params.put(key, o);
+			sql.append(key);
+			sql.append(",");
+			values.append(":");
+			values.append(key);
+			values.append(",");
+			if(mmi.getUsePrimaryKey()!=null&&mmi.getUsePrimaryKey().intValue()==1){
+				if(mmi.getItemType().toLowerCase().contains("int")){
+					isNumberPrimaryKey=true;
+				}
+			}
+		}
+		if (values.length() > 0) {
+			sql.delete(sql.length() - 1, sql.length());
+			sql.append(") value(");
+			sql.append(values.delete(values.length() - 1, values.length())).append(");");
+			result.put(PARAMS,params);
+			result.put(SQL,sql.toString());
+			result.put(IS_NUMBER_PRIMARY_KEY,isNumberPrimaryKey);
+			return result;
+		}else{
+			return null;
+		}
+	}
+
 	/**
 	 * 保存
 	 */
 	public boolean save(Map<String, String> map, String modelCode) {
-		// 查询
-		MetaModelVO mm = metaModelServiceImpl.queryByModelCode(modelCode.trim());
-		StringBuffer sb = new StringBuffer("insert into ").append(mm.getTableName()).append(" (");
-		StringBuilder values = new StringBuilder();
-		List<MetaModelItemsVO> mmi = metaModelItemsServiceImpl.queryResult("queryResult", mm.getId());
-		Map<String, MetaModelItemsVO> map2 = new HashMap<String, MetaModelItemsVO>();
-		Map<String, Object> maps = new HashMap<String, Object>();
-		for (MetaModelItemsVO tmp : mmi) {
-			map2.put(tmp.getItemCode(), tmp);
+		Map<String, Object> insert=markMetaInsert(map,modelCode);
+		if(insert==null){
+			return false;
 		}
-		for (String s : map.keySet()) {
-			MetaModelItemsVO tmp = map2.get(s);
-			if (tmp != null) {
-				Object o = this.dataConvertImpl.stringToObject(map.get(s), tmp.getItemType());
-				maps.put(s, o);
-				sb.append(s);
-				sb.append(",");
-				values.append(":");
-				values.append(s);
-				values.append(",");
-			}
-		}
-		if (values.length() > 0) {
-			/**
-			 * 去除groupId modify by venson 20170320
-			 * 
-			 */
-			sb.delete(sb.length() - 1, sb.length());
-			sb.append(") value(");
-			sb.append(values.delete(values.length() - 1, values.length())).append(");");
-			NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
-			if (namedParameterJdbcTemplate.update(sb.toString(), maps) == 1){
-				return true;
-			}else{
-				return false;
-			}
-
-		}else{
-			return true;
-		}
+		Map<String, Object>  params = (Map<String, Object>)insert.get(PARAMS);
+		String sql=(String) insert.get(SQL);
+		NamedParameterJdbcTemplate namedParameterJdbcTemplate=new NamedParameterJdbcTemplate(jdbcTemplate);
+		return namedParameterJdbcTemplate.update(sql,params)==1;
 	}
 
 	/**

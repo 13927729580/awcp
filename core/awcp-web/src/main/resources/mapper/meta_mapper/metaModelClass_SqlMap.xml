@@ -33,7 +33,7 @@
 	</select>
 	
 	<select id="queryByProjectId" parameterType="Object" resultMap="rm">
-		select <include refid="metaModelClass_sql"/> from fw_mm_metaModelClass where sysId=#{sysId}
+		select <include refid="metaModelClass_sql"/> from fw_mm_metaModelClass where 1=1 <!-- sysId=#{sysId} -->
 	</select>
 	
 </mapper>

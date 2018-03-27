@@ -356,20 +356,22 @@ public class MetaModelController extends BaseController {
      * @return
      */
     @RequestMapping(value = "/remove")
-    public String remove(String id, Model model) {
+    public String remove(String[] id, Model model) {
         try {
-            if (StringUtils.isNotBlank(id)) {
-                // 查询元数据
-                MetaModelVO mmo = this.metaModelServiceImpl.get(id);
-                if (mmo != null) {
-                    this.metaModelItemsServiceImpl.removeByFk(id);
-                    this.metaModelServiceImpl.remove(mmo);
-                    String sql = "drop table " + mmo.getTableName();
-                    try {
-                        this.jdbcTemplate.execute(sql);
-                    } catch (Exception e) {
+            for(String i:id){
+            	if (StringUtils.isNotBlank(i)) {
+                    // 查询元数据
+                    MetaModelVO mmo = this.metaModelServiceImpl.get(i);
+                    if (mmo != null) {
+                        this.metaModelItemsServiceImpl.removeByFk(i);
+                        this.metaModelServiceImpl.remove(mmo);
+                        String sql = "drop table " + mmo.getTableName();
+                        try {
+                            this.jdbcTemplate.execute(sql);
+                        } catch (Exception e) {
+                        }
+                        return "redirect:queryResult.do";
                     }
-                    return "redirect:queryResult.do";
                 }
             }
 

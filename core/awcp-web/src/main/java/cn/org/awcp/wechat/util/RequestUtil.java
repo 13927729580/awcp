@@ -8,15 +8,21 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.http.HttpEntity;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,6 +83,35 @@ public class RequestUtil {
 		responseContent = EntityUtils.toString(entity, "UTF-8");
 		logger.info("响应json:"+responseContent);
 		return responseContent;
+	}
+	
+	/**
+	 * 按key=value传参
+	 * @param requestUrl
+	 * @param params
+	 * @return
+	 */
+	public static String doPost(String requestUrl,Map<String,String> params) {
+		List<NameValuePair> nvps = new ArrayList<NameValuePair>();
+		for(String key:params.keySet()){
+			nvps.add(new BasicNameValuePair(key, params.get(key)));
+		}		
+		try{	
+			URL url = new URL(requestUrl);
+			URI uri = new URI(url.getProtocol(), url.getHost() + ":" + url.getPort(),url.getPath(), url.getQuery(), null);
+			CloseableHttpClient httpclient = HttpClients.createDefault();
+			HttpPost httpPost = new HttpPost(uri);	
+			httpPost.setEntity(new UrlEncodedFormEntity(nvps, "UTF-8"));
+			CloseableHttpResponse response = httpclient.execute(httpPost);
+			String responseContent = ""; // 响应内容
+			HttpEntity entity = response.getEntity();
+			responseContent = EntityUtils.toString(entity, "UTF-8");
+			logger.info("响应json:"+responseContent);
+			return responseContent;
+		} catch(Exception e){
+			e.printStackTrace();
+		} 
+		return "";
 	}
 	
 	/** 

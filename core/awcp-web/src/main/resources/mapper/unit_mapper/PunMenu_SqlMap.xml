@@ -112,9 +112,9 @@
 				AND MENU_SQP = #{menuSeq}
 			</if>
 
-			<if test="sysId != null">
+			<!-- <if test="sysId != null">
 				AND SYSTEM_ID =#{sysId}
-			</if>
+			</if> -->
 			<if test="dynamicPageId != null">
 				AND DYNAMICPAGE_ID =#{dynamicPageId}
 			</if>
@@ -141,9 +141,9 @@
 		<if test="roleId != null">			
 			AND a.ROLE_ID = #{roleId} 
 		</if>
-		<if test="sysId != null">			
+		<!-- <if test="sysId != null">			
 			AND c.SYS_ID = #{sysId} 
-		</if>
+		</if> -->
 		<if test="whichEnd != null">			
 			AND c.WHICH_END = #{whichEnd} 
 		</if>
@@ -216,9 +216,9 @@
 		<if test="roleId != null">			
 			AND a.ROLE_ID = #{roleId} 
 		</if>
-		<if test="sysId != null">			
+		<!-- <if test="sysId != null">			
 			AND c.SYS_ID = #{sysId} 
-		</if>	 
+		</if> -->	 
 	</select>
 	<!-- 根据SystemId查询资源 -->
 	<select id="getMenuListBySystem" parameterType="Object" resultMap="rm">		
@@ -348,9 +348,9 @@
 			<if test="menuSeq!=null">
 				MENU_SEQ = #{menuSeq},
 			</if>
-			<if test="sysId!=null">
+			<!-- <if test="sysId!=null">
 				SYSTEM_ID = #{sysId},
-			</if>
+			</if> -->
 			<if test="dynamicPageId !=null">
 				DYNAMICPAGE_ID = #{dynamicPageId}
 			</if>
@@ -419,9 +419,9 @@
 	    SELECT m.* FROM p_un_resource r
 	    INNER JOIN p_un_menu m ON r.RELATE_RESO_ID = m.MENU_ID
 	    WHERE 1 = 1 AND r.RESOURCE_TYPE =1 
-	    <if test="sysId != null">			
+	    <!-- <if test="sysId != null">			
 			AND r.SYS_ID = #{sysId} 
-		</if>
+		</if> -->
 		<if test="whichEnd != null">			
 			AND r.WHICH_END = #{whichEnd} 
 		</if>			

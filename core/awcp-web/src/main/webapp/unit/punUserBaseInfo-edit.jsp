@@ -164,7 +164,7 @@
 						 <div class="col-md-11 col-sm-11 radiodiv">
 						 	<c:forEach items="${roleVos}" var="vo">
 								<c:choose>
-									<c:when test="${vo.roleId==selectedRole||(fn:contains(selectedRole,vo.roleId)&&vo.roleId!=1)}">
+									<c:when test="${(fn:contains(selectedRole,vo.roleId)&&vo.roleId!=1)}">
 										<label class="checkbox-inline"> <input name="roleList"
 											type="checkbox" value="${vo.roleId}" checked="checked">
 											${vo.roleName}

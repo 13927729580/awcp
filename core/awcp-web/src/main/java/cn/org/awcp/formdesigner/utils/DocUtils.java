@@ -483,7 +483,7 @@ public class DocUtils {
 				Boolean hiddenStatus = (Boolean) engine.eval(hiddenScript);
 				String actName = act.getName();
 				if("1".equals(isRead) && !"返回".equals(actName) && actName.indexOf("导出")==-1 
-						&& !"关闭".equals(actName) && !"打印".equals(actName)) {
+						&& !"关闭".equals(actName) && actName.indexOf("打印")==-1) {
 					hiddenStatus = true;
 				}
 				actState.put("chooseValidate", chooseValidate);

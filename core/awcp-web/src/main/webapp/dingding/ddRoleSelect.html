@@ -1,0 +1,115 @@
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>钉钉角色选择</title>
+	<link rel="shortcut icon" type="image/x-icon" href="//g.alicdn.com/dingding/web/0.2.6/img/oldIcon.ico">
+	<link rel="stylesheet" href="css/ddRoleSelect.css">
+</head>
+<body style="min-width: inherit;">
+<div id="dingapp"><div class="c_modal"><div><div>
+<div class="c_modal_head">选择</div>
+<div class="c_modal_body">
+	<div class="c_selector_panel_box">
+		<div class="c_selector_panel">
+			<div class="title"><span>选择</span><span>:</span></div>
+			<div class="body" >
+				<div class="selector_left">
+					<!-- <div class="ding_selector_input">
+						<div class="c_search_content">
+							<i class="iconfont search"></i>
+							<input value="" type="text" class="c_ding_input">
+							<span></span>
+						</div>
+					</div> -->
+					<div>
+						<div style="padding: 0px; padding-top: 0; height: 296px; overflow: auto;" id="leftContent"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="c_selector_panel">
+			<div class="title"><span>已选</span><span>：</span></div>
+			<div class="body" style="padding: 10px; overflow: auto;" id="rightContent"></div>
+		</div>
+	</div>
+	<div class="c_selector_panel_footer">
+		<div class="c_ding_btn c_ding_btn_primary" id="ok">确定</div>
+		<div class="c_ding_btn" id="close">取消</div>
+	</div>
+</div>
+</div></div></div></div>
+<script src="js/jquery.js" charset="utf-8"></script>
+<script src="../venson/js/common.js"></script>
+<script>
+	var open = "";	
+	var close = "";
+	var selectRole = {};
+	
+	$(function(){
+		var data = Comm.getData("api/execute/getDdRole");
+		var html = "";
+		for(var i=0;i<data.length;i++){
+			html += "<div>" + getGroup(data[i].group_name) + getChildren(data[i].children) + "</div>";
+		}
+		$("#leftContent").html(html);
+		
+		$(".label_tree_item[data-status]").bind("click",function(){
+			var status = $(this).attr("data-status");
+			if(status=="close"){
+				$(this).attr("data-status","open");
+				$(this).children(".iconfont").text(open);
+				$(this).next().show();			
+			} else{
+				$(this).attr("data-status","close");
+				$(this).children(".iconfont").text(close);
+				$(this).next().hide();	
+			}
+		});
+		
+		$(".label_tree_item[data-id]").bind("click",function(){
+			var id = $(this).attr("data-id");
+			var role_name = $(this).attr("data-name");
+			$("#rightContent").html(getSelectRole(id,role_name));
+		});
+		
+		$("#close").bind("click",function(){
+			top.dialog({id:window.name}).close({});
+		});
+		
+		$("#ok").bind("click",function(){
+			top.dialog({id:window.name}).close(selectRole);
+		});
+	});
+	
+	function getSelectRole(id,role_name){	
+		selectRole.role_id = id;
+		selectRole.role_name = role_name;
+		return '<li class="c_list_item" style="padding-right: 30px; position: relative;">' + 
+			   '<i class="iconfont" ></i>' + 
+			   '<span>&nbsp;</span>' +
+			   '<span>' + role_name + '</span>' + 
+			   '<i class="iconfont close" style="position: absolute; right: 10px;"></i></li>';
+	}
+	
+	function getGroup(group_name){
+		return '<div class="label_tree_item" data-status="close">' + 
+					'<i class="iconfont">' + close + '</i>' + 
+					'<span>' + group_name + '</span></div>';
+	}
+		
+	function getChildren(children){
+		var html = '<div class="label_tree_children" style="display:none;">';
+		for(var i=0;i<children.length;i++){
+			html += getChildNode(children[i]);
+		}
+		return html + '</div>';
+	}
+	
+	function getChildNode(item){
+		return '<div class="label_tree_item" data-id="' + item.ID + '" data-name="' + item.role_name + '">' + 
+			   '<i class="iconfont" style="color:#aee4fa;top:0px;margin-right:3px;" ></i>' + 
+			   '<span>' + item.role_name + '</span></div>';
+	}
+</script>
+</body>
+</html>

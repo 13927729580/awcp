@@ -1010,6 +1010,47 @@ function loadCommonComponentData(storeObject){
 				$("#paramentBody").append(str);
 			});
 		}
+		
+		//表格行操作组件
+		if((componentObject.buttons)){
+			var data = componentObject.buttons;		
+			var sortFun = function(column1,column2){
+				if(column1.order-column2.order>0){
+					return 1;
+				} else{
+					return -1;
+				}
+			}			
+			data.sort(sortFun);			
+			$.each(data, function(index, item) {
+				var selects = "<select class='form-control' name='buttons[][color]' value='" + item.color + "'>" + 
+				  "<option value='btn-default' " + (item.color=='btn-default'?"selected":"") + ">白</option>" + 
+				  "<option value='btn-primary' " + (item.color=='btn-primary'?"selected":"") + ">蓝</option>" + 
+				  "<option value='btn-success' " + (item.color=='btn-success'?"selected":"") + ">绿</option>" + 
+				  "<option value='btn-info' " + (item.color=='btn-info'?"selected":"") + ">青</option>" + 
+				  "<option value='btn-danger' " + (item.color=='btn-danger'?"selected":"") + ">红</option>" +
+				  "<option value='btn-warning' " + (item.color=='btn-warning'?"selected":"") + ">橙</option>" + 							 
+				  "</select>";
+				var str = "<tr>";			
+				str += "<td style='padding:0px;'><input class='form-control' name='buttons[][title]' type='text' value='" + 
+							item.title + "'/></td>";
+				str += "<td style='padding:0px;'><input class='form-control' name='buttons[][className]' type='text' value='" + 
+							item.className + "'/></td>";
+				str += "<td style='padding:0px;'>" + selects + "</td>";
+				str += "<td style='padding:0px;'><input class='form-control' name='buttons[][order]' type='text' value='" + 
+							item.order + "'/></td>";
+				str += "<td style='padding:0px;'><textarea class='form-control' name='buttons[][codes]' rows='4'>" 
+							+ item.codes + "</textarea></td>";
+				str += "<td style='padding:0px;'><textarea class='form-control' name='buttons[][severCodes]' rows='4'>" 
+					+ item.severCodes + "</textarea></td>";
+				str += "<td style='text-align:center;padding:0px;'><a href='javascript:void(0)' class='removeTr'>删除</a></td>";
+				str += "</tr>";
+				$("#buttonsBody").append(str);	
+			});
+		}
+		
+		
+		
 		if((componentObject.tags)){
 			var data = componentObject.tags;
 			var index=0;

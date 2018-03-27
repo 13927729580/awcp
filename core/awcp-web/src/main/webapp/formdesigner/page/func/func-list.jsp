@@ -1,130 +1,140 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %> 
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%> 
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<%@ taglib prefix="sc" uri="szcloud" %>
-<%@ page isELIgnored="false"%> 
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%
 	String path = request.getContextPath();
 	String basePath = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + path + "/";
 %>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE html>
 <html>
-<head>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<meta name="renderer" content="webkit">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>函数库列表</title>
-	<base href="<%=basePath%>">
-	<%@ include file="/resources/include/common_css.jsp" %>
+<head lang="zh">
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <%@ include file="/resources/include/common_lte_css.jsp"%>
 </head>
 <body id="main">
-	<div class="container-fluid">			
-		<div class="row" id="buttons">
-			<button type="button" class="btn btn-primary" id="addBtn"><i class="icon-plus-sign"></i>新增</button>
-			<button type="button" class="btn btn-success" id="updateBtn"><i class="icon-edit"></i>修改</button>
-			<button type="button" class="btn btn-danger" id="deleteBtn"><i class="icon-trash"></i>删除</button>		
-		</div>
-				
-		<div class="row" id="searchform">
-			<div id="collapseButton" class="in">
-				<form id="createForm" class="clearfix" method="post">
-					<input type="hidden" name="currentPage" value="0" />
-					<div class="col-md-3">
-						<div class="input-group">
-							<span class="input-group-addon">库名称</span>
-							<input name="name" class="form-control" id="name" type="text" value="${name }"/>
-						</div>
-					</div>
-					<div class="col-md-3 btn-group">
-						<button class="btn btn-primary" type="submit">提交</button>
-					</div>
-				</form>
+	<section class="content">
+    	<div class="opeBtnGrop">
+	    	<a href="#" class="btn btn-primary"  id="addBtn">新增</a>
+			<a href="#" class="btn btn-danger" id="deleteBtn">删除</a>
+			<a href="#" class="btn btn-info" id="searchBtn">搜索</a>	
+    	</div>	
+		<div class="row">
+			<div class="col-md-12">
+				<div class="box box-info">
+					<div class="box-body">
+						<form method="post" id="funcList">
+							<input type="hidden" id="currentPage" name="currentPage" value="${vos.getPaginator().getPage()}">
+							<input type="hidden" id="pageSize" name="pageSize" value="${vos.getPaginator().getLimit()}">
+							<input type="hidden" id="totalCount" name="totalCount" value="${vos.getPaginator().getTotalCount()}">	
+							<div class="row form-group">
+								<div class="col-md-3">
+									<div class="input-group">
+							        	<span class="input-group-addon">函数名</span>
+							            <input name="name" type="text" id="name" class="form-control"  value="${name}">
+						            </div>
+								</div>									
+							</div>							
+							<table class="table table-hover">  
+							    <thead>
+							        <tr>
+							        	<th class="hidden"></th>
+							        	<th data-width="" data-field="" data-checkbox="true"></th>
+							            <th data-width="30%">名称</th>
+										<th>描述</th>
+							        </tr>
+							    </thead>
+							    <tbody>
+									<c:forEach items="${vos}" var="vo" varStatus="status">
+							          <tr> 	
+							            <td class="hidden formData"><input type="hidden" value="${vo.id}"></td>
+							            <td></td>
+							            <td><a href="<%=basePath%>/func/edit.do?_selects=${vo.id}" >${vo.name}</a></td>
+										<td>${vo.description }</td>
+							          </tr>
+							       </c:forEach>
+								</tbody>
+							</table>  
+						</form>
+					</div>				
+				</div>				
 			</div>
 		</div>
-				
-		<form  method="post" id="manuList">	
-	        <input type="hidden" name="currentPage" value="${currentPage}">	
-			<div class="row" id="datatable">
-				<table class="table datatable table-bordered">
-					<thead>
-						<tr>
-							<th class="hidden"></th>
-							<th>名称</th>
-							<th>函数内容</th>
-							<th>描述</th>
-						</tr>
-					</thead>
-					<tbody>	
-					<c:forEach items="${vos}" var="vo">
-						<tr>
-							<td class="hidden formData">
-								<input id="boxs" type="hidden" value="${vo.id}"></td>
-							<td><a href="<%=basePath%>/func/edit.do?_selects=${vo.id}" >${vo.name}</a></td>
-							<td class="text-ellipsis">
-								${vo.content }
-							</td>
-							<td class="text-ellipsis">
-								${vo.description }
-							</td>
-						</tr>
-					</c:forEach>
-					</tbody>
-				</table>
-			</div>
-		</form>
-			
-		<div class="row navbar-fixed-bottom text-center" id="pagers">
-			<sc:PageNavigation dpName="vos"></sc:PageNavigation> 
-		</div>		
-	</div>
-
-	<%@ include file="/resources/include/common_js.jsp" %>
-	<script src="<%=basePath%>resources/scripts/pageTurn.js"></script>
+    </section>
+	<%@ include file="/resources/include/common_lte_js.jsp"%>
 	<script>
 		$(document).ready(function(){
-		  	var count=0;//默认选择行数为0
-		  	$('table.datatable').datatable({
-			  	checkable: true,
-			  	checksChanged:function(event){
-				  	this.$table.find("tbody tr").find("input#boxs").removeAttr("name");
-				  	var checkArray = event.checks.checks;
-				  	count = checkArray.length;//checkbox checked数量
-				  	for(var i=0;i<count;i++){//给隐藏数据机上name属性
-					  	this.$table.find("tbody tr").eq(checkArray[i]).find("input#boxs").attr("name","_selects");
-				 	}
-			  	}				
-		  	});
-		  	
-	    	//add
-			$("#addBtn").click(function(){
-				var url = "<%=basePath%>func/edit.do";
-				location.href = url;
-				return false;
-			});
-		
-			//update
-			$("#updateBtn").click(function(){
-				if(count == 1){
-					$("#manuList").attr("action","<%=basePath%>func/edit.do").submit();
-				}else{
-					alertMessage("请选择某个函数库进行操作");
+			var count = 0;//默认选择行数为0
+			$(".table").bootstrapTable({
+				pageSize:parseInt($("#pageSize").val()),
+				pageNumber:parseInt($("#currentPage").val()),
+				totalRows:parseInt($("#totalCount").val()),
+				sidePagination:"server",
+				pagination:true,
+				onPageChange:function(number, size){
+					$("#pageSize").val(size);
+					$("#currentPage").val(number);
+					$("#funcList").submit();
+				},
+				onClickRow:function(row,$element,field){
+					var $checkbox=$element.find(":checkbox").eq(0);
+					if($checkbox.get(0).checked){
+						$checkbox.get(0).checked=false;
+						$element.find("input[type='hidden']").removeAttr("name","_selects");
+					}else{
+						$checkbox.get(0).checked=true;
+						$element.find("input[type='hidden']").attr("name","_selects");
+					}
+					count = $("input[name='_selects']").length;
+				},
+				onClickCell:function(field,value,row,$element){
+
+				},
+				onCheck: function(row,$element){
+					$element.closest("tr").find("input[type='hidden']").attr("name","_selects");
+					count = $("input[name='_selects']").length;
+				},
+				onUncheck:function(row,$element){
+					$element.closest("tr").find("input[type='hidden']").removeAttr("name");
+					count = $("input[name='_selects']").length;
+				},
+				onCheckAll: function (rows) {
+					$.each(rows,function(i,e){
+						$("input[value='"+$($.trim(e["0"])).attr("value")+"']").attr("name","_selects");
+					});
+					count = $("input[name='_selects']").length;
+				},
+				onUncheckAll: function (rows) {
+					$.each(rows,function(i,e){
+						$("input[value='"+$($.trim(e["0"])).attr("value")+"']").removeAttr("name");
+					});
+					count = $("input[name='_selects']").length;
 				}
+			});
+		  	
+	    	//新增
+			$("#addBtn").click(function(){
+				location.href = basePath + "func/edit.do";
 				return false;
 			});
 		
-	    	//delete
+	    	//删除
 	    	$("#deleteBtn").click(function(){
 	    		if(count<1){
-	    			alertMessage("请至少选择一项进行操作");
+	    			Comm.alert("请至少选择一项进行操作");
 	    			return false;
 	    		}
-	    		if(window.confirm("确定删除？")){
-	        		$("#manuList").attr("action","<%=basePath%>func/delete.do").submit();
-	    		}
+	    		Comm.confirm("确定删除？",function(){
+	    			$("#funcList").attr("action",basePath + "func/delete.do").submit();
+	    		});
 				return false;
 	    	});	
+	    	
+	    	//搜索
+	    	$("#searchBtn").click(function(){
+	    		$("#funcList").attr("action",basePath + "func/list.do").submit();
+	    		return false;
+	    	});
     	});
 	</script>
 </body>

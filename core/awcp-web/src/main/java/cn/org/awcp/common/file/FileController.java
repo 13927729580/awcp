@@ -144,7 +144,7 @@ public class FileController {
         if (width > 0 || height > 0) {
             BufferedImage bi = ImageUtils.scale(input, height, width);
             if (bi != null) {
-                ImageIO.write(bi, ImageUtils.JPG, response.getOutputStream());
+                ImageIO.write(bi, ImageUtils.PNG, response.getOutputStream());
             } else {
                 return "redirect:" + fileLose();
             }

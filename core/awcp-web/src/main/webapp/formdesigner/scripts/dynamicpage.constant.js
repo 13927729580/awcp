@@ -1,18 +1,3 @@
-//var pageComponentMap = new Map();
-//pageComponentMap.put("1001", "单行文本框");
-//pageComponentMap.put("1002", "日期文本框");
-//pageComponentMap.put("1003", "多选复选框");
-//pageComponentMap.put("1004", "radio单选按钮");
-//pageComponentMap.put("1005", "多行输入框");
-//pageComponentMap.put("1006", "下拉选项框");
-//pageComponentMap.put("1007", "密码框");
-//pageComponentMap.put("1008", "列框");
-//pageComponentMap.put("1009", "标签");
-//pageComponentMap.put("1010", "隐藏框");
-//pageComponentMap.put("1011", "文件上传框");
-//pageComponentMap.put("1012", "包含组件框");
-//pageComponentMap.put("1013", "搜索组件框");
-
 var pageConstant = {
 	type : "",
 	getComponentTypes : function(){
@@ -60,6 +45,7 @@ var pageConstant = {
             this.type.put("1040","easyUI行编辑表格");
             this.type.put("1041","easyUI嵌套表格");
             this.type.put("1042","表格組件-easyUI");
+            this.type.put("1043","表格行操作组件");
             this.type.put("1101","事件控件");
             this.type.put("1102","手机省市县控件");
             // this.type.put("1101","钉钉文本输入框");
