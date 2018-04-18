@@ -1,22 +1,16 @@
 package cn.org.awcp.unit.message;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Resource;
-
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import cn.org.awcp.unit.vo.PunUserBaseInfoVO;
 import cn.org.awcp.venson.controller.base.ControllerHelper;
 import cn.org.awcp.venson.controller.base.ReturnResult;
 import cn.org.awcp.venson.controller.base.StatusCode;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 public class PunNotificationController {
@@ -41,7 +35,7 @@ public class PunNotificationController {
 		if (read != -1) {
 			sql += " and a.is_read=:read ";
 		}
-		Map<String, Object> paramMap = new HashMap<>();
+		Map<String, Object> paramMap = new HashMap<>(4);
 		paramMap.put("user", user.getUserIdCardNumber());
 		paramMap.put("type", type);
 		paramMap.put("read", read);
@@ -68,7 +62,7 @@ public class PunNotificationController {
 		if (read != -1) {
 			sql += " and a.is_read=:read ";
 		}
-		Map<String, Object> paramMap = new HashMap<>();
+		Map<String, Object> paramMap = new HashMap<>(4);
 		paramMap.put("user", user.getUserIdCardNumber());
 		paramMap.put("type", type);
 		paramMap.put("read", read);
@@ -82,7 +76,7 @@ public class PunNotificationController {
 		ReturnResult result = ReturnResult.get();
 		// 获取当前登录用户
 		String sql = "SELECT b.id,b.title,b.content,b.msg_url,b.icon,b.type,b.create_name,b.create_time,a.is_read FROM p_un_notify_user a LEFT JOIN p_un_notification b ON a.MSG_ID=b.ID WHERE b.id=:id";
-		Map<String, Object> paramMap = new HashMap<>();
+		Map<String, Object> paramMap = new HashMap<>(2);
 		paramMap.put("id", id);
 		List<Map<String, Object>> data = jdbcTemplate.queryForList(sql, paramMap);
 		if (data.isEmpty()) {
@@ -99,7 +93,7 @@ public class PunNotificationController {
 		String sql = "UPDATE p_un_notify_user SET is_read='1' WHERE msg_id=:id AND USER=:user";
 		// 获取当前登录用户
 		PunUserBaseInfoVO user = ControllerHelper.getUser();
-		Map<String, Object> paramMap = new HashMap<>();
+		Map<String, Object> paramMap = new HashMap<>(2);
 		paramMap.put("user", user.getUserIdCardNumber());
 		paramMap.put("id", id);
 		return result.setStatus(StatusCode.SUCCESS).setData(jdbcTemplate.update(sql, paramMap));

@@ -85,6 +85,7 @@
 				str += "<td style='padding:0px;'><input class='form-control' name='buttons[][order]' type='text' /></td>";
 				str += "<td style='padding:0px;'><textarea rows='4' class='form-control' name='buttons[][codes]'></textarea></td>";
 				str += "<td style='padding:0px;'><textarea rows='4' class='form-control' name='buttons[][severCodes]'></textarea></td>";
+				str += "<td style='padding:0px;'><textarea rows='4' class='form-control' name='buttons[][hideCodes]'></textarea></td>";
 				str += "<td style='text-align:center;padding:0px;'><a href='javascript:void(0)' class='removeTr'>删除</a></td>";
 				str += "</tr>";
 				$("#buttonsBody").append(str);

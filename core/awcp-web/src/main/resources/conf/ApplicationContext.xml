@@ -76,8 +76,8 @@
 	</bean>
 	<!-- mongodb客户端 -->
 	<bean id="mongoClient" class="com.mongodb.MongoClient">
-		<constructor-arg index="0" value="${mongo.url}" />
-		<constructor-arg index="1" value="${mongo.port}" />
+		<constructor-arg name="host" value="${mongo.url}" />
+		<constructor-arg name="port" value="${mongo.port}" />
 	</bean>
 	<bean id="jdbcTemplate" class="cn.org.awcp.core.domain.SzcloudJdbcTemplate">
 		<property name="dataSource" ref="dataSource"/>

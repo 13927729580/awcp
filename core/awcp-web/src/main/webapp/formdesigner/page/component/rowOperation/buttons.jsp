@@ -6,12 +6,13 @@
 	<table class="table table-bordered" id="vt" align="right">
 		<thead>
 			<tr>
-				<th width="8%">名称</th>
-				<th width="8%">ClassName</th>
+				<th width="6%">名称</th>
+				<th width="6%">ClassName</th>
 				<th width="4%">颜色</th>
 				<th width="4%">序号</th>
-				<th width="36%">客户端脚本</th>
-				<th width="36%">服务端脚本</th>
+				<th width="24%">客户端脚本</th>
+				<th width="24%">服务端脚本</th>
+				<th width="24%">隐藏脚本</th>
 				<th width="4%">删除</th>
 			</tr>
 		</thead>

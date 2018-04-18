@@ -11,6 +11,7 @@ import cn.org.awcp.formdesigner.service.AuthorityCompoentServiceImpl;
 import cn.org.awcp.formdesigner.service.AuthorityGroupWorkFlowNodeServiceImpl;
 import cn.org.awcp.venson.controller.base.ControllerHelper;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -249,7 +250,7 @@ public class DocUtils {
 
 	public static void calculateCompents(DocumentVO docVo, Map<String, String> others, Map<String, JSONObject> status,
 			List<JSONObject> components, Map<String, List<Map<String, String>>> dataMap, ScriptEngine engine,
-			String isRead) throws ScriptException {
+			String isRead,Map<String, Object> root) throws ScriptException {
 		boolean isCH = ControllerHelper.getLang() == Locale.SIMPLIFIED_CHINESE;
 		if (components != null && components.size() > 0) {
 			for (int i = 0; i < components.size(); i++) {
@@ -393,6 +394,16 @@ public class DocUtils {
 						Object vale2 = (String) engine.eval(script);
 						others.put(component.getString("name"), vale2 + "");
 						break;
+					case 1043:
+						JSONArray buttons = component.getJSONArray("buttons");
+						for(Object obj : buttons) {
+							Map<?, ?> map = (Map<?, ?>)obj;
+							String className = (String) map.get("className");
+							String hideCodes = (String) map.get("hideCodes");
+							others.put("rowButton_" + className,
+									String.valueOf(DocUtils.computeStatus(hideCodes, engine)));
+						}
+						break;
 					case 1102:
 						o.put("hidden",
 								String.valueOf(DocUtils.computeStatus(component.getString("hiddenScript"), engine)));
@@ -415,6 +426,11 @@ public class DocUtils {
 						}
 						others.put("pcaValue_" + component.getString("name"), getListStr(valueList));
 						others.put("pcaName_" + component.getString("name"), getListStr(nameList));
+						break;
+					case 1103:
+						String dataSource = component.getString("dataSource");
+						String dataAlias = component.getString("dataAlias");
+						root.put(dataAlias,  engine.eval(dataSource));
 						break;
 					// 下面几种，只需执行同一段代码，所以没有break;计算值、隐藏、只读、禁用
 					case 1001:

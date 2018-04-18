@@ -107,8 +107,7 @@
             /common/file/preview.do =anon
             /api/execute/** =anon,kickout
             /wechat/*.do=anon
-            /wxPay/jsPayNotify.do=anon
-            /wxPay/webNotify.do=anon
+            /api/wechat/**=anon
             /**/*.do= authc,kickout
             /api/**= authc,kickout
             <!-- 

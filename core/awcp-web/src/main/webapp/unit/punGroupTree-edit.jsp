@@ -38,7 +38,7 @@
 	</section>
 	<script src="<%=basePath%>template/AdminLTE/js/jquery.min.js"></script>
 	<script src="<%=basePath%>resources/scripts/en_Us_error_message.js"></script>
-	<script src="<%=basePath%>base/resources/artDialog/dist/dialog-plus-min.js"></script>
+	<script src="<%=basePath%>template/AdminLTE/js/artDialog/dialog-plus.js"></script>
 	<script src="<%=basePath%>venson/js/common.js"></script>	
 	<script src="<%=basePath%>resources/plugins/zTree_v3/js/jquery.ztree.all-3.5.js"></script>
 	<script>

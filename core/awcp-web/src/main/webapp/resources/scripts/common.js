@@ -6,26 +6,6 @@ function gotoUrl(obj){
 	location.href = basePath + "document/view.do?" + params;
 }
 
-function delOneRecord(obj){
-	dialogConfirm("是否确认删除?",function(){
-        $.ajax({
-            type: "POST",
-            url: basePath + "api/execute/delOneRecord",
-            data:obj,
-            async : false,
-            success: function(data){
-                if(data.data==1){
-                    Comm.alert("删除成功",function(){
-                        $("#groupForm").submit();
-                    });
-                } else{
-                    Comm.alert("删除失败");
-                }
-            }
-        });
-    });
-}
-
 /**
  * 列表页面进行搜索
  * @returns

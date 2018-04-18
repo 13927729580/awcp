@@ -35,56 +35,56 @@
 									</c:if>
 								</legend>
 								<div class="form-group">   
-								 	<label class="col-md-1 control-label required">组名：</label>
+								 	<label class="col-md-1 control-label required">组名</label>
 						            <div class="col-md-4">
 						            	<input type="hidden" name="groupId" value="${vo.groupId}"/>
 						                <input name="groupChName" class="form-control" id="groupChName" type="text" placeholder="" value="${vo.groupChName}">
 						            </div> 
-									<label class="col-md-2 control-label required">组简称：</label>
+									<label class="col-md-2 control-label required">组简称</label>
 						            <div class="col-md-4">
 						                <input name="groupShortName" class="form-control" id="groupShortName" type="text" placeholder="" value="${vo.groupShortName}">
 						            </div> 
 							 </div>
 								  <div class="form-group">   
-								 	<label class="col-md-1 control-label">传真：</label>
+								 	<label class="col-md-1 control-label">传真</label>
 						            <div class="col-md-4">
 						                <input name="fax" class="form-control" id="fax" type="text" placeholder="" value="${vo.fax}">
 						            </div> 
-						            <label class="col-md-2 control-label required">组名（英文）：</label>
+						            <label class="col-md-2 control-label required">组名（英文）</label>
 						            <div class="col-md-4">
 						                <input name="groupEnName" class="form-control" id="groupEnName" type="text" placeholder="" value="${vo.groupEnName}">
 						            </div>
 								 </div>
 								 <div class="form-group">   
-								 	<label class="col-md-1 control-label required">	组织机构代码：</label>
+								 	<label class="col-md-1 control-label required">	组织机构代码</label>
 						            <div class="col-md-4">
 						                <input name="orgCode" class="form-control" id="orgCode" type="text" placeholder="" value="${vo.orgCode}">
 						            </div> 
-						            <label class="col-md-2 control-label">地址：</label>
+						            <label class="col-md-2 control-label">地址</label>
 						            <div class="col-md-4">
 						                <input name="groupAddress" class="form-control" id="groupAddress" type="text" placeholder="" value="${vo.groupAddress}">
 						            </div> 
 								 </div>
 							
 								  <div class="form-group">   
-								 	<label class="col-md-1 control-label">邮编：</label>
+								 	<label class="col-md-1 control-label">邮编</label>
 						            <div class="col-md-4">
 						                <input name="zipCode" class="form-control" id="zipCode" type="text" placeholder="" value="${vo.zipCode}">
 						            </div> 
-						            <label class="col-md-2 control-label">联系电话：</label>
+						            <label class="col-md-2 control-label">联系电话</label>
 						            <div class="col-md-4">
 						                <input name="contactNumber" class="form-control" id="contactNumber" type="text" placeholder="" value="${vo.contactNumber}">
 						            </div>
 								 </div>
 								 <div class="form-group">   
-						            <label class="col-md-1 control-label">业务范围：</label>
+						            <label class="col-md-1 control-label">业务范围</label>
 						            <div class="col-md-4">
 						                <input name="groupBusinessSphere" class="form-control" id="groupBusinessSphere" type="text" placeholder="" value="${vo.groupBusinessSphere}">
 						            </div> 
 								 </div>
 								 <div class="form-group"><!-- 表单提交按钮区域 -->
 					            <div class="col-md-offset-2 col-md-10">
-					              	<button type="submit" class="btn btn-success" id="saveBtn"><i class="icon-save"></i>保存</button>
+					              	<a class="btn btn-success" id="saveBtn"><i class="icon-save"></i>保存</a>
 					            </div>
 					        </div>
 						</form>
@@ -96,110 +96,24 @@
 	<script src="<%=basePath%>resources/scripts/en_Us_error_message.js"></script>
 	<script src="<%=basePath%>template/AdminLTE/js/jquery.min.js"></script>
 	<script src="<%=basePath%>venson/js/common.js"></script>	
-	<script type="text/javascript" src="<%=basePath%>resources/plugins/tips/jquery.poshytip.js"></script>
-	<script type="text/javascript" src="<%=basePath%>resources/plugins/formValidator4.1.0/formValidator-4.1.0.a.js" charset="UTF-8"></script>
-	<script type="text/javascript" src="<%=basePath%>resources/plugins/formValidator4.1.0/formValidatorRegex.js" charset="UTF-8"></script>
 	<script type="text/javascript">
 		$(function() {
-			$.formValidator.initConfig({
-				formID : "groupForm",
-				debug : false,
-				onSuccess : function() {
-					$("#groupForm").submit();
-				},
-				onError : function() {
-					Comm.alert("错误，请看提示")
+		    $("#saveBtn").on("click",function(){
+                var $required=$("#groupForm .required");
+                var len = $required.length;
+                for (var i=0;i<len;i++ ) {
+                    var _dom = $required.eq(i);
+                    var text=_dom.text();
+                    var dataItemCode=$(_dom).next("div").children("input[type='text']");
+                    if(!dataItemCode.val()){
+                        Comm.alert(text+"不能为空！");
+                        return;
+					}
+
 				}
-			});
-			$("#groupChName").formValidator({
-				onShow : "请输入组名",
-				onFocus : "至少1位",
-				onCorrect : "符合要求"
-			}).inputValidator({
-				min : 1,
-				max : 255,
-				empty : {
-					leftEmpty : false,
-					rightEmpty : false,
-					emptyError : "不能有空符号"
-				},
-				onError : "1~255位"
-			});
-			$("#groupShortName").formValidator({
-				onShow : "请输入组简称",
-				onFocus : "至少1位",
-				onCorrect : "符合要求"
-			}).inputValidator({
-				min : 1,
-				max : 30,
-				empty : {
-					leftEmpty : false,
-					rightEmpty : false,
-					emptyError : "不能有空符号"
-				},
-				onError : "1~30位"
-			});
-			$("#fax").formValidator({
-				empty : true,
-				onShow : "请输入传真",
-				onFocus : "格式例如：0755-81234567或81234567"
-			}).regexValidator(
-					{
-						regExp : "^(([0\\+]\\d{2,3}-)?(0\\d{2,3})-)?(\\d{7,8})(-(\\d{3,}))?$",
-						onError : "格式不正确"
-					});
-			$("#groupEnName").formValidator({
-				onShow : "请输入组名称（英文）",
-				onFocus : "至少1位",
-				onCorrect : "符合要求"
-			}).inputValidator({
-				min : 1,
-				max : 100,
-				empty : {
-					leftEmpty : false,
-					rightEmpty : false,
-					emptyError : "不能有空符号"
-				},
-				onError : "1~100位"
-			});
-
-			$("#orgCode").formValidator({
-				onFocus : "请输入组织机构代码,例如12345678-9",
-				onCorrect : "符合要求"
-			}).regexValidator({
-				regExp : "^[a-zA-Z0-9]{8}-[a-zA-Z0-9]$",
-				onError : "请输入正确的组织机构代码"
-			});
-			$("#groupAddress").formValidator({
-				onShow : "请输入地址",
-			}).inputValidator({
-				max : 255,
-				onError : "最长255位"
-			});
-			$("#zipCode").formValidator({
-				onShow : "请输入邮编",
-			}).inputValidator({
-				max : 10,
-				onError : "最长10位"
-			});
-			$("#contactNumber")
-					.formValidator({
-						empty : true,
-						onShow : "请输入联系电话",
-						onFocus : "格式例如：0755-81234567或81234567"
-					}).regexValidator(
-							{
-								regExp : "^(([0\\+]\\d{2,3}-)?(0\\d{2,3})-)?(\\d{7,8})(-(\\d{3,}))?$",
-								onError : "格式不正确"
-							});
-			$("#groupBusinessSphere").formValidator({
-				onShow : "请输入业务范围",
-			}).inputValidator({
-				max : 255,
-				onError : "最长255位"
-			});
-
-		})
+                $("#groupForm").submit();
+            })
+        })
 	</script>
 
 

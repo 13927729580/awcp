@@ -6,6 +6,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import cn.org.awcp.core.domain.SzcloudJdbcTemplate;
+import cn.org.awcp.venson.controller.base.ReturnResult;
+import cn.org.awcp.venson.controller.base.StatusCode;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -77,7 +80,7 @@ public class MetaModelController extends BaseController {
     @Qualifier("sysSourceRelationServiceImpl")
     SysSourceRelationService sysSourceRelationService;
     @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private SzcloudJdbcTemplate jdbcTemplate;
 
     @ResponseBody
     @RequestMapping(value = "/addByDb")
@@ -358,8 +361,8 @@ public class MetaModelController extends BaseController {
     @RequestMapping(value = "/remove")
     public String remove(String[] id, Model model) {
         try {
-            for(String i:id){
-            	if (StringUtils.isNotBlank(i)) {
+            for (String i : id) {
+                if (StringUtils.isNotBlank(i)) {
                     // 查询元数据
                     MetaModelVO mmo = this.metaModelServiceImpl.get(i);
                     if (mmo != null) {
@@ -385,29 +388,34 @@ public class MetaModelController extends BaseController {
     /**
      * 创建数据库表
      *
-     * @param idss
-     * @param model
+     * @param id
      * @return
      */
-    @RequestMapping(value = "/createTable")
-    public String createTable(@RequestParam(value = "id") String idss, Model model) {
-        MetaModelVO vo = this.metaModelServiceImpl.get(idss);
+    @RequestMapping(value = "/createTable", method = RequestMethod.POST)
+    @ResponseBody
+    public ReturnResult createTable(@RequestParam(value = "id") String id) {
+        ReturnResult result = ReturnResult.get();
+        MetaModelVO vo = this.metaModelServiceImpl.get(id);
         // 判断表是否存在
-        if (metaModelServiceImpl.tableIsExist(vo.getTableName())) {
-            jdbcTemplate.update("drop table " + vo.getTableName());
-        }
         try {
+            jdbcTemplate.beginTranstaion();
+            if (metaModelServiceImpl.tableIsExist(vo.getTableName())) {
+                jdbcTemplate.update("drop table " + vo.getTableName());
+            }
             List<MetaModelItemsVO> pl = this.metaModelItemsServiceImpl.queryResult("queryResult", vo.getId());
             String sql = createTables.getSql(vo, pl);
             jdbcTemplate.update(sql);
-            model.addAttribute("msg", 1);
+            vo.setModelSynchronization(true);
+            this.metaModelServiceImpl.update("update", vo);
+            jdbcTemplate.commit();
+            result.setStatus(StatusCode.SUCCESS);
         } catch (Exception e) {
+            jdbcTemplate.rollback();
             logger.info("ERROR", e);
-            model.addAttribute("msg", 0);
+            result.setStatus(StatusCode.FAIL.setMessage(e.getMessage()));
         }
-        vo.setModelSynchronization(true);
-        this.metaModelServiceImpl.update("update", vo);
-        return "redirect:../metaModel/queryResult.do?currentPage=" + 1;
+
+        return result;
     }
 
     /**

@@ -289,7 +289,7 @@
 				minView : 2,
 				format : dateType
 			});
-		} else if(dateType=="yyyy-mm-dd HH:ii" || dateType=="dd/mm/yyyy HH:ii"){
+		} else if(dateType=="yyyy-mm-dd hh:ii" || dateType=="dd/mm/yyyy hh:ii"){
 			$(id).datetimepicker({
 				language : 'zh-CN',
 				weekStart : 1,
@@ -300,7 +300,7 @@
 				minView : 0,
 				format : dateType
 			});
-		} else if(dateType=="yyyy-mm-dd HH:ii:ss"){
+		} else if(dateType=="yyyy-mm-dd hh:ii:ss"){
 			$(id).datetimepicker({
 				language : 'zh-CN',
 				weekStart : 1,
@@ -311,7 +311,7 @@
 				minView : 0,
 				format : dateType
 			});
-		} else if(dateType=="HH:ii"){
+		} else if(dateType=="hh:ii"){
 			$(id).datetimepicker({
 				language : 'zh-CN',
 				weekStart : 1,
@@ -508,7 +508,7 @@
 <#-------------------------------------------下拉框select end------------------------------------------>
 <#-------------------------------------------标签------------------------------------------>
 <#macro convertLabel c >
-	<p  class="control-label <#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['hidden'])?? && status['</#noparse>${c['name']}<#noparse>']['hidden'] == 'true'>hidden</#if></#noparse>
+	<p  class="<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['hidden'])?? && status['</#noparse>${c['name']}<#noparse>']['hidden'] == 'true'>hidden</#if></#noparse>
 		<#if c['isRequired']?? && c['isRequired'] == '1'>
 			required
 		<#elseif c['isRequired']?? && c['isRequired'] == '3'>	
@@ -1092,6 +1092,7 @@
 		  			var options ={
 			            allowFileManager : false,
 			            allowUpload : true,
+						urlType:"domain",//绝对路径
 			            uploadJson : basePath+'common/file/uploadImg.do',
 			            height:("${c['imageHeight']!'300'}"?"${c['imageHeight']!'300'}px":"300px"),
 			            width:("${c['imageWidth']!'100%'}"?"${c['imageWidth']!'100%'}":"100%"),
@@ -1365,7 +1366,13 @@
 	<td class="operationTd">
 		<#if c['buttons']?? && c['buttons']?size gt 0>
  			<#list c['buttons'] as button>
- 				<a class="btn btn-sm ${button.className!''} ${button.color!''}" href="javascript:void(0)"></i>${button.title!""}</a>
+ 				<a class="btn btn-sm ${button.className!''} ${button.color!''}" href="javascript:void(0)"		
+ 				<#noparse>
+					<#if (others['rowButton_</#noparse>${button.className!''}<#noparse>'])?? && others['rowButton_</#noparse>${button.className!''}<#noparse>']=="true">
+						style="display:none;"
+					</#if>
+				</#noparse>
+ 				></i>${button.title!""}</a>
  			</#list>  
  		</#if>
 	</td>

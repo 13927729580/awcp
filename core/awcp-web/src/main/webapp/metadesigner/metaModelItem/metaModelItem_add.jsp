@@ -59,16 +59,15 @@
 					<label class="col-md-2 control-label required">属性类型</label>
 					<div class="col-md-4">
 						<select data-placeholder="请选择属性类型..." name="itemType" class="chosen-select form-control" tabindex="2">
-									<option value="int">int</option>
-									<option value="bigInt">bigInt</option>
-									<option value="varchar" selected="selected">varchar</option>
-									<option value="bool">bool</option>
-									<option value="boolean">boolean</option>
-									<option value="float">float</option>
-									<option value="double">double</option>
-									<option value="date">date</option>
-									<option value="1">一对一</option>
-									<option value="2">多对一</option>
+							<option value="int">int</option>
+							<option value="bigint">bigint</option>
+							<option value="float">float</option>
+							<option value="double">double</option>
+							<option value="varchar">varchar</option>
+							<option value="char">char</option>
+							<option value="text">text</option>
+							<option value="date">date</option>
+							<option value="datetime">datetime</option>
 						</select>
 					</div>
 					<label class="col-md-2 control-label">属性长度</label>
@@ -119,7 +118,7 @@
 				
 				<div class="form-group"><!-- 表单提交按钮区域 -->
 		            <div class="col-md-offset-2 col-md-10">
-		              	<button type="submit" class="btn btn-success" id="saveBtn"><i class="icon-save"></i>保存</button>
+						<a class="btn btn-success" id="saveBtn"><i class="icon-save"></i>保存</a>
 						<a href="<%=basePath %>metaModelItems/queryResultByParams.do?id=${modelId }" class="btn" id="undoBtn"><i class="icon-undo"></i>取消</a>
 		            </div>
 		        </div>
@@ -130,7 +129,6 @@
 		<%@ include file="../../resources/include/common_form_js.jsp" %>
 		<script type="text/javascript">
        		$(document).ready(function(){
-       			var itemType=$("#itemType").val();
        			if('${type}'=='yes'){
        				$("#usePrimaryKeys").attr("disabled","true");
        			}
@@ -148,10 +146,17 @@
 		
 		
 		$(function(){
-		   $.formValidator.initConfig({formID:"groupForm",debug:false,onSuccess:function(){
-				$("#groupForm").submit();
-				  return false;
-		    },onError:function(){alert("请按提示正确填写内容");}});
+		    $("#saveBtn").on("click",function(){
+                var itemType=$("select[name='itemType']").val();
+                var itemLength=$.trim($("input[name='itemLength']").val());
+                if(itemType!="date"&&itemType!="datetime"&&itemType!="text"&&itemLength.length==0){
+                    alertMessage(itemType+"类型必须指定长度");
+                    return false;
+                }
+                $("#groupForm").submit();
+
+			})
+		   $.formValidator.initConfig({formID:"groupForm",debug:false,onError:function(){alertMessage("请按提示正确填写内容");}});
 		  	$("#itemCode").formValidator({empty:false,onShow:"请输入资源信息"}).inputValidator({min:1,max:225,onError:"请输入0-225长度的数据"}).regexValidator({regExp:"^[a-zA-Z][a-zA-Z0-9_]*$",onError:"输入格式不正确"}).ajaxValidator({
 		  		type:"get",
 		  		url:"metaModelItems/dataValidate.do",
@@ -165,7 +170,7 @@
 		  			}
 		  		},
 		  		buttons:$("saveBtn"),
-		  		error: function () { alert("元数据属性已经存在，请重新输入"); },
+		  		error: function () { alertMessage("元数据属性已经存在，请重新输入"); },
                 onerror: "请不要重复添加",
                 onwait: "正在验证是否重复,请稍候..."
 		  	});

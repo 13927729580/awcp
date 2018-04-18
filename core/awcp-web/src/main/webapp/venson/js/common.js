@@ -40,8 +40,8 @@ Comm.deleteObject = function (url, table) {
     }
     var row = $table.bootstrapTable('getSelections');
     if (row.length <= 0){
-    	alert("请勾选要删除的对象！");	
-    }        
+    	alert("请勾选要删除的对象！");
+    }
     else {
     	if(confirm('是否要删除选择的' + row.length + '个对象')){
     		$.each(row, function (i, e) {
@@ -265,7 +265,7 @@ Comm.checkError = function (id) {
     })
     return hasError;
 }
-    
+
 /* 根据页面存在的表单自动获取参数 */
 Comm.getParameters = function (id) {
     id = (id) ? id : "#saveForm";
@@ -329,7 +329,7 @@ Comm.setFormData = function (data, id) {
         	}else{
         		this.checked=false;
         	}
-        	
+
         }
     })
 }
@@ -356,7 +356,7 @@ Comm.getData = function (url, params, cache) {
                              	try{
                              		data=JSON.parse(data);
                              	}catch (e) {
-         							
+
          						}
                              }
                              // parent.window.cache[name] = data;
@@ -397,7 +397,7 @@ Comm.getData = function (url, params, cache) {
                         	try{
                         		data=JSON.parse(data);
                         	}catch (e) {
-    							
+
     						}
                         }
                     }else if(d.status === -4){
@@ -410,7 +410,7 @@ Comm.getData = function (url, params, cache) {
                     }
             	}else{
             		data = d;
-            	}                
+            	}
             },
             error: function () {
             	Comm.alert("网络出错，请联系管理员！", "error");
@@ -511,34 +511,34 @@ Comm.post = function (url, response, params) {
 Comm.fileTypeJudge=function(file,str){
 	var $file=$(file);
 	var rightFileType;
-    var pojo;  
-    if (str == "photo") {  
+    var pojo;
+    if (str == "photo") {
         rightFileType = ["jpg","png","jpeg"];
-        pojo = "图片";  
-    } else if (str == "doc") {  
+        pojo = "图片";
+    } else if (str == "doc") {
         rightFileType = ["docx","doc","xls","xlsx","ppt","htm","html","txt","zip"];
-        pojo = "文档";  
+        pojo = "文档";
     }else if (str == "media") {
         rightFileType = ["swf","flv","mp3","mp4","m4v","wav","wma","wmv","mid","avi","mpg","asf","rmvb","rm"];
         pojo = "音频";
     }else {
-        return;  
-    }  
-    var fileType = $file.val().substring($file.val().lastIndexOf(".") + 1);  
+        return;
+    }
+    var fileType = $file.val().substring($file.val().lastIndexOf(".") + 1);
     // 得到needle的类型
-    var type = typeof fileType;  
+    var type = typeof fileType;
     if(type == 'string' || type =='number') {
-        for(var i=0;i<rightFileType.length;i++) {  
-            if(rightFileType[i] == fileType) {  
-            	return true; 
-            }  
-        }  
-    }  
+        for(var i=0;i<rightFileType.length;i++) {
+            if(rightFileType[i] == fileType) {
+            	return true;
+            }
+        }
+    }
     this.alert("请上传"+pojo+"格式文件！");
     $file.val("");
-    return false;  
+    return false;
 }
-  
+
 
 Comm.uploadFile = function (handle, tag,type) {
     if(type){
@@ -613,19 +613,19 @@ Comm.clearSearch = function(){
 		var textArr = textNames.split("@");
 		for(var i=0;i<textArr.length;i++){
 			Comm.set("search_text" + textArr[i],"");
-		}	
+		}
 	}
 	if(selectNames){
 		var selectArr = selectNames.split("@");
 		for(var i=0;i<selectArr.length;i++){
 			Comm.set("search_select" + selectArr[i],"");
-		}	
+		}
 	}
 	if(dateSelectName){
 		var dateSelectArr = dateSelectName.split("@");
 		for(var i=0;i<dateSelectArr.length;i++){
 			Comm.set("search_dateSelect" + dateSelectArr[i],"");
-		}	
+		}
 	}
 }
 
@@ -670,14 +670,14 @@ Comm.openWin=function(url,iHeight,iWidth){
 	// resizable=yes,location=no, status=no');
 }
 
-Comm.isMobile=function() {  
+Comm.isMobile=function() {
    var userAgentInfo = navigator.userAgent;
-   var Agents = ["Android", "iPhone", "SymbianOS", "Windows Phone", "iPad", "iPod"];  
-   var flag = false;  
-   for (var v = 0; v < Agents.length; v++) {  
-       if (userAgentInfo.indexOf(Agents[v]) !=-1) { flag = true; break; }  
-   }  
-   return flag;  
+   var Agents = ["Android", "iPhone", "SymbianOS", "Windows Phone", "iPad", "iPod"];
+   var flag = false;
+   for (var v = 0; v < Agents.length; v++) {
+       if (userAgentInfo.indexOf(Agents[v]) !=-1) { flag = true; break; }
+   }
+   return flag;
 }
 
 Comm.go=function(url){
@@ -695,7 +695,7 @@ Comm.setSelectData=function($tag,data){
 
 Comm.dialog=function(option){
 	if(option.type==""){
-		
+
 	}
 }
 
@@ -710,6 +710,7 @@ Comm.alert=function(message,fn){
 		dd.device.notification.alert(_default);
 	}else if(top.hasOwnProperty("dialog")){
 		top.dialog({
+            id:"alert_"+Comm.uuid(),
 			title: '提示框',
 			content: message,
 			skin:"col-md-4",
@@ -747,6 +748,7 @@ Comm.confirm=function(message,fn){
 		});
 	}else if(top.hasOwnProperty("dialog")){
 		top.dialog({
+            id:"confirm_"+Comm.uuid(),
 			title: '确认框',
 			content: message,
 			skin:"col-md-4",
@@ -770,6 +772,7 @@ Comm.prompt=function(content,ok, defaultValue){
     defaultValue = defaultValue || '';
     if(top.hasOwnProperty("dialog")){
         top.dialog({
+            id:"prompt_"+Comm.uuid(),
             fixed: true,
             lock: true,
             title: '提示框',
@@ -860,7 +863,7 @@ Comm.validDDParam=function(id){
 		}
 		else{
 			label = $(_dom).parentsUntil(".input_control").parent().find(".colFirst").find("label");
-		}	
+		}
 		//如果为空则提示
 		if (!_dom.val()) {
 			dd.device.notification.toast({
@@ -868,7 +871,7 @@ Comm.validDDParam=function(id){
 			    duration: 1
 			});
 			return false;
-		} 
+		}
 	}
 	return true;
 }
@@ -926,7 +929,7 @@ Comm.validForm=function(id){
 					}
 				}
 			}
-		} 
+		}
 	}
 	return true;
 }
@@ -1017,7 +1020,7 @@ Comm.workReject=function(that){
 	    	});
 	    },
 	    onFail : function(err) {}
-	});	
+	});
 }
 
 Comm.workUndo=function(that){
@@ -1034,7 +1037,7 @@ Comm.workTransmit=function(that){
 	var actId = $(that).attr("id");
 	$("#actId").val(actId);
 	dd.biz.contact.choose({
-		"corpId":dd_config.corpId,	
+		"corpId":dd_config.corpId,
 		 onSuccess: function(data){
 				var selectIds=[];
 				var selectUserNames=[];
@@ -1119,10 +1122,11 @@ Comm.ddConfig = function(){
 ;(function(){
 	var userAgentInfo = navigator.userAgent;
 	if(userAgentInfo.indexOf("DingTalk")!=-1 && location.href.indexOf("goto.html")==-1){
-		var No = Comm.cookie("secretKey");		
-		if(!No){		
-			var url = baseUrl + "dingding/goto.html?url=" + encodeURIComponent(location.href);
-			location.href = url;	
-		}
-	}	
+		$.get(baseUrl+"api/getUserInfo",function(data){
+            if(data.status==-4){
+                var url = baseUrl + "dingding/goto.html?url=" + encodeURIComponent(location.href);
+                location.href = url;
+            }
+        })
+	}
 })();

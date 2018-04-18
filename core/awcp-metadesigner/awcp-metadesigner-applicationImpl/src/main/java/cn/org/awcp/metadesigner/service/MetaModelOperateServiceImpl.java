@@ -66,19 +66,21 @@ public class MetaModelOperateServiceImpl implements MetaModelOperateService {
 
 		for(MetaModelItemsVO mmi:list){
 			String key=mmi.getItemCode();
-			String value=map.get(key);
-			Object o = this.dataConvertImpl.stringToObject(value, mmi.getItemType());
-			params.put(key, o);
-			sql.append(key);
-			sql.append(",");
-			values.append(":");
-			values.append(key);
-			values.append(",");
 			if(mmi.getUsePrimaryKey()!=null&&mmi.getUsePrimaryKey().intValue()==1){
 				if(mmi.getItemType().toLowerCase().contains("int")){
 					isNumberPrimaryKey=true;
 				}
 			}
+			if(map.containsKey(key)){
+				String value=map.get(key);
+				Object o = this.dataConvertImpl.stringToObject(value, mmi.getItemType());
+				params.put(key, o);
+				sql.append(key);
+				sql.append(",");
+				values.append(":");
+				values.append(key);
+				values.append(",");			
+			}			
 		}
 		if (values.length() > 0) {
 			sql.delete(sql.length() - 1, sql.length());

@@ -16,9 +16,9 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	<script src="<%=basePath %>payment/wexin/js/qrcode.js"></script>
 </head>
 <body>	
-	<table style="width: 600px;border:1px solid #E0E0E0;border-spacing: 0px;border-collapse: collapse;" >
+	<table style="margin:0 auto;width: 600px;border:1px solid #E0E0E0;border-spacing: 0px;border-collapse: collapse;" >
 		<tr>
-		<td style="border:1px solid #E0E0E0;padding:12px;">
+		<td style="border:1px solid #E0E0E0;padding:12px;text-align:center;">
 			<span style="font-size: 40px;font-weight: bold;margin-left: 30px;">收银台</span></td>
 		</tr>
 		<tr>
@@ -36,8 +36,8 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			 	<span style="font-size: 12px;font-weight: lighter;margin-left: 6px;color: darkgray;">亿万用户的选择,更快更安全</span>	
 			 	<span style="float: right;font-size: 16px;margin-top:6px;">支付:<span style="color:#ff8040">${totalAmount }</span>元</span>
 			 </div>
-			<div id="qrcode" ></div>	
-			<div><img src="<%=basePath%>payment/wexin/img/desc.png" width="200" height="60"/></div>
+			<div id="qrcode" style="text-align: center;"></div>	
+			<div style="text-align: center;"><img src="<%=basePath%>payment/wexin/img/desc.png" width="200" height="60"/></div>
 			</td>
 		</tr>
 	</table>
@@ -56,39 +56,32 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		
 		function getNotice(){
 			$.ajax({		
-				type: "POST",		
+				type: "get",		
 				url: basePath + "api/execute/getOrderState",		
 				async : false,	
 				data:{
 					orderId:orderId
 				},
 				success: function(data){			
-					if(data.data.state==1){
-						clearTimeout(twork);
+					if(data.data==1){
+                        clearInterval(twork);
 						alert("支付成功。");
-						if(window.name=="main"){
-							location.href = basePath + "awcp/recharge.html";
-						}
-						top.dialog({id : window.name}).remove();
+                        top.dialog({id :window.sessionStorage.getItem("dialog_id")}).close();
 				        return false;
 					}
 				}	
 			});
 			seconds++;
 			if(seconds>300){
-				clearTimeout(twork);
-				if(window.name=="main"){
-					location.href = basePath + "awcp/recharge.html";
-				}
-				top.dialog({id : window.name}).remove();
+                clearInterval(twork);
+				alert("支付超时，支付失败");
+                top.dialog({id :window.sessionStorage.getItem("dialog_id")}).close();
 		        return false;
 			}
 			
-			twork = setTimeout("getNotice()",1000);
 		}
-		
-		getNotice();
-		
+        twork= window.setInterval("getNotice()",1000);
 	</script>
+</body>
 </html>
 

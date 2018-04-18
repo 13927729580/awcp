@@ -764,10 +764,10 @@ var tagIndex = 0;
  * 加载组件的通用属性值；
  */
 function loadCommonComponentData(storeObject){
-	//alert(333);
-	//alert(storeObject.content);
-	var componentObject = eval("("+storeObject.content+")");
+	var componentObject = JSON.parse(storeObject.content);
 	if(componentObject.pageId != null){
+		var componentType = componentObject.componentType;
+		
 		if(componentObject.pageId)	$("#pageId").val(componentObject.pageId);
 		if(componentObject.name)	$("#name").val(componentObject.name);
 		$("#name").attr("readonly","true");
@@ -781,15 +781,13 @@ function loadCommonComponentData(storeObject){
 		if(componentObject.funType) $("#funType").val(componentObject.funType);
 		/**新增属性 end*/
 		
-		if(componentObject.description) 	$("#description").val(componentObject.description);
-		if(componentObject.order) 	$("#order").val(componentObject.order);
-		if(componentObject.style) 	$("#style").val(componentObject.style);
-		if(componentObject.alloworderby) { $("#alloworderby").val(componentObject.alloworderby).trigger("change");}
-		if(componentObject.orderby) { $("#orderby").val(componentObject.orderby).trigger("change");}
-		//if(componentObject.css) 	$("#css").val(componentObject.css);
-		//if(componentObject.style) 	$("#style").val(componentObject.style);
-		
-		if(componentObject.dataItemCode)	$("#dataItemCode").val(componentObject.dataItemCode);// option[value='"+componentObject.dataItemCode+"']").attr("selected","true");
+		if(componentObject.description) $("#description").val(componentObject.description);
+		if(componentObject.order) 		$("#order").val(componentObject.order);
+		if(componentObject.style) 		$("#style").val(componentObject.style);
+		if(componentObject.css) 		$("#css").val(componentObject.css).trigger("change");
+		if(componentObject.alloworderby)$("#alloworderby").val(componentObject.alloworderby).trigger("change");
+		if(componentObject.orderby) 	$("#orderby").val(componentObject.orderby).trigger("change");	
+		if(componentObject.dataItemCode)$("#dataItemCode").val(componentObject.dataItemCode);
 		
 		//label
 		if(componentObject.isRequired) {
@@ -797,32 +795,30 @@ function loadCommonComponentData(storeObject){
 		}
 		
 		//附件类型
-		if(componentObject.mtType)  $("[name = mtType]:checkbox").attr("checked", true);
-		if(componentObject.mtType1)  $("[name = mtType1]:checkbox").attr("checked", true);
-		if(componentObject.mtType2)  $("[name = mtType2]:checkbox").attr("checked", true);
-		if(componentObject.mtType3)  $("[name = mtType3]:checkbox").attr("checked", true);
-		if(componentObject.mtType4)  $("[name = mtType4]:checkbox").attr("checked", true);
-		if(componentObject.mtType5)  $("[name = mtType5]:checkbox").attr("checked", true);
+		if(componentObject.mtType)	$("[name = mtType]:checkbox").attr("checked", true);
+		if(componentObject.mtType1)	$("[name = mtType1]:checkbox").attr("checked", true);
+		if(componentObject.mtType2)	$("[name = mtType2]:checkbox").attr("checked", true);
+		if(componentObject.mtType3) $("[name = mtType3]:checkbox").attr("checked", true);
+		if(componentObject.mtType4) $("[name = mtType4]:checkbox").attr("checked", true);
+		if(componentObject.mtType5) $("[name = mtType5]:checkbox").attr("checked", true);
 		
 		if(componentObject.contentType)		$("#contentType option[value='"+componentObject.contentType+"']").attr("selected","true");
 		if(componentObject.optionScript) 	$("#optionScript").val(componentObject.optionScript);
-		
-		//if(componentObject.defaultValueType) 	$("input[name='defaultValueType']:radio[value='"+componentObject.defaultValueType+"']").prop('checked','checked');	
-		//if(componentObject.defaultValue) 	$("#defaultValue").val(componentObject.defaultValue);
 		
 		//state
 		if(componentObject.hiddenScript) 	$("#hiddenScript").val(componentObject.hiddenScript);
 		if(componentObject.disabledScript) 	$("#disabledScript").val(componentObject.disabledScript);
 		if(componentObject.readonlyScript) 	$("#readonlyScript").val(componentObject.readonlyScript);
-		if(componentObject.showScript) 	$("#showScript").val(componentObject.showScript);
+		if(componentObject.showScript) 		$("#showScript").val(componentObject.showScript);
 		if(componentObject.onchangeScript) 	$("#onchangeScript").val(componentObject.onchangeScript);
 		if(componentObject.defaultValueScript) 	$("#defaultValueScript").val(componentObject.defaultValueScript);
-		if(componentObject.loadPageScript) 	$("#loadPageScript").val(componentObject.loadPageScript);
-		
-		if(componentObject.excelShowScript) 	$("#excelShowScript").val(componentObject.excelShowScript);
+		if(componentObject.loadPageScript) 	$("#loadPageScript").val(componentObject.loadPageScript);	
+		if(componentObject.excelShowScript) $("#excelShowScript").val(componentObject.excelShowScript);
+	
 		//layout
 		if(componentObject.layoutName) 	$("#layoutName").val(componentObject.layoutName);
 		if(componentObject.layoutId) 	$("#layoutId").val(componentObject.layoutId);
+		
 		//validators
 		if(componentObject.validateInputTip) 	$("#inputTip").val(componentObject.validateInputTip);
 		if(componentObject.validateErrorTip) 	$("#errorTip").val(componentObject.validateErrorTip);
@@ -856,8 +852,7 @@ function loadCommonComponentData(storeObject){
 		//image
 		if(componentObject.imageHeight) 	$("#imageHeight").val(componentObject.imageHeight);
 		if(componentObject.imageWidth) 	$("#imageWidth").val(componentObject.imageWidth);
-		
-		
+				
 		//select
 		if(componentObject.supportSearch) { $("input[name='supportSearch']").attr("checked","checked");}
 		if(componentObject.supportMulti) { $("input[name='supportMulti']").attr("checked","checked");}
@@ -869,8 +864,7 @@ function loadCommonComponentData(storeObject){
 		}
 		
 		//commondWords
-		if(componentObject.workflowName){
-		
+		if(componentObject.workflowName){		
 			$("#workflowName").val(componentObject.workflowName);
 			$("#workflowId").val(componentObject.workflowId);
 			var nodes=[];
@@ -879,24 +873,15 @@ function loadCommonComponentData(storeObject){
       			nodes.push(componentObject[key]);
       			}
 	 		}
-			
-			//$("#submitSelect").click();
-			showValue(nodes);
-			
+			showValue(nodes);		
 			if(componentObject.showType) 	$("#showType").val(componentObject.showType);
-		    if(componentObject.freeFlow) { $("input[name='freeFlow']").attr("checked","checked");}
-		
+		    if(componentObject.freeFlow) { $("input[name='freeFlow']").attr("checked","checked");}		
 		}
 		
 		//日期dateType
 		if(componentObject.dateType) { 
 			$("#dateType").val(componentObject.dateType).trigger("change");
 		}
-		//样式库样式
-		if(componentObject.css) { 		
-			$("#css").val(componentObject.css).trigger("change");
-		}
-		
 		
 		if(componentObject.textRise) { $("#textRise").val(componentObject.textRise).trigger("change");}
 		if(componentObject.fontfamily) { $("#fontfamily").val(componentObject.fontfamily).trigger("change");}
@@ -920,8 +905,7 @@ function loadCommonComponentData(storeObject){
 		if(componentObject.columnFormat) { 
 			$("#columnFormat").val(componentObject.columnFormat).trigger("change");
 		}
-		
-		
+				
 		if(componentObject.textalign) { $("#textalign").val(componentObject.textalign).trigger("change");}
 		if(componentObject.textverticalalign) { $("#textverticalalign").val(componentObject.textverticalalign).trigger("change");}
 		if(componentObject.textindent) { $("#textindent").val(componentObject.textindent);}
@@ -937,21 +921,17 @@ function loadCommonComponentData(storeObject){
 		if(componentObject.pageSize) 	$("#pageSize").val(componentObject.pageSize);
 		if(componentObject.hasPager) { $("#hasPager").val(componentObject.hasPager).trigger("change");}
 		if((componentObject.columns)){
-			var data = componentObject.columns;
-			
+			var data = componentObject.columns;		
 			var sortFun = function(column1,column2){
 				if(column1.order-column2.order>0){
 					return 1;
 				} else{
 					return -1;
 				}
-			}
-			
-			data.sort(sortFun);
-			
+			}			
+			data.sort(sortFun);			
 			var index=0;
-			$.each(data, function(index, item) {
-				
+			$.each(data, function(index, item) {				
 				var str="<tr id=dataTr'"+index+"'>";
 				str+="<td><input style='width:100%' name='columns[][columnTitle]' id='columnTitle-"+index+"' value='"+item.columnTitle+"' type=text" + "/>"+"</td>";
 				str+="<td><input style='width:100%' name='columns[][columnField]' id='columnField-"+index+"' value='"+item.columnField+"' type=text" + "/>"+"</td>";
@@ -966,31 +946,26 @@ function loadCommonComponentData(storeObject){
 				str+="<td style='text-align:center;'><a href='javascript:void(0)' class='removeTr'>删除</a>"+"</td>";
 				str+="</tr>";
 				index++;
-				$("#columnsBody").append(str);
-				
+				$("#columnsBody").append(str);				
 			});
 		}
 		if((componentObject.connditions)){
 			var data = componentObject.connditions;
 			var connIndex=0;
-			$.each(data, function(index, item) {
-				
+			$.each(data, function(index, item) {				
 				var str="<tr id=dataTr'"+connIndex+"'>";
 				str+="<td><input style='width:100%' name='connditions[][paramKey]' id='paramKey-"+connIndex+"' value='"+item.paramKey + "'type=text" + "/>"+"</td>";
-				str+="<td style='text-align:center;'>---></td>";
-				
+				str+="<td style='text-align:center;'>---></td>";				
 				str+="<td><input style='width:100%' name='connditions[][paramValue]' id='paramValue-"+connIndex+"' value='"+item.paramValue + "' type=text" + "/>"+"</td>";
 				if(item.ifFinal=='1'){
 					str+="<td style='text-align:center;'>"+"<input type='checkbox' name='connditions[][ifFinal]' id='sortable-'"+ connIndex +"' value='1' checked/></td>";
 				}else{
 					str+="<td style='text-align:center;'>"+"<input type='checkbox' name='connditions[][ifFinal]' id='sortable-'"+ connIndex +"' value='1' /></td>";
-				}
-				
+				}			
 				str+="<td style='text-align:center;'><a href='javascript:void(0)' class='removeConnTr'>删除</a>"+"</td>";
 				str+="</tr>";
 				connIndex++;
-				$("#connditionBody").append(str);
-				
+				$("#connditionBody").append(str);			
 			});
 		}
 		if((componentObject.param)){
@@ -1008,6 +983,78 @@ function loadCommonComponentData(storeObject){
 				str += "<td><a href='javascript:void(0)' class='removeParamTr'>删除</a>"+"</td>";
 				str += "</tr>";
 				$("#paramentBody").append(str);
+			});
+		}
+		if((componentObject.tags)){
+			var data = componentObject.tags;
+			var index=0;
+			$.each(data, function(index, item) {				
+				var str="<tr id=dataTr'"+index+"'>";
+				str+="<td><input name='tags[][tagsId]' style='width:100px;' id='tagsId-" + index + "' type=text" + " value='" + item.tagsId + "'/>"+"</td>";
+				str+="<td><input name='tags[][tagsTitle]' style='width:250px;' id='tagsTitle-" + index + "' type=text" + " value='" + item.tagsTitle + "'/>"+"</td>"; 
+				str+="<td><select name='tags[][relatePageId]' style='width:250px;' id='relatePageId-" + index + "' class='form-control'>"+options+"<select></td>";
+				str+="<td><input name='tags[][order]' style='width:100px;' id='order-" + index + "' type=text" + " value='" + item.order + "'/>"+"</td>";
+				str+="<td><a href='javascript:void(0)' class='removeTr'>删除</a>"+"</td>";
+				str+="</tr>";			
+				$("#tagsBody").append(str);
+				$("#tagsType-" + index).val(item.tagsType);
+				$("#relatePageId-" + index).val(item.relatePageId);
+				$("#isLoad-" + index).val(item.isLoad);
+				$("#relatePageId-" + index).select2();				
+				index++;
+				tagIndex = index;			
+			});		
+		}	
+		if(componentObject.operateAdd) { $("input[name='operateAdd']").attr("checked","checked");}
+		if(componentObject.operateDelete) { $("input[name='operateDelete']").attr("checked","checked");}
+		if(componentObject.operateEdit) { $("input[name='operateEdit']").attr("checked","checked");}
+		if(componentObject.operateSave) { $("input[name='operateSave']").attr("checked","checked");}
+		if(componentObject.operateUndo) { $("input[name='operateUndo']").attr("checked","checked");}		
+		if(componentObject.alertPage) { 
+			$("#alertPage").val(componentObject.alertPage).trigger("change");
+		}
+		if(componentObject.proportions) { $("#proportions").val(componentObject.proportions);}
+		if(componentObject.lineHeight) { $("#lineHeight").val(componentObject.lineHeight);}
+		if(componentObject.minLineCount) { $("#minLineCount").val(componentObject.minLineCount);}
+		if(componentObject.maxLineCount) { $("#maxLineCount").val(componentObject.maxLineCount);}
+		if(componentObject.pdfTemplatePage) { $("#pdfTemplatePage").val(componentObject.pdfTemplatePage);}
+		if(componentObject.lineHeightType) { 
+			$("#lineHeightType").val(componentObject.lineHeightType).trigger("change");
+		}
+		
+		//钉钉明细组件
+		if(componentObject.dataSource) { $("#dataSource").val(componentObject.dataSource);}
+		if((componentObject.details)){
+			var data = componentObject.details;		
+			var sortFun = function(column1,column2){
+				if(column1.order-column2.order>0){
+					return 1;
+				} else{
+					return -1;
+				}
+			}			
+			data.sort(sortFun);			
+			$.each(data, function(index, item) {	
+				var selects = "<select class='form-control' name='details[][type]' value='" + item.type + "'>" + 
+				  "<option value='1001' " + (item.type==1001?"selected":"") + ">单行文本框</option>" + 
+				  "<option value='1002' " + (item.type==1002?"selected":"") + ">日期文本框</option>" + 
+				  "<option value='1005' " + (item.type==1005?"selected":"") + ">多行输入框</option>" + 
+				  "<option value='1006' " + (item.type==1006?"selected":"") + ">下拉选项框</option>" + 
+				  "<option value='1010' " + (item.type==1010?"selected":"") + ">隐藏框</option>" +
+				  "<option value='1011' " + (item.type==1011?"selected":"") + ">文件上传框</option>" + 
+				  "<option value='1016' " + (item.type==1016?"selected":"") + ">图片上传框</option>" + 							 
+				  "</select>";
+				var str = "<tr>";			
+				str += "<td style='padding:0px;'><input class='form-control' name='details[][title]' type='text' value='" + 
+							item.title + "'/></td>";
+				str += "<td style='padding:0px;'><input class='form-control' name='details[][field]' type='text' value='" + 
+							item.field + "'/></td>";
+				str += "<td style='padding:0px;'><input class='form-control' name='details[][order]' type='text' value='" + 
+							item.order + "'/></td>";
+				str += "<td style='padding:0px;'>" + selects + "</td>";
+				str += "<td style='text-align:center;padding:0px;'><a href='javascript:void(0)' class='removeTr'>删除</a></td>";
+				str += "</tr>";
+				$("#detailsBody").append(str);	
 			});
 		}
 		
@@ -1043,105 +1090,45 @@ function loadCommonComponentData(storeObject){
 							+ item.codes + "</textarea></td>";
 				str += "<td style='padding:0px;'><textarea class='form-control' name='buttons[][severCodes]' rows='4'>" 
 					+ item.severCodes + "</textarea></td>";
+				str += "<td style='padding:0px;'><textarea class='form-control' name='buttons[][hideCodes]' rows='4'>" 
+					+ item.hideCodes + "</textarea></td>";
 				str += "<td style='text-align:center;padding:0px;'><a href='javascript:void(0)' class='removeTr'>删除</a></td>";
 				str += "</tr>";
 				$("#buttonsBody").append(str);	
 			});
 		}
 		
-		
-		
-		if((componentObject.tags)){
-			var data = componentObject.tags;
-			var index=0;
-			$.each(data, function(index, item) {
-				
-				var str="<tr id=dataTr'"+index+"'>";
-				str+="<td><input name='tags[][tagsId]' style='width:100px;' id='tagsId-" + index + "' type=text" + " value='" + item.tagsId + "'/>"+"</td>";
-				str+="<td><input name='tags[][tagsTitle]' style='width:250px;' id='tagsTitle-" + index + "' type=text" + " value='" + item.tagsTitle + "'/>"+"</td>"; 
-				//str+="<td><select name='tags[][tagsType]' style='width:100px;' id='tagsType-" + index +"' class='form-control'><option value='1'>普通标签</option> <option value='2'>组标签</option> </select>"+"</td>";
-				//str+="<td><input name='tags[][parentTags]' style='width:100px;' id='parentTags-" + index + "' type=text" + " value='" + item.parentTags + "'/>"+"</td>"; 
-				str+="<td><select name='tags[][relatePageId]' style='width:250px;' id='relatePageId-" + index + "' class='form-control'>"+options+"<select></td>";
-				//str+="<td><select name='tags[][isLoad]' style='width:100px;' id='isLoad-" + index + "' class='form-control'> <option value='1'>是</option> <option value='2'>否</option> </select>"+"</td>";
-				
-				str+="<td><input name='tags[][order]' style='width:100px;' id='order-" + index + "' type=text" + " value='" + item.order + "'/>"+"</td>";
-				
-				str+="<td><a href='javascript:void(0)' class='removeTr'>删除</a>"+"</td>";
-				str+="</tr>";
-				
-				$("#tagsBody").append(str);
-				$("#tagsType-" + index).val(item.tagsType);
-				$("#relatePageId-" + index).val(item.relatePageId);
-				$("#isLoad-" + index).val(item.isLoad);
-				//alert("#isLoad-" + index+":"+item.isLoad);
-				$("#relatePageId-" + index).select2();
-				
-				index++;
-				tagIndex = index;
-			});
-			
-		}
-		
-		if(componentObject.operateAdd) { $("input[name='operateAdd']").attr("checked","checked");}
-		if(componentObject.operateDelete) { $("input[name='operateDelete']").attr("checked","checked");}
-		if(componentObject.operateEdit) { $("input[name='operateEdit']").attr("checked","checked");}
-		if(componentObject.operateSave) { $("input[name='operateSave']").attr("checked","checked");}
-		if(componentObject.operateUndo) { $("input[name='operateUndo']").attr("checked","checked");}
-		
-		if(componentObject.alertPage) { 
-			$("#alertPage").val(componentObject.alertPage).trigger("change");
-		}
-		if(componentObject.proportions) { $("#proportions").val(componentObject.proportions);}
-		if(componentObject.lineHeight) { $("#lineHeight").val(componentObject.lineHeight);}
-		if(componentObject.minLineCount) { $("#minLineCount").val(componentObject.minLineCount);}
-		if(componentObject.maxLineCount) { $("#maxLineCount").val(componentObject.maxLineCount);}
-		if(componentObject.pdfTemplatePage) { $("#pdfTemplatePage").val(componentObject.pdfTemplatePage);}
-		if(componentObject.lineHeightType) { 
-			$("#lineHeightType").val(componentObject.lineHeightType).trigger("change");
-		}
-		
 		//包含组件
 		if((componentObject.configures)){
 			var data = componentObject.configures;
 			var ddIndex=0;
-			$.each(data, function(index, item) {
+			$.each(data, function(index, item) {				
+				var str="<tr id=dataTr'"+ddIndex+"'>";
+				str+="<td>"+item.name+ "<input type='hidden' readonly='readonly'   name='configures["+ddIndex+"][pageId]' id='relateComId-"+ddIndex+"' value='"+item.pageId+"'/>"
+				+ "<input type='hidden' readonly='readonly'   name='configures["+ddIndex+"][name]' id='relateComName-"+ddIndex+"' value='"+item.name+"'/>" 
+				+ "<input type='hidden' readonly='readonly'   name='configures["+ddIndex+"][componentType]' id='relateComType-"+ddIndex+"' value='"+item.componentType+"'/>"
+				+"</td>";					
+				str+="<td>"+"<input type='text'   name='configures["+ddIndex+"][dataItemCode]' id='dataItemCode-"+ddIndex+"' value='"+ item.dataItemCode + "'>"
+				+	"<button class='btn btn-default dataItemCodeSelect' type='button' id='dataItemCodeSelect-"+ddIndex+"'>选择</button>"
 				
-					var str="<tr id=dataTr'"+ddIndex+"'>";
-					str+="<td>"+item.name+ "<input type='hidden' readonly='readonly'   name='configures["+ddIndex+"][pageId]' id='relateComId-"+ddIndex+"' value='"+item.pageId+"'/>"
-					+ "<input type='hidden' readonly='readonly'   name='configures["+ddIndex+"][name]' id='relateComName-"+ddIndex+"' value='"+item.name+"'/>" 
-					+ "<input type='hidden' readonly='readonly'   name='configures["+ddIndex+"][componentType]' id='relateComType-"+ddIndex+"' value='"+item.componentType+"'/>"
-					+"</td>";
-
-					
-					str+="<td>"+"<input type='text'   name='configures["+ddIndex+"][dataItemCode]' id='dataItemCode-"+ddIndex+"' value='"+ item.dataItemCode + "'>"
-					+	"<button class='btn btn-default dataItemCodeSelect' type='button' id='dataItemCodeSelect-"+ddIndex+"'>选择</button>"
-					
-					+"</td>";
-					$("#dataItemCodeList").append(str);
-					ddIndex++;
-				
-				
-			});
-			
+				+"</td>";
+				$("#dataItemCodeList").append(str);
+				ddIndex++;						
+			});			
 		}
-		
-		
-		
-		//alert(4444);
-		//alert(componentObject.validatJson)
 		
 		if(componentObject.validatJson) {
-			//alert(5555);
 			$("#validatJson").val(componentObject.validatJson);
-			//alert($("#validatJson").val());
 			initValidator();
 		}
+		
 		//级联下拉框
 		if(componentObject.select_select2_name) {
 			$("#select_select2_name").val(componentObject.select_select2_name);
 			$("#select_select2_label").val(componentObject.select_select2_label);
 			$("#select_select2_sql").val(componentObject.select_select2_sql);
 		}
+		
         //tab页切换
         if(componentObject.tab_name){
             $("#tab_name").val(componentObject.tab_name);
@@ -1153,34 +1140,16 @@ function loadCommonComponentData(storeObject){
             $("#ibs_height").val(componentObject.ibs_height);
             $("#ibs_key").val(componentObject.ibs_key);
 		}
+		
 		//搜索条件
-		if(componentObject.selectOption){
-			$("#selectOption").val(componentObject.selectOption);			
-		}
-		if(componentObject.selectLabel){
-			$("#selectLabel").val(componentObject.selectLabel);
-		}
-		if(componentObject.selectName){
-			$("#selectName").val(componentObject.selectName);		
-		}
-		if(componentObject.textLabel){
-			$("#textLabel").val(componentObject.textLabel);
-		}
-		if(componentObject.textName){
-			$("#textName").val(componentObject.textName);
-		}
-		if(componentObject.dateSelectLabel){
-			$("#dateSelectLabel").val(componentObject.dateSelectLabel);
-		}
-		if(componentObject.dateSelectName){
-			$("#dateSelectName").val(componentObject.dateSelectName);
-		}
-		if(componentObject.userSelectLabel){
-			$("#userSelectLabel").val(componentObject.userSelectLabel);
-		}
-		if(componentObject.userSelectName){
-			$("#userSelectName").val(componentObject.userSelectName);
-		}
+		if(componentObject.selectOption)	$("#selectOption").val(componentObject.selectOption);			
+		if(componentObject.selectLabel)		$("#selectLabel").val(componentObject.selectLabel);
+		if(componentObject.selectName)		$("#selectName").val(componentObject.selectName);		
+		if(componentObject.textLabel)		$("#textLabel").val(componentObject.textLabel);
+		if(componentObject.textName)		$("#textName").val(componentObject.textName);
+		if(componentObject.dateSelectLabel)	$("#dateSelectLabel").val(componentObject.dateSelectLabel);
+		if(componentObject.dateSelectName)	$("#dateSelectName").val(componentObject.dateSelectName);
+		
 		
 		//gridTable
 		//easyUi 所有表格
@@ -1191,7 +1160,6 @@ function loadCommonComponentData(storeObject){
 			$("#tableConf").val(componentObject.tableConf);
 		}
 		if(componentObject.dataSource){
-			//
 			$("#gridConf").val(componentObject.gridConf);
 			$("#dataSource").val(componentObject.dataSource);
 			$("#sonDataSource").val(componentObject.sonDataSource);
@@ -1209,7 +1177,6 @@ function loadCommonComponentData(storeObject){
 			$("#panelWidth").val(componentObject.panelWidth);
 			$("#panelHeight").val(componentObject.panelHeight);
 			$("#idField").val(componentObject.idField);
-			//$("#tableWidth").val(componentObject.tableWidth);
 			$("#textField").val(componentObject.textField);
 			$("#comboLabel").val(componentObject.comboLabel);
 			$("#labelPosition").val(componentObject.labelPosition);
@@ -1232,8 +1199,7 @@ function loadCommonComponentData(storeObject){
 		//事件
 		if(componentObject.onchangeScript){
 			$("#onchangeScript").val(componentObject.onchangeScript);
-		}
-		
+		}		
 	}
 }
 

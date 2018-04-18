@@ -135,7 +135,7 @@ public class IDocumentServiceImpl implements IDocumentService {
         jcon.put("relatePageId", pageVO.getId());
         jcon.put("componentType", "");
         List<JSONObject> components = formdesignerServiceImpl.getComponentByContainerWithColumn(jcon);
-        DocUtils.calculateCompents(docVo, others, status, components, dataMap, engine, isRead);
+        DocUtils.calculateCompents(docVo, others, status, components, dataMap, engine, isRead,root);
 
         BaseExample actExample = new BaseExample();
         actExample.createCriteria().andEqualTo("dynamicPage_id", pageVO.getId()).andLike("code",

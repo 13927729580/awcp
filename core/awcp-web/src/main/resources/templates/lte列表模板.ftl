@@ -173,7 +173,7 @@
         		$("#groupForm").submit();
         	 },
         	 onClickRow:function(row,$element,field){
-        	 	if(field.indexOf("rowOperation") != -1){
+        	 	if(field && field.indexOf("rowOperation")!=-1){
         	 		return false;
         	 	}
         	  	var $checkbox=$element.find(":checkbox").eq(0);

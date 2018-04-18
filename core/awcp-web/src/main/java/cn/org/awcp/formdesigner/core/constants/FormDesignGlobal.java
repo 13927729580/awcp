@@ -60,6 +60,7 @@ public class FormDesignGlobal {
 		 */
 		COMPOENT_TYPE_NAME.put("1101", "事件控件");
 		COMPOENT_TYPE_NAME.put("1102", "手机省市县控件");
+		COMPOENT_TYPE_NAME.put("1103", "钉钉明细控件");
 
 		COMPOENT_TYPE_URL.put("1001", "formdesigner/page/component/input/input.jsp");
 		COMPOENT_TYPE_URL.put("1002", "formdesigner/page/component/datetime/datetime.jsp");
@@ -115,6 +116,7 @@ public class FormDesignGlobal {
 		 */
 		COMPOENT_TYPE_URL.put("1101", "formdesigner/page/component/function/function.jsp");
 		COMPOENT_TYPE_URL.put("1102", "formdesigner/page/component/address/address.jsp");
+		COMPOENT_TYPE_URL.put("1103", "formdesigner/page/component/ddDetail/ddDetail.jsp");
 		LAYOUT_TYPE_SHOW.put("1", "列");
 		LAYOUT_TYPE_SHOW.put("2", "行");
 	}

@@ -148,7 +148,7 @@
         });
         $("#relateUserBtn").click(function () {
             if (count == 1) {
-                $("#userList").attr("action", "<%=basePath%>unit/roleRelateUserQuery.do?roleId=" + $("input[name='boxs']").val()).submit();
+                location.href="<%=basePath%>unit/roleRelateUserQuery.do?roleId="+ $("input[name='boxs']").val();
             } else {
                 Comm.alert("请选择一项进行操作");
             }

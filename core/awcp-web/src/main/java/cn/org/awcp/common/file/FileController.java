@@ -142,7 +142,13 @@ public class FileController {
             return "redirect:" + fileLose();
         }
         if (width > 0 || height > 0) {
-            BufferedImage bi = ImageUtils.scale(input, height, width);
+            BufferedImage bi;
+            //如果宽高都有值则不进行等比
+            if(width==0||height==0){
+                 bi = ImageUtils.scale(input,width,height,true);
+            }else{
+                bi = ImageUtils.scale(input,width,height,false);
+            }
             if (bi != null) {
                 ImageIO.write(bi, ImageUtils.PNG, response.getOutputStream());
             } else {
@@ -350,11 +356,12 @@ public class FileController {
         if (ids == null || ids.length == 0) {
             return result.setStatus(StatusCode.SUCCESS).setData(-1);
         }
-        if (fileService.delete(false, ids)) {
-            result.setStatus(StatusCode.SUCCESS).setData(0);
-        } else {
-            result.setStatus(StatusCode.SUCCESS).setData(-1);
-        }
+        result.setStatus(StatusCode.SUCCESS).setData(0);
+//        if (fileService.delete(false, ids)) {
+//            result.setStatus(StatusCode.SUCCESS).setData(0);
+//        } else {
+//            result.setStatus(StatusCode.SUCCESS).setData(-1);
+//        }
         return result;
     }
 

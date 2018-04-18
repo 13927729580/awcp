@@ -14,13 +14,13 @@
 			<div class="title"><span>选择</span><span>:</span></div>
 			<div class="body" >
 				<div class="selector_left">
-					<!-- <div class="ding_selector_input">
+					<div class="ding_selector_input">
 						<div class="c_search_content">
 							<i class="iconfont search"></i>
 							<input value="" type="text" class="c_ding_input">
 							<span></span>
 						</div>
-					</div> -->
+					</div>
 					<div>
 						<div style="padding: 0px; padding-top: 0; height: 296px; overflow: auto;" id="leftContent"></div>
 					</div>
@@ -43,14 +43,56 @@
 <script>
 	var open = "";	
 	var close = "";
-	var selectRole = {};
+	var selectRole = {};	
 	
 	$(function(){
 		var data = Comm.getData("api/execute/getDdRole");
-		var html = "";
-		for(var i=0;i<data.length;i++){
-			html += "<div>" + getGroup(data[i].group_name) + getChildren(data[i].children) + "</div>";
+		getContent(data,"all");
+		
+		//确定
+		$("#ok").bind("click",function(){
+			top.dialog({id:window.name}).close(selectRole);
+		});
+		
+		//取消
+		$("#close").bind("click",function(){
+			top.dialog({id:window.name}).close({});
+		});
+		
+		$("#rightContent").on("click",".close",function(){
+			$(this).parent().remove();
+		});
+		
+		//查询
+		$(".c_search_content").on("keyup","input",function(){
+			var name = $(this).val();
+			if(name){
+				var data = Comm.getData("api/execute/getDdRole",{name,name});
+				getContent(data,"search");
+			}else{
+				var data = Comm.getData("api/execute/getDdRole");
+				getContent(data,"all");
+			}			
+		});
+	});
+	
+	function getContent(data,type){	
+		console.log(data);
+		if(data.length == 0){
+			return false;
 		}
+		var html = "";
+		if(type == "search"){
+			html += '<div style="padding:0px;padding-top:0;height:296px;overflow:auto;">'
+			for(var i=0;i<data.length;i++){
+				html += getChildNode(data[i]);
+			}
+			html += '</div>';
+		} else{
+			for(var i=0;i<data.length;i++){
+				html += "<div>" + getGroup(data[i].group_name) + getChildren(data[i].children) + "</div>";
+			}
+		}	
 		$("#leftContent").html(html);
 		
 		$(".label_tree_item[data-status]").bind("click",function(){
@@ -72,14 +114,8 @@
 			$("#rightContent").html(getSelectRole(id,role_name));
 		});
 		
-		$("#close").bind("click",function(){
-			top.dialog({id:window.name}).close({});
-		});
 		
-		$("#ok").bind("click",function(){
-			top.dialog({id:window.name}).close(selectRole);
-		});
-	});
+	}
 	
 	function getSelectRole(id,role_name){	
 		selectRole.role_id = id;
@@ -95,8 +131,8 @@
 		return '<div class="label_tree_item" data-status="close">' + 
 					'<i class="iconfont">' + close + '</i>' + 
 					'<span>' + group_name + '</span></div>';
-	}
-		
+	}		
+	
 	function getChildren(children){
 		var html = '<div class="label_tree_children" style="display:none;">';
 		for(var i=0;i<children.length;i++){
@@ -109,7 +145,7 @@
 		return '<div class="label_tree_item" data-id="' + item.ID + '" data-name="' + item.role_name + '">' + 
 			   '<i class="iconfont" style="color:#aee4fa;top:0px;margin-right:3px;" ></i>' + 
 			   '<span>' + item.role_name + '</span></div>';
-	}
+	}	
 </script>
 </body>
 </html>

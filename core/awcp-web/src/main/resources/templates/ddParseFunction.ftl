@@ -2,7 +2,7 @@
 	<#if (root['layoutType']?number ==2) >			<#--如果是行 -->
 		<div class="outerDiv">
 	<#else>
-		<div class="input_control">
+		<div class="colDiv">	
 	</#if>
 	<#if (root['childLayouts']??) >
 		<#local layoutChilden = root['childLayouts'] >
@@ -12,22 +12,10 @@
 	<#else>
 		<#local rootId = root['pageId']/>
 		<#if (components[rootId]??) >
-			<#local coms = components[rootId]/>
-			<#local comSize = 0/>
-			<#list coms as c>
-				<#if c['componentType']!='1010' >
-					<#local comSize = comSize+1/>
-				</#if>
-			</#list>
-			<#if comSize gt 1 >
-				<div class="input-group">
-			</#if>
+			<#local coms = components[rootId] />
 			<#list coms?sort_by("order") as c>
 				<@parseComponent c />
 			</#list>
-			<#if comSize gt  1 >
-				</div>
-			</#if>
 		</#if>
 	</#if>
 	</div>
@@ -67,6 +55,9 @@
 		<#case 1102>
 			<@convertAddress c/>
 			<#break>
+		<#case 1103>
+			<@convertDetails c/>
+			<#break>
 		<#default>
 	</#switch>
 </#macro>
@@ -97,9 +88,9 @@
 	});
 </#macro>
 
-
 <#--  事件控件	-->
 <#macro convertFunction c>
+<div class="input_control">	
 	<#if c['title']?? >
 		<div class="colFirst" >
 			<label class="<#if c['required']?? && c['required']=='1'>requiredLabel</#if>"><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
@@ -123,11 +114,13 @@
 		<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['disabled'])?? && status['</#noparse>${c['name']}<#noparse>']['disabled'] == 'true'>disabled="disabled"</#if></#noparse>
 	 	/>
 	 </div>
+</div>
 </#macro>
 
 
 <#--  移动端省市县	-->
 <#macro convertAddress c>
+<div class="input_control">	
 	<#if c['title']?? >
 		<div class="colFirst" >
 			<label class="<#if c['required']?? && c['required']=='1'>requiredLabel</#if>"><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
@@ -145,11 +138,13 @@
 	        </div>
 	    </div>
 	 </div>
+</div>
 </#macro>
 
 
 <#--  多选框	-->
 <#macro convertCheckbox c>
+<div class="input_control">	
 	<#if c['title']?? >
 		<div class="colFirst" >
 			<label class="<#if c['required']?? && c['required']=='1'>requiredLabel</#if>"><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
@@ -172,6 +167,7 @@
 		<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['disabled'])?? && status['</#noparse>${c['name']}<#noparse>']['disabled'] == 'true'>disabled="disabled"</#if></#noparse>
 	 	/>
 	</div>
+</div>
 </#macro>
 
 
@@ -190,6 +186,7 @@
 
 <#--  附件上传框	-->
 <#macro convertFile c >
+<div class="input_control">	
 	<div>
 		<div class="colFirst" >
 			<label class="<#if c['required']?? && c['required']=='1'>requiredLabel</#if>"><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
@@ -206,11 +203,13 @@
 		</div>
 	</div>
     <div class="atts" id="files"></div>
+</div>
 </#macro>
 
 
 <#--  图片上传框	-->
 <#macro convertImage c >
+<div class="input_control">	
 	<div>
 		<div class="colFirst" >
 			<label class="<#if c['required']?? && c['required']=='1'>requiredLabel</#if>"><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
@@ -227,11 +226,13 @@
        	</div>
 	</div>
     <div class="images imgs-scroll"></div>
+</div>
 </#macro>
 
 
 <#--  下拉框	-->
 <#macro convertSelect c >
+<div class="input_control">	
 	<#if c['title']?? >
 		<div class="colFirst" >
 			<label class="<#if c['required']?? && c['required']=='1'>requiredLabel</#if>"><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
@@ -255,11 +256,13 @@
 	 	/>
 	 	<input type="hidden" value="<#noparse><#if others??> ${others['options_</#noparse>${c['name']}<#noparse>']!''}</#if></#noparse>" />
 	</div>
+</div>
 </#macro>
 
 
 <#--  多行输入框	-->
 <#macro convertTextarea c >
+<div class="input_control">	
 	<#if c['title']??  && c['title']?length gt 0>
 		<div class="colFirst">
 			<label class="<#if c['required']?? && c['required']=='1'>requiredLabel</#if>"><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
@@ -276,11 +279,13 @@
 		data-placeholder='<#if c['placeholder']?? && c['placeholder']?length gt 0 >${c['placeholder']}<#else>请输入_Please Input</#if>'
 		><#if c['dataItemCode']?? && c['dataItemCode']?length gt 0 ><#noparse>${(</#noparse>${c['dataItemCode']}<#noparse>)!''}</#noparse></#if></textarea>
 	</div>
+</div>
 </#macro>
 
 
 <#--  日期选择框	-->
 <#macro convertDatetime c>		
+<div class="input_control">	
 	<#if c['title']?? >
 		<div class="colFirst">
 			<label class="<#if c['required']?? && c['required']=='1'>requiredLabel</#if>"><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
@@ -307,11 +312,13 @@
 			</#if>	
 		 />
 	 </div>
+</div>
 </#macro>
 
 
 <#--  文本输入框	-->
 <#macro convertInputext c >
+<div class="input_control">	
 	<#if c['title']?? >
 		<div class="colFirst">
 			<label class="<#if c['required']?? && c['required']=='1'>requiredLabel</#if>"><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
@@ -330,8 +337,196 @@
 		data-placeholder='<#if c['placeholder']?? && c['placeholder']?length gt 0 >${c['placeholder']}<#else>请输入_Please Input</#if>'
 		/>
 	</div>
+</div>
 </#macro>
 
+
+<#--  明细控件	-->
+<#macro convertDetails c>
+	<#noparse><#if </#noparse>${c['dataAlias']!''}<#noparse>?? && </#noparse>${c['dataAlias']!''}<#noparse>?size gt 0></#noparse>    	     	
+ 		<#noparse><#list</#noparse> ${c['dataAlias']!''} <#noparse>as item></#noparse>		
+ 		<div class="${c['dataAlias']!''}" data-index="<#noparse>${item_index+1}</#noparse>">	
+			<div class="input_control">
+ 				<#if c['title']?? >
+					<div class="colFirst">
+						<label style="font-size: 12px;" class="<#if c['required']?? && c['required']=='1'>requiredLabel</#if>">${c["title"]!""}(<span style="font-size: 12px;" class="indexSpan"><#noparse>${item_index+1}</#noparse></span>)</label>
+					</div>
+					<div class="colSecond">
+						<span style="font-size: 14px;float:right;color:blue;display:none;" class="delSpan">删除</span>
+					</div>
+				</#if>	
+			</div>
+ 			<#if c['details']?? && c['details']?size gt 0>
+	 			<#list c['details'] as detail>
+	 				<@convertDetail detail item></@convertDetail>
+	 			</#list>  
+	 		</#if>	
+	 	</div>	
+ 		<#noparse></#list></#noparse>
+ 	<#noparse>
+ 	<#else>
+ 	</#noparse>	
+ 		<#if c['title']?? >
+			<div class="colFirst ${c['dataAlias']!''}">
+				<label style="font-size: 12px;" class="<#if c['required']?? && c['required']=='1'>requiredLabel</#if>">${c["title"]!""}(<span style="font-size: 12px;" class="indexSpan">1</span>)</label>
+			</div>
+			<div class="colSecond">
+				<span style="font-size: 14px;float:right;color:blue;display:none;" class="delSpan">删除</span>
+			</div>
+		</#if>	
+		</div>
+ 		<#if c['details']?? && c['details']?size gt 0>
+ 			<#list c['details'] as detail>
+ 				<@convertDetail detail></@convertDetail>
+ 			</#list>  
+ 		</#if>	
+ 	<#noparse>
+ 	</#if>     	
+ 	</#noparse>
+ 	<div class="input_control" id="add_${c['dataAlias']!''}">
+ 		<div class="colFirst" style="width:100%;text-align:center;display:block;padding: 0px;">
+ 			<label style="line-height: 48px;color:blue">+新增${c["title"]!""}</label>
+ 		</div>
+ 	</div>
+ 	<div style="display:none" id="div_${c['dataAlias']!''}">
+ 		<div class="input_control">
+			<#if c['title']?? >
+				<div class="colFirst">
+					<label style="font-size: 12px;" class="<#if c['required']?? && c['required']=='1'>requiredLabel</#if>">${c["title"]!""}(<span style="font-size: 12px;" class="indexSpan"></span>)</label>
+				</div>
+				<div class="colSecond">
+					<span style="font-size: 14px;float:right;color:blue;display:none;" class="delSpan">删除</span>
+				</div>
+			</#if>	
+		</div>
+ 		<#if c['details']?? && c['details']?size gt 0>
+ 			<#list c['details'] as detail>
+ 				<@convertDetail detail></@convertDetail>
+ 			</#list>  
+ 		</#if>
+</#macro>
+
+<#macro convertDetail detail item="">
+	<#if detail.type=="1001">
+		<div class="input_control" data-type="text">
+			<div class="colFirst">
+				<label>${detail.title!""}</label>
+			</div>
+			<div class="colSecond">
+				<input type="text" name="${detail.field!""}" data-placeholder="请输入_Please Input" 
+					value="<#noparse>${(item.</#noparse>${detail.field!""}<#noparse>)!""}</#noparse>" />
+			</div>
+		</div>
+	<#elseif detail.type=="1002">
+		<div class="input_control" data-type="date">
+			<div class="colFirst">
+				<label>${detail.title!""}</label>
+			</div>
+		<div class="colSecond">
+			<span data-id="请选择_Please Select" style="float:right;margin-right: 15px;" class="arrowright"></span>
+			<input type="hidden" name="${detail.field!""}" 
+				value="<#noparse>${(item.</#noparse>${detail.field!""}<#noparse>)!""}</#noparse>" />
+		 </div>
+		</div>
+	<#elseif detail.type=="1005">
+		<div class="input_control" data-type="textarea">
+			<div class="colFirst">
+				<label>${detail.title!""}</label>
+			</div>
+			<div class="colSecond">
+				<textarea rows="4" style="resize: none; height: 100px;" name="${detail.field!""}" 
+					data-placeholder="请输入_Please Input"><#noparse>${(item.</#noparse>${detail.field!""}<#noparse>)!""}</#noparse></textarea>
+			</div>
+		</div>
+	<#elseif detail.type=="1006">
+	
+	<#elseif detail.type=="1010">
+		<input type="hidden" name="${detail.field!""}" value="<#noparse>${(item.</#noparse>${detail.field!""}<#noparse>)!""}</#noparse>" />
+	<#elseif detail.type=="1011">
+		<div class="input_control" data-type="file">
+			<div>
+				<div class="colFirst">
+					<label>${detail.title!""}</label>
+				</div>
+				<div class="colSecond">
+			       	<img src="<#noparse>${basePath}</#noparse>dingding/img/files.png"  style="float:right;width:22px;" id="picture">
+			       	<textarea style="display: none; resize: none;" class="attachment" name="${detail.field!""}"><#noparse>${(item.</#noparse>${detail.field!""}<#noparse>)!""}</#noparse></textarea>
+				</div>
+			</div>
+		    <div class="atts" id="files"></div>
+		</div>
+	<#elseif detail.type=="1016">
+		<div class="input_control" data-type="img">
+			<div>
+				<div class="colFirst">
+					<label class="">${detail.title!""}</label>
+				</div>
+				<div class="colSecond">
+			       	<img src="<#noparse>${basePath}</#noparse>dingding/img/camera.png" style="float:right;width:22px;" id="picture">
+			       	<input type="hidden" class="photo " name="${detail.field!""}" value="<#noparse>${(item.</#noparse>${detail.field!""}<#noparse>)!""}</#noparse>" />
+		       	</div>
+			</div>
+		    <div class="images imgs-scroll"></div>
+		</div>
+	</#if>
+</#macro>
+
+<#macro convertDetailsScript c>
+	(function(){
+		var dataAlias = "${c['dataAlias']!''}";
+		
+		function showAndHide(){
+			var length = $("." + dataAlias).length;
+			if(length > 1){
+				$("." + dataAlias).find(".delSpan").show();
+			} else{
+				$("." + dataAlias).find(".delSpan").hide();
+			}
+			var index = 1;
+			$("." + dataAlias).each(function(){
+				$(this).attr("data-index",index);
+				$(this).find(".indexSpan").text(index);
+				index++;
+			});
+		}
+				
+		$("." + dataAlias).parent().on("click",".delSpan",function(){
+			var length = $("." + dataAlias).length;
+			if(length>1){
+				$(this).parent().parent().parent().remove();
+				showAndHide();				
+			}
+		});
+		
+		function bindEvent($dom){
+			$dom.find("[data-type='date']").each(function(){
+				convertDateTimeScript($(this).find("input"),"yyyy-MM-dd");
+			});
+			
+			$dom.find("[data-type='img']").each(function(){
+				convertImageScript($(this).find("input"), 9);
+			});
+			
+			$dom.find("[data-type='file']").each(function(){
+				convertFileScript($(this).find("textarea"), 5);
+			});			
+		}
+		
+		bindEvent($("." + dataAlias));
+		
+		$("#add_" + dataAlias).bind("click",function(){
+			var html = $(this).next().html();
+			var length = $("." + dataAlias).length + 1;
+			html = "<div class='" + dataAlias + "' data-index='" + length + "'>" + html + "</div>";
+			$(this).before(html);
+			bindEvent($(this).prev());
+			showAndHide();
+		});
+		
+		showAndHide();
+		
+	})();
+</#macro>
 
 <#--  组件脚本解析	-->
 <#macro convertComponentScript component>
@@ -360,6 +555,9 @@
 			<#break>
 		<#case 1102>
 			<@convertAddressScript component/>
+			<#break>
+		<#case 1103>
+			<@convertDetailsScript component/>
 			<#break>
 		<#default>
 	</#switch>
@@ -514,7 +712,7 @@
 				var data = Comm.getData("dingding/spaceid.do",{"_method":"get"});
 				dd.biz.util.uploadAttachment({
 				    image:{multiple:true,compress:false,max:attMax-len,spaceId: data},
-				    space:{corpId:dd_config.corpId,spaceId:data,isCopy:1 , max:attMax-len},
+				    space:{corpId:dd_config.corpId,spaceId:data, max:attMax-len},
 				    file:{spaceId:data,max:attMax-len},
 				    types:["photo","camera","file","space"],
 				    onSuccess : function(result) {
@@ -719,57 +917,7 @@
 			var $input = $('input[name="</#noparse>${(component['name'])!""}<#noparse>"]');
 			var dateType = '</#noparse>${component['dateType']!'yyyy-MM-dd'}<#noparse>';
 			dateType = dateType.replace("mm","MM")
-			var dateReg = /^\d{4}-\d{2}-\d{2}$/;
-			var dateTimeReg = /^\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}$/;
-			var value = $input.val();
-			var $span = $input.prev();
-			//判断是否有值存在
-			if(value.length>=10){
-				$span.text(value.substring(0,dateType.length));		
-			}
-			$input.parent().click(function(){
-				value = $input.val();
-				//判断是否有值存在
-				if(value.length>=10){
-					$span.text(value.substring(0,dateType.length));		
-				}else{
-					if(!dateReg.test(value) && !dateTimeReg.test(value)){
-						if(dateType=="yyyy-MM-dd"){
-							value = new Date().format("yyyy-MM-dd");
-						}
-						else{
-							value = new Date().format("yyyy-MM-dd hh:mm");
-						}
-					}
-				}
-				
-				if(dateType=="yyyy-MM-dd"){
-					dd.biz.util.datepicker({
-						"format":dateType,
-						"value":value,
-						onSuccess: function(data) {
-							$input.val(data.value);	
-							$span.text(data.value);				
-					    },
-					    onFail: function(err) {
-					    	console.log(JSON.stringify(err));
-					    }
-					});
-				}
-				else{
-					dd.biz.util.datetimepicker({
-						"format":"yyyy-MM-dd hh:mm",
-						"value":value,
-						onSuccess: function(data) {
-							$input.val(data.value);	
-							$span.text(data.value);				
-					    },
-					    onFail: function(err) {
-					    	console.log(JSON.stringify(err));
-					    }
-					});
-				}					
-			});
+			convertDateTimeScript($input,dateType);
 		})();		
 	</#if>	
 	</#noparse>

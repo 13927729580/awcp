@@ -215,7 +215,7 @@ public class PunUserBaseInfoController extends BaseController {
 	@RequestMapping(value = "punUserBaseInfoList")
 	public ModelAndView punUserBaseInfoList(@ModelAttribute PunUserBaseInfoVO vo, Model model,
 			@RequestParam(value = "currentPage", required = false, defaultValue = "1") int currentPage,
-			@RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize) {
+			@RequestParam(value = "pageSize", required = false, defaultValue = "15") int pageSize) {
 		try {
 			String sortString = "p_un_user_base_info.number";
 			BaseExample example = new BaseExample();

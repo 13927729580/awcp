@@ -166,6 +166,7 @@
 	<logger name="com.ibatis.common.jdbc.ScriptRunner" level="DEBUG" />
 	<logger name="com.ibatis.sqlmap.engine.impl.SqlMapClientDelegate"
 		value="DEBUG" />
+	<logger name="org.mongodb.driver.cluster" level="WARN" />
 
 
 

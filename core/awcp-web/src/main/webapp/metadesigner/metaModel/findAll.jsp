@@ -228,7 +228,13 @@
           			return false;
           		}
                 if(confirm("此操作会覆盖数据库表，并清除数据")){
-                    $("#manuList").attr("action","<%=basePath%>metaModel/createTable.do").submit();
+                    $.post("<%=basePath%>metaModel/createTable.do",{id:$("input[name='id']").val()},function(data){
+                        if(data.status==0){
+                            alertMessage("创建成功");
+						}else{
+                            alertMessage(data.message);
+						}
+					})
                 }
                 return false;
             });

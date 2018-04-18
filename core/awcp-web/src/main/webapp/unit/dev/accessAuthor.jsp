@@ -16,38 +16,38 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="renderer" content="webkit">
  		<title>菜单编辑页面</title>
- 		<%@ include file="/resources/include/common_form_css.jsp"%><!-- 注意加载路径 -->
-		<link rel="stylesheet" href="<%=basePath%>base/resources/zui/assets/datetimepicker/css/datetimepicker.css"/>
-		<link rel="stylesheet" href="<%=basePath%>resources/plugins/select2/select2.css"/>
-		<link rel="stylesheet" href="<%=basePath%>resources/plugins/select2/select2-bootstrap.css"/>
+ 		<%@ include file="/resources/include/common_lte_css.jsp"%><!-- 注意加载路径 -->
 		<link rel="stylesheet" href="<%=basePath%>resources/plugins/zTree_v3/css/zTreeStyle/zTreeStyle.css">
 	</head>
-	<body id="main">
-		<div class="container-fluid">
-			<div class="row" id="breadcrumb">
-				<ul class="breadcrumb">
-					<li><i class="icon-location-arrow icon-muted"></i></li>
-					<li><a href="<%=basePath %>unit/listRolesInSys.do">角色管理</a></li>
-					<li>${roleName }</li>
-				</ul>
-			</div>
-		
-			<div class="row" id="tab">
-				<ul class="nav nav-tabs"><!-- 标签页nav里面的 href的值对应的是 tab-content里面的tab-pane的id值 -->				
-					<li class="active"><a href="#tab1" data-toggle="tab">菜单</a></li>
-					<li class=""><a href="#tab2" data-toggle="tab">按钮</a></li>
-				</ul>
-			</div>
-			<div class="row tab-content">
- 				<div class="tab-pane active" id="tab1"><jsp:include page="/unit/punRoleMenuAccess-edit.jsp"/></div>
-				<div class="tab-pane" id="tab2"><jsp:include page="/unit/componentAccess-edit.jsp"/></div>
+	<body>
+	<section class="content">
+		<div class="row" id="breadcrumb">
+			<ul class="breadcrumb">
+				<li><i class="icon-location-arrow icon-muted"></i></li>
+				<li><a href="<%=basePath %>unit/listRolesInSys.do">角色管理</a></li>
+				<li>${roleName }</li>
+			</ul>
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+				<div class="box box-info">
+					<div class="box-body">
+						<div id="tab">
+							<ul class="nav nav-tabs"><!-- 标签页nav里面的 href的值对应的是 tab-content里面的tab-pane的id值 -->
+								<li class="active"><a href="#tab1" data-toggle="tab">菜单</a></li>
+								<li class=""><a href="#tab2" data-toggle="tab">按钮</a></li>
+							</ul>
+						</div>
+						<div class="tab-content">
+							<div class="tab-pane active" id="tab1"><jsp:include page="/unit/punRoleMenuAccess-edit.jsp"/></div>
+							<div class="tab-pane" id="tab2"><jsp:include page="/unit/componentAccess-edit.jsp"/></div>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
-		
-		<%@ include file="/resources//include/common_form_js.jsp" %>
-		<script src="<%=basePath%>base/resources/zui/assets/datetimepicker/js/datetimepicker.min.js"></script>
-		<script src="<%=basePath%>resources/plugins/select2/select2.js"></script>
-		<script src="<%=basePath%>resources/plugins/select2/select2_locale_zh-CN.js"></script>
+	</section>
+		<%@ include file="/resources/include/common_lte_js.jsp" %>
 		<script src="<%=basePath%>resources/plugins/zTree_v3/js/jquery.ztree.all-3.5.js"></script>
 		<script>
 			var roleId = "${vo.roleId}";

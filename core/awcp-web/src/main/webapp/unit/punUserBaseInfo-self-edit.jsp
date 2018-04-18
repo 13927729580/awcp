@@ -111,7 +111,7 @@
 
 		</div>
 
-		<%@ include file="/resources//include/common_form_js.jsp" %>
+		<%@ include file="/resources/include/common_form_js.jsp" %>
 		<script type="text/javascript">
 		$(function(){
    			$.formValidator.initConfig({formID:"userForm",debug:false,onSuccess:function(){

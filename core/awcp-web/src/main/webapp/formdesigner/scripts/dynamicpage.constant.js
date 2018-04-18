@@ -48,10 +48,7 @@ var pageConstant = {
             this.type.put("1043","表格行操作组件");
             this.type.put("1101","事件控件");
             this.type.put("1102","手机省市县控件");
-            // this.type.put("1101","钉钉文本输入框");
-           // this.type.put("1102","钉钉时间选择框");
-           // this.type.put("1103","钉钉多行输入框");
-           // this.type.put("1104", "钉钉图片选择框");
+            this.type.put("1103","钉钉明细控件");
 		}
 		return this.type;
 	}

@@ -144,10 +144,11 @@ public class UnitBaseController {
 	@RequestMapping(value = "/userHeadImg", method = RequestMethod.GET)
 	public void updateUserHeadImg(String userHeadImg) {
 		if (StringUtils.isNotBlank(userHeadImg)) {
-			Long userId = ControllerHelper.getUserId();
+			PunUserBaseInfoVO user = ControllerHelper.getUser();
+			Long userId = user.getUserId();
 			metaModelOperateServiceImpl.updateBySql("update p_un_user_base_info set USER_HEAD_IMG=? where USER_ID=? ",
 					userHeadImg, userId);
-			ControllerHelper.getUser().setUserHeadImg(userHeadImg);
+			user.setUserHeadImg(userHeadImg);
 		}
 	}
 

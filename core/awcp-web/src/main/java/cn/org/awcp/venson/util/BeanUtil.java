@@ -253,4 +253,15 @@ public class BeanUtil {
 		}
 		return obj;
 	}
+
+	/**
+	 * map移除对象
+	 * @param map
+	 * @param keys
+	 */
+	public static void removeMap(Map<String,?> map,String... keys){
+		for(String key:keys){
+			map.remove(key);
+		}
+	}
 }

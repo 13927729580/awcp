@@ -70,7 +70,6 @@
 									<option value="text">text</option>
 									<option value="date">date</option>
 									<option value="datetime">datetime</option>
-									<option value="timestamp">timestamp</option>
 						</select>
 					</div>
 					<label class="col-md-2 control-label">属性长度</label>
@@ -121,7 +120,7 @@
 				
 				<div class="form-group"><!-- 表单提交按钮区域 -->
 		            <div class="col-md-offset-2 col-md-10">
-		              	<button type="submit" class="btn btn-success" id="saveBtn"><i class="icon-save"></i>保存</button>
+		              	<a class="btn btn-success" id="saveBtn"><i class="icon-save"></i>保存</a>
 						<a href="<%=basePath %>metaModelItems/queryResultByParams.do?id=${vo.modelId }" class="btn" id="undoBtn"><i class="icon-undo"></i>取消</a>
 		            </div>
 		        </div>
@@ -132,7 +131,16 @@
 		<%@ include file="../../resources/include/common_form_js.jsp" %>
 		<script type="text/javascript">
 			$(document).ready(function(){
-				
+                $("#saveBtn").on("click",function(){
+                    var itemType=$("select[name='itemType']").val();
+                    var itemLength=$.trim($("input[name='itemLength']").val());
+                    if(itemType!="date"&&itemType!="datetime"&&itemType!="text"&&itemLength.length==0){
+                        alertMessage(itemType+"类型必须指定长度");
+                        return false;
+                    }
+                    $("#groupForm").submit();
+
+                })
 				$("select[name='useIndex']").val('${vo.useIndex}');
 				$("select[name='useNull']").val('${vo.useNull}');
 				$("select[name='itemType']").val('${vo.itemType}');

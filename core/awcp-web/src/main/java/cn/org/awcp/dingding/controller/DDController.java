@@ -748,7 +748,8 @@ public class DDController {
 						Object type = map.get("type");
 						if("1".equals(type)){
 							if(size == 0){
-								throw new PlatformException("没有找到该用户的主管");
+								//throw new PlatformException("没有找到该用户的主管");
+								continue;
 							} else{
 								int level = Integer.parseInt(val + "");
 								if(level > size){
@@ -762,10 +763,11 @@ public class DDController {
 							list.add(StringUtils.join(tempList.iterator(), ","));
 						} else if("4".equals(type)){
 							String role_id = (String) ((Map) val).get("role_id");
-							String role_name = (String) ((Map) val).get("role_name");
+							//String role_name = (String) ((Map) val).get("role_name");
 							List<String> rolelist = getUserInRole(role_id);
 							if(rolelist.size() == 0){
-								throw new PlatformException("没有找到拥有" + role_name + "角色的用户");
+								continue;
+								//throw new PlatformException("没有找到拥有" + role_name + "角色的用户");
 							} else{
 								list.add(StringUtils.join(rolelist.iterator(), ","));
 							}
@@ -774,13 +776,16 @@ public class DDController {
 						}
 					}
 					result.setData(list);
+					if(list.size() == 0){
+						throw new PlatformException("没有找到任何流程执行人");
+					}
 					return result;
 				} else{
 					throw new PlatformException("没有预设流程");
 				}				
 			} catch(DataAccessException e){
 				e.printStackTrace();
-				throw new PlatformException("没有预设流程");
+				throw new PlatformException("Sql执行错误");
 			}		
 		} else{
 			throw new PlatformException("没有关联动态页面ID");

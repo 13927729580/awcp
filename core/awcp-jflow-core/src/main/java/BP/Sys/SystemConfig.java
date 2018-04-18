@@ -7,6 +7,8 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.Properties;
 
+import cn.jflow.common.util.ContextHolderUtils;
+import com.alibaba.druid.pool.DruidDataSource;
 import org.apache.commons.io.IOUtils;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
@@ -716,8 +718,8 @@ public class SystemConfig {
      * @return
      */
     public static String getAppCenterDSN() {
-        String dsn = getAppSettings().get("AppCenterDSN").toString();
-        return dsn;
+        DruidDataSource dataSource=(DruidDataSource) ContextHolderUtils.getInstance().getDataSource();
+        return dataSource.getUrl();
     }
 
     /**
@@ -726,13 +728,13 @@ public class SystemConfig {
      * @return
      */
     public static String getUser() {
-        String user = getAppSettings().get("JflowUser").toString();
-        return user;
+        DruidDataSource dataSource=(DruidDataSource) ContextHolderUtils.getInstance().getDataSource();
+        return dataSource.getUsername();
     }
 
     public static String getPassword() {
-        String password = getAppSettings().get("JflowPassword").toString();
-        return password;
+        DruidDataSource dataSource=(DruidDataSource) ContextHolderUtils.getInstance().getDataSource();
+        return dataSource.getPassword();
     }
 
     public static void setAppCenterDSN(String value) {
@@ -817,7 +819,7 @@ public class SystemConfig {
         }
     }
 
-    private static String _AppCenterDBDatabase = null;
+    private static String _AppCenterDBDatabase;
 
     /**
      * 数据库名称
@@ -827,22 +829,6 @@ public class SystemConfig {
     public static String getAppCenterDBDatabase() {
         if (_AppCenterDBDatabase == null) {
             _AppCenterDBDatabase = getAppSettings().get("AppCenterDBDatabase").toString();
-            /*
-             * warning switch (BP.DA.DBAccess.getAppCenterDBType()){ case MSSQL: SqlConnection
-             * connMSSQL = new SqlConnection(SystemConfig.getAppCenterDSN()); if (connMSSQL.State !=
-             * ConnectionState.Open) { connMSSQL.Open(); } _AppCenterDBDatabase =
-             * connMSSQL.Database; break; case Oracle: OracleConnection connOra = new
-             * OracleConnection(SystemConfig.getAppCenterDSN()); if (connOra.State !=
-             * ConnectionState.Open) { connOra.Open(); } _AppCenterDBDatabase = connOra.Database;
-             * break; case MySQL: MySqlConnection connMySQL = new
-             * MySqlConnection(SystemConfig.getAppCenterDSN()); if (connMySQL.State !=
-             * ConnectionState.Open) { connMySQL.Open(); } _AppCenterDBDatabase =
-             * connMySQL.Database; break; //case DA.DBType.Informix: // IfxConnection connIFX = new
-             * IfxConnection(SystemConfig.AppCenterDSN); // if (connIFX.State !=
-             * ConnectionState.Open) // connIFX.Open(); // _AppCenterDBDatabase = connIFX.Database;
-             * // break; default: throw new RuntimeException("@没有判断的数据类型."); break; }
-             */
-
         }
         // 返回database.
         return _AppCenterDBDatabase;

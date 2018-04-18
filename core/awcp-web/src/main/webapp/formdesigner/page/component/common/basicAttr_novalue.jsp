@@ -8,8 +8,8 @@
 		<div class="col-md-10 col-sm-10">
 			<input name="name" class="form-control" id="name" type="text" value="">
 			<div class="input-group-btn">
-	             	<button class="btn btn-default" type="button" id="editName">编辑名称</button>
-			 </div>
+	        	<button class="btn btn-default" type="button" id="editName">编辑名称</button>
+			</div>
 		</div>
 	</div>
 	<div class="form-group">

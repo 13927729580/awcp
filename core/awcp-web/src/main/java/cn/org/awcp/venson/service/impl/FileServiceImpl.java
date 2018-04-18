@@ -43,8 +43,11 @@ public class FileServiceImpl implements FileService {
      */
     private static final Log logger = LogFactory.getLog(FileServiceImpl.class);
 
+    private static final String MONGO_DB_NAME="myFiles";
+
+
     @Autowired
-    private MongoClient mongo;
+    private MongoClient mongoClient;
 
 
     @Override
@@ -93,7 +96,7 @@ public class FileServiceImpl implements FileService {
             att.setSystemId(ControllerHelper.getSystemId());
             switch (type) {
                 case FileService.MONGODB:
-                    DB db = mongo.getDB("myFiles");
+                    DB db = mongoClient.getDB(MONGO_DB_NAME);
                     GridFS myFS = new GridFS(db);
                     GridFSInputFile gf = myFS.createFile(in);
                     gf.setContentType(fileType);
@@ -305,7 +308,7 @@ public class FileServiceImpl implements FileService {
             }
             switch (att.getType()) {
                 case FileService.MONGODB:
-                    DB db = mongo.getDB("myFiles");
+                    DB db = mongoClient.getDB(MONGO_DB_NAME);
                     GridFS myFS = new GridFS(db);
                     DBObject query = new BasicDBObject("id", att.getStorageId());
                     myFS.remove(query);
@@ -337,16 +340,20 @@ public class FileServiceImpl implements FileService {
         InputStream in = null;
         switch (att.getType()) {
             case FileService.MONGODB:
+                InputStream GFSInput=null;
                 try {
-                    DB db = mongo.getDB("myFiles");
+                    DB db = mongoClient.getDB(MONGO_DB_NAME);
                     GridFS myFS = new GridFS(db);
                     DBObject query = new BasicDBObject("id", att.getStorageId());
                     GridFSDBFile gif = myFS.findOne(query);
                     if (gif != null) {
-                        in = gif.getInputStream();
+                        GFSInput=gif.getInputStream();
+                        in=new ByteArrayInputStream(IOUtils.toByteArray(GFSInput));
                     }
-                } catch (Exception e1) {
-                    logger.debug("ERROR", e1);
+                } catch (Exception e) {
+                    logger.debug("ERROR", e);
+                }finally {
+                    IOUtils.closeQuietly(GFSInput);
                 }
 
                 break;
