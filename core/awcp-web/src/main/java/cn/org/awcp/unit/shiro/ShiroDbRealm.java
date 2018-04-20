@@ -73,7 +73,7 @@ public class ShiroDbRealm extends AuthorizingRealm {
 		// 获取当前登录的用户名
 
 		String[] result = token.getUsername().split(SPLIT);
-		String whichEnd = result[2];// 端
+		String whichEnd = result[1];// 端
 		switch (WhichEndEnum.getOperChartType(whichEnd)) {
 		case FRONT_END:// 前端
 			info = frontAuthorizationInfo();
