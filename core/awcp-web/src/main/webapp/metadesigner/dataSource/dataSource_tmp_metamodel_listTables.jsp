@@ -23,7 +23,6 @@
 			<div class="row" id="dataform">
 				<span>数据库连接信息</span>
 				<form class="form-horizontal" id="groupForm" action="" method="post">
-					<input type="hidden" name="datasourceJson" id="datasourceJson" value="${datasourceJson}" />
 					<div class="form-group">
 						<div class="col-md-12">
 						<!-- 全选 、通过条件选择 -->

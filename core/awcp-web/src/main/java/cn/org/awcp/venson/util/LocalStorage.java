@@ -28,7 +28,7 @@ public class LocalStorage {
 
     static {
         // 文件存放路径取jre路径
-        String path = System.getProperty("java.home") + File.separator + "awcp.json";
+        String path = System.getProperty("user.dir") + File.separator + "awcp.json";
         // 创建平台属性文件
         awcpFile = new File(path);
         // 如果文件不存在则初始化

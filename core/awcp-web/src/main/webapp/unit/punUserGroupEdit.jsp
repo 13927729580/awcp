@@ -81,7 +81,7 @@
 	                </ul>            
 	      </div>
 
-		<%@ include file="/resources//include/common_form_js.jsp" %>
+		<%@ include file="/resources/include/common_form_js.jsp" %>
 		<script type="text/javascript">
 		$('#allchecker').click( function(){
   			//alert("dd");

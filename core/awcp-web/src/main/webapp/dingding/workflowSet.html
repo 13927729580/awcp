@@ -548,12 +548,14 @@
 					}
 				} else if(type=="4"){
 					var obj = {};
-					$("#set4").find(".notifier-chunk").each(function(){
-						obj.role_id = $(this).attr("data-id");
-						obj.role_name = $(this).attr("data-name");
-					});
-					var dataJson = JSON.stringify({type:"4",val:obj}); 
-					html = getNodeHtml(dataJson,"img/executor.png",obj.role_name);
+					if($("#set4").find(".notifier-chunk").length == 1){
+						$("#set4").find(".notifier-chunk").each(function(){
+							obj.role_id = $(this).attr("data-id");
+							obj.role_name = $(this).attr("data-name");
+						});
+						var dataJson = JSON.stringify({type:"4",val:obj}); 
+						html = getNodeHtml(dataJson,"img/executor.png",obj.role_name);
+					}					
 				} else if(type=="5"){
 					var dataJson = JSON.stringify({type:"5",val:""}); 
 					html = getNodeHtml(dataJson,"img/executor.png","发起人");

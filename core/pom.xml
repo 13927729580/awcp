@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>cn.org.awcp</groupId>
 	<artifactId>awcp-framework</artifactId>
-	<version>1.5-SNAPSHOT</version>
+	<version>1.6-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<modules>
 		<module>awcp-metadesigner</module>
@@ -407,7 +407,7 @@
 			<dependency>
 				<groupId>org.apache.httpcomponents</groupId>
 				<artifactId>httpclient</artifactId>
-				<version>4.4</version>
+				<version>4.5.3</version>
 			</dependency>
 		</dependencies>
 
@@ -488,11 +488,16 @@
 				<db.driver>com.mysql.jdbc.Driver</db.driver>
 				<db.url>jdbc:mysql://localhost:3306/awcp?useUnicode=true&amp;characterEncoding=utf8&amp;zeroDateTimeBehavior=convertToNull&amp;transformedBitIsBoolean=true&amp;useOldAliasMetadataBehavior=true</db.url>
 				<db.username>root</db.username>
-				<db.password>123456</db.password>
+				<db.password>d45d62485b2599882a11aac47dff3dfd5f0e0bab515da0a9</db.password>
 				<AppCenterDBDatabase>awcp</AppCenterDBDatabase>
-				<!-- mongodb.url -->
-				<mongodb.url>127.0.0.1</mongodb.url>
-				<mongodb.port>27017</mongodb.port>
+				<!-- mongodb -->
+				<mongoUrl>localhost</mongoUrl>
+				<mongoPort>27017</mongoPort>
+				<!-- redis -->
+				<redisHost>localhost</redisHost>
+				<redisPassword>d45d62485b2599882a11aac47dff3dfd5f0e0bab515da0a9</redisPassword>
+				<!-- solr -->
+				<baseSolrUrl>http://localhost:8984/solr/awcp-files</baseSolrUrl>
 				<!-- 日志级别 -->
 				<log.level>debug</log.level>
 				<mybatis.log>STDOUT_LOGGING</mybatis.log>

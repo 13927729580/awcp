@@ -27,7 +27,6 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.nio.file.Files;
@@ -71,7 +70,6 @@ public class PunUserBaseInfoController extends BaseController {
 	/**
 	 * 获取当前系统角色
 	 * 
-	 * @param roleId
 	 * @return
 	 */
 	private List<PunRoleInfoVO> queryRoles() {
@@ -107,31 +105,30 @@ public class PunUserBaseInfoController extends BaseController {
 
 	/**
 	 * 保存
-	 * 
 	 * @param vo
-	 * @param model
 	 * @return
 	 */
+	@ResponseBody
 	@RequestMapping(value = "/punUserBaseInfoSave", method = RequestMethod.POST)
-	public ModelAndView punUserBaseInfoSave(@ModelAttribute("vo") PunUserBaseInfoVO vo, Model model,
-			RedirectAttributes ra, HttpServletRequest request) {
-		ModelAndView mView = new ModelAndView("/unit/punUserBaseInfo-edit");
+	public ReturnResult punUserBaseInfoSave(@ModelAttribute("vo") PunUserBaseInfoVO vo) {
+		ReturnResult result=ReturnResult.get();
 		try {
-			PunGroupVO groupVO = (PunGroupVO) SessionUtils.getObjectFromSession(SessionContants.CURRENT_USER_GROUP);
-			vo.setGroupId(groupVO.getGroupId());// 设置所属组织ID
+			if(StringUtils.isBlank(vo.getUserIdCardNumber())) {
+				vo.setUserIdCardNumber(vo.getUserName());
+			}
 			String msg = validate(vo);
 			if (msg == null) {
-				if (null == vo.getUserId() || "yes".equals(vo.getUpdatePassword())) {// 新增用户或者修改密码
-					vo.setUserPwd(EncryptUtils.encrypt(vo.getUserPwd()));// 密码加密
-				} else {
-					PunUserBaseInfoVO existVO = userService.findById(vo.getUserId());
-					vo.setUserPwd(existVO.getUserPwd());
-				}
+				// 密码加密
+				vo.setUserPwd(EncryptUtils.encrypt(vo.getUserPwd()));
 				boolean isNew = vo.getUserId() == null ? true : false;
 				String userHeadImg = StringUtils.defaultString(vo.getUserHeadImg(),
 						ControllerHelper.getBasePath() + "template/AdminLTE/images/user2-160x160.jpg");
 				vo.setUserHeadImg(userHeadImg);
-				Long userId = userService.addOrUpdateUser(vo);// 新增用户
+				//更新用户时，不允许修改用户账号
+				if(!isNew){
+					vo.setUserIdCardNumber(null);
+				}
+				Long userId = userService.addOrUpdateUser(vo);
 				// 新增用户时，增加部门和岗位
 				if (vo.getPositionGroupId() != null && vo.getPositionId() != null) {
 					String insertSql = "insert into p_un_user_group(USER_ID,GROUP_ID,POSITION_ID) values(?,?,?)";
@@ -145,38 +142,34 @@ public class PunUserBaseInfoController extends BaseController {
 								vo.getPositionId());
 					}
 				}
-
-				ra.addFlashAttribute("result", "用户名为" + vo.getUserIdCardNumber() + "的用户新增/更新成功！");
-				return new ModelAndView("redirect:/unit/punUserBaseInfoList.do");
+				result.setStatus(StatusCode.SUCCESS);
 			} else {
-				model.addAttribute("result", "校验失败" + msg + "。");
+				result.setStatus(StatusCode.FAIL.setMessage("校验失败" + msg + "。"));
 			}
 		} catch (Exception e) {
 			logger.info("ERROR", e);
-			model.addAttribute("result", "系统异常");
+			result.setStatus(StatusCode.FAIL.setMessage("系统异常"));
 		}
-		List<PunRoleInfoVO> roleVos = queryRoles();
-		mView.addObject("roleVos", roleVos);
-		return mView;
+		return result;
 	}
 
 	/**
 	 * 根据ID查找
 	 * 
-	 * @param id
+	 * @param boxs
 	 * @return
 	 */
 	@RequestMapping(value = "punUserBaseInfoGet", method = RequestMethod.POST)
-	public ModelAndView punUserBaseInfoGet(Long[] boxs) {
+	public ModelAndView punUserBaseInfoGet(Long boxs) {
 		ModelAndView mv = new ModelAndView();
 		mv.setViewName("/unit/punUserBaseInfo-edit");
 		try {
-			PunUserBaseInfoVO vo = userService.findById(boxs[0]);
+			PunUserBaseInfoVO vo = userService.findById(boxs);
 			List<PunRoleInfoVO> roleVos = queryRoles();// 获取当前系统角色
 			// 根据userId获取用户角色
 			List<String> selectedRole = roleService.queryByUser(vo.getUserId());
 			String sql = "SELECT group_id groupId,position_id positionId FROM p_un_user_group WHERE user_id=?";
-			List<Map<String, Object>> data = metaModelOperateServiceImpl.search(sql, boxs[0]);
+			List<Map<String, Object>> data = metaModelOperateServiceImpl.search(sql, boxs);
 			Object groupId = "";
 			Object positionId = "";
 			if (!data.isEmpty()) {
@@ -510,8 +503,8 @@ public class PunUserBaseInfoController extends BaseController {
 	/**
 	 * 取消角色与用户关联关系
 	 * 
-	 * @param roleId角色Id
-	 * @param boxs用户Id
+	 * @param roleId 角色Id
+	 * @param boxs 用户Id
 	 * @return
 	 */
 	@RequestMapping(value = "cancelUserRoleRelation", method = RequestMethod.POST)
@@ -534,22 +527,29 @@ public class PunUserBaseInfoController extends BaseController {
 	 * @return boolean
 	 */
 	private String validate(PunUserBaseInfoVO vo) {
-		List<PunUserBaseInfoVO> users = null;
-		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("groupId", vo.getGroupId());// 所属组织ID
-		params.put("userIdCardNumber", vo.getUserIdCardNumber());// 身份证号
-		if (null == vo.getUserId()) {// 若新增
-			users = userService.queryResult("eqQueryList", params);
-		} else {// 若修改
-			PunUserBaseInfoVO userVo = userService.findById(vo.getUserId());
-			// 判断新录入的身份证号与原身份证号不一致，校验
-			if (!userVo.getUserIdCardNumber().equals(vo.getUserIdCardNumber())) {
-				users = userService.queryResult("eqQueryList", params);
+		// 新增
+		if (null == vo.getUserId()) {
+			int count = metaModelOperateServiceImpl.queryOne("select count(*) from p_un_user_base_info "
+					+ "where USER_NAME=? or USER_ID_CARD_NUMBER=?",vo.getUserName(),vo.getUserIdCardNumber());
+			if(count != 0) {
+				return "该用户名已注册过";
 			}
-		}
-		if (null != users && users.size() > 0) {
-			return "该用户名已注册过";
-		}
+			count = metaModelOperateServiceImpl.queryOne("select count(*) from p_un_user_base_info where MOBILE=?",vo.getMobile());
+			if(count != 0) {
+				return "该手机已注册过";
+			}
+		} else {
+			int count = metaModelOperateServiceImpl.queryOne("select count(*) from p_un_user_base_info "
+					+ "where USER_ID<>? and USER_NAME=?",vo.getUserId(),vo.getUserName());
+			if(count != 0) {
+				return "该用户名已注册过";
+			}
+			count = metaModelOperateServiceImpl.queryOne("select count(*) from p_un_user_base_info "
+					+ "where USER_ID<>? and MOBILE=?",vo.getUserId(),vo.getMobile());
+			if(count != 0) {
+				return "该手机已注册过";
+			}
+		}	
 		return null;
 	}
 
@@ -560,13 +560,10 @@ public class PunUserBaseInfoController extends BaseController {
 	 *            旧密码
 	 * @param newPwd
 	 *            新密码
-	 * @param newPwd2
-	 *            重复输入密码
-	 * @param response
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/updatePwd", method = RequestMethod.POST)
-	public ReturnResult updatePwd(String oldPwd, String newPwd, HttpServletResponse response) {
+	public ReturnResult updatePwd(String oldPwd, String newPwd) {
 		ReturnResult result = ReturnResult.get();
 		try {
 			PunUserBaseInfoVO user = (PunUserBaseInfoVO) SessionUtils
@@ -613,7 +610,6 @@ public class PunUserBaseInfoController extends BaseController {
 	/**
 	 * 获取个人信息
 	 * 
-	 * @param vo
 	 * @return
 	 */
 	@RequestMapping(value = "getSelfInfo")
@@ -699,7 +695,6 @@ public class PunUserBaseInfoController extends BaseController {
 	 * 
 	 * @param vo
 	 * @param file
-	 * @param userId
 	 */
 	private void saveUserSignature(PunUserBaseInfoVO vo, File file) {
 		try {

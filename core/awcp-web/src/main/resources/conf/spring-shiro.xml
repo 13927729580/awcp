@@ -1,160 +1,118 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans   
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
 	http://www.springframework.org/schema/beans/spring-beans.xsd">
-	
-    
-	
-	<bean id="sessionManager" class="org.apache.shiro.web.session.mgt.DefaultWebSessionManager">
-		<property name="globalSessionTimeout" value="7200000" />
-		<property name="sessionValidationSchedulerEnabled" value="true" /> 
-		<property name="sessionValidationScheduler" ref="sessionValidationScheduler"/> 
-		<!-- <property name="globalSessionTimeout" value="3600000" />  -->
-		<property name="sessionIdCookieEnabled" value="true" />
-		<property name="sessionIdCookie" ref="sessionIdCookie" /> 
-		<property name="sessionDAO" ref="sessionDAO" />
-	</bean>
-	<bean id="sessionIdGenerator" class="org.apache.shiro.session.mgt.eis.JavaUuidSessionIdGenerator "/>  
-	<bean id="sessionDAO" class="org.apache.shiro.session.mgt.eis.EnterpriseCacheSessionDAO">  
-	    <!--设置Session缓存名字，默认就是shiro-activeSessionCache-->  
-	    <property name="activeSessionsCacheName" value="shiro-activeSessionCache"/>  
-	    <!-- 用于生成会话ID，默认就是JavaUuidSessionIdGenerator，使用java.util.UUID生成 -->  
-	    <property name="sessionIdGenerator" ref="sessionIdGenerator"/>
-	    <property name="cacheManager" ref="shiroCacheManager" />  
-	</bean> 
-	
-	<!-- 会话Cookie模板 -->
-	<bean id="sessionIdCookie" class="org.apache.shiro.web.servlet.SimpleCookie">
-	    <constructor-arg value="sid"/>
-	    <property name="httpOnly" value="true"/>
-	    <property name="maxAge" value="-1"/>
-	    <property name="path" value="/"/>
-	</bean>
-	
-	<bean id="rememberMeCookie" class="org.apache.shiro.web.servlet.SimpleCookie">
-	    <constructor-arg value="rememberMe"/>
-	    <property name="httpOnly" value="true"/>
-	    <property name="maxAge" value="2592000"/><!-- 30天 -->
-	    <property name="path" value="/"/>
-	</bean>
-	
-	<!-- 定期验证 -->
-	<bean id="sessionValidationScheduler" class="org.apache.shiro.session.mgt.ExecutorServiceSessionValidationScheduler">
-	    <property name="interval" value="7200000"/>
-	</bean>
-	
-	 <bean id="securityManager"
-        class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
-        <property name="realm" ref="shiroDbRealm" />
-        <property name="sessionMode" value="native"/>
-        <property name="sessionManager" ref="sessionManager" />  
-        <property name="cacheManager" ref="shiroCacheManager" />
+
+
+    <bean id="sessionManager" class="org.apache.shiro.web.session.mgt.DefaultWebSessionManager">
+        <property name="globalSessionTimeout" value="1800000"/>
+        <property name="sessionValidationSchedulerEnabled" value="false"/>
+        <property name="sessionIdCookieEnabled" value="true"/>
+        <property name="sessionIdCookie" ref="sessionIdCookie"/>
+        <property name="sessionDAO" ref="sessionDAO"/>
     </bean>
-    <bean id="kickoutSessionControlFilter"  class="cn.org.awcp.venson.interceptor.KickoutSessionControlFilter">  
-	    <property name="cacheManager" ref="shiroCacheManager"/>  
-	    <property name="sessionManager" ref="sessionManager"/>  
-	    <property name="kickoutAfter" value="false"/>  
-	    <property name="maxSession" value="10"/>  
-	    <property name="kickoutUrl" value="/login.html"/>  
-	</bean>   
-    <!-- 用户授权信息Cache, 采用EhCache -->
-	<bean id="shiroCacheManager" class="org.apache.shiro.cache.ehcache.EhCacheManager">
-		<property name="cacheManagerConfigFile" value="classpath:conf/ehcache-shiro.xml"/>
-	</bean>
-     <!-- 項目自定义的Realm -->
-    <bean id="shiroDbRealm" class="cn.org.awcp.unit.shiro.ShiroDbRealm" />
-    
+
+    <!-- 会话Cookie模板 -->
+    <bean id="sessionIdCookie" class="org.apache.shiro.web.servlet.SimpleCookie">
+        <constructor-arg value="sid"/>
+        <property name="httpOnly" value="true"/>
+        <property name="maxAge" value="-1"/>
+        <property name="path" value="/"/>
+    </bean>
+
+    <!-- rememberMe管理器 -->
+    <bean id="rememberMeManager" class="org.apache.shiro.web.mgt.CookieRememberMeManager">
+        <!-- rememberMe cookie加密的密钥 建议每个项目都不一样 默认AES算法 密钥长度（128 256 512 位）-->
+        <property name="cipherKey" value="#{T(org.apache.shiro.codec.Base64).decode('6ZmI6I2j5Y+R5aSn5ZOlAA==')}"/>
+        <property name="cookie" ref="rememberMeCookie"/>
+    </bean>
+
+    <bean id="rememberMeCookie" class="org.apache.shiro.web.servlet.SimpleCookie">
+        <constructor-arg value="rememberMe"/>
+        <property name="httpOnly" value="true"/>
+        <property name="maxAge" value="2592000"/><!-- 30天 -->
+        <property name="path" value="/"/>
+    </bean>
+
+    <bean id="securityManager"
+          class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+        <property name="realm" ref="shiroDbRealm"/>
+        <property name="sessionManager" ref="sessionManager"/>
+        <property name="rememberMeManager" ref="rememberMeManager"/>
+    </bean>
+
+    <!-- sessionDao -->
+    <bean id="sessionDAO" class="cn.org.awcp.unit.shiro.ShiroSessionDao"/>
+
+    <!-- 項目自定义的Realm -->
+    <bean id="shiroDbRealm" class="cn.org.awcp.unit.shiro.ShiroDbRealm"/>
+
+    <!-- 重写authc过滤器 -->
+    <bean id="awcpAuthorizationFilter" class="cn.org.awcp.unit.shiro.AwcpAuthorizationFilter"/>
+
+    <!-- 强制退出会话过滤器 -->
+    <bean id="kickoutSessionControlFilter" class="cn.org.awcp.unit.shiro.KickoutSessionControlFilter">
+        <property name="sessionDao" ref="sessionDAO"/>
+        <property name="kickoutAfter" value="false"/>
+        <property name="maxSession" value="5"/>
+    </bean>
+
     <!-- Shiro Filter for target system-->
-  <bean id="shiroFilter"
-        class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
-        <property name="securityManager" ref="securityManager" />
-        <property name="successUrl" value="/systemChoose.do" />
-        <property name="unauthorizedUrl" value="/login.do" />
-        <property name="loginUrl" value="/login.html" />
+    <bean id="shiroFilter"
+          class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+        <property name="securityManager" ref="securityManager"/>
+        <property name="successUrl" value="/systemChoose.do"/>
+        <property name="unauthorizedUrl" value="/login.do"/>
+        <property name="loginUrl" value="${awcp.login.url}"/>
         <property name="filters">
-        	<map>
-		        <entry key="authc">
-		          <bean class="cn.org.awcp.unit.shiro.MyAuthorizationFilter"/>
-		        </entry>
-		        <entry key="kickout" value-ref="kickoutSessionControlFilter" />
-		    </map>
-        </property>   
+            <map>
+                <entry key="authc" value-ref="awcpAuthorizationFilter"/>
+                <entry key="kickout" value-ref="kickoutSessionControlFilter"/>
+            </map>
+        </property>
         <property name="filterChainDefinitions">
-      <!--   <property name="defaultFilterChainDefinitions"> -->
             <value>
-            /appLogin.do = anon
-            /api/appLogin= anon
-            /logout.do = anon
-            /api/logout = anon
-            /anon/*.do =anon
-            /api/anon/**= anon
-            /api/common/file/download= anon
-            /api/common/file/get= anon
-            /api/common/file/showPicture= anon
-            /api/common/file/preview =anon
-            /logsso.do =anon
-            <!-- 钉钉模块免校验 begin -->
-            /dingding/config.do =anon
-            /dingding/sso.do =anon
-            /dingding/eventChangeReceive.do =anon
-            /dingding/corpId.do=anon
-            <!-- 钉钉模块免校验 end-->
-            /api/logsso =anon
-            /common/file/download.do =anon
-            /common/file/get.do =anon
-            /common/file/showPicture.do =anon
-            /common/file/preview.do =anon
-            /api/execute/** =anon,kickout
-            /wechat/*.do=anon
-            /api/wechat/**=anon
-            /**/*.do= authc,kickout
-            /api/**= authc,kickout
-            <!-- 
-            /devAdmin/login.do = anon
-            /devAdmin/logout.do = anon
-            /resources/doc/* =anon
-            /devAdmin =anon
-            /manageAdmin =anon
-            /DES/*.do =anon
-            /des/*.do =anon
-            /common/file/*.do =anon
-            
-            
-            /login.jsp = anon
-            /apps/mobile/oa/login.jsp = anon 
-            /devAdmin/login.jsp =anon
-            /*.jsp = authc
-            /devAdmin/*.jsp = authc
-            /unit/**=authc
-            /dev/**=authc
-            /manage/**=authc
-            /document/**=authc
-            /fd/**=authc
-            /component/**=authc
-            /func/**=authc
-            /layout/**=authc
-            /pfmTemplateController/**=authc
-            /print/**=authc
-            /cache/** = authc
-            /workflow/**=authc
-             -->
+                /appLogin.do = anon
+                /api/appLogin= anon
+                /logout.do = anon
+                /api/logout = anon
+                /anon/*.do =anon
+                /api/anon/**= anon
+                /api/common/file/download= anon
+                /api/common/file/get= anon
+                /api/common/file/showPicture= anon
+                /api/common/file/preview =anon
+                /logsso.do =anon
+                <!-- 钉钉模块免校验 begin -->
+                /dingding/config.do =anon
+                /dingding/sso.do =anon
+                /dingding/eventChangeReceive.do =anon
+                <!-- 钉钉模块免校验 end-->
+                /api/logsso =anon
+                /common/file/download.do =anon
+                /common/file/get.do =anon
+                /common/file/showPicture.do =anon
+                /common/file/preview.do =anon
+                /api/execute/** =anon,kickout
+                /**/*.do= authc,kickout
+                /api/**= authc,kickout
             </value>
         </property>
-    </bean> 
-    
-    
-	<!-- 开启Shiro注解的Spring配置方式的beans。在lifecycleBeanPostProcessor之后运行 -->
-    <bean
-        class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"
-        depends-on="lifecycleBeanPostProcessor" />
-    <bean
-        class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
-        <property name="securityManager" ref="securityManager" />
     </bean>
-    
+
+
+    <!-- 开启Shiro注解的Spring配置方式的beans。在lifecycleBeanPostProcessor之后运行 -->
+    <bean
+            class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"
+            depends-on="lifecycleBeanPostProcessor"/>
+    <bean
+            class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+        <property name="securityManager" ref="securityManager"/>
+    </bean>
+
     <bean id="lifecycleBeanPostProcessor"
-        class="org.apache.shiro.spring.LifecycleBeanPostProcessor" />
+          class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
 
     <!-- shiro为集成spring -->
     <bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
@@ -164,5 +122,5 @@
             </props>
         </property>
     </bean>
-	
- </beans>
+
+</beans>

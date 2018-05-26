@@ -366,20 +366,23 @@
  	<#noparse>
  	<#else>
  	</#noparse>	
- 		<#if c['title']?? >
-			<div class="colFirst ${c['dataAlias']!''}">
-				<label style="font-size: 12px;" class="<#if c['required']?? && c['required']=='1'>requiredLabel</#if>">${c["title"]!""}(<span style="font-size: 12px;" class="indexSpan">1</span>)</label>
+ 		<div class="${c['dataAlias']!''}" data-index="1">	
+			<div class="input_control">
+		 		<#if c['title']?? >
+					<div class="colFirst">
+						<label style="font-size: 12px;" class="<#if c['required']?? && c['required']=='1'>requiredLabel</#if>">${c["title"]!""}(<span style="font-size: 12px;" class="indexSpan">1</span>)</label>
+					</div>
+					<div class="colSecond">
+						<span style="font-size: 14px;float:right;color:blue;display:none;" class="delSpan">删除</span>
+					</div>
+				</#if>	
 			</div>
-			<div class="colSecond">
-				<span style="font-size: 14px;float:right;color:blue;display:none;" class="delSpan">删除</span>
-			</div>
-		</#if>	
-		</div>
- 		<#if c['details']?? && c['details']?size gt 0>
- 			<#list c['details'] as detail>
- 				<@convertDetail detail></@convertDetail>
- 			</#list>  
- 		</#if>	
+	 		<#if c['details']?? && c['details']?size gt 0>
+	 			<#list c['details'] as detail>
+	 				<@convertDetail detail></@convertDetail>
+	 			</#list>  
+	 		</#if>
+	 	</div>	
  	<#noparse>
  	</#if>     	
  	</#noparse>

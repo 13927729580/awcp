@@ -30,7 +30,7 @@ public class SolrTimer {
     private static final int TIME = 23;
 
     @Autowired
-    SolrService solrService;
+    private SolrService solrService;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -44,6 +44,9 @@ public class SolrTimer {
             // 执行任务逻辑
             List<Map<String, Object>> datas = jdbcTemplate.queryForList(
                     "select ID,readtype,readpath,raisetype,raisestring,indexfield,maxraise,time from p_fm_solr_indexe where log_time='0'");
+            if(datas.isEmpty()){
+                return;
+            }
             // 当前时间的小时
             Date date = new Date();
             SimpleDateFormat sdf = new SimpleDateFormat("HH");
@@ -72,7 +75,7 @@ public class SolrTimer {
             }
             // 23点重置增量更新log
             if (time == TIME) {
-                jdbcTemplate.update("UPDATE p_fm_solr_indexe SET log_time = ? ", "0");
+                jdbcTemplate.update("UPDATE p_fm_solr_indexe SET log_time = '0' ");
             }
         } catch (Exception e) {
             logger.info("ERROR", e);

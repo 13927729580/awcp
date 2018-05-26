@@ -1,10 +1,16 @@
 package cn.org.awcp.dingding.utils;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
+import BP.Tools.Json;
 import cn.org.awcp.core.utils.DateUtils;
+import cn.org.awcp.dingding.Env;
+import cn.org.awcp.dingding.service.DDRequestService;
 import cn.org.awcp.wechat.util.RequestUtil;
 
 public class DdRequest {
@@ -59,5 +65,21 @@ public class DdRequest {
 		params.put("group_id", group_id);
 		DdRequest.getParamsMap(params,GET_ROLE_GROUP,accessToken);		
 		return RequestUtil.doPost(url, params);
+	}
+	/**
+	 * 获取考勤数据
+	 * @return
+	 */
+	public static String  getSignUpRecord(String workDateFrom,String workDateTo) throws IOException, URISyntaxException {
+		String corpId =Env.CORP_ID;
+		String corpSecret =Env.CORP_SECRET;
+		String tokenAccess = DDRequestService.getToken(corpId,corpSecret);
+		String url = "https://oapi.dingtalk.com/attendance/list?access_token=" + tokenAccess;
+		Map<String, Object> mapParam = new HashMap<String, Object>();
+		mapParam.put("userIds", null);
+		mapParam.put("workDateFrom",workDateFrom);
+		mapParam.put("workDateTo",workDateTo);
+		String	resultMap = RequestUtil.doPost(url,Json.ToJson(mapParam));
+		return resultMap;
 	}
 }

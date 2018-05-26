@@ -177,17 +177,16 @@ public class PunDevUserSystemController {
 	/**
 	 * 根据ID查找
 	 * 
-	 * @param id
 	 * @return
 	 */
 	@RequestMapping(value = "punSystemGet")
-	public ModelAndView punSystemGet(Long[] boxs) {
+	public ModelAndView punSystemGet() {
 		ModelAndView mv = new ModelAndView();
 		mv.setViewName("unit/dev/punDevSystem-edit");
 		try {
-			PunSystemVO vo = sysService.findById(boxs[0]);
+			PunSystemVO vo = sysService.findAll().get(0);
 			List<SysDataSourceVO> sysDataRela = sysSourceRelationService.getSystemDataSource(vo.getSysId());
-			List<DataSourceManageVO> dataS = new ArrayList<DataSourceManageVO>();
+			List<DataSourceManageVO> dataS = new ArrayList<>();
 			if (sysDataRela != null && sysDataRela.size() > 0) {
 				for (SysDataSourceVO dataVo : sysDataRela) {
 					String sourceId = dataVo.getDataSourceId();
@@ -210,7 +209,6 @@ public class PunDevUserSystemController {
 	/**
 	 * 根据SystemId返回系统的菜单树(json)
 	 * 
-	 * @param id
 	 * @return
 	 */
 	@RequestMapping(value = "punSysMenuEdit", method = RequestMethod.GET)

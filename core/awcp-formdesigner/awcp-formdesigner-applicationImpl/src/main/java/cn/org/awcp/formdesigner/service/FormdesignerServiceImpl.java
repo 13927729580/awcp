@@ -234,6 +234,7 @@ public class FormdesignerServiceImpl implements FormdesignerService {
 		List<JSONObject> tipsComs = new ArrayList<JSONObject>();
 		Map<String, PageAct> pageActs = new HashMap<String, PageAct>();
 		List<PageAct> pageActsList = new ArrayList<PageAct>();
+		boolean hasRowButton = false;
 		// 布局组件
 		Map<String, JSONObject> map = new HashMap<String, JSONObject>();
 		Map<String, List<JSONObject>> components = new HashMap<String, List<JSONObject>>();
@@ -477,7 +478,9 @@ public class FormdesignerServiceImpl implements FormdesignerService {
 					if (c != null) {
 						pageActs.put(c.getPageId(), c);
 						pageActsList.add(c);
-
+						if("1".equals(c.getPlace())){
+							hasRowButton = true;
+						}
 						Long resourceId = punResourceService.getResourceIdByRelateId(c.getPageId(), "3");
 						pageActPermission.put(c.getPageId(), resourceId);
 					}
@@ -535,6 +538,7 @@ public class FormdesignerServiceImpl implements FormdesignerService {
 		root.put("dataAlias", dataAlias);
 		// root.put("pageActs", pageActs);
 		root.put("pageActs", pageActsList);
+		root.put("hasRowButton", hasRowButton);
 		root.put("page", vo);
 		root.put("valdatorsMap", valdatorsMap);
 		root.put("pageActPermission", pageActPermission);
@@ -551,6 +555,9 @@ public class FormdesignerServiceImpl implements FormdesignerService {
 		logger.debug("--------------此处超强分割线-------------------------------------页面动作-------------------------------");
 		for (int i = 0; i < pageActsList.size(); i++) {
 			PageAct c = pageActsList.get(i);
+			if("1".equals(c.getPlace())){
+				root.put("hasRowButton", true);
+			}
 			logger.debug("动作ID: " + c.getPageId() + "\t动作名称: " + c.getName());
 			logger.debug("动作客户端脚本: " + c.getClientScript());
 			logger.debug("动作服务端脚本: " + c.getServerScript());

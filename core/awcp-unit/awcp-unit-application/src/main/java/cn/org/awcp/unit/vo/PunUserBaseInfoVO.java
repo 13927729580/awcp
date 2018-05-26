@@ -2,6 +2,7 @@ package cn.org.awcp.unit.vo;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 import cn.org.awcp.unit.core.domain.PunPosition;
 
@@ -289,4 +290,48 @@ public class PunUserBaseInfoVO implements Serializable {
 		this.userStatus = userStatus;
 	}
 
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || !(o instanceof PunUserBaseInfoVO)) return false;
+		PunUserBaseInfoVO that = (PunUserBaseInfoVO) o;
+		return Objects.equals(userId, that.userId) &&
+				Objects.equals(userName, that.userName) &&
+				Objects.equals(userPwd, that.userPwd) &&
+				Objects.equals(userIdCardNumber, that.userIdCardNumber) &&
+				Objects.equals(name, that.name) &&
+				Objects.equals(userBirthPlace, that.userBirthPlace) &&
+				Objects.equals(userHouseholdRegist, that.userHouseholdRegist) &&
+				Objects.equals(userDomicile, that.userDomicile) &&
+				Objects.equals(userOfficePhone, that.userOfficePhone) &&
+				Objects.equals(userHousePhone, that.userHousePhone) &&
+				Objects.equals(mobile, that.mobile) &&
+				Objects.equals(userFax, that.userFax) &&
+				Objects.equals(userEmail, that.userEmail) &&
+				Objects.equals(employeeId, that.employeeId) &&
+				Objects.equals(userTitle, that.userTitle) &&
+				Objects.equals(userDossierNumber, that.userDossierNumber) &&
+				Objects.equals(userOfficeNum, that.userOfficeNum) &&
+				Objects.equals(orgCode, that.orgCode) &&
+				Objects.equals(userStatus, that.userStatus) &&
+				Objects.equals(groupId, that.groupId) &&
+				Objects.equals(number, that.number) &&
+				Objects.equals(deptId, that.deptId) &&
+				Objects.equals(deptName, that.deptName) &&
+				Objects.equals(signatureImg, that.signatureImg) &&
+				Objects.equals(userHeadImg, that.userHeadImg) &&
+				Objects.equals(userRoleId, that.userRoleId) &&
+				Objects.equals(roleList, that.roleList) &&
+				Objects.equals(positionList, that.positionList) &&
+				Objects.equals(positionGroupId, that.positionGroupId) &&
+				Objects.equals(positionId, that.positionId) &&
+				Objects.equals(updatePassword, that.updatePassword);
+	}
+
+	@Override
+	public int hashCode() {
+
+		return Objects.hash(userId, userName, userPwd, userIdCardNumber, name, userBirthPlace, userHouseholdRegist, userDomicile, userOfficePhone, userHousePhone, mobile, userFax, userEmail, employeeId, userTitle, userDossierNumber, userOfficeNum, orgCode, userStatus, groupId, number, deptId, deptName, signatureImg, userHeadImg, userRoleId, roleList, positionList, positionGroupId, positionId, updatePassword);
+	}
 }

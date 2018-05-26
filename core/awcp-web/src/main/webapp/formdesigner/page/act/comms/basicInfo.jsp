@@ -26,10 +26,14 @@
 			</c:forEach>
 		</select>
 	</div>
-	<label class="col-md-1 control-label required">按钮组</label>
+	<label class="col-md-1 control-label required">按钮位置</label>
 	<div class='col-md-5'>
 		<div class="input-group">
-			<input name="buttonGroup" class="form-control" id="buttonGroup" type="text" value="${act.buttonGroup }"> 
+			<input name="buttonGroup" id="buttonGroup" type="hidden" value="<c:if test="${act.buttonGroup eq null}">1</c:if> ${act.buttonGroup}">
+			<select name="place" id="place" class="form-control">
+				<option value="0" selected>页面顶部</option>
+				<option value="1">表格行内</option>
+			</select><script>var place="${act.place}"||"0"; document.getElementById("place").value=place;</script>
 			<span class="input-group-addon required">顺序</span>
 			<input name="order" class="form-control" id="order" type="text" value="${act.order }">
 		</div>
@@ -63,24 +67,28 @@
 					<input type="hidden" name="icon" value="<c:if test="${act.icon eq null}">icon-file</c:if> ${act.icon}" />
 				</button>
 				<div class="dropdown-menu icon-menu">
-					<a href="javascript:;" class="icon-save"></a> 
-					<a href="javascript:;" class="icon-search"></a> 
-					<a href="javascript:;" class="icon-off"></a> 
-					<a href="javascript:;" class="icon-share"></a> 
-					<a href="javascript:;" class="icon-edit"></a>
-					<a href="javascript:;" class="icon-remove"></a> 
-					<a href="javascript:;" class="icon-download"></a> 
-					<a href="javascript:;" class="icon-repeat"></a> 
-					<a href="javascript:;" class="icon-undo"></a> 
-					<a href="javascript:;" class="icon-home"></a> 
-					<a href="javascript:;" class="icon-print"></a>
-					<a href="javascript:;" class="icon-trash"></a> 
-					<a href="javascript:;" class="icon-tasks"></a> 
-					<a href="javascript:;" class="icon-reply"></a> 
-					<a href="javascript:;" class="icon-file"></a>
-					<a href="javascript:;" class="icon-file-text"></a> 
-					<a href="javascript:;" class="icon-plus"></a> 
-					<a href="javascript:;" class="icon-minus"></a>
+					<a href="javascript:;" class="fa fa-save"></a>
+					<a href="javascript:;" class="fa fa-edit"></a>
+					<a href="javascript:;" class="fa fa-remove"></a>
+					<a href="javascript:;" class="fa fa-eye"></a>
+					<a href="javascript:;" class="fa fa-search"></a>
+					<a href="javascript:;" class="fa fa-filter"></a>
+					<a href="javascript:;" class="fa fa-power-off"></a>
+					<a href="javascript:;" class="fa fa-share-alt"></a>
+					<a href="javascript:;" class="fa fa-download"></a>
+					<a href="javascript:;" class="fa fa-reply"></a>
+					<a href="javascript:;" class="fa fa-rotate-left"></a>
+					<a href="javascript:;" class="fa fa-rotate-right"></a>
+					<a href="javascript:;" class="fa fa-home"></a>
+					<a href="javascript:;" class="fa fa-print"></a>
+					<a href="javascript:;" class="fa fa-trash"></a>
+					<a href="javascript:;" class="fa fa-tasks"></a>
+					<a href="javascript:;" class="fa fa-file"></a>
+					<a href="javascript:;" class="fa fa-book"></a>
+					<a href="javascript:;" class="fa fa-plus"></a>
+					<a href="javascript:;" class="fa fa-minus"></a>
+					<a href="javascript:;" class="fa fa-window-close"></a>
+					<a href="javascript:;" class="fa fa-check-circle"></a>
 				</div>
 			</div>
 			<div class="btn-group">

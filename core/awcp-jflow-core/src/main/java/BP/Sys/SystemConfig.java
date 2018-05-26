@@ -8,6 +8,7 @@ import java.util.Hashtable;
 import java.util.Properties;
 
 import cn.jflow.common.util.ContextHolderUtils;
+import cn.org.awcp.core.utils.Security;
 import com.alibaba.druid.pool.DruidDataSource;
 import org.apache.commons.io.IOUtils;
 import org.springframework.core.io.DefaultResourceLoader;
@@ -225,6 +226,10 @@ public class SystemConfig {
                     IOUtils.closeQuietly(is);
                 }
                 _CS_AppSettings = (Hashtable) props;
+                String JflowPassword =(String)_CS_AppSettings.get("JflowPassword");
+                if(JflowPassword!=null){
+                    _CS_AppSettings.put("JflowPassword",Security.decryptPassword(JflowPassword));
+                }
             } catch (Exception e) {
                 throw new RuntimeException("读取配置文件失败", e);
             }

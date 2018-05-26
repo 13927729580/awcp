@@ -180,9 +180,6 @@
 		<#case 1036>
 			<@convertAddSearchScript c/>
 			<#break>
-		<#case 1043>
-			<@convertRowOperationScript c/>
-			<#break>
 		<#default>
 
 	</#switch>
@@ -672,7 +669,7 @@
                 }
             });
             if($orgfile.attr("disabled")){
-            	$(".file-input").hide();
+            	$parent.find(".file-input").hide();
             }           
 		//删除
 		$parent.on("click",".kv-file-remove",function(){
@@ -1214,45 +1211,45 @@
 
 <#-----------------button begin------------------------------------------------------------->
 <#macro convertButton c >
-	<#--解析导入按钮-->
-	<#if c.getActType()==2004>
-	<script>
-		<#--导入文件上传JS文件-->
-		scriptFile["<#noparse>${basePath}</#noparse>venson/js/jquery/jquery.form.js"]=null;
-	</script>
-	<form style="display:inline-block;vertical-align:middle;" enctype="multipart/form-data">
-		<a  id='${c.getPageId()}' class="${c.getCss()!''} btn <#if c.getStyle()??>${c.getStyle()}</#if>  <#if c.getColor()??>btn-${c.getColor()}</#if>"
-		 onclick="document.getElementById('import_${c.getPageId()}').click()"
-		 <#noparse>
-			<#if (pageActStatus['</#noparse>${c.getPageId()}<#noparse>']['hidden'])?? && pageActStatus['</#noparse>${c.getPageId()}<#noparse>']['hidden']>
-				style="display:none;"
-			</#if>
-		</#noparse>
-		 ><i class="icon-arrow-up"></i>${c.getName()}</a>
-		<input type="file" style="display:none;"  name="file" id="import_${c.getPageId()}">
-		<span id="importTips_${c.getPageId()}"></span>
-	</form>
-	<#--解析其它按钮-->		
-	<#else>
-		<button data-valid="${c.isChooseValidate()?string("true","flase")}" id='${c.getPageId()}' title="${c.getDescription()!''}"
-				class="${c.getCss()!''} btn <#if c.getStyle()??>${c.getStyle()}</#if>  <#if c.getColor()??>btn-${c.getColor()}</#if>"
-				<#noparse>
-					<#if (pageActStatus['</#noparse>${c.getPageId()}<#noparse>']['backId'])??>
-						backId="${pageActStatus['</#noparse>${c.getPageId()}<#noparse>']['backId']!''}"
-					</#if>
-				</#noparse>
-			<#if c.getExtbute()??>
-				target='${c.getExtbute()['target']!''}'
-			</#if>
-				<#noparse>
-					<#if (pageActStatus['</#noparse>${c.getPageId()}<#noparse>']['hidden'])?? && pageActStatus['</#noparse>${c.getPageId()}<#noparse>']['hidden']>
-						style="display:none;"
-					</#if>
-				</#noparse>
-			 >
-			<i class='<#if c.getIcon()??>${c.getIcon()}</#if>'></i>
-			${c.getName()}</button>
-	</#if>
+    <#--解析导入按钮-->
+    <#if c.getActType()==2004>
+    <script>
+        <#--导入文件上传JS文件-->
+        scriptFile["<#noparse>${basePath}</#noparse>venson/js/jquery/jquery.form.js"]=null;
+    </script>
+    <form style="display:inline-block;vertical-align:middle;" enctype="multipart/form-data">
+        <button type="button"  id='${c.getPageId()}' class="${c.getCss()!''} btn <#if c.getStyle()??>${c.getStyle()}</#if>  <#if c.getColor()??>btn-${c.getColor()}</#if>"
+         onclick="document.getElementById('import_${c.getPageId()}').click()"
+         <#noparse>
+            <#if (pageActStatus['</#noparse>${c.getPageId()}<#noparse>']['hidden'])?? && pageActStatus['</#noparse>${c.getPageId()}<#noparse>']['hidden']>
+                style="display:none;"
+            </#if>
+        </#noparse>
+         ><i class="${c.getIcon()!''}"></i>${c.getName()}</button>
+        <input type="file" style="display:none;"  name="file" id="import_${c.getPageId()}">
+        <span id="importTips_${c.getPageId()}"></span>
+    </form>
+    <#--解析其它按钮-->
+    <#else>
+        <button type="button" data-valid="${c.isChooseValidate()?string("true","flase")}" id='${c.getPageId()}' title="${c.getDescription()!''}"
+                class="${c.getCss()!''} btn <#if c.getStyle()??>${c.getStyle()}</#if>  <#if c.getColor()??>btn-${c.getColor()}</#if>"
+                <#noparse>
+                    <#if (pageActStatus['</#noparse>${c.getPageId()}<#noparse>']['backId'])??>
+                        backId="${pageActStatus['</#noparse>${c.getPageId()}<#noparse>']['backId']!''}"
+                    </#if>
+                </#noparse>
+            <#if c.getExtbute()??>
+                target='${c.getExtbute()['target']!''}'
+            </#if>
+                <#noparse>
+                    <#if (pageActStatus['</#noparse>${c.getPageId()}<#noparse>']['hidden'])?? && pageActStatus['</#noparse>${c.getPageId()}<#noparse>']['hidden']>
+                        style="display:none;"
+                    </#if>
+                </#noparse>
+             >
+            <i class='<#if c.getIcon()??>${c.getIcon()}</#if>'></i>
+            ${c.getName()}</button>
+    </#if>
 </#macro>
 
 
@@ -1288,15 +1285,31 @@
     	});
 	<#--解析其它按钮-->
 	<#else>
-	$("#${c.getPageId()}").click(function(){
+	<#--表格行内按钮-->
+		<#if c.getPlace()??&&c.getPlace()=="1">
+			$("#groupForm").on("click","#${c.getPageId()}",function(){
+				$('#groupForm .table').bootstrapTable('uncheckAll');
+				var $row = $(this).parent().parent();
+				var $checkbox=$row.find(":checkbox").eq(0);
+				$checkbox.get(0).checked=true;
+				$row.find("input[type='hidden']").attr("name","_selects");
+				$row.addClass("selected");
+				count = $("input[name='_selects']").length;
+				var id = $row.find(".formData").children("input").val();
+				var obj = {id:id};
+		<#--页面顶部按钮-->
+		<#else>
+			$("#${c.getPageId()}").click(function(){
+		</#if>
 		<#if c.isChooseValidate()??&&c.isChooseValidate()>
-			if(!Comm.validForm())
-				return;
+				if(!Comm.validForm())
+					return;
 		</#if>
 		<#if c.getClientScript()??>
-				${c.getClientScript()}
+			${c.getClientScript()}
 		</#if>
-	});
+		});
+
 </#if>
 </#macro>
 <#-----------------button end------------------------------------------------------------->
@@ -1350,50 +1363,6 @@
 </#macro>
 
 <#------------------------------列组件 end--------------------------------------------------------->
-
-
-<#------------------------------表格行操作组件 begin------------------------------------------------------->
-
-<#macro parseRowOperation c >
-	<th <#if c['width']??>data-width="${c['width']}"</#if> data-field="rowOperation">
-		<#if c['columnName']?? >${c['columnName']}</#if>		
-	</th>
-</#macro>
-
-
-
-<#macro parseRowOperationData c >
-	<td class="operationTd">
-		<#if c['buttons']?? && c['buttons']?size gt 0>
- 			<#list c['buttons'] as button>
- 				<a class="btn btn-sm ${button.className!''} ${button.color!''}" href="javascript:void(0)"		
- 				<#noparse>
-					<#if (others['rowButton_</#noparse>${button.className!''}<#noparse>'])?? && others['rowButton_</#noparse>${button.className!''}<#noparse>']=="true">
-						style="display:none;"
-					</#if>
-				</#noparse>
- 				></i>${button.title!""}</a>
- 			</#list>  
- 		</#if>
-	</td>
-</#macro>
-
-<#macro convertRowOperationScript c>
-	<#if c['buttons']?? && c['buttons']?size gt 0>
-		<#list c['buttons'] as button>
-			$(".operationTd .${button.className!''}").bind("click",function(){
-				var storeId = "${(c['pageId'])!''}";
-				var className = "${button.className!''}";
-				var $row = $(this).parent().parent();
-				var id = $row.find(".formData").children("input").val();			
-				var obj = {storeId:storeId,id:id,className:className};
-				${button.codes!''}				
-			})
-		</#list>  
-	</#if>	
-</#macro>
-
-<#------------------------------表格行操作组件 end--------------------------------------------------------->
 
 
 

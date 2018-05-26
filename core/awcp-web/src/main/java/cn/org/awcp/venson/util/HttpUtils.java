@@ -59,7 +59,7 @@ public class HttpUtils {
 		try {
 			String parameter=getStringParameter(parameters);
 			if(!parameter.isEmpty()){
-				if (parameter.contains("?")) {
+				if (url.contains("?")) {
 					url = url + "&" + parameter;
 				} else {
 					url = url + "?" + parameter;
@@ -151,7 +151,7 @@ public class HttpUtils {
                     sb.append(name).append("=")
                             .append(URLEncoder.encode(String.valueOf(parameters.get(name)), "UTF-8")).append("&");
                 }
-                sb.delete(0, sb.length() - 1);
+				sb.delete(sb.length()-1,sb.length());
             }
         }
 		return sb.toString();

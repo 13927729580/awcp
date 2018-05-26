@@ -26,7 +26,8 @@
 			<div class="col-md-12">
 				<div class="box box-info">
 					<div class="box-body">
-						<form class="form-horizontal" id="groupForm" action="<%=basePath%>unit/punGroupSave.do" method="post">			
+						<form class="form-horizontal" id="groupForm" action="<%=basePath%>unit/punGroupSave.do" method="post">
+							<input type="hidden" name="groupId" value="${vo.groupId}"/>
 							<div class="C_addForm">
 								<legend class=" text-center">
 									组织信息编辑
@@ -34,11 +35,10 @@
 										<span style="color: red">(${result})</span>
 									</c:if>
 								</legend>
-								<div class="form-group">   
-								 	<label class="col-md-1 control-label required">组名</label>
-						            <div class="col-md-4">
-						            	<input type="hidden" name="groupId" value="${vo.groupId}"/>
-						                <input name="groupChName" class="form-control" id="groupChName" type="text" placeholder="" value="${vo.groupChName}">
+								<div class="form-group">
+									<label class="col-md-1 control-label required">组名</label>
+									<div class="col-md-4">
+						                <input name="groupChName" class="form-control" id="groupChName" type="text" value="${vo.groupChName}">
 						            </div> 
 									<label class="col-md-2 control-label required">组简称</label>
 						            <div class="col-md-4">
@@ -50,13 +50,13 @@
 						            <div class="col-md-4">
 						                <input name="fax" class="form-control" id="fax" type="text" placeholder="" value="${vo.fax}">
 						            </div> 
-						            <label class="col-md-2 control-label required">组名（英文）</label>
+						            <label class="col-md-2 control-label">组名（英文）</label>
 						            <div class="col-md-4">
 						                <input name="groupEnName" class="form-control" id="groupEnName" type="text" placeholder="" value="${vo.groupEnName}">
 						            </div>
 								 </div>
 								 <div class="form-group">   
-								 	<label class="col-md-1 control-label required">	组织机构代码</label>
+								 	<label class="col-md-1 control-label">	组织机构代码</label>
 						            <div class="col-md-4">
 						                <input name="orgCode" class="form-control" id="orgCode" type="text" placeholder="" value="${vo.orgCode}">
 						            </div> 
@@ -99,19 +99,9 @@
 	<script type="text/javascript">
 		$(function() {
 		    $("#saveBtn").on("click",function(){
-                var $required=$("#groupForm .required");
-                var len = $required.length;
-                for (var i=0;i<len;i++ ) {
-                    var _dom = $required.eq(i);
-                    var text=_dom.text();
-                    var dataItemCode=$(_dom).next("div").children("input[type='text']");
-                    if(!dataItemCode.val()){
-                        Comm.alert(text+"不能为空！");
-                        return;
-					}
-
-				}
-                $("#groupForm").submit();
+                if(Comm.validOldForm()){
+                    $("#groupForm").submit();
+                }
             })
         })
 	</script>

@@ -5,7 +5,6 @@ import cn.org.awcp.venson.exception.PlatformException;
 import cn.org.awcp.venson.service.FileService;
 import cn.org.awcp.venson.service.impl.FileServiceImpl.AttachmentVO;
 import cn.org.awcp.venson.util.DateFormaterUtil;
-import cn.org.awcp.venson.util.PlatfromProp;
 import com.alibaba.fastjson.JSON;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -73,18 +72,11 @@ public class SolrService {
     private FileService fileService;
 
 
-    /**
-     * solr配置路径
-     */
-    public static final String BASE_SOLR_URL = PlatfromProp.getValue("baseSolrUrl");
+    @Resource(name="httpSolrClient")
+    private HttpSolrClient client;
 
     public SolrService() {
     }
-
-    public SolrClient geclient() {
-        return new HttpSolrClient.Builder(BASE_SOLR_URL).build();
-    }
-
 
     public Map<String, Object> getById(String id) {
         try {
@@ -103,15 +95,12 @@ public class SolrService {
      * @return boolean
      */
     public boolean solrDeleteByQuery(String query) {
-        SolrClient client = geclient();
         try {
             client.deleteByQuery(query);
             client.commit();
         } catch (Exception e) {
             logger.info("ERROR", e);
             return false;
-        } finally {
-            IOUtils.closeQuietly(client);
         }
         return true;
     }
@@ -124,7 +113,6 @@ public class SolrService {
      * @return QueryResponse
      */
     public QueryResponse query(String keywords, String type) {
-        SolrClient client = geclient();
         try {
             // + – && || ! ( ) { } [ ] ^ " ~ * ? : \ 特殊搜索字符转义
             keywords = ClientUtils.escapeQueryChars(keywords);
@@ -139,8 +127,6 @@ public class SolrService {
             return client.query(query);
         } catch (SolrServerException | IOException e) {
             logger.info("ERROR", e);
-        } finally {
-            IOUtils.closeQuietly(client);
         }
         return null;
     }
@@ -241,13 +227,12 @@ public class SolrService {
             for (int j = 0; j < indexFields.length; j++) {
                 values[j] = map.get(indexFields[j]);
             }
-            String dataId = map.toString();
+            String dataId = UUID.randomUUID().toString();
             // 拆分多个字段
             SolrInputDocument document = new SolrInputDocument("clean_id", raiseId, "id", dataId, "metadata", JSON.toJSONString(map));
             document.addField("content", values);
             solrInputDocuments.add(document);
         }
-        SolrClient client = geclient();
         try {
             client.add(solrInputDocuments);
             client.commit();
@@ -258,8 +243,6 @@ public class SolrService {
             } catch (SolrServerException | IOException e1) {
                 logger.debug("ERROR", e1);
             }
-        } finally {
-            IOUtils.closeQuietly(client);
         }
 
     }
@@ -274,7 +257,6 @@ public class SolrService {
      */
     private void indexFileToSolr(String raiseId, String fileIdField, List<Map<String, Object>> data) {
         String today = DocumentUtils.getIntance().today();
-        SolrClient client = geclient();
         int size = data.size();
         //SPLIT次以下就不开启多线程
         if (size / SPLIT <= 1) {

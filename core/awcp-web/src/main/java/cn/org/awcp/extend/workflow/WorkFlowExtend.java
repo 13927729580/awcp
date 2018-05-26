@@ -8,8 +8,10 @@ import cn.org.awcp.extend.formdesigner.DocumentUtils;
 import cn.org.awcp.venson.api.APIService;
 import cn.org.awcp.venson.api.PFMAPI;
 import cn.org.awcp.venson.common.I18nKey;
+import cn.org.awcp.venson.common.SC;
 import cn.org.awcp.venson.controller.base.ControllerContext;
 import cn.org.awcp.venson.controller.base.ControllerHelper;
+import cn.org.awcp.venson.util.RedisUtil;
 import cn.org.awcp.workflow.service.FlowExecuteType;
 import cn.org.awcp.workflow.service.IWorkFlowService;
 import com.alibaba.fastjson.JSON;
@@ -366,7 +368,7 @@ public class WorkFlowExtend {
             gotoUrl = baseUrl + "dingding/wf/openTask.do?FK_Flow=" + vo.getFlowTempleteId() + "&WorkID="
                     + map.get("workid") + "&FID=" + map.get("FID") + "&FK_Node=" + map.get("FK_Node")
                     + "&dynamicPageId=" + vo.getDynamicPageId() + "&RECORD_ID=" + vo.getRecordId() +
-                    "&uid=" + user + "&key=" + ControllerHelper.getSecretKey(user);
+                    "&uid=" + user + "&key=" + RedisUtil.getInstance().get(SC.SECRET_KEY+user);
             content.put("validRepeat", map.get("RDT") + "");
             String title = (String) map.get("title");
             DocumentUtils.getIntance().sendMessage(gotoUrl, "0", content, title, user, agentId, null, null);

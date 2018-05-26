@@ -3,7 +3,6 @@ package cn.org.awcp.venson.service.impl;
 import cn.org.awcp.core.utils.BeanUtils;
 import cn.org.awcp.extend.formdesigner.DocumentUtils;
 import cn.org.awcp.formdesigner.core.domain.Attachment;
-import cn.org.awcp.solr.service.SolrService;
 import cn.org.awcp.unit.vo.PunUserBaseInfoVO;
 import cn.org.awcp.venson.controller.base.ControllerHelper;
 import cn.org.awcp.venson.service.FileService;
@@ -18,7 +17,6 @@ import com.mongodb.gridfs.GridFSInputFile;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.request.AbstractUpdateRequest;
@@ -48,6 +46,8 @@ public class FileServiceImpl implements FileService {
 
     @Autowired
     private MongoClient mongoClient;
+    @Autowired
+    private HttpSolrClient httpSolrClient;
 
 
     @Override
@@ -456,7 +456,6 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public void indexFileToSolr(InputStream input, AttachmentVO vo) {
-        SolrClient client = new HttpSolrClient.Builder(SolrService.BASE_SOLR_URL).build();
         try {
             //得出KB
             ContentStreamUpdateRequest up = new ContentStreamUpdateRequest("/update/extract");
@@ -474,13 +473,10 @@ public class FileServiceImpl implements FileService {
             // 文件内容
             up.setParam("fmap.content", "attr_content");
             up.setAction(AbstractUpdateRequest.ACTION.COMMIT, true, true);
-            client.request(up);
-            client.commit();
+            httpSolrClient.request(up);
+            httpSolrClient.commit();
         } catch (SolrServerException | IOException e) {
             logger.debug("ERROR", e);
-        } finally {
-            IOUtils.closeQuietly(input);
-            IOUtils.closeQuietly(client);
         }
     }
 

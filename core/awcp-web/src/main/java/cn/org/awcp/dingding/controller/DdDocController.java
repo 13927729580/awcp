@@ -26,17 +26,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import cn.org.awcp.core.domain.BaseExample;
 import cn.org.awcp.core.domain.SzcloudJdbcTemplate;
+import cn.org.awcp.extend.formdesigner.DocumentUtils;
 import cn.org.awcp.formdesigner.application.service.DocumentService;
 import cn.org.awcp.formdesigner.application.service.FormdesignerService;
 import cn.org.awcp.formdesigner.application.service.StoreService;
 import cn.org.awcp.formdesigner.application.vo.DocumentVO;
 import cn.org.awcp.formdesigner.application.vo.DynamicPageVO;
 import cn.org.awcp.formdesigner.application.vo.StoreVO;
-import cn.org.awcp.extend.formdesigner.DocumentUtils;
 import cn.org.awcp.formdesigner.utils.ScriptEngineUtils;
 import cn.org.awcp.venson.controller.base.ControllerHelper;
 
@@ -179,6 +180,7 @@ public class DdDocController {
 	}
 	
 	//处理表单数据
+	@SuppressWarnings("unchecked")
 	private Map<String,Object> getFormData(Map<String,String> data,String id,List<StoreVO> stores,ScriptEngine engine){
 		Map<String,Object> retMap = new HashMap<String,Object>();
 		List<Map<String,Object>> txtList = new ArrayList<Map<String,Object>>();	//获取Input,Textarea,Select,Datepicker的值
@@ -188,10 +190,13 @@ public class DdDocController {
 			JSONObject obj = JSONObject.parseObject(store.getContent());
 			Map<String,Object> m = new HashMap<String,Object>();
 			String dataItemCode = obj.getString("dataItemCode");
-			String value = data.get(dataItemCode.split("\\.")[1]);
+			String value = "";
+			if(dataItemCode != null){
+				value = data.get(dataItemCode.split("\\.")[1]);
+			}
 			String componentType = obj.getString("componentType");
 			m.put("componentType", componentType);
-			if(StringUtils.isNotBlank(value)){
+			if(StringUtils.isNotBlank(value) || "1103".equals(componentType)){
 				switch(componentType){
 					case "1001":
 					case "1002":
@@ -235,6 +240,17 @@ public class DdDocController {
 							m.put("type", "location");
 							m.put("data", value);
 							otherList.add(m);
+						}
+					case "1103":
+						String dataSource = obj.getString("dataSource");
+						JSONArray details = obj.getJSONArray("details");
+						String title = obj.getString("title");
+						try {
+							List<Map<String,Object>> arr = (List<Map<String,Object>>) engine.eval(dataSource);
+							retMap.put("detailsList", getDetails(arr, details));
+							retMap.put("detailsTitle", title);
+						} catch (ScriptException e) {
+							e.printStackTrace();
 						}
 				}
 			}			
@@ -291,6 +307,53 @@ public class DdDocController {
 		}
 		ret.put("data", list);
 		return ret;
+	}
+	
+	@SuppressWarnings("unchecked")
+	private List<Map<String,Object>> getDetails(List<Map<String,Object>> arr,JSONArray details){
+		List<Map<String,Object>> items = new ArrayList<Map<String,Object>>();
+		for(int i=0;i<arr.size();i++){
+			Map<String,Object> item = new HashMap<String,Object>();
+			List<Map<String,Object>> txtList = new ArrayList<Map<String,Object>>();	
+			List<Map<String,Object>> otherList = new ArrayList<Map<String,Object>>();
+			for(Object obj : details){
+				Map<String,Object> temp = (Map<String, Object>) obj;			
+				String field = (String) temp.get("field");
+				String title = (String) temp.get("title");
+				String type = (String) temp.get("type");
+				if("ID".equals(field)){
+					continue;
+				}
+				String value = arr.get(i).get(field) + "";
+				switch(type){
+					case "1001":
+					case "1002":
+					case "1005":
+						Map<String,Object> text = new HashMap<String,Object>();
+						text.put("title", title);
+						text.put("value", value);
+						txtList.add(text);
+						break;
+					case "1011":
+						Map<String,Object> file = new HashMap<String,Object>();
+						file.put("type", "file");
+						file.put("data", getFile(value));
+						otherList.add(file);
+						break;
+					case "1016":
+						Map<String,Object> img = new HashMap<String,Object>();
+						img.put("type", "img");
+						img.put("data", new ArrayList<String>(Arrays.asList(value.split(","))));
+						otherList.add(img);
+						break;
+				}			
+			}	
+			item.put("txtList", txtList);
+			item.put("otherList", otherList);
+			items.add(item);
+		}	
+		System.out.println("=================" + items);
+		return items;
 	}
 	
 	/**

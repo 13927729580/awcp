@@ -64,6 +64,8 @@
 	<script src="../venson/js/common.js"></script>
 	<script src="js/resource.js"></script>
 	<script type="text/javascript">
+		Comm.ddConfig();
+		
 		var type = Comm.getUrlParam("type");
 		$(".home-navigator").children().children("span").eq(type).addClass("tab-active");
 		if(type==1 || type==4){
@@ -137,8 +139,19 @@
 				$(".dealed-list").children().html(html);
 				$(".EmptyNotify").hide();
 				$(".dealed-list").show();
-				$(".table-result tr:gt(0)").bind("click",function(){
-					location.href = $(this).attr("data-url").replace("workflow","dingding");
+				$(".table-result tr:gt(0)").bind("click",function(){	
+					var url = $(this).attr("data-url").replace("workflow","dingding");
+					var title = $.trim($(this).children().eq(0).find(".item-title").text());
+					DingTalkPC.biz.util.openSlidePanel({
+					    url: url, //打开侧边栏的url
+					    title: title, //侧边栏顶部标题
+					    onSuccess : function(result) {
+					  
+					    },
+					    onFail : function() {
+	
+					    }
+					});
 				});
 			} else{
 				$(".EmptyNotify").show();

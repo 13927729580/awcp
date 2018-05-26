@@ -1,18 +1,12 @@
 package cn.org.awcp.venson.util;
 
-import java.util.Properties;
-
-import javax.mail.Authenticator;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import javax.mail.*;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import java.util.Properties;
 
 public class EmailUtil {
 	/**
@@ -51,7 +45,7 @@ public class EmailUtil {
 	 *            内容
 	 */
 	public static void sendEmail(EMailType type, String email, String subject, String content) {
-		sendEmail(PlatfromProp.getValue("emailUser"), PlatfromProp.getValue("emailPwd"), type, email,
+		sendEmail(PlatfromProp.getValue("emailUser"), PlatfromProp.getValue("emailPassword"), type, email,
 				PlatfromProp.getValue("emailUserAccount"), subject, content);
 	}
 

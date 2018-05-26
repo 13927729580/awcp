@@ -55,7 +55,9 @@
 </#noparse>
 				<#if pageActs??>
 					<#list pageActs?sort_by("order") as act>
-						<@convertButton act />
+						<#if !act['place']??||act['place']!='1' >
+							<@convertButton act />
+						</#if>
 					</#list>
 				</#if>
 			</div>

@@ -1,18 +1,20 @@
 package cn.org.awcp.core.utils;
 
-import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
-import org.springframework.stereotype.Service;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
-@Service(value="springfactory")
-public class Springfactory implements BeanFactoryAware {
+public class Springfactory implements ApplicationContextAware {
 
-	private static BeanFactory beanFactory;
+	private static ApplicationContext context = null;
 
-	public void setBeanFactory(BeanFactory factory) throws BeansException {
-		beanFactory = factory;
+	private Springfactory() {
+		super();
+	}
+
+	@Override
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+		context = applicationContext;
 	}
 
 	/**
@@ -21,19 +23,39 @@ public class Springfactory implements BeanFactoryAware {
 	 * @param beanName
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	public static <T> T getBean(String beanName) {
-		if (null != beanFactory) {
-			return (T) beanFactory.getBean(beanName);
-		}
-		return null;
+		return (T) context.getBean(beanName);
 	}
 
 	public static <T> T getBean(Class<T> clazz) {
-		if (null != beanFactory) {
-			return  beanFactory.getBean(clazz);
-		}
-		return null;
+		return context.getBean(clazz);
+	}
+
+	/**
+	 * 是否包含bean
+	 * @param beanName
+	 * @return
+	 */
+	public static boolean containsBean(String beanName) {
+		return context.containsBean(beanName);
+	}
+
+	/**
+	 * 是否是单例
+	 * @param beanName
+	 * @return
+	 */
+	public static boolean isSingleton(String beanName) {
+		return context.isSingleton(beanName);
+	}
+
+	/**
+	 * bean的类型
+	 * @param beanName
+	 * @return
+	 */
+	public static Class getType(String beanName) {
+		return context.getType(beanName);
 	}
 
 }

@@ -7,6 +7,7 @@ import cn.org.awcp.venson.controller.base.StatusCode;
 import cn.org.awcp.venson.exception.PlatformException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.shiro.session.UnknownSessionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
@@ -60,6 +61,8 @@ public class ExceptionHandler implements HandlerExceptionResolver {
 			result.setStatus(StatusCode.FAIL.setMessage("文件过大，请重新上传"));
 		} else if (ex instanceof UncategorizedSQLException) {
 			result.setStatus(StatusCode.NO_ACCESS.setMessage("检测到非法字符，禁止访问"));
+		} else if (ex instanceof UnknownSessionException) {
+			result.setStatus(StatusCode.NO_LOGIN.setMessage("登录失效，请重新登录"));
 		} else if (ex instanceof PlatformException) {
 			logger.debug(ex.getMessage());
 			result.setStatus(StatusCode.FAIL.setMessage(ex.getMessage()));

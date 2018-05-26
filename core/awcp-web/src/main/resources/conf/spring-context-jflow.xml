@@ -10,8 +10,6 @@
 		http://cxf.apache.org/transports/http/configuration http://cxf.apache.org/schemas/configuration/http-conf.xsd
 	    http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
 	
-	<!-- 加载配置属性文件（谁先加载，谁优先级越高）-->
-	<context:property-placeholder ignore-unresolvable="true" location="classpath:conf/jflow.properties" />
 	<!-- JFlow上下文句柄，设置数据源，获取请求与相应对象 -->
 	<bean id="jflowContextHolderUtils" class="cn.jflow.common.util.ContextHolderUtils">
 		<property name="dataSource" ref="dataSource" />

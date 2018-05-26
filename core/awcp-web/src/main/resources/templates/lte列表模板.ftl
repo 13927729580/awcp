@@ -21,7 +21,8 @@
     <link rel="stylesheet" href="${basePath}template/AdminLTE/css/bootstrap-table.css">
     <link rel="stylesheet" href="${basePath}template/AdminLTE/css/select2/select2.css">
     <link rel="stylesheet" href="${basePath}template/AdminLTE/css/bootstrap-datetimepicker.min.css">
-    <link rel="stylesheet" href="${basePath}template/AdminLTE/css/AdminLTE.css">  
+    <link rel="stylesheet" href="${basePath}template/AdminLTE/css/AdminLTE.css">
+    <link rel="stylesheet" href="${basePath}template/AdminLTE/css/font-awesome.min.css">
     <link rel="stylesheet" href="${basePath}template/AdminLTE/css/ionicons.min.css">
     <link rel="stylesheet" href="${basePath}template/AdminLTE/css/main.css">
     <script>
@@ -34,22 +35,24 @@
 </head>
 <body>
 	<!-- Main content -->
-  <section class="content">	
+  <section class="content">
 		<div class="opeBtnGrop">
-</#noparse>				
+</#noparse>
 		<#if pageActs??>
 			<#list pageActs?sort_by("order") as act>
-				<@convertButton act />
+				<#if !act['place']??||act['place']!='1' >
+					<@convertButton act />
+				</#if>
 			</#list>
-		</#if>						
+		</#if>
 <#noparse>
 		</div>
 		<div class="fixedBtnBox"></div>
 		<div class="row">
 		<div class="col-md-12">
 			<div class="box box-info">
-				<div class="box-body">					
-						<form class="form-horizontal" id="groupForm" action="${basePath}document/view.do" method="post">	
+				<div class="box-body">
+						<form class="form-horizontal" id="groupForm" action="${basePath}document/view.do" method="post">
 							<input type="hidden" name="docId" value="${ (vo.id)!""}" id="docId"/>
 							<input type="hidden" id="currentPage" name="currentPage" value="${currentPage!"0"}">
 							<input type="hidden" id="pageSize" name="pageSize" value="${</#noparse>${dataAlias[0]}_list_paginator.getLimit()<#noparse>}</#noparse><#noparse>">
@@ -69,7 +72,7 @@
 							<input type="hidden" name="update" value="${ (vo.update)?string("true","false")}" id="update"/>
 							<input type="hidden" name="toNode" value="" id="toNode">
 							<input type="hidden" name="slectsUserIds" value="${ (vo.slectsUserIds)!""}" id="slectsUserIds"/>
-							<input type="hidden" name="slectsUserNames" value="${ (vo.slectsUserNames)!""}" id="slectsUserNames"/>                       
+							<input type="hidden" name="slectsUserNames" value="${ (vo.slectsUserNames)!""}" id="slectsUserNames"/>
 							<input type="hidden" name="masterDataSource" value="" id="masterDataSource"/>
 							<input type="hidden" name="dynamicPageName" value="${ (vo.dynamicPageName)!""}" id="dynamicPageName"/>
 							</#noparse>
@@ -93,26 +96,26 @@
 										<#if c['componentType']=='1008' >
 											<@parseColumn c />
 										</#if>
-										<#if c['componentType']=='1043' >
-											<@parseRowOperation c />
-										</#if>
 									</#list>
+								</#if>
+								<#if hasRowButton?? && hasRowButton>
+									<th>操作</th>
 								</#if>
 							<#noparse>
 									</tr>
 								</thead>
 								<tbody>
-									<#if </#noparse>${dataAlias[0]}<#noparse>_list?? && </#noparse>${dataAlias[0]}<#noparse>_list?size gte 1>	
+									<#if </#noparse>${dataAlias[0]}<#noparse>_list?? && </#noparse>${dataAlias[0]}<#noparse>_list?size gte 1>
 										<#list
 											</#noparse>
 											${dataAlias[0]}_list as ${dataAlias[0]}>
-											<#noparse> 
+											<#noparse>
 										<tr>
 											<td class="hidden formData">
 												<input type="hidden" value="${</#noparse>${dataAlias[0]}<#noparse>.ID!''}">
 											</td>
 											<td></td>
-											</#noparse>				
+											</#noparse>
 									<td><#noparse>${(</#noparse>${dataAlias[0]}_list_paginator.getPage() * ${dataAlias[0]}_list_paginator.getLimit() - ${dataAlias[0]}_list_paginator.getLimit() + ${dataAlias[0]}_index + 1<#noparse>)}</#noparse>
 									</td>
 									<#if components?? >
@@ -120,12 +123,18 @@
 											<#if c['componentType']=='1008' >
 												<@parseColumnData c />
 											</#if>
-											<#if c['componentType']=='1043' >
-												<@parseRowOperationData c />
-											</#if>
 										</#list>
 									</#if>
-				<#noparse>				
+									<#if hasRowButton?? && hasRowButton>
+										<td>
+											<#list pageActs?sort_by("order") as act>
+													<#if act['place']??&&act['place']=='1' >
+														<@convertButton act />
+													</#if>
+											</#list>
+                                        </td>
+									</#if>
+				<#noparse>
 										</tr>
 										</#list>
 									</#if>
@@ -173,7 +182,7 @@
         		$("#groupForm").submit();
         	 },
         	 onClickRow:function(row,$element,field){
-        	 	if(field && field.indexOf("rowOperation")!=-1){
+        	 	if(field && (field+"").indexOf("rowOperation")!=-1){
         	 		return false;
         	 	}
         	  	var $checkbox=$element.find(":checkbox").eq(0);
@@ -188,24 +197,20 @@
         	  	}
 				count = $("input[name='_selects']").length;
         	 },
-        	 onCheck: function(row,$element){  
+        	 onCheck: function(row,$element){
 				  $element.closest("tr").find("input[type='hidden']").attr("name","_selects");
 				  count = $("input[name='_selects']").length;
         	 },
-        	 onUncheck:function(row,$element){ 
+        	 onUncheck:function(row,$element){
         		 $element.closest("tr").find("input[type='hidden']").removeAttr("name");
 				 count = $("input[name='_selects']").length;
-        	 }, 
+        	 },
         	 onCheckAll: function (rows) {
-        		 $.each(rows,function(i,e){
-        			$("#groupForm table input[value='"+$($.trim(e["0"])).attr("value")+"']").attr("name","_selects");
-        		 })
+				 $("#groupForm .table td input[type='hidden']").attr("name","_selects");
 				 count = $("input[name='_selects']").length;
              },
-             onUncheckAll: function (rows) {          	 
-            	 $.each(rows,function(i,e){
-        			$("#groupForm table input[value='"+$($.trim(e["0"])).attr("value")+"']").removeAttr("name");
-        		 })
+             onUncheckAll: function (rows) {
+                 $("#groupForm .table td input[type='hidden']").removeAttr("name");
 				 count = $("input[name='_selects']").length;
              },
 			 onSort:function(name, order){
@@ -219,25 +224,22 @@
 				 }
         		$("#groupForm").submit();
 			 }
-         });							
+         });
 </#noparse>
 		<#if components?? >
 				<#list components?sort_by("order") as c>
 					<#if c['componentType']=='1036'>
 						<@convertAddSearchScript c />
 					</#if>
-					<#if c['componentType']=='1043'>
-						<@convertRowOperationScript c />
-					</#if>
 				</#list>
 			</#if>
-		
+
 		<#list pageActs?sort_by("order") as act>
 			<#if true>
 				<@convertScript act />
 			</#if>
-		</#list>  
-        
+		</#list>
+
         <#if page??>
 			<#if page.getAfterLoadScript()??>
 				${page.getAfterLoadScript()}
@@ -245,7 +247,7 @@
 		</#if>
 <#noparse>
 		});
-</#noparse>		  	
+</#noparse>
 	</script>
 </body>
 </html>

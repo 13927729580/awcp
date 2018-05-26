@@ -4,10 +4,10 @@
  */
 // 后台接口前缀
 
-var baseUrl = window.location.protocol + "//" + window.location.host + "/awcp/";
+var baseUrl = window.location.protocol + "//" + window.location.host + "/";
 var basePath = baseUrl;
 // 前台跳转前缀
-var baseUIUrl = window.location.protocol + "//" + window.location.host + "/awcp/";
+var baseUIUrl = window.location.protocol + "//" + window.location.host + "/";
 var Comm = {};
 
 
@@ -850,7 +850,7 @@ Date.prototype.format = function(format)
  * */
 Comm.validDDParam=function(id){
 	//设置默认值
-	id = (id)?id:"#groupForm";
+	id = id||"#groupForm";
 	//获取所有需要校验的对象
 	var req = $(id+" .required");
 	var len = req.length;
@@ -876,6 +876,26 @@ Comm.validDDParam=function(id){
 	return true;
 }
 
+/**
+ * 表单校验
+ * @param id 需要校验的表单ID 默认值为：#groupForm
+ * */
+Comm.validOldForm=function(id){
+    //设置默认值
+    id = id||"#groupForm";
+    var $required=$(id+" .required");
+    var len = $required.length;
+    for (var i=0;i<len;i++ ) {
+        var _dom = $required.eq(i);
+        var text=_dom.text();
+        var dataItemCode=$(_dom).next("div").children(":input");
+        if(!dataItemCode.val()){
+            Comm.alert(text+"不能为空！");
+            return false;
+        }
+    }
+    return true;
+}
 
 /**
  * 表单校验
@@ -883,7 +903,7 @@ Comm.validDDParam=function(id){
  * */
 Comm.validForm=function(id){
 	//设置默认值
-	id = (id)?id:"#groupForm";
+	id = id||"#groupForm";
 	//获取所有需要校验的对象
 	var custom = $(id+" .customGroup[data-required='1']");
 	var len = custom.length;
@@ -956,7 +976,7 @@ Comm.handleName=function(name){
 	}
 }
 
-Comm.workAgree=function(that){
+Comm.workAgree=function(that,fn){
 	dd.device.notification.prompt({
 	    message: dd_res.wf_p_e_c,
 	    title: dd_res.wf_opinion_tip_title,
@@ -968,6 +988,9 @@ Comm.workAgree=function(that){
 	    	content=content?content:dd_res.wf_agree;
 	    	$("#work_logs_content").val(content);
 	    	var data = Comm.getData("workflow/wf/excute.do",$("#groupForm").serialize());
+	    	if(fn && $.isFunction(fn)){
+	    		fn();
+	    	}
 	    	dd.device.notification.alert({
 	    		"message":data.message,
 	    		"title":dd_res.notice,
@@ -1105,7 +1128,7 @@ Comm.ddConfig = function(){
 	    timeStamp : dd_config.timeStamp,	// 必填，生成签名的时间戳
 	    nonceStr : dd_config.nonceStr,		// 必填，生成签名的随机串
 	    signature : dd_config.signature,	// 必填，签名
-	    jsApiList : ["biz.chat.chooseConversation","biz.contact.choose","biz.customContact.multipleChoose","biz.util.multiSelect","biz.util.uploadImage","biz.cspace.preview","biz.util.uploadImageFromCamera","biz.util.uploadAttachment","device.geolocation.get","biz.contact.departmentsPicker","runtime.permission.requestOperateAuthCode" ,"device.notification.confirm","device.notification.alert","device.notification.toast"]
+	    jsApiList : ["biz.chat.chooseConversation","biz.contact.choose","biz.customContact.multipleChoose","biz.util.multiSelect","biz.util.uploadImage","biz.cspace.preview","biz.util.uploadImageFromCamera","biz.util.uploadAttachment","device.geolocation.get","biz.contact.departmentsPicker","runtime.permission.requestOperateAuthCode" ,"device.notification.confirm","device.notification.alert","device.notification.toast","biz.util.openSlidePanel"]
 	});
 
 	dd.error(function(error){	//dd.config验证失败会执行error函数

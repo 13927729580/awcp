@@ -1,4 +1,5 @@
 <link rel="stylesheet" href="<%=basePath%>base/resources/zui/dist/css/zui.min.css"/>
+<link rel="stylesheet" href="<%=basePath%>template/AdminLTE/css/font-awesome.min.css">
 <link rel="stylesheet" href="<%=basePath%>resources/styles/main.css"/>
 <link rel="stylesheet" href="<%=basePath%>base/resources/artDialog/css/ui-dialog.css"/>
 

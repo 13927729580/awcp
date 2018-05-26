@@ -778,6 +778,8 @@ public class DDController {
 					result.setData(list);
 					if(list.size() == 0){
 						throw new PlatformException("没有找到任何流程执行人");
+					} else {
+						removeSame(list);
 					}
 					return result;
 				} else{
@@ -821,4 +823,46 @@ public class DDController {
 		return jdbcTemplate.queryForList(sql,String.class,roleId);
 	}
 
+	//连续2个节点有相同用户,则删除一个
+	private void removeSame(List<String> list){
+		for(int i=0;i<list.size();i++){
+			String[] arr = list.get(i).split(",");
+			for(String item : arr){
+				for(int j=i+1;j<list.size();j++){
+					String temp = list.get(j);
+					if(temp.contains(item)){
+						list.set(j, removeStr(item, temp));
+					} else{
+						break;
+					}
+				}
+			}			
+		}
+		for(int i=0;i<list.size();){
+			if(StringUtils.isBlank(list.get(i))){
+				list.remove(i);
+			} else{
+				i++;
+			}
+		}
+	}
+	
+	private String removeStr(String item,String temp){
+		List<String> list = new ArrayList<>(Arrays.asList(temp.split(",")));
+		for(int i=0;i<list.size();i++){
+			if(item.equals(list.get(i))){
+				list.remove(i);
+				break;
+			}
+		}	
+		StringBuffer sb = new StringBuffer();
+		for(int i=0;i<list.size();i++){
+			if(i==0){
+				sb.append(list.get(i));
+			} else{
+				sb.append("," + list.get(i));
+			}
+		}
+		return sb.toString();
+	}
 }

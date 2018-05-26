@@ -11,7 +11,6 @@ import cn.org.awcp.formdesigner.service.AuthorityCompoentServiceImpl;
 import cn.org.awcp.formdesigner.service.AuthorityGroupWorkFlowNodeServiceImpl;
 import cn.org.awcp.venson.controller.base.ControllerHelper;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -393,16 +392,6 @@ public class DocUtils {
 						script = component.getString("tableDataSources");
 						Object vale2 = (String) engine.eval(script);
 						others.put(component.getString("name"), vale2 + "");
-						break;
-					case 1043:
-						JSONArray buttons = component.getJSONArray("buttons");
-						for(Object obj : buttons) {
-							Map<?, ?> map = (Map<?, ?>)obj;
-							String className = (String) map.get("className");
-							String hideCodes = (String) map.get("hideCodes");
-							others.put("rowButton_" + className,
-									String.valueOf(DocUtils.computeStatus(hideCodes, engine)));
-						}
 						break;
 					case 1102:
 						o.put("hidden",

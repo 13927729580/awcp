@@ -3,7 +3,9 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <import resource="ApplicationContext.xml" />
+    <import resource="applicationContext.xml" />
+    <import resource="applicationContext-alipay.xml" />
+    <import resource="spring-redis-context.xml"/>
     <import resource="spring-shiro.xml"/>
     <import resource="spring-context-jflow.xml"/>
     <!-- 	<import resource="classpath*:META-INF/spring/root.xml" /> -->

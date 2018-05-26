@@ -54,6 +54,40 @@
 					</c:forEach>
 				</ul>
 				
+				<c:forEach var="detail" items="${detailsList }">
+					<ul class="vwrp-top-fieldlist" id="detailFieldList">
+						<c:forEach var="txt" items="${detail.txtList}">
+							<li class="vwrp-top-fieldwrap global-bottomLine">
+								<div class="vwrp-top-fieldname">${txt.title }</div>
+								<div class="vwrp-top-fieldvalue">${txt.value }</div>
+							</li>
+						</c:forEach>
+					</ul>
+					<c:forEach var="other" items="${detail.otherList}">
+						<c:if test="${other.type=='img' }">
+							<div class="imgs-scroll" style="border-top: 1px solid #e4e4e4;">
+								<div class="vwrp-top-imglist" id="vwrpImgList">
+									<c:forEach var="img" items="${other.data }">
+										<img class="img" src="${img }">
+									</c:forEach>
+								</div>
+							</div>
+						</c:if>
+						<c:if test="${other.type=='file' }">
+							<div id="files">
+								<c:forEach var="file" items="${other.data }">
+									<div class="fileItem">
+										<textarea style="display: none">${file.json }</textarea>
+										<div class="fileIcon icon_file ${file.css }"></div>
+										<div class="fileName">${file.fileName }</div>
+										<div class="fileSize">${file.fileSize }KB</div>
+									</div>
+								</c:forEach>
+							</div>
+						</c:if>
+					</c:forEach>
+				</c:forEach>
+				
 				<!-- 图片，文件，位置信息 -->
 				<c:forEach var="other" items="${otherList}">
 					<c:if test="${other.type=='img' }">

@@ -413,36 +413,40 @@ public abstract class BaseUtils {
 
     /**
      * 设置数据源指定属性的值
-     *
-     * @param container
-     * @param item
-     * @param value
-     * @return
+     * @param doc 文档
+     * @param container 数据源
+     * @param item 键
+     * @param value 值
      */
-    public boolean setDataItem(String container, String item, String value) {
-        DocumentVO doc = ControllerContext.getDoc();
+    public boolean setDataItem(DocumentVO doc ,String container, String item, String value) {
         if (doc != null) {
-            if (doc.getListParams().get(container) == null || doc.getListParams().get(container).isEmpty()) {
-                List<Map<String, String>> list = doc.getListParams().get(container);
-                if (list == null) {
-                    list = new PageList<Map<String, String>>(new ArrayList<Map<String, String>>(),
-                            new Paginator(1, 10, 0));
-                }
-                Map<String, String> map = new HashMap<String, String>();
-                list.add(map);
+            List<Map<String, String>> list = doc.getListParams().get(container);
+            if (list== null) {
+                list = new ArrayList<>();
                 doc.getListParams().put(container, list);
             }
-            Map<String, String> data = doc.getListParams().get(container).get(0);
-            if (data == null) {
-                data = new HashMap<String, String>();
-                data.put(item, value);
-                doc.getListParams().get(container).add(data);
-            } else {
-                data.put(item, value);
+            Map<String, String> map;
+            if(list.isEmpty()){
+                map = new HashMap<>(16);
+                list.add(map);
+            }else{
+                map=list.get(0);
             }
+            map.put(item, value);
             return true;
         }
         return false;
+    }
+
+    /**
+     * 设置数据源指定属性的值
+     * @param container 数据源
+     * @param item 键
+     * @param value 值
+     */
+    public boolean setDataItem(String container, String item, String value) {
+        DocumentVO doc = ControllerContext.getDoc();
+        return setDataItem(doc, container, item, value);
     }
 
     /**
@@ -1349,7 +1353,7 @@ public abstract class BaseUtils {
         String userId = this.getUser().getUserIdCardNumber();
         if (StringUtils.isNumeric(WorkID)) {
             return this.jdbcTemplate.queryForObject(
-                    "select count(1) from wf_generworkflow where workid=? and starter=? and wfsta<>1 ", Integer.class,
+                    "select count(1) from wf_generworkflow where workid=? and starter=? ", Integer.class,
                     WorkID, userId) == 1;
         }
         return false;

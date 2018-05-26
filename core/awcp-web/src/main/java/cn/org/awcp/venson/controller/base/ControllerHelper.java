@@ -15,7 +15,8 @@ import cn.org.awcp.unit.vo.*;
 import cn.org.awcp.venson.common.SC;
 import cn.org.awcp.venson.exception.PlatformException;
 import cn.org.awcp.venson.util.CookieUtil;
-import cn.org.awcp.venson.util.MD5Util;
+import cn.org.awcp.venson.util.PlatfromProp;
+import cn.org.awcp.venson.util.RedisUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.github.miemiedev.mybatis.paginator.domain.PageList;
 import org.apache.commons.io.IOUtils;
@@ -25,6 +26,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
+import org.apache.shiro.web.util.WebUtils;
 import org.springframework.util.ReflectionUtils;
 
 import javax.servlet.ServletOutputStream;
@@ -292,11 +294,16 @@ public final class ControllerHelper {
 		return DocumentUtils.getIntance().getUser();
 	}
 
-	public static String getSecretKey(String uid){
-		return MD5Util.getMD5StringWithSalt(uid,SC.SALT);
-	}
-
 	public static boolean loginByCookie() {
+		//shiro 记住我
+		Subject subject = SecurityUtils.getSubject();
+		if(subject.isRemembered()){
+			PunUserBaseInfoVO pvi = (PunUserBaseInfoVO)subject.getPrincipal();
+			if(pvi!=null){
+				doLoginSuccess(pvi);
+				return true;
+			}
+		}
 		HttpServletRequest request = ControllerContext.getRequest();
 		// 尝试从参数中获取
 		String secretKey = request.getParameter("key");
@@ -311,8 +318,9 @@ public final class ControllerHelper {
 			}
 		}
 		if (secretKey != null && userAccount != null) {
+			String code=(String)RedisUtil.getInstance().get(SC.SECRET_KEY+userAccount);
 			// 若返回值不为空则为合法操作
-			if (secretKey.equals(getSecretKey(userAccount))) {
+			if (secretKey.equals(code)) {
 				return toLogin(userAccount, false) != null;
 			}
 		}
@@ -326,16 +334,41 @@ public final class ControllerHelper {
 		UsernamePasswordToken token = new UsernamePasswordToken(plainToke, SC.SALT);
 		subject.login(token);
 		PunUserBaseInfoVO pvi = (PunUserBaseInfoVO) subject.getPrincipal();
-		// 用户状态禁用或未审核
-		if (SC.USER_STATUS_AUDIT.equals(pvi.getUserStatus()) || SC.USER_STATUS_DISABLED.equals(pvi.getUserStatus())) {
-			return null;
-		}
 		ControllerHelper.doLoginSuccess(pvi);
 		if (isRemember) {
-			CookieUtil.addCookie(SC.SECRET_KEY,getSecretKey(pvi.getUserIdCardNumber()));
-			CookieUtil.addCookie(SC.USER_ACCOUNT, pvi.getUserIdCardNumber());
+			setSecretKey(pvi,-1);
 		}
 		return pvi;
+	}
+
+	public static void logout() throws IOException {
+		Subject subject = SecurityUtils.getSubject();
+		// 如果被踢出了，直接退出，重定向到踢出后的地址
+		CookieUtil.deleteCookie(SC.USER_ACCOUNT);
+		CookieUtil.deleteCookie(SC.SECRET_KEY);
+		// 会话被踢出了
+		subject.logout();
+		HttpServletRequest request =ControllerContext.getRequest();
+		HttpServletResponse response = ControllerContext.getResponse();
+		String requestType = request.getHeader("X-Requested-With");
+		if (requestType != null && "XMLHttpRequest".equals(requestType)) {
+			ReturnResult returnResult = ReturnResult.get();
+			returnResult.setStatus(StatusCode.NO_LOGIN.setMessage("您还未登录,请先登录！"));
+			ControllerHelper.renderJSON(ControllerHelper.CONTENT_TYPE_JSON,returnResult);
+		} else {
+			WebUtils.issueRedirect(request, response, PlatfromProp.getValue("awcp.login.url"));
+		}
+	}
+
+	public static void setSecretKey(PunUserBaseInfoVO pvi,long time) {
+		String code = UUID.randomUUID().toString();
+		if(time!=-1){
+			RedisUtil.getInstance().set(SC.SECRET_KEY+pvi.getUserIdCardNumber(),code,time);
+		}else{
+			RedisUtil.getInstance().set(SC.SECRET_KEY+pvi.getUserIdCardNumber(),code);
+		}
+		CookieUtil.addCookie(SC.SECRET_KEY,code);
+		CookieUtil.addCookie(SC.USER_ACCOUNT, pvi.getUserIdCardNumber());
 	}
 
 	public static void doLoginSuccess(PunUserBaseInfoVO pvi) {

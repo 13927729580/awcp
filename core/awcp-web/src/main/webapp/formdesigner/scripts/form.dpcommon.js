@@ -171,7 +171,7 @@ function addRow(objectType, comObject) {
 		if (href == t) {
 			var name;
             //对于列组件，则显示列头名称，其他显示名称
-			if(item['componentType']=='1008'||item['componentType']=='1043'){
+			if(item['componentType']=='1008'){
                 name=item['columnName'];
 			}else{
 				name=item[t];

@@ -1,23 +1,6 @@
 package cn.org.awcp.venson.controller;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
-
+import cn.jflow.common.util.PingYinUtil;
 import cn.org.awcp.common.security.VerifyCodeGenerator;
 import cn.org.awcp.core.domain.SzcloudJdbcTemplate;
 import cn.org.awcp.core.utils.SessionUtils;
@@ -32,33 +15,40 @@ import cn.org.awcp.unit.vo.PunUserBaseInfoVO;
 import cn.org.awcp.venson.controller.base.ControllerHelper;
 import cn.org.awcp.venson.controller.base.ReturnResult;
 import cn.org.awcp.venson.controller.base.StatusCode;
-import cn.org.awcp.venson.service.QueryService;
 import cn.org.awcp.venson.util.CheckUtils;
-import cn.org.awcp.venson.util.CookieUtil;
 import cn.org.awcp.venson.util.EmailUtil;
 import cn.org.awcp.venson.util.QRCoreUtil;
 import cn.org.awcp.venson.util.SMSUtil;
-import cn.org.awcp.wechat.util.WeChatUtil;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.DataAccessException;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("anon")
 public class AnonController {
-	// 日志对象
 	private static final Log logger = LogFactory.getLog(AnonController.class);
-
-	@Resource(name = "queryServiceImpl")
-	private QueryService query;
 
 	@Resource(name = "metaModelOperateServiceImpl")
 	private MetaModelOperateService meta;
 
 	@Autowired
 	@Qualifier("punUserRoleServiceImpl")
-	PunUserRoleService userRoleService;// 用户角色关联Service
+	PunUserRoleService userRoleService;
 
 	@Autowired
 	@Qualifier("punUserBaseInfoServiceImpl")
-	private PunUserBaseInfoService userService;// 用户Service
+	private PunUserBaseInfoService userService;
 
 	@Resource(name = "jdbcTemplate")
 	private SzcloudJdbcTemplate jdbcTemplate;
@@ -72,10 +62,8 @@ public class AnonController {
      * @param verifyCode 验证码
      * @param type       0：手机号，1：邮箱
      * @param to         手机号或邮箱
-     * @return
-     * @throws UnsupportedEncodingException
      */
-    @RequestMapping(value = "sendCode", method = RequestMethod.GET)
+    @RequestMapping(value = "sendCode")
     public ReturnResult sendCode(@RequestParam(value = "type", required = false, defaultValue = "0") int type,
                                  @RequestParam("verifyCode") String verifyCode, @RequestParam("to") String to) {
         ReturnResult result = ReturnResult.get();
@@ -107,7 +95,6 @@ public class AnonController {
      *
      * @param code 验证码
      * @param to   手机号/邮箱
-     * @return
      */
     @RequestMapping(value = "checkCode", method = RequestMethod.POST)
     public ReturnResult checkCode(@RequestParam("code") String code, @RequestParam("to") String to) {
@@ -126,7 +113,6 @@ public class AnonController {
      *
      * @param type  0：手机号，1：邮箱
      * @param value 手机号或邮箱
-     * @return
      */
     @RequestMapping(value = "checkUser", method = RequestMethod.POST)
     public ReturnResult checkUser(@RequestParam(value = "type", defaultValue = "0", required = false) int type,
@@ -134,27 +120,30 @@ public class AnonController {
         ReturnResult result = ReturnResult.get();
 
         logger.debug(SessionUtils.getObjectFromSession(SessionContants.SMS_VERIFY_CODE + value));
+        String sql;
         // 注册的校正
         if (type == 0) {
-            if (!CheckUtils.isChinaPhoneLegal(value)) {
+            if (!CheckUtils.isPhoneLegal(value)) {
                 return result.setStatus(StatusCode.FAIL.setMessage("手机号有误"));
             }
-            if (this.meta.queryOne("select count(1) from p_un_user_base_info where mobile=?", value) != 0) {
+            sql="select count(1) from p_un_user_base_info where mobile=?";
+            if (this.meta.queryOne(sql, value) != 0) {
                 return result.setStatus(StatusCode.FAIL.setMessage("该号码已被注册"));
             }
         } else if (type == 1) {
             if (!CheckUtils.isLegalUserName(value)) {
                 return result.setStatus(StatusCode.FAIL.setMessage("用户名格式有误"));
             }
-            if (this.meta.queryOne("select count(1) from p_un_user_base_info where USER_ID_CARD_NUMBER=?",
-                    value) != 0) {
+            sql="select count(1) from p_un_user_base_info where USER_ID_CARD_NUMBER=?";
+            if (this.meta.queryOne(sql,value) != 0) {
                 return result.setStatus(StatusCode.FAIL.setMessage("该用户名已被注册"));
             }
         } else if (type == 2) {
             if (!CheckUtils.isLegalEmail(value)) {
                 return result.setStatus(StatusCode.FAIL.setMessage("邮箱格式有误"));
             }
-            if (this.meta.queryOne("select count(1) from p_un_user_base_info where USER_EMAIL=?", value) != 0) {
+            sql="select count(1) from p_un_user_base_info where USER_EMAIL=?";
+            if (this.meta.queryOne(sql, value) != 0) {
                 return result.setStatus(StatusCode.FAIL.setMessage("该邮箱已被注册"));
             }
         }
@@ -162,43 +151,43 @@ public class AnonController {
         return result;
     }
 
+    /**
+     * 手机号注册用户
+     * @param code 手机验证码
+     * @param name 用户名
+     * @param phone 手机号
+     * @param password 密码
+     */
 	@RequestMapping(value = "registerUser", method = RequestMethod.POST)
-	public ReturnResult registerUser(@RequestParam("code") String code, @RequestParam("name") String name,
-			@RequestParam("phone") String phone, @RequestParam("password") String password,
-			@RequestParam("role") long role, @RequestParam(value = "city", required = false) String city,
-			@RequestParam(value = "invite", required = false) String invite,
-			@RequestParam(value = "openid", required = false) String openid) {
+	public ReturnResult register(@RequestParam("code") String code, @RequestParam("name") String name,
+			@RequestParam("phone") String phone, @RequestParam("password") String password) {
 		ReturnResult result = ReturnResult.get();
 		if (!code.equals(SessionUtils.getObjectFromSession(SessionContants.SMS_VERIFY_CODE + phone))) {
 			// 验证码错误
 			return result.setStatus(StatusCode.FAIL.setMessage("验证码错误"));
 		}
+        if(checkUser(0,phone).getStatus()!=0){
+            return result;
+        }
 		try {
-			jdbcTemplate.beginTranstaion();
 			// 该号码可以使用
 			PunUserBaseInfoVO vo = new PunUserBaseInfoVO();
-			vo.setUserIdCardNumber(name);
+            String pinyinName = PingYinUtil.getPingYin(name);
+            String userName = pinyinName +"_"+ VerifyCodeGenerator.getInstance().getRandString();
+			vo.setUserIdCardNumber(userName);
+			vo.setName(name);
 			vo.setMobile(phone);
 			// 随机姓名
-			vo.setUserName(VerifyCodeGenerator.getInstance().getRandString());
-			vo.setUserPwd(EncryptUtils.encrypt(password));// 密码加密
-			// 插入角色
-			vo.setRoleList(Arrays.asList(role));
-			// 将选择角色保存进cookie
-			CookieUtil.addCookie("awcp_user_role", role + "");
-			Long userId = userService.addOrUpdateUser(vo);
+			vo.setUserName(userName);
+			vo.setUserPwd(EncryptUtils.encrypt(password));
+			userService.addOrUpdateUser(vo);
 			// 增加注册消息推送
-			punNotificationService.pushNotifyUser("register", userId + "");
+			punNotificationService.pushNotifyUser("register", userName);
 			// 关联企业用户
 			result.setStatus(StatusCode.SUCCESS);
-			jdbcTemplate.commit();
 		} catch (Exception e) {
 			result.setStatus(StatusCode.FAIL.setMessage("注册失败"));
 			logger.debug("ERROR", e);
-			try {
-				jdbcTemplate.rollback();
-			} catch (Exception e1) {
-			}
 		}
 
 		return result;
@@ -210,7 +199,6 @@ public class AnonController {
      * @param code     短信验证码
      * @param phone    手机号
      * @param password 密码
-     * @return
      */
     @RequestMapping(value = "modifyPassword", method = RequestMethod.POST)
     public ReturnResult modifyPassword(@RequestParam("code") String code, @RequestParam("phone") String phone,
@@ -233,30 +221,40 @@ public class AnonController {
     }
 
     /**
-     * 自动登录与注册
+     * 根据短信验证码登录
      *
-     * @param code
-     * @return
+     * @param code 验证码
+     * @param phone 手机号
      */
-    @ResponseBody
-    @RequestMapping(value = "/autoLogin")
-    public String autoLogin(String code) {
-        String openid = WeChatUtil.getOpenid(code);
-        String sql = "select t1.USER_ID_CARD_NUMBER from p_un_user_base_info t1 join awcp_user t2 "
-                + "on t1.USER_ID=t2.user_id where openid=?";
-        try {
-            String userAccount = jdbcTemplate.queryForObject(sql, String.class, openid);
-            ControllerHelper.toLogin(userAccount, true);
-            return "1";
-        } catch (Exception e) {
-            logger.debug("ERROR", e);
-            return "0";
+    @RequestMapping(value = "/login",method = RequestMethod.POST)
+    public ReturnResult login(@RequestParam("code") String code, @RequestParam("phone") String phone) {
+        ReturnResult result = ReturnResult.get();
+        if (code.equals(SessionUtils.getObjectFromSession(SessionContants.SMS_VERIFY_CODE + phone))) {
+            String sql = "select USER_ID_CARD_NUMBER from p_un_user_base_info  where MOBILE=?";
+            try {
+                String userAccount = jdbcTemplate.queryForObject(sql, String.class, phone);
+                ControllerHelper.toLogin(userAccount, true);
+                result.setStatus(StatusCode.SUCCESS);
+            } catch (DataAccessException e) {
+                logger.debug("ERROR", e);
+                result.setStatus(StatusCode.FAIL.setMessage("该手机号尚未注册，请先注册"));
+            }
+        } else {
+            result.setStatus(StatusCode.FAIL.setMessage("验证码错误"));
         }
+        return result;
+
     }
 
+
+    /**
+     * 创建二维码
+     * @param content 二维码内容
+     */
     @RequestMapping(value = "createQRCode", method = RequestMethod.GET)
     public void createQRCode(String content, HttpServletResponse response) {
         try {
+            response.setContentType("image/jpg");
             QRCoreUtil.create(500, 500, content, response.getOutputStream());
         } catch (IOException e) {
             logger.debug("ERROR", e);
@@ -266,7 +264,6 @@ public class AnonController {
     /**
      * 获取系统名称
      *
-     * @return
      */
     @RequestMapping(value = "systemName", method = RequestMethod.GET)
     public ReturnResult systemName() {

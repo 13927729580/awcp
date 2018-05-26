@@ -14,7 +14,7 @@
 		<result property="maximumActiveTime" jdbcType="INTEGER" column="MAXIMUM_ACTIVE_TIME"/>
 		<result property="prototypeCount" jdbcType="INTEGER" column="PROTOTYPE_COUNT"/>
 		<result property="maximumConnectionCount" jdbcType="INTEGER" column="MAXIMUM_CONNECTION_COUNT"/>
-		<result property="minimumConnectionCount" jdbcType="INTEGER" column="MINIMUM_CONNECTION_COUNT "/>
+		<result property="minimumConnectionCount" jdbcType="INTEGER" column="MINIMUM_CONNECTION_COUNT"/>
 		<result property="simultaneousBuildThrottle" jdbcType="INTEGER" column="SIMULTANEOUS_BUILD_THROTTLE"/>
 		<result property="trace" jdbcType="TINYINT" column="TRACE"/>
 		<result property="domain" jdbcType="VARCHAR" column="DOMAIN"/>

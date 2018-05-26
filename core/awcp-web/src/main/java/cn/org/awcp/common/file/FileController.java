@@ -137,10 +137,15 @@ public class FileController {
         // 设置缓存
         response.addHeader("Cache-Control", "max-age=86400");
         response.addHeader("Expires", new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000).toString());
-        InputStream input = fileService.getInputStream(id);
+        AttachmentVO attachmentVO=fileService.get(id);
+        if (attachmentVO == null) {
+            return "redirect:" + fileLose();
+        }
+        InputStream input = fileService.getInputStream(attachmentVO);
         if (input == null) {
             return "redirect:" + fileLose();
         }
+        response.addHeader("Content-type", attachmentVO.getContentType());
         if (width > 0 || height > 0) {
             BufferedImage bi;
             //如果宽高都有值则不进行等比
@@ -155,6 +160,9 @@ public class FileController {
                 return "redirect:" + fileLose();
             }
         } else {
+            response.addHeader("Accept-Ranges", "bytes");
+            response.addHeader("ETag", attachmentVO.getId());
+            response.addHeader("Content-Length", attachmentVO.getSize()+"");
             fileService.copy(input, response.getOutputStream());
         }
 

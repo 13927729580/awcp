@@ -60,6 +60,9 @@
 		<#case 1016>
 			<@convertImage c/>
 			<#break>
+		<#case 1103>
+			<@convertDetails c/>
+			<#break>
 		<#default>
 	</#switch>
 </#macro>
@@ -77,6 +80,9 @@
 			<#break>
 		<#case 1016>
 			<@convertImageScript component/>
+			<#break>
+		<#case 1103>
+			<@convertDetailsScript component/>
 			<#break>
 		<#default>
 	</#switch>
@@ -301,4 +307,207 @@
 			${c.getClientScript()}
 		</#if>
 	});
+</#macro>
+
+<#--  明细控件	-->
+<#macro convertDetails c>
+	<#noparse><#if </#noparse>${c['dataAlias']!''}<#noparse>?? && </#noparse>${c['dataAlias']!''}<#noparse>?size gt 0></#noparse>    	     	
+ 		<#noparse><#list</#noparse> ${c['dataAlias']!''} <#noparse>as item></#noparse>		
+ 		<div class="${c['dataAlias']!''}" data-index="<#noparse>${item_index+1}</#noparse>">	
+			<div style="display: block;" class="createreport_get_report">
+ 				<#if c['title']?? >
+					<div class="colFirst">
+						<label class="<#if c['required']?? && c['required']=='1'>requiredLabel</#if>">${c["title"]!""}(<span style="font-size: 12px;" class="indexSpan"><#noparse>${item_index+1}</#noparse></span>)</label>
+					</div>
+					<div class="colSecond">
+						<span style="color:red;display:none;" class="delSpan">删除</span>
+					</div>
+				</#if>	
+			</div>
+ 			<#if c['details']?? && c['details']?size gt 0>
+	 			<#list c['details'] as detail>
+	 				<@convertDetail detail item></@convertDetail>
+	 			</#list>  
+	 		</#if>	
+	 	</div>	
+ 		<#noparse></#list></#noparse>
+ 	<#noparse>
+ 	<#else>
+ 	</#noparse>	
+ 		<div class="${c['dataAlias']!''}" data-index="1">	
+			<div style="display: block;" class="createreport_get_report">
+		 		<#if c['title']?? >
+					<div class="colFirst">
+						<label class="<#if c['required']?? && c['required']=='1'>requiredLabel</#if>">${c["title"]!""}(<span style="font-size: 12px;" class="indexSpan">1</span>)</label>
+					</div>
+					<div class="colSecond">
+						<span style="color:red;display:none;" class="delSpan">删除</span>
+					</div>
+				</#if>	
+			</div>
+	 		<#if c['details']?? && c['details']?size gt 0>
+	 			<#list c['details'] as detail>
+	 				<@convertDetail detail></@convertDetail>
+	 			</#list>  
+	 		</#if>
+	 	</div>	
+ 	<#noparse>
+ 	</#if>     	
+ 	</#noparse>
+ 	<div style="display: block;" class="createreport_get_report"  id="add_${c['dataAlias']!''}">
+ 		<div class="colFirst" style="text-align:left;display:block;padding: 0px;">
+ 			<label style="line-height: 48px;color:blue">+新增${c["title"]!""}</label>
+ 		</div>
+ 	</div>
+ 	<div style="display:none" id="div_${c['dataAlias']!''}">
+ 		<div style="display: block;" class="createreport_get_report">
+			<#if c['title']?? >
+				<div class="colFirst">
+					<label class="<#if c['required']?? && c['required']=='1'>requiredLabel</#if>">${c["title"]!""}(<span style="font-size: 12px;" class="indexSpan"></span>)</label>
+				</div>
+				<div class="colSecond">
+					<span style="color:red;display:none;" class="delSpan">删除</span>
+				</div>
+			</#if>	
+		</div>
+ 		<#if c['details']?? && c['details']?size gt 0>
+ 			<#list c['details'] as detail>
+ 				<@convertDetail detail></@convertDetail>
+ 			</#list>  
+ 		</#if>
+</#macro>
+
+<#macro convertDetail detail item="">
+	<#if detail.type=="1001">
+		<div style="display: block;" class="createreport_get_report" data-type="text">
+			<div class="colFirst">
+				<label>${detail.title!""}</label>
+			</div>
+			<div class="colSecond">
+				<input type="text" name="${detail.field!""}" data-placeholder="请输入_Please Input" 
+					value="<#noparse>${(item.</#noparse>${detail.field!""}<#noparse>)!""}</#noparse>" />
+			</div>
+		</div>
+	<#elseif detail.type=="1002">
+		<div style="display: block;" class="createreport_get_report" data-type="date">
+			<div class="colFirst">
+				<label>${detail.title!""}</label>
+			</div>
+			<div class="colSecond">			
+				<input type="text" name="${detail.field!""}" data-placeholder="请选择_Please Select"
+					value="<#noparse>${(item.</#noparse>${detail.field!""}<#noparse>)!""}</#noparse>" />
+			 </div>
+		</div>
+	<#elseif detail.type=="1005">
+		<div style="display: block;" class="createreport_get_report" data-type="textarea">
+			<div class="colFirst">
+				<label>${detail.title!""}</label>
+			</div>
+			<div class="colSecond">
+				<textarea rows="4" style="resize: none; height: 100px;" name="${detail.field!""}" 
+					data-placeholder="请输入_Please Input"><#noparse>${(item.</#noparse>${detail.field!""}<#noparse>)!""}</#noparse></textarea>
+			</div>
+		</div>
+	<#elseif detail.type=="1006">
+	
+	<#elseif detail.type=="1010">
+		<input type="hidden" name="${detail.field!""}" value="<#noparse>${(item.</#noparse>${detail.field!""}<#noparse>)!""}</#noparse>" />
+	<#elseif detail.type=="1011">
+		<div style="display: block;" class="createreport_get_report" data-type="file">
+			<div class="colFirst"><label>${detail.title!""}</label>
+				<span style="width: 20px;height: 18px;font-size: 14px;color: #38adff;cursor: pointer;">添加附件</span>
+			</div>
+		    <div id="files" style="padding-left: 0px;clear: inherit;overflow: auto;" class="colSecond"></div>
+		    <textarea style="display: none; resize: none;" class="attachment" name="${detail.field!""}"><#noparse>${(item.</#noparse>${detail.field!""}<#noparse>)!""}</#noparse></textarea>
+		</div>		
+	<#elseif detail.type=="1016">
+		<div style="display: block;" class="createreport_get_report" data-type="img">
+			<div style="display: block;margin:0px;" class="createreport_add_img">
+				<div class="colFirst" style="padding-top: 10px;"><span>${detail.title!""}</span></div>
+				<div id="img_list" class="colSecond" style="padding-top: 10px;">
+		            <ul>
+		            	<li id="add_img_btn">
+		            		<img class="add_img_btn" src="<#noparse>${basePath}</#noparse>dingding/img/pc/uploadphoto.jpg">
+		            	</li>
+		            </ul>
+		        </div>
+				<input type="hidden" class="photo" name="${detail.field!""}" value="<#noparse>${(item.</#noparse>${detail.field!""}<#noparse>)!""}</#noparse>" />
+			</div>
+		</div>
+	</#if>
+</#macro>
+
+<#macro convertDetailsScript c>
+	(function(){
+		var dataAlias = "${c['dataAlias']!''}";
+		
+		function showAndHide(){
+			var length = $("." + dataAlias).length;
+			if(length > 1){
+				$("." + dataAlias).find(".delSpan").show();
+			} else{
+				$("." + dataAlias).find(".delSpan").hide();
+			}
+			var index = 1;
+			$("." + dataAlias).each(function(){
+				$(this).attr("data-index",index);
+				$(this).find(".indexSpan").text(index);
+				index++;
+			});
+		}
+				
+		$("." + dataAlias).parent().on("click",".delSpan",function(){
+			var length = $("." + dataAlias).length;
+			if(length>1){
+				$(this).parent().parent().parent().remove();
+				showAndHide();				
+			}
+		});
+		
+		function bindEvent($dom){			
+			$dom.find("[data-type='img']").each(function(){
+				var $imgInput = $(this).find("input");
+				var $imgList = $imgInput.prev("[id='img_list']");
+				var imageData = $imgInput.val();
+				ddPc.imgInit(imageData,$imgList);
+				$imgList.find(".add_img_btn").click(function(){
+					ddPc.uploadImage(9,$imgInput,$imgList);
+				});
+			});
+			
+			$dom.find("[data-type='file']").each(function(){
+				var $fileTextarea = $(this).find("textarea");
+				var $files = $fileTextarea.prev();				
+				ddPc.initFile($fileTextarea,$files);				
+				$files.prev().children("span").click(function(){			
+					ddPc.uploadFile(5,$files,$fileTextarea);
+				});	
+			});		
+			
+			$dom.find("[data-type='date']").each(function(){
+				$(this).find("input").datetimepicker({
+					lang:"ch",
+					format:"Y-m-d",
+					timepicker:false,
+					onChangeDateTime:function(){
+						
+					}
+				});
+			});
+		}
+		
+		bindEvent($("." + dataAlias));
+		
+		$("#add_" + dataAlias).bind("click",function(){
+			var html = $(this).next().html();
+			var length = $("." + dataAlias).length + 1;
+			html = "<div class='" + dataAlias + "' data-index='" + length + "'>" + html + "</div>";
+			$(this).before(html);
+			bindEvent($(this).prev());
+			showAndHide();
+		});
+		
+		showAndHide();
+		
+	})();
 </#macro>

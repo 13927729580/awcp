@@ -220,10 +220,17 @@
     $(function () {
         //设置系统名称
         $.get(baseUrl+"api/anon/systemName",function(data){
-            if(data.data){
-                $("#systemName").text(data.data);
-            }else{
-                $("#systemName").text("全栈配置云开发平台");
+            if(data.status==0){
+                if(data.data){
+                    $("#systemName").text(data.data);
+                }else{
+                    $("#systemName").text("全栈配置云开发平台");
+                }
+            }else if(data.status==-4){
+                Comm.alert("您还未登录，请先登录",function(){
+                    tabCache.clear();
+                    location.href=baseUrl+"login.html";
+                });
             }
         });
         top.commonUse=[];
@@ -282,38 +289,45 @@
         })
         /*登陆者*/
         $.get(baseUrl+"api/getUserInfo?timeStamp=" + new Date().getTime(),function(data){
-            var userInfo=data.data;
-            Comm.set("userInfo",JSON.stringify(userInfo));
-            $("#userName,#pullLeftInfo").text(userInfo.name);
-            $("#userInfo").html(userInfo.name);
-            setUserHeadImg(userInfo.userHeadImg);
-            //判断当前浏览器是否支持WebSocket
-            if ('WebSocket' in window && userInfo.userIdCardNumber) {
-                var websocket = new WebSocket("ws:"+baseUrl.replace(window.location.protocol,"")+"websocket/"+userInfo.userIdCardNumber);
-                //连接发生错误的回调方法
-                websocket.onerror = function (event) {
-                    console.log(event);
-                };
-                //接收到消息的回调方法
-                websocket.onmessage = function (event) {
-                    var data;
-                    try{
-                        data=JSON.parse(event.data)
-                    }catch(e){}
-                    if(typeof data === 'object'){
-                        //获取我的桌面对象
-                        var desktop=findIframeById("10008").get(0).contentWindow;
-                        //流程待办
-                        if(data.hasOwnProperty("flow")){
-                            desktop.rendererFlow(5);
-                            //消息通知
-                        }else if(data.hasOwnProperty("notify")){
-                            desktop.rendererChat("all","0");
+            if(data.status==0){
+                var userInfo=data.data;
+                Comm.set("userInfo",JSON.stringify(userInfo));
+                $("#userName,#pullLeftInfo").text(userInfo.name);
+                $("#userInfo").html(userInfo.name);
+                setUserHeadImg(userInfo.userHeadImg);
+                //判断当前浏览器是否支持WebSocket
+                if ('WebSocket' in window && userInfo.userIdCardNumber) {
+                    var websocket = new WebSocket("ws:"+baseUrl.replace(window.location.protocol,"")+"websocket/"+userInfo.userIdCardNumber);
+                    //连接发生错误的回调方法
+                    websocket.onerror = function (event) {
+                        console.log(event);
+                    };
+                    //接收到消息的回调方法
+                    websocket.onmessage = function (event) {
+                        var data;
+                        try{
+                            data=JSON.parse(event.data)
+                        }catch(e){}
+                        if(typeof data === 'object'){
+                            //获取我的桌面对象
+                            var desktop=findIframeById("10008").get(0).contentWindow;
+                            //流程待办
+                            if(data.hasOwnProperty("flow")){
+                                desktop.rendererFlow(5);
+                                //消息通知
+                            }else if(data.hasOwnProperty("notify")){
+                                desktop.rendererChat("all","0");
+                            }
                         }
                     }
+                }else {
+                    Comm.alert('当前浏览器不支持websocket,请换高版本浏览器打开');
                 }
-            }else {
-                Comm.alert('当前浏览器不支持websocket,请换高版本浏览器打开');
+            }else if(data.status==-4){
+                Comm.alert("您还未登录，请先登录",function(){
+                    tabCache.clear();
+                    location.href=baseUrl+"login.html";
+                });
             }
         });
         //上传用户头像

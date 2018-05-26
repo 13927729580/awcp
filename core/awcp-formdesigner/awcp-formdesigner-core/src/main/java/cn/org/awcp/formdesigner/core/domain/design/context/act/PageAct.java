@@ -44,7 +44,15 @@ public class PageAct extends PageObject<Long> {
 	private Long systemId; // 系统ID
 	private String color;
 	private String enName;
+	private String place;
 
+	public String getPlace() {
+		return place;
+	}
+
+	public void setPlace(String place) {
+		this.place = place;
+	}
 	public String getEnName() {
 		return enName;
 	}

@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import cn.org.awcp.core.domain.BaseExample;
@@ -64,11 +65,18 @@ public class DdWfController {
 	@Autowired
 	private DocumentService documentServiceImpl;
 
+	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/wf/openTask")
 	public ModelAndView openTask(HttpServletRequest request, HttpServletResponse response) {
 		ModelAndView mav = new ModelAndView();
 		mav.setViewName("dingding/wfDetail");
 		String dynamicPageId = request.getParameter("dynamicPageId");
+		String sql = "select dynamicPageId from dd_apps where dynamicPageId=? or pcDynamicPageId=?";
+		try{
+			dynamicPageId = jdbcTemplate.queryForObject(sql,String.class, dynamicPageId,dynamicPageId);
+		} catch(Exception e){
+			e.printStackTrace();
+		}		
 		String entryId = request.getParameter("FK_Node");
 		String flowTempleteId = request.getParameter("FK_Flow");
 		String fid = request.getParameter("FID");
@@ -114,17 +122,19 @@ public class DdWfController {
 			BaseExample baseExample = new BaseExample();
 			baseExample.createCriteria().andEqualTo("dynamicPage_id", pageVO.getId()).andLike("code",
 					StoreService.COMPONENT_CODE + "%");
-			List<StoreVO> stores = storeServiceImpl.selectPagedByExample(baseExample, 1, Integer.MAX_VALUE, "T_ORDER");
-			String dateSource = JSONObject.parseObject(stores.get(0).getContent()).getString("dataItemCode")
-					.split("\\.")[0];
-			Map<String, String> temp = dataMap.get(dateSource + "_list").get(0); // 表单数据
+			List<StoreVO> stores = storeServiceImpl.selectPagedByExample(baseExample, 1, Integer.MAX_VALUE, "T_ORDER");	
+			String key = "";
+			if(!dataMap.isEmpty()){
+				key = dataMap.keySet().iterator().next();
+			}
+			Map<String, String> temp = dataMap.get(key).get(0); // 表单数据
 
 			// 审批发起者信息
 			Map<String, Object> user = getUserInfo(workItemId);
 			if (fid != null && !fid.equals("0")) {
 				workItemId = fid;
 			}
-			String sql = "SELECT GROUP_CONCAT(DISTINCT FK_EmpText) FROM wf_generworkerlist WHERE IsPass=0 AND (workid=? or FID=?) ";
+			sql = "SELECT GROUP_CONCAT(DISTINCT FK_EmpText) FROM wf_generworkerlist WHERE IsPass=0 AND (workid=? or FID=?) ";
 			String nextStepPerson = jdbcTemplate.queryForObject(sql, String.class, workItemId, workItemId);
 			if (StringUtils.isNotBlank(nextStepPerson)) {
 				user.put("approved", 0);
@@ -141,61 +151,74 @@ public class DdWfController {
 				JSONObject obj = JSONObject.parseObject(store.getContent());
 				Map<String, Object> m = new HashMap<String, Object>();
 				String dataItemCode = obj.getString("dataItemCode");
-				String value = temp.get(dataItemCode.split("\\.")[1]);
+				String value = "";
+				if(StringUtils.isNoneBlank(dataItemCode)){
+					value = temp.get(dataItemCode.split("\\.")[1]);
+				}
 				String componentType = obj.getString("componentType");
-				if (StringUtils.isNotBlank(value)) {
+				if (StringUtils.isNotBlank(value) || "1103".equals(componentType)) {
 					if (isCH) {
 						m.put("title", obj.getString("title"));
 					} else {
 						m.put("title", obj.getString("enTitle"));
 					}
 					switch (componentType) {
-					case "1001":
-						m.put("value", value);
-						m.put("type", "textfield");
-						break;
-					case "1002":
-						m.put("value", value);
-						m.put("type", "datefield");
-						break;
-					case "1005":
-						m.put("value", value);
-						m.put("type", "textarea");
-						break;
-					case "1006":
-						String optionScript = obj.getString("optionScript");
-						m.put("value", value);
-						if (StringUtils.isNotBlank(optionScript)) {
-							String ret = null;
+						case "1001":
+							m.put("value", value);
+							m.put("type", "textfield");
+							break;
+						case "1002":
+							m.put("value", value);
+							m.put("type", "datefield");
+							break;
+						case "1005":
+							m.put("value", value);
+							m.put("type", "textarea");
+							break;
+						case "1006":
+							String optionScript = obj.getString("optionScript");
+							m.put("value", value);
+							if (StringUtils.isNotBlank(optionScript)) {
+								String ret = null;
+								try {
+									ret = (String) engine.eval(optionScript);
+								} catch (ScriptException e) {
+									e.printStackTrace();
+								}
+								if (StringUtils.isNotBlank(ret)) {
+									m.put("value", DdUtil.getVal(value, ret));
+								} else {
+									m.put("value", value);
+								}
+							}
+							m.put("type", "selectfield");
+							break;
+						case "1011":
+							m.put("value", getFile(value));
+							m.put("type", "file");
+							break;
+						case "1016":
+							m.put("value", new ArrayList<String>(Arrays.asList(value.split(","))));
+							m.put("type", "img");
+							break;
+						case "1101":
+							String funType = obj.getString("funType");
+							if ("0".equals(funType)) {
+								m.put("type", "textarea");
+								m.put("value", value);
+							} else {
+								continue;
+							}
+						case "1103":
+							m.put("type", "details");
+							String dataSource = obj.getString("dataSource");
+							JSONArray details = obj.getJSONArray("details");
 							try {
-								ret = (String) engine.eval(optionScript);
+								List<Map<String,Object>> arr = (List<Map<String,Object>>) engine.eval(dataSource);
+								m.put("detailsList", getDetails(arr, details));
 							} catch (ScriptException e) {
 								e.printStackTrace();
 							}
-							if (StringUtils.isNotBlank(ret)) {
-								m.put("value", DdUtil.getVal(value, ret));
-							} else {
-								m.put("value", value);
-							}
-						}
-						m.put("type", "selectfield");
-						break;
-					case "1011":
-						m.put("value", getFile(value));
-						m.put("type", "file");
-						break;
-					case "1016":
-						m.put("value", new ArrayList<String>(Arrays.asList(value.split(","))));
-						m.put("type", "img");
-						break;
-					case "1101":
-						String funType = obj.getString("funType");
-						if ("0".equals(funType)) {
-							m.put("type", "textarea");
-							m.put("value", value);
-						} else {
-							continue;
-						}
 					}
 					data.add(m);
 				}
@@ -237,6 +260,54 @@ public class DdWfController {
 		return mav;
 	}
 
+	@SuppressWarnings("unchecked")
+	private List<Map<String,Object>> getDetails(List<Map<String,Object>> arr,JSONArray details){
+		List<Map<String,Object>> items = new ArrayList<Map<String,Object>>();
+		for(int i=0;i<arr.size();i++){
+			Map<String,Object> item = new HashMap<String,Object>();
+			List<Map<String,Object>> txtList = new ArrayList<Map<String,Object>>();	
+			List<Map<String,Object>> otherList = new ArrayList<Map<String,Object>>();
+			for(Object obj : details){
+				Map<String,Object> temp = (Map<String, Object>) obj;			
+				String field = (String) temp.get("field");
+				String title = (String) temp.get("title");
+				String type = (String) temp.get("type");
+				if("ID".equals(field)){
+					continue;
+				}
+				String value = arr.get(i).get(field) + "";
+				switch(type){
+					case "1001":
+					case "1002":
+					case "1005":
+						Map<String,Object> text = new HashMap<String,Object>();
+						text.put("title", title);
+						text.put("value", value);
+						txtList.add(text);
+						break;
+					case "1011":
+						Map<String,Object> file = new HashMap<String,Object>();
+						file.put("type", "file");
+						file.put("title", title);
+						file.put("data", getFile(value));
+						otherList.add(file);
+						break;
+					case "1016":
+						Map<String,Object> img = new HashMap<String,Object>();
+						img.put("type", "img");
+						img.put("title", title);
+						img.put("data", new ArrayList<String>(Arrays.asList(value.split(","))));
+						otherList.add(img);
+						break;
+				}			
+			}	
+			item.put("txtList", txtList);
+			item.put("otherList", otherList);
+			items.add(item);
+		}	
+		return items;
+	}
+	
 	// 用户信息
 	private Map<String, Object> getUserInfo(String workId) {
 		String sql = "select starter creator,name,USER_HEAD_IMG as img,GROUP_CONCAT(t3.GROUP_CH_NAME) as groups from p_un_user_base_info t1 "

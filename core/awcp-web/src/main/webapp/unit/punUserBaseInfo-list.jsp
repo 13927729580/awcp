@@ -69,6 +69,7 @@
 								            <th>姓名</th>
 								            <th>部门</th>
 								            <th>用户名</th>
+								            <th>用户编号</th>
 								            <th>手机号</th>
 							            	<th>角色</th>
 								            <th>职务</th>
@@ -84,6 +85,7 @@
 								            <td>${currentPage*vos.getPaginator().getLimit()-vos.getPaginator().getLimit()+status.index +1}</td>
 								            <td><a href="javascript:void(0)" data-id='${vo.userId}' class="userName">${vo.name}</a></td>
 								            <td>${vo.deptName}</td>
+								            <td>${vo.userName}</td>
 								            <td>${vo.userIdCardNumber}</td>
 								            <td>${vo.mobile}</td> 
 							            	<td>${vo.userBirthPlace}</td>

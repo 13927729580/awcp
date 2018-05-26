@@ -1,6 +1,9 @@
 package cn.org.awcp.venson.common;
 
-public class SC {
+import java.util.Arrays;
+import java.util.List;
+
+public final class SC {
 	public static final String DATA = "data";
 	public static final String TOTAL = "count";
 	public static final String QUERY_LIST = "queryList";
@@ -22,5 +25,6 @@ public class SC {
 	public static final String USER_STATUS_AUDIT = "0";
 	public static final String USER_STATUS_DISABLED = "2";
 	public static final String[] TARGET_URL = new String[] { "manage/index.html", "devAdmin/list.jsp" };
+	public static final List<String> ENCRYPT_PASSWORD_KEY = Arrays.asList("password","smsPassword", "emailPassword","idcard_AppSecret","redis.password");
 
 }

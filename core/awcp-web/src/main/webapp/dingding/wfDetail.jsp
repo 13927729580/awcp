@@ -136,6 +136,52 @@
 										</div>
 									</div>
 								</c:if>
+								<c:if test="${item.type=='details' }">									
+									<c:forEach var="detail" items="${item.detailsList }" varStatus="status">
+										<div class="line component-tablefield">
+											<div class="row">
+												<label class="label row-label-title">
+													<span>${item.title }</span>
+													<span class="rical">${status.count }</span>
+												</label>									
+												<c:forEach var="txt" items="${detail.txtList}">
+													<div class="line component-textfield">
+														<label class="label">${txt.title }</label>
+														<span class="component-content">
+															<span>${txt.value }</span>
+														</span>
+													</div>
+												</c:forEach>										
+												<c:forEach var="other" items="${detail.otherList}">
+													<c:if test="${other.type=='img' }">	
+														<div class="line component-ddphotofield">
+															<label class="label">${other.title }</label>	
+															<div class="annex-view" >										
+																<c:forEach var="img" items="${other.data }">
+																	<div class="annex-img-view tTap">
+																		<img src="${img }" class="img-view" >
+																	</div>														
+																</c:forEach>
+															</div>
+														</div>													
+													</c:if>
+													<c:if test="${other.type=='file' }">
+														<div id="files">
+															<c:forEach var="file" items="${other.data }">
+																<div class="fileItem">
+																	<textarea style="display: none">${file.json }</textarea>
+																	<div class="fileIcon icon_file ${file.css }"></div>
+																	<div class="fileName">${file.fileName }</div>
+																	<div class="fileSize">${file.fileSize }KB</div>
+																</div>
+															</c:forEach>
+														</div>
+													</c:if>
+												</c:forEach>
+											</div>
+										</div>
+									</c:forEach>
+								</c:if>
 							</c:forEach>	
 						</div>
 					</div>
