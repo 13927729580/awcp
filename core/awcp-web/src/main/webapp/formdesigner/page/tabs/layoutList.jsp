@@ -19,10 +19,6 @@
 		<i class="icon-plus-sign"></i>快捷新增
 	</button>
 	<button type="button" class="btn btn-sm btn-success"
-		id="excelLayoutBtn" onclick="excelLayout(this);">
-		<i class="icon-plus-sign"></i>excel快捷新增
-	</button>
-	<button type="button" class="btn btn-sm btn-success"
 		id="merageLayout">
 		<i class="icon-plus-sign"></i>合并布局
 	</button>
@@ -39,19 +35,19 @@
 		<i class="icon-plus-sign"></i>批量修改布局占比
 	</button>
 	<button type="button" class="btn btn-sm btn-success"
-		id="batchModifyProportionBtn" onclick="batchModifyHeight(this);">
+		id="batchModifyHeightBtn" onclick="batchModifyHeight(this);">
 		<i class="icon-plus-sign"></i>批量修改行高列宽
 	</button>
 	<button type="button" class="btn btn-sm btn-success"
-		id="batchModifyProportionBtn" onclick="batchModifyAlign(this);">
+		id="batchModifyAlignBtn" onclick="batchModifyAlign(this);">
 		<i class="icon-plus-sign"></i>批量修改对齐方式
 	</button>
 	<button type="button" class="btn btn-sm btn-success"
-		id="batchModifyProportionBtn" onclick="batchModifyBorder(this);">
+		id="batchModifyBorderBtn" onclick="batchModifyBorder(this);">
 		<i class="icon-plus-sign"></i>批量修改边框
 	</button>
 	<button type="button" class="btn btn-sm btn-success"
-		id="batchModifyProportionBtn" onclick="batchModify(this);">
+		id="batchModifyBtn" onclick="batchModify(this);">
 		<i class="icon-plus-sign"></i>同类型批量修改
 	</button>
 	<button type="button" class="btn btn-sm btn-success" id="batchClearHeight" onclick="batchHeight(this);">

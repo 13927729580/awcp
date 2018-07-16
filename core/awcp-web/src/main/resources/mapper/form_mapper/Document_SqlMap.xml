@@ -27,11 +27,11 @@
 		<result column="RECORD_ID" property="recordId" jdbcType="VARCHAR" />
 		<result column="INSTANCE_ID" property="instanceId" jdbcType="VARCHAR" />
 		<result column="TABLE_NAME" property="tableName" jdbcType="VARCHAR" />
-		<result column="NODE_ID" property="nodeId" jdbcType="VARCHAR" />
+		<result column="NODE_ID" property="nodeId" jdbcType="INTEGER" />
 		<result column="WORKFLOW_ID" property="workflowId" jdbcType="VARCHAR" />
 		<result column="TASK_ID" property="taskId" jdbcType="VARCHAR" />
-		<result column="WORKITEM_ID" property="workItemId" jdbcType="VARCHAR" />
-		<result column="ENTRY_ID" property="entryId" jdbcType="VARCHAR" />
+		<result column="WORKITEM_ID" property="workItemId" jdbcType="INTEGER" />
+		<result column="ENTRY_ID" property="entryId" jdbcType="INTEGER" />
 	</resultMap>
 
 	<sql id="Base_Column_List">
@@ -80,7 +80,7 @@
 			<if test="id != null and id != ''">
 				and ID = #{id}
 			</if>
-			<if test="lastmodified != null and lastmodified != ''">
+			<if test="lastmodified != null">
 				and LASTMODIFIED = #{lastmodified}
 			</if>
 			<if test="dynamicPageName != null and dynamicPageName != ''">
@@ -95,7 +95,7 @@
 			<if test="author_group != null and author_group != ''">
 				and AUTHOR_DEPT_INDEX = #{author_group}
 			</if>
-			<if test="created != null and created != ''">
+			<if test="created != null">
 				and CREATED = #{created }
 			</if>
 			<if test="isTmp != null and isTmp != ''">
@@ -146,7 +146,7 @@
 			<if test="tableName != null and tableName != ''">
 				and TABLE_NAME = #{tableName}
 			</if>
-			<if test="nodeId != null and nodeId != ''">
+			<if test="nodeId != null">
 				and NODE_ID = #{nodeId}
 			</if>
 			<if test="workflowId != null and workflowId != ''">
@@ -220,7 +220,7 @@
 				<if test="dynamicPageName != null and dynamicPageName != ''">
 					 DYNAMICPAGE_NAME = #{dynamicPageName},
 				</if>
-				<if test="lastmodified != null and lastmodified != ''">
+				<if test="lastmodified != null">
 					 LASTMODIFIED = #{lastmodified},
 				</if>
 				<if test="dynamicPageId != null and dynamicPageId != ''">
@@ -232,7 +232,7 @@
 				<if test="author_group != null and author_group != ''">
 					 AUTHOR_DEPT_INDEX = #{author_group},
 				</if>
-				<if test="created != null and created != ''">
+				<if test="created != null">
 					 CREATED = #{created},
 				</if>
 				<if test="isTmp != null and isTmp != ''">
@@ -283,7 +283,7 @@
 				<if test="tableName != null and tableName != ''">
 					 TABLE_NAME = #{tableName},
 				</if>
-				<if test="nodeId != null and nodeId != ''">
+				<if test="nodeId != null">
 					 NODE_ID = #{nodeId},
 				</if>
 				<if test="workflowId != null and workflowId != ''">
@@ -331,7 +331,7 @@
 				<if test="dynamicPageName != null and dynamicPageName != ''">
 					 DYNAMICPAGE_NAME = #{dynamicPageName},
 				</if>
-				<if test="lastmodified != null and lastmodified != ''">
+				<if test="lastmodified != null">
 					 LASTMODIFIED = #{lastmodified},
 				</if>
 				<if test="dynamicPageId != null and dynamicPageId != ''">
@@ -343,7 +343,7 @@
 				<if test="author_group != null and author_group != ''">
 					 AUTHOR_DEPT_INDEX = #{author_group},
 				</if>
-				<if test="created != null and created != ''">
+				<if test="created != null">
 					 CREATED = #{created},
 				</if>
 				<if test="isTmp != null and isTmp != ''">
@@ -394,7 +394,7 @@
 				<if test="tableName != null and tableName != ''">
 					 TABLE_NAME = #{tableName},
 				</if>
-				<if test="nodeId != null and nodeId != ''">
+				<if test="nodeId != null">
 					 NODE_ID = #{nodeId},
 				</if>
 				<if test="workflowId != null and workflowId != ''">

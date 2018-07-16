@@ -882,6 +882,10 @@ function loadCommonComponentData(storeObject){
 		if(componentObject.dateType) { 
 			$("#dateType").val(componentObject.dateType).trigger("change");
 		}
+		//样式库样式
+		if(componentObject.css) { 		
+			$("#css").val(componentObject.css).trigger("change");
+		}
 		
 		if(componentObject.textRise) { $("#textRise").val(componentObject.textRise).trigger("change");}
 		if(componentObject.fontfamily) { $("#fontfamily").val(componentObject.fontfamily).trigger("change");}

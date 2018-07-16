@@ -1,0 +1,119 @@
+<html>
+<head>
+	<meta charset="UTF-8">
+	<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<link rel="stylesheet" href="/template/AdminLTE/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/template/AdminLTE/css/font-awesome.min.css">
+	<link rel="stylesheet" href="/template/AdminLTE/css/bootstrapValidator.css">
+	<link rel="stylesheet" href="/template/AdminLTE/css/ionicons.min.css">
+	<link rel="stylesheet" href="/template/AdminLTE/css/select2/select2.css">
+	<link rel="stylesheet" href="/template/AdminLTE/css/AdminLTE.css">
+	<link rel="stylesheet" href="/template/AdminLTE/css/main.css">
+	<!--[if lt IE 9]>
+	  <script src="/resources/plugins/zui/assets/html5shiv.js"></script>
+	  <script src="/resources/plugins/zui/assets/respond.js"></script>      
+	<![endif]-->
+	<style>
+		.c_list_item {
+		    width: 100%;
+		    list-style: none;
+		    padding: 5px 5px;
+		    font-size: 14px;
+		    color: #363636;
+		    position: relative;
+		    overflow: hidden;
+		    white-space: nowrap;
+		    text-overflow: ellipsis;
+		    cursor: pointer;
+		}
+		.c_list_item .iconfont {
+		    color: #aee4fa;
+		}
+	</style>
+</head>
+<body>
+	<section class="content">		
+		<div class="row">			
+			<section class="col-md-6 connectedSortable ui-sortable">
+				<p style="font-size: 18px;">选择：</p>
+				<div class="box box-primary" style="height: 400px;overflow-y: scroll;">											
+					<div class="box-body">					
+						<ul id="forSelect" class="ui-sortable" style="padding-left: 10px;">					
+						</ul>
+					</div>
+				</div>
+			</section>
+			<section class="col-md-6 connectedSortable ui-sortable">
+				<p style="font-size: 18px;">已选：</p>
+				<div class="box box-primary" style="height: 400px;overflow-y: scroll;">								
+					<div class="box-body">
+						<ul id="selected" class="ui-sortable" style="padding-left: 10px;"></ul>
+					</div>
+				</div>
+			</section>
+		</div>
+		<div class="opeBtnGrop">
+    		<div class="col-md-12">
+				<button id="saveBtn" class="btn btn-success"><i class="icon-save"></i>确认</button>
+				<button id="closeBtn" class="btn btn-default"><i class="icon-remove"></i>关闭</button>
+			</div>
+    	</div>
+	</section>
+	<script src="/resources/JqEdition/jquery-1.10.2.js"></script>
+	<script src="/venson/js/common.js"></script>
+	<script src="/template/AdminLTE/js/common.js"></script>
+	<script src="/template/AdminLTE/js/bootstrap.min.js"></script>
+	<script src="/resources/scripts/jquery.serializejson.min.js"></script>
+	<script src="/resources/scripts/common.js"></script>
+	<script src="/resources/scripts/platform.document.js"></script>
+	<script>	
+		$(function(){
+			var apiId = Comm.getUrlParam("apiId");
+			var roleId = Comm.getUrlParam("roleId");
+			var selectUserId = "";
+			var data = Comm.getData("api/execute/" + apiId,{roleId:roleId});
+			var html = "";
+			var userMap = {};
+			for(var i=0;i<data.length;i++){
+				html += '<li class="c_list_item" data-id="' + data[i].USER_ID + '">' +
+						'<i class="fa fa-fw fa-user"></i><span>' + data[i].NAME + '</span></li>';
+				userMap[data[i].USER_ID] = data[i].NAME;
+			}
+			$("#forSelect").html(html);			
+			
+			$(".content").on("mouseover",".c_list_item",function(){
+				$(this).css("background-color","#eee");
+			});
+			
+			$(".content").on("mouseout",".c_list_item",function(){
+				$(this).css("background-color","#fff");
+			});
+
+			$("#closeBtn").on("click",function(){
+				top.dialog({id:window.name}).close();
+			});
+			
+			$("#saveBtn").on("click",function(){
+				top.dialog({id:window.name}).close(selectUserId);
+			});
+			
+			$("#forSelect").on("click",".c_list_item",function(){
+				var userId = $(this).attr("data-id");
+				var userName = userMap[userId];
+				html = '<li class="c_list_item" data-id="' + userId + '">' +
+					   '<i class="fa fa-fw fa-user"></i><span>' + userName + '</span>' + 
+					   '<i class="fa fa-fw fa-close" style="float:right;"></i></li>';
+				$("#selected").html(html);
+				selectUserId = userId;
+			});
+			
+			$("#selected").on("click",".fa-close",function(){
+				$(this).parent().remove();
+				selectUserId = "";
+			});
+	
+		});	
+	</script>
+</body>
+</html>

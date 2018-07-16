@@ -32,8 +32,4 @@ public enum StatusCode implements StatusType {
 		return this.message;
 	}
 
-	public StatusCode setMessage(String message) {
-		this.message = message;
-		return this;
-	}
 }

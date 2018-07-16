@@ -48,4 +48,12 @@ public interface IWorkFlowService {
      * @param resultMap 结果集
      */
     void addPush(DocumentVO docVo, Map<String, Object> resultMap);
+
+    /**
+     * 增加普通流程的流程日志
+     *
+     * @param doc 文档
+     * @param resultMap 结果集
+     */
+    void saveComment(DocumentVO doc, Map<String, Object> resultMap);
 }

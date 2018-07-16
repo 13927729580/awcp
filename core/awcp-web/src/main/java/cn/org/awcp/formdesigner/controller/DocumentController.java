@@ -361,14 +361,14 @@ public class DocumentController extends BaseController {
                     jdbcTemplate.rollback();
                     logger.debug("ERROR",e);
                     if (e instanceof PlatformException) {
-                        return result.setStatus(StatusCode.FAIL.setMessage(e.getMessage()));
+                        return result.setStatus(StatusCode.FAIL).setMessage(e.getMessage());
                     } else {
-                        return result.setStatus(StatusCode.FAIL.setMessage("脚本执行出错，执行失败"));
+                        return result.setStatus(StatusCode.FAIL).setMessage("脚本执行出错，执行失败");
                     }
                 }
             }
         }
-        return result.setStatus(StatusCode.FAIL.setMessage("脚本未找到，执行失败"));
+        return result.setStatus(StatusCode.FAIL).setMessage("脚本未找到，执行失败");
     }
 
 
@@ -732,12 +732,15 @@ public class DocumentController extends BaseController {
                                         @RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize) {
         ReturnResult result = ReturnResult.get();
         String componentId = request.getParameter("componentId");
-
         StoreVO s = storeServiceImpl.findById(componentId);
-
-        String method = request.getParameter("method");
-
+        if(s==null){
+            return result.setStatus(StatusCode.FAIL).setMessage("组件未找到");
+        }
         JSONObject oo = JSON.parseObject(s.getContent());
+        if(oo==null){
+            return result.setStatus(StatusCode.FAIL).setMessage("组件未找到");
+        }
+        String method = request.getParameter("method");
         String dataAlias;
         if (request.getParameter("dataFile") != null) {
             dataAlias = oo.getString(request.getParameter("dataFile"));
@@ -780,8 +783,7 @@ public class DocumentController extends BaseController {
             }
 
         }
-
-        getDataGridItems(request, s, dd, oo, currentPage, pageSize, result);
+        getDataGridItems(request,dd,currentPage,pageSize, result);
         return result;
     }
 
@@ -789,43 +791,19 @@ public class DocumentController extends BaseController {
      * 获取对应的表格数据
      *
      * @param request
-     * @param s       表格组件
      * @return
      */
-    public void getDataGridItems(HttpServletRequest request, StoreVO s, DataDefine dd, JSONObject oo,
+    public void getDataGridItems(HttpServletRequest request,DataDefine dd,
                                  int currentPage,
                                  int pageSize, ReturnResult result) {
 
-        if (s != null) {
-
-            ScriptEngine engine = ScriptEngineUtils.getScriptEngine();
-            DocumentVO docVo = new DocumentVO();
-            engine.put("request", request);
-            try {
-                PageList<Map<String, String>> pageList = documentServiceImpl.getDataListByDataDefine(dd, engine,
-                        currentPage, pageSize, null);
-
-                if (pageList == null || pageList.isEmpty()) {
-                    result.setData(Collections.EMPTY_LIST).setTotal(0);
-                    return;
-                }
-
-                // 操作显示脚本
-                Map<String, List<Map<String, String>>> dataMap = new HashMap<>();
-                dataMap.put(dd.getName() + "_list", pageList);
-                docVo.setListParams(dataMap);
-
-                String showScript = oo.getString("showScript");
-                if (StringUtils.isNoneBlank(showScript)) {
-                    if (StringUtils.isNotBlank(showScript)) {
-                        engine.eval(StringEscapeUtils.unescapeHtml4(showScript));
-                    }
-                }
-                result.setData(pageList).setTotal(pageList.getPaginator().getTotalCount());
-            } catch (ScriptException e) {
-                result.setStatus(StatusCode.FAIL.setMessage("服务器出错，请联系管理员"));
-                logger.info("ERROR", e);
-            }
+        ScriptEngine engine = ScriptEngineUtils.getScriptEngine();
+        engine.put("request",request);
+        PageList<Map<String, String>> pageList = documentServiceImpl.getDataListByDataDefine(dd, engine,currentPage, pageSize, null);
+        if (pageList == null || pageList.isEmpty()) {
+            result.setData(Collections.EMPTY_LIST).setTotal(0);
+        }else{
+            result.setData(pageList).setTotal(pageList.getPaginator().getTotalCount());
         }
     }
 

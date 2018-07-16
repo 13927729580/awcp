@@ -10,7 +10,7 @@ public interface QueryService {
 	 * @param workId
 	 * @return
 	 */
-	Map<String, Object> getStarter(String workId);
+	Map<String, Object> getStarter(Integer workId);
 	/**
 	 * 由我创建
 	 *

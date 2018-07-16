@@ -44,12 +44,12 @@ public class Document extends BaseEntity<String> {
 	private String recordId;
 	private String instanceId;
 	private String tableName;
-	private String nodeId;
+	private Integer nodeId;
 	private String workflowId;
 	private String taskId;
-	private String workItemId;
+	private Integer workItemId;
 	private String flowTempleteId;
-	private String entryId;
+	private Integer entryId;
 	/**
 	 * 是新增or修改
 	 */
@@ -79,11 +79,11 @@ public class Document extends BaseEntity<String> {
 		this.flowTempleteId = flowTempleteId;
 	}
 
-	public String getEntryId() {
+	public Integer getEntryId() {
 		return entryId;
 	}
 
-	public void setEntryId(String entryId) {
+	public void setEntryId(Integer entryId) {
 		this.entryId = entryId;
 	}
 
@@ -119,11 +119,11 @@ public class Document extends BaseEntity<String> {
 		this.author_group = author_group;
 	}
 
-	public String getWorkItemId() {
+	public Integer getWorkItemId() {
 		return workItemId;
 	}
 
-	public void setWorkItemId(String workItemId) {
+	public void setWorkItemId(Integer workItemId) {
 		this.workItemId = workItemId;
 	}
 
@@ -231,11 +231,11 @@ public class Document extends BaseEntity<String> {
 		this.tableName = tableName;
 	}
 
-	public String getNodeId() {
+	public Integer getNodeId() {
 		return nodeId;
 	}
 
-	public void setNodeId(String nodeId) {
+	public void setNodeId(Integer nodeId) {
 		this.nodeId = nodeId;
 	}
 
@@ -347,8 +347,8 @@ public class Document extends BaseEntity<String> {
 		this.taskId = taskId;
 	}
 
-	public static Document findByWorkItemId(String flowTemplateId, String workItemId) {
-		Map<String, String> map = new HashMap<String, String>();
+	public static Document findByWorkItemId(String flowTemplateId, Integer workItemId) {
+		Map<String, Object> map = new HashMap<>();
 		map.put("workItemId", workItemId);
 		map.put("flowTemplateId", flowTemplateId);
 		return getRepository().findOne(Document.class.getName() + ".selectDocByWorkItemId", map);

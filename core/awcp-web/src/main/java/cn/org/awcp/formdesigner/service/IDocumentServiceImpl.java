@@ -148,10 +148,10 @@ public class IDocumentServiceImpl implements IDocumentService {
         //如果存在流程编号则属于流程渲染
         String flowNo=params.get("FK_Flow");
         if (StringUtils.isNotBlank(flowNo)) {
-            String entryId = params.get("FK_Node");
+            Integer entryId = StringUtils.isNumeric(params.get("FK_Node"))?Integer.parseInt(params.get("FK_Node")):null;
             String fid = params.get("FID");
             fid = StringUtils.isNumeric(fid) ? fid : "0";
-            String workItemId = params.get("WorkID");
+            Integer workItemId = StringUtils.isNumeric(params.get("WorkID"))?Integer.parseInt(params.get("WorkID")):null;
 
             docVo.setFlowTempleteId(flowNo);
             docVo.setWorkItemId(workItemId);

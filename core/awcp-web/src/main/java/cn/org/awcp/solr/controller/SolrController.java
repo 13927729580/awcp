@@ -30,10 +30,10 @@ public class SolrController {
                 //取查询结果
                 return result.setStatus(StatusCode.SUCCESS).setData(res.getResults());
             }else{
-                return result.setStatus(StatusCode.FAIL.setMessage("无法获取，查询失败"));
+                return result.setStatus(StatusCode.FAIL).setMessage("无法获取，查询失败");
             }
         } else {
-            return result.setStatus(StatusCode.PARAMETER_ERROR.setMessage("查询关键字不能为空"));
+            return result.setStatus(StatusCode.PARAMETER_ERROR).setMessage("查询关键字不能为空");
         }
     }
 
@@ -50,7 +50,7 @@ public class SolrController {
         ReturnResult result = ReturnResult.get();
         Map<String, Object> map = solrService.getById(id);
         if(map==null){
-            return result.setStatus(StatusCode.PARAMETER_ERROR.setMessage("ID未找到"));
+            return result.setStatus(StatusCode.PARAMETER_ERROR).setMessage("ID未找到");
         }
         String readtype =(String) map.get("readtype");
         String raisetype =(String) map.get("raisetype");
@@ -64,7 +64,7 @@ public class SolrController {
         } else if (SolrService.SOLR_TYPE_DOCUMENT.equals(readtype)) {
             solrService.indexDocument(id, readpath, raisetype, raisestring, indexfield, maxraise);
         } else {
-            result.setStatus(StatusCode.FAIL.setMessage("不支持的索引类型"));
+            result.setStatus(StatusCode.FAIL).setMessage("不支持的索引类型");
         }
         return result.setStatus(StatusCode.SUCCESS);
     }

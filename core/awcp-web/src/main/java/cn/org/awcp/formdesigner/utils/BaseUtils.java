@@ -17,6 +17,7 @@ import cn.org.awcp.unit.service.PunGroupService;
 import cn.org.awcp.unit.service.PunPositionService;
 import cn.org.awcp.unit.service.PunUserBaseInfoService;
 import cn.org.awcp.unit.service.PunUserGroupService;
+import cn.org.awcp.unit.shiro.ShiroSessionDao;
 import cn.org.awcp.unit.vo.*;
 import cn.org.awcp.venson.common.SC;
 import cn.org.awcp.venson.controller.base.ControllerContext;
@@ -42,6 +43,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.util.EntityUtils;
+import org.apache.shiro.session.Session;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -576,6 +578,42 @@ public abstract class BaseUtils {
         Date nowDate = new Date();
         return DateUtils.format(nowDate, formatStr);
     }
+    public String today(String format,int num,String unit) {
+        Date date = new Date() ;
+        if(null==format){
+            format="yyyy-MM-dd HH:mm:ss";
+        }
+        switch(unit){
+            case "Y":
+                date =  org.apache.commons.lang3.time.DateUtils.addYears(date,num);
+                break;
+            case "M":
+                date =  org.apache.commons.lang3.time.DateUtils.addMonths(date,num);
+                break;
+            case "W":
+                 date = org.apache.commons.lang3.time.DateUtils.addWeeks(date,num);
+                break;
+            case "D":
+                date =  org.apache.commons.lang3.time.DateUtils.addDays(date,num);
+                break;
+            case "H":
+                date = org.apache.commons.lang3.time.DateUtils.addHours(date,num);
+                break;
+            case "I":
+                date =   org.apache.commons.lang3.time.DateUtils.addMinutes(date,num);
+                break;
+            case "S":
+                date =  org.apache.commons.lang3.time.DateUtils.addSeconds(date,num);
+                break;
+                default:
+                    return ("String 格式可省缺，int数量，String单位。单位为YMWDHIS,分别对应年月周日时分秒");
+        }
+        return DateUtils.format(date,format);
+    }
+
+    public String today(int num,String unit){
+        return today(null,num,unit);
+    }
 
     /**
      * 当前时间:yyyy-MM-dd HH:mm:ss
@@ -585,6 +623,7 @@ public abstract class BaseUtils {
     public String today() {
         return today(DateUtils.YYYY_MM_DD_HH_MM_SS);
     }
+
 
     /**
      * 当前时间 格式：YYYY_MM_DD_HH_MM_SS
@@ -603,6 +642,7 @@ public abstract class BaseUtils {
     public String getYMD() {
         return today(DateUtils.YYYY_MM_DD);
     }
+
 
     /**
      * 将日期字符串由一种格式转为另一种格式(解决dd/MM/yyyy到yyyy-MM-dd)
@@ -1071,13 +1111,13 @@ public abstract class BaseUtils {
     public boolean executeFlow(String id, String flowId, int pageId) {
         Map<String, Object> map = documentService
                 .excuteQuery("select id from p_fm_document where RECORD_ID='" + id + "'");
-        long workID = 0;
+        Integer workID;
         String docId = null;
         if (!CollectionUtils.isEmpty(map)) {
             docId = (String) map.get("id");
             Document document = Document.get(Document.class, docId);
-            workID = Long.parseLong(document.getWorkItemId());
             flowId = document.getWorkflowId();
+            workID=document.getWorkItemId();
         } else {
             Document document = new Document();
             docId = UUID.randomUUID().toString();
@@ -1085,9 +1125,9 @@ public abstract class BaseUtils {
             document.setRecordId(id);
             Flow currFlow = new Flow(flowId);
             Work currWK = currFlow.NewWork();
-            workID = currWK.getOID();
+            workID = (int)currWK.getOID();
             document.setWorkflowId(flowId);
-            document.setWorkItemId(workID + "");
+            document.setWorkItemId(workID);
             document.setDynamicPageId(pageId + "");
             document.setCreated(new Date());
         }
@@ -1357,5 +1397,14 @@ public abstract class BaseUtils {
                     WorkID, userId) == 1;
         }
         return false;
+    }
+
+
+    /**
+     * 更新session
+     */
+    public void updateSession(Session session){
+        ShiroSessionDao shiroSessionDao=Springfactory.getBean(ShiroSessionDao.class);
+        shiroSessionDao.update(session);
     }
 }

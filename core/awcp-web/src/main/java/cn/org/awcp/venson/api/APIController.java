@@ -29,12 +29,12 @@ public class APIController extends BaseController {
 	public ReturnResult execute(@PathVariable("APIId") String APIId, HttpServletRequest request) {
 		ReturnResult result = ReturnResult.get();
 		PFMAPI api = PFMAPI.get(APIId);
-		// 校验接口
-		if (!apiService.validateAPI(result, api, request.getMethod().toLowerCase())){
-			return result;
-		}
 		// 获取参数值
 		Map<String, Object> params = wrapMap(request.getParameterMap(), "APIId");
+		// 校验接口
+		if (!apiService.validateAPI(result, api, request.getMethod().toLowerCase(),params)){
+			return result;
+		}
 		// 执行脚本
 		apiService.execute(result, api, params);
 		return result;

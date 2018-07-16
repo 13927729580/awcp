@@ -39,7 +39,7 @@ public class QueryServiceImpl implements QueryService {
 	private static final String REJECT = "5";
 
 	@Override
-	public Map<String, Object> getStarter(String workId) {
+	public Map<String, Object> getStarter(Integer workId) {
 		Map<String, Object> params = new HashMap<>(1);
 		String sql="select starter,FK_Flow,title,FK_Node,WFState,RDT from wf_generworkflow where workid=:workId";
 		params.put("workId",workId);

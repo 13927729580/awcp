@@ -1,8 +1,10 @@
 package cn.org.awcp.common.servlet;
 
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.util.Map;
+import cn.org.awcp.common.security.VerifyCodeGenerator;
+import cn.org.awcp.core.utils.SessionUtils;
+import cn.org.awcp.core.utils.constants.SessionContants;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageOutputStream;
@@ -11,13 +13,9 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import cn.org.awcp.common.security.VerifyCodeGenerator;
-import cn.org.awcp.core.utils.SessionUtils;
-import cn.org.awcp.core.utils.constants.SessionContants;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.util.Map;
 
 /**
  * VerifyCodeServlet
@@ -56,7 +54,6 @@ public class VerifyCodeServlet extends HttpServlet {
 		response.setHeader("Pragma", "No-cache");
 		response.setHeader("Cache-Control", "no-cache");
 		response.setDateHeader("Expires", 2000);
-		request.getSession().setAttribute(SessionContants.VERIFY_CODE, verifyCode);
 		SessionUtils.addObjectToSession(SessionContants.VERIFY_CODE, verifyCode);
 		try {
 			ServletOutputStream outStream = response.getOutputStream();

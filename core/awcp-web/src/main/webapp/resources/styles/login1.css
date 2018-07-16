@@ -125,8 +125,6 @@ input[type="text"] {
 	  background: url(../images/key.png) no-repeat 10px 23px;
 	  border: none;
 	  font-weight: 100;
-	  border-bottom: 1px solid#484856;
-	  
  }
  .wrongTip{
  	margin-bottom: 3em;

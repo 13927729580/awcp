@@ -13,9 +13,9 @@ public class DocumentVO {
 	private Date lastmodified;
 	private String dynamicPageName;
 	private String dynamicPageId;
-	private String workItemId;
+	private Integer workItemId;
 	private String flowTempleteId;
-	private String entryId;
+	private Integer entryId;
 	private Long authorId;
 	private String author_group;
 	private String selectId;
@@ -48,7 +48,7 @@ public class DocumentVO {
 	private String recordId;
 	private String instanceId;
 	private String tableName;
-	private String nodeId;
+	private Integer nodeId;
 	private String taskId;
 	private String orderBy;
 	private String allowOrderBy;
@@ -197,11 +197,11 @@ public class DocumentVO {
 		this.versions = versions;
 	}
 
-	public String getEntryId() {
+	public Integer getEntryId() {
 		return entryId;
 	}
 
-	public void setEntryId(String entryId) {
+	public void setEntryId(Integer entryId) {
 		this.entryId = entryId;
 	}
 
@@ -277,11 +277,11 @@ public class DocumentVO {
 		this.tableName = tableName;
 	}
 
-	public String getNodeId() {
+	public Integer getNodeId() {
 		return nodeId;
 	}
 
-	public void setNodeId(String nodeId) {
+	public void setNodeId(Integer nodeId) {
 		this.nodeId = nodeId;
 	}
 
@@ -321,11 +321,11 @@ public class DocumentVO {
 		this.stateint = stateint;
 	}
 
-	public String getWorkItemId() {
+	public Integer getWorkItemId() {
 		return workItemId;
 	}
 
-	public void setWorkItemId(String workItemId) {
+	public void setWorkItemId(Integer workItemId) {
 		this.workItemId = workItemId;
 	}
 

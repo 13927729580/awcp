@@ -123,7 +123,7 @@ public class AttachmentController {
 		// 判断是否存在文件
 		if (attachment == null || attachment[0].isEmpty()) {
 			logger.debug("未找到有效文件");
-			returnResult.setStatus(StatusCode.SUCCESS.setMessage("file must not be null"));
+			returnResult.setStatus(StatusCode.SUCCESS).setMessage("file must not be null");
 		} else {
 			// 校验文件类型，大小
 			List<CommonsMultipartFile> files = validateUpload(attachment, validType);
@@ -226,12 +226,12 @@ public class AttachmentController {
 		ReturnResult returnResult = ReturnResult.get();
 		logger.debug(path + ",fileName:" + fileName + ",downName:" + downName);
 		if (StringUtils.isBlank(fileName)) {
-			returnResult.setStatus(StatusCode.PARAMETER_ERROR.setMessage("file name must not be null"));
+			returnResult.setStatus(StatusCode.PARAMETER_ERROR).setMessage("file name must not be null");
 			return null;
 		}
 		if (!new File(path).exists()) {
 			returnResult.setStatus(
-					StatusCode.FAIL.setMessage(ControllerHelper.getMessage("messages.error.file.not.exist")));
+					StatusCode.FAIL).setMessage(ControllerHelper.getMessage("messages.error.file.not.exist"));
 			return null;
 		}
 		if (StringUtils.isBlank(downName)) {
@@ -251,15 +251,14 @@ public class AttachmentController {
 			// 检查上传文件类型
 			if (allowType != null) {
 				if (!allowType.contains(file.getContentType())) {
-					returnResult.setStatus(StatusCode.FAIL
-							.setMessage(ControllerHelper.getMessage("messages.error.content.type.not.allowed")));
+					returnResult.setStatus(StatusCode.FAIL).setMessage(ControllerHelper.getMessage("messages.error.content.type.not.allowed"));
 					return null;
 				}
 				// 检查文件上传大小
 			} else if (allowSize != null) {
 				if (allowSize < file.getSize()) {
 					returnResult.setStatus(
-							StatusCode.FAIL.setMessage(ControllerHelper.getMessage("messages.error.file.too.large")));
+							StatusCode.FAIL).setMessage(ControllerHelper.getMessage("messages.error.file.too.large"));
 					return null;
 				}
 			}

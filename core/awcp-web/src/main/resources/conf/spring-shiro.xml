@@ -95,6 +95,7 @@
                 /common/file/showPicture.do =anon
                 /common/file/preview.do =anon
                 /api/execute/** =anon,kickout
+                /swagger-ui.html=authc
                 /**/*.do= authc,kickout
                 /api/**= authc,kickout
             </value>

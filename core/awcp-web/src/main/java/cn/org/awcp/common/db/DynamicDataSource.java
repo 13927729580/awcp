@@ -128,10 +128,6 @@ public class DynamicDataSource extends AbstractRoutingDataSource {
         return resolvedDataSources.size();
     }
 
-    public Map<Object, DataSource> getResolvedDataSources() {
-        return resolvedDataSources;
-    }
-
     @Override
     protected DataSource determineTargetDataSource() {
         Assert.notNull(this.resolvedDataSources, "DataSource router not initialized");
@@ -167,6 +163,13 @@ public class DynamicDataSource extends AbstractRoutingDataSource {
         CONTEXT_HOLDER.set(dataSource);
     }
 
+    /**
+     * 获取当前线程数据源名称
+     * @return dataSourceName
+     */
+    public  static String getDataSource(){
+        return  CONTEXT_HOLDER.get();
+    }
 
     /**
      * 清除数据源

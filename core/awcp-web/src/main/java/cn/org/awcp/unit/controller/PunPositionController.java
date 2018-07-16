@@ -67,7 +67,7 @@ public class PunPositionController {
 		params.put("name", punPosition.getName());
 		List<PunPositionVO> vos = punPositionService.queryResult("queryList", params);
 		if (null != vos && vos.size() > 0) {
-			result.setStatus(StatusCode.FAIL.setMessage("岗位" + punPosition + "已存在"));
+			result.setStatus(StatusCode.FAIL).setMessage("岗位" + punPosition + "已存在");
 		} else {
 			///////////////////////// end/////////////////////////////////
 			punPosition.setShortName(punPosition.getName());

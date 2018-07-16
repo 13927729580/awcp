@@ -3,6 +3,7 @@ package cn.org.awcp.unit.controller;
 import cn.org.awcp.core.utils.Security;
 import cn.org.awcp.core.utils.SessionUtils;
 import cn.org.awcp.core.utils.constants.SessionContants;
+import cn.org.awcp.extend.formdesigner.DocumentUtils;
 import cn.org.awcp.metadesigner.application.MetaModelOperateService;
 import cn.org.awcp.unit.service.PunMenuService;
 import cn.org.awcp.unit.service.PunUserBaseInfoService;
@@ -19,6 +20,9 @@ import cn.org.awcp.venson.controller.base.StatusCode;
 import cn.org.awcp.venson.entity.Menu;
 import cn.org.awcp.venson.util.CookieUtil;
 import cn.org.awcp.venson.util.RedisUtil;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,6 +31,7 @@ import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.apache.shiro.authc.LockedAccountException;
 import org.apache.shiro.authc.UnknownAccountException;
 import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +49,7 @@ import java.util.stream.Collectors;
  */
 @Controller
 @RequestMapping("/")
+@Api(value = "登录接口", description = "登录，退出，获取登录用户信息等")
 public class UnitBaseController {
 
     /**
@@ -77,10 +83,11 @@ public class UnitBaseController {
     @SuppressWarnings("unchecked")
     @ResponseBody
     @RequestMapping(value = "/appLogin", method = RequestMethod.POST)
-    public ReturnResult appLogin(@RequestParam("userPwd") String userPwd, @RequestParam("userName") String userName,
-                                 @RequestParam(value = "code", defaultValue = "3", required = false) String code,
-                                 @RequestParam(value = "ALT", defaultValue = "false", required = false) boolean ALT,
-                                 @RequestParam(value = "rememberMe", defaultValue = "false", required = false) boolean rememberMe) {
+    @ApiOperation(value="登录")
+    public ReturnResult appLogin(@ApiParam(value = "密码",required = true)@RequestParam("userPwd") String userPwd, @ApiParam(value = "用户名",required = true)@RequestParam("userName") String userName,
+                                 @ApiParam(value = "登录端",defaultValue = "3")@RequestParam(value = "code", defaultValue = "3", required = false) String code,
+                                 @ApiParam(value = "是否生成免登密钥")@RequestParam(value = "ALT", defaultValue = "false", required = false) boolean ALT,
+                                 @ApiParam(value = "记住我")@RequestParam(value = "rememberMe", defaultValue = "false", required = false) boolean rememberMe) {
         ReturnResult result = ReturnResult.get();
         // 判断是否密码是经过base64加密
         if (userPwd.contains("isAuth")) {
@@ -95,11 +102,11 @@ public class UnitBaseController {
         try {
             subject.login(token);
         } catch (UnknownAccountException e) {
-            return result.setStatus(StatusCode.FAIL.setMessage("帐号不存在！"));
+            return result.setStatus(StatusCode.FAIL).setMessage("帐号不存在！");
         } catch (IncorrectCredentialsException e) {
-            return result.setStatus(StatusCode.FAIL.setMessage("密码错误！"));
+            return result.setStatus(StatusCode.FAIL).setMessage("密码错误！");
         } catch (LockedAccountException e) {
-            return result.setStatus(StatusCode.FAIL.setMessage("帐号已锁定！"));
+            return result.setStatus(StatusCode.FAIL).setMessage("帐号已锁定！");
         }
         PunUserBaseInfoVO pvi = (PunUserBaseInfoVO) subject.getPrincipal();
         ControllerHelper.doLoginSuccess(pvi);
@@ -130,7 +137,8 @@ public class UnitBaseController {
      * @return
      */
     @ResponseBody
-    @RequestMapping(value = "getUserInfo")
+    @RequestMapping(value = "getUserInfo",method = RequestMethod.GET)
+    @ApiOperation(value="当前登录用户信息")
     public ReturnResult getUserInfo() {
         ReturnResult result = ReturnResult.get();
         PunUserBaseInfoVO pvi = ControllerHelper.getUser();
@@ -139,13 +147,14 @@ public class UnitBaseController {
             BeanUtils.copyProperties(pvi, vo, "userPwd");
             result.setStatus(StatusCode.SUCCESS).setData(vo);
         } else {
-            result.setStatus(StatusCode.NO_LOGIN.setMessage("用户未登录，请重新登录！"));
+            result.setStatus(StatusCode.NO_LOGIN).setMessage("用户未登录，请重新登录！");
         }
         return result;
     }
 
     @ResponseBody
     @RequestMapping(value = "/userHeadImg", method = RequestMethod.GET)
+    @ApiOperation(value="更换当前用户头像")
     public ReturnResult updateUserHeadImg(String userHeadImg) {
         ReturnResult result=ReturnResult.get();
         if (StringUtils.isNotBlank(userHeadImg)) {
@@ -154,9 +163,12 @@ public class UnitBaseController {
             metaModelOperateServiceImpl.updateBySql("update p_un_user_base_info set USER_HEAD_IMG=? where USER_ID=? ",
                     userHeadImg, userId);
             user.setUserHeadImg(userHeadImg);
+            Session session = SessionUtils.getCurrentSession();
+            session.setAttribute(SessionContants.CURRENT_USER,user);
+            DocumentUtils.getIntance().updateSession(session);
             result.setStatus(StatusCode.SUCCESS).setData(userHeadImg);
         }else{
-            result.setStatus(StatusCode.FAIL.setMessage("userHeadImg不能为空"));
+            result.setStatus(StatusCode.FAIL).setMessage("userHeadImg不能为空");
         }
         return result;
     }
@@ -253,6 +265,11 @@ public class UnitBaseController {
             List<PunMenuVO> temp = resouService.getPunMenuUserRoleAndSys(userId, role.getRoleId(), sysId);
             resoVOs1.addAll(temp);
         }
+        Collections.sort(resoVOs1, new Comparator<PunMenuVO>() {
+			public int compare(PunMenuVO o1, PunMenuVO o2) {
+				return o1.getMenuSeq() - o2.getMenuSeq();
+			}
+		});
         List<PunMenuVO> resoVOs = removeDuplicate(resoVOs1);
         // web菜单移除app中间菜单
         resoVOs = resoVOs.stream().filter(menu -> menu.getType() != 2).collect(Collectors.toList());
@@ -337,6 +354,8 @@ public class UnitBaseController {
      *
      * @return
      */
+    @ApiOperation(value="用户登出")
+    @ResponseBody
     @RequestMapping(value = "/logout", method = RequestMethod.GET)
     public void logout()throws IOException {
         ControllerHelper.logout();

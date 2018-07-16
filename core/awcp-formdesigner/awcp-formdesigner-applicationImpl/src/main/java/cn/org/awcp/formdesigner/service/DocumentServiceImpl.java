@@ -119,7 +119,7 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public DocumentVO findDocByWorkItemId(String flowTemplateId, String workItemId) {
+    public DocumentVO findDocByWorkItemId(String flowTemplateId, Integer workItemId) {
         DocumentVO vo = BeanUtils.getNewInstance(Document.findByWorkItemId(flowTemplateId, workItemId),
                 DocumentVO.class);
         return vo;

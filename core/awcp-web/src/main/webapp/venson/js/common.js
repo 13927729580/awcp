@@ -226,40 +226,39 @@ Comm.checkError = function (id) {
         		$(this).find(":checkbox").each(function(i,e){
                 	if(e.checked){
                 		hasChecked=true;
-                		return;
                 	}
                 })
                 if(!hasChecked){
-                	$(this).find(":checkbox").last().tips({
-                        msg:"请至少勾选一个选项！"
-                    });
-                	throw new error("请至少勾选一个选项!");
+                	Comm.alert("请至少勾选一个选项！");
+                    hasError=true;
+                	return false;
                 }
         	}
     	});
+    }
+    if(hasError){
+        return true;
     }
     $(id + " :input").not(":button").not(":file").each(function (i, e) {
         var $label = $(this).prev("label");
         if ($(this).data('require')) {
             if ($.trim(e.value).length == 0) {
-                if (e.lang) {
-                    $(this).tips({
-                        msg: e.lang + "不能为空！"
-                    });
+                if (e.placeholder) {
+                    Comm.alert(e.placeholder + "不能为空！");
+                } else if(e.lang){
+                    Comm.alert(e.lang + "不能为空！");
                 } else {
                     var text = $.trim($label.text());
                     if (text.length > 0) {
                         text = text.substring(0, text.length - 1);
-                        $(this).tips({
-                            msg: text + "不能为空！"
-                        });
+                        Comm.alert(text + "不能为空！");
                     } else {
-                        $(this).tips({
-                            msg: "该值不能为空！"
-                        });
+                        Comm.alert("该值不能为空！");
+
                     }
                 }
                 hasError = true;
+                return false;
             }
         }
     })
@@ -373,9 +372,9 @@ Comm.getData = function (url, params, cache) {
                 		data = d;
                 	}
                 },
-                error: function () {
+                error: function (e) {
                 	Comm.alert("网络出错，请联系管理员！", "error");
-                    throw new Error("网络出错，请联系管理员！");
+                    throw new Error(e);
                 }
             });
         } else {

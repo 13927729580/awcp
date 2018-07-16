@@ -1,11 +1,6 @@
 package cn.org.awcp.dingding.controller;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 import javax.annotation.Resource;
 import javax.script.ScriptEngine;
@@ -77,14 +72,14 @@ public class DdWfController {
 		} catch(Exception e){
 			e.printStackTrace();
 		}		
-		String entryId = request.getParameter("FK_Node");
+		Integer entryId =StringUtils.isNumeric(request.getParameter("FK_Node"))?Integer.parseInt(request.getParameter("FK_Node")):null;
 		String flowTempleteId = request.getParameter("FK_Flow");
 		String fid = request.getParameter("FID");
 		fid = StringUtils.isNumeric(fid) ? fid : "0";
-		String workItemId = request.getParameter("WorkID");
+		Integer workItemId = StringUtils.isNumeric(request.getParameter("WorkId"))?Integer.parseInt(request.getParameter("WorkId")):null;
 		DocumentVO docVo = null;
 		DynamicPageVO pageVO = null;
-		Map<String, String> map = new HashMap<String, String>();
+		Map<String, String> map = new HashMap<>();
 		ScriptEngine engine = null;
 		try {
 			docVo = documentServiceImpl.findDocByWorkItemId(flowTempleteId, workItemId);
@@ -132,7 +127,7 @@ public class DdWfController {
 			// 审批发起者信息
 			Map<String, Object> user = getUserInfo(workItemId);
 			if (fid != null && !fid.equals("0")) {
-				workItemId = fid;
+				workItemId = Integer.parseInt(fid);
 			}
 			sql = "SELECT GROUP_CONCAT(DISTINCT FK_EmpText) FROM wf_generworkerlist WHERE IsPass=0 AND (workid=? or FID=?) ";
 			String nextStepPerson = jdbcTemplate.queryForObject(sql, String.class, workItemId, workItemId);
@@ -309,7 +304,7 @@ public class DdWfController {
 	}
 	
 	// 用户信息
-	private Map<String, Object> getUserInfo(String workId) {
+	private Map<String, Object> getUserInfo(Integer workId) {
 		String sql = "select starter creator,name,USER_HEAD_IMG as img,GROUP_CONCAT(t3.GROUP_CH_NAME) as groups from p_un_user_base_info t1 "
 				+ " left join p_un_user_group t2 on t1.USER_ID=t2.USER_ID left join p_un_group t3 on t2.GROUP_ID=t3.GROUP_ID left join wf_generworkflow d on t1.USER_ID_CARD_NUMBER=d.starter"
 				+ " where workId=?";
@@ -335,7 +330,7 @@ public class DdWfController {
 	}
 
 	// 流程日志
-	private List<Map<String, Object>> getWorkLog(String workItemId, String nextStepPerson) {
+	private List<Map<String, Object>> getWorkLog(Integer workItemId, String nextStepPerson) {
 		String sql = "SELECT b.name,a.creator,a.state,b.user_head_img,a.content,date_format(a.send_time,'%Y-%m-%d %H:%i') as date,a.current_node "
 				+ "FROM p_fm_work_logs a LEFT JOIN p_un_user_base_info b ON a.creator=b.user_id_card_number "
 				+ "WHERE work_id=? ORDER BY CURRENT_NODE,IFNULL(send_time,NOW())";

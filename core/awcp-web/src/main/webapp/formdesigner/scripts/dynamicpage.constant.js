@@ -39,6 +39,7 @@ var pageConstant = {
             // this.type.put("1034", "tab切换");
 //            this.type.put("1035","地图");
             this.type.put("1036","搜索条件");
+            this.type.put("1043","流程意见组件");
             this.type.put("1101","事件控件");
             this.type.put("1102","手机省市县控件");
             this.type.put("1103","钉钉明细控件");

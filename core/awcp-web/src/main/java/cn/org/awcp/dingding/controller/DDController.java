@@ -96,7 +96,7 @@ public class DDController {
             result.setData(JSON.parse(config));
         } catch (Exception e) {
             logger.debug("ERROR", e);
-            result.setStatus(StatusCode.FAIL.setMessage("获取配置失败"));
+            result.setStatus(StatusCode.FAIL).setMessage("获取配置失败");
         }
         return result;
     }
@@ -124,7 +124,7 @@ public class DDController {
                     ControllerHelper.getUser().getUserIdCardNumber(), "/", null, "300");
             result.setData(json.get("spaceid"));
         } else {
-            result.setStatus(StatusCode.FAIL.setMessage(json.getString("errmsg")));
+            result.setStatus(StatusCode.FAIL).setMessage(json.getString("errmsg"));
         }
         return result;
     }
@@ -149,7 +149,7 @@ public class DDController {
             JSONObject json = DDRequestService.getUserInfo(AuthHelper.getAccessToken(), code);
             if (json == null) {
                 logger.info("账号未找到，请检查用户信息！");
-                result.setStatus(StatusCode.FAIL.setMessage("账号未找到，请检查用户信息！"));
+                result.setStatus(StatusCode.FAIL).setMessage("账号未找到，请检查用户信息！");
                 return result;
             }
             if (json.get("errcode") == null) {
@@ -167,7 +167,7 @@ public class DDController {
                 result.setData(data);
                 return result;
             } else {
-                result.setStatus(StatusCode.FAIL.setMessage(json.getString("errmsg")));
+                result.setStatus(StatusCode.FAIL).setMessage(json.getString("errmsg"));
                 return result;
             }
 
@@ -196,7 +196,7 @@ public class DDController {
             }
             result.setStatus(StatusCode.SUCCESS).setData(str);
         } catch (OApiException e) {
-            result.setStatus(StatusCode.FAIL.setMessage(e.getMessage()));
+            result.setStatus(StatusCode.FAIL).setMessage(e.getMessage());
         }
         return result;
     }

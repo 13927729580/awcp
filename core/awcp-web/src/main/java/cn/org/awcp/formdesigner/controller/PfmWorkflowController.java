@@ -164,8 +164,8 @@ public class PfmWorkflowController extends BaseController {
 	 * 
 	 * @param workflowName
 	 *            流程名称
-	 * @param categoryName
-	 *            流程类型名称
+	 * @param categoryId
+	 *            流程类型
 	 * @param currentPage
 	 *            当前第几页
 	 * @param pageSize
@@ -235,7 +235,7 @@ public class PfmWorkflowController extends BaseController {
 			List<Map<String, Object>> resultSet = jdbcTemplate.queryForList(sql);
 			// 获取流程列表的数量
 			String countSql = "SELECT count(*) FROM WF_FLOW";
-			long count = jdbcTemplate.queryForLong(countSql);
+			long count = jdbcTemplate.queryForObject(countSql,Long.class);
 			Paginator paginator = new Paginator(currentPage, pageSize, (int) count);
 			PageList<Map<String, Object>> pageList = new PageList<Map<String, Object>>(resultSet, paginator);
 
@@ -297,7 +297,7 @@ public class PfmWorkflowController extends BaseController {
 		sql += " )a where rownumber > " + (currentPage - 1) * pageSize;
 		logger.debug(sql);
 
-		long count = sqlServerJdbcTemplate.queryForLong(countSql);
+		long count = sqlServerJdbcTemplate.queryForObject(countSql,Long.class);
 		Paginator paginator = new Paginator(currentPage, pageSize, (int) count);
 		List models = sqlServerJdbcTemplate.queryForList(sql);
 		PageList<WorkFlowTemplateVO> pageList = new PageList<WorkFlowTemplateVO>(models, paginator);
@@ -457,7 +457,6 @@ public class PfmWorkflowController extends BaseController {
 	}
 
 	/**
-	 * @param varName
 	 * @param nodeId
 	 *            nodeid+_+workflowid
 	 * @param pageId

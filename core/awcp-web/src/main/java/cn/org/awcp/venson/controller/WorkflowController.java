@@ -1,18 +1,13 @@
 package cn.org.awcp.venson.controller;
 
-import javax.annotation.Resource;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import cn.org.awcp.venson.controller.base.ReturnResult;
 import cn.org.awcp.venson.controller.base.StatusCode;
 import cn.org.awcp.venson.service.WorkflowService;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
 
 @RestController
 @RequestMapping("workflow")
@@ -34,7 +29,7 @@ public class WorkflowController {
 	@RequestMapping(value = "/transfer/{workId}", method = RequestMethod.POST)
 	public ReturnResult transfer(@PathVariable("workId") long workId, @RequestParam("user") String user) {
 		ReturnResult result = ReturnResult.get();
-		result.setStatus(StatusCode.SUCCESS.setMessage(workflowService.transfer(workId, user)));
+		result.setStatus(StatusCode.SUCCESS).setMessage(workflowService.transfer(workId, user));
 		return result;
 	}
 
@@ -42,7 +37,7 @@ public class WorkflowController {
 	public ReturnResult execute(@PathVariable("workId") long workId) {
 		ReturnResult result = ReturnResult.get();
 
-		result.setStatus(StatusCode.SUCCESS.setMessage(workflowService.execute(workId)));
+		result.setStatus(StatusCode.SUCCESS).setMessage(workflowService.execute(workId));
 		return result;
 	}
 

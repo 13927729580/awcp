@@ -412,7 +412,7 @@ public class MetaModelController extends BaseController {
         } catch (Exception e) {
             jdbcTemplate.rollback();
             logger.info("ERROR", e);
-            result.setStatus(StatusCode.FAIL.setMessage(e.getMessage()));
+            result.setStatus(StatusCode.FAIL).setMessage(e.getMessage());
         }
 
         return result;

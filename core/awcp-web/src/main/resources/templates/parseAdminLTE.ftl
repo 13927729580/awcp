@@ -137,6 +137,9 @@
 		<#case 1036><#--搜索组件-->
 			<@convertAddSearch c/>
 			<#break>
+		<#case 1043><#--流程意见组件-->
+			<@convertSuggestion c/>
+			<#break>
 		<#default>
 	</#switch>
 </#macro>
@@ -179,6 +182,9 @@
 			<#break>
 		<#case 1036>
 			<@convertAddSearchScript c/>
+			<#break>
+		<#case 1043>
+			<@convertSuggestionScript component/>
 			<#break>
 		<#default>
 
@@ -227,6 +233,10 @@
 			var val = that.val();
 			var reg1 = /^\d+\.\d{0,2}$/;
 			var reg2 = /^\d+$/;
+			if(val == ""){
+				temp = val;
+				return false;
+			}
 			if(reg1.test(val) || reg2.test(val)){
 				temp = val;
 			} else{
@@ -683,7 +693,7 @@
 				}
 			}else{
 				if(thisValNum.length>20){
-					var data=Comm.getData("api/common/file/remove",{"_method":"get","ids":thisValNum});
+					var data=Comm.getData("api/common/file/remove",{"ids":thisValNum});
 					if(data!=-1){
 						removeVal(thisValNum);
 						$parentDiv.remove();
@@ -802,8 +812,7 @@
 <#macro convertdataGrid c >
 	<div class="customGroup">
 		<label class="control-label"><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
-		<div id="easyui_dg_${c['pageId']}" style="border:solid 1px #ccc" class="<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['hidden'])?? && status['</#noparse>${c['name']}<#noparse>']['hidden'] == 'true'>hidden</#if></#noparse>
-	<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['disabled'])?? && status['</#noparse>${c['name']}<#noparse>']['disabled'] == 'true'> disabled</#if></#noparse>">
+		<div id="easyui_dg_${c['pageId']}" style="border:solid 1px #ccc" class="<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['hidden'])?? && status['</#noparse>${c['name']}<#noparse>']['hidden'] == 'true'>hidden</#if></#noparse>">
 			<div id="tb_${c['pageId']}" style="height:auto">
 				<#if c['operateAdd']?? && c['operateAdd']=='1'>
 					<a href="javascript:void(0)" class="btn-xs btn-default easyui-add"><i class="fa fa-fw fa-plus"></i>增加</a>
@@ -903,7 +912,14 @@
 			</#if>
 		}
 		function getCombobox(value){
-			var result={valueField:'id',textField:'text',data:[]};
+			var result={
+				valueField:'id',
+				textField:'text',data:[],
+				formatter: function(row){
+					var opts = $(this).combobox('options');
+					return row[opts.textField];
+				}
+			};
 			if(value.indexOf("=")!=-1){
 				var options=value.split(";");
 				var len=options.length;
@@ -1061,6 +1077,83 @@
 
 </#macro>
 <#-------------------------------------------dataGrid框组件end---------------------------------------->
+
+<#-------------------------------------------流程意见组件begin---------------------------------------->
+<#macro convertSuggestion c >
+    <div style="<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['hidden'])?? && status['</#noparse>${c['name']}<#noparse>']['hidden'] == 'true'>display:none</#if></#noparse>">
+        <div class="input-group" style="margin-bottom: 6px;margin-top:20px;">
+            <span class="input-group-addon" style="font-weight:bold;">本次处理意见</span>
+            <textarea style="width:100%" name="work_logs_content" rows="3"
+                      class="dataItemCode form-control"
+                    <#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['disabled'])?? && status['</#noparse>${c['name']}<#noparse>']['disabled'] == 'true'>disabled="disabled"</#if></#noparse>
+                    <#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['readonly'])?? && status['</#noparse>${c['name']}<#noparse>']['readonly'] == 'true'>readonly="readonly"</#if></#noparse>
+            ></textarea>
+        </div>
+        <div class="customGroup">
+            <button type="button" id="expandBtn" class="btn btn-box-tool" style="float:right;margin-right:12px;"><i class="fa fa-plus"></i></button>
+            <label class="control-label"><#noparse>${others['title_</#noparse>${c['name']}<#noparse>']!''}</#noparse></label>
+            <div style="display:none;" id="div_${c['pageId']}" style="width: 100%;" class="<#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['hidden'])?? && status['</#noparse>${c['name']}<#noparse>']['hidden'] == 'true'>hidden</#if></#noparse>
+        <#noparse><#if (status['</#noparse>${c['name']}<#noparse>']['disabled'])?? && status['</#noparse>${c['name']}<#noparse>']['disabled'] == 'true'> disabled</#if></#noparse>">
+            <table id="tb_${c['pageId']}" class="table table-bordered">
+                <#if c['columns']?? && c['columns']?size gt 0>
+                        <thead>
+                            <#list c['columns'] as item>
+
+                            </#list>
+                        </thead>
+                <#else>
+                        <thead>
+                            <th data-field="dept" style="width:20%">部门</th>
+                            <th data-field="name" style="width:20%">姓名</th>
+                            <th data-field="time" style="width:20%">时间</th>
+                            <th data-field="node" style="width:20%">节点</th>
+                            <th data-field="suggest" style="width:20%">意见</th>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                </#if>
+                </table>
+            </div>
+        </div>
+    </div>
+</#macro>
+
+<#macro convertSuggestionScript c >
+	(function(){
+        var pageId="${(c['pageId'])}";
+        var null2Empty=function(obj){
+            return obj?obj:"";
+        }
+        $.get(basePath+'api/workflow/wf/comments/'+pageId+location.search,function(res){
+            var data=res.data;
+            var html=[];
+			var fields=[];
+			$("#tb_"+pageId+" th").each((i,e)=>fields.push($(e).attr("data-field")));
+            if(data){
+                $.each(data,function(i,e){
+					html.push("<tr>");
+					$.each(fields,(j,o)=>html.push("<td>"+null2Empty(e[o])+"</td>"));
+    				html.push("</tr>");
+                })
+            }else{
+                html.push("<tr style='text-align: center;'><td colspan='5'>暂无流程处理意见<td></tr>");
+            }
+            $("#tb_"+pageId+" tbody").html(html.join(''));
+        })
+
+		$("#expandBtn").on("click",function(){
+			if($(this).next().next().css("display") == "none"){
+				$(this).find("i").removeClass("fa-plus").addClass("fa-minus");
+				$(this).next().next().show();
+			}else{
+				$(this).find("i").removeClass("fa-minus").addClass("fa-plus");
+				$(this).next().next().hide();
+			}
+		})
+	})();
+</#macro>
+<#-------------------------------------------流程意见框组件end---------------------------------------->
 
 <#-------------------------------------------convertkindEditor------------------------------------------>
 
@@ -1232,7 +1325,7 @@
     <#--解析其它按钮-->
     <#else>
         <button type="button" data-valid="${c.isChooseValidate()?string("true","flase")}" id='${c.getPageId()}' title="${c.getDescription()!''}"
-                class="${c.getCss()!''} btn <#if c.getStyle()??>${c.getStyle()}</#if>  <#if c.getColor()??>btn-${c.getColor()}</#if>"
+                class="${c.getCss()!''} btn <#if c.getStyle()??>${c.getStyle()}</#if> <#if c['place']??&&c['place']=='1' >btn-sm</#if> <#if c.getColor()??>btn-${c.getColor()}</#if>"
                 <#noparse>
                     <#if (pageActStatus['</#noparse>${c.getPageId()}<#noparse>']['backId'])??>
                         backId="${pageActStatus['</#noparse>${c.getPageId()}<#noparse>']['backId']!''}"

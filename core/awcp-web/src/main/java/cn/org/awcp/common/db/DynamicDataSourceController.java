@@ -39,7 +39,7 @@ public class DynamicDataSourceController {
             list.add(0, map);
             result.setStatus(StatusCode.SUCCESS).setData(list);
         } catch (SQLException e) {
-            result.setStatus(StatusCode.FAIL.setMessage(e.getMessage()));
+            result.setStatus(StatusCode.FAIL).setMessage(e.getMessage());
         }
         return result;
     }

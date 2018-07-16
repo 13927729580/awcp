@@ -84,43 +84,43 @@ public class BeanUtil {
 		return getInsertSQL(map, tableName, null);
 	}
 
+
+	public static String getInsertSQL(Map<String, Object> map, String tableName, String idKey) {
+		return getInsertSQL(map, tableName,idKey, false);
+	}
+
+	public static String getInsertSQL(Map<String, Object> map, String tableName, boolean isToUnderline) {
+		return getInsertSQL(map, tableName,null, isToUnderline);
+	}
+
 	/**
 	 * 自动生成插入语句
 	 * 
-	 * @param map
+	 * @param map 数据源
+	 *
 	 * @param tableName
 	 *            表名
+	 *
 	 * @param idKey 主键名称
 	 *            是否要创建删除语句
+	 *
+	 * @param isToUnderline 是否把键名由驼峰转下划线
+	 *
 	 * @return
 	 */
-	public static String getInsertSQL(Map<String, Object> map, String tableName, String idKey) {
+	public static String getInsertSQL(Map<String, Object> map, String tableName, String idKey,boolean isToUnderline) {
 		final StringBuffer buffer = new StringBuffer();
 		final StringBuffer values = new StringBuffer();
 		if (idKey!=null) {
-			// buffer.append("/*DELETE table `" + tableName + "` where id= " + id + " start
-			// */\n");
 			buffer.append("DELETE FROM `" + tableName + "` WHERE "+idKey+"='" + map.get(idKey) + "';\n");
 		}
-		// buffer.append("/*backup table `" + tableName + "` where id= " + id + " start
-		// */\n");
 		buffer.append("INSERT INTO `" + tableName + "`( ");
 		Set<String> keys = map.keySet();
 		for (String key : keys) {
-			buffer.append("`" + key + "`,");
 			Object value = map.get(key);
-			if (value == null) {
-				values.append("null,");
-			} else {
-				if (value instanceof String) {
-
-					values.append(handSQL(value.toString()) + ",");
-				} else if (value instanceof Date) {
-
-					values.append("'" + DateFormaterUtil.dateToString(DateFormaterUtil.FORMART4, (Date) value) + "',");
-				} else {
-					values.append("'" + value + "',");
-				}
+			if (value != null) {
+				buffer.append("`" + (isToUnderline?Underline2Camel.camelToUnderline(key):key) + "`,");
+				setValue(values, value);
 			}
 		}
 		buffer.delete(buffer.length() - 1, buffer.length());
@@ -128,6 +128,56 @@ public class BeanUtil {
 		buffer.append(") VALUES (");
 		buffer.append(values);
 		buffer.append(" );\n");
+		String str = buffer.toString();
+		logger.debug(str);
+		return str;
+	}
+
+	/**
+	 * 自动生成更新语句
+	 *
+	 * @param map 数据源
+	 *
+	 * @param tableName
+	 *            表名
+	 *
+	 * @param isToUnderline 是否把键名由驼峰转下划线
+	 *
+	 * @return
+	 */
+	public static String getUpdateSQL(Map<String, Object> map, String tableName, boolean isToUnderline) {
+		return getUpdateSQL(map,tableName,"id",isToUnderline);
+	}
+
+	/**
+	 * 自动生成更新语句
+	 *
+	 * @param map 数据源
+	 *
+	 * @param tableName
+	 *            表名
+	 *
+	 * @param idKey 主键名称
+	 *
+	 * @param isToUnderline 是否把键名由驼峰转下划线
+	 *
+	 * @return
+	 */
+	public static String getUpdateSQL(Map<String, Object> map, String tableName, String idKey,boolean isToUnderline) {
+		final StringBuffer buffer = new StringBuffer();
+		buffer.append("UPDATE `" + tableName + "` SET ");
+		Set<String> keys = map.keySet();
+		for (String key : keys) {
+			if(!idKey.equals(key)){
+				Object value = map.get(key);
+				if (value != null) {
+					buffer.append("`" + (isToUnderline?Underline2Camel.camelToUnderline(key):key) + "`=");
+					setValue(buffer, value);
+				}
+			}
+		}
+		buffer.delete(buffer.length() - 1, buffer.length());
+		buffer.append(" WHERE "+idKey+"="+map.get(idKey));
 		String str = buffer.toString();
 		logger.debug(str);
 		return str;
@@ -158,6 +208,17 @@ public class BeanUtil {
 		String str = buffer.toString();
 		logger.debug(str);
 		return str;
+	}
+
+
+	private static void setValue(StringBuffer buffer, Object value) {
+		if (value instanceof String) {
+			buffer.append(handSQL(value.toString()) + ",");
+		} else if (value instanceof Date) {
+			buffer.append("'" + DateFormaterUtil.dateToString(DateFormaterUtil.FORMART4, (Date) value) + "',");
+		} else {
+			buffer.append("'" + value + "',");
+		}
 	}
 
 	private static String handSQL(String x) {

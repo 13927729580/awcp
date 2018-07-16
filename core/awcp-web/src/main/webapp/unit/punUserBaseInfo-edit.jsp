@@ -66,7 +66,7 @@
 				            <div class="form-group">
 				                <label class="col-md-1 control-label required">用户名</label>
 				                <div class="col-md-4">
-				                    <input name="userName" class="form-control" id="userName" type="text" value="${vo.userIdCardNumber}" />
+				                    <input name="userName" class="form-control" id="userName" type="text" value="${vo.userName}" />
 				                </div>
 				                <label class="col-md-2 control-label required">姓名</label>
 				                <div class="col-md-4">

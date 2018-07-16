@@ -22,15 +22,8 @@ public class AwcpAuthorizationFilter extends AuthenticationFilter {
 	protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) {
 		Subject subject = SecurityUtils.getSubject();
 		Session session = subject.getSession(false);
-		//session为空则重新登录
-		if(session==null){
-			return false;
-		}
-		Object user = session.getAttribute(SessionContants.CURRENT_USER);
-		if(user!=null||ControllerHelper.loginByCookie()){
-			return true;
-		}
-		return false;
+		boolean isLogin = (session != null && session.getAttribute(SessionContants.CURRENT_USER) != null) || ControllerHelper.loginByCookie();
+		return isLogin;
 
 	}
 

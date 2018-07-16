@@ -28,8 +28,8 @@ public class ReturnResult {
 		return this.message;
 	}
 
-	public ReturnResult setMessage(StatusType message) {
-		this.message = message.getMessage();
+	public ReturnResult setMessage(String message) {
+		this.message = message;
 		return this;
 	}
 

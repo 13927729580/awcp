@@ -17,10 +17,9 @@ import java.util.List;
  *
  */
 public class PFMAPI implements Serializable {
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 1L;
+
 	// APIID
 	private String APIID;
 	// API名称
@@ -44,6 +43,16 @@ public class PFMAPI implements Serializable {
 	private String APICache;
 
 	private List<APIRule> rules;
+
+	private List<APIParameter> parameters;
+
+	public List<APIParameter> getParameters() {
+		return parameters;
+	}
+
+	public void setParameters(List<APIParameter> parameters) {
+		this.parameters = parameters;
+	}
 
 	public List<APIRule> getRules() {
 		return rules;
@@ -169,6 +178,7 @@ public class PFMAPI implements Serializable {
 		try {
 			PFMAPI result = jdbcTemplate.queryForObject(sql, new BeanPropertyRowMapper<>(PFMAPI.class), apiName);
 			result.setRules(APIRule.get(result.getAPIID(), jdbcTemplate));
+			result.setParameters(APIParameter.get(result.getAPIID(),jdbcTemplate));
 			cache.put(apiName, result);
 			return result;
 		} catch (DataAccessException e) {

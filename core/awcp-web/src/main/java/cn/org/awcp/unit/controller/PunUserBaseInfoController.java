@@ -7,6 +7,7 @@ import cn.org.awcp.core.utils.BeanUtils;
 import cn.org.awcp.core.utils.Security;
 import cn.org.awcp.core.utils.SessionUtils;
 import cn.org.awcp.core.utils.constants.SessionContants;
+import cn.org.awcp.extend.formdesigner.DocumentUtils;
 import cn.org.awcp.metadesigner.application.MetaModelOperateService;
 import cn.org.awcp.unit.core.domain.PunUserBaseInfo;
 import cn.org.awcp.unit.service.*;
@@ -17,7 +18,10 @@ import cn.org.awcp.venson.controller.base.ReturnResult;
 import cn.org.awcp.venson.controller.base.StatusCode;
 import cn.org.awcp.venson.service.FileService;
 import com.github.miemiedev.mybatis.paginator.domain.PageList;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
@@ -40,6 +44,7 @@ import java.util.Map;
  */
 @Controller
 @RequestMapping("/unit")
+@Api(value = "用户接口")
 public class PunUserBaseInfoController extends BaseController {
 
 	@Autowired
@@ -144,11 +149,11 @@ public class PunUserBaseInfoController extends BaseController {
 				}
 				result.setStatus(StatusCode.SUCCESS);
 			} else {
-				result.setStatus(StatusCode.FAIL.setMessage("校验失败" + msg + "。"));
+				result.setStatus(StatusCode.FAIL).setMessage("校验失败" + msg + "。");
 			}
 		} catch (Exception e) {
 			logger.info("ERROR", e);
-			result.setStatus(StatusCode.FAIL.setMessage("系统异常"));
+			result.setStatus(StatusCode.FAIL).setMessage("系统异常");
 		}
 		return result;
 	}
@@ -563,21 +568,25 @@ public class PunUserBaseInfoController extends BaseController {
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/updatePwd", method = RequestMethod.POST)
+	@ApiOperation(value = "修改密码")
 	public ReturnResult updatePwd(String oldPwd, String newPwd) {
 		ReturnResult result = ReturnResult.get();
 		try {
 			PunUserBaseInfoVO user = (PunUserBaseInfoVO) SessionUtils
 					.getObjectFromSession(SessionContants.CURRENT_USER);
 			if (!oldPwd.equals(EncryptUtils.decript(user.getUserPwd()))) {
-				result.setStatus(StatusCode.PARAMETER_ERROR.setMessage("原密码输入错误"));
+				result.setStatus(StatusCode.PARAMETER_ERROR).setMessage("原密码输入错误");
 			} else {
 				user.setUserPwd(EncryptUtils.encrypt(newPwd));
 				userService.updateUser(user);
-				result.setStatus(StatusCode.SUCCESS.setMessage("修改成功"));
+				Session session = SessionUtils.getCurrentSession();
+				session.setAttribute(SessionContants.CURRENT_USER,user);
+				DocumentUtils.getIntance().updateSession(session);
+				result.setStatus(StatusCode.SUCCESS).setMessage("修改成功");
 			}
 		} catch (Exception e) {
 			logger.info("ERROR", e);
-			result.setStatus(StatusCode.FAIL.setMessage("修改失败，请重试或联系管理员"));
+			result.setStatus(StatusCode.FAIL).setMessage("修改失败，请重试或联系管理员");
 		}
 		return result;
 	}
@@ -599,10 +608,10 @@ public class PunUserBaseInfoController extends BaseController {
 			vo.setUserIdCardNumber(vo.getUserName());
 			userService.updateUser(vo);
 			SessionUtils.addObjectToSession(SessionContants.CURRENT_USER, vo);
-			result.setStatus(StatusCode.SUCCESS.setMessage("更新成功"));
+			result.setStatus(StatusCode.SUCCESS).setMessage("更新成功");
 		} catch (Exception e) {
 			logger.info("ERROR", e);
-			result.setStatus(StatusCode.FAIL.setMessage("更新失败，请重试或联系管理员"));
+			result.setStatus(StatusCode.FAIL).setMessage("更新失败，请重试或联系管理员");
 		}
 		return result;
 	}

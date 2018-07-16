@@ -31,7 +31,7 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
 		if (filterCurrUrl(request)) {
 			response.setContentType("application/json");
 			ReturnResult returnResult = ReturnResult.get();
-			returnResult.setStatus(StatusCode.NO_LOGIN.setMessage("您还未登录,请先登录！"));
+			returnResult.setStatus(StatusCode.NO_LOGIN).setMessage("您还未登录,请先登录！");
 			logger.debug("非法用户,禁止访问");
 			response.getWriter().print(JSONObject.toJSON(returnResult));
 			return false;

@@ -62,7 +62,7 @@ public class AlipayController extends BaseController {
         if (response.isSuccess()) {
             return result.setData(response.getBody());
         } else {
-            return result.setStatus(StatusCode.FAIL.setMessage("下单失败：" + response.getMsg()));
+            return result.setStatus(StatusCode.FAIL).setMessage("下单失败：" + response.getMsg());
         }
     }
 

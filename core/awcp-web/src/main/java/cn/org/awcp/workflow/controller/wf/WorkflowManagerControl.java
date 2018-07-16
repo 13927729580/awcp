@@ -1,10 +1,7 @@
 package cn.org.awcp.workflow.controller.wf;
 
-import java.util.List;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-
+import com.github.miemiedev.mybatis.paginator.domain.PageList;
+import com.github.miemiedev.mybatis.paginator.domain.Paginator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -15,8 +12,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.github.miemiedev.mybatis.paginator.domain.PageList;
-import com.github.miemiedev.mybatis.paginator.domain.Paginator;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 @Controller
 @RequestMapping("workflow/wf")
@@ -64,7 +62,7 @@ public class WorkflowManagerControl {
 		sql += " )a where rownumber > " + (currentPage - 1) * pageSize;
 		logger.debug(sql);
 
-		long count = sqlServerJdbcTemplate.queryForLong(countSql);
+		long count = sqlServerJdbcTemplate.queryForObject(countSql,Long.class);
 		Paginator paginator = new Paginator(currentPage, pageSize, (int) count);
 		List models = sqlServerJdbcTemplate.queryForList(sql);
 		PageList<Model> pageList = new PageList<Model>(models, paginator);
@@ -96,7 +94,7 @@ public class WorkflowManagerControl {
 		sql += " )a where rownumber > " + (currentPage - 1) * pageSize;
 		logger.debug(sql);
 
-		long count = sqlServerJdbcTemplate.queryForLong(countSql);
+		long count = sqlServerJdbcTemplate.queryForObject(countSql,Long.class);
 		Paginator paginator = new Paginator(currentPage, pageSize, (int) count);
 		List models = sqlServerJdbcTemplate.queryForList(sql);
 		PageList<Model> pageList = new PageList<Model>(models, paginator);
@@ -131,7 +129,7 @@ public class WorkflowManagerControl {
 		sql += " )a where rownumber > " + (currentPage - 1) * pageSize;
 		logger.debug(sql);
 
-		long count = sqlServerJdbcTemplate.queryForLong(countSql);
+		long count = sqlServerJdbcTemplate.queryForObject(countSql,Long.class);
 		Paginator paginator = new Paginator(currentPage, pageSize, (int) count);
 		List models = sqlServerJdbcTemplate.queryForList(sql);
 		PageList<Model> pageList = new PageList<Model>(models, paginator);
@@ -165,7 +163,7 @@ public class WorkflowManagerControl {
 		sql += " )a where rownumber > " + (currentPage - 1) * pageSize;
 		logger.debug(sql);
 
-		long count = sqlServerJdbcTemplate.queryForLong(countSql);
+		long count = sqlServerJdbcTemplate.queryForObject(countSql,Long.class);
 		Paginator paginator = new Paginator(currentPage, pageSize, (int) count);
 		List models = sqlServerJdbcTemplate.queryForList(sql);
 		PageList<Model> pageList = new PageList<Model>(models, paginator);
@@ -199,7 +197,7 @@ public class WorkflowManagerControl {
 		sql += " )a where rownumber > " + (currentPage - 1) * pageSize;
 		logger.debug(sql);
 
-		long count = sqlServerJdbcTemplate.queryForLong(countSql);
+		long count = sqlServerJdbcTemplate.queryForObject(countSql,Long.class);
 		Paginator paginator = new Paginator(currentPage, pageSize, (int) count);
 		List models = sqlServerJdbcTemplate.queryForList(sql);
 		PageList<Model> pageList = new PageList<Model>(models, paginator);

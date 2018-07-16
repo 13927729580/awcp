@@ -170,7 +170,7 @@ public class JFlowAdapter {
 		BP.DA.DBAccess.RunSQL(ps);
 	}
 
-	public static void Flow_DoUnSend(Map resultMap, String flowNo, String workID){
+	public static void Flow_DoUnSend(Map resultMap, String flowNo, Integer workID){
 		Dev2Interface.Flow_DoUnSend(flowNo, Long.valueOf(workID));
 		resultMap.put("success", true);
 		resultMap.put("message", ControllerHelper.getMessage(I18nKey.wf_approval_retracement));
@@ -181,8 +181,8 @@ public class JFlowAdapter {
 	public static void Flow_returnWork(Map resultMap, long fid, String msg, String userId, String toNode,
 		String masterDataSource,DynamicPageVO pageVo, DocumentVO docVo,boolean isBackToThisNode) {
 		String flowNo = docVo.getFlowTempleteId();
-		String nodeid = docVo.getEntryId();
-		String workID = docVo.getWorkItemId();
+		Integer nodeid = docVo.getEntryId();
+		Integer workID = docVo.getWorkItemId();
 		//查找上一个节点的NODEID
 		JdbcTemplate jdbcTemplate = Springfactory.getBean("jdbcTemplate");
 		int flowId = Integer.parseInt(flowNo);
@@ -220,7 +220,7 @@ public class JFlowAdapter {
 			}
 
 		}
-		Dev2Interface.Node_ReturnWork(flowNo, Long.parseLong(workID), fid, Integer.parseInt(nodeid), NDForm,
+		Dev2Interface.Node_ReturnWork(flowNo, workID, fid, nodeid, NDForm,
 				returnEmp, msg, isBackToThisNode);
 		saveExecuteData(pageVo,docVo, masterDataSource);
 		String nextExecutor = "";
@@ -250,13 +250,13 @@ public class JFlowAdapter {
 			String toUsers){
 		resultMap.put("act", 1);
 		String fk_flow = docVo.getFlowTempleteId();
-		String workID = docVo.getWorkItemId();
+		Integer workID = docVo.getWorkItemId();
 		Hashtable table = convertHashtable(masterDataSource,docVo);
 		String title = null;
 		if (table != null && table.get("title") != null) {
 			title = (String) table.get("title");
 		}
-		SendReturnObjs result = Dev2Interface.Node_SendWork(fk_flow, Long.parseLong(workID), table, null, 0, toUsers,
+		SendReturnObjs result = Dev2Interface.Node_SendWork(fk_flow, workID, table, null, 0, toUsers,
 				WebUser.getNo(), WebUser.getName(), WebUser.getFK_Dept(), WebUser.getFK_DeptName(), title);
 		boolean flag = saveExecuteData(pageVo,docVo, masterDataSource);
 		if (flag) {
@@ -293,9 +293,9 @@ public class JFlowAdapter {
 	 */
 	public static void Node_AskFor(String masterDataSource, Map resultMap,DynamicPageVO pageVo,
 			DocumentVO docVo, String toUsers) {
-		String fk_node = docVo.getEntryId();
-		String workID = docVo.getWorkItemId();
-		String result=Dev2Interface.Node_Askfor(Long.parseLong(workID), AskforHelpSta.AfterDealSend, toUsers, fk_node);
+		Integer fk_node = docVo.getEntryId();
+		Integer workID = docVo.getWorkItemId();
+		String result=Dev2Interface.Node_Askfor(workID, AskforHelpSta.AfterDealSend, toUsers, fk_node+"");
 		boolean flag = saveExecuteData(pageVo,docVo, masterDataSource);
 		if (flag) {
 			resultMap.put("success", true);
@@ -358,14 +358,14 @@ public class JFlowAdapter {
 			Map resultMap,DynamicPageVO pageVo, DocumentVO docVo) {
 		Hashtable table = convertHashtable(masterDataSource,docVo);
 		String fk_flow = docVo.getFlowTempleteId();
-		String fk_node = docVo.getEntryId();
-		String workID = docVo.getWorkItemId();
-		String result = Dev2Interface.Node_SaveWork(fk_flow, Integer.valueOf(fk_node), Long.valueOf(workID), table);
+		Integer fk_node = docVo.getEntryId();
+		Integer workID = docVo.getWorkItemId();
+		String result = Dev2Interface.Node_SaveWork(fk_flow, fk_node, workID, table);
 
 		if (!result.contains("保存失败")) {
 			docVo.setFlowTempleteId(fk_flow);
 			docVo.setWorkItemId(workID);
-			docVo.setEntryId(String.valueOf(fk_node));
+			docVo.setEntryId(fk_node);
 			PunUserBaseInfoVO user = ControllerHelper.getUser();
 			if (user!= null) {
 				String userId=user.getUserId().toString();

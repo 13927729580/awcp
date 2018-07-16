@@ -393,6 +393,14 @@ public class DocUtils {
 						Object vale2 = (String) engine.eval(script);
 						others.put(component.getString("name"), vale2 + "");
 						break;
+					case 1043:
+						o.put("hidden",
+								String.valueOf(DocUtils.computeStatus(component.getString("hiddenScript"), engine)));
+						o.put("readonly",
+								String.valueOf(DocUtils.computeStatus(component.getString("readonlyScript"), engine)));
+						o.put("disabled",
+								String.valueOf(DocUtils.computeStatus(component.getString("disabledScript"), engine)));
+						break;
 					case 1102:
 						o.put("hidden",
 								String.valueOf(DocUtils.computeStatus(component.getString("hiddenScript"), engine)));
@@ -488,7 +496,7 @@ public class DocUtils {
 				Boolean hiddenStatus = (Boolean) engine.eval(hiddenScript);
 				String actName = act.getName();
 				if("1".equals(isRead) && !"返回".equals(actName) && actName.indexOf("导出")==-1 
-						&& !"关闭".equals(actName) && actName.indexOf("打印")==-1) {
+						&& !"关闭".equals(actName) && actName.indexOf("打印")==-1&& actName.indexOf("撤回")==-1) {
 					hiddenStatus = true;
 				}
 				actState.put("chooseValidate", chooseValidate);

@@ -1,13 +1,17 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %> 
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%> 
-<%@ taglib prefix="sc" uri="szcloud" %>
-<%@ page isELIgnored="false"%> 
+<%@page import="cn.org.awcp.unit.vo.PunUserGroupVO"%>
+<%@page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@page import="cn.org.awcp.unit.vo.PunGroupVO" %>
+<%@page import="cn.org.awcp.core.utils.SessionUtils" %>
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %> 
+<%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%> 
+<%@taglib prefix="sc" uri="szcloud" %>
+<%@page isELIgnored="false"%> 
 <%
     String datas = request.getParameter("datas");
 	String isSingle = request.getParameter("isSingle");
 	String path = request.getContextPath();
 	String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
+	String groupId =  ((PunGroupVO) SessionUtils.getObjectFromSession("current_user_group")).getGroupId() + "";
 %>
 <!DOCTYPE html>
 <html>
@@ -113,11 +117,13 @@
 	</div>		
 	<%@ include file="/resources/include/common_form_js.jsp" %>	
 	<script type="text/javascript" src="<%=basePath%>resources/plugins/zTree_v3/js/jquery.ztree.all-3.5.js"></script>
+	<script>
+		var basePath = "<%=basePath%>";
+		var groupId = "<%=groupId%>"; 
+	</script>
 	<script type="text/javascript" src="<%=basePath%>resources/scripts/platform.selectPanel.js"></script>
 	<script type="text/javascript" src="<%=basePath%>resources/scripts/jsonpath-0.8.0.js"></script>
-	<script type="text/javascript">		
-		var basePath = "<%=basePath%>";
-		var groupId = ${sessionScope.current_user.groupId};              
+	<script type="text/javascript">             
         $(function(){       
      		try {
  				var dialog = top.dialog.get(window);
@@ -132,25 +138,13 @@
 		   	$("#subBtn").click(function(){//关闭弹窗 提交
 			   	dialog.close(item);
 		   	});
-		});
-		 
-		$("#toMessage").click(function(){
-        	$(this).toggleClass("btn-info btn-default");
-        	$(this).find("i").toggleClass("icon-check icon-check-empty");
-    	});
-    	
-    	$("#toOnline").click(function(){
-        	$(this).toggleClass("btn-info btn-default");
-        	$(this).find("i").toggleClass("icon-check icon-check-empty");
-    	});
-    	
-    	
-    	
-    	$("#wq").bind("keyup",function(event) {
-        	if (event.keyCode == 13) {
-        		subSearch();
-        	}
-        });
+		   		    	 	
+	    	$("#wq").bind("keyup",function(event) {
+	        	if (event.keyCode == 13) {
+	        		subSearch();
+	        	}
+	        });
+		});	
 	</script>	
 </body>
 </html>

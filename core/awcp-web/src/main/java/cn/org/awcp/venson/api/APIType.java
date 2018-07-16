@@ -57,27 +57,13 @@ public enum APIType {
         return type;
     }
 
-    public static APIType valueOf(int value) { // 手写的从int到enum的转换函数
-        switch (value) {
-            case 1:
-                return ADD;
-            case 2:
-                return UPDATE;
-            case 3:
-                return GET;
-            case 4:
-                return DELETE;
-            case 5:
-                return EXECUTE;
-            case 6:
-                return QUERY;
-            case 7:
-                return PAGE;
-            case 8:
-                return EXECUTE_SCRIPT;
-            default:
-                return DEFAULT;
+    public static APIType valueOf(int value) {
+        for (APIType apiType : APIType.values()) {
+            if (apiType.getType() == value) {
+                return apiType;
+            }
         }
+        return DEFAULT;
     }
 
 }

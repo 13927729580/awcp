@@ -203,7 +203,7 @@ public class APIService {
             try {
                 sql = (String) engine.eval(script);
             } catch (ScriptException e) {
-                result.setStatus(StatusCode.FAIL.setMessage(e.toString()));
+                result.setStatus(StatusCode.FAIL).setMessage(e.toString());
                 logger.info("ERROR", e);
             }
         }
@@ -255,7 +255,7 @@ public class APIService {
         try {
             meta.update(map, api.getAPITable());
         } catch (Exception e) {
-            result.setStatus(StatusCode.FAIL.setMessage(e.toString()));
+            result.setStatus(StatusCode.FAIL).setMessage(e.toString());
             logger.info("ERROR", e);
         }
     }
@@ -285,32 +285,64 @@ public class APIService {
         try {
             meta.save(map, api.getAPITable());
         } catch (Exception e) {
-            result.setStatus(StatusCode.FAIL.setMessage(e.toString()));
+            result.setStatus(StatusCode.FAIL).setMessage(e.toString());
             logger.info("ERROR", e);
         }
     }
 
-    public boolean validateAPI(ReturnResult result, PFMAPI api, String method) {
+    public boolean validateAPI(ReturnResult result, PFMAPI api, String method,Map<String, Object> params) {
         if (api == null) {
-            result.setStatus(StatusCode.FAIL.setMessage("接口未找到，无效接口！"));
+            result.setStatus(StatusCode.FAIL).setMessage("接口未找到，无效接口！");
             return false;
         }
         // 是否已禁用
         if (api.getAPIState() == 0) {
-            result.setStatus(StatusCode.FAIL.setMessage("接口已禁用！"));
+            result.setStatus(StatusCode.FAIL).setMessage("接口已禁用！");
             return false;
         }
         // 是否需要登录校验
         if (api.getAPIIsLogin() == 1) {
             if (ControllerHelper.getUser() == null) {
-                result.setStatus(StatusCode.NO_LOGIN.setMessage("您还未登录，请先登录！"));
+                result.setStatus(StatusCode.NO_LOGIN).setMessage("您还未登录，请先登录！");
                 return false;
             }
         }
         // 判断请求方式
         if (!METHOD_BOTH.equals(api.getAPIMethod()) && !method.equals(api.getAPIMethod())) {
-            result.setStatus(StatusCode.NO_ACCESS.setMessage("请使用" + api.getAPIMethod() + "请求"));
+            result.setStatus(StatusCode.NO_ACCESS).setMessage("请使用" + api.getAPIMethod() + "请求");
             return false;
+        }
+        List<APIParameter> parameters = api.getParameters();
+        if(parameters!=null&&!parameters.isEmpty()){
+            for (APIParameter parameter : parameters) {
+                String name = parameter.getName();
+                Object value = params.get(name);
+                //参数为空设置默认值
+                if(value==null&&StringUtils.isNotBlank(parameter.getDefaultValue())&&!parameter.getDefaultValue().equals("无")){
+                    value=parameter.getDefaultValue();
+                    params.put(name,value);
+                }
+                //校验参数是否必填
+                if(parameter.isRequires()&&value==null){
+                    result.setStatus(StatusCode.PARAMETER_ERROR).setMessage("参数["+name+"]不能为空!");
+                    return false;
+                }
+                //校验参数类型
+                if(value!=null){
+                    String type=parameter.getType();
+                    String val=value.toString();
+                    //判断是否是数值类型参数
+                    //判断是否是布尔值类型参数
+                    if("number".equals(type)&&!StringUtils.isNumeric(val)){
+                        result.setStatus(StatusCode.PARAMETER_ERROR).setMessage("参数["+name+"]值["+val+"]必须为数值类型!");
+                        return false;
+                    }else if("boolean".equals(type)&&!"TRUE".equalsIgnoreCase(val) && !"FALSE".equalsIgnoreCase(val)){
+                        result.setStatus(StatusCode.PARAMETER_ERROR).setMessage("参数["+name+"]值["+val+"]必须为布尔类型!");
+                        return false;
+                    }
+                }
+
+            }
         }
         List<APIRule> rules = api.getRules();
         // 接口权限认证
@@ -339,11 +371,11 @@ public class APIService {
                 Object ret = engine.eval(rule.getRules());
                 // 返回值为false则校验不通过
                 if (!SUCCESS.equals(ret)) {
-                    result.setStatus(StatusCode.FAIL.setMessage(String.valueOf(ret)));
+                    result.setStatus(StatusCode.FAIL).setMessage(String.valueOf(ret));
                     return false;
                 }
             } catch (ScriptException e) {
-                result.setStatus(StatusCode.NO_ACCESS.setMessage(e.toString()));
+                result.setStatus(StatusCode.NO_ACCESS).setMessage(e.toString());
                 return false;
             }
         }

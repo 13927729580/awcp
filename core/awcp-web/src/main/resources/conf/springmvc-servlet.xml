@@ -8,7 +8,7 @@
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
 		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
-	<import resource="spring-mvc-jflow.xml"/>
+	<import resource="springmvc-jflow.xml"/>
 	<!-- 把标记了@Controller注解的类转换为bean -->
 	<mvc:annotation-driven>
 		<mvc:message-converters>
@@ -58,11 +58,11 @@
 		class="org.springframework.web.servlet.view.json.MappingJackson2JsonView"/>
 
 	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
-		<!-- 设置上传文件的最大尺寸为50M -->
-		<property name="maxUploadSize" value="52428800"/>
-		<property name="maxInMemorySize" value="4096"/>
+		<property name="maxInMemorySize" value="2048"/>
 		<property name="defaultEncoding" value="UTF-8"/>
+        <property name="resolveLazily" value="true"/>
 	</bean>
+
 	<!-- 设置全局异常处理bean -->
 	<bean id="exceptionHandler" class="cn.org.awcp.venson.interceptor.ExceptionHandler"/>
 
@@ -70,18 +70,27 @@
 		<!-- 只扫描controller -->
 		<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
 	</context:component-scan>
-	
+	<!--swagger2Config-->
+	<bean class="cn.org.awcp.common.swgger.Swagger2Config" id="swagger2Config"/>
+
 	<mvc:default-servlet-handler />
 
 	<mvc:interceptors>
 		<mvc:interceptor>
+			<mvc:mapping path="/common/file/*.do" />
+			<mvc:mapping path="api/common/file/**" />
+			<bean class="cn.org.awcp.venson.interceptor.FileUploadInterceptor">
+				<!-- 设置上传文件的最大尺寸为50M -->
+				<property name="maxSize" value="52428800" />
+			</bean>
+		</mvc:interceptor>
+		<mvc:interceptor>
 			<mvc:mapping path="/**" />
-			<bean
-				class="com.github.miemiedev.mybatis.paginator.springmvc.PageListAttrHandlerInterceptor" />
+			<bean class="com.github.miemiedev.mybatis.paginator.springmvc.PageListAttrHandlerInterceptor"/>
 		</mvc:interceptor>
 		<mvc:interceptor>
 			<mvc:mapping path="/**"/>
-			<bean class="cn.org.awcp.common.db.DataSourceInterceptor"></bean>
+			<bean class="cn.org.awcp.common.db.DataSourceInterceptor"/>
 		</mvc:interceptor>
 	</mvc:interceptors>
 	<!-- 激活自动代理功能 -->

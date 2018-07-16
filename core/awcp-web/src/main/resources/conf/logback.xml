@@ -167,6 +167,7 @@
 	<logger name="com.ibatis.sqlmap.engine.impl.SqlMapClientDelegate"
 		value="DEBUG" />
 	<logger name="org.mongodb.driver.cluster" level="WARN" />
+	<logger name="org.springframework.scheduling" level="INFO" />
 
 
 

@@ -3,9 +3,12 @@ package cn.org.awcp.venson.api;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class APIRule {
+public class APIRule implements Serializable{
+
+	private static final long serialVersionUID = 1L;
 
 	private String id;
 	private String name;

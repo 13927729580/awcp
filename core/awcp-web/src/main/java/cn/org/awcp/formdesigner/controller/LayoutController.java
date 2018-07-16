@@ -1,45 +1,5 @@
 package cn.org.awcp.formdesigner.controller;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.ModelAndView;
-
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-
 import cn.org.awcp.base.BaseController;
 import cn.org.awcp.core.domain.BaseExample;
 import cn.org.awcp.core.utils.BeanUtils;
@@ -47,22 +7,29 @@ import cn.org.awcp.core.utils.SessionUtils;
 import cn.org.awcp.core.utils.constants.SessionContants;
 import cn.org.awcp.formdesigner.application.service.FormdesignerService;
 import cn.org.awcp.formdesigner.application.service.StoreService;
-import cn.org.awcp.formdesigner.application.vo.DynamicPageVO;
 import cn.org.awcp.formdesigner.application.vo.StoreVO;
 import cn.org.awcp.formdesigner.core.constants.FormDesignGlobal;
-import cn.org.awcp.formdesigner.core.domain.Store;
 import cn.org.awcp.formdesigner.core.domain.design.context.component.Layout;
 import cn.org.awcp.unit.vo.PunSystemVO;
-import jxl.Cell;
-import jxl.Range;
-import jxl.Sheet;
-import jxl.Workbook;
-import jxl.read.biff.BiffException;
-import jxl.write.Label;
-import jxl.write.WritableSheet;
-import jxl.write.WritableWorkbook;
-import jxl.write.WriteException;
-import jxl.write.biff.RowsExceededException;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
+import java.util.*;
 
 @Controller
 @RequestMapping("/layout")
@@ -77,6 +44,9 @@ public class LayoutController extends BaseController {
 
 	@Autowired
 	private FormdesignerService formdesignerServiceImpl;
+
+	@Autowired
+	private JdbcTemplate jdbcTemplate;
 
 	@ResponseBody
 	@RequestMapping(value = "/save")
@@ -483,8 +453,9 @@ public class LayoutController extends BaseController {
 	@ResponseBody
 	@RequestMapping(value = "/quickSave")
 	public StoreVO quickSave(Long rows, Long cods, String parentId, String dynamicPageId, String name) {
+		int maxOrder = jdbcTemplate.queryForObject("select ifnull(max(T_ORDER),0) from p_fm_store where DYNAMICPAGE_ID=? " +
+				"and code like '0.1.8%' and CONTENT like '%\"layoutType\":\"2\"%'",Integer.class,dynamicPageId);
 		for (int i = 0; i < rows; i++) {
-
 			// 保存行布局
 			StoreVO rowSV = new StoreVO();
 			Object o = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
@@ -495,8 +466,8 @@ public class LayoutController extends BaseController {
 			rowSV.setDescription(parentId);
 			rowSV.setCode(StoreService.LAYOUT_CODE + System.currentTimeMillis());
 			rowSV.setDynamicPageId(dynamicPageId);
-			rowSV.setName(name + "_row" + (i + 1));
-			rowSV.setOrder(i + 1);
+			rowSV.setName(name + "_row" + (i + 1 + maxOrder));
+			rowSV.setOrder(i + 1 + maxOrder);
 			Layout s = new Layout();
 			s.setName(rowSV.getName());
 			s.setOrder(rowSV.getOrder());
@@ -524,8 +495,8 @@ public class LayoutController extends BaseController {
 				codSV.setDescription(id);
 				codSV.setCode(StoreService.LAYOUT_CODE + System.currentTimeMillis());
 				codSV.setDynamicPageId(dynamicPageId);
-				codSV.setName(name + "_row" + (i + 1) + "_cod" + (j + 1));
-				codSV.setOrder((i + 1) * (j + 1));
+				codSV.setName(name + "_row" + (i + 1 + maxOrder) + "_cod" + (j + 1));
+				codSV.setOrder((i + 1 + maxOrder) * (j + 1));
 				codSV.setDescription(id);
 				Layout s1 = new Layout();
 				s1.setName(codSV.getName());
@@ -755,183 +726,6 @@ public class LayoutController extends BaseController {
 		}
 	}
 
-	@ResponseBody
-	@RequestMapping(value = "/excelSave")
-	public String excelSave(MultipartFile excelFile, String dynamicPageId) {
-
-		logger.debug(excelFile + "");
-		try {
-			exportByExcel(excelFile.getInputStream(), dynamicPageId);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			logger.info("ERROR", e);
-		}
-		// ModelAndView mv = new ModelAndView();
-		//
-		// mv.addObject("result","1");
-		// return mv;
-		String result = "<script>var dialog = top.dialog.get(window);dialog.close(1);dialog.remove();</script>";
-		return result;
-	}
-
-	/**
-	 * 根据excel导出布局
-	 * 
-	 * @param
-	 * 
-	 * @return
-	 */
-	public String exportByExcel(InputStream is, String dynamicPageId) {
-
-		try {
-
-			Workbook wb = Workbook.getWorkbook(is);
-			Sheet sheet = wb.getSheet(0);
-			String[][] ids = saveLayoutByExcel(sheet, dynamicPageId); // 生成对应的layout布局。
-
-			Range[] ranges = sheet.getMergedCells();
-			for (Range space : ranges) { // 操作合并单元格
-				int topRow = space.getTopLeft().getRow();
-				int topCod = space.getTopLeft().getColumn();
-				int bottomRow = space.getBottomRight().getRow();
-				int bottomCod = space.getBottomRight().getColumn();
-				String idsToMerge = generateStr(topRow, topCod, bottomRow, bottomCod, ids);
-				merageLayoutByIds(idsToMerge);
-			}
-
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			logger.info("ERROR", e);
-		} catch (BiffException e) {
-			// TODO Auto-generated catch block
-			logger.info("ERROR", e);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			logger.info("ERROR", e);
-		}
-
-		return null;
-	}
-
-	private String generateStr(int topRow, int topCod, int bottomRow, int bottomCod, String[][] ids) {
-		StringBuilder sb = new StringBuilder();
-		for (int i = topRow; i <= bottomRow; i++) {
-			for (int j = topCod; j <= bottomCod; j++) {
-				sb.append(ids[i][j] + ",");
-			}
-		}
-		return sb.toString();
-	}
-
-	// 根据excel的表格，生成布局()
-	private String[][] saveLayoutByExcel(Sheet sheet, String dynamicPageId) {
-
-		int rowCount = sheet.getRows(); // 行数
-		int codCount = sheet.getColumns(); // 列数
-		String[][] ids = new String[rowCount][codCount];
-
-		for (int i = 0; i < rowCount; i++) {
-			// 保存行布局
-			StoreVO rowSV = new StoreVO();
-			Object o = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
-			if (o instanceof PunSystemVO) {
-				PunSystemVO system = (PunSystemVO) o;
-				rowSV.setSystemId(system.getSysId());
-			}
-			rowSV.setCode(StoreService.LAYOUT_CODE + UUID.randomUUID().toString());
-			rowSV.setDynamicPageId(dynamicPageId);
-			rowSV.setName("excel" + "_row" + (i + 1));
-			rowSV.setOrder(i + 1);
-			Layout s = new Layout();
-			s.setName(rowSV.getName());
-			s.setOrder(rowSV.getOrder());
-			s.setPageId("");
-			s.setDynamicPageId(dynamicPageId);
-			s.setTop(0);
-			s.setLeft(0);
-			s.setLayoutType(2);
-			s.setProportion(12L);
-			String jContent = JSONObject.toJSONString(s);
-			rowSV.setContent(jContent);
-			String id = storeService.save(rowSV);
-
-			Cell[] cell = sheet.getRow(i);
-			for (int j = 0; j < cell.length; j++) { // 保存列
-
-				StoreVO codSV = new StoreVO();
-				Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
-				if (obj instanceof PunSystemVO) {
-					PunSystemVO system = (PunSystemVO) obj;
-					codSV.setSystemId(system.getSysId());
-				}
-				codSV.setDescription(id);
-				codSV.setCode(StoreService.LAYOUT_CODE + UUID.randomUUID().toString());
-				codSV.setDynamicPageId(dynamicPageId);
-				codSV.setName("excel" + "_row" + (i + 1) + "_cod" + (j + 1));
-				codSV.setOrder((i + 1) * (j + 1));
-				codSV.setDescription(id);
-				Layout s1 = new Layout();
-				s1.setName(codSV.getName());
-				s1.setOrder(codSV.getOrder());
-				s1.setPageId("");
-				s1.setTop(0);
-				s1.setLeft(0);
-				s1.setLayoutType(1); // 垂直布局
-				s1.setProportion(1L); // 占比为12除以列数
-				s1.setParentId(id); // parentId为行布局的Id
-				String jContent1 = JSONObject.toJSONString(s1);
-				codSV.setContent(jContent1);
-				String codId = storeService.save(codSV);
-				ids[i][j] = codId; // 存入布局id
-				if (StringUtils.isNotEmpty(cell[j].getContents())) { // 如果content不为空，则对应新增label组件
-					String content = cell[j].getContents();
-					if (content.indexOf("#") != -1) {
-						String[] coms = content.split("@_@");
-						for (int k = 0; k < coms.length; k++) {
-							String config = coms[k];
-							if (config.indexOf("#") == 0) {
-								createComponent(config, dynamicPageId, codId, codSV.getName(), k + 1);
-							} else {
-								createSpan(config, dynamicPageId, codId, codSV.getName(), k + 1);
-							}
-						}
-					} else {
-						createLabel(content, dynamicPageId, codId, codSV.getName(), 0);
-					}
-
-				}
-			}
-		}
-
-		return ids;
-	}
-
-	private void createComponent(String config, String dynamicPageId, String codId, String codName, int index) {
-		JSONObject o = configToJson(config);
-
-		Object obj = SessionUtils.getObjectFromSession(SessionContants.TARGET_SYSTEM);
-		StoreVO labelStore = new StoreVO(); // 对应组件的文本组件
-		if (obj instanceof PunSystemVO) {
-			PunSystemVO system = (PunSystemVO) obj;
-			labelStore.setSystemId(system.getSysId());
-		}
-		String name = o.getString("name");
-		name = "excel_" + (StringUtils.isNotBlank(name) ? name : UUID.randomUUID().toString().replace("-", "_") + "");
-		labelStore.setCode(StoreService.COMPONENT_CODE + UUID.randomUUID().toString());
-		labelStore.setDynamicPageId(dynamicPageId);
-		labelStore.setName(name);
-		labelStore.setOrder(index); // 默认设为1
-		o.put("dynamicPageId", dynamicPageId);
-		o.put("layoutId", codId);
-		o.put("layoutName", codName);
-		o.put("name", labelStore.getName());
-		o.put("pageId", "");
-		o.put("order", index);
-		labelStore.setContent(o.toJSONString());
-
-		storeService.save(labelStore); // 保存相应的文本组件
-	}
-
 	private JSONObject configToJson(String config) {
 		if (StringUtils.isNotBlank(config) && config.length() > 3) {
 			JSONObject o = new JSONObject();
@@ -1143,127 +937,6 @@ public class LayoutController extends BaseController {
 		return "1";
 	}
 
-	/**
-	 * 导出Excel
-	 * 
-	 * @param request
-	 * @param dynamicPageId
-	 * @param response
-	 * @return
-	 */
-	@RequestMapping(value = "exportExcel")
-	public String exportExcel(HttpServletRequest request, String dynamicPageId, HttpServletResponse response) {
-		OutputStream os;
-		Map<String, Object> main = getLayoutAndComp(dynamicPageId);
-		DynamicPageVO page = formdesignerServiceImpl.findById(dynamicPageId);
-		String ctxPath = request.getSession().getServletContext().getRealPath("/formdesigner/pfd_files/");
-		String dirName = System.currentTimeMillis() + page.getName() + ".xls";
-		try {
-			os = new FileOutputStream(new File(ctxPath + "/" + dirName));
-			WritableWorkbook workbook = Workbook.createWorkbook(os);
-			WritableSheet sheet = workbook.createSheet("First Sheet", 0);
-			List<JSONObject> layouts = (List<JSONObject>) main.get("layouts");
-			layouts = sortByOrder(layouts);
-			Map<String, List<JSONObject>> components = (Map<String, List<JSONObject>>) main.get("components");
-
-			for (int i = 0; i < layouts.size(); i++) {
-				JSONObject layout = layouts.get(i);
-				String layoutId = layout.getString("pageId");
-				String layoutType = layout.getString("layoutType");
-				if ("2".equalsIgnoreCase(layoutType)) {// 行
-					if (layout.getJSONArray("childLayouts") == null
-							|| layout.getJSONArray("childLayouts").size() == 0) {
-
-					} else {
-						JSONArray array = layout.getJSONArray("childLayouts");
-						array = sortByOrderArray(array);
-						int startCol = 0;
-						for (int k = 0; k < array.size(); k++) {
-							int width = array.getJSONObject(k).getIntValue("proportion");
-							sheet.mergeCells(startCol, i, startCol + width - 1, 0);
-							List<JSONObject> layoutComponents = components
-									.get(array.getJSONObject(k).getString("pageId"));
-							sheet = makeLayout(sheet, layoutComponents, layoutId, startCol, i);
-							startCol += width;
-						}
-					}
-				}
-			}
-			workbook.write();
-			workbook.close();
-			// 下载到本地
-
-			response.setContentType("text/html;charset=UTF-8");
-			request.setCharacterEncoding("UTF-8");
-			BufferedInputStream bis = null;
-			BufferedOutputStream bos = null;
-			String downLoadPath = ctxPath + "/" + dirName;
-			long fileLength = new File(downLoadPath).length();
-			String realName = page.getName() + ".xls";
-			response.setContentType("application/x-msdownload;");
-			response.setHeader("Content-disposition",
-					"attachment; filename=" + new String(realName.getBytes("utf-8"), "ISO8859-1"));
-			response.setHeader("Content-Length", String.valueOf(fileLength));
-			bis = new BufferedInputStream(new FileInputStream(downLoadPath));
-			bos = new BufferedOutputStream(response.getOutputStream());
-			byte[] buff = new byte[2048];
-			int bytesRead;
-			while (-1 != (bytesRead = bis.read(buff, 0, buff.length))) {
-				bos.write(buff, 0, bytesRead);
-			}
-			bis.close();
-			bos.flush();
-			bos.close();
-		} catch (Exception e) {
-			logger.info("ERROR", e);
-		}
-
-		return null;
-	}
-
-	private WritableSheet makeLayout(WritableSheet sheet, List<JSONObject> components, String layoutId, int col,
-			int row) throws WriteException, RowsExceededException {
-		if (components != null) {
-			Collections.sort(components, new Comparator<JSONObject>() {
-				@Override
-				public int compare(JSONObject o1, JSONObject o2) {
-					int o1Order = o1.getIntValue("order");
-					int o2Order = o2.getIntValue("order");
-					return o1Order - o2Order;
-				}
-			});
-		}
-
-		StringBuilder content = new StringBuilder();
-		if (components != null && components.size() > 0) {
-			for (int j = 0; j < components.size(); j++) {
-				JSONObject component = components.get(j);
-				component.put("type", component.getString("componentType"));
-				component.remove("componentType");
-				// FIXME export all properties
-				content.append("#").append(component);
-
-				// String comType = component.getString("componentType");
-				// if("1009".equals(comType)||"1014".equals(comType)){
-				// if(isSimpleLabel(component)){
-				// content.append(component.getString("title"));
-				// }else{
-				// content.append("#{");
-				// content.append(appendProperties(component));
-				// content.append("}");
-				// }
-				// }else{
-				// content.append("#{");
-				// content.append(appendProperties(component));
-				// content.append("}");
-				// }
-				content.append("@_@");
-			}
-			Label label = new Label(col, row, content.substring(0, content.lastIndexOf("@_@")));
-			sheet.addCell(label);
-		}
-		return sheet;
-	}
 
 	private boolean isSimpleLabel(JSONObject component) {
 		boolean flag = true;
@@ -1317,135 +990,7 @@ public class LayoutController extends BaseController {
 		return sb.substring(0, sb.lastIndexOf(","));
 	}
 
-	private Map getLayoutAndComp(String id) {
 
-		Map<String, Object> root = new HashMap<String, Object>();
-
-		BaseExample example = new BaseExample();
-		example.createCriteria().andEqualTo("dynamicPage_id", id);
-
-		List<Store> children = Store.selectByExample(Store.class, example);
-		List<JSONObject> mainLayouts = new ArrayList<JSONObject>();
-		// 布局组件
-		Map<String, JSONObject> map = new HashMap<String, JSONObject>();
-
-		Map<String, List<JSONObject>> components = new HashMap<String, List<JSONObject>>();
-		if (children != null && children.size() > 0) {
-			for (int i = 0; i < children.size(); i++) {
-				Store o = children.get(i);
-				if (o.getCode().indexOf(StoreService.LAYOUT_CODE) != -1) {
-					// SimpleComponent c = JSON.parseObject(o.getContent(),
-					// SimpleComponent.class);
-					JSONObject c = JSON.parseObject(o.getContent());
-					map.put(c.getString("pageId"), c);
-				} else if (o.getCode().indexOf(StoreService.COMPONENT_CODE) != -1) {
-					// SimpleComponent c = (SimpleComponent)
-					// PageComponentBeanWorker.convertConfToComponet(o.getContent());
-					JSONObject c = JSONObject.parseObject(o.getContent());
-					if (c != null) {
-						String layoutId = c.getString("layoutId");
-						if (components.get(layoutId) != null) {
-							components.get(layoutId).add(c);
-						} else {
-							List<JSONObject> list = new ArrayList<JSONObject>();
-							list.add(c);
-							components.put(layoutId, list);
-						}
-						// coms.add(c);
-					}
-				}
-			}
-		}
-		for (Iterator<String> it = map.keySet().iterator(); it.hasNext();) {
-			String key = it.next();
-			JSONObject v = map.get(key);
-			if (!StringUtils.isEmpty((String) v.getString("parentId"))) {
-				JSONObject p = map.get((String) v.getString("parentId"));
-				if (p != null) {
-
-					if (p.getJSONArray("childLayouts") == null) {
-						List<JSONObject> tmp = new ArrayList<JSONObject>();
-						p.put("childLayouts", tmp);
-					}
-					List<Object> list = p.getJSONArray("childLayouts");
-					list.add(v);
-					p.put("childLayouts", list);
-
-				}
-			} else {
-				mainLayouts.add(v);
-			}
-		}
-
-		root.put("layouts", mainLayouts);
-		root.put("components", components);
-
-		return root;
-	}
-
-	private List<JSONObject> sortByOrder(List<JSONObject> list) {
-
-		if (list == null || list.size() == 0) {
-            return list;
-        }
-
-		List<Layout> layoutList = new ArrayList<Layout>();
-		for (int i = 0; i < list.size(); i++) {
-			Layout o = JSON.toJavaObject(list.get(i), Layout.class);
-			layoutList.add(o);
-		}
-		list.clear();
-		Collections.sort(layoutList);
-		for (int i = 0; i < layoutList.size(); i++) {
-			list.add((JSONObject) JSON.toJSON(layoutList.get(i)));
-		}
-		return list;
-	}
-
-	private JSONArray sortByOrderArray(JSONArray list) {
-
-		if (list == null || list.size() == 0) {
-            return list;
-        }
-
-		List<Layout> layoutList = new ArrayList<Layout>();
-		for (int i = 0; i < list.size(); i++) {
-			Layout o = JSON.toJavaObject(list.getJSONObject(i), Layout.class);
-			layoutList.add(o);
-		}
-		list.clear();
-		Collections.sort(layoutList);
-		for (int i = 0; i < layoutList.size(); i++) {
-			list.add((JSONObject) JSON.toJSON(layoutList.get(i)));
-		}
-		return list;
-	}
-	/*
-	 * private static List<JSONObject> sortLayoutComponent(){
-	 * List<JSONObject>ret=new ArrayList<JSONObject>(); JSONObject o = new
-	 * JSONObject(); o.put("order", 3); ret.add(o); JSONObject o1 = new
-	 * JSONObject(); o1.put("order", 1); ret.add(o1); JSONObject o2 = new
-	 * JSONObject(); o2.put("order", 2); ret.add(o2);
-	 * 
-	 * Collections.sort(ret, new Comparator<JSONObject>() {
-	 * 
-	 * @Override public int compare(JSONObject o1, JSONObject o2) { int o1Order =
-	 * o1.getIntValue("order"); int o2Order = o2.getIntValue("order"); return
-	 * o1Order-o2Order; }
-	 * 
-	 * }); return ret; }
-	 */
-
-	/**
-	 * wuhg 2015.3.30
-	 * 
-	 * @param dynamicPageId
-	 * @param layoutId
-	 * @param currentPage
-	 * @param pageSize
-	 * @param sortString
-	 * @return
-	 */
 	@ResponseBody
 	@RequestMapping(value = "/loadComByCondition")
 	public List<StoreVO> loadComByCondition(@RequestParam(required = true) String dynamicPageId,

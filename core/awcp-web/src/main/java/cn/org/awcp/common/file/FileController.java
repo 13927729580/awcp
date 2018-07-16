@@ -12,6 +12,9 @@ import cn.org.awcp.venson.util.DocumentToHtml;
 import cn.org.awcp.venson.util.ImageUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.IOUtils;
@@ -37,6 +40,7 @@ import java.util.*;
 @SuppressWarnings("restriction")
 @Controller(value = "myFileController")
 @RequestMapping("/common/file")
+@Api("文件操作")
 public class FileController {
     /**
      * 日志对象
@@ -51,7 +55,8 @@ public class FileController {
     private FileService fileService;
 
     @ResponseBody
-    @RequestMapping(value = "/upload")
+    @RequestMapping(value = "/upload",method = RequestMethod.POST)
+    @ApiOperation(value="上传")
     public ReturnResult upload(HttpServletRequest request) throws IOException {
         ReturnResult result = ReturnResult.get();
         // 创建一个通用的多部分解析器
@@ -100,10 +105,10 @@ public class FileController {
             if (list.size() > 0) {
                 return result.setStatus(StatusCode.SUCCESS).setData(StringUtils.join(list, ";"));
             } else {
-                return result.setStatus(StatusCode.FAIL.setMessage("上传失败"));
+                return result.setStatus(StatusCode.FAIL).setMessage("上传失败");
             }
         } else {
-            return result.setStatus(StatusCode.FAIL.setMessage("未找到上传文件，上传失败"));
+            return result.setStatus(StatusCode.FAIL).setMessage("未找到上传文件，上传失败");
         }
     }
 
@@ -114,79 +119,113 @@ public class FileController {
      * @return
      * @throws IOException
      */
-    @RequestMapping(value = "/download")
-    public String download(HttpServletResponse response, String fileId) throws IOException {
-        boolean isSuccess = false;
-        AttachmentVO att = fileService.get(fileId);
-        if (att != null) {
-            response.setContentType("application/x-msdownload;");
-            response.setHeader("Content-disposition",
-                    "attachment; filename=" + ControllerHelper.processFileName(att.getFileName()));
-            isSuccess = fileService.download(att, response.getOutputStream());
+    @RequestMapping(value = "/download",method = RequestMethod.GET)
+    @ApiOperation(value="下载")
+    public String download(HttpServletRequest request,HttpServletResponse response, @ApiParam(value="文件id",required = true)String fileId) throws IOException {
+        AttachmentVO vo = fileService.get(fileId);
+        if (vo != null) {
+            InputStream input = fileService.getInputStream(vo);
+            if (input != null) {
+                response.setHeader("Content-disposition",
+                        "attachment; filename=" + ControllerHelper.processFileName(vo.getFileName()));
+                int size=input.available();
+                response.setContentLength(size);
+                response.setContentType(vo.getContentType());
+                long pos =getPosition(request, response);
+                String contentRange = new StringBuffer("bytes ").append(pos + "").append("-").append((size - 1) + "").append("/").append(size + "").toString();
+                response.setHeader("Content-Range", contentRange);
+                response.addHeader("ETag", vo.getId());
+                response.addHeader("Expires", new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000).toString());
+                response.addHeader("Accept-Ranges", "bytes");
+                response.addHeader("Connection", "keep-alive");
+                input.skip(pos);
+                fileService.copy(input, response.getOutputStream());
+                return null;
+            }
         }
-        if (!isSuccess) {
-            return "redirect:" + fileLose();
-        }
-        return null;
+        return "redirect:" + fileLose();
     }
 
-    @RequestMapping(value = "/showPicture")
-    public String showPicture(HttpServletResponse response, @RequestParam(value = "id") String id,
-                              @RequestParam(value = "width", required = false, defaultValue = "0") int width,
-                              @RequestParam(value = "height", required = false, defaultValue = "0") int height) throws IOException {
-        // 设置缓存
-        response.addHeader("Cache-Control", "max-age=86400");
-        response.addHeader("Expires", new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000).toString());
-        AttachmentVO attachmentVO=fileService.get(id);
-        if (attachmentVO == null) {
+    @RequestMapping(value = "/showPicture",method = RequestMethod.GET)
+    @ApiOperation(value="图片显示")
+    public String showPicture(HttpServletRequest request, HttpServletResponse response, @ApiParam(value="文件id",required = true)@RequestParam(value = "id") String id,
+                              @ApiParam(value="可选值，要缩放的宽度")@RequestParam(value = "width", required = false, defaultValue = "0") int width,
+                              @ApiParam(value="可选值，要缩放的高度")@RequestParam(value = "height", required = false, defaultValue = "0") int height) throws IOException {
+        AttachmentVO vo = fileService.get(id);
+        if (vo == null) {
             return "redirect:" + fileLose();
         }
-        InputStream input = fileService.getInputStream(attachmentVO);
+        InputStream input = fileService.getInputStream(vo);
         if (input == null) {
             return "redirect:" + fileLose();
         }
-        response.addHeader("Content-type", attachmentVO.getContentType());
+        long pos = getPosition(request, response);
         if (width > 0 || height > 0) {
             BufferedImage bi;
             //如果宽高都有值则不进行等比
-            if(width==0||height==0){
-                 bi = ImageUtils.scale(input,width,height,true);
-            }else{
-                bi = ImageUtils.scale(input,width,height,false);
+            if (width == 0 || height == 0) {
+                bi = ImageUtils.scale(input, width, height, true);
+            } else {
+                bi = ImageUtils.scale(input, width, height, false);
             }
             if (bi != null) {
-                ImageIO.write(bi, ImageUtils.PNG, response.getOutputStream());
+                ByteArrayOutputStream out=new ByteArrayOutputStream();
+                ImageIO.write(bi, ImageUtils.PNG, out);
+                input=new ByteArrayInputStream(out.toByteArray());
             } else {
                 return "redirect:" + fileLose();
             }
-        } else {
-            response.addHeader("Accept-Ranges", "bytes");
-            response.addHeader("ETag", attachmentVO.getId());
-            response.addHeader("Content-Length", attachmentVO.getSize()+"");
-            fileService.copy(input, response.getOutputStream());
         }
+        int size=input.available();
+        String contentRange = new StringBuffer("bytes ").append(pos + "").append("-").append((size - 1) + "").append("/").append(size + "").toString();
+        response.setHeader("Content-Range", contentRange);
+        response.addHeader("ETag", vo.getId());
+        response.setContentType(vo.getContentType());
+        response.setHeader("Content-disposition",
+                "inline; filename=" + ControllerHelper.processFileName(vo.getFileName()));
+        response.addHeader("Expires", new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000).toString());
+        response.addHeader("Accept-Ranges", "bytes");
+        response.addHeader("Connection", "keep-alive");
+        response.setContentLength(size);
+        input.skip(pos);
+        fileService.copy(input, response.getOutputStream());
 
         return null;
+    }
+
+    private long getPosition(HttpServletRequest request, HttpServletResponse response) {
+        long pos = 0;
+        if (null != request.getHeader("Range")) {
+            // 断点续传
+            response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
+            try {
+                pos = Long.parseLong(request.getHeader("Range").replaceAll("bytes=", "").replaceAll("-", ""));
+            } catch (NumberFormatException e) {
+                pos = 0;
+            }
+        }
+        return pos;
     }
 
     @ResponseBody
     @RequestMapping(value = "/scale/{id}", method = RequestMethod.GET)
-    public ReturnResult scale(@PathVariable(value = "id") String id,
-                              @RequestParam(value = "width", required = false, defaultValue = "0") int width,
-                              @RequestParam(value = "height", required = false, defaultValue = "0") int height,
-                              @RequestParam(value = "isRatio", required = false, defaultValue = "true") boolean isRatio) throws IOException {
+    @ApiOperation(value="图片缩放")
+    public ReturnResult scale(@ApiParam(value="文件id",required = true)@PathVariable(value = "id") String id,
+                              @ApiParam(value="宽度",required = true)@RequestParam(value = "width") int width,
+                              @ApiParam(value="高度",required = true)@RequestParam(value = "height") int height,
+                              @ApiParam(value="是否等比",required = true)@RequestParam(value = "isRatio") boolean isRatio) throws IOException {
         ReturnResult result = ReturnResult.get();
         AttachmentVO att = fileService.get(id);
         if (att == null) {
-            return result.setStatus(StatusCode.FAIL.setMessage("啊哦，图片去火星了"));
+            return result.setStatus(StatusCode.FAIL).setMessage("啊哦，图片去火星了");
         }
         InputStream input = fileService.getInputStream(att);
         if (input == null) {
-            return result.setStatus(StatusCode.FAIL.setMessage("啊哦，图片去火星了"));
+            return result.setStatus(StatusCode.FAIL).setMessage("啊哦，图片去火星了");
         }
         if (!isRatio) {
             if (width == 0 || height == 0) {
-                return result.setStatus(StatusCode.FAIL.setMessage("非等比缩放时宽度和高度不能为空"));
+                return result.setStatus(StatusCode.FAIL).setMessage("非等比缩放时宽度和高度不能为空");
             }
         }
         if (width > 0 || height > 0) {
@@ -203,50 +242,53 @@ public class FileController {
                 if (fileId != null) {
                     return result.setStatus(StatusCode.SUCCESS).setData(fileId);
                 } else {
-                    return result.setStatus(StatusCode.FAIL.setMessage("啊哦，图片保存失败啦"));
+                    return result.setStatus(StatusCode.FAIL).setMessage("啊哦，图片保存失败啦");
                 }
             } else {
-                return result.setStatus(StatusCode.FAIL.setMessage("啊哦，图片保存失败啦"));
+                return result.setStatus(StatusCode.FAIL).setMessage("啊哦，图片保存失败啦");
             }
         } else {
-            return result.setStatus(StatusCode.FAIL.setMessage("宽度和高度必须要有一个值"));
+            return result.setStatus(StatusCode.FAIL).setMessage("宽度和高度必须要有一个值");
         }
 
     }
 
     @ResponseBody
     @RequestMapping(value = "/crop/{id}", method = RequestMethod.GET)
-    public ReturnResult crop(@PathVariable(value = "id") String id,@RequestParam(value = "width") Integer width,
-                             @RequestParam(value = "height") Integer height,@RequestParam(value = "x") Integer x,
-                             @RequestParam(value = "y") Integer y) throws IOException {
+    @ApiOperation(value="图片裁剪")
+    public ReturnResult crop(@ApiParam(value="文件id",required = true)@PathVariable(value = "id") String id,
+                             @ApiParam(value="宽度",required = true)@RequestParam(value = "width") Integer width,
+                             @ApiParam(value="高度",required = true)@RequestParam(value = "height") Integer height,
+                             @ApiParam(value="x轴",required = true)@RequestParam(value = "x") Integer x,
+                             @ApiParam(value="y轴",required = true)@RequestParam(value = "y") Integer y) throws IOException {
         ReturnResult result = ReturnResult.get();
         AttachmentVO att = fileService.get(id);
         if (att == null) {
-            return result.setStatus(StatusCode.FAIL.setMessage("啊哦，图片去火星了"));
+            return result.setStatus(StatusCode.FAIL).setMessage("啊哦，图片去火星了");
         }
         InputStream input = fileService.getInputStream(att);
         if (input == null) {
-            return result.setStatus(StatusCode.FAIL.setMessage("啊哦，图片去火星了"));
+            return result.setStatus(StatusCode.FAIL).setMessage("啊哦，图片去火星了");
         }
-        String suffix=att.getFileName().substring(att.getFileName().lastIndexOf(".") + 1);
-            BufferedImage bi = ImageUtils.crop(input, x,y, width,height,suffix);
-            if (bi != null) {
-                ByteArrayOutputStream os = new ByteArrayOutputStream();
-                ImageIO.write(bi, suffix, os);
-                String fileId;
-                if (att.getType() == FileService.FOLDER) {
-                    fileId = fileService.save(os.toByteArray(), att.getContentType(), att.getStorageId(), att.getType());
-                } else {
-                    fileId = fileService.save(os.toByteArray(), att.getContentType(), att.getFileName(), att.getType());
-                }
-                if (fileId != null) {
-                    return result.setStatus(StatusCode.SUCCESS).setData(fileId);
-                } else {
-                    return result.setStatus(StatusCode.FAIL.setMessage("啊哦，图片保存失败啦"));
-                }
+        String suffix = att.getFileName().substring(att.getFileName().lastIndexOf(".") + 1);
+        BufferedImage bi = ImageUtils.crop(input, x, y, width, height, suffix);
+        if (bi != null) {
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            ImageIO.write(bi, suffix, os);
+            String fileId;
+            if (att.getType() == FileService.FOLDER) {
+                fileId = fileService.save(os.toByteArray(), att.getContentType(), att.getStorageId(), att.getType());
             } else {
-                return result.setStatus(StatusCode.FAIL.setMessage("啊哦，图片保存失败啦"));
+                fileId = fileService.save(os.toByteArray(), att.getContentType(), att.getFileName(), att.getType());
             }
+            if (fileId != null) {
+                return result.setStatus(StatusCode.SUCCESS).setData(fileId);
+            } else {
+                return result.setStatus(StatusCode.FAIL).setMessage("啊哦，图片保存失败啦");
+            }
+        } else {
+            return result.setStatus(StatusCode.FAIL).setMessage("啊哦，图片保存失败啦");
+        }
 
     }
 
@@ -291,10 +333,11 @@ public class FileController {
      * @return
      * @throws IOException
      */
-    @RequestMapping(value = "/batchDownload")
+    @RequestMapping(value = "/batchDownload",method = RequestMethod.GET)
+    @ApiOperation(value="批量下载文件")
     public String batchDownload(HttpServletResponse response,
-                                @RequestParam(value = "fileName", required = false, defaultValue = "download") String fileName,
-                                String[] fileIds) throws IOException {
+                                @ApiParam(value="文件名")@RequestParam(value = "fileName", required = false, defaultValue = "download") String fileName,
+                                @ApiParam(value="文件ids",required = true)String[] fileIds) throws IOException {
         boolean isSuccess;
         if (fileIds == null || fileIds.length == 0) {
             isSuccess = false;
@@ -320,7 +363,8 @@ public class FileController {
      * @return
      */
     @ResponseBody
-    @RequestMapping(value = "/get")
+    @RequestMapping(value = "/get",method = RequestMethod.GET)
+    @ApiOperation(value="获取文件信息")
     public ReturnResult get(String id) {
         ReturnResult result = ReturnResult.get();
         AttachmentVO vo = fileService.get(id);
@@ -339,7 +383,8 @@ public class FileController {
      * @return {result,msg} result = 1 sucess result = 2 部分删除成功 result = 3 删除失败
      */
     @ResponseBody
-    @RequestMapping(value = "/delete")
+    @RequestMapping(value = "/delete",method = RequestMethod.POST)
+    @ApiOperation(value="删除文件，原文件和数据都会被删除")
     public ReturnResult delete(String[] ids) {
         ReturnResult result = ReturnResult.get();
         if (ids == null || ids.length == 0) {
@@ -358,22 +403,19 @@ public class FileController {
      * @return {result,msg} result = 1 sucess result = 2 部分删除成功 result = 3 删除失败
      */
     @ResponseBody
-    @RequestMapping(value = "/remove")
+    @RequestMapping(value = "/remove",method = RequestMethod.POST)
+    @ApiOperation(value="删除文件，只删除数据，不删除文件")
     public ReturnResult remove(String[] ids) {
         ReturnResult result = ReturnResult.get();
         if (ids == null || ids.length == 0) {
             return result.setStatus(StatusCode.SUCCESS).setData(-1);
         }
         result.setStatus(StatusCode.SUCCESS).setData(0);
-//        if (fileService.delete(false, ids)) {
-//            result.setStatus(StatusCode.SUCCESS).setData(0);
-//        } else {
-//            result.setStatus(StatusCode.SUCCESS).setData(-1);
-//        }
         return result;
     }
 
-    @RequestMapping("/preview")
+    @RequestMapping(value="/preview",method = RequestMethod.GET)
+    @ApiOperation(value="预览")
     public String preview(HttpServletResponse response, String fileId) throws Exception {
         AttachmentVO att = fileService.get(fileId);
         InputStream is = fileService.getInputStream(att);
@@ -437,7 +479,7 @@ public class FileController {
      * @throws FileUploadException
      */
     @ResponseBody
-    @RequestMapping(value = "/uploadImg")
+    @RequestMapping(value = "/uploadImg",method = RequestMethod.POST)
     public String uploadImege(HttpServletRequest request, HttpServletResponse response) {
         // uuid
         Serializable uuid;

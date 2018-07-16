@@ -39,7 +39,7 @@ public interface DocumentService {
 	 */
 	DocumentVO findById(String id);
 
-	DocumentVO findDocByWorkItemId(String flowTemplateId, String workItemId);
+	DocumentVO findDocByWorkItemId(String flowTemplateId, Integer workItemId);
 
 	/**
 	 * 获取动态页面的模版内容
@@ -144,9 +144,6 @@ public interface DocumentService {
 	/**
 	 * 向元数据 相应表中插入一条数据
 	 * 
-	 * @param pageVO
-	 * @param vo
-	 * @param datadefineName
 	 * @return
 	 */
 	String insertModelData(Map<String, String> map, String modelCode);
@@ -182,7 +179,6 @@ public interface DocumentService {
 	/**
 	 * 根据workflowID和taskDefinationKey 查找nodeId
 	 * 
-	 * @param definationId
 	 * @param workId
 	 * @return
 	 */

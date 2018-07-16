@@ -5,13 +5,19 @@ import BP.WF.GenerWorkFlowAttr;
 import BP.WF.WFState;
 import cn.org.awcp.base.BaseController;
 import cn.org.awcp.core.domain.SzcloudJdbcTemplate;
+import cn.org.awcp.extend.formdesigner.DocumentUtils;
 import cn.org.awcp.extend.workflow.WorkFlowExtend;
 import cn.org.awcp.formdesigner.application.service.DocumentService;
+import cn.org.awcp.formdesigner.application.service.FormdesignerService;
+import cn.org.awcp.formdesigner.application.service.StoreService;
 import cn.org.awcp.formdesigner.application.vo.DocumentVO;
 import cn.org.awcp.formdesigner.application.vo.DynamicPageVO;
+import cn.org.awcp.formdesigner.application.vo.StoreVO;
+import cn.org.awcp.formdesigner.core.domain.design.context.data.DataDefine;
+import cn.org.awcp.formdesigner.core.parse.bean.PageDataBeanWorker;
 import cn.org.awcp.formdesigner.service.IDocumentService;
-import cn.org.awcp.extend.formdesigner.DocumentUtils;
 import cn.org.awcp.formdesigner.utils.PageBindUtil;
+import cn.org.awcp.formdesigner.utils.ScriptEngineUtils;
 import cn.org.awcp.unit.core.domain.PunUserBaseInfo;
 import cn.org.awcp.unit.message.PunNotification;
 import cn.org.awcp.unit.vo.PunUserBaseInfoVO;
@@ -25,20 +31,23 @@ import cn.org.awcp.venson.service.QueryService;
 import cn.org.awcp.venson.util.BeanUtil;
 import cn.org.awcp.workflow.controller.util.HttpRequestDeviceUtils;
 import cn.org.awcp.workflow.service.IWorkFlowService;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.github.miemiedev.mybatis.paginator.domain.PageList;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.script.ScriptEngine;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,6 +76,11 @@ public class WorkflowTaskControl extends BaseController {
     private IWorkFlowService iWorkFlowServiceImpl;
     @Autowired
     private WorkFlowExtend workFlowExtend;
+    @Autowired
+    private StoreService storeServiceImpl;
+
+    @Autowired
+    private FormdesignerService formdesignerServiceImpl;
 
     /**
      * 由我创建
@@ -199,9 +213,9 @@ public class WorkflowTaskControl extends BaseController {
      */
     @ResponseBody
     @RequestMapping("excute")
-    public Map execute(HttpServletRequest request, @RequestParam("FK_Flow") String FK_Flow, @RequestParam("FK_Node") String FK_Node,
+    public Map execute(HttpServletRequest request, @RequestParam("FK_Flow") String FK_Flow, @RequestParam("FK_Node") Integer FK_Node,
                        @RequestParam(value = "dynamicPageId", required = false) String dynamicPageId,
-                       @RequestParam(value = "WorkID", required = false) String WorkID,
+                       @RequestParam(value = "WorkID", required = false) String workId,
                        @RequestParam(value = "FID", required = false, defaultValue = "0") String FID,
                        @RequestParam(value = "actType", required = false, defaultValue = "0") int actType,
                        @RequestParam(value = "masterDataSource", required = false) String masterDataSource) {
@@ -211,9 +225,10 @@ public class WorkflowTaskControl extends BaseController {
         resultMap.put(GenerWorkFlowAttr.WFState, WFState.Blank);
         DocumentVO docVo;
         DocumentUtils utils = DocumentUtils.getIntance();
+        Integer WorkID=StringUtils.isNumeric(workId)?Integer.parseInt(workId):null;
         try {
             // 如果不存在workId则是新建
-            if (!StringUtils.isNumeric(WorkID)) {
+            if (WorkID==null||WorkID==0) {
                 docVo = new DocumentVO();
                 docVo.setUpdate(false);
             } else {
@@ -276,7 +291,36 @@ public class WorkflowTaskControl extends BaseController {
 
 
     @ResponseBody
-    @RequestMapping(value = "/shiftWork")
+    @RequestMapping(value = "comments/{componentId}")
+    public ReturnResult comments(HttpServletRequest request,@PathVariable("componentId") String componentId,String id){
+        ReturnResult result = ReturnResult.get();
+        StoreVO s = storeServiceImpl.findById(componentId);
+        JSONObject json = JSON.parseObject(s.getContent());
+        String dataAlias = json.getString("dataAlias");
+        if(StringUtils.isBlank(dataAlias)||"suggestion".equals(dataAlias)){
+            String sql="select DeptName dept,PersonName name,Conment suggest,date_format(Date,'%Y-%m-%d %H:%i') time,LinkName node from p_un_suggestion t " +
+                    "where BusinessId=? order by t.Date";
+            result.setData(jdbcTemplate.queryForList(sql,id));
+        }else{
+            String pageId = s.getDynamicPageId();
+            DynamicPageVO pageVo = formdesignerServiceImpl.findById(pageId);
+            Map<String, DataDefine> map = PageDataBeanWorker
+                    .convertConfToDataDefines(StringEscapeUtils.unescapeHtml4(pageVo.getDataJson()));
+            DataDefine dd = map.get(dataAlias);
+            ScriptEngine engine = ScriptEngineUtils.getScriptEngine();
+            engine.put("request",request);
+            PageList<Map<String, String>> pageList = documentServiceImpl.getDataListByDataDefine(dd, engine,0, 999, null);
+            if (pageList == null || pageList.isEmpty()) {
+                result.setData(Collections.EMPTY_LIST).setTotal(0);
+            }else{
+                result.setData(pageList).setTotal(pageList.getPaginator().getTotalCount());
+            }
+        }
+        return result.setStatus(StatusCode.SUCCESS);
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "shiftWork")
     public ReturnResult shiftWork(Long userId) {
         ReturnResult result = ReturnResult.get();
         Map<String, Object> map = query.getUntreatedData(10000, 0, null, null, null,

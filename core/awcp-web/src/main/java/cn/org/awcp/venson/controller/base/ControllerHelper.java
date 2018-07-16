@@ -1,6 +1,7 @@
 package cn.org.awcp.venson.controller.base;
 
 import BP.WF.Dev2Interface;
+import cn.org.awcp.common.db.DataSourceInterceptor;
 import cn.org.awcp.core.utils.SessionUtils;
 import cn.org.awcp.core.utils.Springfactory;
 import cn.org.awcp.core.utils.constants.SessionContants;
@@ -17,7 +18,8 @@ import cn.org.awcp.venson.exception.PlatformException;
 import cn.org.awcp.venson.util.CookieUtil;
 import cn.org.awcp.venson.util.PlatfromProp;
 import cn.org.awcp.venson.util.RedisUtil;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.github.miemiedev.mybatis.paginator.domain.PageList;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -25,6 +27,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.util.WebUtils;
 import org.springframework.util.ReflectionUtils;
@@ -265,7 +268,7 @@ public final class ControllerHelper {
 		HttpServletResponse response = ControllerContext.getResponse();
 		response.setContentType(contentType + "; charset=UTF-8");
 		PrintWriter out = response.getWriter();
-		out.write(JSONObject.toJSONString(obj));
+		out.write(JSON.toJSONString(obj,SerializerFeature.WriteMapNullValue));
 		out.close();
 	}
 
@@ -346,21 +349,27 @@ public final class ControllerHelper {
 		// 如果被踢出了，直接退出，重定向到踢出后的地址
 		CookieUtil.deleteCookie(SC.USER_ACCOUNT);
 		CookieUtil.deleteCookie(SC.SECRET_KEY);
+        RedisUtil.getInstance().del(SC.SECRET_KEY);
 		// 会话被踢出了
-		subject.logout();
+		try {
+			subject.logout();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		HttpServletRequest request =ControllerContext.getRequest();
 		HttpServletResponse response = ControllerContext.getResponse();
 		String requestType = request.getHeader("X-Requested-With");
-		if (requestType != null && "XMLHttpRequest".equals(requestType)) {
+		boolean returnJson=requestType != null && (requestType.equals("XMLHttpRequest")||requestType.equals("APP"));
+		if (returnJson) {
 			ReturnResult returnResult = ReturnResult.get();
-			returnResult.setStatus(StatusCode.NO_LOGIN.setMessage("您还未登录,请先登录！"));
+			returnResult.setStatus(StatusCode.NO_LOGIN).setMessage("您还未登录,请先登录！");
 			ControllerHelper.renderJSON(ControllerHelper.CONTENT_TYPE_JSON,returnResult);
 		} else {
 			WebUtils.issueRedirect(request, response, PlatfromProp.getValue("awcp.login.url"));
 		}
 	}
 
-	public static void setSecretKey(PunUserBaseInfoVO pvi,long time) {
+	public static String setSecretKey(PunUserBaseInfoVO pvi,long time) {
 		String code = UUID.randomUUID().toString();
 		if(time!=-1){
 			RedisUtil.getInstance().set(SC.SECRET_KEY+pvi.getUserIdCardNumber(),code,time);
@@ -369,6 +378,7 @@ public final class ControllerHelper {
 		}
 		CookieUtil.addCookie(SC.SECRET_KEY,code);
 		CookieUtil.addCookie(SC.USER_ACCOUNT, pvi.getUserIdCardNumber());
+		return code;
 	}
 
 	public static void doLoginSuccess(PunUserBaseInfoVO pvi) {
@@ -383,23 +393,26 @@ public final class ControllerHelper {
 		if (groups.isEmpty() || groups.size() != 1) {
 			throw new PlatformException("组织架构为空");
 		}
-		SessionUtils.addObjectToSession(SessionContants.CURRENT_USER, pvi);
-		SessionUtils.addObjectToSession(SessionContants.CURRENT_USER_GROUP, groups.get(0));
+		Session session = SessionUtils.getCurrentSession();
+		session.setAttribute(SessionContants.CURRENT_USER, pvi);
+		session.setAttribute(SessionContants.CURRENT_USER_GROUP, groups.get(0));
 		gParams.clear();
 		gParams.put("userId", pvi.getUserId());
 		PageList<PunUserGroupVO> userGroup = usergroupService.selectPagedByExample("queryList", gParams, 0, 1, null);
 		if (userGroup != null && !userGroup.isEmpty()) {
-			SessionUtils.addObjectToSession(SC.USER_GROUP, userGroup);
+			session.setAttribute(SC.USER_GROUP, userGroup);
 		}
 
 		PunSystemService sysService = Springfactory.getBean("punSystemServiceImpl");
 		List<PunSystemVO> system = sysService.findAll();
-		SessionUtils.addObjectToSession(SessionContants.CURRENT_SYSTEM, system.get(0));
-		SessionUtils.addObjectToSession(SessionContants.TARGET_SYSTEM, system.get(0));
+		session.setAttribute(SessionContants.CURRENT_SYSTEM, system.get(0));
+		session.setAttribute(SessionContants.TARGET_SYSTEM, system.get(0));
 
 		gParams.put("sysId", system.get(0).getSysId());
 		List<PunRoleInfoVO> roles =  roleService.queryResult("queryBySysIdAndUserId", gParams);
-		SessionUtils.addObjectToSession(SessionContants.CURRENT_ROLES, roles);
+		session.setAttribute(SessionContants.CURRENT_ROLES, roles);
+
+		session.setAttribute(SC.CURRENT_USER_DATA_SOURCE, CookieUtil.findCookie(DataSourceInterceptor.DATA_SOURCE_COOKIE_KEY));
 	}
 
 	public static Long getUserId() {

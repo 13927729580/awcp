@@ -51,9 +51,9 @@ public class SyncPageController {
         byte[] data=HttpUtils.downLoad(appId);
         if(data!=null){
             String message=syncPageService.importApps(new ByteArrayInputStream(data));
-            result.setStatus(StatusCode.SUCCESS.setMessage(message));
+            result.setStatus(StatusCode.SUCCESS).setMessage(message);
         }else{
-            result.setStatus(StatusCode.SUCCESS.setMessage("下载地址有误，无法下载"));
+            result.setStatus(StatusCode.SUCCESS).setMessage("下载地址有误，无法下载");
         }
         return result;
     }

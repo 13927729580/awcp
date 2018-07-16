@@ -3,10 +3,11 @@ package cn.org.awcp.workflow.service;
 import BP.WF.*;
 import BP.Web.WebUser;
 import cn.org.awcp.core.domain.SzcloudJdbcTemplate;
+import cn.org.awcp.extend.formdesigner.DocumentUtils;
 import cn.org.awcp.formdesigner.application.vo.DocumentVO;
 import cn.org.awcp.formdesigner.application.vo.DynamicPageVO;
-import cn.org.awcp.extend.formdesigner.DocumentUtils;
 import cn.org.awcp.unit.message.PunNotification;
+import cn.org.awcp.unit.vo.PunUserBaseInfoVO;
 import cn.org.awcp.venson.common.I18nKey;
 import cn.org.awcp.venson.controller.base.ControllerContext;
 import cn.org.awcp.venson.controller.base.ControllerHelper;
@@ -19,8 +20,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * 流程执行类
@@ -44,17 +47,17 @@ public class IWorkFlowServiceImpl implements IWorkFlowService {
         String userIdCardNumber = ControllerHelper.getUser().getUserIdCardNumber();
         // 如果不是新建流程则判断是否有权限处理
         int actType = docVo.getActType();
-        if (StringUtils.isNumeric(docVo.getWorkItemId())) {
+        if (docVo.getWorkItemId() != null && docVo.getWorkItemId() != 0) {
             if (FlowExecuteType.UNDO.getValue() != actType && FlowExecuteType.RETRACEMENT.getValue() != actType) {
-                if (!Dev2Interface.Flow_IsCanDoCurrentWork(docVo.getFlowTempleteId(), Integer.parseInt(docVo.getEntryId()),
-                        Long.parseLong(docVo.getWorkItemId()), userIdCardNumber)) {
+                if (!Dev2Interface.Flow_IsCanDoCurrentWork(docVo.getFlowTempleteId(), docVo.getEntryId(),
+                        docVo.getWorkItemId(), userIdCardNumber)) {
                     throw new PlatformException(ControllerHelper.getMessage("wf_not_can_do"));
                 }
             }
         } else {
             Flow currFlow = new Flow(docVo.getFlowTempleteId());
             Work currWK = currFlow.NewWork();
-            docVo.setWorkItemId(currWK.getOID() + "");
+            docVo.setWorkItemId((int) currWK.getOID());
         }
         Map<String, Object> resultMap = new HashMap<>(5);
         //执行流程
@@ -126,10 +129,19 @@ public class IWorkFlowServiceImpl implements IWorkFlowService {
     @Override
     public void addCommonLogs(DocumentVO docVo, Map<String, Object> resultMap) {
         String userId = ControllerHelper.getUser().getUserIdCardNumber();
-        HttpServletRequest request = ControllerContext.getRequest();
+
         String sql = "insert into p_fm_work_logs(CONTENT,WORK_ID,PAGE_ID,CREATOR,SEND_TIME,CURRENT_NODE,state) values(?,?,?,?,?,?,?)";
-        String content = request.getParameter("work_logs_content");
         WFState workStatus = (WFState) resultMap.get(GenerWorkFlowAttr.WFState);
+        String comment = setDefaultComment(workStatus);
+        String today = DocumentUtils.getIntance().today();
+        jdbcTemplate.update(sql, comment, docVo.getWorkItemId(), docVo.getDynamicPageId(), userId, today,
+                docVo.getEntryId(), workStatus.getValue());
+    }
+
+    private String setDefaultComment(WFState workStatus) {
+        HttpServletRequest request = ControllerContext.getRequest();
+
+        String content = request.getParameter("work_logs_content");
         //意见为空则添加默认意见
         if (StringUtils.isBlank(content)) {
             //撤销
@@ -146,16 +158,14 @@ public class IWorkFlowServiceImpl implements IWorkFlowService {
                 content = ControllerHelper.getMessage(I18nKey.wfState_agree);
             }
         }
-        String today = DocumentUtils.getIntance().today();
-        jdbcTemplate.update(sql, content, docVo.getWorkItemId(), docVo.getDynamicPageId(), userId, today,
-                docVo.getEntryId(), workStatus.getValue());
+        return content;
     }
 
 
     @Override
     public void addPush(DocumentVO docVo, Map<String, Object> resultMap) {
         Object workStatus = resultMap.get(GenerWorkFlowAttr.WFState);
-        String workItemId = docVo.getWorkItemId();
+        Integer workItemId = docVo.getWorkItemId();
         //进行中
         if (workStatus == WFState.Runing || workStatus == WFState.ReturnSta) {
             Object todoEmps = resultMap.get(GenerWorkFlowAttr.TodoEmps);
@@ -175,6 +185,25 @@ public class IWorkFlowServiceImpl implements IWorkFlowService {
                     + "&dynamicPageId=" + docVo.getDynamicPageId() + "&id=" + docVo.getRecordId();
             //消息推送
             DocumentUtils.getIntance().pushNotify(title, "", PunNotification.KEY_NOTIFY, url, (String) map.get("starter"), PunNotification.SOCKET);
+        }
+    }
+
+    @Override
+    public void saveComment(DocumentVO doc, Map<String, Object> resultMap) {
+        if (doc.getListParams().isEmpty()) {
+            throw new PlatformException("数据源为空");
+        }
+        String recordId = DocumentUtils.getIntance().getDataItem(doc.getListParams().keySet().iterator().next(), "ID");
+        if (StringUtils.isNotBlank(recordId)) {
+            WFState workStatus = (WFState) resultMap.get(GenerWorkFlowAttr.WFState);
+            String comment = setDefaultComment(workStatus);
+            PunUserBaseInfoVO user = ControllerHelper.getUser();
+            String userName = user.getName();
+            Long userId = user.getUserId();
+            String insertSql = "insert into p_un_suggestion(ID,DeptName,Date,Conment,BusinessId,Person,PersonName,Link,LinkName,status) "
+                    + "values(?,?,?,?,?,?,?,?,?,?)";
+            jdbcTemplate.update(insertSql, UUID.randomUUID().toString(), DocumentUtils.getIntance().getGroupName(userId), new Date(),
+                    comment, recordId, userId, userName, doc.getEntryId(), new Node(doc.getEntryId()).getName(),workStatus.getValue());
         }
     }
 

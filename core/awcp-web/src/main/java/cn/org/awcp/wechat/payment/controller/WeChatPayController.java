@@ -60,7 +60,7 @@ public class WeChatPayController {
             if (isSuccess) {
                 result.setStatus(StatusCode.SUCCESS).setData(params);
             } else {
-                result.setStatus(StatusCode.FAIL.setMessage(message));
+                result.setStatus(StatusCode.FAIL).setMessage(message);
                 logger.error(message);
             }
             return result;

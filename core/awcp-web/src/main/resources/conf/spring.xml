@@ -79,9 +79,6 @@
 		<constructor-arg index="0" ref="sqlSessionFactory" />
 	</bean>
 
-	<bean id="jdbcRepository" class="cn.org.awcp.core.domain.EntityRepositoryJDBC">
-		<constructor-arg index="0" ref="dataSource" />
-	</bean>
 	<!-- mongodb客户端 -->
 	<bean id="mongoClient" class="com.mongodb.MongoClient">
 		<constructor-arg name="host" value="${mongo.url}" />
@@ -91,10 +88,6 @@
 		<property name="dataSource" ref="dataSource"/>
 	</bean>
 
-	<bean id="springJdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
-		<property name="dataSource" ref="dataSource"/>
-	</bean>
-	
 	<bean id="namedParameterJdbcTemplate" class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
 		<constructor-arg ref="dataSource" />
 	</bean>

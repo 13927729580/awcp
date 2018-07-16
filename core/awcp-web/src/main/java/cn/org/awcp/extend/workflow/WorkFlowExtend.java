@@ -113,6 +113,7 @@ public class WorkFlowExtend {
                 iWorkFlowServiceImpl.addPush(docVo, resultMap);
                 // 流程日志
                 iWorkFlowServiceImpl.addCommonLogs(docVo, resultMap);
+                iWorkFlowServiceImpl.saveComment(docVo, resultMap);
             }
         }
     }
@@ -125,7 +126,7 @@ public class WorkFlowExtend {
      */
     public void presetCC(HttpServletRequest request, DocumentVO doc) {
         // 查看是否属于预置流程并且是新建流程
-        if (StringUtils.isBlank(doc.getWorkItemId())) {
+        if (doc.getWorkItemId()==null) {
             String CC_slectsUserIds = request.getParameter("CC_slectsUserIds");
             Flow currFlow = new Flow(FLOW);
             Work currWK = currFlow.NewWork();
@@ -160,7 +161,7 @@ public class WorkFlowExtend {
         String currentUserID = ControllerHelper.getUser().getUserIdCardNumber();
         String slectsUserIds = doc.getNextUser();
         // 流程新建立
-        if (StringUtils.isBlank(doc.getWorkItemId())) {
+        if (doc.getWorkItemId()==null) {
             // 查看是否有选择流程人员
             if (StringUtils.isBlank(slectsUserIds)) {
                 // 去数据库取默认预置人员
@@ -175,8 +176,10 @@ public class WorkFlowExtend {
             String workItemId = currWK.getOID() + "";
             JSONArray jsonArr = JSON.parseArray(slectsUserIds);
             // 将人员数据保存
-            String sql = " insert into p_fm_work(JSON,CREATOR,WORK_ID,FLOW_ID,NODE_ID,CURRENT_NODE,PAGE_ID) values(?,?,?,?,?,?,?)";
-            this.jdbcTemplate.update(sql, slectsUserIds, currentUserID, workItemId, FLOW, doc.getEntryId(), 0, doc.getDynamicPageId());
+            String sql = "select dynamicPageId from dd_apps where dynamicPageId=? or pcDynamicPageId=?";
+            String dynamicPageId = jdbcTemplate.queryForObject(sql,String.class, doc.getDynamicPageId(),doc.getDynamicPageId());
+            sql = " insert into p_fm_work(JSON,CREATOR,WORK_ID,FLOW_ID,NODE_ID,CURRENT_NODE,PAGE_ID) values(?,?,?,?,?,?,?)";
+            this.jdbcTemplate.update(sql, slectsUserIds, currentUserID, workItemId, FLOW, doc.getEntryId(), 0, dynamicPageId);
             // 将人员记录到流程日志表中
             final String insertSql = "insert into p_fm_work_logs(WORK_ID,PAGE_ID,CREATOR,CURRENT_NODE) values(?,?,?,?)";
             this.jdbcTemplate.update(insertSql, workItemId, doc.getDynamicPageId(), currentUserID, 0);
@@ -199,7 +202,7 @@ public class WorkFlowExtend {
             // 设置当前节点
             request.setAttribute("CURRENT_NODE", 0);
         } else {
-            String workItemId = doc.getWorkItemId();
+            Integer workItemId = doc.getWorkItemId();
             // 去数据库取默认预置人员
             String sql = "select ID,JSON,CURRENT_NODE from p_fm_work where PAGE_ID=? and WORK_ID=? limit 0,1";
             Map<String, Object> map = this.jdbcTemplate.queryForMap(sql, doc.getDynamicPageId(), workItemId);
@@ -294,7 +297,7 @@ public class WorkFlowExtend {
             String sql = "update p_fm_work_logs set send_time=?, content=?,state=? where id=?";
             this.jdbcTemplate.update(sql, today, content, workStatus.getValue(), id);
         } catch (DataAccessException e) {
-            docVo.setEntryId(currentNode + "");
+            docVo.setEntryId(currentNode);
             iWorkFlowServiceImpl.addCommonLogs(docVo, resultMap);
         }
     }
@@ -305,10 +308,10 @@ public class WorkFlowExtend {
      * @param vo 文档类
      */
     public void pushByDD(DocumentVO vo) {
-        String workItemId = vo.getWorkItemId();
+        Integer workItemId = vo.getWorkItemId();
         String fid = vo.getFid();
         if (fid != null && !"0".equals(fid)) {
-            workItemId = fid;
+            workItemId = Integer.valueOf(fid);
         }
         String sql;
         String wf_approval_result = ControllerHelper.getMessage(I18nKey.wf_approval_result);
