@@ -4,6 +4,8 @@ import cn.org.awcp.core.utils.Security;
 import cn.org.awcp.venson.common.SC;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 
+import java.util.Optional;
+
 /**
  * 解析密码类型的配置
  * @author venson
@@ -20,9 +22,8 @@ public class EncryptPropertyPlaceholderConfigurer extends PropertyPlaceholderCon
     protected String convertProperty(String propertyName, String propertyValue) {
         String value=super.convertProperty(propertyName, propertyValue);
         if(SC.ENCRYPT_PASSWORD_KEY.contains(propertyName)){
-            return Security.decryptPassword(value);
-        }else{
-            return value;
+            value= Security.decryptPassword(value);
         }
+        return Optional.ofNullable(value).orElse("");
     }
 }

@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50721
 File Encoding         : 65001
 
-Date: 2018-05-26 17:37:49
+Date: 2018-07-19 10:33:47
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -64,7 +64,7 @@ CREATE TABLE `fw_mm_group` (
   PRIMARY KEY (`ID`),
   UNIQUE KEY `DATASOURCE_NAME` (`DATASOURCE_NAME`),
   UNIQUE KEY `GROUP_NAME` (`GROUP_NAME`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 -- ----------------------------
 -- Records of fw_mm_group
@@ -608,7 +608,7 @@ CREATE TABLE `p_fm_api_describe` (
   `PARAM_PLACE` varchar(255) COLLATE utf8_bin DEFAULT NULL COMMENT '参数位置',
   PRIMARY KEY (`ID`),
   KEY `apiid` (`APIID`),
-  CONSTRAINT `apiid` FOREIGN KEY (`APIID`) REFERENCES `p_fm_api` (`API_ID`) ON DELETE CASCADE ON UPDATE NO ACTION
+  CONSTRAINT `p_fm_api_describe_ibfk_1` FOREIGN KEY (`APIID`) REFERENCES `p_fm_api` (`API_ID`) ON DELETE CASCADE ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- ----------------------------
@@ -713,6 +713,7 @@ CREATE TABLE `p_fm_attachment` (
 -- ----------------------------
 -- Records of p_fm_attachment
 -- ----------------------------
+INSERT INTO `p_fm_attachment` VALUES ('c942a3a9eaa8de2051e414d394fb8795', 'D:/java/git/AWCP/core/awcp-web/target/awcp/upload/c942a3a9eaa8de2051e414d394fb8795.png', '1-1FH6164106292.png', '718945', '10001', 'image/png', '110', '172461', '2018-07-16 17:54:04', '2018-07-16 17:54:04', '1', null, null);
 
 -- ----------------------------
 -- Table structure for p_fm_authoritygroup
@@ -843,11 +844,11 @@ CREATE TABLE `p_fm_document` (
   `RECORD_ID` varchar(36) DEFAULT NULL COMMENT '数据库记录ID',
   `INSTANCE_ID` varchar(40) DEFAULT NULL COMMENT '流程实例ID',
   `TABLE_NAME` varchar(200) DEFAULT NULL COMMENT '数据库表的名称',
-  `NODE_ID` varchar(40) DEFAULT NULL COMMENT '流程节点ID',
+  `NODE_ID` int(11) DEFAULT NULL COMMENT '流程节点ID',
   `WORKFLOW_ID` varchar(40) DEFAULT NULL COMMENT '流程ID',
   `TASK_ID` varchar(40) DEFAULT NULL COMMENT '任务ID',
-  `WORKITEM_ID` varchar(40) DEFAULT NULL,
-  `ENTRY_ID` varchar(40) DEFAULT NULL,
+  `WORKITEM_ID` int(11) DEFAULT NULL,
+  `ENTRY_ID` int(11) DEFAULT NULL,
   `GROUP_ID` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`ID`),
   UNIQUE KEY `DYNAMICPAGE_ID_2` (`DYNAMICPAGE_ID`,`RECORD_ID`,`WORKITEM_ID`),
@@ -1561,9 +1562,9 @@ CREATE TABLE `p_fm_work` (
   `JSON` text COLLATE utf8_bin COMMENT '流程人员',
   `CREATOR` varchar(50) COLLATE utf8_bin DEFAULT NULL COMMENT '创建人',
   `CREATE_TIME` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `WORK_ID` varchar(200) COLLATE utf8_bin DEFAULT NULL COMMENT '流程实例编号',
+  `WORK_ID` int(11) DEFAULT NULL COMMENT '流程实例编号',
   `FLOW_ID` varchar(50) COLLATE utf8_bin DEFAULT NULL COMMENT '流程编号',
-  `NODE_ID` varchar(50) COLLATE utf8_bin DEFAULT NULL COMMENT '节点编号',
+  `NODE_ID` int(11) DEFAULT NULL COMMENT '节点编号',
   `CURRENT_NODE` int(50) DEFAULT NULL COMMENT '当前环节',
   `PAGE_ID` varchar(255) COLLATE utf8_bin DEFAULT NULL COMMENT '页面ID',
   `RECORD_ID` varchar(255) COLLATE utf8_bin DEFAULT NULL COMMENT '记录ID',
@@ -1583,7 +1584,7 @@ DROP TABLE IF EXISTS `p_fm_work_logs`;
 CREATE TABLE `p_fm_work_logs` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
   `CONTENT` text COLLATE utf8_bin COMMENT '内容',
-  `WORK_ID` varchar(100) COLLATE utf8_bin DEFAULT NULL COMMENT '流程实例编号',
+  `WORK_ID` int(11) DEFAULT NULL COMMENT '流程实例编号',
   `PAGE_ID` varchar(36) COLLATE utf8_bin DEFAULT NULL COMMENT '页面ID',
   `CREATOR` varchar(100) COLLATE utf8_bin DEFAULT NULL COMMENT '创建人',
   `CREATE_TIME` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
@@ -1743,7 +1744,7 @@ CREATE TABLE `p_un_menu` (
   `MENU_FLAG` int(2) DEFAULT '0' COMMENT '是否常用',
   `TYPE` int(2) DEFAULT '0' COMMENT '菜单类型：0是中间，1是头部，2是底部',
   PRIMARY KEY (`MENU_ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=10908 DEFAULT CHARSET=utf8 COMMENT='菜单';
+) ENGINE=InnoDB AUTO_INCREMENT=10906 DEFAULT CHARSET=utf8 COMMENT='菜单';
 
 -- ----------------------------
 -- Records of p_un_menu
@@ -1782,16 +1783,16 @@ INSERT INTO `p_un_menu_count` VALUES ('2', '719815', '10624', '4');
 INSERT INTO `p_un_menu_count` VALUES ('3', '719815', '10625', '4');
 INSERT INTO `p_un_menu_count` VALUES ('4', '719815', '10626', '3');
 INSERT INTO `p_un_menu_count` VALUES ('5', '718945', '10904', '39');
-INSERT INTO `p_un_menu_count` VALUES ('6', '718945', '10625', '17');
+INSERT INTO `p_un_menu_count` VALUES ('6', '718945', '10625', '18');
 INSERT INTO `p_un_menu_count` VALUES ('7', '719815', '10904', '19');
 INSERT INTO `p_un_menu_count` VALUES ('8', '719815', '10902', '10');
-INSERT INTO `p_un_menu_count` VALUES ('9', '718945', '10624', '17');
-INSERT INTO `p_un_menu_count` VALUES ('10', '718945', '10626', '10');
+INSERT INTO `p_un_menu_count` VALUES ('9', '718945', '10624', '18');
+INSERT INTO `p_un_menu_count` VALUES ('10', '718945', '10626', '11');
 INSERT INTO `p_un_menu_count` VALUES ('11', '719813', '10625', '4');
 INSERT INTO `p_un_menu_count` VALUES ('12', '719814', '10904', '1');
 INSERT INTO `p_un_menu_count` VALUES ('13', '719814', '10624', '1');
-INSERT INTO `p_un_menu_count` VALUES ('14', '718945', '10902', '20');
-INSERT INTO `p_un_menu_count` VALUES ('15', '718945', '10905', '15');
+INSERT INTO `p_un_menu_count` VALUES ('14', '718945', '10902', '22');
+INSERT INTO `p_un_menu_count` VALUES ('15', '718945', '10905', '18');
 INSERT INTO `p_un_menu_count` VALUES ('16', '718945', '10907', '22');
 INSERT INTO `p_un_menu_count` VALUES ('17', '719815', '10907', '2');
 INSERT INTO `p_un_menu_count` VALUES ('18', '719813', '10626', '2');
@@ -1802,10 +1803,10 @@ INSERT INTO `p_un_menu_count` VALUES ('22', '719813', '10902', '1');
 INSERT INTO `p_un_menu_count` VALUES ('23', '719812', '10904', '10');
 INSERT INTO `p_un_menu_count` VALUES ('24', '719812', '10907', '1');
 INSERT INTO `p_un_menu_count` VALUES ('25', '719812', '10902', '1');
-INSERT INTO `p_un_menu_count` VALUES ('26', '718945', '10613', '21');
-INSERT INTO `p_un_menu_count` VALUES ('27', '718945', '10614', '22');
-INSERT INTO `p_un_menu_count` VALUES ('28', '718945', '10615', '20');
-INSERT INTO `p_un_menu_count` VALUES ('29', '718945', '10616', '13');
+INSERT INTO `p_un_menu_count` VALUES ('26', '718945', '10613', '22');
+INSERT INTO `p_un_menu_count` VALUES ('27', '718945', '10614', '23');
+INSERT INTO `p_un_menu_count` VALUES ('28', '718945', '10615', '21');
+INSERT INTO `p_un_menu_count` VALUES ('29', '718945', '10616', '14');
 
 -- ----------------------------
 -- Table structure for p_un_notification
@@ -1883,7 +1884,7 @@ INSERT INTO `p_un_notify_user` VALUES ('102', 'a0822411-271f-4a6a-8b9b-1dfb26789
 INSERT INTO `p_un_notify_user` VALUES ('103', '0ee49aba-865f-4fc0-9cac-dac66db4aa22', 'yqtao', '1', '1');
 INSERT INTO `p_un_notify_user` VALUES ('104', 'bd3a4759-9336-4063-8ffe-03d8da2591dd', 'yqtao', '1', '1');
 INSERT INTO `p_un_notify_user` VALUES ('105', '58856567-756d-4291-8958-403a1c8704a2', 'yqtao', '1', '1');
-INSERT INTO `p_un_notify_user` VALUES ('106', '60a14ecf-4bdc-4aa1-8bf2-cc3cf153de92', 'admin', '0', '1');
+INSERT INTO `p_un_notify_user` VALUES ('106', '60a14ecf-4bdc-4aa1-8bf2-cc3cf153de92', 'admin', '1', '1');
 INSERT INTO `p_un_notify_user` VALUES ('107', '311387b7-b653-4e77-943c-15c98d3c123f', 'yqtao', '0', '1');
 INSERT INTO `p_un_notify_user` VALUES ('108', '8a3fa2bc-5ccf-4b4d-ba05-0ae7fab26b3a', '10001', '0', '1');
 
@@ -1961,7 +1962,7 @@ CREATE TABLE `p_un_resource` (
   `GROUP_ID` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`RESOURCE_ID`),
   UNIQUE KEY `RELATE_RESO_ID` (`RELATE_RESO_ID`,`RESOURCE_TYPE`)
-) ENGINE=InnoDB AUTO_INCREMENT=6121 DEFAULT CHARSET=utf8 COMMENT='资源';
+) ENGINE=InnoDB AUTO_INCREMENT=6111 DEFAULT CHARSET=utf8 COMMENT='资源';
 
 -- ----------------------------
 -- Records of p_un_resource
@@ -2063,7 +2064,7 @@ CREATE TABLE `p_un_role_access` (
   `GROUP_ID` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`ROLE_ACC_ID`),
   UNIQUE KEY `ROLE_ID` (`ROLE_ID`,`RESOURCE_ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=5646 DEFAULT CHARSET=utf8 COMMENT='角色与权限关联表';
+) ENGINE=InnoDB AUTO_INCREMENT=5636 DEFAULT CHARSET=utf8 COMMENT='角色与权限关联表';
 
 -- ----------------------------
 -- Records of p_un_role_access
@@ -2368,12 +2369,12 @@ INSERT INTO `p_un_role_info` VALUES ('113', '110', '普通用户', '普通用户
 -- ----------------------------
 DROP TABLE IF EXISTS `p_un_suggestion`;
 CREATE TABLE `p_un_suggestion` (
-  `ID` varchar(40) NOT NULL,
+  `ID` char(36) NOT NULL,
   `Dept` varchar(255) DEFAULT NULL COMMENT '处理人部门',
   `DeptName` varchar(100) DEFAULT NULL,
   `Date` datetime DEFAULT NULL COMMENT '处理时间',
   `Conment` varchar(1000) DEFAULT NULL COMMENT '意见内容',
-  `BusinessId` varchar(40) NOT NULL COMMENT '意见ID',
+  `BusinessId` varchar(36) NOT NULL COMMENT '关联表ID',
   `Person` varchar(50) DEFAULT NULL COMMENT '处理人',
   `PersonName` varchar(50) DEFAULT NULL,
   `Flag` int(11) DEFAULT '0' COMMENT '数据标识',
@@ -2386,7 +2387,6 @@ CREATE TABLE `p_un_suggestion` (
   `isLeader` char(2) DEFAULT NULL COMMENT '是否是领导',
   `deadline` float DEFAULT NULL COMMENT '期限',
   `remark` varchar(1000) DEFAULT NULL,
-  `GROUP_ID` int(11) DEFAULT NULL,
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -2402,7 +2402,7 @@ CREATE TABLE `p_un_system` (
   `SYS_ID` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '系统ID',
   `SYS_ADDRESS` varchar(255) DEFAULT NULL COMMENT '系统地址',
   `SYS_NAME` varchar(50) DEFAULT NULL COMMENT '系统名称',
-  `SYS_SHORT_NAME` varchar(30) DEFAULT NULL COMMENT '系统名称缩写',
+  `SYS_SHORT_NAME` varchar(100) DEFAULT NULL COMMENT '系统名称缩写',
   `SYS_CREATE_GROUP` varchar(30) DEFAULT '' COMMENT '创建组织',
   `SYS_CREATER` varchar(30) DEFAULT NULL COMMENT '创建人',
   `SYS_CREATE_TIME` date DEFAULT NULL COMMENT '创建时间',
@@ -2451,12 +2451,12 @@ CREATE TABLE `p_un_user_base_info` (
   UNIQUE KEY `IX_user_base_info_USER_ID_CARD_NUMBER` (`USER_ID_CARD_NUMBER`),
   UNIQUE KEY `MOBILE` (`MOBILE`),
   KEY `IX_user_base_info_GROUP_ID` (`GROUP_ID`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=719817 DEFAULT CHARSET=utf8 COMMENT='用户基础信息';
+) ENGINE=InnoDB AUTO_INCREMENT=719812 DEFAULT CHARSET=utf8 COMMENT='用户基础信息';
 
 -- ----------------------------
 -- Records of p_un_user_base_info
 -- ----------------------------
-INSERT INTO `p_un_user_base_info` VALUES ('718945', '10001', '31ffb3e964cc34663331eba4426008b72e7a2574c53c67c7', '10001', '10001', null, '1234', '1234', '0755-8588567', null, '18824159524', '0755-8588567', 'test@altoromutual.com', '10001', 'Managing Director', '9876543210', '9876543210', '1', '45575544-2', null, null, null, null, null, '0569b002-b4ab-4541-a814-2200b4206881', 'http://localhost:8080/common/file/showPicture.do?id=ba196ec38f436a9d03466fcc72d67614');
+INSERT INTO `p_un_user_base_info` VALUES ('718945', '10001', '31ffb3e964cc34663331eba4426008b72e7a2574c53c67c7', '10001', '10001', null, '1234', '1234', '0755-8588567', null, '18824159524', '0755-8588567', 'test@altoromutual.com', '10001', 'Managing Director', '9876543210', '9876543210', '1', '45575544-2', null, null, null, null, null, '0569b002-b4ab-4541-a814-2200b4206881', 'http://localhost:1111/common/file/showPicture.do?id=c942a3a9eaa8de2051e414d394fb8795');
 INSERT INTO `p_un_user_base_info` VALUES ('719811', '9999', '31ffb3e964cc34663331eba4426008b72e7a2574c53c67c7', '9999', '9999', null, null, null, null, null, '18888888881', null, null, null, null, null, null, '1', '45575544-2', null, null, null, null, null, null, 'http://localhost:8080/awcp/template/AdminLTE/images/user2-160x160.jpg');
 
 -- ----------------------------
@@ -2472,7 +2472,7 @@ CREATE TABLE `p_un_user_group` (
   `leader` bigint(20) DEFAULT NULL COMMENT '上级领导',
   PRIMARY KEY (`USER_GRUOP_ID`),
   UNIQUE KEY `USER_ID` (`USER_ID`,`GROUP_ID`,`POSITION_ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8 COMMENT='用户和组的关系表';
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8 COMMENT='用户和组的关系表';
 
 -- ----------------------------
 -- Records of p_un_user_group
@@ -2507,7 +2507,7 @@ CREATE TABLE `p_un_user_role` (
   `GROUP_ID` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`USER_ROLE_ID`),
   KEY `USER_ID` (`USER_ID`,`ROLE_ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=974193 DEFAULT CHARSET=utf8 COMMENT='用户角色表';
+) ENGINE=InnoDB AUTO_INCREMENT=974192 DEFAULT CHARSET=utf8 COMMENT='用户角色表';
 
 -- ----------------------------
 -- Records of p_un_user_role
@@ -2733,13 +2733,6 @@ INSERT INTO `sys_enum` VALUES ('FLRole_CH_1', '按部门', 'FLRole', '1', 'CH');
 INSERT INTO `sys_enum` VALUES ('FLRole_CH_2', '按岗位', 'FLRole', '2', 'CH');
 INSERT INTO `sys_enum` VALUES ('FrmThreadSta_CH_0', '禁用', 'FrmThreadSta', '0', 'CH');
 INSERT INTO `sys_enum` VALUES ('FrmThreadSta_CH_1', '启用', 'FrmThreadSta', '1', 'CH');
-INSERT INTO `sys_enum` VALUES ('FrmType_CH_0', '傻瓜表单', 'FrmType', '0', 'CH');
-INSERT INTO `sys_enum` VALUES ('FrmType_CH_1', '自由表单', 'FrmType', '1', 'CH');
-INSERT INTO `sys_enum` VALUES ('FrmType_CH_2', 'Silverlight表单(已取消)', 'FrmType', '2', 'CH');
-INSERT INTO `sys_enum` VALUES ('FrmType_CH_3', '嵌入式表单', 'FrmType', '3', 'CH');
-INSERT INTO `sys_enum` VALUES ('FrmType_CH_4', 'Word表单', 'FrmType', '4', 'CH');
-INSERT INTO `sys_enum` VALUES ('FrmType_CH_5', '在线编辑模式Excel表单', 'FrmType', '5', 'CH');
-INSERT INTO `sys_enum` VALUES ('FrmType_CH_6', 'VSTO模式Excel表单', 'FrmType', '6', 'CH');
 INSERT INTO `sys_enum` VALUES ('FrmUrlShowWay_CH_0', '不显示', 'FrmUrlShowWay', '0', 'CH');
 INSERT INTO `sys_enum` VALUES ('FrmUrlShowWay_CH_1', '自动大小', 'FrmUrlShowWay', '1', 'CH');
 INSERT INTO `sys_enum` VALUES ('FrmUrlShowWay_CH_2', '指定大小', 'FrmUrlShowWay', '2', 'CH');
@@ -8694,7 +8687,7 @@ CREATE TABLE `sys_serial` (
 INSERT INTO `sys_serial` VALUES ('BP.WF.Template.FlowSort', '0');
 INSERT INTO `sys_serial` VALUES ('Demo_Resume', '0');
 INSERT INTO `sys_serial` VALUES ('OID', '500');
-INSERT INTO `sys_serial` VALUES ('UpdataCCFlowVer', '526154732');
+INSERT INTO `sys_serial` VALUES ('UpdataCCFlowVer', '718170026');
 INSERT INTO `sys_serial` VALUES ('Ver', '20171117');
 INSERT INTO `sys_serial` VALUES ('WorkID', '168');
 
@@ -8810,12 +8803,15 @@ INSERT INTO `sys_userlogt` VALUES ('8dd3245bf5fc4348a33b8c5fcb4797ca', '戴', '0
 INSERT INTO `sys_userlogt` VALUES ('9572d4de3ec7418a894603a3d388a15a', '9999', '0:0:0:0:0:0:0:1', 'SignIn', '登录', '2018-05-26 15:58:38');
 INSERT INTO `sys_userlogt` VALUES ('970718e3d367416590fcdcf6e1805800', '戴', '0:0:0:0:0:0:0:1', 'SignIn', '登录', '2018-03-20 11:10:32');
 INSERT INTO `sys_userlogt` VALUES ('ab165a2e386b413caad4ed2a287214aa', 'yqtao', '0:0:0:0:0:0:0:1', 'SignIn', '登录', '2018-03-20 11:13:52');
+INSERT INTO `sys_userlogt` VALUES ('b8046056991e405a8d94078b160c8e9e', '9999', '0:0:0:0:0:0:0:1', 'SignIn', '登录', '2018-07-19 10:32:08');
 INSERT INTO `sys_userlogt` VALUES ('c11d11cceaae4656b6f5a4e2915d79c4', 'yqtao', '0:0:0:0:0:0:0:1', 'SignIn', '登录', '2018-03-20 11:12:56');
 INSERT INTO `sys_userlogt` VALUES ('cc8b0349e5d74d748e16e9a18fab7a10', '9999', '0:0:0:0:0:0:0:1', 'SignIn', '登录', '2018-05-26 17:36:42');
 INSERT INTO `sys_userlogt` VALUES ('cea0dfdd031044bcbec4e37873b729f8', '杨', '0:0:0:0:0:0:0:1', 'SignIn', '登录', '2018-03-19 09:51:58');
+INSERT INTO `sys_userlogt` VALUES ('dbb51ffb4bca4e0db8976854a7f6ab95', '9999', '0:0:0:0:0:0:0:1', 'SignIn', '登录', '2018-07-16 17:55:15');
 INSERT INTO `sys_userlogt` VALUES ('dc9a903eba5a43b6b9f495d5a9e52bc2', '9999', '0:0:0:0:0:0:0:1', 'SignIn', '登录', '2018-05-26 15:55:16');
 INSERT INTO `sys_userlogt` VALUES ('ec429928b0864196a99427b8269ba37b', 'yqtao', '0:0:0:0:0:0:0:1', 'SignIn', '登录', '2018-03-19 09:52:08');
 INSERT INTO `sys_userlogt` VALUES ('ef5af82f43bb434e86d1d3e39389a970', '9999', '0:0:0:0:0:0:0:1', 'SignIn', '登录', '2018-03-20 11:13:59');
+INSERT INTO `sys_userlogt` VALUES ('f94799b1ac6d46a6b329a0ac6dd742a6', '10001', '0:0:0:0:0:0:0:1', 'SignIn', '登录', '2018-07-19 10:32:01');
 INSERT INTO `sys_userlogt` VALUES ('f9f205799f0c4feb9aa0312cc49ed131', '9999', '0:0:0:0:0:0:0:1', 'SignIn', '登录', '2018-05-26 15:55:16');
 
 -- ----------------------------
@@ -9122,7 +9118,8 @@ CREATE TABLE `wf_cclist` (
   `PFlowNo` varchar(100) DEFAULT NULL COMMENT '父流程编号',
   `PWorkID` int(11) DEFAULT NULL COMMENT '父流程WorkID',
   `InEmpWorks` int(11) DEFAULT NULL COMMENT '是否加入待办列表',
-  PRIMARY KEY (`MyPK`)
+  PRIMARY KEY (`MyPK`),
+  KEY `WorkID` (`WorkID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='抄送列表';
 
 -- ----------------------------
@@ -9635,7 +9632,7 @@ CREATE TABLE `wf_generworkerlist` (
   `WarningHour` float(50,2) DEFAULT '0.00',
   `WarningDays` float(50,2) DEFAULT '0.00',
   PRIMARY KEY (`WorkID`,`FK_Emp`,`FK_Node`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='工作者';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of wf_generworkerlist
@@ -9687,7 +9684,7 @@ CREATE TABLE `wf_generworkflow` (
   `TSpan` int(11) DEFAULT '0' COMMENT '时间间隔',
   `TodoSta` int(11) DEFAULT '0' COMMENT '待办状态',
   PRIMARY KEY (`WorkID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='流程实例';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of wf_generworkflow
@@ -10210,7 +10207,7 @@ CREATE TABLE `wf_returnwork` (
   `RDT` varchar(50) DEFAULT NULL COMMENT '退回日期',
   `IsBackTracking` int(11) DEFAULT NULL COMMENT '是否要原路返回?',
   PRIMARY KEY (`MyPK`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='退回轨迹';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of wf_returnwork
