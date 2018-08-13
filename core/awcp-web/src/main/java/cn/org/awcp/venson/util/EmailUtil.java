@@ -58,8 +58,6 @@ public class EmailUtil {
 	 *            收件人电子邮箱
 	 * @param from
 	 *            发件人电子邮箱
-	 * @param host
-	 *            指定发送邮件的主机为
 	 * @param subject
 	 *            主题
 	 * @param content

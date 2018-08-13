@@ -14,13 +14,19 @@ addSearch.DEFAULTS={
 	selectLabel:$("#selectLabel").val(),	//下拉框标签
 	selectName:$("#selectName").val(),		//下拉框name值
 	selectOption:$("#selectOption").val(),	//下拉框数据（sql/Key=value）
+	radioLabel:$("#radioLabel").val(),	//单选标签
+    radioName:$("#radioName").val(),		//单选name值
+    radioOption:$("#radioOption").val(),	//单选数据（sql/Key=value）
+	checkboxLabel:$("#checkboxLabel").val(),	//复选框标签
+    checkboxName:$("#checkboxName").val(),		//复选框name值
+    checkboxOption:$("#checkboxOption").val(),	//复选框数据（sql/Key=value）
 	textLabel:$("#textLabel").val(), 	//文本标签
 	textName:$("#textName").val(), 		//文本Name值	
 	dateSelectLabel:$("#dateSelectLabel").val(),	//日期选择框标签
 	dateSelectName:$("#dateSelectName").val(), 		//日期选择框Name值
 	textPrefix:'search_text',  
-	selectPrefix:'search_select', 
-	dateSelectPrefix:'search_dateSelect',
+	selectPrefix:'search_select',
+    dateSelectPrefix:'search_dateSelect',
 	url:'api/execute',  		//后端接口
 	container:'.search_main'	//容器
 }
@@ -41,6 +47,16 @@ addSearch.prototype={
 		if($.trim(this.option.dateSelectLabel)){
 			this.initDateSelect();
 		}
+
+        //判断是否有单选框
+        if($.trim(this.option.radioLabel)){
+            this.initRadio();
+        }
+
+        //判断是否有复选框
+        if($.trim(this.option.checkboxLabel)){
+            this.initCheckbox();
+        }
 	},
 	
 	initText:function(){
@@ -67,8 +83,7 @@ addSearch.prototype={
 		var selectLabels=this.option.selectLabel.split("@");
 		var selectNames=this.option.selectName.split("@");
 		var selectOptions=this.option.selectOption.split("@");
-		var selectPrefix=this.option.textPrefix;
-		var container=this;
+		var selectPrefix=this.option.selectPrefix;
 		var that=this;
 		$.each(selectLabels,function(i,e){
 			if(!$.trim(e)){
@@ -133,7 +148,89 @@ addSearch.prototype={
 			that.setDefaultValue($tag,"3");
 		})
 	},
-	
+    initRadio:function(){
+        var radioLabels=this.option.radioLabel.split("@");
+        var radioNames=this.option.radioName.split("@");
+        var radioOptions=this.option.radioOption.split("@");
+        var that=this;
+        $.each(radioLabels,function(i,e){
+            if(!$.trim(e)){
+                return;
+            }
+            var option =radioOptions[i];
+            var name =radioNames[i];
+            var html=[];
+            html.push('<div class="col-xs-6 col-sm-6 col-md-3 col-lg-3" style="margin-bottom:10px">' +
+                '<div class="checkbox"> <label>' + e + '</label>');
+            var data;
+            //查找是否是动态语句查找
+            if(option.indexOf("=")==-1||option.indexOf("?")!=-1){
+                data=Comm.getData(that.option.url+"/"+option,{"_method":"get"});
+            }else{
+                var options=option.split(";");
+                data=[];
+                $.each(options,function(i1,o){
+                    if(!$.trim(o)){
+                        return;
+                    }
+                    var arr=o.split("=");
+                    data.push({id:arr[0],text:arr[1]});
+                })
+            }
+
+
+            $.each(data,function(i,e){
+                html.push('<label class=checkbox-inline><input type="checkbox"  name="'+ name +'" value="'+e.id+'"/><span>' + e.text + '</span></label>');
+            });
+        	html.push('</div></div>');
+            $warp=$(html.join(''));
+            $(that.option.container).append($warp);
+            $warp.find("input").iCheck({
+                checkboxClass: 'icheckbox_square-green'
+            });
+            that.setDefaultValue($warp,"4");
+        })
+    },
+    initCheckbox:function(){
+        var checkboxLabels=this.option.checkboxLabel.split("@");
+        var checkboxNames=this.option.checkboxName.split("@");
+        var checkboxOptions=this.option.checkboxOption.split("@");
+        var that=this;
+        $.each(checkboxLabels,function(i,e){
+            var option =checkboxOptions[i];
+            var name =checkboxNames[i];
+            var html=[];
+            html.push('<div class="col-xs-6 col-sm-6 col-md-3 col-lg-3" style="margin-bottom:10px">' +
+                '<div class="checkbox"> <label>' + e + '</label>');
+            var data;
+            //查找是否是动态语句查找
+            if(option.indexOf("=")==-1||option.indexOf("?")!=-1){
+                data=Comm.getData(that.option.url+"/"+option,{"_method":"get"});
+            }else{
+                var options=option.split(";");
+                data=[];
+                $.each(options,function(i1,o){
+                    if(!$.trim(o)){
+                        return;
+                    }
+                    var arr=o.split("=");
+                    data.push({id:arr[0],text:arr[1]});
+                })
+            }
+
+
+            $.each(data,function(i,e){
+                html.push('<label class=checkbox-inline><input type="checkbox"  name="'+ name +'" value="'+e.id+'"/><span>' + e.text + '</span></label>');
+            });
+            html.push('</div></div>');
+            $warp=$(html.join(''));
+            $(that.option.container).append($warp);
+            $warp.find("input").iCheck({
+                checkboxClass: 'icheckbox_square-green'
+            });
+            that.setDefaultValue($warp,"5");
+        })
+    },
 	setDefaultValue:function($tag,type){
 		var name = $tag.attr("name");
 		var that = this;
@@ -158,6 +255,34 @@ addSearch.prototype={
 			$tag.bind("change",function(){
 				Comm.set(that.option.dateSelectPrefix+name,this.value);
 			});
-		} 
+		}else if(type=="4"||type=="5"){
+            var $checkbox=$tag.find(":checkbox");
+            name=$checkbox.get(0).name;
+            var prefix="search_checkbox_"+type;
+            var value=Comm.get(prefix+name);
+            if(value){
+                for(var i=value.length-1;i>-1;i--){
+                    $tag.find(":checkbox[value='"+value[i]+"']").iCheck('check');
+                }
+			}
+            $checkbox.on('ifChanged', function(event){
+            	//如果是单选类型，则只能选择一个
+                if(type=="4"){
+                    $('input[name="' + name + '"]:checked').each(function () {
+                        if(event.target.checked&&this.value!=event.target.value){
+                        	$(this).iCheck('uncheck');
+						}
+                    });
+				}
+                setValue();
+            });
+            function setValue() {
+                var checkBoxArr = [];
+                $('input[name="' + name + '"]:checked').each(function () {
+                    checkBoxArr.push($(this).val());
+                });
+                Comm.set(prefix + name, checkBoxArr);
+            }
+        }
 	}	
 }

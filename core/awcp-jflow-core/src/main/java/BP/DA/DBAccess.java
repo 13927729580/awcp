@@ -702,7 +702,7 @@ public class DBAccess {
 	 * @version 20180126
 	 * @param conn
 	 */
-	private static void doCloseConnection(Connection conn) {
+	public static void doCloseConnection(Connection conn) {
 		try {
 			DataSourceUtils.doReleaseConnection(conn,ContextHolderUtils.getInstance().getDataSource());
 		} catch (SQLException e) {
@@ -717,7 +717,7 @@ public class DBAccess {
 	 * @return
 	 * @throws SQLException
 	 */
-	private static Connection doGetConnection() throws SQLException {
+	public static Connection doGetConnection() throws SQLException {
 		return DataSourceUtils.doGetConnection(ContextHolderUtils.getInstance().getDataSource());
 	}
 

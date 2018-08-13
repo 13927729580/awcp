@@ -19,15 +19,23 @@
 </div>	
 
 <div class="form-group">
-	<label class="col-md-2 control-label required">弹出页面高度</label>
-	<div class="col-md-4">
-		<input name="viewHeight" class="form-control" id="viewHeight" type="text" value="" />		
+	<label class="col-md-1 control-label">删除前脚本</label>
+	<div class="col-md-2">
+		<input name="beforeDelApi" class="form-control" id="beforeDelApi" type="text" value="" />
+	</div>
+	<label class="col-md-1 control-label">删除后脚本</label>
+	<div class="col-md-2">
+		<input name="afterDelApi" class="form-control" id="afterDelApi" type="text" value="" />		
 	</div>
 </div>
 
 <div class="form-group">
-	<label class="col-md-2 control-label required">弹出页面宽度</label>
-	<div class="col-md-4">
+	<label class="col-md-1 control-label">弹出页面高度</label>
+	<div class="col-md-2">
+		<input name="viewHeight" class="form-control" id="viewHeight" type="text" value="" />		
+	</div>
+	<label class="col-md-1 control-label">弹出页面宽度</label>
+	<div class="col-md-2">
 		<input name="viewWidth" class="form-control" id="viewWidth" type="text" value="" />
 	</div>
 </div>

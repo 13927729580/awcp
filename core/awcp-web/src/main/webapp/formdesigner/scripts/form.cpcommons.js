@@ -921,6 +921,8 @@ function loadCommonComponentData(storeObject){
 		//搜索框
 		if(componentObject.searchLocation) { $("#searchLocation").val(componentObject.searchLocation).trigger("change");}
 		//表格组件 
+		if(componentObject.beforeDelApi) { $("#beforeDelApi").val(componentObject.beforeDelApi);}
+		if(componentObject.afterDelApi) { $("#afterDelApi").val(componentObject.afterDelApi);}
 		if(componentObject.dataAlias) { $("#dataAlias").val(componentObject.dataAlias);}
 		if(componentObject.pageSize) 	$("#pageSize").val(componentObject.pageSize);
 		if(componentObject.hasPager) { $("#hasPager").val(componentObject.hasPager).trigger("change");}
@@ -1153,6 +1155,11 @@ function loadCommonComponentData(storeObject){
 		if(componentObject.textName)		$("#textName").val(componentObject.textName);
 		if(componentObject.dateSelectLabel)	$("#dateSelectLabel").val(componentObject.dateSelectLabel);
 		if(componentObject.dateSelectName)	$("#dateSelectName").val(componentObject.dateSelectName);
+        if(componentObject.radioOption)	$("#radioOption").val(componentObject.radioOption);
+        if(componentObject.radioLabel)		$("#radioLabel").val(componentObject.radioLabel);
+        if(componentObject.checkboxOption)	$("#checkboxOption").val(componentObject.checkboxOption);
+        if(componentObject.checkboxLabel)		$("#checkboxLabel").val(componentObject.checkboxLabel);
+        if(componentObject.checkboxName)		$("#checkboxName").val(componentObject.checkboxName);
 		
 		
 		//gridTable

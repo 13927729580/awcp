@@ -27,5 +27,7 @@ public final class SC {
 	public static final String[] TARGET_URL = new String[] { "manage/index.html", "devAdmin/list.jsp" };
 	public static final List<String> ENCRYPT_PASSWORD_KEY = Arrays.asList("password","smsPassword", "emailPassword","idcard_AppSecret","redis.password");
 	public static final String CURRENT_USER_DATA_SOURCE = "current_user_data_source";
+	public static final String DATA_SOURCE_COOKIE_KEY = "group_name";
+	public static final String SMS_CODE_SALT="sljksdf@34#s51";
 
 }

@@ -2,6 +2,7 @@ package cn.org.awcp.venson.util;
 
 import cn.org.awcp.core.utils.Security;
 import cn.org.awcp.venson.common.SC;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 
 import java.util.Optional;
@@ -22,8 +23,9 @@ public class EncryptPropertyPlaceholderConfigurer extends PropertyPlaceholderCon
     protected String convertProperty(String propertyName, String propertyValue) {
         String value=super.convertProperty(propertyName, propertyValue);
         if(SC.ENCRYPT_PASSWORD_KEY.contains(propertyName)){
-            value= Security.decryptPassword(value);
+            return Optional.ofNullable(Security.decryptPassword(value)).orElse(StringUtils.EMPTY);
+        }else{
+            return value;
         }
-        return Optional.ofNullable(value).orElse("");
     }
 }

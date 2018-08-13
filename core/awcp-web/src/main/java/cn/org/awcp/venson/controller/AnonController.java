@@ -10,13 +10,12 @@ import cn.org.awcp.unit.service.PunUserBaseInfoService;
 import cn.org.awcp.unit.service.PunUserRoleService;
 import cn.org.awcp.unit.utils.EncryptUtils;
 import cn.org.awcp.unit.vo.PunUserBaseInfoVO;
+import cn.org.awcp.venson.common.SC;
 import cn.org.awcp.venson.controller.base.ControllerHelper;
 import cn.org.awcp.venson.controller.base.ReturnResult;
 import cn.org.awcp.venson.controller.base.StatusCode;
 import cn.org.awcp.venson.util.*;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,11 +25,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import static cn.org.awcp.venson.common.SC.SMS_CODE_SALT;
 
 @RestController
 @RequestMapping("anon")
@@ -79,12 +84,11 @@ public class AnonController {
         return result;
     }
 
-    private static final String SMS_CODE_SALT="sljksdf@34#s51";
 
     /**
      * 发送验证码
      *
-     * @param key 验证码
+     * @param key 密钥
      * @param type       0：手机号，1：邮箱
      * @param to         手机号或邮箱
      */
@@ -101,6 +105,7 @@ public class AnonController {
         }
         return result;
     }
+
     private static final int SMS_CODE_EXPIRE=60*10;
 
     public boolean sendCode(ReturnResult result,int type ,String to){
@@ -138,7 +143,7 @@ public class AnonController {
      * @param to   手机号/邮箱
      */
     @RequestMapping(value = "checkCode", method = RequestMethod.POST)
-    public ReturnResult checkCode(@RequestParam("code") String code, @RequestParam("to") String to) {
+    public ReturnResult checkCode(@ApiParam("验证码")@RequestParam("code") String code,@ApiParam("邮箱或者手机号") @RequestParam("to") String to) {
         ReturnResult result = ReturnResult.get();
         if (code.equals(redisUtil.get(SessionContants.SMS_VERIFY_CODE + to))) {
             result.setStatus(StatusCode.SUCCESS);
@@ -241,8 +246,8 @@ public class AnonController {
      */
     @ApiOperation(value = "忘记密码")
     @RequestMapping(value = "modifyPassword", method = RequestMethod.POST)
-    public ReturnResult modifyPassword(@RequestParam("code") String code, @RequestParam("phone") String phone,
-                                       @RequestParam("password") String password) {
+    public ReturnResult modifyPassword(@RequestParam("code")@ApiParam("验证码") String code, @ApiParam("手机号")@RequestParam("phone") String phone,
+                                       @RequestParam("password")@ApiParam("密码") String password) {
         ReturnResult result = ReturnResult.get();
         if (code.equals(redisUtil.get(SessionContants.SMS_VERIFY_CODE + phone))) {
             // 更新用户密码
@@ -268,14 +273,18 @@ public class AnonController {
      */
     @ApiOperation(value = "根据短信验证码登录")
     @RequestMapping(value = "/login",method = RequestMethod.POST)
-    public ReturnResult login(@RequestParam("code") String code, @RequestParam("phone") String phone) {
+    public ReturnResult login(@RequestParam("code")@ApiParam("验证码") String code,@ApiParam("手机号") @RequestParam("phone") String phone) {
         ReturnResult result = ReturnResult.get();
         if (code.equals(redisUtil.get(SessionContants.SMS_VERIFY_CODE + phone))) {
             String sql = "select USER_ID_CARD_NUMBER from p_un_user_base_info  where MOBILE=?";
             try {
                 String userAccount = jdbcTemplate.queryForObject(sql, String.class, phone);
-                ControllerHelper.toLogin(userAccount, true);
-                result.setStatus(StatusCode.SUCCESS);
+                PunUserBaseInfoVO pvi = ControllerHelper.toLogin(userAccount, true);
+                Map<String,Object> map=new HashMap<>(2);
+                map.put("secretKey",redisUtil.get(SC.SECRET_KEY+pvi.getUserIdCardNumber()));
+                map.put("uid",pvi.getUserIdCardNumber());
+                map.put("sid",SessionUtils.getCurrentSession().getId());
+                result.setStatus(StatusCode.SUCCESS).setData(map);
             } catch (DataAccessException e) {
                 logger.debug("ERROR", e);
                 result.setStatus(StatusCode.FAIL).setMessage("该手机号尚未注册，请先注册");
@@ -294,13 +303,36 @@ public class AnonController {
      */
     @ApiOperation(value = "创建二维码")
     @RequestMapping(value = "createQRCode", method = RequestMethod.GET)
-    public void createQRCode(String content, HttpServletResponse response) {
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "content",paramType = "query",value = "生成二维码的文本内容")
+    })
+    public void createQRCode( String content, HttpServletResponse response) {
         try {
             response.setContentType("image/jpg");
             QRCoreUtil.create(500, 500, content, response.getOutputStream());
         } catch (IOException e) {
             logger.debug("ERROR", e);
         }
+    }
+
+    /**
+     * 识别二维码
+     * @param file 图片
+     */
+    @ApiOperation(value = "创建二维码")
+    @RequestMapping(value = "readQRCode", method = RequestMethod.POST)
+    public ReturnResult createQRCode(MultipartFile file) {
+        ReturnResult result=ReturnResult.get();
+        try {
+            //写入本地磁盘
+            InputStream is = file.getInputStream();
+            String text = QRCoreUtil.read(is);
+            result.setData(text).setStatus(StatusCode.SUCCESS);
+        } catch (IOException e) {
+            logger.debug("ERROR", e);
+            result.setStatus(StatusCode.FAIL).setMessage("二维码识别失败");
+        }
+        return result;
     }
 
     /**

@@ -129,8 +129,8 @@ public class DataSourceManageController extends BaseController {
     @RequestMapping(value = "/save",method = RequestMethod.POST)
     public ReturnResult saveByAjax(DataSourceManageVO vo) {
         ReturnResult result=ReturnResult.get();
+        vo.setSourceUrl(StringEscapeUtils.unescapeHtml4(vo.getSourceUrl()));
         if (StringUtils.isNotBlank(vo.getId())) {
-            vo.setSourceUrl(StringEscapeUtils.unescapeHtml4(vo.getSourceUrl()));
             DataSourceManageVO dataSourceVo = this.dataSourceManageServiceImpl.get(vo.getId());
             BeanUtils.copyProperties(vo, dataSourceVo, true);
             dataSource.put(dataSourceVo.getName(), getDruidDataSource(dataSourceVo));

@@ -3,10 +3,14 @@ package BP.Sys;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.Properties;
 
+import BP.DA.DBAccess;
 import cn.jflow.common.util.ContextHolderUtils;
 import cn.org.awcp.core.utils.Security;
 import com.alibaba.druid.pool.DruidDataSource;
@@ -19,14 +23,17 @@ import BP.DA.DataRow;
 import BP.DA.DataSet;
 import BP.DA.DataTable;
 import BP.Tools.StringHelper;
+import org.springframework.jdbc.datasource.DataSourceUtils;
+import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
+import org.springframework.util.ReflectionUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.sql.DataSource;
 
 /**
  * 系统配置
- * 
+ *
  * @author thinkpad
- * 
  */
 public class SystemConfig {
     private static boolean _IsBSsystem = true;
@@ -62,7 +69,7 @@ public class SystemConfig {
 
     /**
      * 读取配置文件
-     * 
+     *
      * @param fis
      * @throws Exception
      */
@@ -88,7 +95,7 @@ public class SystemConfig {
 
     /**
      * 获取xml中的配置信息 GroupTitle, ShowTextLen, DefaultSelectedAttrs, TimeSpan
-     * 
+     *
      * @param key
      * @param ensName
      * @return
@@ -99,8 +106,8 @@ public class SystemConfig {
             DataTable dt = (DataTable) ((tempVar instanceof DataTable) ? tempVar : null);
             if (dt == null) {
                 DataSet ds = new DataSet("dss");
-				ds.readXml(
-						BP.Sys.SystemConfig.getPathOfXML() + File.separator + "Ens" + File.separator + "ConfigEns.xml");
+                ds.readXml(
+                        BP.Sys.SystemConfig.getPathOfXML() + File.separator + "Ens" + File.separator + "ConfigEns.xml");
                 dt = ds.Tables.get(0);
                 BP.DA.Cash.AddObj("TConfigEns", BP.DA.Depositary.Application, dt);
             }
@@ -111,14 +118,15 @@ public class SystemConfig {
                 }
             }
         } catch (Exception ex) {
-            ex.printStackTrace();;
+            ex.printStackTrace();
+            ;
         }
         return null;
     }
 
     /**
      * 关于开发商的信息
-     * 
+     *
      * @return
      */
     public static String getVer() {
@@ -155,7 +163,7 @@ public class SystemConfig {
 
     /**
      * 开发商全称
-     * 
+     *
      * @return
      */
     public static String getDeveloperName() {
@@ -164,7 +172,7 @@ public class SystemConfig {
 
     /**
      * 开发商简称
-     * 
+     *
      * @return
      */
     public static String getDeveloperShortName() {
@@ -173,7 +181,7 @@ public class SystemConfig {
 
     /**
      * 开发商电话
-     * 
+     *
      * @return
      */
     public static String getDeveloperTel() {
@@ -182,7 +190,7 @@ public class SystemConfig {
 
     /**
      * 开发商的地址
-     * 
+     *
      * @return
      */
     public static String getDeveloperAddr() {
@@ -192,7 +200,7 @@ public class SystemConfig {
 
     /**
      * 系统语言 对多语言的系统有效。
-     * 
+     *
      * @return
      */
     public static String getSysLanguage() {
@@ -226,9 +234,9 @@ public class SystemConfig {
                     IOUtils.closeQuietly(is);
                 }
                 _CS_AppSettings = (Hashtable) props;
-                String JflowPassword =(String)_CS_AppSettings.get("JflowPassword");
-                if(JflowPassword!=null){
-                    _CS_AppSettings.put("JflowPassword",Security.decryptPassword(JflowPassword));
+                String JflowPassword = (String) _CS_AppSettings.get("JflowPassword");
+                if (JflowPassword != null) {
+                    _CS_AppSettings.put("JflowPassword", Security.decryptPassword(JflowPassword));
                 }
             } catch (Exception e) {
                 throw new RuntimeException("读取配置文件失败", e);
@@ -239,7 +247,7 @@ public class SystemConfig {
 
     /**
      * 封装了AppSettings
-     * 
+     *
      * @return
      */
     public static Hashtable<String, Object> getAppSettings() {
@@ -252,16 +260,16 @@ public class SystemConfig {
 
     /**
      * 应用程序路径
-     * 
+     *
      * @return
      */
     public static String getPhysicalApplicationPath() {
-		return "D:" + File.separator + "JJFlow" + File.separator + "trunk" + File.separator + "JJFlow" + File.separator;
+        return "D:" + File.separator + "JJFlow" + File.separator + "trunk" + File.separator + "JJFlow" + File.separator;
     }
 
     /**
      * 文件放置的路径
-     * 
+     *
      * @return
      */
     public static String getPathOfUsersFiles() {
@@ -270,7 +278,7 @@ public class SystemConfig {
 
     /**
      * 临时文件路径
-     * 
+     *
      * @return
      */
     public static String getPathOfTemp() {
@@ -278,50 +286,50 @@ public class SystemConfig {
     }
 
     public static String getPathOfWorkDir() {
-		return "D:" + File.separator + "JJFlow" + File.separator + "trunk" + File.separator;
+        return "D:" + File.separator + "JJFlow" + File.separator + "trunk" + File.separator;
     }
 
     public static String getPathOfFDB() {
-		return getPathOfWebApp() + File.separator + "DataUser" + File.separator + "FDB" + File.separator;
+        return getPathOfWebApp() + File.separator + "DataUser" + File.separator + "FDB" + File.separator;
     }
 
     /**
      * 数据文件
-     * 
+     *
      * @return
      */
     public static String getPathOfData() {
-		return getPathOfWebApp() + SystemConfig.getAppSettings().get("DataDirPath").toString() + File.separator + "Data"
-				+ File.separator;
+        return getPathOfWebApp() + SystemConfig.getAppSettings().get("DataDirPath").toString() + File.separator + "Data"
+                + File.separator;
     }
 
     public static String getPathOfDataUser() {
-		return getPathOfWebApp() + SystemConfig.getAppSettings().get("DataUserDirPath").toString() + "DataUser"
-				+ File.separator;
+        return getPathOfWebApp() + SystemConfig.getAppSettings().get("DataUserDirPath").toString() + "DataUser"
+                + File.separator;
     }
 
     /**
      * XmlFilePath
-     * 
+     *
      * @return
      */
     public static String getPathOfXML() {
-		return getPathOfWebApp() + SystemConfig.getAppSettings().get("DataDirPath").toString() + File.separator + "Data"
-				+ File.separator + "XML" + File.separator;
+        return getPathOfWebApp() + SystemConfig.getAppSettings().get("DataDirPath").toString() + File.separator + "Data"
+                + File.separator + "XML" + File.separator;
     }
 
     public static String getPathOfAppUpdate() {
-		return getPathOfWebApp() + SystemConfig.getAppSettings().get("DataDirPath").toString() + File.separator + "Data"
-				+ File.separator + "AppUpdate" + File.separator;
+        return getPathOfWebApp() + SystemConfig.getAppSettings().get("DataDirPath").toString() + File.separator + "Data"
+                + File.separator + "AppUpdate" + File.separator;
     }
 
     public static String getPathOfCyclostyleFile() {
-		return getPathOfWebApp() + File.separator + "DataUser" + File.separator + "CyclostyleFile" + File.separator;
+        return getPathOfWebApp() + File.separator + "DataUser" + File.separator + "CyclostyleFile" + File.separator;
     }
 
     /**
      * 应用程序名称
-     * 
+     *
      * @return
      */
     public static String getAppName() {
@@ -330,7 +338,7 @@ public class SystemConfig {
 
     /**
      * ccflow物理目录
-     * 
+     *
      * @return
      */
     public static String getCCFlowAppPath() {
@@ -349,7 +357,7 @@ public class SystemConfig {
 
     /**
      * ccflow网站目录
-     * 
+     *
      * @return
      */
     public static String getCCFlowWebPath() {
@@ -358,7 +366,7 @@ public class SystemConfig {
 
     /**
      * WebApp Path
-     * 
+     *
      * @return
      */
     public static String getPathOfWebApp() {
@@ -386,9 +394,10 @@ public class SystemConfig {
     }
 
     // 统配置信息
+
     /**
      * 系统编号
-     * 
+     *
      * @return
      */
     public static String getSysNo() {
@@ -397,7 +406,7 @@ public class SystemConfig {
 
     /**
      * 系统名称
-     * 
+     *
      * @return
      */
     public static String getSysName() {
@@ -438,7 +447,7 @@ public class SystemConfig {
 
     /**
      * 到的路径.PageOfAfterAuthorizeLogin
-     * 
+     *
      * @return
      */
     public static String getPageOfAfterAuthorizeLogin() {
@@ -452,7 +461,7 @@ public class SystemConfig {
 
     /**
      * 丢失session 到的路径
-     * 
+     *
      * @return
      */
     public static String getPageOfLostSession() {
@@ -466,16 +475,16 @@ public class SystemConfig {
 
     /**
      * 日志路径
-     * 
+     *
      * @return
      */
     public static String getPathOfLog() {
-		return getPathOfWebApp() + File.separator + "DataUser" + File.separator + "Log" + File.separator;
+        return getPathOfWebApp() + File.separator + "DataUser" + File.separator + "Log" + File.separator;
     }
 
     /**
      * 系统名称
-     * 
+     *
      * @return
      */
     public static int getTopNum() {
@@ -488,7 +497,7 @@ public class SystemConfig {
 
     /**
      * 服务电话
-     * 
+     *
      * @return
      */
     public static String getServiceTel() {
@@ -497,7 +506,7 @@ public class SystemConfig {
 
     /**
      * 服务E-mail
-     * 
+     *
      * @return
      */
     public static String getServiceMail() {
@@ -506,7 +515,7 @@ public class SystemConfig {
 
     /**
      * 第3方软件
-     * 
+     *
      * @return
      */
     public static String getThirdPartySoftWareKey() {
@@ -523,7 +532,7 @@ public class SystemConfig {
 
     /**
      * 是否 debug 状态
-     * 
+     *
      * @return
      */
     public static boolean getIsDebug() {
@@ -544,7 +553,7 @@ public class SystemConfig {
 
     /**
      * 是不是多系统工作
-     * 
+     *
      * @return
      */
     public static boolean getIsMultiSys() {
@@ -557,7 +566,7 @@ public class SystemConfig {
 
     /**
      * 是不是多线程工作
-     * 
+     *
      * @return
      */
     public static boolean getIsMultiThread_del() {
@@ -570,7 +579,7 @@ public class SystemConfig {
 
     /**
      * 是不是多语言版本
-     * 
+     *
      * @return
      */
     public static boolean getIsMultiLanguageSys() {
@@ -582,9 +591,10 @@ public class SystemConfig {
     }
 
     // 处理临时缓存
+
     /**
      * 放在 Temp 中的cash 多少时间失效。0, 表示永久不失效
-     * 
+     *
      * @return
      */
     private static int getCashFail() {
@@ -597,7 +607,7 @@ public class SystemConfig {
 
     /**
      * 当前的 TempCash 是否失效了
-     * 
+     *
      * @return
      */
     public static boolean getIsTempCashFail() {
@@ -613,9 +623,10 @@ public class SystemConfig {
     public static Date _CashFailDateTime = new Date(0);
 
     // 客户配置信息
+
     /**
      * 客户编号
-     * 
+     *
      * @return
      */
     public static String getCustomerNo() {
@@ -624,7 +635,7 @@ public class SystemConfig {
 
     /**
      * 客户名称
-     * 
+     *
      * @return
      */
     public static String getCustomerName() {
@@ -637,7 +648,7 @@ public class SystemConfig {
 
     /**
      * 客户简称
-     * 
+     *
      * @return
      */
     public static String getCustomerShortName() {
@@ -646,7 +657,7 @@ public class SystemConfig {
 
     /**
      * 客户地址
-     * 
+     *
      * @return
      */
     public static String getCustomerAddr() {
@@ -655,7 +666,7 @@ public class SystemConfig {
 
     /**
      * 客户电话
-     * 
+     *
      * @return
      */
     public static String getCustomerTel() {
@@ -719,26 +730,40 @@ public class SystemConfig {
 
     /**
      * 当前数据库连接
-     * 
+     *
      * @return
      */
     public static String getAppCenterDSN() {
-        DruidDataSource dataSource=(DruidDataSource) ContextHolderUtils.getInstance().getDataSource();
+        DruidDataSource dataSource = getDataSource();
         return dataSource.getUrl();
+    }
+
+    private static DruidDataSource getDataSource() {
+        Object obj = ContextHolderUtils.getInstance().getDataSource();
+        if (obj instanceof AbstractRoutingDataSource) {
+            Method method = ReflectionUtils.findMethod(obj.getClass(), "determineTargetDataSource");
+            method.setAccessible(true);
+            obj = ReflectionUtils.invokeMethod(method, obj);
+        }
+        if (obj instanceof DruidDataSource) {
+            return (DruidDataSource) obj;
+        } else {
+            throw new RuntimeException("请在此处指定数据源");
+        }
     }
 
     /**
      * 当前数据库连接用户.
-     * 
+     *
      * @return
      */
     public static String getUser() {
-        DruidDataSource dataSource=(DruidDataSource) ContextHolderUtils.getInstance().getDataSource();
+        DruidDataSource dataSource = getDataSource();
         return dataSource.getUsername();
     }
 
     public static String getPassword() {
-        DruidDataSource dataSource=(DruidDataSource) ContextHolderUtils.getInstance().getDataSource();
+        DruidDataSource dataSource = getDataSource();
         return dataSource.getPassword();
     }
 
@@ -751,11 +776,11 @@ public class SystemConfig {
 
     /**
      * 获取主应用程序的数据库类型
-     * 
+     *
      * @return
      */
     public static BP.DA.DBType getAppCenterDBType() {
-        Object jdbcType = getAppSettings().get("AppCenterDBType");
+        Object jdbcType = getDataSource().getDbType();
         if (jdbcType != null) {
             String dbType = jdbcType.toString();
             if (dbType.equalsIgnoreCase("MSMSSQL") || dbType.equalsIgnoreCase("MSSQL")) {
@@ -771,7 +796,7 @@ public class SystemConfig {
 
     /**
      * 获取不同类型的数据库变量标记
-     * 
+     *
      * @return
      */
     public static String getAppCenterDBVarStr() {
@@ -806,7 +831,7 @@ public class SystemConfig {
 
     /**
      * 获取不同类型的substring函数
-     * 
+     *
      * @return
      */
     public static String getAppCenterDBSubstringStr() {
@@ -824,19 +849,23 @@ public class SystemConfig {
         }
     }
 
-    private static String _AppCenterDBDatabase;
 
     /**
      * 数据库名称
-     * 
+     *
      * @return
      */
     public static String getAppCenterDBDatabase() {
-        if (_AppCenterDBDatabase == null) {
-            _AppCenterDBDatabase = getAppSettings().get("AppCenterDBDatabase").toString();
-        }
         // 返回database.
-        return _AppCenterDBDatabase;
+        Connection conn = null;
+        try {
+            conn = DBAccess.doGetConnection();
+            return conn.getCatalog();
+        } catch (SQLException e) {
+            throw new RuntimeException("获取数据库名称失败");
+        } finally {
+            DBAccess.doCloseConnection(conn);
+        }
     }
 
     public static String getAppCenterDBAddStringStr() {
@@ -883,7 +912,7 @@ public class SystemConfig {
 
     /**
      * 是否启用CCIM?
-     * 
+     *
      * @return
      */
     public static boolean getIsEnableCCIM() {
@@ -896,13 +925,12 @@ public class SystemConfig {
 
     /**
      * 是否启用密码加密
-     * 
      */
     public static boolean getIsEnablePasswordEncryption() {
         String s = (String) ((SystemConfig.getAppSettings()
                 .get("IsEnablePasswordEncryption") instanceof String)
-                        ? SystemConfig.getAppSettings().get("IsEnablePasswordEncryption")
-                        : null);
+                ? SystemConfig.getAppSettings().get("IsEnablePasswordEncryption")
+                : null);
         if (s == null || s.equals("0")) {
             return false;
         }

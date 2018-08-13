@@ -191,30 +191,31 @@ public class DocUtils {
 		return null;
 	}
 
-	/**
-	 * 根据选项脚本和值，得到选项的html代码
-	 *
-	 * @param ret
-	 * @param value
-	 * @param markerText
-	 * @return
-	 */
-	public static String getOptionText(String ret, String value, String markerText) {
-		StringBuilder sb = new StringBuilder("");
-		if (markerText != null && markerText.contains("<option")) {
-			sb.append(MessageFormat.format(markerText, "", "", ""));
-		}
-		if (StringUtils.isBlank(value)) {
-			value = "";
-		}
-		String[] optionStr = null;
-		if (StringUtils.isNotBlank(ret)) {
-			optionStr = ret.split("\\;");
-		}
-		String[] values = value.split(";");
-		if (optionStr != null && optionStr.length > 0) {
-			for (String str : optionStr) {
-				String[] entry = str.split("\\=");
+    /**
+     * 根据选项脚本和值，得到选项的html代码
+     *
+     * @param ret
+     * @param value
+     * @param markerText
+     * @return
+     */
+    public static String getOptionText(String ret, String value, String markerText) {
+        StringBuilder sb = new StringBuilder("");
+        if (markerText != null && markerText.contains("<option")) {
+            sb.append(MessageFormat.format(markerText, "", "", ""));
+        }
+        if (StringUtils.isBlank(value)) {
+            value = "";
+        }
+        String[] optionStr = null;
+        if (StringUtils.isNotBlank(ret)) {
+            optionStr = ret.split("\\;");
+        }
+        String[] values = value.split(";");
+        Arrays.sort(values);
+        if (optionStr != null && optionStr.length > 0) {
+            for (String str : optionStr) {
+                String[] entry = str.split("\\=");
 
 				if (entry != null && entry.length == 2) {
 					if (Arrays.binarySearch(values, entry[0]) > -1) {

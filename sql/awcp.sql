@@ -10373,6 +10373,13 @@ CREATE TABLE `wf_workflowdeletelog` (
 -- Records of wf_workflowdeletelog
 -- ----------------------------
 
+
+-- ----------------------------
+-- View structure for port_emp
+-- ----------------------------
+DROP VIEW IF EXISTS `port_emp`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`%` SQL SECURITY DEFINER VIEW `port_emp` AS select distinct `p_un_user_base_info`.`USER_ID_CARD_NUMBER` AS `No`,`p_un_user_base_info`.`NAME` AS `Name`,`p_un_user_base_info`.`USER_PWD` AS `Pass`,`p_un_user_group`.`GROUP_ID` AS `FK_Dept`,NULL AS `SID`,`p_un_user_base_info`.`MOBILE` AS `Tel`,`p_un_user_base_info`.`USER_EMAIL` AS `Email`,1 AS `NumOfDept`,`p_un_user_base_info`.`NUMBER` AS `Idx`,`p_un_user_base_info`.`USER_NAME` AS `PinYin`,0 AS `SignType`,`p_un_user_group`.`POSITION_ID` AS `FK_Duty`,`p_un_user_group`.`leader` AS `Leader`,NULL AS `StaDesc`,NULL AS `DeptDesc`,`p_un_user_base_info`.`USER_ID` AS `EmpNo` from (`p_un_user_base_info` left join `p_un_user_group` on((`p_un_user_base_info`.`USER_ID` = `p_un_user_group`.`USER_ID`))) ;
+
 -- ----------------------------
 -- View structure for port_dept
 -- ----------------------------
@@ -10415,11 +10422,6 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`%` SQL SECURITY DEFINER VIEW `port_de
 DROP VIEW IF EXISTS `port_duty`;
 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`%` SQL SECURITY DEFINER VIEW `port_duty` AS select `p_un_position`.`POSITION_ID` AS `No`,`p_un_position`.`NAME` AS `Name` from `p_un_position` ;
 
--- ----------------------------
--- View structure for port_emp
--- ----------------------------
-DROP VIEW IF EXISTS `port_emp`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`%` SQL SECURITY DEFINER VIEW `port_emp` AS select distinct `p_un_user_base_info`.`USER_ID_CARD_NUMBER` AS `No`,`p_un_user_base_info`.`NAME` AS `Name`,`p_un_user_base_info`.`USER_PWD` AS `Pass`,`p_un_user_group`.`GROUP_ID` AS `FK_Dept`,NULL AS `SID`,`p_un_user_base_info`.`MOBILE` AS `Tel`,`p_un_user_base_info`.`USER_EMAIL` AS `Email`,1 AS `NumOfDept`,`p_un_user_base_info`.`NUMBER` AS `Idx`,`p_un_user_base_info`.`USER_NAME` AS `PinYin`,0 AS `SignType`,`p_un_user_group`.`POSITION_ID` AS `FK_Duty`,`p_un_user_group`.`leader` AS `Leader`,NULL AS `StaDesc`,NULL AS `DeptDesc`,`p_un_user_base_info`.`USER_ID` AS `EmpNo` from (`p_un_user_base_info` left join `p_un_user_group` on((`p_un_user_base_info`.`USER_ID` = `p_un_user_group`.`USER_ID`))) ;
 
 -- ----------------------------
 -- View structure for port_empdept

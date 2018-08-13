@@ -88,10 +88,6 @@
 			<mvc:mapping path="/**" />
 			<bean class="com.github.miemiedev.mybatis.paginator.springmvc.PageListAttrHandlerInterceptor"/>
 		</mvc:interceptor>
-		<mvc:interceptor>
-			<mvc:mapping path="/**"/>
-			<bean class="cn.org.awcp.common.db.DataSourceInterceptor"/>
-		</mvc:interceptor>
 	</mvc:interceptors>
 	<!-- 激活自动代理功能 -->
 	<aop:aspectj-autoproxy  proxy-target-class="true"/>

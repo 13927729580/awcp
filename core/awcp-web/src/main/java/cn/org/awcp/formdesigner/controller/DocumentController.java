@@ -25,6 +25,7 @@ import cn.org.awcp.formdesigner.utils.ScriptEngineUtils;
 import cn.org.awcp.metadesigner.application.MetaModelOperateService;
 import cn.org.awcp.metadesigner.application.MetaModelService;
 import cn.org.awcp.unit.vo.PunUserBaseInfoVO;
+import cn.org.awcp.venson.api.PFMAPI;
 import cn.org.awcp.venson.controller.base.ControllerHelper;
 import cn.org.awcp.venson.controller.base.ReturnResult;
 import cn.org.awcp.venson.controller.base.StatusCode;
@@ -724,12 +725,14 @@ public class DocumentController extends BaseController {
      * ajax刷新表格数据，如果传入的method为delete，则执行删除，返回查询列表数据
      *
      * @param request
+     * @throws ScriptException 
      */
     @ResponseBody
     @RequestMapping(value = "/refreshDataGrid")
     public ReturnResult refreshDataGrid(HttpServletRequest request,
                                         @RequestParam(value = "currentPage", required = false, defaultValue = "1") int currentPage,
-                                        @RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize) {
+                                        @RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize) 
+                                        		throws ScriptException {
         ReturnResult result = ReturnResult.get();
         String componentId = request.getParameter("componentId");
         StoreVO s = storeServiceImpl.findById(componentId);
@@ -759,12 +762,27 @@ public class DocumentController extends BaseController {
                 _selects = selects.split(",");
             }
 
+            String beforeDelApi = oo.getString("beforeDelApi");
+        	String afterDelApi = oo.getString("afterDelApi");
+        	ScriptEngine engine = ScriptEngineUtils.getScriptEngine();
+            engine.put("request", request);
+            engine.put("session", SessionUtils.getCurrentSession());
+            engine.put("idArr", _selects);
+            if(StringUtils.isNotBlank(beforeDelApi)) {
+            	excuteScript(beforeDelApi, engine);
+            }
+           
             DocumentUtils utils = DocumentUtils.getIntance();
             if (_selects != null && _selects.length >= 1) {
                 for (String select : _selects) {
                     utils.deleteData(pageVo, select);
                 }
             }
+            
+            if(StringUtils.isNotBlank(afterDelApi)) {
+            	excuteScript(afterDelApi, engine);
+            }
+            
         } else if ("save".equals(method)) {
             String json = request.getParameter("json");
             JSONArray arr = JSON.parseArray(json);
@@ -786,7 +804,13 @@ public class DocumentController extends BaseController {
         getDataGridItems(request,dd,currentPage,pageSize, result);
         return result;
     }
-
+    
+    private void excuteScript(String apiId,ScriptEngine engine) throws ScriptException {
+    	PFMAPI api = PFMAPI.get(apiId);
+    	String script = api.getAPISQL();
+    	engine.eval(script);
+    }
+    
     /**
      * 获取对应的表格数据
      *

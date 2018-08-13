@@ -1,7 +1,6 @@
 package cn.org.awcp.venson.controller.base;
 
 import BP.WF.Dev2Interface;
-import cn.org.awcp.common.db.DataSourceInterceptor;
 import cn.org.awcp.core.utils.SessionUtils;
 import cn.org.awcp.core.utils.Springfactory;
 import cn.org.awcp.core.utils.constants.SessionContants;
@@ -40,6 +39,8 @@ import java.lang.reflect.Field;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+
+import static cn.org.awcp.venson.common.SC.DATA_SOURCE_COOKIE_KEY;
 
 /**
  * controller助手，该类包含了controller类常用的一些常量以及方法
@@ -412,7 +413,7 @@ public final class ControllerHelper {
 		List<PunRoleInfoVO> roles =  roleService.queryResult("queryBySysIdAndUserId", gParams);
 		session.setAttribute(SessionContants.CURRENT_ROLES, roles);
 
-		session.setAttribute(SC.CURRENT_USER_DATA_SOURCE, CookieUtil.findCookie(DataSourceInterceptor.DATA_SOURCE_COOKIE_KEY));
+		session.setAttribute(SC.CURRENT_USER_DATA_SOURCE, CookieUtil.findCookie(DATA_SOURCE_COOKIE_KEY));
 	}
 
 	public static Long getUserId() {

@@ -234,6 +234,7 @@ public class PunUserBaseInfoController extends BaseController {
 			if (StringUtils.isNotBlank(query_userTitle)) {
 				criteria.andLike("d.NAME", "%" + query_userTitle + "%");
 			}
+			criteria.andNotEqualTo("p_un_user_base_info.USER_ID", 719811);//不包括用户9999
 			PageList<PunUserBaseInfoVO> vos = userService.selectByExample_UserList(example, currentPage, pageSize,sortString);
 			model.addAttribute("currentPage", currentPage);
 			model.addAttribute("vos", vos);

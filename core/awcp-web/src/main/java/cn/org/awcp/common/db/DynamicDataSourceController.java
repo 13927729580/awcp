@@ -30,7 +30,7 @@ public class DynamicDataSourceController {
     @RequestMapping(value = "anon/group/list", method = RequestMethod.GET)
     public ReturnResult list() {
         ReturnResult result = ReturnResult.get();
-        String sql = "select GROUP_NAME name,DATASOURCE_NAME id from fw_mm_group where DATASOURCE_NAME <>?";
+        String sql = "select GROUP_NAME name,DATASOURCE_NAME id from fw_mm_group where DATASOURCE_NAME <>? order by name";
         try {
             List<Map<String, Object>> list = JdbcUtils.executeQuery(masterDataSource, sql, MASTER_DATA_SOURCE);
             Map<String, Object> map = new HashMap<>(2);

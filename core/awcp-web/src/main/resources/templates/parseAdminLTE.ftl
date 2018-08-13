@@ -1271,7 +1271,7 @@
 
 <#-------------------------------------------搜索条件begin---------------------------------------->
 <#macro convertAddSearch c >
-		<div class="search_main row">
+		<div class="search_main">
 			<input type="hidden" value="${c['selectOption']!''}" id="selectOption">
 			<input type="hidden" value="${c['selectLabel']!''}" id="selectLabel">
 			<input type="hidden" value="${c['selectName']!''}" id="selectName">
@@ -1279,6 +1279,12 @@
 			<input type="hidden" value="${c['textName']!''}" id="textName">
 			<input type="hidden" value="${c['dateSelectLabel']!''}" id="dateSelectLabel">
 			<input type="hidden" value="${c['dateSelectName']!''}" id="dateSelectName">
+            <input type="hidden" value="${c['radioOption']!''}" id="radioOption">
+			<input type="hidden" value="${c['radioLabel']!''}" id="radioLabel">
+			<input type="hidden" value="${c['radioName']!''}" id="radioName">
+            <input type="hidden" value="${c['checkboxOption']!''}" id="checkboxOption">
+			<input type="hidden" value="${c['checkboxLabel']!''}" id="checkboxLabel">
+			<input type="hidden" value="${c['checkboxName']!''}" id="checkboxName">
 		</div>
 </#macro>
 <#macro convertAddSearchScript c >	<#------ 搜索条件脚本 ----->

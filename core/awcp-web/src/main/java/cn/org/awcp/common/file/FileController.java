@@ -12,21 +12,19 @@ import cn.org.awcp.venson.util.DocumentToHtml;
 import cn.org.awcp.venson.util.ImageUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.*;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
-import sun.misc.BASE64Decoder;
 
 import javax.annotation.Resource;
 import javax.imageio.ImageIO;
@@ -55,9 +53,9 @@ public class FileController {
     private FileService fileService;
 
     @ResponseBody
-    @RequestMapping(value = "/upload",method = RequestMethod.POST)
-    @ApiOperation(value="上传")
-    public ReturnResult upload(HttpServletRequest request) throws IOException {
+    @RequestMapping(value = "/upload",method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ApiOperation(value="文件上传")
+    public ReturnResult upload(MultipartFile multipartFile,HttpServletRequest request) throws IOException {
         ReturnResult result = ReturnResult.get();
         // 创建一个通用的多部分解析器
         CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver(
@@ -121,7 +119,8 @@ public class FileController {
      */
     @RequestMapping(value = "/download",method = RequestMethod.GET)
     @ApiOperation(value="下载")
-    public String download(HttpServletRequest request,HttpServletResponse response, @ApiParam(value="文件id",required = true)String fileId) throws IOException {
+    @ApiImplicitParam(name = "fileId",value = "文件id",paramType = "query")
+    public String download(HttpServletRequest request,HttpServletResponse response,String fileId) throws IOException {
         AttachmentVO vo = fileService.get(fileId);
         if (vo != null) {
             InputStream input = fileService.getInputStream(vo);
@@ -143,21 +142,28 @@ public class FileController {
                 return null;
             }
         }
-        return "redirect:" + fileLose();
+        return "redirect:" + fileLose(null);
     }
 
     @RequestMapping(value = "/showPicture",method = RequestMethod.GET)
     @ApiOperation(value="图片显示")
-    public String showPicture(HttpServletRequest request, HttpServletResponse response, @ApiParam(value="文件id",required = true)@RequestParam(value = "id") String id,
-                              @ApiParam(value="可选值，要缩放的宽度")@RequestParam(value = "width", required = false, defaultValue = "0") int width,
-                              @ApiParam(value="可选值，要缩放的高度")@RequestParam(value = "height", required = false, defaultValue = "0") int height) throws IOException {
+    @ApiImplicitParams({
+            @ApiImplicitParam(value="文件id",name = "id",paramType = "query"),
+            @ApiImplicitParam(value="可选值，默认图片",name = "defaultImg",paramType = "query"),
+            @ApiImplicitParam(value="可选值，要缩放的宽度",name = "width",paramType = "query"),
+            @ApiImplicitParam(value="可选值，要缩放的高度",name = "height",paramType = "query")
+    })
+    public String showPicture(HttpServletRequest request, HttpServletResponse response,@RequestParam(value = "id") String id,
+                              @RequestParam(value = "defaultImg",required = false) String defaultImg,
+                              @RequestParam(value = "width", required = false, defaultValue = "0") int width,
+                              @RequestParam(value = "height", required = false, defaultValue = "0") int height) throws IOException {
         AttachmentVO vo = fileService.get(id);
         if (vo == null) {
-            return "redirect:" + fileLose();
+            return "redirect:" + fileLose(defaultImg);
         }
         InputStream input = fileService.getInputStream(vo);
         if (input == null) {
-            return "redirect:" + fileLose();
+            return "redirect:" + fileLose(defaultImg);
         }
         long pos = getPosition(request, response);
         if (width > 0 || height > 0) {
@@ -173,7 +179,7 @@ public class FileController {
                 ImageIO.write(bi, ImageUtils.PNG, out);
                 input=new ByteArrayInputStream(out.toByteArray());
             } else {
-                return "redirect:" + fileLose();
+                return "redirect:" + fileLose(defaultImg);
             }
         }
         int size=input.available();
@@ -210,10 +216,16 @@ public class FileController {
     @ResponseBody
     @RequestMapping(value = "/scale/{id}", method = RequestMethod.GET)
     @ApiOperation(value="图片缩放")
-    public ReturnResult scale(@ApiParam(value="文件id",required = true)@PathVariable(value = "id") String id,
-                              @ApiParam(value="宽度",required = true)@RequestParam(value = "width") int width,
-                              @ApiParam(value="高度",required = true)@RequestParam(value = "height") int height,
-                              @ApiParam(value="是否等比",required = true)@RequestParam(value = "isRatio") boolean isRatio) throws IOException {
+    @ApiImplicitParams({
+            @ApiImplicitParam(value="文件id",name = "id",paramType = "path"),
+            @ApiImplicitParam(value="宽度",name = "width",paramType = "query"),
+            @ApiImplicitParam(value="高度",name = "height",paramType = "query"),
+            @ApiImplicitParam(value="是否等比",name = "isRatio",paramType = "query")
+    })
+    public ReturnResult scale(@PathVariable(value = "id") String id,
+                              @RequestParam(value = "width") int width,
+                              @RequestParam(value = "height") int height,
+                              @RequestParam(value = "isRatio") boolean isRatio) throws IOException {
         ReturnResult result = ReturnResult.get();
         AttachmentVO att = fileService.get(id);
         if (att == null) {
@@ -256,11 +268,18 @@ public class FileController {
     @ResponseBody
     @RequestMapping(value = "/crop/{id}", method = RequestMethod.GET)
     @ApiOperation(value="图片裁剪")
-    public ReturnResult crop(@ApiParam(value="文件id",required = true)@PathVariable(value = "id") String id,
-                             @ApiParam(value="宽度",required = true)@RequestParam(value = "width") Integer width,
-                             @ApiParam(value="高度",required = true)@RequestParam(value = "height") Integer height,
-                             @ApiParam(value="x轴",required = true)@RequestParam(value = "x") Integer x,
-                             @ApiParam(value="y轴",required = true)@RequestParam(value = "y") Integer y) throws IOException {
+    @ApiImplicitParams({
+            @ApiImplicitParam(value="文件id",name = "id",paramType = "path"),
+            @ApiImplicitParam(value="宽度",name = "width",paramType = "query"),
+            @ApiImplicitParam(value="高度",name = "height",paramType = "query"),
+            @ApiImplicitParam(value="x轴",name = "x",paramType = "query"),
+            @ApiImplicitParam(value="y轴",name = "y",paramType = "query")
+    })
+    public ReturnResult crop(@PathVariable(value = "id") String id,
+                             @RequestParam(value = "width") Integer width,
+                             @RequestParam(value = "height") Integer height,
+                             @RequestParam(value = "x") Integer x,
+                             @RequestParam(value = "y") Integer y) throws IOException {
         ReturnResult result = ReturnResult.get();
         AttachmentVO att = fileService.get(id);
         if (att == null) {
@@ -303,11 +322,11 @@ public class FileController {
             return "";
         }
         String[] imgStrs = imgStr.split(",");
-        BASE64Decoder decoder = new BASE64Decoder();
+        Base64.Decoder decoder = Base64.getDecoder();
         logger.debug(imgStr);
         try {
             // Base64解码
-            byte[] bytes = decoder.decodeBuffer(imgStrs[imgStrs.length - 1]);
+            byte[] bytes = decoder.decode(imgStrs[imgStrs.length - 1]);
             for (int i = 0; i < bytes.length; ++i) {
                 // 调整异常数据
                 if (bytes[i] < 0) {
@@ -319,7 +338,7 @@ public class FileController {
             // 返回访问图片的url到富文本框中，通过getImage方法访问图片
             return ControllerHelper.getBasePath() + "common/file/showPicture.do?id=" + id;
         } catch (Exception e) {
-            return fileLose();
+            return fileLose(null);
         }
     }
 
@@ -335,9 +354,12 @@ public class FileController {
      */
     @RequestMapping(value = "/batchDownload",method = RequestMethod.GET)
     @ApiOperation(value="批量下载文件")
+    @ApiImplicitParams({
+            @ApiImplicitParam(value="文件名",name = "fileName",paramType = "query"),
+            @ApiImplicitParam(value="文件ids",name = "fileIds",paramType = "query")
+    })
     public String batchDownload(HttpServletResponse response,
-                                @ApiParam(value="文件名")@RequestParam(value = "fileName", required = false, defaultValue = "download") String fileName,
-                                @ApiParam(value="文件ids",required = true)String[] fileIds) throws IOException {
+                               @RequestParam(value = "fileName", required = false, defaultValue = "download") String fileName, String[] fileIds) throws IOException {
         boolean isSuccess;
         if (fileIds == null || fileIds.length == 0) {
             isSuccess = false;
@@ -365,6 +387,7 @@ public class FileController {
     @ResponseBody
     @RequestMapping(value = "/get",method = RequestMethod.GET)
     @ApiOperation(value="获取文件信息")
+    @ApiImplicitParam(name = "id",paramType = "query")
     public ReturnResult get(String id) {
         ReturnResult result = ReturnResult.get();
         AttachmentVO vo = fileService.get(id);
@@ -385,6 +408,7 @@ public class FileController {
     @ResponseBody
     @RequestMapping(value = "/delete",method = RequestMethod.POST)
     @ApiOperation(value="删除文件，原文件和数据都会被删除")
+    @ApiImplicitParam(name = "ids",paramType = "form")
     public ReturnResult delete(String[] ids) {
         ReturnResult result = ReturnResult.get();
         if (ids == null || ids.length == 0) {
@@ -405,6 +429,7 @@ public class FileController {
     @ResponseBody
     @RequestMapping(value = "/remove",method = RequestMethod.POST)
     @ApiOperation(value="删除文件，只删除数据，不删除文件")
+    @ApiImplicitParam(name = "ids",paramType = "form")
     public ReturnResult remove(String[] ids) {
         ReturnResult result = ReturnResult.get();
         if (ids == null || ids.length == 0) {
@@ -416,6 +441,7 @@ public class FileController {
 
     @RequestMapping(value="/preview",method = RequestMethod.GET)
     @ApiOperation(value="预览")
+    @ApiImplicitParam(name = "fileId",paramType = "query")
     public String preview(HttpServletResponse response, String fileId) throws Exception {
         AttachmentVO att = fileService.get(fileId);
         InputStream is = fileService.getInputStream(att);
@@ -470,6 +496,10 @@ public class FileController {
         return msg;
     }
 
+    private String fileLose(String defaultImg) {
+        return StringUtils.defaultString(defaultImg,ControllerHelper.getBasePath() + "images/img_lose.png");
+    }
+
     /**
      * kindeditor文件上传后台方法
      *
@@ -479,8 +509,9 @@ public class FileController {
      * @throws FileUploadException
      */
     @ResponseBody
-    @RequestMapping(value = "/uploadImg",method = RequestMethod.POST)
-    public String uploadImege(HttpServletRequest request, HttpServletResponse response) {
+    @RequestMapping(value = "/uploadImg",method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ApiOperation(value="图片或视频上传")
+    public String uploadImege(MultipartFile multipartFile,HttpServletRequest request, HttpServletResponse response) {
         // uuid
         Serializable uuid;
         MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
@@ -531,10 +562,6 @@ public class FileController {
         obj.put("url", ControllerHelper.getBasePath() + "common/file/showPicture.do?id=" + uuid);
         return obj.toJSONString();
 
-    }
-
-    private String fileLose() {
-        return ControllerHelper.getBasePath() + "images/img_lose.png";
     }
 
     private void checkFile(HttpServletRequest request, HashMap<String, String> extMap, JSONObject obj, String dirName,

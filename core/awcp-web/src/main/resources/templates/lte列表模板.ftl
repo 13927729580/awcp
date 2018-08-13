@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="${basePath}template/AdminLTE/css/bootstrap.min.css">
     <link rel="stylesheet" href="${basePath}template/AdminLTE/css/bootstrap-table.css">
     <link rel="stylesheet" href="${basePath}template/AdminLTE/css/select2/select2.css">
+    <link rel="stylesheet" href="${basePath}template/AdminLTE/css/square/green.css">
     <link rel="stylesheet" href="${basePath}template/AdminLTE/css/bootstrap-datetimepicker.min.css">
     <link rel="stylesheet" href="${basePath}template/AdminLTE/css/AdminLTE.css">
     <link rel="stylesheet" href="${basePath}template/AdminLTE/css/font-awesome.min.css">
@@ -75,16 +76,16 @@
 							<input type="hidden" name="slectsUserNames" value="${ (vo.slectsUserNames)!""}" id="slectsUserNames"/>
 							<input type="hidden" name="masterDataSource" value="" id="masterDataSource"/>
 							<input type="hidden" name="dynamicPageName" value="${ (vo.dynamicPageName)!""}" id="dynamicPageName"/>
-							</#noparse>
-							<#if components?? >
+							<table id="bootstrapTable" class="table table-hover">
+								</#noparse>
+								<#if components?? >
 									<#list components?sort_by("order") as c>
 										<#if c['componentType']=='1036'>
 											<@convertAddSearch c />
 										</#if>
 									</#list>
-							</#if>
-							<#noparse>
-							<table id="bootstrapTable" class="table table-hover">
+								</#if>
+								<#noparse>
 								<thead>
 									<tr>
 										<th class="hidden"></th>
@@ -155,6 +156,7 @@
 	<script src="${basePath}template/AdminLTE/js/bootstrap-table-zh-CN.min.js"></script>
 	<script src="${basePath}template/AdminLTE/js/select2/select2.full.js"></script>
 	<script src="${basePath}template/AdminLTE/js/select2/zh-CN.js"></script>
+	<script src="${basePath}template/AdminLTE/js/icheck.js"></script>
 	<script src="${basePath}template/AdminLTE/js/bootstrap-datetimepicker.min.js"></script>
 	<script src="${basePath}template/AdminLTE/js/bootstrap-datetimepicker.zh-CN.js"></script>
 	<script src='${basePath}venson/js/common.js'></script>
@@ -175,6 +177,7 @@
         	 pageNumber:parseInt($("#currentPage").val()),
         	 totalRows:parseInt($("#totalCount").val()),
         	 sidePagination:"server",
+             showColumns:true,
         	 pagination:true,
         	 onPageChange:function(number, size){
         		$("#pageSize").val(size);

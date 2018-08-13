@@ -121,6 +121,9 @@ public class IDocumentServiceImpl implements IDocumentService {
         if (!StringUtils.isNumeric(pageSize)) {
             pageSize = docVo.getPageSize() == null ? "10" : docVo.getPageSize() + "";
         }
+        if(docVo.getIsLimitPage() == 0) {//不分页
+        	pageSize = "9999";
+        }
         String orderBy = params.get("orderBy");
         String allowOrderBy = params.get("allowOrderBy");
         docVo.setAllowOrderBy(allowOrderBy);

@@ -98,6 +98,9 @@
 		}
 		
 		function showRemoveBtn(treeId, treeNode) {
+			if(treeNode.id=="1"){
+				return false;
+			}
 			return !treeNode.isParent;
 		}
 		

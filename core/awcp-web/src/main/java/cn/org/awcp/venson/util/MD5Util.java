@@ -37,7 +37,7 @@ public class MD5Util {
 	 * 功能：加盐版的MD5.返回格式为MD5(密码+{盐值})
 	 * 
 	 */
-	public static String getMD5StringWithSalt(String password, String salt) {
+	public static synchronized String getMD5StringWithSalt(String password, String salt) {
 		if (StringUtils.isBlank(password)) {
 			throw new IllegalArgumentException("password不能为null");
 		}
@@ -59,25 +59,9 @@ public class MD5Util {
 	 * 功能：得到文件的md5值。
 	 * 
 	 */
-	public static String getFileMD5String(File file) {
+	public static synchronized String getFileMD5String(InputStream file) {
 		try {
-			return getFileMD5String(new FileInputStream(file));
-		} catch (FileNotFoundException e) {
-			return null;
-		}
-	}
-
-	/**
-	 * 功能：得到文件的md5值。
-	 * 
-	 */
-	public static String getFileMD5String(InputStream file) {
-		if (file == null) {
-			return null;
-		}
-		try {
-			messagedigest.update(IOUtils.toByteArray(file));
-			return bufferToHex(messagedigest.digest());
+			return getMD5String(IOUtils.toByteArray(file));
 		} catch (IOException e) {
 			return null;
 		} finally {
@@ -90,12 +74,8 @@ public class MD5Util {
 	 * 功能：得到文件的md5值。
 	 * 
 	 */
-	public static String getFileMD5String(byte[] file) {
-		if (file == null) {
-			return null;
-		}
-		messagedigest.update(file);
-		return bufferToHex(messagedigest.digest());
+	public static synchronized String getFileMD5String(byte[] file) {
+		return getMD5String(file);
 
 	}
 
@@ -103,12 +83,15 @@ public class MD5Util {
 	 * 功能：得到一个字符串的MD5值。
 	 * 
 	 */
-	public static String getMD5String(String str) {
+	public static synchronized String getMD5String(String str) {
 		return getMD5String(str.getBytes());
 
 	}
 
-	private static String getMD5String(byte[] bytes) {
+	private static synchronized String getMD5String(byte[] bytes) {
+		if (bytes == null) {
+			return null;
+		}
 		messagedigest.update(bytes);
 		return bufferToHex(messagedigest.digest());
 	}

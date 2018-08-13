@@ -3,6 +3,7 @@ package cn.org.awcp.formdesigner.utils;
 import BP.WF.Dev2Interface;
 import BP.WF.Flow;
 import BP.WF.Work;
+import cn.org.awcp.common.db.DynamicDataSource;
 import cn.org.awcp.core.utils.*;
 import cn.org.awcp.core.utils.constants.SessionContants;
 import cn.org.awcp.formdesigner.application.service.DocumentService;
@@ -778,6 +779,15 @@ public abstract class BaseUtils {
      * @param sql
      * @param args
      */
+    public int excuteUpdate(String sql, List<Object> args) {
+        return excuteUpdate(sql, args.toArray());
+    }
+    /**
+     * 传入参数执行sql
+     *
+     * @param sql
+     * @param args
+     */
     public int excuteUpdate(String sql, Object... args) {
         return jdbcTemplate.update(sql, args);
     }
@@ -1149,7 +1159,7 @@ public abstract class BaseUtils {
     public synchronized String getNumber(String prefix, int digit, boolean isRandom) {
         String newDate = DateUtils.format(new Date(), "yyyyMMdd");
         prefix = StringUtils.defaultString(prefix);
-        String key = prefix + "_serial_" + digit;
+        String key = prefix + DynamicDataSource.getDataSource()+ "_serial_" + digit;
         JSONObject json = LocalStorage.get(key, JSONObject.class);
         int atomicInt = 0;
         String today;
@@ -1209,7 +1219,7 @@ public abstract class BaseUtils {
     public synchronized String getMonthIncNumber(String prefix, int digit, boolean isRandom) {
         String newDate = DateUtils.format(new Date(), "yyyyMM");
         prefix = StringUtils.defaultString(prefix);
-        String key = prefix + "_serial_" + digit;
+        String key = prefix + DynamicDataSource.getDataSource()+ "_serial_" + digit;
         JSONObject json = LocalStorage.get(key, JSONObject.class);
         int atomicInt = 0;
         String today;
@@ -1259,7 +1269,7 @@ public abstract class BaseUtils {
      */
     public synchronized String getIncNumber(String prefix, int digit, boolean isRandom) {
         prefix = StringUtils.defaultString(prefix);
-        String key = prefix + "_serial_" + digit;
+        String key = prefix + DynamicDataSource.getDataSource()+ "_serial_" + digit;
         JSONObject json = LocalStorage.get(key, JSONObject.class);
         int atomicInt = 0;
         if (json == null) {

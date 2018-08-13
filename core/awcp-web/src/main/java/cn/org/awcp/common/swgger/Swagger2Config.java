@@ -6,14 +6,20 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.util.UriComponentsBuilder;
 import springfox.documentation.builders.ApiInfoBuilder;
+import springfox.documentation.builders.ParameterBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.schema.ModelRef;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.Contact;
+import springfox.documentation.service.Parameter;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.paths.AbstractPathProvider;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static springfox.documentation.spring.web.paths.Paths.removeAdjacentForwardSlashes;
 
@@ -24,8 +30,14 @@ public class Swagger2Config {
 
     @Bean
     public Docket createRestApi() {
+        //添加head参数start
+        ParameterBuilder parameter = new ParameterBuilder();
+        List<Parameter> pars = new ArrayList<>();
+        parameter.defaultValue("APP").name("X-Requested-With").description("客户端类型").modelRef(new ModelRef("string")).parameterType("header").required(false).build();
+        pars.add(parameter.build());
+
         Docket docket = new Docket(DocumentationType.SWAGGER_2).apiInfo(apiInfo())
-                .useDefaultResponseMessages(false).pathProvider(new CustRelativePathProvider()).select()
+                .useDefaultResponseMessages(false).pathProvider(new CustRelativePathProvider()).globalOperationParameters(pars).select()
                 .apis(RequestHandlerSelectors.withMethodAnnotation(ApiOperation.class)).paths(PathSelectors.any()).build();
         return docket;
     }

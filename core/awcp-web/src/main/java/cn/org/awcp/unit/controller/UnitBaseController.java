@@ -83,11 +83,12 @@ public class UnitBaseController {
     @SuppressWarnings("unchecked")
     @ResponseBody
     @RequestMapping(value = "/appLogin", method = RequestMethod.POST)
-    @ApiOperation(value="登录")
-    public ReturnResult appLogin(@ApiParam(value = "密码",required = true)@RequestParam("userPwd") String userPwd, @ApiParam(value = "用户名",required = true)@RequestParam("userName") String userName,
-                                 @ApiParam(value = "登录端",defaultValue = "3")@RequestParam(value = "code", defaultValue = "3", required = false) String code,
-                                 @ApiParam(value = "是否生成免登密钥")@RequestParam(value = "ALT", defaultValue = "false", required = false) boolean ALT,
-                                 @ApiParam(value = "记住我")@RequestParam(value = "rememberMe", defaultValue = "false", required = false) boolean rememberMe) {
+    @ApiOperation(value = "登录")
+    public ReturnResult appLogin(@ApiParam(value = "客户端类型") @RequestHeader(value = "X-Requested-With", defaultValue = "WEB", required = false) String clientType,
+    @ApiParam(value = "密码", required = true) @RequestParam("userPwd") String userPwd, @ApiParam(value = "用户名", required = true) @RequestParam("userName") String userName,
+                                 @ApiParam(value = "登录端", defaultValue = "3") @RequestParam(value = "code", defaultValue = "3", required = false) String code,
+                                 @ApiParam(value = "是否生成免登密钥") @RequestParam(value = "ALT", defaultValue = "false", required = false) boolean ALT,
+                                 @ApiParam(value = "记住我") @RequestParam(value = "rememberMe", defaultValue = "false", required = false) boolean rememberMe) {
         ReturnResult result = ReturnResult.get();
         // 判断是否密码是经过base64加密
         if (userPwd.contains("isAuth")) {
@@ -110,23 +111,31 @@ public class UnitBaseController {
         }
         PunUserBaseInfoVO pvi = (PunUserBaseInfoVO) subject.getPrincipal();
         ControllerHelper.doLoginSuccess(pvi);
-        List<PunRoleInfoVO> roles = (List<PunRoleInfoVO>) SessionUtils
-                .getObjectFromSession(SessionContants.CURRENT_ROLES);
-        String targetUrl = SC.TARGET_URL[0];
-        for (PunRoleInfoVO role : roles) {
-            if ("超级后台管理员".equals(role.getRoleName())) {
-                targetUrl = SC.TARGET_URL[1];
-                break;
+        if ("APP".equals(clientType)) {
+            String secretKey = ControllerHelper.setSecretKey(pvi, -1);
+            Map<String,Object> map=new HashMap<>(2);
+            map.put("secretKey",secretKey);
+            map.put("uid",pvi.getUserIdCardNumber());
+            map.put("sid",SessionUtils.getCurrentSession().getId());
+            result.setStatus(StatusCode.SUCCESS).setData(map);
+        } else {
+            List<PunRoleInfoVO> roles = (List<PunRoleInfoVO>) SessionUtils
+                    .getObjectFromSession(SessionContants.CURRENT_ROLES);
+            String targetUrl = SC.TARGET_URL[0];
+            for (PunRoleInfoVO role : roles) {
+                if ("超级后台管理员".equals(role.getRoleName())) {
+                    targetUrl = SC.TARGET_URL[1];
+                    break;
+                }
+            }
+            result.setStatus(StatusCode.SUCCESS).setData(targetUrl);
+            if (ALT) {
+                String secretKey = CookieUtil.findCookie(SC.SECRET_KEY);
+                if (secretKey == null || !secretKey.equals(pvi.getUserIdCardNumber())) {
+                    ControllerHelper.setSecretKey(pvi, -1);
+                }
             }
         }
-        result.setStatus(StatusCode.SUCCESS).setData(targetUrl);
-        if (ALT) {
-            String secretKey = CookieUtil.findCookie(SC.SECRET_KEY);
-            if (secretKey == null || !secretKey.equals(pvi.getUserIdCardNumber())) {
-               ControllerHelper.setSecretKey(pvi,-1);
-            }
-        }
-        // 进入选择系统页面
         return result;
 
     }
@@ -265,11 +274,7 @@ public class UnitBaseController {
             List<PunMenuVO> temp = resouService.getPunMenuUserRoleAndSys(userId, role.getRoleId(), sysId);
             resoVOs1.addAll(temp);
         }
-        Collections.sort(resoVOs1, new Comparator<PunMenuVO>() {
-			public int compare(PunMenuVO o1, PunMenuVO o2) {
-				return o1.getMenuSeq() - o2.getMenuSeq();
-			}
-		});
+        Collections.sort(resoVOs1,(o1,o2)->o1.getMenuSeq() - o2.getMenuSeq());
         List<PunMenuVO> resoVOs = removeDuplicate(resoVOs1);
         // web菜单移除app中间菜单
         resoVOs = resoVOs.stream().filter(menu -> menu.getType() != 2).collect(Collectors.toList());

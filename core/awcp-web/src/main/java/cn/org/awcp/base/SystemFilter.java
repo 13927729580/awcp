@@ -1,5 +1,6 @@
 package cn.org.awcp.base;
 
+import cn.org.awcp.common.db.DynamicDataSource;
 import cn.org.awcp.core.utils.ContextContentUtils;
 import cn.org.awcp.venson.controller.base.ControllerContext;
 import cn.org.awcp.venson.controller.base.ReturnResult;
@@ -52,6 +53,7 @@ public class SystemFilter implements Filter {
 		ControllerContext.removeDoc();
 		ContextContentUtils.removeRequest();
 		ContextContentUtils.removeResponse();
+		DynamicDataSource.clearDataSource();
 	}
 
 	/**

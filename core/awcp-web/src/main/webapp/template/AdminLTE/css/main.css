@@ -63,9 +63,9 @@
 	right: 0;
 }
 
-.form-horizontal .radio-inline {
-	width: 150px;
-	margin-left: 10px;
+.form-horizontal .radio-inline,.form-horizontal .checkbox-inline {
+	width: 100px;
+	padding-left:28px;
 }
 .slyBox{
 	overflow-x: scroll; 
